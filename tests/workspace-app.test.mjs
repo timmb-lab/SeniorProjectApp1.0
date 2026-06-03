@@ -1243,6 +1243,130 @@ test("global admin review workload rows open student detail and keep admin dashb
   assert.doesNotMatch(window.location.href, /detailStudentId=/);
 });
 
+test("global admin student detail prompts for a site when no current school is selected", async () => {
+  const selectionRequired = {
+    ok: false,
+    error: "site_selection_required",
+    selectionRequired: true,
+    accessibleSites: [
+      { siteId: "site-desert-valley-high", siteName: "Desert Valley High School" },
+      { siteId: "site-canyon-ridge-career", siteName: "Canyon Ridge Career Academy" },
+    ],
+  };
+  const { context, workspaceRoot, fetchLog, window } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "global-admin-detail-site-selection",
+          email: "global.detail.selection@example.edu",
+          displayName: "Global Detail Selection Admin",
+          roles: [{ role_id: "admin", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/site/dashboard": { status: 409, body: selectionRequired },
+    "/api/site/students": { status: 409, body: selectionRequired },
+    "/api/site/review-queue": { status: 409, body: selectionRequired },
+    "/api/site/mentor-assignments": { status: 409, body: selectionRequired },
+    "/api/site/operations-readiness": { status: 409, body: selectionRequired },
+    "/api/site/programs": { status: 409, body: selectionRequired },
+    "/api/site/access-assignments": { status: 409, body: selectionRequired },
+    "/api/site/students/demo-student-101": { status: 409, body: selectionRequired },
+    "/api/admin/role-assignments": {
+      status: 200,
+      body: {
+        ok: true,
+        assignments: [],
+      },
+    },
+    "/api/admin/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        generatedAt: "2026-03-26T16:00:00.000Z",
+        summary: {
+          studentsActive: 250,
+          studentsNoMentor: 18,
+          submissionsSubmitted: 22,
+          revisionRequested: 10,
+          presentationScheduled: 14,
+          exportsQueued: 6,
+          exportsFailed: 2,
+          exportsComplete: 4,
+          recentAuditEvents: 3,
+          approved: 88,
+          evidenceArtifacts: 690,
+        },
+        needsAttention: [],
+        programBreakdown: [],
+        reviewQueue: [
+          {
+            submissionId: "submission-admin-review-002",
+            studentId: "demo-student-101",
+            studentName: "Student Needs Site Context",
+            requirementTitle: "Industry partner reflection",
+            evidenceCount: 2,
+            status: "submitted",
+            updatedAt: "2026-03-26T15:42:00.000Z",
+          },
+        ],
+        mentorCoverage: [],
+        presentationSnapshot: [],
+        archiveSnapshot: [],
+        recentAudit: [],
+        recentExports: [],
+      },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: {
+        ok: true,
+        slots: [],
+      },
+    },
+    "/api/reports/readiness": {
+      status: 200,
+      body: {
+        ok: true,
+        scope: "all-programs",
+        metrics: {},
+      },
+    },
+  });
+
+  vm.runInContext('activeSection = "adminDashboard"; renderAppShell();', context);
+  openWorkspaceDisclosure(context, "dashboard", "adminDashboard");
+  assert.match(workspaceRoot.innerHTML, /Review Workload[\s\S]*View student detail/);
+
+  await vm.runInContext(`
+    handleSiteStudentAction({
+      currentTarget: {
+        dataset: {
+          siteStudentAction: "view-detail",
+          studentDetailId: "demo-student-101"
+        }
+      }
+    });
+  `, context);
+
+  assert.ok(
+    fetchLog.includes("/api/site/students/demo-student-101"),
+    "expected detail request without a site id before a school is chosen",
+  );
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-state="site-selection-required"/);
+  assert.match(workspaceRoot.innerHTML, /Select a site before opening student detail/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-return-context="adminDashboard"/);
+  assert.match(workspaceRoot.innerHTML, /Back to Admin Command Center/);
+  assert.match(workspaceRoot.innerHTML, /data-site-switch-id="site-desert-valley-high"/);
+  assert.match(workspaceRoot.innerHTML, /data-site-switch-id="site-canyon-ridge-career"/);
+  assert.match(workspaceRoot.innerHTML, /Choose a site from the Current site menu/);
+  assert.match(window.location.href, /section=adminDashboard/);
+  assert.match(window.location.href, /detailStudentId=demo-student-101/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /This student detail is unavailable for the current school assignment/);
+});
+
 test("global admin recent audit rows open filtered audit activity", async () => {
   const selectionRequired = {
     ok: false,

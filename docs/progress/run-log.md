@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-06-02 23:08 PT - Functionality UX Upgrade Student Detail Site Selection
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / multi-site student-detail handoff.
+- `starting HEAD`: `ed9fefd196bf9f95e63d5d39c16e1b5dcabd9f8d`.
+- `selected slice`: Add a student-detail-specific school-pick drawer state when `/api/site/students/:studentId` returns `site_selection_required`.
+- `repo-grounded findings`: the current repo already had exact school-pick guidance for Site Dashboard, Students, Programs, Mentor Assignments, Operations, Users & Access, and now Review Queue. The remaining gap was inside `renderSiteStudentDetailSurface()`: a multi-site Global Admin could already open Admin Command Center review rows into the existing student-detail drawer, but when no current school was selected the underlying `/api/site/students/:studentId` route returned `selectionRequired` and the drawer still fell through to a generic unavailable error. That made this the safest bounded slice because it removed a real protected-detail dead end without changing routes, auth, or scope rules.
+- `changes`: `workspace.js` now intercepts student-detail `409 site_selection_required` responses and renders a dedicated drawer state with accessible-school buttons, protected-record guidance, and the existing return-to-source context. `tests/workspace-app.test.mjs` now proves a Global Admin detail open from Admin Command Center review workload requests `/api/site/students/:studentId` without a site, shows the new `site-selection-required` drawer state, preserves the Admin Command Center return path, and avoids the generic unavailable detail error.
+- `validation`: `node --check workspace.js` and `node --test tests/workspace-app.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-06-02 22:01 PT - Functionality UX Upgrade Review Queue Site Selection
 
 - `automation ID`: functionality-ux-upgrade-hourly.

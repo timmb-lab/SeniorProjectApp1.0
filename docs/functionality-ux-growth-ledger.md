@@ -6535,3 +6535,60 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: mentor-meeting follow-up still lacks a precise destination; hosted permission proof still needs allowed runtime; Review Queue missing-submission semantics still need backend evidence.
   - Do not repeat: do not revert Review Queue `site_selection_required` back to a generic unavailable state, and do not silently auto-select a school for multi-site review access.
   - First file to inspect next run: `workspace.js` around `renderTeacherSection()`
+
+## Run 2026-06-02 23:08 PT
+
+- Starting SHA: `ed9fefd196bf9f95e63d5d39c16e1b5dcabd9f8d`
+- Ending SHA: pending closeout commit; final hash is reported after commit
+- Branch: `main`
+- Branch policy: started from clean local `main` ahead of `origin/main` by five earlier in-lane commits; this run stayed local-only and did not push
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: remaining Global Admin route-refresh handoff inside `docs/functionality-language-audit.md` and `docs/product/demo-role-readiness.md`
+- Work order selected: Add a student-detail-specific school-pick drawer state when `/api/site/students/:studentId` returns `site_selection_required`.
+- Selection reason: current repo evidence showed a real protected-workspace gap, not speculative polish. The workspace already had exact school-pick states for Site Dashboard, Students, Programs, Mentor Assignments, Operations, Users & Access, and Review Queue. Admin Command Center review rows already reused the existing student-detail drawer, but `renderSiteStudentDetailSurface()` still fell through to a generic unavailable branch when the underlying detail route required a current school. That made this the safest bounded slice because it improved a real protected-detail workflow without adding a route, widening scope, or inventing data.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Student detail site-selection guidance | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin`, `admin` | 5 | 5 | 5 | XS | 60 | selected |
+| Role-assignment scope-name enrichment | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin` | 4 | 5 | 4 | S | 49 | deferred: useful, but lower workflow impact than fixing the protected-detail dead end |
+| Broader Global Admin route refresh across Recent Audit, Students, Presentation, Programs, and Users & Access | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | `global_admin` | 4 | 4 | 3 | M | 45 | deferred: broader than one safe hourly slice |
+| Admin mentor-meeting exact destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin` | 4 | 2 | 2 | M | 30 | deferred: current workspace still lacks a precise meeting-follow-up destination |
+| Program Teacher mentor-meeting follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 3 | 3 | M | 40 | deferred: no precise scoped destination is proven |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 2 | M | 35 | deferred: hosted runtime is outside this local batch |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Viewer email visibility policy | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: product policy still comes before UI change |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Student hosted drill-down refresh | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | `student` | 4 | 2 | 2 | M | 29 | deferred: broader hosted/product pass than this bounded student-detail slice |
+
+- User-facing improvement: Multi-site Global Admin detail opens now show a dedicated student-detail school-pick state with accessible-school buttons and next-step guidance instead of a generic unavailable drawer when no current school is selected.
+- Roles affected: `global_admin`, `admin`
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-2308-student-detail-site-selection-guidance.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves a Global Admin detail open from Admin Command Center review rows requests `/api/site/students/:studentId` without a site, renders `data-student-detail-state="site-selection-required"`, preserves the Admin Command Center return context, and avoids the generic unavailable detail error.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:functionality-language`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-2308-student-detail-site-selection-guidance.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed; focused workspace syntax and coverage passed before docs/state closeout, and the full validation ladder passed after the closeout files were updated.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: broader Global Admin route refresh, role-assignment scope-name enrichment, Admin mentor-meeting exact destination, Program Teacher mentor-meeting follow-up destination, hosted section-level permission proof, Review Queue missing-submission semantics, viewer email visibility policy, mentor reassignment/remove workflow, and student hosted drill-down refresh remain open.
+- New backlog items: none
+- Next recommended work order: Resume the bounded Global Admin route refresh only where the current workspace can prove an exact destination, and keep mentor-meeting follow-up summary-only until a precise backed path exists.
+- Do-not-repeat notes: do not fall back to a generic student-detail unavailable error when `/api/site/students/:studentId` returns `site_selection_required`; do not auto-pick a school before opening protected student detail; and do not invent a new student-detail route or broader detail payload just to handle this handoff.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: `renderSiteStudentDetailSurface()` now renders a dedicated school-pick drawer state from the existing detail-route contract, and focused workspace coverage proves the Admin Command Center detail handoff preserves return context while replacing the generic unavailable error.
+  - Unlocks: the next Global Admin pass can keep using the existing detail drawer without rediscovering the multi-site no-current-school dead end.
+  - Next: inspect `workspace.js` around `renderAdminOverviewSection()`, `renderAdminRoleAssignmentsBody()`, and other remaining exact Global Admin handoffs only if a current destination is proven.
+  - Blockers: mentor-meeting follow-up still lacks a precise destination; hosted permission proof still needs allowed runtime; Review Queue missing-submission semantics still need backend evidence.
+  - Do not repeat: do not revert student-detail `site_selection_required` back to a generic unavailable drawer, and do not auto-select a school for protected detail.
+  - First file to inspect next run: `workspace.js` around `renderSiteStudentDetailSurface()` and `openSiteStudentDetail()`

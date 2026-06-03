@@ -2584,6 +2584,40 @@ function renderSiteStudentDetailSurface(directory) {
     `;
   }
 
+  if (state.result?.status === 409 && state.result.body?.selectionRequired) {
+    const accessibleSites = Array.isArray(state.result.body?.accessibleSites) ? state.result.body.accessibleSites : [];
+    return `
+      <aside id="siteStudentDetailPanel" class="workspace-detail-drawer" data-student-detail-panel="true" data-student-detail-state="site-selection-required" aria-labelledby="siteStudentDetailTitle" tabindex="-1">
+        <div class="workspace-detail-panel">
+          <div class="workspace-card-head">
+            <div>
+              <p class="workspace-kicker">Student detail</p>
+              <h2 id="siteStudentDetailTitle">${escapeHtml(title)}</h2>
+              <p class="workspace-muted" data-student-detail-return-context="${escapeHtml(returnCopy.sectionId)}">${escapeHtml(returnCopy.hint)}</p>
+            </div>
+            <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="close">${escapeHtml(returnCopy.buttonLabel)}</button>
+          </div>
+          <section class="workspace-empty-state-card">
+            <strong>Select a site before opening student detail</strong>
+            <p>This student record is protected by school scope. Choose the school workspace before opening the full detail drawer.</p>
+            <div class="workspace-chip-row">
+              ${accessibleSites.map((site) => `
+                <button class="workspace-link-button workspace-link-button-small" type="button" data-site-switch-id="${escapeHtml(site.siteId || "")}">
+                  ${escapeHtml(site.siteName || site.siteId)}
+                </button>
+              `).join("")}
+            </div>
+          </section>
+          ${renderProblemState({
+            reason: "More than one assigned school is available for this protected student detail.",
+            owner: "School administration or platform support.",
+            nextAction: "Choose a site from the Current site menu or one of the buttons above, then reopen the student record.",
+          })}
+        </div>
+      </aside>
+    `;
+  }
+
   const detail = unwrap(state.result);
   if (!detail) {
     return `
