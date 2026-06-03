@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-03T00:36:45-07:00",
-  "lastStartingSha": "02c2e3f18c9c4f8f2dcf862173b511d333864dbe",
+  "lastRunAt": "2026-06-03T01:18:20.7147142-07:00",
+  "lastStartingSha": "fda106a5b9d09c98b6ed298dee2fa8cd28ff1628",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
+    {
+      "id": "role-assignment-program-student-handoff",
+      "completedAt": "2026-06-03T01:18:20.7147142-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Global Admin recent program-scoped role assignments now open the existing filtered Student Directory when the grant maps to one accessible school.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "role-assignment-school-access-handoff",
       "completedAt": "2026-06-03T00:36:45-07:00",
@@ -1181,6 +1189,16 @@
   ],
   "deferredWorkOrders": [
     {
+      "id": "role-assignment-cohort-student-handoff",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "reason": "Only add cohort-scoped drill-downs after the route can prove one exact school for that cohort."
+    },
+    {
+      "id": "role-assignment-multi-school-program-handoff",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "reason": "Keep multi-school program grants summary-only until one precise mapped school is proven."
+    },
+    {
       "id": "browser-visual-qa-collapsed-nav-and-site-switching",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
       "reason": "Browser screenshot QA needs credentialed local runtime and multiple-site demo data."
@@ -1239,10 +1257,16 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
+      "id": "role-assignment-cohort-student-handoff",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Only add cohort-scoped role-assignment drill-downs when one exact school can be proven for the existing Student Directory handoff."
+    },
+    {
       "id": "global-admin-route-refresh",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Refresh the remaining Global Admin click-through and boundary proof now that recent role assignments can switch into school access, and Review Queue, student detail, and helper handoffs no longer fall back to raw ids, generic dead ends, or internal copy."
+      "summary": "Continue the Global Admin route refresh only where the current workspace can prove one exact destination after the role-assignment program handoff."
     },
     {
       "id": "program-teacher-mentor-meeting-follow-up-destination",
@@ -1264,6 +1288,9 @@
     }
   ],
   "doNotRepeat": [
+    "Do not auto-open program-scoped Global Admin recent role assignments when the grant maps to multiple accessible schools; keep those rows summary-only until one exact school is proven.",
+    "Do not remove scopeSiteIds from /api/admin/role-assignments while the workspace uses that protected mapping to prove exact Student Directory handoffs.",
+    "Do not regress the single-school program handoff back to passive role-assignment rows while the existing Student Directory already supports the exact program filter.",
     "Do not let functions/_lib/site-mentor-assignments.ts reintroduce selected-site wording or intervention-heavy checkpoint language into protected Mentor Assignments responses.",
     "Do not fall back to a generic student-detail unavailable error when /api/site/students/:studentId returns site_selection_required; keep the student-detail school-pick guidance visible.",
     "Do not silently auto-pick a school before opening protected student detail; keep school choice explicit for multi-site users.",
@@ -1428,7 +1455,7 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-06-03T00:36:45.8962898-07:00",
+    "completedAt": "2026-06-03T01:18:20.7147142-07:00",
     "commands": [
       "node --check workspace.js",
       "node --test tests/admin-role-assignments.integration.test.mjs",
@@ -1440,10 +1467,10 @@
       "npm run typecheck",
       "npm run test",
       "npm run check",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0031-role-assignment-school-access-handoff.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0111-role-assignment-program-students.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
-    "notes": "Focused role-assignment route and workspace coverage passed before docs/state closeout. Final validation also passed after the closeout files were updated."
+    "notes": "Focused role-assignment route and workspace coverage passed before docs/state closeout, and the full validation ladder passed after the closeout files were updated."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

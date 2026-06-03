@@ -225,6 +225,7 @@ test("admin role assignments returns scope names and assigner names for site, pr
   });
   fixture.db.data.sites.push({ id: "site-b", name: "Canyon Ridge Career Academy", status: "active" });
   fixture.db.data.programs.push({ id: "program-biotech", name: "Biotechnology" });
+  fixture.db.data.sitePrograms.push({ site_id: "site-a", program_id: "program-biotech", active: 1 });
   fixture.db.data.cohorts.push({ id: "cohort-spring-showcase", name: "Spring Showcase Cohort" });
 
   const request = new Request("https://example.test/api/admin/role-assignments", {
@@ -238,7 +239,15 @@ test("admin role assignments returns scope names and assigner names for site, pr
   const body = await response.json();
   assert.equal(body.ok, true);
   assert.equal(body.assignments.some((assignment) => assignment.scopeId === "site-b" && assignment.scopeName === "Canyon Ridge Career Academy"), true);
-  assert.equal(body.assignments.some((assignment) => assignment.scopeId === "program-biotech" && assignment.scopeName === "Biotechnology"), true);
+  assert.equal(
+    body.assignments.some(
+      (assignment) =>
+        assignment.scopeId === "program-biotech"
+        && assignment.scopeName === "Biotechnology"
+        && JSON.stringify(assignment.scopeSiteIds || []) === JSON.stringify(["site-a"]),
+    ),
+    true,
+  );
   assert.equal(body.assignments.some((assignment) => assignment.scopeId === "cohort-spring-showcase" && assignment.scopeName === "Spring Showcase Cohort"), true);
   assert.equal(body.assignments.some((assignment) => assignment.scopeId === "site-b" && assignment.assignedByName === "admin-a"), true);
 });

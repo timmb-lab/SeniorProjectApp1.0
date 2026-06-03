@@ -817,6 +817,9 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   document.querySelectorAll("[data-section]").forEach((button) => {
     button.addEventListener("click", () => openWorkspaceSection(button));
   });
+  document.querySelectorAll("[data-role-assignment-action]").forEach((button) => {
+    button.addEventListener("click", handleRoleAssignmentAction);
+  });
   bindWorkspaceForms();
   flushPendingSiteStudentDetailFocus();
   flushPendingStudentRequirementFocus();
@@ -1142,6 +1145,24 @@ async function selectWorkspaceSite(siteId) {
   operationsReadinessFilters = defaultOperationsReadinessFilters();
   syncCurrentWorkspaceUrlState({ clearFilters: true, replace: true });
   await loadWorkspaceData("Current site updated.");
+}
+
+async function handleRoleAssignmentAction(event) {
+  const button = event?.currentTarget;
+  const action = button?.dataset?.roleAssignmentAction || "";
+  if (action !== "open-program-students") return;
+  const siteId = cleanDirectoryFilter(button?.dataset?.roleAssignmentSiteId || "");
+  const programId = cleanDirectoryFilter(button?.dataset?.roleAssignmentProgramId || "");
+  if (!siteId || !programId) return;
+  selectedSiteId = siteId;
+  siteStudentFilters = {
+    ...defaultSiteStudentFilters(),
+    programId,
+  };
+  siteStudentDetailState = defaultSiteStudentDetailState();
+  activeSection = "students";
+  syncSiteStudentUrlState();
+  await loadWorkspaceData("Showing students in the assigned program.");
 }
 
 async function openWorkspaceSection(button) {
@@ -7425,17 +7446,40 @@ function renderAdminRoleAssignmentsBody(assignments = []) {
 
 function renderAdminRoleAssignmentAction(assignment = {}) {
   const scopeType = String(assignment.scopeType || "global").toLowerCase();
-  const siteId = String(assignment.scopeId || "").trim();
-  if (scopeType !== "site" || !siteId) return "";
-  const accessibleSites = accessibleSitesForWorkspace();
-  if (!accessibleSites.some((site) => site.siteId === siteId)) return "";
-  const currentSiteId = selectedSiteQueryValue() || currentSiteWorkspaceContext().siteId || "";
-  if (currentSiteId === siteId) {
-    return `<span class="workspace-chip">Current school</span>`;
+  if (scopeType === "site") {
+    const siteId = String(assignment.scopeId || "").trim();
+    if (!siteId) return "";
+    const accessibleSites = accessibleSitesForWorkspace();
+    if (!accessibleSites.some((site) => site.siteId === siteId)) return "";
+    const currentSiteId = selectedSiteQueryValue() || currentSiteWorkspaceContext().siteId || "";
+    if (currentSiteId === siteId) {
+      return `<span class="workspace-chip">Current school</span>`;
+    }
+    return `
+      <button class="workspace-link-button workspace-link-button-small" type="button" data-site-switch-id="${escapeHtml(siteId)}">
+        Open school access
+      </button>
+    `;
   }
+  if (scopeType !== "program") return "";
+  const programId = cleanDirectoryFilter(assignment.scopeId || "");
+  if (!programId) return "";
+  const mappedSiteIds = Array.isArray(assignment.scopeSiteIds)
+    ? assignment.scopeSiteIds.map((siteId) => cleanDirectoryFilter(siteId)).filter(Boolean)
+    : [];
+  if (!mappedSiteIds.length) return "";
+  const accessibleSites = accessibleSitesForWorkspace().filter((site) => mappedSiteIds.includes(site.siteId));
+  if (accessibleSites.length !== 1) return "";
+  const [site] = accessibleSites;
   return `
-    <button class="workspace-link-button workspace-link-button-small" type="button" data-site-switch-id="${escapeHtml(siteId)}">
-      Open school access
+    <button
+      class="workspace-link-button workspace-link-button-small"
+      type="button"
+      data-role-assignment-action="open-program-students"
+      data-role-assignment-site-id="${escapeHtml(site.siteId || "")}"
+      data-role-assignment-program-id="${escapeHtml(programId)}"
+    >
+      Open program students
     </button>
   `;
 }

@@ -1,6 +1,6 @@
 # Senior Capstone Run Log
 
-Last refreshed: 2026-06-02
+Last refreshed: 2026-06-03
 
 This is the compact run log for the current Functionality UX Upgrade automation contract.
 
@@ -20,6 +20,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 - Remaining priority: broader permission/protected-evidence tests, real workflow endpoints, evidence upload progress/retry UX, Google Docs export cases, account lifecycle, mobile/error/empty QA, archive/presentation proof, and deployment verification.
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
+
+## 2026-06-03 01:11 PT - Functionality UX Upgrade Role Assignment Program Students
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / Global Admin role-assignment program handoff depth.
+- `starting HEAD`: `fda106a5b9d09c98b6ed298dee2fa8cd28ff1628`.
+- `selected slice`: Add an exact filtered Student Directory handoff to recent program-scoped Global Admin role assignments when the grant maps to one accessible school.
+- `repo-grounded findings`: `workspace.js` already surfaced recent role assignments with readable scope names, school-scoped handoffs, and assigner labels, but program-scoped grants still stopped at passive copy even though `/api/admin/role-assignments` could safely resolve active school mappings from `site_programs` and the existing Student Directory already supported exact `programId` filters. The current workspace also already knew how to switch schools and load the scoped Student Directory without widening permissions.
+- `changes`: `functions/api/admin/role-assignments.ts` now returns active `scopeSiteIds` for program-scoped grants, and `workspace.js` now renders `Open program students` only when that program maps to one accessible school, switching into the existing filtered Student Directory instead of leaving the row passive. `tests/admin-role-assignments.integration.test.mjs` proves the protected route returns the mapped school ids for program grants, and `tests/workspace-app.test.mjs` proves the disclosure renders the new action and opens `section=students` with the exact `siteId` and `programId` contract.
+- `validation`: `node --check workspace.js`, `node --test tests/admin-role-assignments.integration.test.mjs`, and `node --test tests/workspace-app.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
 
 ## 2026-06-03 00:31 PT - Functionality UX Upgrade Role Assignment School Access Handoff
 

@@ -48,6 +48,10 @@ interface RoleAssignmentListRow {
   assigned_at: string;
 }
 
+interface SiteScopeRow {
+  id: string;
+}
+
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const user = await getCurrentUser(request, env);
   if (!user) return workflowError("unauthorized", 401);
@@ -98,19 +102,22 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
      LIMIT ?`,
   ).bind(...binds, limit).all<RoleAssignmentListRow>();
 
+  const assignments = await Promise.all((rows.results || []).map(async (row) => ({
+    userId: row.user_id,
+    userName: row.user_name,
+    roleId: row.role_id,
+    scopeType: row.scope_type,
+    scopeId: row.scope_id,
+    scopeName: row.scope_name,
+    scopeSiteIds: await scopeSiteIdsForAssignment(env, row),
+    assignedBy: row.assigned_by,
+    assignedByName: row.assigned_by_name,
+    assignedAt: row.assigned_at,
+  })));
+
   return json({
     ok: true,
-    assignments: (rows.results || []).map((row) => ({
-      userId: row.user_id,
-      userName: row.user_name,
-      roleId: row.role_id,
-      scopeType: row.scope_type,
-      scopeId: row.scope_id,
-      scopeName: row.scope_name,
-      assignedBy: row.assigned_by,
-      assignedByName: row.assigned_by_name,
-      assignedAt: row.assigned_at,
-    })),
+    assignments,
   });
 };
 
@@ -391,4 +398,18 @@ function cleanScopeId(value: string | null): string {
   if (!value) return "";
   const trimmed = value.trim();
   return trimmed && /^[a-zA-Z0-9_-]+$/.test(trimmed) ? trimmed : "";
+}
+
+async function scopeSiteIdsForAssignment(env: Env, assignment: RoleAssignmentListRow): Promise<string[]> {
+  if (assignment.scope_type !== "program" || !assignment.scope_id) return [];
+  const rows = await env.DB.prepare(
+    `SELECT sites.id
+     FROM site_programs
+     JOIN sites ON sites.id = site_programs.site_id
+      AND sites.status = 'active'
+     WHERE site_programs.program_id = ?
+      AND site_programs.active = 1
+     ORDER BY sites.id ASC`,
+  ).bind(assignment.scope_id).all<SiteScopeRow>();
+  return (rows.results || []).map((row) => row.id).filter(Boolean);
 }

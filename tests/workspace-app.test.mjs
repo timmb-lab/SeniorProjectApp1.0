@@ -7229,6 +7229,7 @@ test("workspace renders recent role assignments for global admins before site ac
             roleId: "program_teacher",
             scopeType: "program",
             scopeId: "it",
+            scopeSiteIds: ["site-desert-valley-high"],
             assignedByName: "Program Director",
             assignedAt: "2026-06-02T19:10:00.000Z",
           },
@@ -7270,6 +7271,7 @@ test("workspace renders recent role assignments for global admins before site ac
   assert.match(adminUsersWithRoles, /Program Scope Teacher/);
   assert.match(adminUsersWithRoles, /Program Teacher \/ Program access \/ Information Technology/);
   assert.match(adminUsersWithRoles, /Assigned by Program Director/);
+  assert.match(adminUsersWithRoles, /data-role-assignment-action="open-program-students"/);
   assert.match(adminUsersWithRoles, /Site Access Principal/);
   assert.match(adminUsersWithRoles, /Administration \/ Site access \/ Desert Valley High School/);
   assert.match(adminUsersWithRoles, /Assigned by Global Access Lead/);
@@ -7379,6 +7381,7 @@ test("workspace uses route-backed scope names in recent role assignments without
             scopeType: "program",
             scopeId: "biotech",
             scopeName: "Biotechnology",
+            scopeSiteIds: ["site-desert-valley-high"],
             assignedByName: "Global Scope Admin",
             assignedAt: "2026-06-02T19:10:00.000Z",
           },
@@ -7413,9 +7416,104 @@ test("workspace uses route-backed scope names in recent role assignments without
   assert.match(adminUsers, /Site Scope Principal[\s\S]*Assigned by Global Scope Admin/);
   assert.match(adminUsers, /data-site-switch-id="site-canyon-ridge-career"/);
   assert.match(adminUsers, /Program Scope Teacher[\s\S]*Program Teacher \/ Program access \/ Biotechnology/);
+  assert.match(adminUsers, /Program Scope Teacher[\s\S]*data-role-assignment-action="open-program-students"/);
   assert.match(adminUsers, /Cohort Scope Teacher[\s\S]*Program Teacher \/ Cohort access \/ Spring Showcase Cohort/);
   assert.doesNotMatch(adminUsers, /<span class="workspace-chip">Current school<\/span>/);
   assert.doesNotMatch(adminUsers, /Site access \/ site-canyon-ridge-career|Program access \/ biotech|Cohort access \/ spring-showcase|current_site|current_program|current_cohort/);
+});
+
+test("program-scoped role assignments open the filtered student list when one accessible school matches", async () => {
+  const { context, workspaceRoot, fetchLog, window } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "global-admin-program-handoff",
+          email: "global.programs@example.edu",
+          displayName: "Global Program Admin",
+          roles: [{ role_id: "admin", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/site/access-assignments": {
+      status: 409,
+      body: {
+        ok: false,
+        error: "site_selection_required",
+        selectionRequired: true,
+        accessibleSites: [
+          { siteId: "site-desert-valley-high", siteName: "Desert Valley High School" },
+          { siteId: "site-canyon-ridge-career", siteName: "Canyon Ridge Career Academy" },
+        ],
+      },
+    },
+    "/api/admin/role-assignments": {
+      status: 200,
+      body: {
+        ok: true,
+        assignments: [
+          {
+            userId: "program-scope-teacher",
+            userName: "Program Scope Teacher",
+            roleId: "program_teacher",
+            scopeType: "program",
+            scopeId: "it",
+            scopeName: "Information Technology",
+            scopeSiteIds: ["site-desert-valley-high"],
+            assignedByName: "Global Program Admin",
+            assignedAt: "2026-06-03T00:52:00.000Z",
+          },
+        ],
+      },
+    },
+    "/api/site/students": ({ url }) => {
+      const parsed = new URL(url);
+      return {
+        status: 200,
+        body: siteStudentsFixture({
+          filters: {
+            search: "",
+            programId: parsed.searchParams.get("programId") || "",
+            status: "",
+            progressStatus: "",
+            evidenceStatus: "",
+            reviewStatus: "",
+            noMentor: false,
+            risk: "any",
+            story: "",
+            presentationStatus: "any",
+            archiveStatus: "any",
+            limit: 50,
+            offset: 0,
+          },
+        }),
+      };
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+    "/api/reports/readiness": {
+      status: 200,
+      body: { ok: true, scope: "all-programs", metrics: {} },
+    },
+  });
+
+  vm.runInContext('activeSection = "adminUsers"; renderAppShell();', context);
+  openWorkspaceDisclosure(context, "usersAccess", "roleAssignments");
+  assert.match(workspaceRoot.innerHTML, /data-role-assignment-action="open-program-students"/);
+
+  await vm.runInContext(
+    'handleRoleAssignmentAction({ currentTarget: { dataset: { roleAssignmentAction: "open-program-students", roleAssignmentSiteId: "site-desert-valley-high", roleAssignmentProgramId: "it" } } })',
+    context,
+  );
+
+  const studentsUrl = new URL(window.location.href);
+  assert.equal(studentsUrl.searchParams.get("section"), "students");
+  assert.equal(studentsUrl.searchParams.get("siteId"), "site-desert-valley-high");
+  assert.equal(studentsUrl.searchParams.get("programId"), "it");
+  assert.ok(fetchLog.includes("/api/site/students?siteId=site-desert-valley-high&programId=it"));
 });
 
 test("workspace renders current site access assignments before management forms", async () => {
