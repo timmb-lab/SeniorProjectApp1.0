@@ -401,7 +401,26 @@ function cleanScopeId(value: string | null): string {
 }
 
 async function scopeSiteIdsForAssignment(env: Env, assignment: RoleAssignmentListRow): Promise<string[]> {
-  if (assignment.scope_type !== "program" || !assignment.scope_id) return [];
+  if (!assignment.scope_id) return [];
+  if (assignment.scope_type === "cohort") {
+    const rows = await env.DB.prepare(
+      `SELECT DISTINCT site_users.site_id AS id
+       FROM site_users
+       JOIN sites ON sites.id = site_users.site_id
+        AND sites.status = 'active'
+       JOIN user_accounts student ON student.id = site_users.user_id
+        AND student.status = 'active'
+       JOIN user_roles student_role ON student_role.user_id = student.id
+        AND student_role.role_id = 'student'
+       JOIN group_memberships ON group_memberships.user_id = student.id
+       JOIN groups ON groups.id = group_memberships.group_id
+       WHERE site_users.membership_status = 'active'
+        AND groups.cohort_id = ?
+       ORDER BY site_users.site_id ASC`,
+    ).bind(assignment.scope_id).all<SiteScopeRow>();
+    return (rows.results || []).map((row) => row.id).filter(Boolean);
+  }
+  if (assignment.scope_type !== "program") return [];
   const rows = await env.DB.prepare(
     `SELECT sites.id
      FROM site_programs

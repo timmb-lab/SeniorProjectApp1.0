@@ -1150,19 +1150,29 @@ async function selectWorkspaceSite(siteId) {
 async function handleRoleAssignmentAction(event) {
   const button = event?.currentTarget;
   const action = button?.dataset?.roleAssignmentAction || "";
-  if (action !== "open-program-students") return;
   const siteId = cleanDirectoryFilter(button?.dataset?.roleAssignmentSiteId || "");
-  const programId = cleanDirectoryFilter(button?.dataset?.roleAssignmentProgramId || "");
-  if (!siteId || !programId) return;
+  if (!siteId) return;
+  const nextFilters = defaultSiteStudentFilters();
+  let successMessage = "";
+  if (action === "open-program-students") {
+    const programId = cleanDirectoryFilter(button?.dataset?.roleAssignmentProgramId || "");
+    if (!programId) return;
+    nextFilters.programId = programId;
+    successMessage = "Showing students in the assigned program.";
+  } else if (action === "open-cohort-students") {
+    const cohortId = cleanDirectoryFilter(button?.dataset?.roleAssignmentCohortId || "");
+    if (!cohortId) return;
+    nextFilters.cohortId = cohortId;
+    successMessage = "Showing students in the assigned cohort.";
+  } else {
+    return;
+  }
   selectedSiteId = siteId;
-  siteStudentFilters = {
-    ...defaultSiteStudentFilters(),
-    programId,
-  };
+  siteStudentFilters = nextFilters;
   siteStudentDetailState = defaultSiteStudentDetailState();
   activeSection = "students";
   syncSiteStudentUrlState();
-  await loadWorkspaceData("Showing students in the assigned program.");
+  await loadWorkspaceData(successMessage);
 }
 
 async function openWorkspaceSection(button) {
@@ -2302,6 +2312,7 @@ function renderStudentDirectoryFilterBar(directory) {
         <input name="noMentor" type="checkbox" value="true" ${filters.noMentor ? "checked" : ""}>
         <span>No mentor</span>
       </label>
+      ${filters.cohortId ? `<input name="cohortId" type="hidden" value="${escapeHtml(filters.cohortId)}">` : ""}
       <input name="offset" type="hidden" value="${escapeHtml(filters.offset || 0)}">
       <input name="limit" type="hidden" value="${escapeHtml(filters.limit || 50)}">
       <div class="workspace-form-actions">
@@ -2316,6 +2327,7 @@ function renderStudentDirectoryActiveFilters(filters = {}, options = {}) {
   const chips = [];
   if (filters.search) chips.push(activeFilterChip("Search", filters.search));
   if (filters.programId) chips.push(activeFilterChip("Program", programLabel(options.programs, filters.programId)));
+  if (filters.cohortId) chips.push(activeFilterChip("Cohort", cohortLabel(options.cohorts, filters.cohortId)));
   if (filters.status) chips.push(activeFilterChip("Status", statusText(filters.status)));
   if (filters.progressStatus) chips.push(activeFilterChip("Progress", progressStatusFilterLabel(filters.progressStatus)));
   if (filters.evidenceStatus) chips.push(activeFilterChip("Evidence", evidenceStatusFilterLabel(filters.evidenceStatus)));
@@ -2441,6 +2453,7 @@ function hasActiveStudentDirectoryFilters(filters = {}) {
   return Boolean(
     filters.search
     || filters.programId
+    || filters.cohortId
     || filters.status
     || filters.progressStatus
     || filters.evidenceStatus
@@ -2558,6 +2571,15 @@ function studentDirectoryEmptyStateCopy(filters = {}, options = {}, emptyState =
       reason: `No visible students in ${label} match these filters.`,
       owner,
       nextAction: "Clear filters or choose another visible program.",
+    };
+  }
+  if (filters.cohortId) {
+    const label = cohortLabel(options.cohorts, filters.cohortId);
+    return {
+      heading: "No matching students in this cohort",
+      reason: `No visible students in ${label} match these filters.`,
+      owner,
+      nextAction: "Clear filters or return to the broader student list.",
     };
   }
   if (filters.search) {
@@ -3267,6 +3289,11 @@ function activeFilterChip(label, value) {
 function programLabel(programs = [], programId = "") {
   const match = (Array.isArray(programs) ? programs : []).find((program) => program.programId === programId);
   return match?.programName || programId || "Selected program";
+}
+
+function cohortLabel(cohorts = [], cohortId = "") {
+  const match = (Array.isArray(cohorts) ? cohorts : []).find((cohort) => cohort.cohortId === cohortId);
+  return match?.cohortName || cohortId || "Selected cohort";
 }
 
 function mentorLabel(mentors = [], mentorUserId = "") {
@@ -7461,9 +7488,7 @@ function renderAdminRoleAssignmentAction(assignment = {}) {
       </button>
     `;
   }
-  if (scopeType !== "program") return "";
-  const programId = cleanDirectoryFilter(assignment.scopeId || "");
-  if (!programId) return "";
+  if (scopeType !== "program" && scopeType !== "cohort") return "";
   const mappedSiteIds = Array.isArray(assignment.scopeSiteIds)
     ? assignment.scopeSiteIds.map((siteId) => cleanDirectoryFilter(siteId)).filter(Boolean)
     : [];
@@ -7471,15 +7496,33 @@ function renderAdminRoleAssignmentAction(assignment = {}) {
   const accessibleSites = accessibleSitesForWorkspace().filter((site) => mappedSiteIds.includes(site.siteId));
   if (accessibleSites.length !== 1) return "";
   const [site] = accessibleSites;
+  if (scopeType === "program") {
+    const programId = cleanDirectoryFilter(assignment.scopeId || "");
+    if (!programId) return "";
+    return `
+      <button
+        class="workspace-link-button workspace-link-button-small"
+        type="button"
+        data-role-assignment-action="open-program-students"
+        data-role-assignment-site-id="${escapeHtml(site.siteId || "")}"
+        data-role-assignment-program-id="${escapeHtml(programId)}"
+      >
+        Open program students
+      </button>
+    `;
+  }
+  if (scopeType !== "cohort") return "";
+  const cohortId = cleanDirectoryFilter(assignment.scopeId || "");
+  if (!cohortId) return "";
   return `
     <button
       class="workspace-link-button workspace-link-button-small"
       type="button"
-      data-role-assignment-action="open-program-students"
+      data-role-assignment-action="open-cohort-students"
       data-role-assignment-site-id="${escapeHtml(site.siteId || "")}"
-      data-role-assignment-program-id="${escapeHtml(programId)}"
+      data-role-assignment-cohort-id="${escapeHtml(cohortId)}"
     >
-      Open program students
+      Open cohort students
     </button>
   `;
 }
@@ -8323,6 +8366,7 @@ async function applySiteStudentFilters(event) {
   siteStudentFilters = {
     search: cleanDirectoryFilter(data.get("search")),
     programId: cleanDirectoryFilter(data.get("programId")),
+    cohortId: cleanDirectoryFilter(data.get("cohortId")),
     status: cleanDirectoryFilter(data.get("status")),
     progressStatus: cleanDirectoryFilter(data.get("progressStatus")),
     evidenceStatus: cleanDirectoryFilter(data.get("evidenceStatus")),
@@ -11060,6 +11104,7 @@ function defaultSiteStudentFilters() {
   return {
     search: "",
     programId: "",
+    cohortId: "",
     status: "",
     progressStatus: "",
     evidenceStatus: "",
@@ -11440,6 +11485,7 @@ function siteStudentFiltersFromSearchParams(params) {
   const filters = defaultSiteStudentFilters();
   filters.search = cleanSearchFilter(params.get("search"));
   filters.programId = cleanDirectoryFilter(params.get("programId"));
+  filters.cohortId = cleanDirectoryFilter(params.get("cohortId"));
   filters.status = canonicalReviewQueueValue(params.get("status"), SITE_STUDENT_STATUS_VALUES);
   filters.progressStatus = canonicalReviewQueueValue(params.get("progressStatus"), SITE_STUDENT_PROGRESS_STATUS_VALUES);
   filters.evidenceStatus = canonicalReviewQueueValue(params.get("evidenceStatus"), SITE_STUDENT_EVIDENCE_STATUS_VALUES);
@@ -11577,6 +11623,7 @@ function syncSiteStudentUrlState(options = {}) {
   syncFilteredWorkspaceUrlState("students", siteStudentFilters || defaultSiteStudentFilters(), options, (url, filters) => {
     if (filters.search) url.searchParams.set("search", filters.search);
     if (filters.programId) url.searchParams.set("programId", filters.programId);
+    if (filters.cohortId) url.searchParams.set("cohortId", filters.cohortId);
     if (filters.status) url.searchParams.set("status", filters.status);
     if (filters.progressStatus) url.searchParams.set("progressStatus", filters.progressStatus);
     if (filters.evidenceStatus) url.searchParams.set("evidenceStatus", filters.evidenceStatus);
@@ -11818,6 +11865,7 @@ function siteStudentQueryString() {
   if (siteId) params.set("siteId", siteId);
   if (filters.search) params.set("search", filters.search);
   if (filters.programId) params.set("programId", filters.programId);
+  if (filters.cohortId) params.set("cohortId", filters.cohortId);
   if (filters.status) params.set("status", filters.status);
   if (filters.progressStatus) params.set("progressStatus", filters.progressStatus);
   if (filters.evidenceStatus) params.set("evidenceStatus", filters.evidenceStatus);

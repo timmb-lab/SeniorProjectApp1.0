@@ -1,0 +1,88 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-06-03T01:32:25.6597416-07:00",
+  "branch": "main",
+  "startingSha": "cb730bfd3e3c173d8c48d827d5f221da786434f8",
+  "endingSha": null,
+  "workOrderId": "role-assignment-cohort-student-handoff",
+  "ladderLevels": [
+    "LEVEL_4_ROLE_SPECIFIC_WORKSPACES"
+  ],
+  "selectedSlice": "Add an exact filtered Student Directory handoff to recent cohort-scoped Global Admin role assignments when the grant maps to one accessible school.",
+  "selectionReason": "Current repo evidence showed a real protected-workspace gap, not speculative polish. The previous run already proved exact single-school program handoffs, but cohort-scoped grants still stayed summary-only because /api/admin/role-assignments did not yet resolve school mappings for cohorts and the workspace only knew how to open program-scoped rows. The existing Student Directory already supported exact cohortId filters, so extending the same protected route and disclosure kept the slice route-backed, testable, and RBAC-safe.",
+  "candidateCount": 10,
+  "candidateShortlist": [
+    "Role-assignment cohort-student handoff",
+    "Multi-school role-assignment destination contract",
+    "Broader Global Admin route refresh across Recent Audit, Students, Presentation, Programs, and Users & Access",
+    "Filtered Audit cross-school proof refresh",
+    "Admin mentor-meeting exact destination",
+    "Program Teacher mentor-meeting follow-up destination",
+    "Hosted section-level permission proof",
+    "Review Queue missing-submission semantics",
+    "Viewer email visibility policy",
+    "Mentor reassignment or removal workflow"
+  ],
+  "userFacingImprovement": "Global Admin recent role assignments can now open the existing Student Directory filtered to the assigned cohort when that grant maps to one accessible school, instead of leaving cohort rows summary-only.",
+  "privacyAndPermissionNotes": [
+    "The slice reuses the existing protected /api/admin/role-assignments read path plus the existing Student Directory route and exact site-switch contract.",
+    "No auth, RBAC, tenant, site, program, mentor-assignment, or student-privacy boundary changed.",
+    "Program-scoped and cohort-scoped role-assignment drill-downs remain Global Admin-only and stay summary-only when the grant does not map to one precise accessible school."
+  ],
+  "filesChanged": [
+    "functions/api/admin/role-assignments.ts",
+    "functions/api/site/students.ts",
+    "workspace.js",
+    "tests/admin-role-assignments.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-06-03-0143-role-assignment-cohort-students.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": {
+    "focusedPassedBeforeCloseout": [
+      "node --check workspace.js",
+      "node --test tests/admin-role-assignments.integration.test.mjs",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run verify:functionality-ux-automation"
+    ],
+    "final": [
+      "node --check workspace.js",
+      "node --test tests/admin-role-assignments.integration.test.mjs",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run typecheck",
+      "npm run test",
+      "npm run check",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0143-role-assignment-cohort-students.json','utf8')); console.log('json ok')\"",
+      "git diff --check"
+    ],
+    "result": "passed",
+    "notes": "Focused role-assignment route and workspace coverage passed before docs/state closeout, and the full validation ladder passed after the closeout files were updated."
+  },
+  "deferred": [
+    "Multi-school role-assignment destination proof still needs an exact mapped destination contract.",
+    "Broader Global Admin route refresh remains larger than this bounded role-assignment handoff slice.",
+    "Filtered Audit cross-school proof still needs a tighter locally provable scenario before another audit pass.",
+    "Admin mentor-meeting follow-up still lacks a precise current destination.",
+    "Program Teacher mentor-meeting follow-up still lacks a precise scoped destination.",
+    "Hosted section-level permission proof still needs allowed hosted runtime and audit-event writes.",
+    "Review Queue missing-submission semantics remain deferred until backend rows or exact scoped empty-state evidence exist.",
+    "Viewer email visibility policy still needs a product decision before any UI change.",
+    "Mentor reassignment and removal workflow still needs mutation and audit design."
+  ],
+  "nextRecommended": "Continue the bounded Global Admin role-assignment refresh only where the current workspace can prove one exact school; inspect remaining multi-school program or cohort grants next and keep those rows summary-only until a precise mapped destination exists.",
+  "doNotRepeat": [
+    "Do not auto-open cohort-scoped or program-scoped recent role assignments when the grant maps to multiple accessible schools; keep those rows summary-only until one exact school is proven.",
+    "Do not remove scopeSiteIds from /api/admin/role-assignments while the workspace uses that protected mapping to prove exact Student Directory handoffs.",
+    "Do not regress the single-school cohort handoff back to a passive role-assignment row while the existing Student Directory already supports the exact cohort filter."
+  ]
+}

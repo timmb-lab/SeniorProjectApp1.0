@@ -189,6 +189,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     role: context.primaryRole,
   });
 
+  const studentRows = students.map(studentResponse);
+
   return json({
     ok: true,
     generatedAt: new Date().toISOString(),
@@ -216,13 +218,14 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       filteredTotal,
     },
     summary,
-    students: students.map(studentResponse),
+    students: studentRows,
     filterOptions: {
       programs: programs.map((row) => ({
         programId: row.program_id,
         programName: row.program_name,
         studentCount: Number(row.student_count || 0),
       })),
+      cohorts: cohortOptions(studentRows),
       statuses: CANONICAL_STATUS_VALUES,
       storyBuckets: CANONICAL_STORY_VALUES,
       risks: CANONICAL_RISK_VALUES,
@@ -897,6 +900,7 @@ function responseFilters(filters: DirectoryFilters) {
   return {
     search: filters.search,
     programId: filters.programId,
+    cohortId: filters.cohortId,
     status: filters.status,
     progressStatus: filters.progressStatus,
     evidenceStatus: filters.evidenceStatus,
@@ -916,6 +920,7 @@ function safeFilterSummary(filters: DirectoryFilters) {
     searchPresent: Boolean(filters.search),
     searchLength: filters.search.length,
     programId: filters.programId,
+    cohortId: filters.cohortId,
     status: filters.status,
     progressStatus: filters.progressStatus,
     evidenceStatus: filters.evidenceStatus,
@@ -928,6 +933,25 @@ function safeFilterSummary(filters: DirectoryFilters) {
     limit: filters.limit,
     offset: filters.offset,
   };
+}
+
+function cohortOptions(rows: ReturnType<typeof studentResponse>[]) {
+  const entries = new Map<string, { cohortId: string; cohortName: string; studentCount: number }>();
+  for (const row of rows) {
+    const cohortId = String(row.cohortId || "").trim();
+    if (!cohortId) continue;
+    const current = entries.get(cohortId);
+    if (current) {
+      current.studentCount += 1;
+      continue;
+    }
+    entries.set(cohortId, {
+      cohortId,
+      cohortName: String(row.cohortName || "").trim() || cohortId,
+      studentCount: 1,
+    });
+  }
+  return Array.from(entries.values()).sort((left, right) => left.cohortName.localeCompare(right.cohortName));
 }
 
 function canonical(value: string | null, allowed: string[], defaultValue = ""): string {

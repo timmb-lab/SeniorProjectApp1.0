@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-06-03 01:43 PT - Functionality UX Upgrade Role Assignment Cohort Students
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / Global Admin role-assignment cohort handoff depth.
+- `starting HEAD`: `cb730bfd3e3c173d8c48d827d5f221da786434f8`.
+- `selected slice`: Add an exact filtered Student Directory handoff to recent cohort-scoped Global Admin role assignments when the grant maps to one accessible school.
+- `repo-grounded findings`: the previous role-assignment handoff pass explicitly deferred cohort follow-up until an exact school mapping could be proven. Current repo evidence showed that `/api/admin/role-assignments` still returned mapped school ids only for program grants even though the existing Student Directory already supported `cohortId` filtering, and the workspace action layer only knew how to open program-scoped rows. The selected fix stayed within existing protected routes, student/site/group membership joins, and Student Directory state instead of inventing a new admin surface.
+- `changes`: `functions/api/admin/role-assignments.ts` now resolves distinct active school ids for cohort-scoped grants from existing `site_users`, `group_memberships`, and `groups.cohort_id` data. `workspace.js` now turns exact single-school cohort grants into `Open cohort students`, reuses the existing Student Directory with `cohortId` URL state, and preserves that cohort filter across URL sync and form submissions. `functions/api/site/students.ts` now returns `cohortId` in response filters and exposes cohort filter metadata for the existing directory shell. `tests/admin-role-assignments.integration.test.mjs` proves the protected cohort-to-school mapping, and `tests/workspace-app.test.mjs` proves the cohort handoff opens the existing Student Directory with the exact `siteId` and `cohortId` contract.
+- `validation`: `node --check workspace.js`, `node --test tests/admin-role-assignments.integration.test.mjs`, `node --test tests/workspace-app.test.mjs`, `npm run verify:functionality-language`, `node --test tests/functionality-language-audit.test.mjs`, and `npm run verify:functionality-ux-automation` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-06-03 01:11 PT - Functionality UX Upgrade Role Assignment Program Students
 
 - `automation ID`: functionality-ux-upgrade-hourly.

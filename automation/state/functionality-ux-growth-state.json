@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-03T01:18:20.7147142-07:00",
-  "lastStartingSha": "fda106a5b9d09c98b6ed298dee2fa8cd28ff1628",
+  "lastRunAt": "2026-06-03T01:50:31.6856630-07:00",
+  "lastStartingSha": "cb730bfd3e3c173d8c48d827d5f221da786434f8",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
+    {
+      "id": "role-assignment-cohort-student-handoff",
+      "completedAt": "2026-06-03T01:43:09.8334784-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Global Admin recent cohort-scoped role assignments now open the existing filtered Student Directory when the grant maps to one accessible school.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "role-assignment-program-student-handoff",
       "completedAt": "2026-06-03T01:18:20.7147142-07:00",
@@ -1189,9 +1197,9 @@
   ],
   "deferredWorkOrders": [
     {
-      "id": "role-assignment-cohort-student-handoff",
+      "id": "role-assignment-multi-school-handoff",
       "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
-      "reason": "Only add cohort-scoped drill-downs after the route can prove one exact school for that cohort."
+      "reason": "Keep program-scoped or cohort-scoped role-assignment rows summary-only until one precise mapped school is proven."
     },
     {
       "id": "role-assignment-multi-school-program-handoff",
@@ -1257,10 +1265,10 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "role-assignment-cohort-student-handoff",
+      "id": "role-assignment-multi-school-handoff",
       "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
       "type": "TYPE_D_ROLE_WORKSPACE",
-      "summary": "Only add cohort-scoped role-assignment drill-downs when one exact school can be proven for the existing Student Directory handoff."
+      "summary": "Continue the Global Admin role-assignment refresh only where one exact school is proven, and keep multi-school program or cohort grants summary-only until a precise mapped destination exists."
     },
     {
       "id": "global-admin-route-refresh",
@@ -1288,9 +1296,9 @@
     }
   ],
   "doNotRepeat": [
-    "Do not auto-open program-scoped Global Admin recent role assignments when the grant maps to multiple accessible schools; keep those rows summary-only until one exact school is proven.",
+    "Do not auto-open cohort-scoped or program-scoped recent role assignments when the grant maps to multiple accessible schools; keep those rows summary-only until one exact school is proven.",
     "Do not remove scopeSiteIds from /api/admin/role-assignments while the workspace uses that protected mapping to prove exact Student Directory handoffs.",
-    "Do not regress the single-school program handoff back to passive role-assignment rows while the existing Student Directory already supports the exact program filter.",
+    "Do not regress the single-school cohort handoff back to a passive role-assignment row while the existing Student Directory already supports the exact cohort filter.",
     "Do not let functions/_lib/site-mentor-assignments.ts reintroduce selected-site wording or intervention-heavy checkpoint language into protected Mentor Assignments responses.",
     "Do not fall back to a generic student-detail unavailable error when /api/site/students/:studentId returns site_selection_required; keep the student-detail school-pick guidance visible.",
     "Do not silently auto-pick a school before opening protected student detail; keep school choice explicit for multi-site users.",
@@ -1455,7 +1463,7 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-06-03T01:18:20.7147142-07:00",
+    "completedAt": "2026-06-03T01:50:31.6856630-07:00",
     "commands": [
       "node --check workspace.js",
       "node --test tests/admin-role-assignments.integration.test.mjs",
@@ -1467,10 +1475,10 @@
       "npm run typecheck",
       "npm run test",
       "npm run check",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0111-role-assignment-program-students.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0143-role-assignment-cohort-students.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
-    "notes": "Focused role-assignment route and workspace coverage passed before docs/state closeout, and the full validation ladder passed after the closeout files were updated."
+    "notes": "Focused role-assignment route and workspace coverage passed before docs/state closeout, and the full validation ladder passed again after the closeout metadata was refreshed."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

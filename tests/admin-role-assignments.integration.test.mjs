@@ -194,11 +194,12 @@ test("admin role assignments creates role assignment and audits", async () => {
   assert.equal(event.metadata.scopeType, "global");
 });
 
-test("admin role assignments returns scope names and assigner names for site, program, and cohort grants", async () => {
+test("admin role assignments returns scope names plus mapped school ids for site, program, and cohort grants", async () => {
   const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
   fixture.db.data.userAccounts.push(buildUser("site-target"));
   fixture.db.data.userAccounts.push(buildUser("program-target"));
   fixture.db.data.userAccounts.push(buildUser("cohort-target"));
+  fixture.db.data.userAccounts.push(buildUser("cohort-student-a"));
   fixture.db.data.userRoles.push({
     user_id: "site-target",
     role_id: "administration",
@@ -227,6 +228,17 @@ test("admin role assignments returns scope names and assigner names for site, pr
   fixture.db.data.programs.push({ id: "program-biotech", name: "Biotechnology" });
   fixture.db.data.sitePrograms.push({ site_id: "site-a", program_id: "program-biotech", active: 1 });
   fixture.db.data.cohorts.push({ id: "cohort-spring-showcase", name: "Spring Showcase Cohort" });
+  fixture.db.data.groups.push({ id: "group-spring-showcase", cohort_id: "cohort-spring-showcase" });
+  fixture.db.data.groupMemberships.push({ group_id: "group-spring-showcase", user_id: "cohort-student-a" });
+  fixture.db.data.userRoles.push({
+    user_id: "cohort-student-a",
+    role_id: "student",
+    scope_type: "global",
+    scope_id: "",
+    assigned_by: "admin-a",
+    assigned_at: "2026-05-20T00:30:00.000Z",
+  });
+  fixture.db.data.siteUsers.push({ site_id: "site-b", user_id: "cohort-student-a", membership_status: "active" });
 
   const request = new Request("https://example.test/api/admin/role-assignments", {
     method: "GET",
@@ -249,6 +261,14 @@ test("admin role assignments returns scope names and assigner names for site, pr
     true,
   );
   assert.equal(body.assignments.some((assignment) => assignment.scopeId === "cohort-spring-showcase" && assignment.scopeName === "Spring Showcase Cohort"), true);
+  assert.equal(
+    body.assignments.some(
+      (assignment) =>
+        assignment.scopeId === "cohort-spring-showcase"
+        && JSON.stringify(assignment.scopeSiteIds || []) === JSON.stringify(["site-b"]),
+    ),
+    true,
+  );
   assert.equal(body.assignments.some((assignment) => assignment.scopeId === "site-b" && assignment.assignedByName === "admin-a"), true);
 });
 
@@ -373,6 +393,8 @@ function createFixture(options = {}) {
     userAccounts: [],
     sessions: [],
     userRoles: [],
+    groups: [],
+    groupMemberships: [],
     roles: (options.roles ?? [
       "student",
       "mentor",
@@ -579,6 +601,28 @@ class MockPreparedStatement {
         results: this.data.siteUsers
           .filter((row) => row.user_id === userId && row.membership_status !== "inactive")
           .map((row) => ({ id: row.site_id })),
+      };
+    }
+
+    if (this.sql.startsWith("select distinct site_users.site_id as id from site_users")) {
+      const [cohortId] = this.params.map(String);
+      const studentIds = new Set(
+        this.data.groupMemberships
+          .filter((membership) => this.data.groups.some((group) => group.id === membership.group_id && group.cohort_id === cohortId))
+          .map((membership) => membership.user_id),
+      );
+      const activeStudentIds = new Set(
+        this.data.userRoles
+          .filter((row) => row.role_id === "student")
+          .map((row) => row.user_id),
+      );
+      return {
+        results: this.data.siteUsers
+          .filter((row) => row.membership_status !== "inactive")
+          .filter((row) => studentIds.has(row.user_id))
+          .filter((row) => activeStudentIds.has(row.user_id))
+          .map((row) => ({ id: row.site_id }))
+          .filter((row, index, rows) => rows.findIndex((candidate) => candidate.id === row.id) === index),
       };
     }
 
