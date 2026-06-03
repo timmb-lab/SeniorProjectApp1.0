@@ -2886,3 +2886,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now renders a dedicated `Users & Access` site-selection-required card with school buttons, problem-state guidance, and explicit next-step copy when `/api/site/access-assignments` returns `selectionRequired`. `tests/workspace-app.test.mjs` now proves a multi-site Global Admin still sees the recent-role-assignments panel while the site-specific access-management area renders the new school-pick guidance instead of generic `Manage Site Access` output.
 - `validation`: `node --check workspace.js` and `node --test tests/workspace-app.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-06-02 PT - Functionality UX Upgrade Admin Review Detail
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / Global Admin review-workload drill-downs.
+- `starting HEAD`: `66d6698309946d652af6e8381b795e4306798934`.
+- `selected slice`: Reuse the existing student-detail drawer for Admin Command Center `Review Workload` rows and preserve Admin Command Center detail context.
+- `repo-grounded findings`: `renderReviewQueueSummary()` already supported `allowStudentDetail: true`, the admin dashboard route already returned scoped `reviewQueue` rows with `studentId`, and Global Admin detail access was already covered by the existing `/api/site/students/:studentId` route. The gap was entirely in `workspace.js`: the Admin Command Center never enabled the row action, `handleSiteStudentAction()` only preserved `siteDashboard` and `programDashboard` as dashboard detail sources, and student-detail URL state did not recognize `adminDashboard`.
+- `changes`: `workspace.js` now enables `View student detail` inside the Admin Command Center `Review Workload` card, renders the existing student-detail drawer in `adminDashboard` context, preserves `adminDashboard` as the return source when those rows open detail, and allows the existing detail URL-state helpers to restore that drawer safely for Global Admins. `tests/workspace-app.test.mjs` now proves a Global Admin can open and close review-row detail without leaving the Admin Command Center, while `scripts/verify-dashboard-actions.mjs` and `scripts/verify-workspace-navigation-integrity.mjs` now guard the admin-dashboard action and URL-state wiring against regression.
+- `validation`: `node --check workspace.js`, `node --test tests/workspace-app.test.mjs`, `npm run verify:dashboard-actions`, and `npm run verify:workspace-navigation` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

@@ -6361,3 +6361,62 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: mentor-meeting follow-up still lacks a precise destination; hosted permission proof still needs allowed runtime; Review Queue missing-submission semantics still need backend evidence.
   - Do not repeat: do not hide export follow-up back behind counts alone, and do not broaden archive follow-up into site-scoped sections that still require a selected school.
   - First file to inspect next run: `functions/api/admin/dashboard.ts` around `recentExportRows()` and `buildNeedsAttention()`
+
+## Run 2026-06-02 21:08 PT
+
+- Starting SHA: `66d6698309946d652af6e8381b795e4306798934`
+- Ending SHA: pending closeout commit; final hash is reported after commit
+- Branch: `main`
+- Branch policy: started from clean local `main` ahead of `origin/main` by two earlier in-lane commits; this run stayed local-only and did not push
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: remaining Global Admin route-refresh handoff inside `docs/functionality-language-audit.md` and `docs/product/demo-role-readiness.md`
+- Work order selected: Reuse the existing student-detail drawer for Admin Command Center `Review Workload` rows and preserve Admin Command Center detail context.
+- Selection reason: current repo evidence showed a real protected-workspace gap, not speculative polish. The admin dashboard route already returned `reviewQueue` rows with `studentId`, `renderReviewQueueSummary()` already supported `allowStudentDetail: true`, and Global Admin access to `/api/site/students/:studentId` was already established. The missing work was limited to `workspace.js` context wiring: Admin Command Center review rows still behaved like passive summaries, `handleSiteStudentAction()` only preserved `siteDashboard` and `programDashboard` as dashboard detail sources, and student-detail URL state did not yet recognize `adminDashboard`. That made this the safest next Global Admin slice because it improved real workflow depth without adding routes, widening scope, or inventing new filters.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Global Admin review workload student detail | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin`, `admin`, `platform_admin` | 5 | 5 | 5 | S | 59 | selected |
+| Broader Global Admin route refresh across Recent Audit, Students, Presentation, Programs, and Users & Access | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | `global_admin` | 4 | 4 | 3 | M | 45 | deferred: broader than one safe hourly slice |
+| Admin recent-audit row drill-downs | `LEVEL_7_AUDITABILITY_AND_TRUST` | `global_admin` | 3 | 2 | 2 | M | 28 | deferred: current audit rows still lack an exact row-level destination |
+| Admin mentor-meeting exact destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin` | 4 | 2 | 2 | M | 30 | deferred: current workspace still lacks a precise meeting-follow-up destination |
+| Program Teacher mentor-meeting follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 3 | 3 | M | 40 | deferred: no precise scoped destination is proven |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 2 | M | 35 | deferred: hosted runtime is outside this local batch |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Viewer email visibility policy | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: product policy still comes before UI change |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Student hosted drill-down refresh | `LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN` | `student` | 4 | 2 | 2 | M | 29 | deferred: broader hosted/product pass than this bounded Global Admin slice |
+
+- User-facing improvement: Global Admins can now open Admin Command Center `Review Workload` rows directly into the existing student-detail drawer, and that detail now reloads and closes back inside the Admin Command Center instead of jumping to the broader Student Directory.
+- Roles affected: `global_admin`, `admin`, `platform_admin`
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `scripts/verify-dashboard-actions.mjs`, `scripts/verify-workspace-navigation-integrity.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-02-2108-global-admin-review-workload-student-detail.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves a Global Admin can open and close review-row student detail without leaving the Admin Command Center while the URL carries `section=adminDashboard` detail state; `scripts/verify-dashboard-actions.mjs` now guards the Admin Command Center `Review Workload` detail action; `scripts/verify-workspace-navigation-integrity.mjs` now guards `adminDashboard` student-detail URL-state support and source preservation.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:dashboard-actions`
+  - `npm run verify:workspace-navigation`
+  - `npm run verify:functionality-language`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-2108-global-admin-review-workload-student-detail.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed; focused workspace syntax, workspace coverage, dashboard-action verification, and workspace-navigation verification passed before docs/state closeout, and the full validation ladder passed after the closeout files were updated.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: broader Global Admin route refresh, Admin mentor-meeting exact destination, Program Teacher mentor-meeting follow-up destination, hosted section-level permission proof, Review Queue missing-submission semantics, viewer email visibility policy, and mentor reassignment/remove workflow remain open.
+- New backlog items: none
+- Next recommended work order: Continue the bounded Global Admin route refresh only where the current workspace can prove an exact destination; keep mentor-meeting follow-up summary-only, and preserve Admin Command Center detail context now that review rows open the existing student drawer.
+- Do-not-repeat notes: do not remove the Admin Command Center `Review Workload` student-detail action while the existing `/api/site/students/:studentId` route remains authorized for Global Admins, and do not force those detail opens back to `students` source context now that `adminDashboard` return and URL state are proven.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: `workspace.js` now enables `renderReviewQueueSummary(dashboard.reviewQueue, { allowStudentDetail: true })`, preserves `adminDashboard` as a valid student-detail source section, and focused workspace plus navigation verifiers prove the detail drawer stays in Admin Command Center context.
+  - Unlocks: the next Global Admin pass can evaluate the remaining route-refresh gaps without rediscovering review-row detail as a passive summary dead end.
+  - Next: inspect `workspace.js` around `renderAdminOverviewSection()`, `renderAuditSummary()`, and the remaining Global Admin detail/disclosure panels only if a more exact current destination can be proven.
+  - Blockers: mentor-meeting follow-up still lacks a precise destination; hosted permission proof still needs allowed runtime; Review Queue missing-submission semantics still need backend evidence.
+  - Do not repeat: do not regress Admin Command Center review rows back to summary-only detail-free cards, and do not collapse Admin Command Center detail opens back to Student Directory context.
+  - First file to inspect next run: `workspace.js` around `renderAdminOverviewSection()` and `handleSiteStudentAction()`

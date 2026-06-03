@@ -149,9 +149,12 @@ for (const fn of [
   assertMatches("workspaceJs", new RegExp(`function ${fn}\\b`), `${fn} must exist for shareable worklist URL state`);
 }
 assertMatches("workspaceJs", /SITE_STUDENT_DETAIL_URL_PARAMS = \["detailStudentId", "detailTab", "detailTimelineType"\]/, "Student detail URL state must use dedicated safe params");
+assertMatches("workspaceJs", /SITE_STUDENT_DETAIL_URL_SECTIONS = new Set\(\[[\s\S]*"adminDashboard"[\s\S]*"siteDashboard"[\s\S]*"students"[\s\S]*"teacher"[\s\S]*"mentorAssignments"[\s\S]*"mentorDashboard"[\s\S]*"programDashboard"[\s\S]*"operations"[\s\S]*\]\)/, "Student detail URL state must include the Admin Command Center alongside existing scoped worklist sections");
 assertMatches("workspaceJs", /openSiteStudentDetail\(studentId, options = \{\}\)[\s\S]*syncCurrentWorkspaceUrlState\(\)/, "Opening student detail must sync shareable URL state");
 assertMatches("workspaceJs", /handleSiteStudentDetailAction\(event\)[\s\S]*action === "close"[\s\S]*syncCurrentWorkspaceUrlState\(\)/, "Closing student detail must clear detail URL state");
 assertMatches("workspaceJs", /appendSiteStudentDetailUrlState\(url, section\)/, "Section URL sync helpers must be able to append student detail state");
+assertMatches("workspaceJs", /function handleSiteStudentAction\(event\)[\s\S]*activeSection === "adminDashboard" \|\| activeSection === "programDashboard" \|\| activeSection === "siteDashboard"[\s\S]*openSiteStudentDetail\(event\.currentTarget\?\.dataset\?\.studentDetailId \|\| "", \{ sourceSection \}\)/, "Student detail actions must preserve Admin Command Center dashboard context instead of forcing the broader Student Directory");
+assertMatches("workspaceJs", /function canUseSiteStudentDetailUrlState\(section, roles = roleIds\(currentUser\)\) \{[\s\S]*sourceSection === "adminDashboard"[\s\S]*hasGlobalAdminRole\(roles\)/, "Student detail URL restore must allow Admin Command Center detail only for global admin roles");
 assertMatches("workspaceJs", /activeSection === "mentorDashboard"[\s\S]*syncMentorDashboardUrlState\(options\)/, "Mentor Dashboard focus filters must sync section URL state");
 assertMatches("workspaceJs", /data-mentor-dashboard-action="filter"[\s\S]*data-mentor-dashboard-filter/, "Mentor Dashboard focus controls must keep explicit filter actions");
 assertMatches("workspaceJs", /activeSection === "presentation"[\s\S]*syncPresentationScheduleUrlState\(options\)/, "Presentation schedule filters must sync section URL state");

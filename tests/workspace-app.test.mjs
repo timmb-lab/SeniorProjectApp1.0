@@ -1115,6 +1115,134 @@ test("global admin needs attention rows use real drill-downs and keep unmatched 
   assert.doesNotMatch(workspaceRoot.innerHTML, /Blair Archive|Casey Archive/);
 });
 
+test("global admin review workload rows open student detail and keep admin dashboard context", async () => {
+  const selectionRequired = {
+    ok: false,
+    error: "site_selection_required",
+    selectionRequired: true,
+    accessibleSites: [
+      { siteId: "site-desert-valley-high", siteName: "Desert Valley High School" },
+      { siteId: "site-canyon-ridge-career", siteName: "Canyon Ridge Career Academy" },
+    ],
+  };
+  const { context, workspaceRoot, window } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "global-admin-review-detail",
+          email: "global.review.detail@example.edu",
+          displayName: "Global Admin Review Detail",
+          roles: [{ role_id: "admin", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/site/dashboard": { status: 409, body: selectionRequired },
+    "/api/site/students": { status: 409, body: selectionRequired },
+    "/api/site/review-queue": { status: 409, body: selectionRequired },
+    "/api/site/mentor-assignments": { status: 409, body: selectionRequired },
+    "/api/site/operations-readiness": { status: 409, body: selectionRequired },
+    "/api/site/programs": { status: 409, body: selectionRequired },
+    "/api/site/access-assignments": { status: 409, body: selectionRequired },
+    "/api/admin/role-assignments": {
+      status: 200,
+      body: {
+        ok: true,
+        assignments: [],
+      },
+    },
+    "/api/admin/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        generatedAt: "2026-03-26T16:00:00.000Z",
+        summary: {
+          studentsActive: 250,
+          studentsNoMentor: 18,
+          submissionsSubmitted: 22,
+          revisionRequested: 10,
+          presentationScheduled: 14,
+          exportsQueued: 6,
+          exportsFailed: 2,
+          exportsComplete: 4,
+          recentAuditEvents: 3,
+          approved: 88,
+          evidenceArtifacts: 690,
+        },
+        needsAttention: [],
+        programBreakdown: [],
+        reviewQueue: [
+          {
+            submissionId: "submission-admin-review-001",
+            studentId: "demo-student-101",
+            studentName: "Taylor Student",
+            requirementTitle: "Presentation outline",
+            evidenceCount: 2,
+            status: "submitted",
+            updatedAt: "2026-03-26T15:30:00.000Z",
+          },
+        ],
+        mentorCoverage: [],
+        presentationSnapshot: [],
+        archiveSnapshot: [],
+        recentAudit: [],
+        recentExports: [],
+      },
+    },
+    "/api/site/students/demo-student-101": {
+      status: 200,
+      body: siteStudentDetailFixture({ readOnly: false }),
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: {
+        ok: true,
+        slots: [],
+      },
+    },
+    "/api/reports/readiness": {
+      status: 200,
+      body: {
+        ok: true,
+        scope: "all-programs",
+        metrics: {},
+      },
+    },
+  });
+
+  vm.runInContext('activeSection = "adminDashboard"; renderAppShell();', context);
+  assert.match(workspaceRoot.innerHTML, /data-workspace-disclosure-panel="dashboard:adminDashboard"/);
+  openWorkspaceDisclosure(context, "dashboard", "adminDashboard");
+  assert.match(workspaceRoot.innerHTML, /Review Workload[\s\S]*View student detail/);
+
+  await vm.runInContext(`
+    handleSiteStudentAction({
+      currentTarget: {
+        dataset: {
+          siteStudentAction: "view-detail",
+          studentDetailId: "demo-student-101"
+        }
+      }
+    });
+  `, context);
+
+  assert.match(workspaceRoot.innerHTML, /Student detail loaded/);
+  assert.match(workspaceRoot.innerHTML, /Back to Admin Command Center/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-return-context="adminDashboard"/);
+  assert.deepEqual(
+    JSON.parse(vm.runInContext('JSON.stringify({ activeSection, sourceSection: siteStudentDetailState.sourceSection })', context)),
+    { activeSection: "adminDashboard", sourceSection: "adminDashboard" },
+  );
+  assert.match(window.location.href, /section=adminDashboard/);
+  assert.match(window.location.href, /detailStudentId=demo-student-101/);
+
+  vm.runInContext('handleSiteStudentDetailAction({ currentTarget: { dataset: { studentDetailAction: "close" } } })', context);
+  assert.equal(vm.runInContext("activeSection", context), "adminDashboard");
+  assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
+  assert.doesNotMatch(window.location.href, /detailStudentId=/);
+});
+
 test("site dashboard top-risk detail stays in dashboard context", async () => {
   const { context, workspaceRoot, fetchLog } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {

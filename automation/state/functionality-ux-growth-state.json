@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-02T20:31:55-07:00",
-  "lastStartingSha": "3e8b1ae82712ee4a9dcf98feeb75e41374aa9c5d",
+  "lastRunAt": "2026-06-02T21:08:22-07:00",
+  "lastStartingSha": "66d6698309946d652af6e8381b795e4306798934",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
+    {
+      "id": "global-admin-review-workload-student-detail",
+      "completedAt": "2026-06-02T21:08:22-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Admin Command Center Review Workload rows now open the existing student-detail drawer and keep adminDashboard return and URL state instead of dropping back to the broader Student Directory.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "global-admin-archive-export-follow-up",
       "completedAt": "2026-06-02T20:31:55-07:00",
@@ -1186,7 +1194,7 @@
       "id": "global-admin-route-refresh",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Refresh the remaining Global Admin click-through and boundary proof now that archive export follow-up has an exact destination."
+      "summary": "Refresh the remaining Global Admin click-through and boundary proof now that review workload rows also preserve Admin Command Center detail context."
     },
     {
       "id": "program-teacher-mentor-meeting-follow-up-destination",
@@ -1208,6 +1216,8 @@
     }
   ],
   "doNotRepeat": [
+    "Do not remove the Admin Command Center Review Workload student-detail action while the existing /api/site/students/:studentId route remains authorized for Global Admins.",
+    "Do not force Admin Command Center review-row detail back to students source context now that adminDashboard return and URL state are proven.",
     "Do not regress the new Archive / Exports follow-up list back to count-only summary cards while the admin dashboard route already returns safe current export rows.",
     "Do not invent an Admin mentor-meeting preset until a real exact destination exists.",
     "Do not broaden Global Admin archive follow-up into site-scoped sections that still require an explicit selected-school contract.",
@@ -1361,22 +1371,22 @@
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-06-02T20:44:45.7758156-07:00",
+    "completedAt": "2026-06-02T21:12:36.0681891-07:00",
     "commands": [
       "node --check workspace.js",
-      "node --test tests/admin-dashboard.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
       "npm run verify:dashboard-actions",
+      "npm run verify:workspace-navigation",
       "npm run verify:functionality-language",
       "npm run verify:functionality-ux-automation",
       "npm run check:production-surfaces",
       "npm run typecheck",
       "npm run test",
       "npm run check",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-2031-global-admin-archive-export-follow-up.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-02-2108-global-admin-review-workload-student-detail.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
-    "notes": "Focused workspace syntax, admin-dashboard route proof, workspace coverage, and dashboard-action verification passed before docs/state closeout. Final validation also passed after the closeout files were updated."
+    "notes": "Focused workspace syntax, workspace coverage, dashboard-action verification, and workspace-navigation verification passed before docs/state closeout. Final validation also passed after the closeout files were updated."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

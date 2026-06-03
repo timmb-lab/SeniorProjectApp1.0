@@ -293,6 +293,7 @@ const OPERATIONS_URL_FILTER_PARAMS = [
 const MENTOR_DASHBOARD_URL_FILTER_PARAMS = ["mentorFocus"];
 const PRESENTATION_SCHEDULE_URL_FILTER_PARAMS = ["presentationFocus"];
 const SITE_STUDENT_DETAIL_URL_SECTIONS = new Set([
+  "adminDashboard",
   "siteDashboard",
   "students",
   "teacher",
@@ -3431,6 +3432,12 @@ function renderAdminOverviewSection() {
         { label: "Approved", value: safeNumber(summary.approved), detail: "Accepted submissions.", tone: "student", concept: "Submitted / Approved" },
         { label: "Evidence", value: safeNumber(summary.evidenceArtifacts), detail: "Summary only; open student detail for evidence records.", tone: "mentor", concept: "Missing Evidence" },
       ], { label: "Admin dashboard summary-only metrics" })}
+      ${siteStudentDetailState?.sourceSection === "adminDashboard" ? renderSiteStudentDetailSurface({
+        students: (dashboard.reviewQueue || []).map((row) => ({
+          studentId: row.studentId,
+          displayName: row.studentName,
+        })),
+      }) : ""}
       ${renderDashboardCard("Needs Attention", "Operational risks", renderNeedsAttention(dashboard.needsAttention))}
       ${renderWorkspaceDisclosurePanel({
         scope: "dashboard",
@@ -3443,7 +3450,7 @@ function renderAdminOverviewSection() {
         bodyHtml: `
           ${renderDashboardCard("Program Breakdown", "Students by program", renderProgramBreakdown(dashboard.programBreakdown))}
           <div class="workspace-dashboard-grid workspace-dashboard-grid-two workspace-dashboard-secondary-grid">
-            ${renderDashboardCard("Review Workload", "Submitted and revision records", renderReviewQueueSummary(dashboard.reviewQueue))}
+            ${renderDashboardCard("Review Workload", "Submitted and revision records", renderReviewQueueSummary(dashboard.reviewQueue, { allowStudentDetail: true }))}
             ${renderDashboardCard("Mentor Coverage", "Active assignment load", renderMentorCoverage(dashboard.mentorCoverage, summary))}
             ${renderDashboardCard("Presentation Snapshot", "Day-of readiness", renderSnapshotRows(dashboard.presentationSnapshot))}
             ${renderDashboardCard("Archive / Export Snapshot", "Closeout package status", renderSnapshotRows(dashboard.archiveSnapshot))}
@@ -8697,7 +8704,9 @@ async function handleSiteStudentAction(event) {
   const action = event?.currentTarget?.dataset?.siteStudentAction;
   if (!action) return;
   if (action === "view-detail") {
-    const sourceSection = activeSection === "programDashboard" || activeSection === "siteDashboard" ? activeSection : "students";
+    const sourceSection = activeSection === "adminDashboard" || activeSection === "programDashboard" || activeSection === "siteDashboard"
+      ? activeSection
+      : "students";
     await openSiteStudentDetail(event.currentTarget?.dataset?.studentDetailId || "", { sourceSection });
     return;
   }
@@ -8794,6 +8803,7 @@ function cleanStudentDetailTab(value) {
 function studentDetailReturnCopy(sourceSection) {
   const sectionId = cleanWorkspaceSection(sourceSection) || "students";
   const labels = {
+    adminDashboard: "Admin Command Center",
     siteDashboard: "Site Dashboard",
     students: "Students",
     teacher: "Review Queue",
@@ -11464,6 +11474,7 @@ function cleanWorkspaceSection(value) {
 function canUseSiteStudentDetailUrlState(section, roles = roleIds(currentUser)) {
   const sourceSection = cleanWorkspaceSection(section);
   if (!SITE_STUDENT_DETAIL_URL_SECTIONS.has(sourceSection) || !roles?.size) return false;
+  if (sourceSection === "adminDashboard") return hasGlobalAdminRole(roles);
   if (sourceSection === "siteDashboard") return hasSiteDashboardRole(roles);
   if (sourceSection === "students") return hasSiteStudentDirectoryRole(roles);
   if (sourceSection === "teacher") return hasSiteReviewQueueRole(roles);

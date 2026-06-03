@@ -449,6 +449,11 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
+  /function renderAdminOverviewSection\([\s\S]*renderDashboardCard\("Review Workload", "Submitted and revision records", renderReviewQueueSummary\(dashboard\.reviewQueue, \{ allowStudentDetail: true \}\)\)/,
+  "Admin dashboard Review Workload rows must keep the existing student-detail action enabled",
+);
+assertMatches(
+  "workspaceJs",
   /section === "operations" && button\.dataset\.sectionPreset === "presentation-pending"[\s\S]*presentationStatus: "pending"[\s\S]*syncOperationsReadinessUrlState\(\)/,
   "presentation dashboard preset must be backed by an operations presentation filter and sync URL state",
 );
@@ -649,8 +654,8 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function handleSiteStudentAction\([\s\S]*?const sourceSection = activeSection === "programDashboard" \|\| activeSection === "siteDashboard" \? activeSection : "students"[\s\S]*?openSiteStudentDetail\(event\.currentTarget\?\.dataset\?\.studentDetailId \|\| "", \{ sourceSection \}\)/,
-  "Program Teacher and Site Dashboard student-detail actions must keep their dashboard as the detail source",
+  /function handleSiteStudentAction\([\s\S]*?const sourceSection = activeSection === "adminDashboard" \|\| activeSection === "programDashboard" \|\| activeSection === "siteDashboard"[\s\S]*?openSiteStudentDetail\(event\.currentTarget\?\.dataset\?\.studentDetailId \|\| "", \{ sourceSection \}\)/,
+  "Admin, Program Teacher, and Site Dashboard student-detail actions must keep their dashboard as the detail source",
 );
 assertMatches(
   "workspaceJs",
