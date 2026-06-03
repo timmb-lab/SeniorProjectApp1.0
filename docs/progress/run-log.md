@@ -21,6 +21,17 @@ This is the compact run log for the current Functionality UX Upgrade automation 
 
 Future productive runs should append compact entries that name the master-plan section, MVP requirement IDs, files changed, verification, blocker status, and commit/push result.
 
+## 2026-06-03 04:38 PT - Functionality UX Upgrade Student Evidence Requirement Handoff
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 6 student progress drill-down / student files-to-requirement usability.
+- `starting HEAD`: `4e674c786bf77ee9354de3b50d626f57a848cbbe`.
+- `selected slice`: Add requirement-backed context and an existing `Open requirement` handoff to student Uploaded and linked work rows.
+- `repo-grounded findings`: current repo evidence showed that the student files list already rendered real download and external-link actions, but those rows still lacked the requirement context already available elsewhere in `/api/student/dashboard`. Students could see a file title yet still had to hunt through the checklist to confirm which requirement it supported. The safest bounded slice was to carry the existing requirement mapping through the student dashboard payload and reuse the same in-page requirement-detail action instead of inventing a new student page.
+- `changes`: `functions/api/student/dashboard.ts` now includes each evidence row's `submissionId`, `requirementId`, and `requirementTitle` by reusing the existing student-scoped submission data. `workspace.js` now renders that requirement context inside Uploaded and linked work, reuses the current `Open requirement` action from each file row, normalizes the files-panel title to `Uploaded and linked work`, and clarifies the empty state when no evidence is attached yet. `tests/student-dashboard-access.integration.test.mjs` and `tests/workspace-app.test.mjs` now prove the payload contract, the requirement-backed file-row render, and the reopen-detail handoff.
+- `validation`: `node --check workspace.js`, `node --test tests/student-dashboard-access.integration.test.mjs`, and `node --test tests/workspace-app.test.mjs` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.
+
 ## 2026-06-03 04:15 PT - Functionality UX Upgrade Global Admin URL State
 
 - `automation ID`: functionality-ux-upgrade-hourly.

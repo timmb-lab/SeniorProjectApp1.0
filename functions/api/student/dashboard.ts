@@ -25,6 +25,7 @@ interface SubmissionSummaryRow {
 
 interface EvidenceSummaryRow {
   id: string;
+  submission_id: string | null;
   title: string;
   artifact_type: string;
   source_kind: string;
@@ -37,6 +38,9 @@ interface EvidenceSummaryRow {
 
 interface EvidenceSummary {
   id: string;
+  submissionId: string | null;
+  requirementId: string | null;
+  requirementTitle: string | null;
   title: string;
   artifact_type: string;
   source_kind: string;
@@ -205,7 +209,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   ).bind(studentId).all<SubmissionSummaryRow>();
 
   const evidence = await env.DB.prepare(
-    `SELECT id, title, artifact_type, source_kind, external_url, mime_type, size_bytes, review_status, created_at
+    `SELECT id, submission_id, title, artifact_type, source_kind, external_url, mime_type, size_bytes, review_status, created_at
      FROM evidence_artifacts
      WHERE student_id = ? AND deleted_at IS NULL
      ORDER BY created_at DESC
@@ -245,7 +249,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     requirements: requirementDetails,
     progress: progressRows,
     submissions: submissionRows,
-    evidence: evidenceRows.map(summarizeEvidence),
+    evidence: evidenceRows.map((row) => summarizeEvidence(row, submissionRows)),
     feedback,
   });
 };
@@ -708,12 +712,21 @@ function deriveNextAction(submissions: SubmissionSummaryRow[], evidence: Evidenc
   return "Review the current capstone status.";
 }
 
-function summarizeEvidence(row: EvidenceSummaryRow): EvidenceSummary {
+function summarizeEvidence(row: EvidenceSummaryRow, submissions: SubmissionSummaryRow[]): EvidenceSummary {
   const isDriveFile = row.source_kind === "google_drive_file";
   const isExternalLink = row.source_kind === "external_link";
+  const submissionId = row.submission_id || null;
+  const linkedSubmission = submissionId
+    ? submissions.find((submission) => submission.id === submissionId) || null
+    : null;
 
   return {
     id: row.id,
+    submissionId,
+    requirementId: linkedSubmission?.requirement_id || null,
+    requirementTitle: linkedSubmission?.requirement_title
+      ? safeStudentText(linkedSubmission.requirement_title, "Requirement", 180)
+      : null,
     title: row.title,
     artifact_type: row.artifact_type,
     source_kind: row.source_kind,

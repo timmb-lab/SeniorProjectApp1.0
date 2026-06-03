@@ -1,0 +1,85 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-06-03T04:38:55-07:00",
+  "branch": "main",
+  "startingSha": "4e674c786bf77ee9354de3b50d626f57a848cbbe",
+  "endingSha": null,
+  "workOrderId": "student-evidence-requirement-handoff",
+  "ladderLevels": [
+    "LEVEL_6_STUDENT_PROGRESS_DRILL_DOWN"
+  ],
+  "selectedSlice": "Add requirement-backed context and existing requirement-detail actions to student Uploaded and linked work rows.",
+  "selectionReason": "Current repo evidence showed a real student workflow gap, not speculative polish. The student files list already rendered real download and external-link actions, but it still lacked the requirement context already available elsewhere in /api/student/dashboard, so students had to hunt through the checklist to confirm where each file belonged. Reusing the current requirement-detail action kept the slice small, student-scoped, and route-free while turning a passive file list into a real drill-down.",
+  "candidateCount": 10,
+  "candidateShortlist": [
+    "Student evidence requirement handoff",
+    "Filtered Audit cross-school proof refresh",
+    "Student evidence-panel language cleanup",
+    "Student next-step anchor follow-through",
+    "Broader Global Admin route refresh",
+    "Presentation ready-for-check-out parity proof refresh",
+    "Site selector future-only follow-through",
+    "Mentor reassignment or removal workflow",
+    "Admin import approved-path copy refresh",
+    "Hosted section-level permission proof"
+  ],
+  "userFacingImprovement": "Students can now see which requirement each uploaded or linked item supports and can reopen the matching in-page requirement detail directly from the files list.",
+  "privacyAndPermissionNotes": [
+    "The slice changes only student-scoped dashboard payload and student workspace rendering for the current signed-in student.",
+    "No auth, RBAC, tenant, site, program, mentor-assignment, or student-privacy boundary changed.",
+    "No new routes, broader evidence downloads, or storage-identifier exposure were introduced.",
+    "Existing download and external-link actions stay unchanged while the files list gains requirement context."
+  ],
+  "filesChanged": [
+    "functions/api/student/dashboard.ts",
+    "workspace.js",
+    "tests/student-dashboard-access.integration.test.mjs",
+    "tests/workspace-app.test.mjs",
+    "tests/functionality-language-audit.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-06-03-0438-student-evidence-requirement-handoff.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": {
+    "focusedPassedBeforeCloseout": [
+      "node --check workspace.js",
+      "node --test tests/student-dashboard-access.integration.test.mjs",
+      "node --test tests/workspace-app.test.mjs"
+    ],
+    "final": [
+      "node --check workspace.js",
+      "node --test tests/student-dashboard-access.integration.test.mjs",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run typecheck",
+      "npm run test",
+      "npm run check",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0438-student-evidence-requirement-handoff.json','utf8')); console.log('json ok')\"",
+      "git diff --check"
+    ],
+    "result": "passed",
+    "notes": "Focused student dashboard and workspace coverage passed before docs/state closeout, the audit regression test was refreshed for the new completed-row count, and the broader validation ladder passed after the closeout files were updated. git diff --check reported only CRLF normalization warnings."
+  },
+  "deferred": [
+    "Filtered Audit cross-school proof still needs a tighter locally provable scenario before another audit-focused pass.",
+    "Student evidence-panel language cleanup beyond this requirement handoff remains open.",
+    "Student next-step anchor follow-through is broader than this one files-list slice.",
+    "Broader Global Admin route refresh remains larger than one safe hourly slice.",
+    "Site selector follow-through still needs a broader cross-surface contract.",
+    "Mentor reassignment and removal workflow still needs mutation and audit design.",
+    "Hosted section-level permission proof still needs allowed runtime and audit-event writes.",
+    "Admin import approved-path copy refresh remains lower value than improving an existing student workflow."
+  ],
+  "nextRecommended": "Continue the student refresh only where the current dashboard can prove another exact in-page evidence, submission, or feedback handoff; otherwise return to filtered Audit cross-school proof only if a tighter local scenario is now provable.",
+  "doNotRepeat": [
+    "Do not strip requirementId or requirementTitle from /api/student/dashboard evidence rows while Uploaded and linked work reuses them for exact requirement reopen.",
+    "Do not regress Uploaded and linked work back to passive file history while the existing requirement detail already supports the same student-scoped handoff.",
+    "Do not expose storage identifiers, new evidence routes, or other-student file context while deepening student file usability."
+  ]
+}

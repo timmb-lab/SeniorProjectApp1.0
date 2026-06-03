@@ -5709,7 +5709,7 @@ test("workspace renders a progress-first student homepage with safe language", a
           { id: "submission-proposal", requirement_id: "req-proposal", requirement_title: "Senior Project Proposal", status: "revision_requested", version: 2, evidence_count: 1, updated_at: "2026-05-24T18:00:00.000Z" },
         ],
         evidence: [
-          { id: "evidence-proposal", title: "Proposal draft", artifact_type: "planning_document", source_kind: "external_link", externalUrl: "https://example.test/proposal", review_status: "pending_review", created_at: "2026-05-24T17:50:00.000Z" },
+          { id: "evidence-proposal", submissionId: "submission-proposal", requirementId: "req-proposal", requirementTitle: "Senior Project Proposal", title: "Proposal draft", artifact_type: "planning_document", source_kind: "external_link", externalUrl: "https://example.test/proposal", review_status: "pending_review", created_at: "2026-05-24T17:50:00.000Z" },
         ],
         feedback: [
           {
@@ -5819,6 +5819,8 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.match(student, /Due October 9 and 10/);
   assert.match(student, /Due January 14, make-up January 16/);
   assert.match(student, /Version 2/);
+  assert.match(student, /Uploaded and linked work/);
+  assert.match(student, /For Senior Project Proposal/);
   assert.match(student, /data-student-feedback-panel="true"/);
   assert.match(student, /data-student-feedback-history="true"/);
   assert.match(student, /data-student-feedback-count="1"/);
@@ -7344,6 +7346,9 @@ test("workspace renders evidence download and external-link actions without stor
         evidence: [
           {
             id: "evidence-drive",
+            submissionId: "submission-proposal",
+            requirementId: "req-proposal",
+            requirementTitle: "Senior Project Proposal",
             title: "Uploaded proposal PDF",
             artifact_type: "planning_document",
             source_kind: "google_drive_file",
@@ -7354,6 +7359,9 @@ test("workspace renders evidence download and external-link actions without stor
           },
           {
             id: "evidence-link",
+            submissionId: "submission-research",
+            requirementId: "req-research",
+            requirementTitle: "Research Notes",
             title: "Research link",
             artifact_type: "research_source",
             source_kind: "external_link",
@@ -7380,10 +7388,110 @@ test("workspace renders evidence download and external-link actions without stor
   assert.match(student, /data-evidence-download="file"/);
   assert.match(student, /href="\/api\/evidence\/evidence-drive\/download"/);
   assert.match(student, /Download file/);
+  assert.match(student, /For Senior Project Proposal/);
+  assert.match(student, /For Research Notes/);
+  assert.match(student, /data-student-requirement-action="open-detail"/);
   assert.match(student, /data-evidence-link="external"/);
   assert.match(student, /href="https:\/\/example\.edu\/research"/);
   assert.match(student, /Open link/);
   assert.doesNotMatch(student, /drive_file_id|driveFileId|drive-secret/i);
+});
+
+test("student files rows reopen the matching requirement detail", async () => {
+  const routes = {
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "student-files-detail",
+          email: "student.files.detail@example.edu",
+          displayName: "Files Detail Student",
+          roles: [{ role_id: "student", scope_type: "global", scope_id: "" }],
+        },
+      },
+    },
+    "/api/student/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        viewer: { self: true },
+        summary: {
+          completionPercent: 50,
+          requirementsComplete: 1,
+          requirementsTotal: 2,
+          phasesComplete: 1,
+          phasesTotal: 2,
+          submittedRequiredCount: 1,
+          missingRequiredCount: 1,
+          waitingForReviewCount: 0,
+          revisionRequestedCount: 1,
+          currentPhaseLabel: "Proposal And Research",
+          mentor: { assigned: true, name: "Ms. Garcia", message: "Check your proposal updates with your mentor." },
+        },
+        nextSteps: [],
+        requirements: [
+          {
+            requirementId: "req-proposal",
+            submissionId: "submission-proposal",
+            title: "Senior Project Proposal",
+            description: "Explain the problem, solution, audience, and evidence for your capstone project.",
+            phase: "proposal-and-research",
+            phaseLabel: "Proposal And Research",
+            status: "revision_requested",
+            progressStatus: "revision_requested",
+            submissionStatus: "revision_requested",
+            submissionVersion: 2,
+            evidenceCount: 1,
+            dueDate: "2026-05-30T00:00:00Z",
+            dueLabel: "May 30",
+            qualityPrompt: "Add one measurable success target before you send the proposal back.",
+            lastUpdatedAt: "2026-05-24T18:00:00.000Z",
+            nextAction: "Send the revised Senior Project Proposal back for teacher review.",
+          },
+        ],
+        progress: [],
+        submissions: [
+          { id: "submission-proposal", requirement_id: "req-proposal", requirement_title: "Senior Project Proposal", status: "revision_requested", version: 2, evidence_count: 1, updated_at: "2026-05-24T18:00:00.000Z" },
+        ],
+        evidence: [
+          {
+            id: "evidence-proposal",
+            submissionId: "submission-proposal",
+            requirementId: "req-proposal",
+            requirementTitle: "Senior Project Proposal",
+            title: "Proposal draft",
+            artifact_type: "planning_document",
+            source_kind: "external_link",
+            review_status: "pending_review",
+            externalUrl: "https://example.test/proposal",
+            created_at: "2026-05-24T17:50:00.000Z",
+          },
+        ],
+        feedback: [],
+      },
+    },
+    "/api/student/archive/readiness": {
+      status: 200,
+      body: { ok: true, checks: [], summary: {}, archive: {}, storage: {}, retention: {} },
+    },
+    "/api/presentation-slots": {
+      status: 200,
+      body: { ok: true, slots: [] },
+    },
+  };
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch(routes);
+  vm.runInContext('studentDisclosureState.files = true; activeSection = "student"; renderAppShell();', context);
+
+  assert.match(workspaceRoot.innerHTML, /For Senior Project Proposal/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-requirement-detail="true"/);
+
+  vm.runInContext('handleStudentRequirementAction({ currentTarget: { dataset: { studentRequirementAction: "open-detail", studentRequirementId: "req-proposal" } } })', context);
+
+  assert.match(workspaceRoot.innerHTML, /data-workspace-disclosure-panel="student:requirements"/);
+  assert.match(workspaceRoot.innerHTML, /data-student-requirement-detail="true"/);
+  assert.match(workspaceRoot.innerHTML, /Senior Project Proposal/);
+  assert.match(workspaceRoot.innerHTML, /Version 2 \/ Revision requested/);
 });
 
 test("workspace renders admin import controls and one-time setup output", async () => {

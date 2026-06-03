@@ -108,6 +108,9 @@ test("student dashboard returns own rows without storage ids and audits the view
   assert.equal(body.progress.length, 1);
   assert.equal(body.submissions.length, 1);
   assert.equal(body.evidence.length, 1);
+  assert.equal(body.evidence[0].submissionId, "submission-student-a");
+  assert.equal(body.evidence[0].requirementId, "req-proposal-draft");
+  assert.equal(body.evidence[0].requirementTitle, "Core Concept Proposal");
   assert.equal(body.evidence[0].fileBytesReady, true);
   assert.equal(body.evidence[0].downloadUrl, "/api/evidence/evidence-student-a/download");
   assert.equal(body.evidence[0].externalUrl, null);
@@ -639,13 +642,14 @@ class MockPreparedStatement {
       };
     }
 
-    if (this.sql.startsWith("select id, title, artifact_type, source_kind, external_url, mime_type, size_bytes, review_status, created_at from evidence_artifacts")) {
+    if (this.sql.startsWith("select id, submission_id, title, artifact_type, source_kind, external_url, mime_type, size_bytes, review_status, created_at from evidence_artifacts")) {
       const [studentId] = this.params;
       return {
         results: this.data.evidenceArtifacts
           .filter((row) => row.student_id === studentId && !row.deleted_at)
           .map((row) => ({
             id: row.id,
+            submission_id: row.submission_id,
             title: row.title,
             artifact_type: row.artifact_type,
             source_kind: row.source_kind,

@@ -5444,7 +5444,7 @@ function renderStudentWorkspaceDisclosurePanels(dashboard, summary, submissions,
         scope: "student",
         id: "files",
         kicker: "Evidence and files",
-        title: "Uploaded And Linked Work",
+        title: "Uploaded and linked work",
         summary: `${evidenceCount} evidence item${evidenceCount === 1 ? "" : "s"} available after you need the complete file list.`,
         openLabel: "Open files",
         closeLabel: "Hide files",
@@ -6367,7 +6367,9 @@ function renderStudentSubmissionsPanelBody(submissions = [], filteredSubmissions
 function renderStudentFilesPanelBody(evidence = []) {
   return `
     <div class="workspace-list">
-      ${evidence.length ? evidence.map(renderEvidenceRow).join("") : `<div class="workspace-empty">Evidence will appear here after you attach a link or upload a file.</div>`}
+      ${evidence.length
+        ? evidence.map(renderEvidenceRow).join("")
+        : `<div class="workspace-empty">Evidence will appear here after you attach a link or upload a file. Open a requirement or the evidence tools when you are ready to add your work.</div>`}
     </div>
   `;
 }
@@ -10960,6 +10962,9 @@ function latestFeedbackForSubmission(submission, feedback = []) {
 
 function renderEvidenceRow(item) {
   const actions = [];
+  if (item.requirementId) {
+    actions.push(renderStudentRequirementOpenButton(item));
+  }
   if (item.source_kind === "google_drive_file" && item.downloadUrl) {
     actions.push(`<a class="workspace-link-button workspace-link-button-small" data-evidence-download="file" href="${escapeHtml(item.downloadUrl)}">Download file</a>`);
   }
@@ -10972,6 +10977,7 @@ function renderEvidenceRow(item) {
       <div>
         <strong>${escapeHtml(item.title || "Evidence")}</strong>
         <p>${escapeHtml(evidenceSourceLabel(item.source_kind))} / ${escapeHtml(statusText(item.artifact_type || "evidence"))}</p>
+        ${item.requirementTitle ? `<p class="workspace-muted">For ${escapeHtml(item.requirementTitle)}</p>` : ""}
       </div>
       <div class="workspace-row-actions">
         ${actions.join("")}
