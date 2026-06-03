@@ -1,10 +1,18 @@
 {
   "schemaVersion": 1,
-  "lastRunAt": "2026-06-03T01:50:31.6856630-07:00",
-  "lastStartingSha": "cb730bfd3e3c173d8c48d827d5f221da786434f8",
+  "lastRunAt": "2026-06-03T02:08:16.1966949-07:00",
+  "lastStartingSha": "2f67ed3f812d3b33fdb64ce5f43ee36f7be2bac5",
   "lastEndingSha": null,
   "currentLadderFocus": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
   "completedWorkOrders": [
+    {
+      "id": "role-assignment-multi-school-choice",
+      "completedAt": "2026-06-03T02:08:16.1966949-07:00",
+      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
+      "type": "TYPE_D_ROLE_WORKSPACE",
+      "summary": "Global Admin recent multi-school program and cohort grants now render explicit school-choice actions into the existing filtered Student Directory.",
+      "commit": "pending-closeout-commit"
+    },
     {
       "id": "role-assignment-cohort-student-handoff",
       "completedAt": "2026-06-03T01:43:09.8334784-07:00",
@@ -1197,16 +1205,6 @@
   ],
   "deferredWorkOrders": [
     {
-      "id": "role-assignment-multi-school-handoff",
-      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
-      "reason": "Keep program-scoped or cohort-scoped role-assignment rows summary-only until one precise mapped school is proven."
-    },
-    {
-      "id": "role-assignment-multi-school-program-handoff",
-      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
-      "reason": "Keep multi-school program grants summary-only until one precise mapped school is proven."
-    },
-    {
       "id": "browser-visual-qa-collapsed-nav-and-site-switching",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
       "reason": "Browser screenshot QA needs credentialed local runtime and multiple-site demo data."
@@ -1265,16 +1263,16 @@
   "blockedWorkOrders": [],
   "nextRecommendedWorkOrders": [
     {
-      "id": "role-assignment-multi-school-handoff",
-      "ladderLevel": "LEVEL_4_ROLE_SPECIFIC_WORKSPACES",
-      "type": "TYPE_D_ROLE_WORKSPACE",
-      "summary": "Continue the Global Admin role-assignment refresh only where one exact school is proven, and keep multi-school program or cohort grants summary-only until a precise mapped destination exists."
+      "id": "filtered-audit-cross-school-proof",
+      "ladderLevel": "LEVEL_7_AUDITABILITY_AND_TRUST",
+      "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
+      "summary": "Continue the Global Admin route refresh with filtered Audit cross-school proof only when one locally provable scenario exists."
     },
     {
       "id": "global-admin-route-refresh",
       "ladderLevel": "LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT",
       "type": "TYPE_G_VERIFICATION_REGRESSION_PROTECTION",
-      "summary": "Continue the Global Admin route refresh only where the current workspace can prove one exact destination after the role-assignment program handoff."
+      "summary": "Continue the Global Admin route refresh only where the current workspace can prove another exact destination after the multi-school role-assignment chooser."
     },
     {
       "id": "program-teacher-mentor-meeting-follow-up-destination",
@@ -1459,14 +1457,15 @@
     "Do not re-add the student upcoming-deadlines panel unless regression removes data-student-deadlines-panel or the due-date-first rows stop reusing the existing requirement actions.",
     "Do not re-add the student feedback-history filters unless regression removes data-student-feedback-filters or filtered-out feedback-row timelines stop clearing safely.",
     "Do not re-add the student feedback timeline compare cues unless regression removes data-student-feedback-timeline-summary, current-version markers, evidence-count version rows, or newest-first teacher-note ordering.",
-    "Do not re-add the student support quick actions unless regression removes data-student-support-box or the Need help panel stops opening the existing feedback, submission, or requirement workflows."
+    "Do not re-add the student support quick actions unless regression removes data-student-support-box or the Need help panel stops opening the existing feedback, submission, or requirement workflows.",
+    "Do not auto-open multi-school program-scoped or cohort-scoped recent role assignments when more than one accessible school is mapped; keep explicit school choice visible.",
+    "Do not regress multi-school program-scoped or cohort-scoped role-assignment rows back to passive summary-only history while the current workspace can render exact school-choice actions."
   ],
   "lastValidationStatus": {
     "status": "passed",
-    "completedAt": "2026-06-03T01:50:31.6856630-07:00",
+    "completedAt": "2026-06-03T02:08:16.1966949-07:00",
     "commands": [
       "node --check workspace.js",
-      "node --test tests/admin-role-assignments.integration.test.mjs",
       "node --test tests/workspace-app.test.mjs",
       "npm run verify:functionality-language",
       "node --test tests/functionality-language-audit.test.mjs",
@@ -1475,10 +1474,10 @@
       "npm run typecheck",
       "npm run test",
       "npm run check",
-      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0143-role-assignment-cohort-students.json','utf8')); console.log('json ok')\"",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0208-role-assignment-multi-school-choice.json','utf8')); console.log('json ok')\"",
       "git diff --check"
     ],
-    "notes": "Focused role-assignment route and workspace coverage passed before docs/state closeout, and the full validation ladder passed again after the closeout metadata was refreshed."
+    "notes": "Focused workspace coverage passed before docs/state closeout, and the full validation ladder passed after the closeout files were updated. git diff --check reported only CRLF normalization warnings."
   },
   "lastProductReadinessScorecardSummary": {
     "homepageClarity": "4 to 4",

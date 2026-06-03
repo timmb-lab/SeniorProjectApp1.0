@@ -1,0 +1,81 @@
+{
+  "automationId": "functionality-ux-upgrade-hourly",
+  "runStartedAt": "2026-06-03T02:08:16.1966949-07:00",
+  "branch": "main",
+  "startingSha": "2f67ed3f812d3b33fdb64ce5f43ee36f7be2bac5",
+  "endingSha": null,
+  "workOrderId": "role-assignment-multi-school-choice",
+  "ladderLevels": [
+    "LEVEL_4_ROLE_SPECIFIC_WORKSPACES"
+  ],
+  "selectedSlice": "Add explicit school-choice actions to multi-school program-scoped and cohort-scoped Global Admin recent role assignments.",
+  "selectionReason": "Current repo evidence showed a real protected-workspace dead end, not speculative polish. workspace.js already opened exact single-school program and cohort grants through the existing filtered Student Directory, and /api/admin/role-assignments already returned exact scopeSiteIds for mapped schools. The missing step was the multi-school contract: recent role assignments still dropped back to passive summary rows even when the current workspace could prove multiple exact accessible schools. Rendering explicit school choices kept the same protected routes, avoided auto-picking one school, and improved real admin follow-through without widening scope.",
+  "candidateCount": 10,
+  "candidateShortlist": [
+    "Multi-school role-assignment school choice",
+    "Filtered Audit cross-school proof refresh",
+    "Broader Global Admin route refresh across Recent Audit, Students, Presentation, Programs, and Users & Access",
+    "Program Teacher mentor-meeting follow-up destination",
+    "Admin mentor-meeting exact destination",
+    "Review Queue missing-submission semantics",
+    "Mentor reassignment or removal workflow",
+    "Site selector future-only follow-through",
+    "Viewer email visibility policy",
+    "Hosted section-level permission proof"
+  ],
+  "userFacingImprovement": "Global Admin recent role assignments now render explicit school-choice actions for multi-school program and cohort grants, so admins can open the existing filtered Student Directory for the exact selected school instead of stopping at passive history rows.",
+  "privacyAndPermissionNotes": [
+    "The slice reuses the existing protected /api/admin/role-assignments read path plus the existing Student Directory route and site-switch contract.",
+    "No auth, RBAC, tenant, site, program, mentor-assignment, or student-privacy boundary changed.",
+    "The workspace only renders school-choice actions for mapped schools that are already accessible to the current Global Admin user.",
+    "The workspace still does not auto-pick a school when more than one exact destination exists."
+  ],
+  "filesChanged": [
+    "workspace.js",
+    "tests/workspace-app.test.mjs",
+    "docs/functionality-language-audit.md",
+    "docs/product/demo-role-readiness.md",
+    "docs/progress/run-log.md",
+    "docs/progress/runs/2026-06-03-0208-role-assignment-multi-school-choice.json",
+    "docs/functionality-ux-growth-ledger.md",
+    "automation/state/functionality-ux-growth-state.json"
+  ],
+  "validation": {
+    "focusedPassedBeforeCloseout": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs"
+    ],
+    "final": [
+      "node --check workspace.js",
+      "node --test tests/workspace-app.test.mjs",
+      "npm run verify:functionality-language",
+      "node --test tests/functionality-language-audit.test.mjs",
+      "npm run verify:functionality-ux-automation",
+      "npm run check:production-surfaces",
+      "npm run typecheck",
+      "npm run test",
+      "npm run check",
+      "node -e \"JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0208-role-assignment-multi-school-choice.json','utf8')); console.log('json ok')\"",
+      "git diff --check"
+    ],
+    "result": "passed",
+    "notes": "Focused workspace coverage passed before docs/state closeout, and the full validation ladder passed after the closeout files were updated."
+  },
+  "deferred": [
+    "Broader Global Admin route refresh remains larger than this bounded role-assignment handoff slice.",
+    "Filtered Audit cross-school proof still needs a tighter locally provable scenario before another audit pass.",
+    "Program Teacher mentor-meeting follow-up still lacks a precise scoped destination.",
+    "Admin mentor-meeting follow-up still lacks a precise current destination.",
+    "Review Queue missing-submission semantics remain deferred until backend rows or exact scoped empty-state evidence exist.",
+    "Mentor reassignment and removal workflow still needs mutation and audit design.",
+    "Site selector follow-through still needs a broader cross-surface contract.",
+    "Viewer email visibility policy still needs a product decision before any UI change.",
+    "Hosted section-level permission proof still needs allowed runtime and audit-event writes."
+  ],
+  "nextRecommended": "Continue the Global Admin route refresh only where the current workspace can prove an exact destination; inspect filtered Audit cross-school proof next if one locally provable scenario exists.",
+  "doNotRepeat": [
+    "Do not auto-open multi-school program-scoped or cohort-scoped recent role assignments when more than one accessible school is mapped.",
+    "Do not remove scopeSiteIds from /api/admin/role-assignments while the workspace uses that protected mapping to prove exact Student Directory handoffs.",
+    "Do not regress multi-school role-assignment rows back to passive summary-only history when the current workspace can render explicit school-choice actions."
+  ]
+}

@@ -6885,3 +6885,61 @@ Do not delete historical entries. If an older entry needs correction, add a shor
   - Blockers: multi-school program or cohort grants still need an exact mapped destination contract; mentor-meeting follow-up still lacks a precise destination; hosted permission proof still needs allowed runtime.
   - Do not repeat: do not regress single-school cohort grants back to passive summary-only rows while the protected route and existing Student Directory already support the exact handoff.
   - First file to inspect next run: `workspace.js` around `renderAdminRoleAssignmentsBody()` and `functions/api/admin/role-assignments.ts`
+
+## Run 2026-06-03 02:08 PT
+
+- Starting SHA: `2f67ed3f812d3b33fdb64ce5f43ee36f7be2bac5`
+- Ending SHA: pending closeout commit; final hash is reported after commit
+- Branch: `main`
+- Branch policy: started from clean local `main` ahead of `origin/main` by eleven earlier in-lane commits; this run stayed local-only and did not push
+- Ladder level targeted: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+- Backlog item: remaining Global Admin route-refresh depth inside `docs/functionality-language-audit.md` and `docs/product/demo-role-readiness.md`
+- Work order selected: Add explicit school-choice actions to multi-school program-scoped and cohort-scoped Global Admin recent role assignments.
+- Selection reason: current repo evidence showed a real protected-workspace dead end, not speculative polish. `workspace.js` already knew how to open single-school program and cohort grants through the existing filtered Student Directory, and `/api/admin/role-assignments` already returned exact `scopeSiteIds` for mapped schools. The only missing step was the multi-school contract: recent role assignments still dropped back to passive summary rows even when the current workspace could prove multiple exact accessible schools. Rendering explicit school choices kept the same protected routes, avoided auto-picking one school, and improved real admin follow-through without widening scope.
+- Candidate scoring summary:
+
+| Candidate | Ladder Level | Roles | Impact | Safety | Testability | Size | Score | Decision |
+|---|---|---|---:|---:|---:|---|---:|---|
+| Multi-school role-assignment school choice | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin` | 5 | 5 | 5 | XS | 60 | selected |
+| Filtered Audit cross-school proof refresh | `LEVEL_7_AUDITABILITY_AND_TRUST` | `global_admin` | 4 | 3 | 3 | M | 36 | deferred: needs a tighter locally provable scenario first |
+| Broader Global Admin route refresh across Recent Audit, Students, Presentation, Programs, and Users & Access | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | `global_admin` | 4 | 4 | 3 | M | 44 | deferred: broader than one safe hourly slice |
+| Program Teacher mentor-meeting follow-up destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `program_teacher` | 4 | 2 | 2 | M | 30 | deferred: no precise scoped destination is proven |
+| Admin mentor-meeting exact destination | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | `global_admin` | 4 | 2 | 2 | M | 30 | deferred: current workspace still lacks a precise meeting-follow-up destination |
+| Review Queue missing-submission semantics | `LEVEL_5_REVIEW_AND_INTERVENTION_QUEUES` | `program_teacher`, `site_admin` | 5 | 2 | 3 | M | 34 | deferred: backend queue rows are still absent |
+| Mentor reassignment or removal workflow | `LEVEL_3_MENTOR_ASSIGNMENT_WORKFLOW` | `site_admin` | 4 | 2 | 3 | M | 33 | deferred: mutation and audit design still needed |
+| Site selector future-only follow-through | `LEVEL_4_ROLE_SPECIFIC_WORKSPACES` | multi-site staff | 4 | 3 | 2 | M | 34 | deferred: broader cross-surface contract than this bounded Global Admin slice |
+| Viewer email visibility policy | `LEVEL_7_AUDITABILITY_AND_TRUST` | `viewer` | 3 | 2 | 3 | S | 30 | deferred: product policy still comes before UI change |
+| Hosted section-level permission proof | `LEVEL_9_AUTONOMOUS_QUALITY_IMPROVEMENT` | all protected roles | 4 | 3 | 2 | M | 35 | deferred: hosted runtime is outside this local batch |
+
+- User-facing improvement: Global Admin recent role assignments no longer leave multi-school program or cohort grants as passive history rows; the disclosure now offers exact school-choice actions that open the existing filtered Student Directory for the selected mapped school.
+- Roles affected: `global_admin`
+- Files changed: `workspace.js`, `tests/workspace-app.test.mjs`, `docs/functionality-language-audit.md`, `docs/product/demo-role-readiness.md`, `docs/progress/run-log.md`, `docs/progress/runs/2026-06-03-0208-role-assignment-multi-school-choice.json`, `docs/functionality-ux-growth-ledger.md`, `automation/state/functionality-ux-growth-state.json`
+- Tests/verifiers added or updated: `tests/workspace-app.test.mjs` now proves multi-school program-scoped and cohort-scoped recent role assignments render explicit school-choice actions and open the existing filtered Student Directory for the exact selected school.
+- Validation commands:
+  - `node --check workspace.js`
+  - `node --test tests/workspace-app.test.mjs`
+  - `npm run verify:functionality-language`
+  - `node --test tests/functionality-language-audit.test.mjs`
+  - `npm run verify:functionality-ux-automation`
+  - `npm run check:production-surfaces`
+  - `npm run typecheck`
+  - `npm run test`
+  - `npm run check`
+  - `node -e "JSON.parse(require('fs').readFileSync('automation/state/functionality-ux-growth-state.json','utf8')); JSON.parse(require('fs').readFileSync('docs/progress/runs/2026-06-03-0208-role-assignment-multi-school-choice.json','utf8')); console.log('json ok')"`
+  - `git diff --check`
+- Validation result: passed; focused workspace coverage passed before docs/state closeout, and the full validation ladder passed after the closeout files were updated.
+- Commit: pending closeout commit
+- Push status: not pushed
+- Deferred items: broader Global Admin route refresh, filtered Audit cross-school proof refresh, Program Teacher mentor-meeting follow-up destination, Admin mentor-meeting exact destination, Review Queue missing-submission semantics, mentor reassignment/remove workflow, site-selector follow-through, viewer email visibility policy, and hosted section-level permission proof remain open.
+- New backlog items: none
+- Next recommended work order: Continue the Global Admin route refresh only where the current workspace can prove an exact destination; inspect filtered Audit cross-school proof next if one locally provable scenario exists.
+- Do-not-repeat notes: do not auto-open multi-school program-scoped or cohort-scoped recent role assignments when more than one accessible school is mapped; keep explicit school choice visible, preserve the protected `scopeSiteIds` mapping, and do not regress these rows back to passive summary-only history.
+- Ladder Handoff:
+  - Targeted Level: `LEVEL_4_ROLE_SPECIFIC_WORKSPACES`
+  - Advanced: yes
+  - Evidence: `renderAdminRoleAssignmentsBody()` now turns multi-school program and cohort grants into explicit school-choice actions, and focused workspace tests prove those actions open the existing filtered Student Directory without auto-picking a school.
+  - Unlocks: the next Global Admin pass can evaluate the remaining cross-school route and audit gaps without rediscovering multi-school role assignments as dead ends.
+  - Next: inspect `workspace.js` around `renderAdminRoleAssignmentAction()` and the Global Admin Audit section only if the current workspace can prove another exact destination.
+  - Blockers: mentor-meeting follow-up still lacks a precise destination; filtered Audit cross-school proof still needs a tighter local scenario; hosted permission proof still needs allowed runtime.
+  - Do not repeat: do not remove the explicit school-choice buttons or auto-pick one school while the protected role-assignment route already proves multiple exact accessible destinations.
+  - First file to inspect next run: `workspace.js` around `renderAdminRoleAssignmentAction()`

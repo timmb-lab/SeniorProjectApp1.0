@@ -2985,3 +2985,14 @@ Future productive runs should append compact entries that name the master-plan s
 - `changes`: `workspace.js` now enables `View student detail` inside the Admin Command Center `Review Workload` card, renders the existing student-detail drawer in `adminDashboard` context, preserves `adminDashboard` as the return source when those rows open detail, and allows the existing detail URL-state helpers to restore that drawer safely for Global Admins. `tests/workspace-app.test.mjs` now proves a Global Admin can open and close review-row detail without leaving the Admin Command Center, while `scripts/verify-dashboard-actions.mjs` and `scripts/verify-workspace-navigation-integrity.mjs` now guard the admin-dashboard action and URL-state wiring against regression.
 - `validation`: `node --check workspace.js`, `node --test tests/workspace-app.test.mjs`, `npm run verify:dashboard-actions`, and `npm run verify:workspace-navigation` passed before docs/state closeout. Full validation status is recorded in `docs/functionality-ux-growth-ledger.md`.
 - `commit/push status`: pending closeout commit; not pushed by this automation run.
+
+## 2026-06-03 PT - Functionality UX Upgrade Multi-School Role-Assignment Choice
+
+- `automation ID`: functionality-ux-upgrade-hourly.
+- `lane`: Level 4 role-specific workspace clarity / Global Admin recent role-assignment school-choice handoff.
+- `starting HEAD`: `2f67ed3f812d3b33fdb64ce5f43ee36f7be2bac5`.
+- `selected slice`: Replace passive multi-school program/cohort role-assignment rows with explicit school-choice actions.
+- `repo-grounded findings`: `workspace.js` already opened exact single-school program and cohort grants into the existing filtered Student Directory, and `/api/admin/role-assignments` already returned exact `scopeSiteIds` for mapped schools. The remaining dead end was only the multi-school case: when more than one accessible mapped school existed, the disclosure dropped back to summary-only even though the current workspace could still prove exact destinations for each school without auto-picking one.
+- `changes`: `workspace.js` now renders explicit school-choice buttons for multi-school program-scoped and cohort-scoped recent role assignments, while preserving the existing single-school handoffs and keeping inaccessible or unmapped rows actionless. `tests/workspace-app.test.mjs` now proves those buttons render for both multi-school program and cohort grants and that each button opens the existing filtered Student Directory with the exact selected `siteId` plus `programId` or `cohortId`.
+- `validation`: `node --check workspace.js` and `node --test tests/workspace-app.test.mjs` passed before docs/state closeout. Full closeout validation is recorded in `docs/functionality-ux-growth-ledger.md`.
+- `commit/push status`: pending closeout commit; not pushed by this automation run.

@@ -7494,35 +7494,74 @@ function renderAdminRoleAssignmentAction(assignment = {}) {
     : [];
   if (!mappedSiteIds.length) return "";
   const accessibleSites = accessibleSitesForWorkspace().filter((site) => mappedSiteIds.includes(site.siteId));
-  if (accessibleSites.length !== 1) return "";
-  const [site] = accessibleSites;
+  if (!accessibleSites.length) return "";
   if (scopeType === "program") {
     const programId = cleanDirectoryFilter(assignment.scopeId || "");
     if (!programId) return "";
-    return `
-      <button
-        class="workspace-link-button workspace-link-button-small"
-        type="button"
-        data-role-assignment-action="open-program-students"
-        data-role-assignment-site-id="${escapeHtml(site.siteId || "")}"
-        data-role-assignment-program-id="${escapeHtml(programId)}"
-      >
-        Open program students
-      </button>
-    `;
+    return renderRoleAssignmentStudentActions(accessibleSites, {
+      action: "open-program-students",
+      actionLabel: "Open program students",
+      scopeIdAttr: "role-assignment-program-id",
+      scopeIdValue: programId,
+    });
   }
   if (scopeType !== "cohort") return "";
   const cohortId = cleanDirectoryFilter(assignment.scopeId || "");
   if (!cohortId) return "";
+  return renderRoleAssignmentStudentActions(accessibleSites, {
+    action: "open-cohort-students",
+    actionLabel: "Open cohort students",
+    scopeIdAttr: "role-assignment-cohort-id",
+    scopeIdValue: cohortId,
+  });
+}
+
+function renderRoleAssignmentStudentActions(accessibleSites = [], {
+  action = "",
+  actionLabel = "Open students",
+  scopeIdAttr = "",
+  scopeIdValue = "",
+} = {}) {
+  const sites = Array.isArray(accessibleSites) ? accessibleSites.filter((site) => site?.siteId) : [];
+  if (!sites.length || !action || !scopeIdAttr || !scopeIdValue) return "";
+  if (sites.length === 1) {
+    return renderRoleAssignmentStudentActionButton(sites[0], {
+      action,
+      label: actionLabel,
+      scopeIdAttr,
+      scopeIdValue,
+    });
+  }
+  return `
+    <div class="workspace-chip-row">
+      <span class="workspace-summary-badge">Choose school</span>
+      ${sites.map((site) => renderRoleAssignmentStudentActionButton(site, {
+        action,
+        label: site.siteName || site.siteId || "School",
+        scopeIdAttr,
+        scopeIdValue,
+      })).join("")}
+    </div>
+  `;
+}
+
+function renderRoleAssignmentStudentActionButton(site = {}, {
+  action = "",
+  label = "Open",
+  scopeIdAttr = "",
+  scopeIdValue = "",
+} = {}) {
+  const siteId = cleanDirectoryFilter(site?.siteId || "");
+  if (!siteId || !action || !scopeIdAttr || !scopeIdValue) return "";
   return `
     <button
       class="workspace-link-button workspace-link-button-small"
       type="button"
-      data-role-assignment-action="open-cohort-students"
-      data-role-assignment-site-id="${escapeHtml(site.siteId || "")}"
-      data-role-assignment-cohort-id="${escapeHtml(cohortId)}"
+      data-role-assignment-action="${escapeHtml(action)}"
+      data-role-assignment-site-id="${escapeHtml(siteId)}"
+      data-${scopeIdAttr}="${escapeHtml(scopeIdValue)}"
     >
-      Open cohort students
+      ${escapeHtml(label)}
     </button>
   `;
 }
