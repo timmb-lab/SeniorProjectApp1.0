@@ -6980,6 +6980,17 @@ test("workspace renders presentation schedule filters and day-of actions", async
             checkedInAt: null,
           },
           {
+            id: "slot-outline-pending-scheduled",
+            studentName: "Riley Student",
+            scheduledFor: "2026-03-26T16:45:00.000Z",
+            durationMinutes: 15,
+            location: "Room 104",
+            status: "scheduled",
+            outlineStatus: "pending",
+            checkedOutAt: null,
+            checkedInAt: null,
+          },
+          {
             id: "slot-outline-follow-up",
             studentName: "Sam Student",
             scheduledFor: "2026-03-26T17:00:00.000Z",
@@ -7004,18 +7015,20 @@ test("workspace renders presentation schedule filters and day-of actions", async
   assert.match(presentation, /Needs action worklist/);
   assert.match(presentation, /data-presentation-filters="true"/);
   assert.match(presentation, /data-presentation-filter="all"/);
-  assert.match(presentation, /All \(3\)/);
+  assert.match(presentation, /All \(4\)/);
   assert.match(presentation, /Ready for check-out \(1\)/);
   assert.match(presentation, /Checked out \(1\)/);
   assert.match(presentation, /Checked in \(1\)/);
-  assert.match(presentation, /Outline follow-up \(1\)/);
+  assert.match(presentation, /Outline follow-up \(2\)/);
   assert.match(presentation, /data-presentation-state="scheduled"/);
   assert.match(presentation, /data-presentation-state="checked_out"/);
   assert.match(presentation, /Maya Student/);
   assert.match(presentation, /Jordan Student/);
+  assert.match(presentation, /Riley Student/);
   assert.match(presentation, /Sam Student/);
   assert.match(presentation, /Room 101/);
   assert.match(presentation, /Outline[\s\S]*Approved/);
+  assert.match(presentation, /Outline approval needed/);
   assert.match(presentation, /data-presentation-action="check-out"/);
   assert.match(presentation, /data-presentation-action="check-in"/);
 
@@ -7023,7 +7036,7 @@ test("workspace renders presentation schedule filters and day-of actions", async
   const scheduledOnly = workspaceRoot.innerHTML;
   assert.match(scheduledOnly, /data-presentation-filter="scheduled"/);
   assert.match(scheduledOnly, /Maya Student/);
-  assert.doesNotMatch(scheduledOnly, /Jordan Student|Sam Student/);
+  assert.doesNotMatch(scheduledOnly, /Jordan Student|Riley Student|Sam Student/);
   assert.match(scheduledOnly, /data-presentation-action="check-out"/);
   assert.match(window.location.href, /section=presentation/);
   assert.match(window.location.href, /presentationFocus=scheduled/);
@@ -7031,7 +7044,9 @@ test("workspace renders presentation schedule filters and day-of actions", async
   vm.runInContext('handlePresentationFilterAction({ currentTarget: { dataset: { presentationFilterAction: "outline_follow_up" } } })', context);
   const outlineOnly = workspaceRoot.innerHTML;
   assert.match(outlineOnly, /data-presentation-filter="outline_follow_up"/);
+  assert.match(outlineOnly, /Riley Student/);
   assert.match(outlineOnly, /Sam Student/);
+  assert.match(outlineOnly, /Pending/);
   assert.match(outlineOnly, /Revision needed/);
   assert.doesNotMatch(outlineOnly, /Maya Student|Jordan Student/);
   assert.match(window.location.href, /presentationFocus=outline_follow_up/);
@@ -7084,6 +7099,17 @@ test("workspace restores presentation schedule focus from URL state", async () =
             status: "checked_out",
             outlineStatus: "approved",
             checkedOutAt: "2026-03-26T16:28:00.000Z",
+            checkedInAt: null,
+          },
+          {
+            id: "slot-outline-pending-scheduled",
+            studentName: "Riley Student",
+            scheduledFor: "2026-03-26T16:45:00.000Z",
+            durationMinutes: 15,
+            location: "Room 104",
+            status: "scheduled",
+            outlineStatus: "pending",
+            checkedOutAt: null,
             checkedInAt: null,
           },
           {

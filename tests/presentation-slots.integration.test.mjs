@@ -28,9 +28,9 @@ test("presentation slots enforce scoped visibility, conflict checks, and audit e
     });
     assert.equal(response.status, 200);
     const body = await response.json();
-    assert.deepEqual(body.slots.map((slot) => slot.studentId), ["student-a"]);
+    assert.deepEqual(body.slots.map((slot) => slot.studentId), ["student-a", "student-a"]);
     assert.equal(fixture.db.data.auditEvents.at(-1).action, "presentation_slots_viewed");
-    assert.equal(JSON.parse(fixture.db.data.auditEvents.at(-1).metadata_json).resultCount, 1);
+    assert.equal(JSON.parse(fixture.db.data.auditEvents.at(-1).metadata_json).resultCount, 2);
   }
 
   // Students cannot use the list route to infer another student's protected slot record.
@@ -54,8 +54,9 @@ test("presentation slots enforce scoped visibility, conflict checks, and audit e
     assert.equal(response.status, 200);
     const body = await response.json();
     assert.equal(body.ok, true);
-    assert.deepEqual(body.slots.map((slot) => slot.studentId), ["student-a"]);
-    assert.equal(body.slots[0].location, "Room 101");
+    assert.deepEqual(body.slots.map((slot) => slot.studentId), ["student-a", "student-a"]);
+    assert.equal(body.slots.some((slot) => slot.location === "Room 101"), true);
+    assert.equal(body.slots.some((slot) => slot.location === "Room 103"), true);
   }
 
   // Misc admin broad reporting access is denied instead of matching all slots.
@@ -129,7 +130,7 @@ test("presentation slots enforce scoped visibility, conflict checks, and audit e
     const body = await response.json();
     assert.equal(body.error, "presentation_slot_conflict");
     assert.equal(body.conflict.id, "slot-existing-a");
-    assert.equal(fixture.db.data.presentationSlots.length, 2);
+    assert.equal(fixture.db.data.presentationSlots.length, 3);
     assert.equal(fixture.db.data.auditEvents.at(-1).action, "presentation_slot_conflict");
   }
 
@@ -167,7 +168,7 @@ test("presentation slots enforce scoped visibility, conflict checks, and audit e
         studentId: "student-b",
         scheduledFor: "2026-03-26T17:00:00.000Z",
         durationMinutes: 20,
-        location: "Room 103",
+        location: "Room 105",
       }),
       env: fixture.env,
     });
@@ -234,6 +235,24 @@ test("presentation slots enforce scoped visibility, conflict checks, and audit e
     assert.equal(body.error, "presentation_slot_invalid_status");
     assert.equal(body.status, "scheduled");
     assert.equal(fixture.db.data.auditEvents.at(-1).action, "presentation_slot_check_in_denied");
+  }
+
+  // Check-out cannot happen until the outline is approved.
+  {
+    const response = await onPresentationSlotCheckOutPost({
+      request: buildAuthedRequest("https://example.test/api/presentation-slots/slot-existing-outline-pending/check-out", fixture.teacherToken, {
+        method: "POST",
+      }),
+      env: fixture.env,
+      params: { id: "slot-existing-outline-pending" },
+    });
+    assert.equal(response.status, 409);
+    const body = await response.json();
+    assert.equal(body.error, "presentation_slot_outline_not_ready");
+    assert.equal(body.status, "scheduled");
+    assert.equal(body.outlineStatus, "pending");
+    assert.equal(fixture.db.data.presentationSlots.find((row) => row.id === "slot-existing-outline-pending").checked_out_at, null);
+    assert.equal(fixture.db.data.auditEvents.at(-1).action, "presentation_slot_check_out_denied");
   }
 
   // Scoped teacher can check a scheduled student out and gets an audited timestamp.
@@ -363,6 +382,14 @@ async function createFixture() {
     scheduled_for: "2026-03-26T16:00:00.000Z",
     duration_minutes: 20,
     location: "Room 102",
+  }));
+  db.data.presentationSlots.push(buildSlot({
+    id: "slot-existing-outline-pending",
+    student_user_id: "student-a",
+    scheduled_for: "2026-03-26T17:00:00.000Z",
+    duration_minutes: 20,
+    location: "Room 103",
+    outline_status: "pending",
   }));
 
   const adminToken = "token-admin-a";

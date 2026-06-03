@@ -83,6 +83,28 @@ export async function handlePresentationSlotTransition(
   const permissionError = await authorizeSlotManager(env, request, user, slot, config.deniedAction, transition);
   if (permissionError) return permissionError;
 
+  if (transition === "check_out" && slot.status === "scheduled" && slot.outline_status !== "approved") {
+    await writeAudit(env, {
+      actorUserId: user.id,
+      action: config.deniedAction,
+      entityType: "presentation_slot",
+      entityId: slot.id,
+      request,
+      metadata: {
+        studentId: slot.student_id,
+        status: slot.status,
+        outlineStatus: slot.outline_status,
+        reason: "outline_not_approved",
+      },
+    });
+    return json({
+      ok: false,
+      error: "presentation_slot_outline_not_ready",
+      status: slot.status,
+      outlineStatus: slot.outline_status,
+    }, { status: 409 });
+  }
+
   if (slot.status !== config.requiredStatus) {
     await writeAudit(env, {
       actorUserId: user.id,

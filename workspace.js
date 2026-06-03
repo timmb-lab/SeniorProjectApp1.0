@@ -8794,7 +8794,7 @@ function presentationDashboardModel(slots = []) {
   const rows = Array.isArray(slots) ? slots : [];
   const total = rows.length;
   const checkedIn = rows.filter((slot) => slot.status === "checked_in" || slot.status === "completed").length;
-  const scheduledApproved = rows.filter((slot) => slot.status === "scheduled" && normalizeStatus(slot.outlineStatus) === "approved").length;
+  const scheduledApproved = rows.filter(isReadyForPresentationCheckOut).length;
   const checkedOut = rows.filter((slot) => slot.status === "checked_out").length;
   const outlinePending = rows.filter((slot) => ["pending", "revision_needed", "outline_pending", "outline_revision_needed"].includes(normalizeStatus(slot.outlineStatus))).length;
   const pendingSchedule = rows.filter((slot) => !slot.scheduledFor).length;
@@ -8820,7 +8820,7 @@ function presentationDashboardModel(slots = []) {
 function renderPresentationSlotFilters(slots = [], activeFilter = "all") {
   const filters = [
     ["all", "All", slots.length],
-    ["scheduled", "Ready for check-out", slots.filter((slot) => slot.status === "scheduled").length],
+    ["scheduled", "Ready for check-out", slots.filter(isReadyForPresentationCheckOut).length],
     ["checked_out", "Checked out", slots.filter((slot) => slot.status === "checked_out").length],
     ["checked_in", "Checked in", slots.filter((slot) => slot.status === "checked_in" || slot.status === "completed").length],
     ["outline_follow_up", "Outline follow-up", slots.filter((slot) => ["pending", "revision_needed"].includes(String(slot.outlineStatus || ""))).length],
@@ -8843,11 +8843,15 @@ function filterPresentationSlots(slots = [], activeFilter = "all") {
 }
 
 function presentationSlotMatchesFilter(slot, filter) {
-  if (filter === "scheduled") return slot?.status === "scheduled";
+  if (filter === "scheduled") return isReadyForPresentationCheckOut(slot);
   if (filter === "checked_out") return slot?.status === "checked_out";
   if (filter === "checked_in") return slot?.status === "checked_in" || slot?.status === "completed";
   if (filter === "outline_follow_up") return ["pending", "revision_needed"].includes(String(slot?.outlineStatus || ""));
   return true;
+}
+
+function isReadyForPresentationCheckOut(slot) {
+  return slot?.status === "scheduled" && normalizeStatus(slot?.outlineStatus) === "approved";
 }
 
 function cleanPresentationSlotFilter(value) {
@@ -9215,8 +9219,11 @@ function presentationTimestampSummary(slot) {
 
 function renderPresentationAction(slot, canManage) {
   if (!canManage) return "";
-  if (slot.status === "scheduled") {
+  if (slot.status === "scheduled" && isReadyForPresentationCheckOut(slot)) {
     return `<button class="workspace-button workspace-button-primary" type="button" data-presentation-action="check-out" data-slot-id="${escapeHtml(slot.id)}">Check out</button>`;
+  }
+  if (slot.status === "scheduled") {
+    return `<span class="workspace-muted" data-presentation-action-state="outline-follow-up">Outline approval needed</span>`;
   }
   if (slot.status === "checked_out") {
     return `<button class="workspace-button workspace-button-secondary" type="button" data-presentation-action="check-in" data-slot-id="${escapeHtml(slot.id)}">Check in</button>`;
