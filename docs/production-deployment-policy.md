@@ -58,12 +58,13 @@ Do not use `_redirects` as a domain-level redirect mechanism and do not use `_re
 
 Retired technical artifacts:
 
-- `stakeholder-options/titan-blend/`
-- `stakeholder-options/back-to-basics/`
+- `old/stakeholder-options/titan-blend/`
+- `old/stakeholder-options/back-to-basics/`
+- `old/scripts/build-stakeholder-sites.mjs`
 - `senior-capstone-option-titan`
 - `senior-capstone-option-primary`
 
-The historical directories may remain temporarily as non-deployed review history. The active package scripts `build:stakeholder-sites`, `build:site-options`, `dev:option:titan`, `dev:option:primary`, `deploy:option:titan`, and `deploy:option:primary` must not exist. `check:site-options` validates that retired options are not active deploy targets.
+The historical directories are archived as non-deployed review history. The active package scripts `build:stakeholder-sites`, `build:site-options`, `dev:option:titan`, `dev:option:primary`, `deploy:option:titan`, and `deploy:option:primary` must not exist. `check:site-options` validates that retired options are not active deploy targets.
 
 Cloudflare cleanup for `senior-capstone-option-titan` and `senior-capstone-option-primary` is manual follow-up unless live tooling verifies deletion/disablement.
 
@@ -89,7 +90,7 @@ These pages must not be part of normal student/family production navigation:
 - `account.html`
 - Any route with alpha reset/report controls
 - Any fake account, `.test` account, seeded-persona, smoke-test, or internal run-report UI
-- Any `stakeholder-options/**` page
+- Any `old/stakeholder-options/**` page
 
 `app-preview.html` may remain linked only as a clearly labeled workflow preview. It must not claim the secure app is finished or pilot-ready.
 

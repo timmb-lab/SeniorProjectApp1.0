@@ -20,6 +20,15 @@ test("framework seed plan maps requirements, deadlines, review gates, and checks
     assert.match(id, /^req-/);
   }
 
+  const phasesByRequirement = new Map(seed.plan.requirements.map((req) => [req.id, req.phase]));
+  assert.equal(phasesByRequirement.get("req-proposal-draft"), "phase-1");
+  assert.equal(phasesByRequirement.get("req-mentor-meeting-one-plan"), "phase-2a");
+  assert.equal(phasesByRequirement.get("req-mentor-meeting-two-outline"), "phase-2b");
+  assert.equal(phasesByRequirement.get("req-presentation-day"), "phase-3a");
+  assert.equal(phasesByRequirement.get("req-celebration-day"), "phase-3b");
+  assert.equal(phasesByRequirement.get("req-reflection-best-work"), "phase-4");
+  assert.equal(phasesByRequirement.get("req-personal-archive-export"), "finish");
+
   for (const deadline of seed.plan.deadlines) {
     assert.match(deadline.dueAt, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/);
     assert.ok(Number.isFinite(Date.parse(deadline.dueAt)));
@@ -40,4 +49,3 @@ test("framework seed SQL is idempotent and includes all core inserts", () => {
   // Guardrail: never embed local filesystem-only sourcePdf paths into SQL output.
   assert.doesNotMatch(sql, /C:\\\\Users\\\\|C:\\/);
 });
-

@@ -34,9 +34,9 @@ Date: 2026-05-20
 - `production`: root public guide pages, `app-preview.html` as a non-production workflow preview, production app/backend API routes, `senior-capstone-app`, and `senior-capstone-public` public companion deploy.
 - `internal-alpha`: `alpha.html`, `alpha.js`, `alpha.css`, `/api/alpha/state`, and `deploy:preview`.
 - `internal-smoke`: `account.html`, `account.js`, `account.css`, and `/api/admin/test-accounts`.
-- `stakeholder-review`: `stakeholder-options/titan-blend/**`, `stakeholder-options/back-to-basics/**`, `deploy:option:titan`, and `deploy:option:primary`.
-- `generated-output`: `public-companion/**`, stakeholder option output roots, and `docs/generated/production-route-inventory.md`.
-- `legacy`: `audit.html` and `roadmap.html` redirects.
+- `stakeholder-review`: `old/stakeholder-options/titan-blend/**`, `old/stakeholder-options/back-to-basics/**`, `deploy:option:titan`, and `deploy:option:primary`.
+- `generated-output`: `public-companion/**`, archived stakeholder option output roots, and `docs/generated/production-route-inventory.md`.
+- `legacy`: `old/legacy-redirects/audit.html` and `old/legacy-redirects/roadmap.html` redirects.
 - `unknown`: none in the committed route inventory.
 
 ## Main Fixes
@@ -96,10 +96,10 @@ Fixed:
 4. Add a CI assertion that `public-companion/_redirects` never proxies internal alpha/account/API routes.
 5. Extend production-surface checker to scan selected rendered text from HTML/JS bundles if the app splits routes later.
 6. Add stakeholder-option retirement/promote workflow once Bryan picks a direction.
-7. Add a generated-output drift check for `public-companion/**` and `stakeholder-options/**`.
+7. Add a generated-output drift check for `public-companion/**` and `old/stakeholder-options/**`.
 8. Add live Cloudflare verification once `CLOUDFLARE_API_TOKEN` is available.
 9. Add real custom-domain checklist and post-cutover verification commands.
-10. Review `audit.html` and `roadmap.html` analytics/bookmarks and retire them if no longer needed.
+10. Confirm no external analytics/bookmarks still need root `audit.html` or `roadmap.html`; both shells are now archived under `old/legacy-redirects/`.
 
 ## Final Safety Check
 

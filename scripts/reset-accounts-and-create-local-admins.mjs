@@ -18,6 +18,7 @@ const DEFAULT_ACCOUNT_ID = "539e8f7c55e7b1472013626ad72f4c7f";
 const DEFAULT_BASE_URL = "https://senior-capstone-app.pages.dev";
 const WRANGLER_JS = path.join(REPO_ROOT, "node_modules", "wrangler", "bin", "wrangler.js");
 const CONFIRM_TEXT = "RESET_ALL_ACCOUNTS";
+const D1_SPAWN_MAX_BUFFER = 128 * 1024 * 1024;
 
 const APPROVED_ADMINS = Object.freeze([
   Object.freeze({
@@ -385,6 +386,7 @@ class WranglerD1Adapter {
       cwd: this.repoRoot,
       encoding: "utf8",
       env: { ...process.env, CI: "1" },
+      maxBuffer: D1_SPAWN_MAX_BUFFER,
       windowsHide: true,
     });
     if (result.status !== 0) {
@@ -406,6 +408,7 @@ class WranglerD1Adapter {
         cwd: repoRoot,
         encoding: "utf8",
         env: { ...process.env, CI: "1" },
+        maxBuffer: D1_SPAWN_MAX_BUFFER,
         windowsHide: true,
       });
       if (result.status !== 0) {

@@ -41,7 +41,7 @@ Production-surface policy lives in:
 Retired stakeholder options:
 
 - `Titan Blend` and `Back To Basics` are retired as active stakeholder options.
-- The historical roots `stakeholder-options/titan-blend/` and `stakeholder-options/back-to-basics/` may remain as non-deployed review history until a cleanup pass removes or archives them.
+- The historical roots now live under `old/stakeholder-options/titan-blend/` and `old/stakeholder-options/back-to-basics/`.
 - Active option dev/deploy/build scripts are intentionally removed. `check:site-options` now validates retirement and guide-output state.
 
 Internal QA only:
@@ -125,9 +125,18 @@ Initial D1-backed workflow routes now exist for `/api/site/dashboard`, `/api/sit
 
 Announcements are removed from active MVP product surfaces. Schools should continue using existing communication systems such as Remind, Canvas, Infinite Campus, Google Classroom, email, or district-approved tools. The legacy `announcements` table remains schema-only/deprecated until a later safe cleanup phase.
 
-## Local Demo Workspace Seed
+## Local 1.0 Baseline
 
-For local functional demos before real student onboarding is approved, use the local-only synthetic workspace seed:
+The current 1.0 setup is local accounts only with Google Workspace SSO disabled. Migration `0014_local_only_empty_test_schools.sql` leaves exactly two active empty schools for Bryan's account-building pass:
+
+- Test High School
+- East Career & Technical Academy
+
+Create students, staff accounts, and role assignments through the authenticated workspace instead of preloading old synthetic schools. The current functional audit is `docs/full-1.0-audit.md`.
+
+## Legacy Synthetic Demo Workspace Seed
+
+For legacy local functional demos only, the repo still retains the synthetic workspace seed:
 
 ```powershell
 npm run seed:demo:local:dry-run
@@ -136,7 +145,7 @@ npm run prove:local-admin-logins
 npm run prove:demo:local
 ```
 
-The seed creates the fake Desert Valley School District with three sites: Desert Valley High School with 250 students, plus Canyon Ridge Career Academy and North Valley Technical High School with 60 students each. It creates fake platform, organization, site-administration, viewer, program teacher, mentor, and student records, site memberships, site-program mappings, story-based search targets, submissions, evidence-link metadata, comments, reviews, mentor meetings, presentation slots, and archive export metadata. The site dashboard route proves those counts through `/api/site/dashboard` without leaking secondary-site students into the primary site. The site student directory route proves the same selected-site scope through `/api/site/students`; primary site returns exactly 250 total unfiltered matching students, while returned row count respects pagination. The site student detail and timeline routes prove bounded drill-down for deterministic story students through `/api/site/students/:studentId` and `/api/site/students/:studentId/timeline` without raw Drive or storage identifiers. The site review queue route proves selected-site submitted/revision rows through `/api/site/review-queue`, with viewer and site admin read-only behavior and scoped program teacher review permissions. The site mentor assignment route proves selected-site mentor coverage through `/api/site/mentor-assignments`, with viewer/program-teacher read-only behavior and mutation proof kept in integration tests so local proof stays repeatable. The site operations readiness route proves selected-site presentation, archive, and attention worklists through `/api/site/operations-readiness`, including archive failed/ready, presentation pending, and high-risk rows without archive storage identifiers. It does not create announcements. It refuses remote D1, uses only `.test` demo domains, creates no Drive files, preserves the two protected local admins, and writes demo staff/persona credentials only to ignored `.secrets/demo-staff-logins-*.json` files.
+The legacy seed creates a fake Desert Valley School District with three populated synthetic sites for stress/demo proof. It is not the active 1.0 empty-school baseline. It refuses remote D1, uses only `.test` demo domains, creates no Drive files, preserves the two protected local admins, and writes demo staff/persona credentials only to ignored `.secrets/demo-staff-logins-*.json` files.
 
 Details live in `docs/local-demo-data.md`.
 

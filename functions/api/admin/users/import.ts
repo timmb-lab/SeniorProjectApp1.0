@@ -1,5 +1,6 @@
 import type { Env, RoleId, UserAccount } from "../../../_types.ts";
 import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
+import { isGoogleSsoEnabled, isManagedLocalAccountCreationEnabled } from "../../../_lib/auth-config.ts";
 import { hashPassword, newRandomToken, normalizeEmail, randomId, validatePassword } from "../../../_lib/crypto.ts";
 import {
   canActorCreateRole,
@@ -107,7 +108,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const realLocalUserCount = normalizedUsers.filter((user) => (
     user.identityType === "local" && !isFakeTestEmail(user.emailNorm)
   )).length;
-  if (realLocalUserCount > 0 && !allowRealTempCredentialImport(env)) {
+  if (realLocalUserCount > 0 && !isManagedLocalAccountCreationEnabled(env)) {
     await writeAudit(env, {
       actorUserId: caller.id,
       action: "user.create_rejected",
@@ -119,14 +120,14 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
         userCount: normalizedUsers.length,
         realLocalUserCount,
         temporaryCredentialDelivery: "one_time_admin_display",
-        allowRealTempCredentialImport: false,
+        managedLocalAccountCreationEnabled: false,
       },
     });
 
     return json({
       ok: false,
       error: "credential_delivery_policy_required",
-      message: "Real local-account creation is blocked until temporary credential delivery is approved. Use fake .test accounts for proof, SSO accounts, or explicitly approve the credential delivery override.",
+      message: "Real local-account creation is available only when local-account setup is enabled for this environment.",
     }, { status: 403 });
   }
 
@@ -294,6 +295,10 @@ async function validateUser(
   adminNote: string,
 ): Promise<{ ok: true } | { ok: false; status: number; error: string; message: string }> {
   const roleId = user.roleId;
+  if (user.identityType === "sso" && !isGoogleSsoEnabled(env)) {
+    return reject(400, "sso_disabled", "SSO account creation is disabled. Choose Local account.");
+  }
+
   if (roleId === "global_admin") {
     if (!await canActorCreateRole(env, caller, roleId, [])) {
       return reject(403, "global_admin_creator_forbidden", "Only a Global Admin can create another Global Admin.");
@@ -312,6 +317,17 @@ async function validateUser(
     if (!user.siteIds.length) return reject(400, `${roleId}_requires_site_assignment`, "Choose at least one site for this role.");
     if (!await canActorCreateRole(env, caller, roleId, user.siteIds)) {
       return reject(403, "site_assignment_forbidden", "You can only assign users inside sites you manage.");
+    }
+    for (const siteId of user.siteIds) {
+      if (!await activeSiteExists(env, siteId)) return reject(404, "site_not_found", "The selected site was not found.");
+    }
+    return { ok: true };
+  }
+
+  if (roleId === "student") {
+    if (!user.siteIds.length) return reject(400, "student_requires_site_assignment", "Choose at least one site for this student.");
+    if (!await canActorCreateRole(env, caller, roleId, user.siteIds)) {
+      return reject(403, "student_site_assignment_forbidden", "You can only create students inside sites you manage.");
     }
     for (const siteId of user.siteIds) {
       if (!await activeSiteExists(env, siteId)) return reject(404, "site_not_found", "The selected site was not found.");
@@ -576,10 +592,6 @@ function isValidEmail(value: string): boolean {
 
 function isFakeTestEmail(emailNorm: string): boolean {
   return emailNorm.endsWith(".test");
-}
-
-function allowRealTempCredentialImport(env: Env): boolean {
-  return String(env.ALLOW_REAL_TEMP_CREDENTIAL_IMPORT || "").trim().toLowerCase() === "true";
 }
 
 function reject(status: number, error: string, message: string) {

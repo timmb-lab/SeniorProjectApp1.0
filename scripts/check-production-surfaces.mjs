@@ -32,8 +32,6 @@ const productionRootHtml = new Set([
   "rubrics.html",
   "grades.html",
   "start.html",
-  "audit.html",
-  "roadmap.html",
 ]);
 
 const productionAssetFiles = new Set([
@@ -128,7 +126,11 @@ const excludedPathRules = [
   },
   {
     reason: "Stakeholder options are review artifacts and have their own visible review banner.",
-    test: (relativePath) => relativePath.startsWith("stakeholder-options/"),
+    test: (relativePath) => relativePath.startsWith("old/stakeholder-options/"),
+  },
+  {
+    reason: "Archived legacy files are not active production surfaces.",
+    test: (relativePath) => relativePath.startsWith("old/"),
   },
   {
     reason: "Automation, scripts, migrations, and backend source may reference test fixtures or validation labels.",

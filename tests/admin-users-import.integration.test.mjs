@@ -116,7 +116,7 @@ test("admin users import validates json, reason, users, duplicate emails, and ro
         "https://example.test/api/admin/users/import",
         {
           adminNote: "Initial pilot roster import.",
-          users: [studentInput({ roleId: "site_admin" })],
+          users: [studentInput({ roleId: "site_admin", siteIds: [] })],
         },
         { cookie: `sc_session=${fixture.token}` },
       ),
@@ -193,8 +193,37 @@ test("admin users import rejects existing emails and unknown role or scope recor
   }
 });
 
-test("admin users import blocks real non-.test temporary credentials by default", async () => {
+test("admin users import allows real local accounts by default in local-only mode", async () => {
   const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+
+  const response = await onRequestPost({
+    request: buildJsonRequest(
+      "https://example.test/api/admin/users/import",
+      {
+        reason: "Initial pilot roster import.",
+        users: [studentInput({ email: "student.real@example.edu", displayName: "Real Student" })],
+      },
+      { cookie: `sc_session=${fixture.token}` },
+    ),
+    env: fixture.env,
+    params: {},
+  });
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.ok, true);
+  assert.equal(body.importedCount, 1);
+  assert.equal(body.users[0].email, "student.real@example.edu");
+  assert.equal(body.users[0].delivery, "one_time_admin_display");
+  assert.equal(fixture.db.data.userAccounts.some((row) => row.email_norm === "student.real@example.edu"), true);
+  assert.equal(fixture.db.data.siteUsers.some((row) => row.user_id === body.users[0].id && row.site_id === "site-a"), true);
+  assert.equal(fixture.db.data.auditEvents.some((row) => row.action === "user.create_rejected"), false);
+  assert.doesNotMatch(JSON.stringify(fixture.db.data.auditEvents), /student\.real@example\.edu/i);
+});
+
+test("admin users import still blocks real local accounts outside local-only mode without explicit override", async () => {
+  const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+  fixture.env.AUTH_MODE = "hybrid_google_workspace_local";
 
   const response = await onRequestPost({
     request: buildJsonRequest(
@@ -213,21 +242,15 @@ test("admin users import blocks real non-.test temporary credentials by default"
   const body = await response.json();
   assert.equal(body.ok, false);
   assert.equal(body.error, "credential_delivery_policy_required");
-  assert.match(body.message, /temporary credential delivery is approved/i);
+  assert.match(body.message, /local-account setup is enabled/i);
   assert.equal(fixture.db.data.userAccounts.some((row) => row.email_norm === "student.real@example.edu"), false);
-  assert.equal(fixture.db.data.passwordCredentials.length, 1);
-  assert.equal(fixture.db.data.auditEvents.length, 1);
-  assert.equal(fixture.db.data.auditEvents[0].action, "user.create_rejected");
-  assert.equal(fixture.db.data.auditEvents[0].metadata.reason, "credential_delivery_policy_required");
-  assert.equal(fixture.db.data.auditEvents[0].metadata.userCount, 1);
-  assert.equal(fixture.db.data.auditEvents[0].metadata.realLocalUserCount, 1);
-  assert.equal(fixture.db.data.auditEvents[0].metadata.temporaryCredentialDelivery, "one_time_admin_display");
-  assert.equal(fixture.db.data.auditEvents[0].metadata.allowRealTempCredentialImport, false);
+  assert.equal(fixture.db.data.auditEvents[0].metadata.managedLocalAccountCreationEnabled, false);
   assert.doesNotMatch(JSON.stringify(fixture.db.data.auditEvents), /student\.real@example\.edu/i);
 });
 
-test("admin users import allows real non-.test temporary credentials only with explicit override", async () => {
+test("admin users import allows real non-.test temporary credentials in hybrid mode with explicit override", async () => {
   const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+  fixture.env.AUTH_MODE = "hybrid_google_workspace_local";
   fixture.env.ALLOW_REAL_TEMP_CREDENTIAL_IMPORT = "true";
 
   const response = await onRequestPost({
@@ -465,6 +488,7 @@ function studentInput(overrides = {}) {
     roleId: "student",
     scopeType: "global",
     scopeId: "",
+    siteIds: ["site-a"],
     ...overrides,
   };
 }

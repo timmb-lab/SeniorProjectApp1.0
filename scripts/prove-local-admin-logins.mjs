@@ -127,13 +127,11 @@ function findNewestMatchingFile(repoRoot, patternPrefix) {
 }
 
 function findSetupCredentialFile(repoRoot = REPO_ROOT) {
+  const newest = findNewestMatchingFile(repoRoot, "local-admin-reset-");
+  if (newest) return newest;
   const exact = path.join(repoRoot, EXACT_SETUP_CREDENTIAL_PATH);
   if (existsSync(exact)) return exact;
-  const newest = findNewestMatchingFile(repoRoot, "local-admin-reset-");
-  if (!newest) {
-    throw new LocalAdminProofError("SETUP_CREDENTIAL_FILE_MISSING", "No local admin setup credential file was found under .secrets/.");
-  }
-  return newest;
+  throw new LocalAdminProofError("SETUP_CREDENTIAL_FILE_MISSING", "No local admin setup credential file was found under .secrets/.");
 }
 
 function findWorkingCredentialFile(repoRoot = REPO_ROOT) {

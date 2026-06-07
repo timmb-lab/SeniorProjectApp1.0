@@ -16,11 +16,136 @@ function assertMarkupOrder(markup, beforeNeedle, afterNeedle, message) {
   assert.ok(beforeIndex < afterIndex, message);
 }
 
+function visibleText(markup) {
+  return String(markup || "")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function assertFocusableStudentDetailPanel(markup) {
   assert.match(markup, /id="siteStudentDetailPanel"/);
   assert.match(markup, /data-student-detail-panel="true"/);
   assert.match(markup, /tabindex="-1"/);
   assert.match(markup, /aria-labelledby="siteStudentDetailTitle"/);
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function authConfigFixture() {
+  return {
+    ok: true,
+    authMode: "hardened_username_password",
+    googleSsoEnabled: false,
+    googleSsoConfigured: false,
+    localLoginEnabled: true,
+    googleWorkspaceLabel: "Use your school Google Workspace account",
+  };
+}
+
+function userForRoleProfile(roleId) {
+  if (roleId === "role_pending") {
+    return {
+      id: "role-profile-pending",
+      email: "pending.role@example.edu",
+      displayName: "Pending Role",
+      roles: [],
+    };
+  }
+  const scope = {
+    student: { scope_type: "global", scope_id: "" },
+    mentor: { scope_type: "site", scope_id: "site-desert-valley-high" },
+    viewer: { scope_type: "site", scope_id: "site-desert-valley-high" },
+    program_teacher: { scope_type: "program", scope_id: "it" },
+    administration: { scope_type: "site", scope_id: "site-desert-valley-high" },
+    site_admin: { scope_type: "site", scope_id: "site-desert-valley-high" },
+    org_admin: { scope_type: "tenant", scope_id: "tenant-desert-valley" },
+    global_admin: { scope_type: "global", scope_id: "*" },
+    platform_admin: { scope_type: "global", scope_id: "*" },
+    admin: { scope_type: "global", scope_id: "*" },
+    misc_admin: { scope_type: "global", scope_id: "" },
+  }[roleId] || { scope_type: "global", scope_id: "" };
+  return {
+    id: `role-profile-${roleId}`,
+    email: `${roleId.replace(/_/g, ".")}.profile@example.edu`,
+    displayName: `${roleId.replace(/_/g, " ")} Profile`,
+    roles: [{ role_id: roleId, ...scope }],
+  };
+}
+
+function profileRoutesForRole(roleId) {
+  return {
+    "/api/auth/config": { status: 200, body: authConfigFixture() },
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: userForRoleProfile(roleId),
+      },
+    },
+    "/api/student/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        viewer: { self: true },
+        nextAction: "Finish the next senior project step.",
+        summary: {},
+        nextSteps: [],
+        requirements: [],
+        submissions: [],
+        evidence: [],
+        feedback: [],
+      },
+    },
+    "/api/student/archive/readiness": {
+      status: 200,
+      body: { ok: true, checks: [], archive: { status: "not_requested" }, storage: {}, retention: {} },
+    },
+    "/api/site/dashboard": { status: 200, body: siteDashboardFixture({ readOnly: roleId === "viewer" || roleId === "administration" }) },
+    "/api/site/programs": { status: 200, body: siteProgramsFixture() },
+    "/api/site/students": { status: 200, body: siteStudentsFixture({ readOnly: roleId === "viewer" || roleId === "administration", role: roleId }) },
+    "/api/site/review-queue": { status: 200, body: siteReviewQueueFixture({ role: roleId, readOnly: roleId !== "program_teacher" }) },
+    "/api/site/mentor-assignments": { status: 200, body: siteMentorAssignmentsFixture({ role: roleId }) },
+    "/api/site/access-assignments": { status: 200, body: siteAccessAssignmentsFixture() },
+    "/api/site/operations-readiness": { status: 200, body: siteOperationsReadinessFixture({ role: roleId, readOnly: roleId === "viewer" || roleId === "administration" }) },
+    "/api/admin/role-assignments": { status: 200, body: { ok: true, assignments: [] } },
+    "/api/admin/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        generatedAt: "2026-06-07T12:00:00.000Z",
+        summary: {},
+        needsAttention: [],
+        programBreakdown: [],
+        reviewQueue: [],
+        mentorCoverage: [],
+        presentationSnapshot: [],
+        archiveSnapshot: [],
+        recentAudit: [],
+        recentExports: [],
+      },
+    },
+    "/api/mentor/dashboard": {
+      status: 200,
+      body: { ok: true, scope: "mentor_assigned", summary: { assignedCount: 0, needsRevision: 0, missingMeeting: 0, presentationPending: 0 }, assignedStudents: [] },
+    },
+    "/api/mentor/assigned": {
+      status: 200,
+      body: { ok: true, mentorId: `role-profile-${roleId}`, assignedStudents: [] },
+    },
+    "/api/program-teacher/dashboard": {
+      status: 200,
+      body: { ok: true, scope: { scopeType: "program", scopeId: "it" }, summary: {}, students: [], needsAttention: [], needsReview: [], recentActivity: [], programBreakdown: [] },
+    },
+    "/api/presentation-slots": { status: 200, body: { ok: true, slots: [], summary: {} } },
+    "/api/reports/readiness": { status: 200, body: { ok: true, scope: "aggregate_only", metrics: {} } },
+  };
 }
 
 function openWorkspaceDisclosure(context, scope, id) {
@@ -48,9 +173,11 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /\/api\/auth\/complete-reset/);
   assert.match(workspaceJs, /\/api\/auth\/logout/);
   assert.match(workspaceJs, /\/api\/admin\/users\/import/);
+  assert.match(workspaceJs, /\/api\/admin\/users\/\$\{encodeURIComponent\(userId\)\}/);
   assert.match(workspaceJs, /\/api\/site\/dashboard/);
   assert.match(workspaceJs, /\/api\/site\/programs/);
   assert.match(workspaceJs, /\/api\/site\/students/);
+  assert.match(workspaceJs, /\/api\/site\/students\/\$\{encodeURIComponent\(studentId\)\}/);
   assert.match(workspaceJs, /\/api\/admin\/dashboard/);
   assert.match(workspaceJs, /\/api\/program-teacher\/dashboard/);
   assert.match(workspaceJs, /\/api\/mentor\/dashboard/);
@@ -80,11 +207,14 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /data-admin-action="import-users"/);
   assert.match(workspaceJs, /data-admin-import-result="one-time-setup-passwords"/);
   assert.match(workspaceJs, /credential_delivery_policy_required/);
-  assert.match(workspaceJs, /Real local-account creation is blocked until the credential delivery policy is approved/);
+  assert.match(workspaceJs, /Local accounts only\. SSO is disabled for this setup\./);
+  assert.match(workspaceJs, /SSO is disabled for this setup\. Choose Local account\./);
+  assert.match(workspaceJs, /data-admin-account-remove-form/);
+  assert.match(workspaceJs, /data-site-student-remove-form/);
   assert.match(workspaceJs, /Create a new password/);
   assert.match(workspaceJs, /Password And Sessions/);
   assert.match(workspaceJs, /Your file was received/);
-  assert.match(workspaceJs, /storage is not configured for this environment/);
+  assert.match(workspaceJs, /file storage is not ready here/);
   assert.match(workspaceJs, /XMLHttpRequest/);
   assert.match(workspaceJs, /data-upload-state/);
   assert.match(workspaceJs, /data-upload-progress/);
@@ -134,6 +264,46 @@ test("workspace route is a real authenticated app surface", () => {
   assert.doesNotMatch(workspaceJs, /data-section="studentDirectory"/);
   assert.doesNotMatch(workspaceJs, /localStorage|sessionStorage|indexedDB/);
   assert.doesNotThrow(() => new Function(workspaceJs));
+});
+
+test("workspace renders simplified working profiles for every role", async () => {
+  const cases = [
+    { roleId: "student", title: "Student working profile", action: "student", button: "Open Student Workspace" },
+    { roleId: "mentor", title: "Mentor working profile", action: "mentorDashboard", button: "Open Mentor Dashboard" },
+    { roleId: "viewer", title: "Viewer working profile", action: "students", button: "Open Students" },
+    { roleId: "program_teacher", title: "Program Teacher working profile", action: "teacher", button: "Open Review Queue" },
+    { roleId: "administration", title: "Administration working profile", action: "siteDashboard", button: "Open Site Dashboard" },
+    { roleId: "site_admin", title: "Site Admin working profile", action: "adminUsers", button: "Open Users &amp; Access" },
+    { roleId: "org_admin", title: "Organization Admin working profile", action: "operations", button: "Open Operations" },
+    { roleId: "global_admin", title: "Global Admin working profile", action: "adminDashboard", button: "Open Command Center" },
+    { roleId: "platform_admin", title: "Global Admin working profile", action: "adminDashboard", button: "Open Command Center", key: "global_admin" },
+    { roleId: "admin", title: "Global Admin working profile", action: "adminDashboard", button: "Open Command Center", key: "global_admin" },
+    { roleId: "misc_admin", title: "Legacy Reporting Admin working profile", action: "readiness", button: "Open Readiness" },
+    { roleId: "role_pending", title: "Role pending profile", action: "security", button: "Open Account" },
+  ];
+
+  for (const row of cases) {
+    const markup = await renderWorkspaceWithFetch(profileRoutesForRole(row.roleId), "profile");
+    assert.match(markup, new RegExp(`data-role-profile="${escapeRegExp(row.roleId)}"`), `${row.roleId} profile marker`);
+    assert.match(markup, new RegExp(`data-role-profile-key="${escapeRegExp(row.key || row.roleId)}"`), `${row.roleId} profile key`);
+    assert.match(markup, new RegExp(escapeRegExp(row.title)), `${row.roleId} title`);
+    assert.match(markup, /What you can see/, `${row.roleId} visibility heading`);
+    assert.match(markup, /What you do here/, `${row.roleId} work heading`);
+    assert.match(markup, /What stays out of this role/, `${row.roleId} limit heading`);
+    assert.match(markup, new RegExp(`data-profile-action-section="${escapeRegExp(row.action)}"`), `${row.roleId} action section`);
+    assert.match(markup, new RegExp(escapeRegExp(row.button)), `${row.roleId} action label`);
+    if (row.roleId === "viewer") {
+      assert.doesNotMatch(markup, /data-profile-action-section="adminUsers"/, "viewer must not receive admin access");
+    }
+  }
+
+  const siteAdminOverview = await renderWorkspaceWithFetch(profileRoutesForRole("site_admin"));
+  assertMarkupOrder(
+    siteAdminOverview,
+    "Site Admin working profile",
+    "siteDashboardTitle",
+    "overview should explain the role before the site dashboard",
+  );
 });
 
 test("workspace production text avoids internal build language", () => {
@@ -269,7 +439,7 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
   for (const copy of [
     "School workspace",
     "Student progress",
-    "Private evidence",
+    "Private proof",
     "Mentor coverage",
     "Review queue",
     "Presentation readiness",
@@ -286,10 +456,10 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
   assert.match(workspaceJs, /function renderWorkspaceLandingHero\(\)/);
   assert.match(workspaceJs, /function renderWorkspaceHomeInfoBox\(\)/);
   assert.match(workspaceJs, /What this workspace does/);
-  assert.match(workspaceJs, /Students can see requirements, submit evidence, review feedback, and prepare for presentations/);
+  assert.match(workspaceJs, /Students can see their booklet phases, add proof, send work for review, read feedback, and prepare for presentations/);
   assert.match(signInBlock, /renderWorkspaceLandingHero\(\)/);
   assert.doesNotMatch(signInBlock, /renderProductHeader\(/);
-  assert.doesNotMatch(signInBlock, /Student progress|Private evidence|Mentor coverage|Review queue|Presentation readiness/);
+  assert.doesNotMatch(signInBlock, /Student progress|Private proof|Mentor coverage|Review queue|Presentation readiness/);
   assert.match(appShellBlock, /renderProductHeader\(\{[\s\S]*context: headerContext,[\s\S]*readOnly: roles\.has\("viewer"\)/);
   assert.match(appShellBlock, /renderWorkspaceStudentSearchControl\(roles\)/);
   assert.match(workspaceJs, /chips = WORKSPACE_POSTURE_CHIPS/);
@@ -483,15 +653,15 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(siteDashboard, /data-section="operations" data-section-preset="archive-failed">Review/);
   assert.match(siteDashboard, /Submitted/);
   assert.match(siteDashboard, /Needs Revision/);
-  assert.match(siteDashboard, /Evidence/);
-  assert.match(siteDashboard, /Evidence[\s\S]*Summary only/);
+  assert.match(siteDashboard, /Proof/);
+  assert.match(siteDashboard, /Proof[\s\S]*Summary only/);
   assert.match(siteDashboard, /Recent Activity[\s\S]*Summary only/);
   assert.match(siteDashboard, /Presentations/);
-  assert.match(siteDashboard, /Archive \/ Exports/);
+  assert.match(siteDashboard, /Final Files/);
   assert.match(siteDashboard, /Students without active mentors/);
   assert.match(siteDashboard, /Teacher follow-up needed/);
   assert.match(siteDashboard, /Presentation readiness pending/);
-  assert.match(siteDashboard, /Archive exports failed/);
+  assert.match(siteDashboard, /Final-file exports failed/);
   assert.match(siteDashboard, /data-workspace-disclosure-panel="dashboard:siteDashboard"/);
   assert.match(siteDashboard, /aria-expanded="false"/);
   assert.doesNotMatch(siteDashboard, /Program Breakdown|Top Risk Students|View load|data-site-student-action="view-detail"/);
@@ -510,10 +680,10 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(expandedSiteDashboard, /Checked out[\s\S]*Summary only/);
   assert.match(expandedSiteDashboard, /Act on assigned site records[\s\S]*data-section="students" data-section-preset="all-students"[\s\S]*Open student list/);
   assert.match(expandedSiteDashboard, /Teacher follow-up[\s\S]*data-section="teacher" data-section-preset="revision-requested"[\s\S]*Open review queue/);
-  assert.match(expandedSiteDashboard, /Presentation and archive follow-up[\s\S]*data-section="operations" data-section-preset="archive-failed"[\s\S]*Open operations/);
-  assert.match(expandedSiteDashboard, /Private evidence[\s\S]*Summary only/);
+  assert.match(expandedSiteDashboard, /Presentation and final-file follow-up[\s\S]*data-section="operations" data-section-preset="archive-failed"[\s\S]*Open operations/);
+  assert.match(expandedSiteDashboard, /Private proof[\s\S]*Summary only/);
   assert.match(expandedSiteDashboard, /Protected access[\s\S]*Summary only/);
-  assert.match(expandedSiteDashboard, /Private evidence/);
+  assert.match(expandedSiteDashboard, /Private proof/);
   assert.match(expandedSiteDashboard, /Assigned student records/);
   assert.match(expandedSiteDashboard, /Protected access/);
   assert.match(siteDashboard, /Teacher follow-up/);
@@ -973,12 +1143,12 @@ test("global admin needs attention rows use real drill-downs and keep unmatched 
           },
           {
             type: "archive_exports",
-            label: "Archive exports failed",
+            label: "Final-file exports failed",
             detail: "2 export(s) need review before handoff.",
             severity: "urgent",
             actionSection: "archiveExports",
             actionPreset: "failed-exports",
-            actionLabel: "Open exports",
+            actionLabel: "Open final files",
           },
           {
             type: "presentation_readiness",
@@ -1093,7 +1263,7 @@ test("global admin needs attention rows use real drill-downs and keep unmatched 
   assert.match(adminDashboard, /Revision requests open[\s\S]*data-section="teacher" data-section-preset="revision-requested"[\s\S]*Open review queue/);
   assert.match(adminDashboard, /Presentation outlines pending[\s\S]*data-section="presentation" data-section-preset="outline-follow-up"[\s\S]*Open schedule/);
   assert.match(adminDashboard, /Mentor meeting follow-up[\s\S]*data-section="students" data-section-preset="mentor-meeting-follow-up-students"[\s\S]*Open student list/);
-  assert.match(adminDashboard, /Archive exports failed[\s\S]*data-section="archiveExports" data-section-preset="failed-exports"[\s\S]*Open exports/);
+  assert.match(adminDashboard, /Final-file exports failed[\s\S]*data-section="archiveExports" data-section-preset="failed-exports"[\s\S]*Open final files/);
 
   await vm.runInContext('openWorkspaceSection({ dataset: { section: "students", sectionPreset: "mentor-meeting-follow-up-students" } })', context);
 
@@ -1860,7 +2030,7 @@ test("site admin dashboard recent activity shows a local detail list without ope
   assert.match(workspaceRoot.innerHTML, /Latest student updates/);
   assert.match(workspaceRoot.innerHTML, /Recent activity is summarized without sensitive private details/);
   assert.match(workspaceRoot.innerHTML, /Missing Mentor Demo/);
-  assert.match(workspaceRoot.innerHTML, /Evidence added/);
+  assert.match(workspaceRoot.innerHTML, /Proof added/);
   assert.match(workspaceRoot.innerHTML, /data-site-student-action="view-detail" data-student-detail-id="demo-student-101"/);
 });
 
@@ -1918,8 +2088,8 @@ test("program teacher dashboard rows open existing student detail", async () => 
           },
           {
             type: "missing_evidence",
-            label: "Evidence is missing",
-            detail: "1 student does not have evidence attached yet.",
+            label: "Proof is missing",
+            detail: "1 student does not have proof attached yet.",
             severity: "warning",
             actionSection: "students",
             actionPreset: "missing-evidence-students",
@@ -1995,7 +2165,7 @@ test("program teacher dashboard rows open existing student detail", async () => 
   assert.match(programTeacher, /Total Students/);
   assert.match(programTeacher, /On Track/);
   assert.match(programTeacher, /Behind \/ Needs Support/);
-  assert.match(programTeacher, /Missing Evidence/);
+  assert.match(programTeacher, /Missing Proof/);
   assert.match(programTeacher, /Needs Review/);
   assert.match(programTeacher, /Missing Mentor/);
   assert.match(programTeacher, /data-section="students" data-section-preset="all-students"/);
@@ -2004,7 +2174,7 @@ test("program teacher dashboard rows open existing student detail", async () => 
   assert.match(programTeacher, /data-section="students" data-section-preset="missing-evidence-students"/);
   assert.match(programTeacher, /Students without active mentors[\s\S]*data-section="students" data-section-preset="missing-mentors"/);
   assert.match(programTeacher, /Submitted work needs review[\s\S]*data-section="teacher" data-section-preset="submitted"/);
-  assert.match(programTeacher, /Evidence is missing[\s\S]*data-section="students" data-section-preset="missing-evidence-students"/);
+  assert.match(programTeacher, /Proof is missing[\s\S]*data-section="students" data-section-preset="missing-evidence-students"/);
   assert.match(programTeacher, /Students need support[\s\S]*data-section="students" data-section-preset="behind-students"/);
   assert.match(programTeacher, /Revision loop active[\s\S]*data-section="teacher" data-section-preset="revision-requested"/);
   assert.match(programTeacher, /Presentation readiness pending[\s\S]*data-section="operations" data-section-preset="presentation-pending"/);
@@ -2012,7 +2182,7 @@ test("program teacher dashboard rows open existing student detail", async () => 
   assert.match(programTeacher, /Program Teacher \/ Assigned program: IT/);
   assert.match(programTeacher, /data-workspace-disclosure-panel="dashboard:programDashboard"/);
   assert.match(programTeacher, /aria-expanded="false"/);
-  assert.doesNotMatch(programTeacher, /Students by program|Assigned student list|Recent Activity|Core Concept Proposal \/ 2 evidence/);
+  assert.doesNotMatch(programTeacher, /Students by program|Assigned student list|Recent Activity|Core Concept Proposal \/ 2 proof items/);
 
   openWorkspaceDisclosure(context, "dashboard", "programDashboard");
   const expandedProgramTeacher = workspaceRoot.innerHTML;
@@ -2020,7 +2190,7 @@ test("program teacher dashboard rows open existing student detail", async () => 
   assert.match(expandedProgramTeacher, /Assigned student list/);
   assert.match(expandedProgramTeacher, /Recent Activity/);
   assert.match(expandedProgramTeacher, /Program Student One/);
-  assert.match(expandedProgramTeacher, /Core Concept Proposal \/ 2 evidence/);
+  assert.match(expandedProgramTeacher, /Core Concept Proposal \/ 2 proof items/);
   assert.match(expandedProgramTeacher, /data-site-student-action="view-detail"/);
   assert.match(expandedProgramTeacher, /data-student-detail-id="demo-program-student-001"/);
   assert.doesNotMatch(programTeacher, /Source record counts|Visible in this role scope|assigned scope|Scoped Student Progress|program:it/);
@@ -2101,10 +2271,10 @@ test("program teacher dashboard detail actions preserve program dashboard contex
 
   vm.runInContext('activeSection = "programDashboard"; renderAppShell();', context);
   assert.match(workspaceRoot.innerHTML, /data-workspace-disclosure-panel="dashboard:programDashboard"/);
-  assert.doesNotMatch(workspaceRoot.innerHTML, /Core Concept Proposal \/ 2 evidence/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /Core Concept Proposal \/ 2 proof items/);
   openWorkspaceDisclosure(context, "dashboard", "programDashboard");
   assert.match(workspaceRoot.innerHTML, /Program Student One/);
-  assert.match(workspaceRoot.innerHTML, /Core Concept Proposal \/ 2 evidence/);
+  assert.match(workspaceRoot.innerHTML, /Core Concept Proposal \/ 2 proof items/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
 
   await vm.runInContext(`
@@ -2269,7 +2439,7 @@ test("workspace renders route-connected student directory with filters and real 
   assert.match(siteAdmin, /workspace-risk-chip/);
   assert.match(siteAdmin, /No mentor/);
   assert.match(siteAdmin, /workspace-status-pill revision_requested/);
-  assert.match(siteAdmin, /Private evidence/);
+  assert.match(siteAdmin, /Private proof/);
   assert.match(siteAdmin, /Assigned records only/);
   assert.match(siteAdmin, /Protected access/);
   assert.match(siteAdmin, /Teacher follow-up/);
@@ -2277,6 +2447,8 @@ test("workspace renders route-connected student directory with filters and real 
   assert.match(siteAdmin, /View detail/);
   assert.match(siteAdmin, /data-site-student-action="view-detail"/);
   assert.match(siteAdmin, /data-student-detail-id="demo-student-101"/);
+  assert.match(siteAdmin, /Remove student/);
+  assert.match(siteAdmin, /data-site-student-remove-form="true"/);
   assert.doesNotMatch(siteAdmin, /Detail view coming soon|data-student-detail-disabled="phase-9"|href="[^"]*\/api\/site\/students\/|data-section="studentDetail"|data-section="studentDirectory"/);
 
   const viewer = await renderWorkspaceWithFetch({
@@ -2450,9 +2622,9 @@ test("workspace renders route-connected student directory with filters and real 
       }),
     },
   }, "students");
-  assert.match(filteredArchiveEmpty, /No matching archive follow-up/);
-  assert.match(filteredArchiveEmpty, /No students with archive export follow-up match these filters/);
-  assert.match(filteredArchiveEmpty, /open Operations for archive readiness work/i);
+  assert.match(filteredArchiveEmpty, /No matching final-file follow-up/);
+  assert.match(filteredArchiveEmpty, /No students with final-file export follow-up match these filters/);
+  assert.match(filteredArchiveEmpty, /open Operations for final-file readiness work/i);
   assert.doesNotMatch(filteredArchiveEmpty, /No student records match these filters|No students match these filters/);
 });
 
@@ -2693,7 +2865,7 @@ test("workspace opens real student detail, loads timeline, and preserves directo
   assert.match(workspaceRoot.innerHTML, /data-student-detail-timeline-filters="true"/);
   assert.match(workspaceRoot.innerHTML, /Showing all activity/);
   assert.match(workspaceRoot.innerHTML, /Timeline event/);
-  assert.match(workspaceRoot.innerHTML, /Evidence added/);
+  assert.match(workspaceRoot.innerHTML, /Proof added/);
   assert.match(workspaceRoot.innerHTML, /value="Revision Loop Demo"/);
   let timelineFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/students/demo-student-101/timeline?"));
   let timelineUrl = new URL(timelineFetch, "https://workspace.example");
@@ -2703,7 +2875,7 @@ test("workspace opens real student detail, loads timeline, and preserves directo
   await vm.runInContext('selectSiteStudentTimelineType({ currentTarget: { dataset: { studentDetailTimelineType: "review" } } })', context);
   assert.match(workspaceRoot.innerHTML, /Showing reviews/);
   assert.match(workspaceRoot.innerHTML, /Review Revision requested/);
-  assert.doesNotMatch(workspaceRoot.innerHTML, /Evidence added/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /Proof added/);
   timelineFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/students/demo-student-101/timeline?"));
   timelineUrl = new URL(timelineFetch, "https://workspace.example");
   assert.equal(timelineUrl.searchParams.get("siteId"), "site-desert-valley-high");
@@ -2866,7 +3038,7 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(teacher, /data-section="teacher"/);
   assert.match(teacher, /Teacher review queue/);
   assert.match(teacher, /Submitted work, revision follow-up/);
-  assert.match(teacher, /protected evidence/);
+  assert.match(teacher, /protected proof/);
   assert.match(teacher, /assigned records/);
   assert.match(teacher, /teacher review/);
   assert.match(teacher, /No student messaging/);
@@ -2976,7 +3148,7 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   });
   await vm.runInContext('openReviewSubmission("submission-review-001")', context);
   assert.match(workspaceRoot.innerHTML, /Review history loaded/);
-  assert.match(workspaceRoot.innerHTML, /Improve scope and cite the private evidence summary/);
+  assert.match(workspaceRoot.innerHTML, /Improve scope and cite the private proof summary/);
 
   await vm.runInContext(`
     handleReviewQueueAction({
@@ -3278,9 +3450,9 @@ test("workspace renders Review Queue empty and history states with assigned-work
     },
   }, "teacher");
 
-  assert.match(evidenceMissingEmpty, /No matching evidence follow-up/);
-  assert.match(evidenceMissingEmpty, /No submitted or revision-requested work without attached evidence matches these filters/);
-  assert.match(evidenceMissingEmpty, /Clear the evidence filter or check Operations Evidence Missing/);
+  assert.match(evidenceMissingEmpty, /No matching proof follow-up/);
+  assert.match(evidenceMissingEmpty, /No submitted or revision-requested work without attached proof matches these filters/);
+  assert.match(evidenceMissingEmpty, /Clear the proof filter or check Operations Proof Missing/);
   assert.doesNotMatch(evidenceMissingEmpty, /No submitted or revision-requested work matches these filters/);
 
   const revisionEmpty = await renderWorkspaceWithFetch({
@@ -3478,12 +3650,12 @@ test("workspace applies Review Queue URL filters safely and syncs filter URLs", 
   assert.match(workspaceRoot.innerHTML, /Active filters/);
   assert.match(workspaceRoot.innerHTML, /Revision requested/);
   assert.match(workspaceRoot.innerHTML, /Stale activity/);
-  assert.match(workspaceRoot.innerHTML, /Evidence attached/);
+  assert.match(workspaceRoot.innerHTML, /Proof attached/);
   assert.match(workspaceRoot.innerHTML, /proposal scope/);
   assert.match(workspaceRoot.innerHTML, /Clear filters/);
   assert.ok(fetchLog.includes("/api/reviews/submission-review-001/history?siteId=site-desert-valley-high"));
   assert.match(workspaceRoot.innerHTML, /data-review-selected-submission="submission-review-001"/);
-  assert.match(workspaceRoot.innerHTML, /Improve scope and cite the private evidence summary/);
+  assert.match(workspaceRoot.innerHTML, /Improve scope and cite the private proof summary/);
 
   await vm.runInContext('handleReviewQueueAction({ currentTarget: { dataset: { reviewQueueAction: "reset-filters" } } })', context);
   assert.match(window.location.href, /unknown=keep/);
@@ -4039,7 +4211,7 @@ test("workspace renders site-scoped Mentor Assignments with role-safe assignment
   assert.match(siteAdmin, /Mentor Two \/ 0 active \/ Available/);
   assert.match(siteAdmin, /Lightest visible mentor: Mentor Two \/ 0 active \/ Available/);
   assert.match(siteAdmin, /Assignments stay within the current school/);
-  assert.match(siteAdmin, /protected evidence boundaries/);
+  assert.match(siteAdmin, /protected proof boundaries/);
   assert.match(siteAdmin, /assigned records/);
   assert.match(siteAdmin, /teacher follow-up/);
   assert.match(siteAdmin, /No student messaging/);
@@ -4414,13 +4586,13 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /Presentation ready/);
   assert.match(siteAdmin, /Presentation pending/);
   assert.match(siteAdmin, /Outline pending/);
-  assert.match(siteAdmin, /Archive ready/);
-  assert.match(siteAdmin, /Archive in progress/);
-  assert.match(siteAdmin, /Archive failed/);
+  assert.match(siteAdmin, /Final files ready/);
+  assert.match(siteAdmin, /Final files in progress/);
+  assert.match(siteAdmin, /Final files failed/);
   assert.match(siteAdmin, /Storage setup needed/);
   assert.match(siteAdmin, /Needs staff action/);
   assert.match(siteAdmin, /Stale activity/);
-  assert.match(siteAdmin, /Evidence missing/);
+  assert.match(siteAdmin, /Proof missing/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="presentation-pending">Review rows/);
   assert.match(siteAdmin, /Check-in needed/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="presentation-attention">Review rows/);
@@ -4439,8 +4611,8 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /Archive Storage Demo 001/);
   assert.match(siteAdmin, /Storage unavailable/);
   assert.match(siteAdmin, /Storage setup needed/);
-  assert.match(siteAdmin, /Storage setup is needed before archive packages can be prepared/);
-  assert.match(siteAdmin, /Archive export needs staff follow-up/);
+  assert.match(siteAdmin, /Storage setup is needed before final-file packages can be prepared/);
+  assert.match(siteAdmin, /Final-file export needs staff follow-up/);
   assert.match(siteAdmin, /Scoped download is available/);
   assert.match(siteAdmin, /Download window expiring soon/);
   assert.match(siteAdmin, /Download window expired/);
@@ -4456,7 +4628,7 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /status-pill|workspace-status-pill/);
   assert.match(siteAdmin, /protected student blockers/);
   assert.match(siteAdmin, /presentations/);
-  assert.match(siteAdmin, /archive readiness/);
+  assert.match(siteAdmin, /final-file readiness/);
   assert.match(siteAdmin, /listed owner/);
   assert.match(siteAdmin, /No student messaging/);
   assert.doesNotMatch(siteAdmin, /data-presentation-action|data-archive-action|data-admin-action="import-users"|<button[^>]*>\s*(?:Archive retry|Retry archive|Schedule presentation|Check out|Check in|Export package)/i);
@@ -4548,7 +4720,7 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(viewer, /data-workspace-mode="read-only"/);
   assert.match(viewer, /data-workspace-state="permission-denied"/);
   assert.match(viewer, /Access to Operations readiness is limited/);
-  assert.match(viewer, /site presentation, archive, and readiness worklists/);
+  assert.match(viewer, /site presentation, final-file, and readiness worklists/);
   assert.doesNotMatch(viewer, /data-presentation-action|data-archive-action|<button[^>]*>\s*(?:Archive retry|Retry archive|Schedule presentation)/i);
 
   const administrationOperations = await renderWorkspaceWithFetch({
@@ -4884,8 +5056,8 @@ test("workspace clarifies Operations empty states for active filters and true no
   }, "operations");
 
   assert.match(providerUnavailableEmpty, /No storage setup blockers match/);
-  assert.match(providerUnavailableEmpty, /No archive rows waiting on storage setup match these filters for this school/);
-  assert.match(providerUnavailableEmpty, /Clear filters or review archive failures for broader closeout blockers/);
+  assert.match(providerUnavailableEmpty, /No final-file rows waiting on storage setup match these filters for this school/);
+  assert.match(providerUnavailableEmpty, /Clear filters or review final-file failures for broader closeout blockers/);
 
   const expiredDownloadEmpty = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -4907,9 +5079,9 @@ test("workspace clarifies Operations empty states for active filters and true no
     "/api/site/operations-readiness": { status: 200, body: emptyArchiveOperationsFixture("expired") },
   }, "operations");
 
-  assert.match(expiredDownloadEmpty, /No expired archive downloads match/);
-  assert.match(expiredDownloadEmpty, /No archive rows with expired download windows match these filters for this school/);
-  assert.match(expiredDownloadEmpty, /Clear filters or review expiring archive downloads for active follow-up/);
+  assert.match(expiredDownloadEmpty, /No expired downloads match/);
+  assert.match(expiredDownloadEmpty, /No final-file rows with expired download windows match these filters for this school/);
+  assert.match(expiredDownloadEmpty, /Clear filters or review expiring final-file downloads for active follow-up/);
 
   const exactStudentEmpty = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -5064,7 +5236,7 @@ test("mentor dashboard assigned students open detail and meeting history without
         status: "held",
         scheduledFor: "",
         heldAt: "2026-05-28T15:30:00.000Z",
-        notes: "Reviewed the updated evidence plan and next presentation step.",
+        notes: "Reviewed the updated proof plan and next presentation step.",
         createdAt: "2026-05-28T15:30:00.000Z",
         updatedAt: "2026-05-28T15:30:00.000Z",
         nextAction: "Meeting recorded.",
@@ -5121,7 +5293,7 @@ test("mentor dashboard assigned students open detail and meeting history without
             status: "held",
             heldAt: "2026-05-28T15:30:00.000Z",
             scheduledFor: null,
-            notes: "Reviewed the updated evidence plan and next presentation step.",
+            notes: "Reviewed the updated proof plan and next presentation step.",
             submissionId: null,
           },
         },
@@ -5240,7 +5412,7 @@ test("mentor dashboard assigned students open detail and meeting history without
         return {
           studentId: "demo-student-101",
           status: "held",
-          notes: "Reviewed the updated evidence plan and next presentation step."
+          notes: "Reviewed the updated proof plan and next presentation step."
         }[name] || "";
       }
     };
@@ -5255,11 +5427,11 @@ test("mentor dashboard assigned students open detail and meeting history without
   assert.deepEqual(mentorMeetingPostBody, {
     studentId: "demo-student-101",
     status: "held",
-    notes: "Reviewed the updated evidence plan and next presentation step.",
+    notes: "Reviewed the updated proof plan and next presentation step.",
   });
   assert.ok(fetchRequests.some((entry) => entry.url === "/api/mentor/meetings" && entry.method === "POST"));
   assert.match(workspaceRoot.innerHTML, /Mentor meeting recorded/);
-  assert.match(workspaceRoot.innerHTML, /Reviewed the updated evidence plan and next presentation step/);
+  assert.match(workspaceRoot.innerHTML, /Reviewed the updated proof plan and next presentation step/);
   assert.match(workspaceRoot.innerHTML, /2 meetings/);
 
   vm.runInContext('handleSiteStudentDetailAction({ currentTarget: { dataset: { studentDetailAction: "close" } } })', context);
@@ -5334,7 +5506,7 @@ test("workspace gates operations readiness visibility and keeps it read-only", (
   assert.match(workspaceJs, /function hasSiteOperationsRole\(roles\)/);
   assert.match(operationsRoleHelperBlock, /"platform_admin",\s+"global_admin",\s+"admin",\s+"org_admin",\s+"site_admin",\s+"administration",\s+"program_teacher"/);
   assert.doesNotMatch(operationsRoleHelperBlock, /"viewer"|"mentor"|"student"|"misc_admin"/);
-  assert.match(availableSectionsBlock, /id: "operations", label: "Operations", detail: "Presentation, archive, and readiness"/);
+  assert.match(availableSectionsBlock, /id: "operations", label: "Operations", detail: "Presentation, final files, and readiness"/);
   assert.match(loadWorkspaceDataBlock, /hasSiteOperationsRole\(roles\).*\/api\/site\/operations-readiness/s);
   assert.match(workspaceJs, /function renderOperationsReadinessSection/);
   assert.match(workspaceJs, /function applyOperationsReadinessFilters/);
@@ -5355,7 +5527,7 @@ test("workspace keeps audit and archive export sections global-admin only", () =
   const availableSectionsBlock = workspaceJs.match(/function availableSections[\s\S]*?function renderActiveSection/)?.[0] || "";
   const siteDashboardBlock = workspaceJs.match(/function renderSiteDashboardSection[\s\S]*?function renderSiteStudentDirectorySection/)?.[0] || "";
   assert.match(availableSectionsBlock, /if \(hasGlobalAdminRole\(roles\)\) sections\.push\(\{ id: "audit", label: "Audit", detail: "Recent protected-record activity" \}\);/);
-  assert.match(availableSectionsBlock, /if \(hasGlobalAdminRole\(roles\)\) sections\.push\(\{ id: "archiveExports", label: "Archive \/ Exports", detail: "Closeout package status" \}\);/);
+  assert.match(availableSectionsBlock, /if \(hasGlobalAdminRole\(roles\)\) sections\.push\(\{ id: "archiveExports", label: "Final Files", detail: "Closeout package status" \}\);/);
   assert.doesNotMatch(availableSectionsBlock, /roles\.has\("site_admin"\)\) sections\.push\(\{ id: "audit"/);
   assert.doesNotMatch(availableSectionsBlock, /roles\.has\("site_admin"\)\) sections\.push\(\{ id: "archiveExports"/);
   assert.match(siteDashboardBlock, /const canOpenAudit = availableSectionIds\(\)\.has\("audit"\);/);
@@ -5504,7 +5676,7 @@ test("workspace renders upload progress, validation, completion, and retry state
             label: "Reflections and portfolio",
             status: "missing",
             evidenceCount: 0,
-            message: "Needs evidence or staff review before the archive package is ready.",
+            message: "Needs proof or staff review before final files are ready.",
           },
         ],
         archive: { status: "not_requested" },
@@ -5651,7 +5823,7 @@ test("workspace renders a progress-first student homepage with safe language", a
             requirementId: "req-proposal",
             submissionId: "submission-proposal",
             title: "Senior Project Proposal",
-            description: "Explain the problem, solution, audience, and evidence for your capstone project.",
+            description: "Explain the problem, solution, audience, and proof for your Senior Project.",
             phase: "proposal-and-research",
             phaseLabel: "Proposal And Research",
             status: "revision_requested",
@@ -5663,13 +5835,13 @@ test("workspace renders a progress-first student homepage with safe language", a
             dueLabel: "October 9 and 10",
             qualityPrompt: "Add one measurable success target before you send the proposal back.",
             lastUpdatedAt: "2026-05-24T18:00:00.000Z",
-            nextAction: "Send the revised Senior Project Proposal back for teacher review.",
+            nextAction: "Fix Senior Project Proposal and send it back for teacher review.",
           },
           {
             requirementId: "req-mentor-plan",
             submissionId: null,
             title: "Mentor Meeting One Plan",
-            description: "Bring your proposal and ask your mentor for help with scope, evidence, and timeline.",
+            description: "Bring your proposal and ask your mentor for help with scope, proof, and timeline.",
             phase: "mentor-meetings",
             phaseLabel: "Mentor Meetings",
             status: "missing",
@@ -5687,7 +5859,7 @@ test("workspace renders a progress-first student homepage with safe language", a
             requirementId: "req-reflection",
             submissionId: "submission-reflection",
             title: "Final Reflection",
-            description: "Choose evidence that shows growth, skill, effort, or impact.",
+            description: "Choose proof that shows growth, skill, effort, or impact.",
             phase: "portfolio",
             phaseLabel: "Portfolio",
             status: "approved",
@@ -5743,7 +5915,7 @@ test("workspace renders a progress-first student homepage with safe language", a
             label: "Reflections and portfolio",
             status: "missing",
             evidenceCount: 0,
-            message: "Needs evidence or staff review before the archive package is ready.",
+            message: "Needs proof or staff review before final files are ready.",
           },
         ],
         archive: { status: "not_requested" },
@@ -5765,14 +5937,14 @@ test("workspace renders a progress-first student homepage with safe language", a
   `);
 
   assert.match(student, /Your Senior Project/);
-  assert.match(student, /Track what is complete, what is missing, and what to do next/);
+  assert.match(student, /See what is done, what is missing, and what to do next/);
   assert.match(student, /role="progressbar"/);
   assert.match(student, /aria-valuenow="50"/);
-  assert.match(student, /Project Phases/);
-  assert.match(student, /2 of 4 complete/);
-  assert.match(student, /Required Submissions/);
-  assert.match(student, /4 of 6 submitted/);
-  assert.match(student, /Review Status/);
+  assert.match(student, /Senior Project Phases/);
+  assert.match(student, /2 of 4 done/);
+  assert.match(student, /Work Sent In/);
+  assert.match(student, /4 of 6 sent/);
+  assert.match(student, /Teacher Review/);
   assert.match(student, /1 needs revision/);
   assert.match(student, /Mentor: Ms\. Garcia/);
   assert.match(student, /workspace-student-primary-action/);
@@ -5781,40 +5953,42 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.match(student, /Your action/);
   assert.match(student, /What to Work On Next/);
   assert.match(student, /data-student-requirement-action="open-detail"/);
-  assert.match(student, /Open requirement/);
+  assert.match(student, /Open item/);
   assert.match(student, /data-student-requirements-panel="true"/);
-  assert.match(student, /3 requirements available/);
-  assert.match(student, /Requirement Checklist/);
+  assert.match(student, /3 work items listed by booklet phase/);
+  assert.match(student, /Senior Project Checklist/);
   assert.equal((student.match(/data-student-requirement-phase="true"/g) || []).length, 3);
-  assert.match(student, /data-student-requirement-phase-key="proposal-and-research"/);
-  assert.match(student, /data-student-requirement-phase-key="mentor-meetings"/);
-  assert.match(student, /data-student-requirement-phase-key="portfolio"/);
-  assert.match(student, /Proposal And Research/);
-  assert.match(student, /Mentor Meetings/);
-  assert.match(student, /Portfolio/);
-  assert.match(student, /0 of 1 complete \/ 1 still need work/);
-  assert.match(student, /1 of 1 complete/);
+  assert.match(student, /data-student-requirement-phase-key="phase-1"/);
+  assert.match(student, /data-student-requirement-phase-key="phase-2a"/);
+  assert.match(student, /data-student-requirement-phase-key="phase-4"/);
+  assert.match(student, /Phase 1: Kickoff and Proposal/);
+  assert.match(student, /Phase 2A: Build/);
+  assert.match(student, /Phase 4: Give Thanks, Reflect, Launch/);
+  assert.match(student, /Pick your project, finish the proposal, and wait for approval before you build/);
+  assert.doesNotMatch(student, /Proposal And Research/);
+  assert.match(student, /0 of 1 done \/ 1 still need work/);
+  assert.match(student, /1 of 1 done/);
   assert.match(student, /data-student-requirement-row="true"/);
   assert.match(student, /data-student-requirement-submission-id="submission-proposal"/);
   assert.match(student, /data-student-requirement-evidence-count="1"/);
   assert.match(student, /data-student-requirement-evidence="true"/);
-  assert.match(student, />1 evidence</);
+  assert.match(student, />1 proof item</);
   assert.match(student, /data-student-submission-action="submit"/);
   assert.match(student, /data-student-submission-id="submission-proposal"/);
   assert.match(student, /Send revision/);
   assert.match(student, /data-student-feedback-origin="submissions"/);
   assert.match(student, /data-student-requirement-description="true"/);
-  assert.match(student, /Explain the problem, solution, audience, and evidence for your capstone project/);
+  assert.match(student, /Explain the problem, solution, audience, and proof for your Senior Project/);
   assert.match(student, /data-student-requirement-quality="true"/);
   assert.match(student, /Try this: Add one measurable success target before you send the proposal back/);
-  assert.match(student, /Send the revised Senior Project Proposal back for teacher review/);
+  assert.match(student, /Fix Senior Project Proposal and send it back for teacher review/);
   assert.match(student, /data-student-next-step-due="true"/);
   assert.match(student, /data-student-deadlines-panel="true"/);
   assert.match(student, /Upcoming deadlines/);
   assert.match(student, /data-student-deadline-row="true"/);
   assert.match(student, /data-student-deadline-phase="true"/);
   assert.match(student, /data-student-deadline-due="true"/);
-  assert.match(student, /Proposal And Research \/ Current phase/);
+  assert.match(student, /Phase 1: Kickoff and Proposal \/ Current phase/);
   assert.match(student, /data-student-requirement-due="true"/);
   assert.match(student, /Due October 9 and 10/);
   assert.match(student, /Due January 14, make-up January 16/);
@@ -5832,13 +6006,13 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.match(student, /data-submission-feedback="true"/);
   assert.match(student, /Latest teacher feedback: Add one measurable success target before resubmitting/);
   assert.match(student, /Progress Details/);
-  assert.match(student, /May 5 archive/);
+  assert.match(student, /May 5 files/);
   assert.match(student, /Finish Reflections and portfolio/);
   assert.match(student, /Need help/);
   assert.match(student, /data-student-support-box="true"/);
   assert.match(student, /Review feedback/);
   assert.match(student, /Open submitted work/);
-  assert.match(student, /Open next requirement/);
+  assert.match(student, /Open next item/);
   assert.doesNotMatch(student, /Due date: Not available yet/);
   assert.doesNotMatch(student, /Database-backed MVP/);
   assert.doesNotMatch(student, /Cloudflare target/);
@@ -5859,6 +6033,23 @@ test("workspace renders a progress-first student homepage with safe language", a
     /\bFIXME\b/i,
   ]) {
     assert.doesNotMatch(student, pattern);
+  }
+  const studentText = visibleText(student);
+  for (const pattern of [
+    /\bRequirement Checklist\b/i,
+    /\bOpen next requirement\b/i,
+    /\bOpen requirement\b/i,
+    /\bAdd evidence\b/i,
+    /\bevidence item\b/i,
+    /\bevidence\b/i,
+    /\barchive package\b/i,
+    /\bMay 5 archive\b/i,
+    /\bquality prompt\b/i,
+    /\bartifact\b/i,
+    /\bCTE connection\b/i,
+    /\bdistrict access\b/i,
+  ]) {
+    assert.doesNotMatch(studentText, pattern);
   }
 });
 
@@ -5908,7 +6099,7 @@ test("student requirement rows open in-page details without another route", asyn
             requirementId: "req-proposal",
             submissionId: "submission-proposal",
             title: "Senior Project Proposal",
-            description: "Explain the problem, solution, audience, and evidence for your capstone project.",
+            description: "Explain the problem, solution, audience, and proof for your Senior Project.",
             phase: "proposal-and-research",
             phaseLabel: "Proposal And Research",
             status: "revision_requested",
@@ -5919,7 +6110,7 @@ test("student requirement rows open in-page details without another route", asyn
             dueLabel: "October 9 and 10",
             qualityPrompt: "Add one measurable success target before you send the proposal back.",
             lastUpdatedAt: "2026-05-24T18:00:00.000Z",
-            nextAction: "Send the revised Senior Project Proposal back for teacher review.",
+            nextAction: "Fix Senior Project Proposal and send it back for teacher review.",
           },
         ],
         progress: [],
@@ -5973,7 +6164,7 @@ test("student requirement rows open in-page details without another route", asyn
   };
   const { context, workspaceRoot, fetchLog } = await createWorkspaceContextWithFetch(routes);
   assert.match(workspaceRoot.innerHTML, /data-student-requirement-action="open-detail"/);
-  assert.match(workspaceRoot.innerHTML, /Open requirement/);
+  assert.match(workspaceRoot.innerHTML, /Open item/);
   assert.match(workspaceRoot.innerHTML, /data-workspace-disclosure-panel="student:requirements"/);
   assert.match(workspaceRoot.innerHTML, /aria-expanded="false"/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-requirement-action="toggle-detail"/);
@@ -5987,13 +6178,13 @@ test("student requirement rows open in-page details without another route", asyn
   assert.match(workspaceRoot.innerHTML, /data-student-requirement-action="toggle-detail"/);
   assert.match(workspaceRoot.innerHTML, /Hide details/);
   assert.match(workspaceRoot.innerHTML, /data-student-requirement-detail="true"/);
-  assert.match(workspaceRoot.innerHTML, /Requirement details/);
+  assert.match(workspaceRoot.innerHTML, /What to check/);
   assert.match(workspaceRoot.innerHTML, /Due October 9 and 10/);
-  assert.match(workspaceRoot.innerHTML, /1 item attached/);
+  assert.match(workspaceRoot.innerHTML, /Proof added[\s\S]*1 item attached/);
   assert.match(workspaceRoot.innerHTML, /Version 2 \/ Revision requested/);
   assert.match(workspaceRoot.innerHTML, /Latest teacher feedback/);
   assert.match(workspaceRoot.innerHTML, /Add one measurable success target before resubmitting/);
-  assert.match(workspaceRoot.innerHTML, /Matching uploaded and linked work/);
+  assert.match(workspaceRoot.innerHTML, /Files and links already added/);
   assert.match(workspaceRoot.innerHTML, /Proposal draft link/);
   assert.match(workspaceRoot.innerHTML, /href="https:\/\/example\.test\/proposal-detail"/);
   assert.match(workspaceRoot.innerHTML, /Open link/);
@@ -6062,7 +6253,7 @@ test("student upcoming deadlines panel lists nearest incomplete work and reuses 
             evidenceCount: 1,
             dueDate: "2025-10-09T00:00:00Z",
             dueLabel: "October 9 and 10",
-            nextAction: "Send the revised Senior Project Proposal back for teacher review.",
+            nextAction: "Fix Senior Project Proposal and send it back for teacher review.",
           },
           {
             requirementId: "req-presentation",
@@ -6132,10 +6323,10 @@ test("student upcoming deadlines panel lists nearest incomplete work and reuses 
   assert.match(student, /data-student-deadlines-count="3"/);
   assertMarkupOrder(student, "Senior Project Proposal", "Presentation Outline", "nearest dated deadline should render first");
   assertMarkupOrder(student, "Presentation Outline", "Portfolio Reflection", "label-only deadline should render after dated deadlines");
-  assert.match(student, /Open requirement/);
+  assert.match(student, /Open item/);
   assert.match(student, /Send revision/);
-  assert.match(student, /Add evidence/);
-  assert.match(student, /Proposal And Research \/ Current phase/);
+  assert.match(student, /Add proof/);
+  assert.match(student, /Phase 1: Kickoff and Proposal \/ Current phase/);
   assert.doesNotMatch(student, /data-student-deadline-requirement-id="req-complete"/);
 });
 
@@ -6159,13 +6350,13 @@ test("student requirement phase focus narrows the checklist and open requirement
         ok: true,
         viewer: { self: true },
         summary: {
-          requirementsTotal: 2,
+          requirementsTotal: 3,
           requirementsComplete: 1,
-          completionPercent: 50,
-          phasesTotal: 2,
+          completionPercent: 33,
+          phasesTotal: 3,
           phasesComplete: 1,
           submittedRequiredCount: 1,
-          missingRequiredCount: 1,
+          missingRequiredCount: 2,
           waitingForReviewCount: 0,
           revisionRequestedCount: 1,
           currentPhase: "proposal-and-research",
@@ -6190,7 +6381,7 @@ test("student requirement phase focus narrows the checklist and open requirement
             requirementId: "req-proposal",
             submissionId: "submission-proposal",
             title: "Senior Project Proposal",
-            description: "Explain the problem, solution, audience, and evidence for your capstone project.",
+            description: "Explain the problem, solution, audience, and proof for your Senior Project.",
             phase: "proposal-and-research",
             phaseLabel: "Proposal And Research",
             status: "revision_requested",
@@ -6201,7 +6392,24 @@ test("student requirement phase focus narrows the checklist and open requirement
             dueLabel: "October 9 and 10",
             qualityPrompt: "Add one measurable success target before you send the proposal back.",
             lastUpdatedAt: "2026-05-24T18:00:00.000Z",
-            nextAction: "Send the revised Senior Project Proposal back for teacher review.",
+            nextAction: "Fix Senior Project Proposal and send it back for teacher review.",
+          },
+          {
+            requirementId: "req-reflection",
+            submissionId: "",
+            title: "Final Reflection",
+            description: "Explain what changed from the first idea to the final result.",
+            phase: "reflection-and-archive",
+            phaseLabel: "Reflections and portfolio",
+            status: "missing",
+            progressStatus: null,
+            submissionStatus: null,
+            submissionVersion: null,
+            evidenceCount: 0,
+            dueLabel: "April 8 and 9",
+            qualityPrompt: "Use one specific moment as proof.",
+            lastUpdatedAt: null,
+            nextAction: "Write Final Reflection after presentation and celebration work is done.",
           },
           {
             requirementId: "req-celebration",
@@ -6262,21 +6470,23 @@ test("student requirement phase focus narrows the checklist and open requirement
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-requirement-phase-focus="true"/);
   openWorkspaceDisclosure(context, "student", "requirements");
   assert.match(workspaceRoot.innerHTML, /data-student-requirement-phase-focus="true"/);
-  assert.match(workspaceRoot.innerHTML, /Proposal And Research \(Current\)/);
-  assert.match(workspaceRoot.innerHTML, /Celebration Day/);
-  assert.match(workspaceRoot.innerHTML, /data-student-requirement-phase-key="proposal-and-research"/);
-  assert.match(workspaceRoot.innerHTML, /data-student-requirement-phase-key="celebration-day"/);
+  assert.match(workspaceRoot.innerHTML, /Phase 1: Kickoff and Proposal \(Current\)/);
+  assert.match(workspaceRoot.innerHTML, /Phase 3B: Celebrate/);
+  assert.match(workspaceRoot.innerHTML, /Phase 4: Give Thanks, Reflect, Launch/);
+  assertMarkupOrder(workspaceRoot.innerHTML, "<h3>Phase 3B: Celebrate</h3>", "<h3>Phase 4: Give Thanks, Reflect, Launch</h3>", "booklet phase groups should sort before legacy payload order");
+  assert.match(workspaceRoot.innerHTML, /data-student-requirement-phase-key="phase-1"/);
+  assert.match(workspaceRoot.innerHTML, /data-student-requirement-phase-key="phase-3b"/);
 
-  vm.runInContext('handleStudentRequirementPhaseAction({ currentTarget: { dataset: { studentRequirementPhaseAction: "set-phase", studentRequirementPhaseKey: "celebration-day" } } })', context);
-  assert.doesNotMatch(workspaceRoot.innerHTML, /<h3>Proposal And Research<\/h3>/);
-  assert.match(workspaceRoot.innerHTML, /<h3>Celebration Day<\/h3>/);
-  assert.match(workspaceRoot.innerHTML, /Celebration Day: 0 of 1 complete, 1 still need work\./);
+  vm.runInContext('handleStudentRequirementPhaseAction({ currentTarget: { dataset: { studentRequirementPhaseAction: "set-phase", studentRequirementPhaseKey: "phase-3b" } } })', context);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /<h3>Phase 1: Kickoff and Proposal<\/h3>/);
+  assert.match(workspaceRoot.innerHTML, /<h3>Phase 3B: Celebrate<\/h3>/);
+  assert.match(workspaceRoot.innerHTML, /Phase 3B: Celebrate: 0 of 1 done, 1 still need work\./);
 
   vm.runInContext('handleStudentRequirementAction({ currentTarget: { dataset: { studentRequirementAction: "open-detail", studentRequirementId: "req-proposal" } } })', context);
-  assert.match(workspaceRoot.innerHTML, /<h3>Proposal And Research<\/h3>/);
-  assert.doesNotMatch(workspaceRoot.innerHTML, /<h3>Celebration Day<\/h3>/);
+  assert.match(workspaceRoot.innerHTML, /<h3>Phase 1: Kickoff and Proposal<\/h3>/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /<h3>Phase 3B: Celebrate<\/h3>/);
   assert.match(workspaceRoot.innerHTML, /data-student-requirement-detail="true"/);
-  assert.match(workspaceRoot.innerHTML, /Requirement details/);
+  assert.match(workspaceRoot.innerHTML, /What to check/);
   assert.match(workspaceRoot.innerHTML, /Add one measurable success target before resubmitting/);
 });
 
@@ -6412,15 +6622,15 @@ test("student feedback rows open a student-safe review timeline", async () => {
   assert.ok(fetchLog.includes("/api/reviews/submission-proposal/history"));
   assert.match(workspaceRoot.innerHTML, /data-student-feedback-timeline="true"/);
   assert.match(workspaceRoot.innerHTML, /data-student-feedback-timeline-summary="true"/);
-  assert.match(workspaceRoot.innerHTML, /Submission timeline/);
+  assert.match(workspaceRoot.innerHTML, /Work timeline/);
   assert.match(workspaceRoot.innerHTML, /Only feedback meant for you is shown here/);
   assert.match(workspaceRoot.innerHTML, /Current version[\s\S]*Version 2/);
   assert.match(workspaceRoot.innerHTML, /Submitted versions[\s\S]*2/);
   assert.match(workspaceRoot.innerHTML, /Teacher notes[\s\S]*2/);
   assert.match(workspaceRoot.innerHTML, /Status updates[\s\S]*1/);
   assert.match(workspaceRoot.innerHTML, /Version 2 submitted/);
-  assert.match(workspaceRoot.innerHTML, /data-student-feedback-current-version="true"[\s\S]*2 evidence items/);
-  assert.match(workspaceRoot.innerHTML, /data-student-feedback-version="1"[\s\S]*1 evidence item/);
+  assert.match(workspaceRoot.innerHTML, /data-student-feedback-current-version="true"[\s\S]*2 proof items/);
+  assert.match(workspaceRoot.innerHTML, /data-student-feedback-version="1"[\s\S]*1 proof item/);
   assert.match(workspaceRoot.innerHTML, /Sent back for revision/);
   assert.match(workspaceRoot.innerHTML, /Add one measurable success target before resubmitting/);
   assert.match(workspaceRoot.innerHTML, /Thanks for resubmitting the outline/);
@@ -6675,7 +6885,7 @@ test("student submission rows open the student-safe review timeline without dupl
 
   assert.ok(fetchLog.includes("/api/reviews/submission-proposal/history"));
   assert.match(workspaceRoot.innerHTML, /data-student-submission-timeline="true"/);
-  assert.match(workspaceRoot.innerHTML, /Submission timeline/);
+  assert.match(workspaceRoot.innerHTML, /Work timeline/);
   assert.match(workspaceRoot.innerHTML, /Version 2 submitted/);
   assert.match(workspaceRoot.innerHTML, /Sent back for revision/);
   assert.match(workspaceRoot.innerHTML, /Thanks for resubmitting the outline/);
@@ -6941,7 +7151,7 @@ test("student support actions reuse existing feedback, submission, and requireme
   assert.match(workspaceRoot.innerHTML, /data-student-support-box="true"/);
   assert.match(workspaceRoot.innerHTML, /Review feedback/);
   assert.match(workspaceRoot.innerHTML, /Open submitted work/);
-  assert.match(workspaceRoot.innerHTML, /Open next requirement/);
+  assert.match(workspaceRoot.innerHTML, /Open next item/);
 
   const fetchCountBeforeSupport = fetchLog.length;
   vm.runInContext('handleStudentSupportAction({ currentTarget: { dataset: { studentSupportAction: "focus-feedback", studentSupportFilter: "revision_requested" } } })', context);
@@ -7094,7 +7304,7 @@ test("workspace renders role-pending and permission-denied access states", async
   assert.match(viewer, /data-section="students" data-section-preset="missing-mentors"/);
   assert.match(viewer, /data-section="students" data-section-preset="archive-failed-students"/);
   assert.doesNotMatch(viewer, /Open review queue|Open operations/);
-  assert.match(viewer, /Private evidence/);
+  assert.match(viewer, /Private proof/);
 
   const administration = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -7236,7 +7446,7 @@ test("Administration next actions stay role-safe on the Site Dashboard", async (
   openWorkspaceDisclosure(context, "dashboard", "siteDashboard");
   assert.match(workspaceRoot.innerHTML, /Review assigned site records[\s\S]*data-section="students" data-section-preset="all-students"[\s\S]*Open student list/);
   assert.match(workspaceRoot.innerHTML, /Teacher follow-up[\s\S]*data-section="students" data-section-preset="revision-students"[\s\S]*Open student list/);
-  assert.match(workspaceRoot.innerHTML, /Presentation and archive follow-up[\s\S]*data-section="operations" data-section-preset="archive-failed"[\s\S]*Open operations/);
+  assert.match(workspaceRoot.innerHTML, /Presentation and final-file follow-up[\s\S]*data-section="operations" data-section-preset="archive-failed"[\s\S]*Open operations/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-section="teacher" data-section-preset="revision-requested"[\s\S]*Open review queue/);
 });
 
@@ -7261,10 +7471,10 @@ test("workspace renders safe Google Workspace SSO and local sign-in states", asy
   assert.match(disabled, /Welcome back/);
   assert.match(disabled, /Sign in to open your workspace\./);
   assert.match(disabled, /What this workspace does/);
-  assert.match(disabled, /School Google account/);
-  assert.match(disabled, /Google Workspace sign-in is not configured for this environment yet/);
   assert.match(disabled, /Local account/);
   assert.match(disabled, /Use this only if your school or project coordinator gave you a local account\./);
+  assert.doesNotMatch(disabled, /School Google account/);
+  assert.doesNotMatch(disabled, /Google Workspace sign-in is not configured for this environment yet/);
   assert.doesNotMatch(disabled, /Approved fallback access|Local account sign in/);
   assert.doesNotMatch(disabled, /Continue with Google(?: Workspace)?/);
 
@@ -7295,7 +7505,7 @@ test("workspace renders safe Google Workspace SSO and local sign-in states", asy
   assert.match(enabled, /School workspace/);
   assert.doesNotMatch(enabled, /Continue with Google Workspace/);
   assert.doesNotMatch(enabled, /workspace-product-header/);
-  assert.doesNotMatch(enabled, /Student progress|Private evidence|Mentor coverage|Review queue|Presentation readiness/);
+  assert.doesNotMatch(enabled, /Student progress|Private proof|Mentor coverage|Review queue|Presentation readiness/);
   assert.doesNotMatch(enabled, /Approved fallback access|Local account sign in/);
   assert.doesNotMatch(enabled, /Database-backed MVP|Cloudflare target|Audit-sensitive admin|Senior Capstone Product/);
   assert.doesNotMatch(enabled, /client_secret|access_token|refresh_token|id_token/i);
@@ -7452,7 +7662,7 @@ test("student files rows reopen the matching requirement detail", async () => {
             requirementId: "req-proposal",
             submissionId: "submission-proposal",
             title: "Senior Project Proposal",
-            description: "Explain the problem, solution, audience, and evidence for your capstone project.",
+            description: "Explain the problem, solution, audience, and proof for your Senior Project.",
             phase: "proposal-and-research",
             phaseLabel: "Proposal And Research",
             status: "revision_requested",
@@ -7464,7 +7674,7 @@ test("student files rows reopen the matching requirement detail", async () => {
             dueLabel: "May 30",
             qualityPrompt: "Add one measurable success target before you send the proposal back.",
             lastUpdatedAt: "2026-05-24T18:00:00.000Z",
-            nextAction: "Send the revised Senior Project Proposal back for teacher review.",
+            nextAction: "Fix Senior Project Proposal and send it back for teacher review.",
           },
         ],
         progress: [],
@@ -7509,7 +7719,7 @@ test("student files rows reopen the matching requirement detail", async () => {
   assert.match(workspaceRoot.innerHTML, /data-student-requirement-detail="true"/);
   assert.match(workspaceRoot.innerHTML, /Senior Project Proposal/);
   assert.match(workspaceRoot.innerHTML, /Version 2 \/ Revision requested/);
-  assert.match(workspaceRoot.innerHTML, /Matching uploaded and linked work/);
+  assert.match(workspaceRoot.innerHTML, /Files and links already added/);
   assert.match(workspaceRoot.innerHTML, /Proposal draft/);
   assert.match(workspaceRoot.innerHTML, /Open link/);
 });
@@ -7546,7 +7756,7 @@ test("student requirement detail opens the submission timeline inline", async ()
             requirementId: "req-proposal",
             submissionId: "submission-proposal",
             title: "Senior Project Proposal",
-            description: "Explain the problem, solution, audience, and evidence for your capstone project.",
+            description: "Explain the problem, solution, audience, and proof for your Senior Project.",
             phase: "proposal-and-research",
             phaseLabel: "Proposal And Research",
             status: "revision_requested",
@@ -7558,7 +7768,7 @@ test("student requirement detail opens the submission timeline inline", async ()
             dueLabel: "May 30",
             qualityPrompt: "Add one measurable success target before you send the proposal back.",
             lastUpdatedAt: "2026-05-24T18:00:00.000Z",
-            nextAction: "Send the revised Senior Project Proposal back for teacher review.",
+            nextAction: "Fix Senior Project Proposal and send it back for teacher review.",
           },
           {
             requirementId: "req-showcase",
@@ -7671,13 +7881,13 @@ test("student requirement detail opens the submission timeline inline", async ()
   assert.match(workspaceRoot.innerHTML, /data-student-requirement-detail="true"/);
   assert.match(workspaceRoot.innerHTML, /data-student-requirement-timeline="true"/);
   assert.match(workspaceRoot.innerHTML, /Refresh full timeline/);
-  assert.match(workspaceRoot.innerHTML, /Submission timeline/);
+  assert.match(workspaceRoot.innerHTML, /Work timeline/);
   assert.match(workspaceRoot.innerHTML, /Thanks for resubmitting the outline/);
   assert.match(workspaceRoot.innerHTML, /Sent back for revision/);
   assert.equal(vm.runInContext("studentFeedbackHistoryState.source", context), "requirements");
 
   await vm.runInContext(
-    'handleStudentRequirementPhaseAction({ currentTarget: { dataset: { studentRequirementPhaseAction: "set-phase", studentRequirementPhaseKey: "celebration-day" } } })',
+    'handleStudentRequirementPhaseAction({ currentTarget: { dataset: { studentRequirementPhaseAction: "set-phase", studentRequirementPhaseKey: "phase-3b" } } })',
     context,
   );
 
@@ -7742,6 +7952,11 @@ test("workspace renders admin import controls and one-time setup output", async 
   assert.match(adminUsers, /Full name/);
   assert.match(adminUsers, /Admin note/);
   assert.match(adminUsers, /Create account/);
+  assert.match(adminUsers, /Local accounts only\. SSO is disabled for this setup\./);
+  assert.doesNotMatch(adminUsers, /<option value="sso">SSO account<\/option>/);
+  assert.match(adminUsers, /data-site-account-management="true"/);
+  assert.match(adminUsers, /Accounts at this school/);
+  assert.match(adminUsers, /Remove account/);
   assert.doesNotMatch(adminUsers, /Import Account|Import reason|Misc Admin|misc_admin/);
   assert.match(adminUsers, /data-admin-import-result="one-time-setup-passwords"/);
   assert.match(adminUsers, /N9!aA-setup-zZ/);
@@ -8846,7 +9061,7 @@ test("workspace restores presentation schedule focus from URL state", async () =
   assert.doesNotMatch(workspaceRoot.innerHTML, /Maya Student|Sam Student/);
 });
 
-test("workspace renders archive readiness from persisted rows", async () => {
+test("workspace renders final-file readiness from persisted rows", async () => {
   const archive = await renderWorkspaceWithFetch({
     "/api/auth/me": {
       status: 200,
@@ -8864,7 +9079,7 @@ test("workspace renders archive readiness from persisted rows", async () => {
       status: 200,
       body: {
         ok: true,
-        nextAction: "Review archive package readiness.",
+        nextAction: "Review final file readiness.",
         viewer: { self: true },
         progress: [],
         submissions: [],
@@ -8885,7 +9100,7 @@ test("workspace renders archive readiness from persisted rows", async () => {
         checks: [
           {
             id: "celebration_evidence",
-            label: "Celebration Day evidence",
+            label: "Celebration Day proof",
             status: "ready",
             evidenceCount: 2,
             message: "Ready for archive review.",
@@ -8902,7 +9117,7 @@ test("workspace renders archive readiness from persisted rows", async () => {
             label: "Reflections and portfolio",
             status: "missing",
             evidenceCount: 0,
-            message: "Needs evidence or staff review before the archive package is ready.",
+            message: "Needs proof or staff review before final files are ready.",
           },
         ],
         archive: {
@@ -8912,7 +9127,7 @@ test("workspace renders archive readiness from persisted rows", async () => {
           drivePackageReady: true,
           downloadUrl: "/api/exports/export-ready/download",
           downloadExpiresAt: "2026-05-05T16:00:00.000Z",
-          message: "Archive package manifest is ready for scoped download.",
+          message: "Your final file package is ready for protected download.",
         },
         storage: {
           providerStatus: "drive_credentials_missing",
@@ -8936,28 +9151,28 @@ test("workspace renders archive readiness from persisted rows", async () => {
   }, "archive");
 
   assert.match(archive, /workspace-archive-dashboard/);
-  assert.match(archive, /Archive readiness score/);
-  assert.match(archive, /Archive distribution/);
-  assert.match(archive, /Archive ready/);
+  assert.match(archive, /Final files readiness score/);
+  assert.match(archive, /Final files distribution/);
+  assert.match(archive, /Files ready/);
   assert.match(archive, /Needs action/);
   assert.match(archive, /data-archive-check-status="ready"/);
   assert.match(archive, /data-archive-check-status="attention_required"/);
-  assert.match(archive, /Celebration Day evidence/);
+  assert.match(archive, /Celebration Day proof/);
   assert.match(archive, /data-archive-guidance="true"/);
-  assert.match(archive, /Your archive package is ready/);
+  assert.match(archive, /Your download is ready/);
   assert.match(archive, /data-archive-download="manifest"/);
-  assert.match(archive, /Download archive manifest/);
-  assert.match(archive, /Your archive download is ready until/);
+  assert.match(archive, /Download file list/);
+  assert.match(archive, /Your download is ready until/);
   assert.match(archive, /Private file details stay hidden/);
   assert.match(archive, /data-archive-drive-package="ready"/);
-  assert.match(archive, /Archive package file is stored for protected download/);
+  assert.match(archive, /Final file package is stored for protected download/);
   assert.match(archive, /data-archive-retention-status="policy_review_required"/);
-  assert.match(archive, /Retention policy needs school review before archive packages are used broadly/);
+  assert.match(archive, /School download policy still needs review/);
   assert.match(archive, /expiring soon/i);
   assert.doesNotMatch(archive, /signed archive links|export generation is wired|Scoped archive|Drive-backed archive package/i);
 });
 
-test("workspace explains the next student archive blocker without adding fake actions", async () => {
+test("workspace explains the next student final-files blocker without adding fake actions", async () => {
   const archive = await renderWorkspaceWithFetch({
     "/api/auth/me": {
       status: 200,
@@ -8995,17 +9210,17 @@ test("workspace explains the next student archive blocker without adding fake ac
         checks: [
           {
             id: "celebration_evidence",
-            label: "Celebration Day evidence",
+            label: "Celebration Day proof",
             status: "ready",
             evidenceCount: 2,
-            message: "Ready for archive review.",
+            message: "Ready for final-file review.",
           },
           {
             id: "reflection_portfolio",
             label: "Reflections and portfolio",
             status: "missing",
             evidenceCount: 0,
-            message: "Needs evidence or staff review before the archive package is ready.",
+            message: "Needs proof or staff review before final files are ready.",
           },
         ],
         archive: {
@@ -9038,15 +9253,15 @@ test("workspace explains the next student archive blocker without adding fake ac
 
   assert.match(archive, /data-archive-guidance="true"/);
   assert.match(archive, /data-archive-guidance-status="missing"/);
-  assert.match(archive, /Archive next step/);
+  assert.match(archive, /Final files next step/);
   assert.match(archive, /Finish Reflections and portfolio/);
-  assert.match(archive, /1 of 4 closeout checks ready/);
+  assert.match(archive, /1 of 4 final checks ready/);
   assert.match(archive, /Add the missing work or ask your program teacher what to attach/);
-  assert.match(archive, /Evidence matched: 0/);
+  assert.match(archive, /Proof matched: 0/);
   assert.doesNotMatch(archive, /data-archive-action|Request archive|href="#"/);
 });
 
-test("workspace explains student archive package failures without fake retry controls", async () => {
+test("workspace explains student final-file package failures without fake retry controls", async () => {
   const archive = await renderWorkspaceWithFetch({
     "/api/auth/me": {
       status: 200,
@@ -9084,10 +9299,10 @@ test("workspace explains student archive package failures without fake retry con
         checks: [
           {
             id: "celebration_evidence",
-            label: "Celebration Day evidence",
+            label: "Celebration Day proof",
             status: "ready",
             evidenceCount: 2,
-            message: "Ready for archive review.",
+            message: "Ready for final-file review.",
           },
         ],
         archive: {
@@ -9097,7 +9312,7 @@ test("workspace explains student archive package failures without fake retry con
           drivePackageReady: false,
           downloadUrl: null,
           downloadExpired: false,
-          message: "Archive package failed and needs staff follow-up.",
+          message: "Your final file package needs staff follow-up.",
         },
         storage: {
           providerStatus: "ready",
@@ -9121,8 +9336,8 @@ test("workspace explains student archive package failures without fake retry con
   }, "archive");
 
   assert.match(archive, /data-archive-guidance-status="failed"/);
-  assert.match(archive, /Staff need to review your archive package/);
-  assert.match(archive, /Archive package preparation needs staff follow-up/);
+  assert.match(archive, /Staff need to review your final files/);
+  assert.match(archive, /Final file package preparation needs staff follow-up/);
   assert.match(archive, /No retry action is needed from you right now/);
   assert.doesNotMatch(archive, /data-archive-action|Retry archive|Request archive|signed archive links|export generation is wired|href="#"/i);
 });
@@ -9218,8 +9433,8 @@ function siteDashboardFixture({ readOnly = false } = {}) {
         actionLabel: "Open operations",
       },
       {
-        label: "Archive exports failed",
-        detail: "1 archive export(s) need review.",
+        label: "Final-file exports failed",
+        detail: "1 final-file export(s) need review.",
         severity: "urgent",
         actionSection: "operations",
         actionPreset: "archive-failed",
@@ -9245,7 +9460,7 @@ function siteDashboardFixture({ readOnly = false } = {}) {
         studentId: "demo-student-101",
         studentName: "Missing Mentor Demo",
         type: "evidence",
-        title: "Evidence added",
+        title: "Proof added",
         status: "attached",
         occurredAt: "2026-05-31T16:15:00.000Z",
       },
@@ -9284,16 +9499,16 @@ function siteDashboardFixture({ readOnly = false } = {}) {
         actionLabel: readOnly ? "Open student list" : "Open review queue",
       },
       {
-        label: "Presentation and archive follow-up",
-        detail: "1 archive export(s) need follow-up.",
+        label: "Presentation and final-file follow-up",
+        detail: "1 final-file export(s) need follow-up.",
         status: "failed",
         actionSection: "operations",
         actionPreset: "archive-failed",
         actionLabel: "Open operations",
       },
       {
-        label: "Private evidence",
-        detail: "690 private evidence items are counted without showing private file details.",
+        label: "Private proof",
+        detail: "690 private proof items are counted without showing private file details.",
         status: "configured",
       },
     ],
@@ -9533,7 +9748,7 @@ function siteStudentsFixture({
       progressPercent: 75,
       storyBucket: "archive_failed",
       lastActivityAt: "2026-05-21T12:00:00.000Z",
-      nextAction: "Review archive export failure.",
+      nextAction: "Review final-file export failure.",
     },
   ];
   return {
@@ -9615,6 +9830,7 @@ function siteStudentsFixture({
       canViewPresentationOperations: true,
       canViewArchiveOperations: true,
       canManageUsers: false,
+      canManageSiteUsers: !readOnly && role === "site_admin",
       canManageSecurity: false,
     },
     emptyState: filteredTotal === 0 ? {
@@ -9655,7 +9871,7 @@ function siteReviewQueueFixture({
       storyBucket: "revision_requested",
       riskScore: 6,
       riskFlags: ["awaiting_review", "stale"],
-      nextAction: "Review evidence and record teacher feedback.",
+      nextAction: "Review proof and record teacher feedback.",
     },
     {
       submissionId: "submission-review-002",
@@ -9923,7 +10139,7 @@ function siteOperationsReadinessFixture({
       storageIdentifiersRedacted: true,
       reason: "Archive export failed and needs staff follow-up.",
       owner: "Archive operations",
-      nextAction: "Review archive failure details before completion.",
+      nextAction: "Review final-file failure details before completion.",
     },
     {
       studentId: "demo-student-050",
@@ -9983,7 +10199,7 @@ function siteOperationsReadinessFixture({
       storageIdentifiersRedacted: true,
       reason: "Archive package download window expired.",
       owner: "Site administration",
-      nextAction: "Ask authorized staff to generate a fresh archive package.",
+      nextAction: "Ask authorized staff to generate a fresh final-file package.",
     },
     {
       studentId: "demo-student-053",
@@ -10003,7 +10219,7 @@ function siteOperationsReadinessFixture({
       storageIdentifiersRedacted: true,
       reason: "Archive provider setup is unavailable.",
       owner: "Archive operations",
-      nextAction: "Confirm archive storage setup before generating packages.",
+      nextAction: "Confirm final-file storage setup before generating packages.",
     },
   ];
   const attentionRows = [
@@ -10171,7 +10387,7 @@ function reviewHistoryFixture() {
       {
         id: "review-review-001",
         decision: "revision_requested",
-        feedback: "Improve scope and cite the private evidence summary.",
+        feedback: "Improve scope and cite the private proof summary.",
         reviewerName: "Program Teacher",
         reviewer_name: "Program Teacher",
         createdAt: "2026-05-21T12:30:00.000Z",
@@ -10334,7 +10550,7 @@ function siteStudentDetailFixture({ readOnly = false } = {}) {
       failed: false,
       artifactCount: 0,
       storageIdentifiersRedacted: true,
-      nextAction: "Prepare archive readiness checks when the student reaches closeout.",
+      nextAction: "Prepare final-file readiness checks when the student reaches closeout.",
     },
     timelinePreview: [
       {
@@ -10406,13 +10622,13 @@ function siteStudentTimelineFixture({ readOnly = false } = {}) {
         id: "timeline-101-event",
         type: "evidence",
         occurredAt: "2026-05-21T12:00:00.000Z",
-        title: "Evidence added",
+        title: "Proof added",
         summary: "Timeline event with storage identifiers redacted.",
         actorName: "Student",
         status: "pending_review",
         reason: "",
         owner: "Student",
-        nextAction: "Review evidence context in the evidence section.",
+        nextAction: "Review proof context in the proof section.",
       },
       {
         id: "timeline-101-review",

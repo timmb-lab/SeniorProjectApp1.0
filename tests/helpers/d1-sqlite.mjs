@@ -20,6 +20,7 @@ export function foundationMigrations() {
     "migrations/0010_tenant_google_sso.sql",
     "migrations/0011_multisite_site_role_foundation.sql",
     "migrations/0012_users_access_v5.sql",
+    "migrations/0014_local_only_empty_test_schools.sql",
   ];
 }
 

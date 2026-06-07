@@ -61,7 +61,7 @@ const WORKSPACE_UPLOAD_ALLOWED_MIME_TYPES = new Set([
 const WORKSPACE_UPLOAD_ALLOWED_EXTENSIONS = [".pdf", ".txt", ".csv", ".docx", ".pptx", ".xlsx"];
 const WORKSPACE_POSTURE_CHIPS = [
   "Student progress",
-  "Private evidence",
+  "Private proof",
   "Mentor coverage",
   "Review queue",
   "Presentation readiness",
@@ -162,7 +162,7 @@ const STATUS_LABELS = {
   needs_revision: "Needs revision",
   on_track: "On track",
   behind: "Behind",
-  missing_evidence: "Missing evidence",
+  missing_evidence: "Missing proof",
   missing_mentor: "Missing mentor",
   ready_complete: "Ready / complete",
   reviewed: "Reviewed",
@@ -180,8 +180,68 @@ const STATUS_LABELS = {
   student_and_staff: "Student-visible",
   staff_only: "Staff-only",
 };
+const STUDENT_BOOKLET_PHASE_ORDER = [
+  "start",
+  "phase-1",
+  "phase-2a",
+  "phase-2b",
+  "phase-3a",
+  "phase-3b",
+  "phase-4",
+  "finish",
+];
+const STUDENT_BOOKLET_PHASES = {
+  start: {
+    label: "Start: Setup",
+    guidance: "Set up your Senior Project folder and app space. Make sure your teacher can see your work.",
+  },
+  "phase-1": {
+    label: "Phase 1: Kickoff and Proposal",
+    guidance: "Pick your project, finish the proposal, and wait for approval before you build.",
+  },
+  "phase-2a": {
+    label: "Phase 2A: Build",
+    guidance: "Start building. Keep proof of what you do and get ready for Mentor Meeting 1.",
+  },
+  "phase-2b": {
+    label: "Phase 2B: Build Part II",
+    guidance: "Use mentor feedback, finish your outline, and choose your presentation time.",
+  },
+  "phase-3a": {
+    label: "Phase 3A: Present",
+    guidance: "Practice and give your presentation. Show what you made, what you learned, and how it connects to your program.",
+  },
+  "phase-3b": {
+    label: "Phase 3B: Celebrate",
+    guidance: "Set up Celebration Day. Add at least one photo, and post ingredients if you share food.",
+  },
+  "phase-4": {
+    label: "Phase 4: Give Thanks, Reflect, Launch",
+    guidance: "Write thank-you notes and reflections. Save work that shows what you learned.",
+  },
+  finish: {
+    label: "Finish: Download and Keep",
+    guidance: "By May 5, download and keep your important Senior Project files before your school account closes.",
+  },
+};
+const STUDENT_BOOKLET_PHASE_ALIASES = {
+  setup: "start",
+  purpose: "start",
+  proposal: "phase-1",
+  "proposal-and-research": "phase-1",
+  "mentor-checkpoints": "phase-2a",
+  "mentor-meetings": "phase-2a",
+  presentation: "phase-3a",
+  "presentation-day": "phase-3a",
+  "presentation-and-celebration": "phase-3a",
+  "celebration-day": "phase-3b",
+  portfolio: "phase-4",
+  "reflection-and-archive": "phase-4",
+  "wrap-up": "finish",
+};
 const WORKSPACE_SECTION_IDS = new Set([
   "overview",
+  "profile",
   "siteDashboard",
   "programs",
   "students",
@@ -320,7 +380,7 @@ const WORKSPACE_URL_FILTER_PARAMS = Array.from(new Set([
 let uploadState = {
   state: "idle",
   progress: 0,
-  message: "Choose a file to upload evidence.",
+  message: "Choose a file to upload as proof.",
   fileName: "",
   fileSize: 0,
   retryReady: false,
@@ -531,7 +591,7 @@ function renderWorkspaceLandingHero() {
     <div class="workspace-landing-copy">
       <p class="workspace-landing-label">Protected project workspace</p>
       <h1 id="signInTitle">Capstone Project Workspace</h1>
-      <p>The workspace keeps project requirements, evidence, feedback, and presentation preparation organized for students and assigned school staff.</p>
+      <p>The workspace keeps Senior Project work, proof, teacher feedback, mentor help, and presentation preparation organized for students and assigned school staff.</p>
     </div>
     ${renderWorkspaceHomeInfoBox()}
   `;
@@ -541,7 +601,7 @@ function renderWorkspaceHomeInfoBox() {
   return `
     <article class="workspace-home-info" aria-labelledby="workspaceHomeInfoTitle">
       <h2 id="workspaceHomeInfoTitle">What this workspace does</h2>
-      <p>Students can see requirements, submit evidence, review feedback, and prepare for presentations. Staff views follow assigned roles, so mentors, program teachers, administration, site admins, and global admins only see the tools and student information their access allows.</p>
+      <p>Students can see their booklet phases, add proof, send work for review, read feedback, and prepare for presentations. Staff views follow assigned roles, so mentors, program teachers, administration, site admins, and global admins only see the tools and student information their access allows.</p>
     </article>
   `;
 }
@@ -574,7 +634,8 @@ function renderSignIn(message = "", tone = "neutral", workspaceState = "signed-o
   const finalTone = message ? tone : urlAuthError.tone;
   const emailValue = escapeHtml(options.email || "");
   const showResetForm = Boolean(options.showResetForm || workspaceState === "reset-required");
-  const showGooglePanel = authConfig.googleSsoEnabled || !authConfig.googleSsoConfigured;
+  const localOnly = authConfig.authMode === "hardened_username_password" && !authConfig.googleSsoEnabled;
+  const showGooglePanel = !localOnly && (authConfig.googleSsoEnabled || !authConfig.googleSsoConfigured);
   const showLocalLogin = authConfig.localLoginEnabled;
   workspaceMain.innerHTML = `
     <section class="workspace-auth" aria-labelledby="signInTitle" data-workspace-state="${escapeHtml(workspaceState)}">
@@ -971,10 +1032,11 @@ function handleWorkspaceKeydown(event) {
 function sectionShortLabel(section) {
   const labels = {
     overview: "Home",
+    profile: "Profile",
     siteDashboard: "Dash",
     students: "Students",
     student: "My Work",
-    archive: "Archive",
+    archive: "Files",
     mentorDashboard: "Mentor",
     mentor: "Assigned",
     programDashboard: "Program",
@@ -1344,7 +1406,7 @@ async function openWorkspaceSection(button) {
     siteStudentDetailState = defaultSiteStudentDetailState();
     activeSection = "students";
     syncSiteStudentUrlState();
-    await loadWorkspaceData("Showing students ready for archive closeout.");
+    await loadWorkspaceData("Showing students ready for final-file closeout.");
     return;
   }
   if (section === "students" && button.dataset.sectionPreset === "archive-failed-students") {
@@ -1489,7 +1551,7 @@ async function openWorkspaceSection(button) {
       archiveStatus: "in_progress",
     };
     syncOperationsReadinessUrlState();
-    await loadOperationsReadinessResult("Showing archive packages being prepared.");
+    await loadOperationsReadinessResult("Showing final-file packages being prepared.");
     return;
   }
   if (section === "operations" && button.dataset.sectionPreset === "archive-expiring-soon") {
@@ -1498,7 +1560,7 @@ async function openWorkspaceSection(button) {
       archiveStatus: "expiring_soon",
     };
     syncOperationsReadinessUrlState();
-    await loadOperationsReadinessResult("Showing archive packages with download windows ending soon.");
+    await loadOperationsReadinessResult("Showing final-file packages with download windows ending soon.");
     return;
   }
   if (section === "operations" && button.dataset.sectionPreset === "archive-expired") {
@@ -1507,7 +1569,7 @@ async function openWorkspaceSection(button) {
       archiveStatus: "expired",
     };
     syncOperationsReadinessUrlState();
-    await loadOperationsReadinessResult("Showing archive packages with expired download windows.");
+    await loadOperationsReadinessResult("Showing final-file packages with expired download windows.");
     return;
   }
   if (section === "operations" && button.dataset.sectionPreset === "archive-provider-unavailable") {
@@ -1516,7 +1578,7 @@ async function openWorkspaceSection(button) {
       archiveStatus: "provider_unavailable",
     };
     syncOperationsReadinessUrlState();
-    await loadOperationsReadinessResult("Showing archive rows waiting on storage setup.");
+    await loadOperationsReadinessResult("Showing final-file rows waiting on storage setup.");
     return;
   }
   if (section === "operations" && button.dataset.sectionPreset === "needs-attention") {
@@ -1590,7 +1652,7 @@ async function openWorkspaceSection(button) {
     };
     activeSection = "operations";
     syncOperationsReadinessUrlState();
-    await loadOperationsReadinessResult(`Showing ${statusText(archiveStatus).toLowerCase()} archive rows.`);
+    await loadOperationsReadinessResult(`Showing ${statusText(archiveStatus).toLowerCase()} final-file rows.`);
     return;
   }
   if (section === "archiveExports") {
@@ -1640,18 +1702,21 @@ async function openWorkspaceSection(button) {
 
 function availableSections() {
   const roles = roleIds(currentUser);
-  const sections = [{ id: "overview", label: "Overview", detail: "Workspace priorities and access" }];
+  const sections = [
+    { id: "overview", label: "Overview", detail: "Workspace priorities and access" },
+    { id: "profile", label: "Profile", detail: "Plain-language role guide" },
+  ];
   if (hasSiteDashboardRole(roles)) sections.push({ id: "siteDashboard", label: "Site Dashboard", detail: "School-wide capstone health" });
   if (canUseSitePrograms(roles)) sections.push({ id: "programs", label: "Programs", detail: "Add or remove site programs" });
   if (hasSiteStudentDirectoryRole(roles)) sections.push({ id: "students", label: "Students", detail: "Search and filter capstone progress" });
-  if (roles.has("student")) sections.push({ id: "student", label: "Student Workspace", detail: "Progress, submissions, and evidence" });
-  if (roles.has("student")) sections.push({ id: "archive", label: "Archive", detail: "Closeout and May 5 package" });
+  if (roles.has("student")) sections.push({ id: "student", label: "Student Workspace", detail: "Progress, sent work, and proof" });
+  if (roles.has("student")) sections.push({ id: "archive", label: "Final Files", detail: "May 5 downloads" });
   if (roles.has("mentor")) sections.push({ id: "mentorDashboard", label: "Mentor Dashboard", detail: "Assigned student risks" });
-  if (roles.has("mentor")) sections.push({ id: "mentor", label: "Assigned Students", detail: "Assigned students and evidence counts" });
+  if (roles.has("mentor")) sections.push({ id: "mentor", label: "Assigned Students", detail: "Assigned students and proof counts" });
   if (roles.has("program_teacher")) sections.push({ id: "programDashboard", label: "Program Dashboard", detail: "Scoped cohort and review risks" });
   if (hasSiteReviewQueueRole(roles)) sections.push({ id: "teacher", label: "Review Queue", detail: "Teacher review and submitted work" });
   if (hasSiteMentorAssignmentRole(roles)) sections.push({ id: "mentorAssignments", label: "Mentor Assignments", detail: "Coverage and assignment workflow" });
-  if (hasSiteOperationsRole(roles)) sections.push({ id: "operations", label: "Operations", detail: "Presentation, archive, and readiness" });
+  if (hasSiteOperationsRole(roles)) sections.push({ id: "operations", label: "Operations", detail: "Presentation, final files, and readiness" });
   if (roles.has("student") || roles.has("mentor") || roles.has("program_teacher") || hasGlobalAdminRole(roles) || roles.has("site_admin") || roles.has("administration")) {
     sections.push({ id: "presentation", label: "Presentation", detail: "Schedule, outline, and day-of status" });
   }
@@ -1659,7 +1724,7 @@ function availableSections() {
   if (hasGlobalAdminRole(roles) || roles.has("site_admin") || roles.has("administration") || roles.has("misc_admin")) sections.push({ id: "readiness", label: "Readiness", detail: "Aggregate project readiness" });
   if (canUseUsersAccess(roles)) sections.push({ id: "adminUsers", label: "Users & Access", detail: "Create users and manage access" });
   if (hasGlobalAdminRole(roles)) sections.push({ id: "audit", label: "Audit", detail: "Recent protected-record activity" });
-  if (hasGlobalAdminRole(roles)) sections.push({ id: "archiveExports", label: "Archive / Exports", detail: "Closeout package status" });
+  if (hasGlobalAdminRole(roles)) sections.push({ id: "archiveExports", label: "Final Files", detail: "Closeout package status" });
   sections.push(hasGlobalAdminRole(roles)
     ? { id: "security", label: "Security", detail: "Password and session controls" }
     : { id: "security", label: "Account", detail: "Password and sessions" });
@@ -1668,6 +1733,7 @@ function availableSections() {
 
 function renderActiveSection() {
   if (activeSection === "security") return renderSecuritySection();
+  if (activeSection === "profile") return renderRoleProfileSection();
   if (activeSection === "siteDashboard") return renderSiteDashboardSection();
   if (activeSection === "programs") return renderSiteProgramsSection();
   if (activeSection === "students") return renderSiteStudentDirectorySection();
@@ -1690,13 +1756,15 @@ function renderActiveSection() {
 
 function renderOverviewSection() {
   const primaryRole = primaryRoleForUser(currentUser);
-  if (["platform_admin", "global_admin", "admin", "org_admin", "site_admin", "administration"].includes(primaryRole)) return renderSiteDashboardSection();
-  if (primaryRole === "viewer") return renderViewerOverviewSection();
-  if (primaryRole === "program_teacher") return renderProgramTeacherDashboardSection();
-  if (primaryRole === "mentor") return renderMentorDashboardSection();
-  if (primaryRole === "student") return renderStudentSection();
-  if (primaryRole === "misc_admin") return renderReadinessSection();
+  const profile = renderRoleProfileSection({ compact: true });
+  if (["platform_admin", "global_admin", "admin", "org_admin", "site_admin", "administration"].includes(primaryRole)) return `${profile}${renderSiteDashboardSection()}`;
+  if (primaryRole === "viewer") return `${profile}${renderViewerOverviewSection()}`;
+  if (primaryRole === "program_teacher") return `${profile}${renderProgramTeacherDashboardSection()}`;
+  if (primaryRole === "mentor") return `${profile}${renderMentorDashboardSection()}`;
+  if (primaryRole === "student") return `${profile}${renderStudentSection()}`;
+  if (primaryRole === "misc_admin") return `${profile}${renderReadinessSection()}`;
   return `
+    ${profile}
     <section class="workspace-card workspace-hero-card">
       <p class="workspace-kicker">Signed in</p>
       <h1>${escapeHtml(greetingForUser())}</h1>
@@ -1714,7 +1782,7 @@ function renderOverviewSection() {
         <article class="workspace-row">
           <div>
             <strong>Capstone status</strong>
-            <p>Review the progress, submission, and evidence records available to this account.</p>
+            <p>Review the progress, sent-work, and proof records available to this account.</p>
           </div>
         </article>
         <article class="workspace-row">
@@ -1725,7 +1793,7 @@ function renderOverviewSection() {
         </article>
         <article class="workspace-row">
           <div>
-            <strong>Presentation and archive readiness</strong>
+            <strong>Presentation and final-file readiness</strong>
             <p>Track presentation operations and closeout status where your role grants visibility.</p>
           </div>
         </article>
@@ -1965,10 +2033,10 @@ function renderSiteDashboardSection() {
         ${renderMetricTile("Submitted", summary.submissionsSubmitted, "Awaiting teacher review", "teacher", "teacher", { label: "Review", preset: "submitted" })}
         ${renderMetricTile("Needs Revision", summary.revisionRequested, "Teacher follow-up needed", safeNumber(summary.revisionRequested) ? "warning" : "student", "teacher", { label: "Review", preset: "revision-requested" })}
         ${renderMetricTile("Presentations", presentationsTotal, `${safeNumber(summary.presentationsPending)} pending readiness`, "teacher", "operations", { label: "Review", preset: "presentation-pending" })}
-        ${renderMetricTile("Archive / Exports", archiveTotal, `${safeNumber(summary.exportsFailed)} failed`, safeNumber(summary.exportsFailed) ? "danger" : "admin", "operations", { label: "Review", preset: "archive-failed" })}
+        ${renderMetricTile("Final Files", archiveTotal, `${safeNumber(summary.exportsFailed)} failed`, safeNumber(summary.exportsFailed) ? "danger" : "admin", "operations", { label: "Review", preset: "archive-failed" })}
       </div>
       ${renderSummaryStrip([
-        { label: "Evidence", value: safeNumber(summary.evidenceArtifacts), detail: "Summary only; open student detail for evidence records.", tone: "mentor", concept: "Missing Evidence" },
+        { label: "Proof", value: safeNumber(summary.evidenceArtifacts), detail: "Summary only; open student detail for proof records.", tone: "mentor", concept: "Missing Proof" },
         {
           label: "Recent Activity",
           value: safeNumber(summary.recentActivityCount),
@@ -1993,7 +2061,7 @@ function renderSiteDashboardSection() {
         id: "siteDashboard",
         kicker: "Dashboard details",
         title: "Operational Detail Panels",
-        summary: "Program, status, mentor, presentation, archive, and access-boundary details stay available without crowding the first screen.",
+        summary: "Program, status, mentor, presentation, final-file, and access-boundary details stay available without crowding the first screen.",
         openLabel: "Open dashboard details",
         closeLabel: "Hide dashboard details",
         bodyHtml: `
@@ -2186,7 +2254,7 @@ function renderSiteStudentDirectorySection() {
           <h1 id="siteStudentsTitle">Students</h1>
           <p>
             Search and filter assigned student records by program, mentor coverage, progress status,
-            risk, presentation readiness, and archive state without exposing private-evidence storage details.
+            risk, presentation readiness, and final-file state without exposing private proof storage details.
           </p>
         </div>
         <div class="workspace-command-hero-grid">
@@ -2200,8 +2268,8 @@ function renderSiteStudentDirectorySection() {
         ${renderMetricTile("Submitted", summary.submitted, "Teacher review queue signal", "teacher", "students", { label: "View students", preset: "submitted-students" })}
         ${renderMetricTile("Needs Revision", summary.revisionRequested, "Teacher follow-up", safeNumber(summary.revisionRequested) ? "warning" : "student", "students", { label: "View students", preset: "revision-students" })}
         ${renderMetricTile("Presentation Pending", summary.presentationPending, "Readiness follow-up", "teacher", "students", { label: "View students", preset: "presentation-pending-students" })}
-        ${renderMetricTile("Archive Ready", summary.archiveReady, "Closeout candidates", "mentor", "students", { label: "View students", preset: "archive-ready-students" })}
-        ${renderMetricTile("Archive Failed", summary.archiveFailed, "Export follow-up", safeNumber(summary.archiveFailed) ? "danger" : "admin", "students", { label: "View students", preset: "archive-failed-students" })}
+        ${renderMetricTile("Final Files Ready", summary.archiveReady, "Closeout candidates", "mentor", "students", { label: "View students", preset: "archive-ready-students" })}
+        ${renderMetricTile("Final Files Failed", summary.archiveFailed, "Export follow-up", safeNumber(summary.archiveFailed) ? "danger" : "admin", "students", { label: "View students", preset: "archive-failed-students" })}
         ${renderMetricTile("High Risk", summary.highRisk, "Prioritize outreach", safeNumber(summary.highRisk) ? "danger" : "admin", "students", { label: "View students", preset: "high-risk-students" })}
       </div>
       ${renderStudentDirectoryOperatingPosture(readOnly)}
@@ -2209,7 +2277,7 @@ function renderSiteStudentDirectorySection() {
       ${renderStudentDirectoryActiveFilters(filters, directory.filterOptions || {})}
       ${renderStudentDirectoryResultSummary(directory)}
       ${renderSiteStudentDetailSurface(directory)}
-      ${students.length ? renderStudentRows(students, readOnly) : renderStudentDirectoryEmptyState(directory)}
+      ${students.length ? renderStudentRows(students, readOnly, directory.permissions || {}, scope) : renderStudentDirectoryEmptyState(directory)}
     </section>
   `;
 }
@@ -2241,8 +2309,8 @@ function renderStudentDirectoryOperatingPosture(readOnly) {
   return `
     <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
       <article class="workspace-empty-state-card">
-        <strong>Private evidence</strong>
-        <span>Rows show evidence counts while storage details remain hidden.</span>
+        <strong>Private proof</strong>
+        <span>Rows show proof counts while storage details remain hidden.</span>
         ${statusPill("configured")}
       </article>
       <article class="workspace-empty-state-card">
@@ -2294,7 +2362,7 @@ function renderStudentDirectoryFilterBar(directory) {
       <label class="workspace-label">
         <span>Evidence</span>
         <select class="workspace-select" name="evidenceStatus">
-          ${renderValueOptions(options.evidenceStatuses || [], filters.evidenceStatus || "", "Any evidence", evidenceStatusFilterLabel)}
+          ${renderValueOptions(options.evidenceStatuses || [], filters.evidenceStatus || "", "Any proof", evidenceStatusFilterLabel)}
         </select>
       </label>
       <label class="workspace-label">
@@ -2403,16 +2471,17 @@ function renderStudentDirectoryResultSummary(directory) {
   `;
 }
 
-function renderStudentRows(students = [], readOnly = false) {
+function renderStudentRows(students = [], readOnly = false, permissions = {}, scope = {}) {
   return `
     <div class="workspace-student-list" aria-label="Student directory rows">
-      ${students.map((student) => renderStudentRow(student, readOnly)).join("")}
+      ${students.map((student) => renderStudentRow(student, readOnly, permissions, scope)).join("")}
     </div>
   `;
 }
 
-function renderStudentRow(student, readOnly = false) {
+function renderStudentRow(student, readOnly = false, permissions = {}, scope = {}) {
   const riskFlags = Array.isArray(student.riskFlags) ? student.riskFlags : [];
+  const canRemoveStudent = !readOnly && permissions.canManageSiteUsers && student.studentId && scope.siteId;
   return `
     <article class="workspace-student-row workspace-student-card">
       <div>
@@ -2452,6 +2521,16 @@ function renderStudentRow(student, readOnly = false) {
         </button>
         ${readOnly ? `<span class="workspace-chip" data-workspace-mode="read-only">Read-only</span>` : ""}
       </div>
+      ${canRemoveStudent ? `
+        <form class="workspace-inline-action-form" data-site-student-remove-form="true" data-site-student-id="${escapeHtml(student.studentId || "")}">
+          <input type="hidden" name="siteId" value="${escapeHtml(scope.siteId || "")}">
+          <label class="workspace-label">
+            Admin note
+            <input class="workspace-input" name="adminNote" maxlength="500" required>
+          </label>
+          <button class="workspace-button workspace-button-secondary" type="submit">Remove student</button>
+        </form>
+      ` : ""}
     </article>
   `;
 }
@@ -2521,7 +2600,7 @@ function studentDirectoryEmptyStateCopy(filters = {}, options = {}, emptyState =
       heading: "No matching support list",
       reason: "No students with high-risk or stale-activity signals match these filters.",
       owner,
-      nextAction: "Clear filters or check Missing Evidence and Missing Mentor separately.",
+      nextAction: "Clear filters or check Missing Proof and Missing Mentor separately.",
     };
   }
   if (filters.progressStatus === "mentor_meeting_follow_up") {
@@ -2534,8 +2613,8 @@ function studentDirectoryEmptyStateCopy(filters = {}, options = {}, emptyState =
   }
   if (filters.evidenceStatus === "missing" || filters.progressStatus === "missing_evidence") {
     return {
-      heading: "No matching missing-evidence students",
-      reason: "No students without attached evidence match these filters.",
+      heading: "No matching missing-proof students",
+      reason: "No students without attached proof match these filters.",
       owner,
       nextAction: "Clear filters or check the Review Queue for submitted work.",
     };
@@ -2582,18 +2661,18 @@ function studentDirectoryEmptyStateCopy(filters = {}, options = {}, emptyState =
   }
   if (filters.archiveStatus === "ready") {
     return {
-      heading: "No matching archive-ready students",
-      reason: "No students ready for archive closeout match these filters.",
+      heading: "No matching final-file-ready students",
+      reason: "No students ready for final-file closeout match these filters.",
       owner,
-      nextAction: "Clear filters or open Operations for broader archive work.",
+      nextAction: "Clear filters or open Operations for broader final-file work.",
     };
   }
   if (filters.archiveStatus === "failed") {
     return {
-      heading: "No matching archive follow-up",
-      reason: "No students with archive export follow-up match these filters.",
+      heading: "No matching final-file follow-up",
+      reason: "No students with final-file export follow-up match these filters.",
       owner,
-      nextAction: "Clear filters or open Operations for archive readiness work.",
+      nextAction: "Clear filters or open Operations for final-file readiness work.",
     };
   }
   if (filters.programId) {
@@ -2799,7 +2878,7 @@ function renderStudentDetailSummary(detail) {
         ${renderDashboardCard("Current Story", "Assigned record view", `
           <p>${escapeHtml(student.nextAction || "Continue normal capstone monitoring.")}</p>
           <div class="workspace-chip-row">
-            <span class="workspace-site-context-badge">${escapeHtml(safeNumber(student.evidenceCount))} evidence</span>
+            <span class="workspace-site-context-badge">${escapeHtml(safeNumber(student.evidenceCount))} proof item${safeNumber(student.evidenceCount) === 1 ? "" : "s"}</span>
             <span class="workspace-site-context-badge">${escapeHtml(safeNumber(student.reviewCount))} reviews</span>
             <span class="workspace-site-context-badge">${escapeHtml(safeNumber(student.commentCount))} comments</span>
           </div>
@@ -2818,7 +2897,7 @@ function renderStudentDetailSummary(detail) {
           </div>
         `)}
         ${renderDashboardCard("Progress", "Progress summary", `
-          <p>${escapeHtml(safeNumber(progress.requirementsComplete))} of ${escapeHtml(safeNumber(progress.requirementsTotal))} requirements complete.</p>
+          <p>${escapeHtml(safeNumber(progress.requirementsComplete))} of ${escapeHtml(safeNumber(progress.requirementsTotal))} work items done.</p>
           <p>${escapeHtml(safeNumber(progress.percentComplete))}% complete / ${escapeHtml(progress.currentStage || "proposal")}</p>
           ${statusPill(progress.blockedReasons?.length ? "blocked" : "ready")}
         `)}
@@ -2838,7 +2917,7 @@ function latestStudentDetailFeedback(detail) {
   const items = [
     ...reviews.map((row) => ({
       kind: "Teacher review",
-      title: row.requirementTitle || "Senior Project submission",
+      title: row.requirementTitle || "Senior Project work",
       text: row.feedback || row.nextAction || "Review recorded.",
       actor: row.reviewerName || "Reviewer",
       occurredAt: row.createdAt || "",
@@ -2886,7 +2965,7 @@ function renderStudentDetailProgress(detail) {
   return `
     <section class="workspace-detail-section" data-student-detail-section="progress">
       ${renderDashboardCard("Progress", "Current stage and next action", `
-        <p>${escapeHtml(safeNumber(progress.requirementsComplete))} of ${escapeHtml(safeNumber(progress.requirementsTotal))} requirements complete.</p>
+        <p>${escapeHtml(safeNumber(progress.requirementsComplete))} of ${escapeHtml(safeNumber(progress.requirementsTotal))} work items done.</p>
         <p>${escapeHtml(progress.nextAction || "Continue the next capstone milestone.")}</p>
         <div class="workspace-chip-row">
           <span class="workspace-site-context-badge">${escapeHtml(progress.currentStage || "proposal")}</span>
@@ -2905,11 +2984,11 @@ function renderStudentDetailProgress(detail) {
 
 function renderStudentDetailSubmissions(detail) {
   const rows = detail.submissions || [];
-  return renderStudentDetailList("Submissions", "Newest submitted work", rows, "No submissions are available for this student.", (row) => `
+  return renderStudentDetailList("Work Sent In", "Newest sent work", rows, "No sent work is available for this student.", (row) => `
     <article class="workspace-row">
       <div>
-        <strong>${escapeHtml(row.requirementTitle || "Senior Project submission")}</strong>
-        <p>Version ${escapeHtml(row.version || 1)} / ${escapeHtml(row.evidenceCount || 0)} evidence item${safeNumber(row.evidenceCount) === 1 ? "" : "s"}</p>
+        <strong>${escapeHtml(row.requirementTitle || "Senior Project work")}</strong>
+        <p>Version ${escapeHtml(row.version || 1)} / ${escapeHtml(row.evidenceCount || 0)} proof item${safeNumber(row.evidenceCount) === 1 ? "" : "s"}</p>
         <p class="workspace-muted">${escapeHtml(row.nextAction || "")}</p>
       </div>
       ${statusPill(row.status || "draft")}
@@ -2919,11 +2998,11 @@ function renderStudentDetailSubmissions(detail) {
 
 function renderStudentDetailEvidence(detail) {
   const rows = detail.evidence || [];
-  return renderStudentDetailList("Evidence", "Evidence details", rows, "No evidence records are available for this student.", (row) => `
+  return renderStudentDetailList("Proof", "Proof details", rows, "No proof records are available for this student.", (row) => `
     <article class="workspace-row">
       <div>
-        <strong>${escapeHtml(row.title || "Evidence")}</strong>
-        <p>${escapeHtml(row.artifactType || "evidence")} / ${escapeHtml(statusText(row.sourceKind || "evidence"))}</p>
+        <strong>${escapeHtml(row.title || "Proof")}</strong>
+        <p>${escapeHtml(row.artifactType || "proof")} / ${escapeHtml(statusText(row.sourceKind || "proof"))}</p>
         <p class="workspace-muted">${row.externalUrl ? escapeHtml(row.externalUrl) : "File details are protected."}</p>
       </div>
       <div class="workspace-row-actions">
@@ -2943,7 +3022,7 @@ function renderStudentDetailReviews(detail) {
       ${renderStudentDetailList("Reviews", "Teacher feedback history", reviews, "No review records are available for this student.", (row) => `
         <article class="workspace-row">
           <div>
-            <strong>${escapeHtml(row.requirementTitle || "Senior Project submission")}</strong>
+            <strong>${escapeHtml(row.requirementTitle || "Senior Project work")}</strong>
             <p>${escapeHtml(row.feedback || "Review recorded.")}</p>
             <p class="workspace-muted">${escapeHtml(row.reviewerName || "Reviewer")} / ${escapeHtml(formatDate(row.createdAt))}</p>
           </div>
@@ -3163,7 +3242,7 @@ function renderStudentDetailArchive(detail) {
   return `
     <section class="workspace-detail-section" data-student-detail-section="archive">
       ${renderDashboardCard("Archive", "Closeout package status", `
-        <p>${escapeHtml(archive.nextAction || "Prepare archive readiness checks when the student reaches closeout.")}</p>
+        <p>${escapeHtml(archive.nextAction || "Prepare final-file readiness checks when the student reaches closeout.")}</p>
         <div class="workspace-chip-row">
           ${statusPill(archive.status || "missing")}
           ${statusPill(archive.exportStatus || "not_requested")}
@@ -3400,8 +3479,8 @@ function renderSitePermissionRules(dashboard) {
   return `
     <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
       <article class="workspace-empty-state-card">
-        <strong>Private evidence</strong>
-        <span>Evidence counts are visible without exposing private file details.</span>
+        <strong>Private proof</strong>
+        <span>Proof counts are visible without exposing private file details.</span>
         ${statusPill("configured")}
       </article>
       <article class="workspace-empty-state-card">
@@ -3561,7 +3640,7 @@ function renderAdminOverviewSection() {
       </div>
       ${renderSummaryStrip([
         { label: "Approved", value: safeNumber(summary.approved), detail: "Accepted submissions.", tone: "student", concept: "Submitted / Approved" },
-        { label: "Evidence", value: safeNumber(summary.evidenceArtifacts), detail: "Summary only; open student detail for evidence records.", tone: "mentor", concept: "Missing Evidence" },
+        { label: "Proof", value: safeNumber(summary.evidenceArtifacts), detail: "Summary only; open student detail for proof records.", tone: "mentor", concept: "Missing Proof" },
       ], { label: "Admin dashboard summary-only metrics" })}
       ${siteStudentDetailState?.sourceSection === "adminDashboard" ? renderSiteStudentDetailSurface({
         students: (dashboard.reviewQueue || []).map((row) => ({
@@ -3575,7 +3654,7 @@ function renderAdminOverviewSection() {
         id: "adminDashboard",
         kicker: "Dashboard details",
         title: "School-Wide Detail Panels",
-        summary: "Review, mentor, presentation, archive, audit, and quick-action panels stay available after the summary.",
+        summary: "Review, mentor, presentation, final-file, audit, and quick-action panels stay available after the summary.",
         openLabel: "Open dashboard details",
         closeLabel: "Hide dashboard details",
         bodyHtml: `
@@ -3593,7 +3672,7 @@ function renderAdminOverviewSection() {
               { label: "Reports", detail: "Open readiness", section: "readiness" },
               { label: "Users & Access", detail: "Create users", section: "adminUsers" },
               { label: "Audit", detail: "Review activity", section: "audit" },
-              { label: "Archive / Exports", detail: "Check packages", section: "archiveExports" },
+              { label: "Final Files", detail: "Check packages", section: "archiveExports" },
             ]))}
           </div>
         `,
@@ -3659,7 +3738,7 @@ function renderProgramTeacherDashboardSection() {
       <div class="workspace-dashboard-grid">
         ${renderMetricTile("Total Students", summary.totalStudents ?? summary.scopedStudents, "Students in your program view", "teacher", "students", { label: "View students", preset: "all-students" })}
         ${renderMetricTile("Behind / Needs Support", summary.behindSupport, "Risk or stale activity signals", safeNumber(summary.behindSupport) ? "danger" : "admin", "students", { label: "View students", preset: "behind-students" })}
-        ${renderMetricTile("Missing Evidence", summary.missingEvidence, "Students without attached evidence", safeNumber(summary.missingEvidence) ? "warning" : "mentor", "students", { label: "View students", preset: "missing-evidence-students" })}
+        ${renderMetricTile("Missing Proof", summary.missingEvidence, "Students without attached proof", safeNumber(summary.missingEvidence) ? "warning" : "mentor", "students", { label: "View students", preset: "missing-evidence-students" })}
         ${renderMetricTile("Needs Review", summary.needsReview ?? summary.submitted, "Submitted work awaiting teacher review", "teacher", "teacher", { label: "Review", preset: "submitted" })}
         ${renderMetricTile("Missing Mentor", summary.missingMentor ?? summary.noMentor, "Needs mentor coverage", safeNumber(summary.missingMentor ?? summary.noMentor) ? "warning" : "mentor", "students", { label: "View students", preset: "missing-mentors" })}
         ${renderMetricTile("Needs Revision", summary.revisionRequested, "Returned work needing follow-up", safeNumber(summary.revisionRequested) ? "warning" : "student", "teacher", { label: "Review", preset: "revision-requested" })}
@@ -3875,7 +3954,7 @@ function renderMentorAssignmentsSection() {
           <h1 id="mentorAssignmentsTitle">Mentor Assignments</h1>
           <p>
             Resolve mentor coverage for this school with assigned records,
-            protected evidence boundaries, and teacher follow-up signals. No student messaging.
+            protected proof boundaries, and teacher follow-up signals. No student messaging.
           </p>
         </div>
         <div class="workspace-command-hero-grid">
@@ -4239,11 +4318,11 @@ function renderMentorActiveAssignments(assignments = [], permissions = {}) {
 
 function renderOperationsReadinessSection() {
   if (!hasSiteOperationsRole(roleIds(currentUser))) {
-    return renderPermissionDeniedSection("Operations readiness", "site presentation, archive, and readiness worklists");
+    return renderPermissionDeniedSection("Operations readiness", "site presentation, final-file, and readiness worklists");
   }
   const result = currentData.operationsReadiness;
   if (result?.status === 403) {
-    return renderPermissionDeniedSection("Operations readiness", "site presentation, archive, and readiness worklists");
+    return renderPermissionDeniedSection("Operations readiness", "site presentation, final-file, and readiness worklists");
   }
   if (result?.status === 409 && result.body?.selectionRequired) {
     return renderOperationsSelectionRequired(result.body);
@@ -4511,8 +4590,8 @@ function operationsStageDistribution(summary = {}, presentationSummary = {}, arc
   return [
     { label: "Presentation ready", value: safeNumber(summary.presentationReady || presentationSummary.ready), tone: "teacher" },
     { label: "Presentation pending", value: safeNumber(summary.presentationPending || presentationSummary.pending) + safeNumber(summary.outlinePending), tone: "warning" },
-    { label: "Archive ready", value: safeNumber(summary.archiveReady || archiveSummary.ready || archiveSummary.complete), tone: "mentor" },
-    { label: "Archive in progress", value: safeNumber(summary.archiveInProgress) + safeNumber(archiveSummary.queued) + safeNumber(archiveSummary.running), tone: "admin" },
+    { label: "Final files ready", value: safeNumber(summary.archiveReady || archiveSummary.ready || archiveSummary.complete), tone: "mentor" },
+    { label: "Final files in progress", value: safeNumber(summary.archiveInProgress) + safeNumber(archiveSummary.queued) + safeNumber(archiveSummary.running), tone: "admin" },
     { label: "Blocked or failed", value: safeNumber(summary.archiveFailed) + safeNumber(archiveSummary.providerUnavailable) + safeNumber(summary.archiveExpired), tone: "danger" },
     { label: "Stale or missing", value: safeNumber(summary.staleActivity) + safeNumber(summary.evidenceMissing), tone: "warning" },
   ].filter((item) => safeNumber(item.value) > 0);
@@ -4522,25 +4601,25 @@ function operationsBlockerBars(summary = {}, presentationSummary = {}, archiveSu
   return [
     { label: "Needs staff action", value: safeNumber(summary.needsAttention), tone: "danger", detail: "Blocked, missing, or high-risk rows", preset: "needs-attention" },
     { label: "Stale activity", value: safeNumber(summary.staleActivity), tone: "warning", detail: "No recent student progress", preset: "stale-activity" },
-    { label: "Evidence missing", value: safeNumber(summary.evidenceMissing), tone: "warning", detail: "Evidence or submission progress missing", preset: "evidence-missing" },
-    { label: "Archive failed", value: safeNumber(summary.archiveFailed), tone: "danger", detail: "Export follow-up needed", preset: "archive-failed" },
-    { label: "Storage setup needed", value: safeNumber(archiveSummary.providerUnavailable), tone: "danger", detail: "Archive package setup blocked", preset: "archive-provider-unavailable" },
+    { label: "Proof missing", value: safeNumber(summary.evidenceMissing), tone: "warning", detail: "Proof or sent-work progress missing", preset: "evidence-missing" },
+    { label: "Final files failed", value: safeNumber(summary.archiveFailed), tone: "danger", detail: "Final-file follow-up needed", preset: "archive-failed" },
+    { label: "Storage setup needed", value: safeNumber(archiveSummary.providerUnavailable), tone: "danger", detail: "Final-file package setup blocked", preset: "archive-provider-unavailable" },
     { label: "Check-in needed", value: safeNumber(presentationSummary.attentionRequired), tone: "warning", detail: "Checked out but not checked in", preset: "presentation-attention" },
   ].filter((item) => safeNumber(item.value) > 0 || safeNumber(total) === 0);
 }
 
 function operationsRankedNextActions(summary = {}, presentationSummary = {}, archiveSummary = {}, total = 0) {
   const actions = [
-    { label: "Review archive failures", count: safeNumber(summary.archiveFailed), why: "Failed exports block package readiness.", preset: "archive-failed", tone: "danger" },
-    { label: "Confirm storage setup", count: safeNumber(archiveSummary.providerUnavailable), why: "Storage setup must be ready before packages can run.", preset: "archive-provider-unavailable", tone: "danger" },
-    { label: "Refresh expired archive downloads", count: safeNumber(summary.archiveExpired), why: "Expired windows need staff follow-up before downloads are useful.", preset: "archive-expired", tone: "danger" },
-    { label: "Resolve missing evidence rows", count: safeNumber(summary.evidenceMissing), why: "Missing evidence blocks readiness and archive confidence.", preset: "evidence-missing", tone: "warning" },
+    { label: "Review final-file failures", count: safeNumber(summary.archiveFailed), why: "Failed exports block final-file package readiness.", preset: "archive-failed", tone: "danger" },
+    { label: "Confirm storage setup", count: safeNumber(archiveSummary.providerUnavailable), why: "Storage setup must be ready before final-file packages can run.", preset: "archive-provider-unavailable", tone: "danger" },
+    { label: "Refresh expired downloads", count: safeNumber(summary.archiveExpired), why: "Expired windows need staff follow-up before downloads are useful.", preset: "archive-expired", tone: "danger" },
+    { label: "Resolve missing proof rows", count: safeNumber(summary.evidenceMissing), why: "Missing proof blocks readiness and final-file confidence.", preset: "evidence-missing", tone: "warning" },
     { label: "Review staff-action rows", count: safeNumber(summary.needsAttention), why: "These are the highest-priority readiness blockers.", preset: "needs-attention", tone: "danger" },
     { label: "Check stale activity rows", count: safeNumber(summary.staleActivity), why: "Stale records need current staff context.", preset: "stale-activity", tone: "warning" },
     { label: "Review pending outlines", count: safeNumber(summary.outlinePending), why: "Outline status can hold up presentation readiness.", preset: "outline-pending", tone: "warning" },
-    { label: "Confirm archive packages in progress", count: safeNumber(summary.archiveInProgress), why: "Queued or running packages should finish cleanly.", preset: "archive-in-progress", tone: "admin" },
+    { label: "Confirm final-file packages in progress", count: safeNumber(summary.archiveInProgress), why: "Queued or running packages should finish cleanly.", preset: "archive-in-progress", tone: "admin" },
     { label: "Review presentation follow-up", count: safeNumber(summary.presentationPending) + safeNumber(presentationSummary.attentionRequired), why: "Schedule, outline, and check-in issues affect day-of readiness.", preset: "presentation-pending", tone: "teacher" },
-    { label: "Watch expiring archive downloads", count: safeNumber(summary.archiveExpiringSoon), why: "Download windows should not quietly expire.", preset: "archive-expiring-soon", tone: "warning" },
+    { label: "Watch expiring downloads", count: safeNumber(summary.archiveExpiringSoon), why: "Download windows should not quietly expire.", preset: "archive-expiring-soon", tone: "warning" },
   ].filter((action) => safeNumber(action.count) > 0);
   if (!actions.length && safeNumber(total)) {
     return [{ label: "No blockers found", count: 0, why: "All visible blocker counts are clear.", tone: "mentor" }];
@@ -4564,16 +4643,16 @@ function renderOperationsSummaryDeck(dashboard = {}) {
       actionHtml: operationsPresetButton("needs-attention"),
     },
     {
-      label: "Archive failed",
-      value: metricWithPercent(dashboard.blockers.find((item) => item.label === "Archive failed")?.value || 0, dashboard.total),
-      detail: "Export follow-up",
+      label: "Final files failed",
+      value: metricWithPercent(dashboard.blockers.find((item) => ["final_files_failed", "archive_failed"].includes(normalizeStatus(item.label)))?.value || 0, dashboard.total),
+      detail: "Final-file follow-up",
       tone: "danger",
       actionHtml: operationsPresetButton("archive-failed"),
     },
     {
-      label: "Missing evidence",
-      value: metricWithPercent(dashboard.blockers.find((item) => item.label === "Evidence missing")?.value || 0, dashboard.total),
-      detail: "Evidence or progress missing",
+      label: "Missing proof",
+      value: metricWithPercent(dashboard.blockers.find((item) => ["proof_missing", "evidence_missing"].includes(normalizeStatus(item.label)))?.value || 0, dashboard.total),
+      detail: "Proof or progress missing",
       tone: "warning",
       actionHtml: operationsPresetButton("evidence-missing"),
     },
@@ -4614,11 +4693,11 @@ function operationsSectionCopy(scope = {}) {
   const role = String(scope.role || "");
   if (role === "program_teacher") {
     return {
-      heroDescription: "Program-scoped operations dashboard. Review presentation, archive, and readiness blockers for your assigned students, then use student detail and review workflows to coordinate follow-up with site staff.",
+      heroDescription: "Program-scoped operations dashboard. Review presentation, final-file, and readiness blockers for your assigned students, then use student detail and review workflows to coordinate follow-up with site staff.",
       bannerTitle: "Program follow-up worklists",
-      bannerBody: "These worklists stay within your assigned students. Open student detail for blocker context; scheduling, archive package changes, and account updates stay with site staff.",
+      bannerBody: "These worklists stay within your assigned students. Open student detail for blocker context; scheduling, final-file package changes, and account updates stay with site staff.",
       emptyOwner: "Assigned program teacher and site administration.",
-      emptyUnfilteredNextAction: "Keep monitoring assigned-student presentation and archive milestones.",
+      emptyUnfilteredNextAction: "Keep monitoring assigned-student presentation and final-file milestones.",
       emptyFilteredNextAction: "Clear filters or return to the Program Dashboard for broader assigned-student context.",
       nextActionsEmpty: "No grouped follow-up is waiting in the current program filters.",
     };
@@ -4627,7 +4706,7 @@ function operationsSectionCopy(scope = {}) {
     return {
       heroDescription: "Read-only operations dashboard. Open student detail for blocker context; status changes stay with authorized staff.",
       bannerTitle: "Read-only operations worklists",
-      bannerBody: "These worklists are monitoring-only across protected evidence, assigned records, and teacher follow-up. Open student detail for blocker context; status changes stay with authorized staff.",
+      bannerBody: "These worklists are monitoring-only across protected proof, assigned records, and teacher follow-up. Open student detail for blocker context; status changes stay with authorized staff.",
       emptyOwner: "Site administration.",
       emptyUnfilteredNextAction: "Continue monitoring ready and in-progress work for this school.",
       emptyFilteredNextAction: "Clear filters or return to the current school overview for broader context.",
@@ -4635,9 +4714,9 @@ function operationsSectionCopy(scope = {}) {
     };
   }
   return {
-    heroDescription: "School operations dashboard. Review presentation, archive, and readiness blockers across this school, then use student detail and linked worklists to coordinate follow-up.",
+    heroDescription: "School operations dashboard. Review presentation, final-file, and readiness blockers across this school, then use student detail and linked worklists to coordinate follow-up.",
     bannerTitle: "School follow-up worklists",
-    bannerBody: "These worklists highlight protected student blockers across evidence, presentations, and archive readiness. Open student detail for context and route the next step with the listed owner.",
+    bannerBody: "These worklists highlight protected student blockers across proof, presentations, and final-file readiness. Open student detail for context and route the next step with the listed owner.",
     emptyOwner: "Site administration.",
     emptyUnfilteredNextAction: "Continue monitoring ready, scheduled, and in-progress work across this school.",
     emptyFilteredNextAction: "Clear filters or open student detail for broader school context.",
@@ -4906,13 +4985,13 @@ function operationsPresentationEmptyStateCopy(filters = {}, filtered = false) {
 
 function archiveWorklistSupportText(row = {}) {
   const archiveStatus = normalizeStatus(row.archiveStatus);
-  if (archiveStatus === "provider_unavailable") return "Storage setup is needed before archive packages can be prepared.";
+  if (archiveStatus === "provider_unavailable") return "Storage setup is needed before final-file packages can be prepared.";
   if (archiveStatus === "expired") return "Download window expired.";
   if (archiveStatus === "expiring_soon" || row.downloadExpiresSoon) return "Download window expiring soon.";
-  if (archiveStatus === "queued" || archiveStatus === "running") return "Archive package is being prepared.";
+  if (archiveStatus === "queued" || archiveStatus === "running") return "Final-file package is being prepared.";
   if (archiveStatus === "complete" && row.downloadReady) return "Scoped download is available.";
-  if (archiveStatus === "failed") return "Archive export needs staff follow-up.";
-  if (archiveStatus === "ready") return "Ready for archive package preparation.";
+  if (archiveStatus === "failed") return "Final-file export needs staff follow-up.";
+  if (archiveStatus === "ready") return "Ready for final-file package preparation.";
   return "File details are protected.";
 }
 
@@ -4921,71 +5000,71 @@ function operationsArchiveEmptyStateCopy(filters = {}, filtered = false) {
   const owner = "Site administration.";
   if (!filtered) {
     return {
-      heading: "No archive work waiting",
-      reason: "No archive readiness or export failures are waiting in this view.",
+      heading: "No final-file work waiting",
+      reason: "No final-file readiness or export failures are waiting in this view.",
       owner,
-      nextAction: "Continue monitoring archive readiness.",
+      nextAction: "Continue monitoring final-file readiness.",
     };
   }
   if (filters.studentId) {
     return {
-      heading: "No archive work for this student",
-      reason: "This student has no archive readiness rows matching these Operations filters.",
+      heading: "No final-file work for this student",
+      reason: "This student has no final-file readiness rows matching these Operations filters.",
       owner,
-      nextAction: "Clear the student filter or return to student detail for Archive context.",
+      nextAction: "Clear the student filter or return to student detail for Final Files context.",
     };
   }
   if (archiveStatus === "provider_unavailable") {
     return {
       heading: "No storage setup blockers match",
-      reason: "No archive rows waiting on storage setup match these filters for this school.",
+      reason: "No final-file rows waiting on storage setup match these filters for this school.",
       owner,
-      nextAction: "Clear filters or review archive failures for broader closeout blockers.",
+      nextAction: "Clear filters or review final-file failures for broader closeout blockers.",
     };
   }
   if (archiveStatus === "expired") {
     return {
-      heading: "No expired archive downloads match",
-      reason: "No archive rows with expired download windows match these filters for this school.",
+      heading: "No expired downloads match",
+      reason: "No final-file rows with expired download windows match these filters for this school.",
       owner,
-      nextAction: "Clear filters or review expiring archive downloads for active follow-up.",
+      nextAction: "Clear filters or review expiring final-file downloads for active follow-up.",
     };
   }
   if (archiveStatus === "expiring_soon") {
     return {
-      heading: "No expiring archive downloads match",
-      reason: "No archive rows with download windows ending soon match these filters for this school.",
+      heading: "No expiring downloads match",
+      reason: "No final-file rows with download windows ending soon match these filters for this school.",
       owner,
-      nextAction: "Clear filters or review completed archive packages.",
+      nextAction: "Clear filters or review completed final-file packages.",
     };
   }
   if (archiveStatus === "in_progress" || archiveStatus === "queued" || archiveStatus === "running") {
     return {
-      heading: "No archive packages in progress match",
-      reason: "No queued or running archive packages match these filters for this school.",
+      heading: "No final-file packages in progress match",
+      reason: "No queued or running final-file packages match these filters for this school.",
       owner,
-      nextAction: "Clear filters or review archive-ready students.",
+      nextAction: "Clear filters or review final-file-ready students.",
     };
   }
   if (archiveStatus === "failed") {
     return {
-      heading: "No matching archive follow-up",
-      reason: "No students with archive export follow-up match these filters.",
+      heading: "No matching final-file follow-up",
+      reason: "No students with final-file export follow-up match these filters.",
       owner,
       nextAction: "Clear filters or review storage setup blockers.",
     };
   }
   if (archiveStatus === "ready") {
     return {
-      heading: "No archive-ready students match",
-      reason: "No archive-ready students match these filters for this school.",
+      heading: "No final-file-ready students match",
+      reason: "No final-file-ready students match these filters for this school.",
       owner,
-      nextAction: "Clear filters or review broader archive readiness work.",
+      nextAction: "Clear filters or review broader final-file readiness work.",
     };
   }
   return {
-    heading: "No matching archive work",
-    reason: "No archive readiness work matches these filters for this school.",
+    heading: "No matching final-file work",
+    reason: "No final-file readiness work matches these filters for this school.",
     owner,
     nextAction: "Clear filters or open student detail from the directory.",
   };
@@ -5182,24 +5261,24 @@ function renderAdminArchiveExportsSection() {
     <section class="workspace-command-center workspace-admin-archive-dashboard">
       <div class="workspace-command-hero">
         <div>
-          <p class="workspace-kicker">Archive / Exports</p>
-          <h1>Archive</h1>
+          <p class="workspace-kicker">Final files</p>
+          <h1>Final Files</h1>
           <p>Package readiness, export failures, storage setup, and closeout delivery from persisted package requests.</p>
         </div>
         <span class="workspace-chip">${safeNumber(summary.exportsFailed)} failed</span>
       </div>
       ${renderDashboardKpis([
-        { label: "Archive ready", value: metricWithPercent(summary.exportsComplete, totalExports), detail: "Complete package requests", tone: "mentor" },
+        { label: "Final files ready", value: metricWithPercent(summary.exportsComplete, totalExports), detail: "Complete package requests", tone: "mentor" },
         { label: "In progress", value: safeNumber(summary.exportsQueued) + safeNumber(summary.exportsRunning), detail: "Queued or running packages", tone: "warning" },
         { label: "Failed", value: safeNumber(summary.exportsFailed), detail: "Needs export follow-up", tone: safeNumber(summary.exportsFailed) ? "danger" : "mentor" },
         { label: "Total packages", value: totalExports, detail: "Persisted package requests", tone: "admin" },
-      ], { label: "Archive export summary", className: "workspace-archive-kpis" })}
+      ], { label: "Final-file export summary", className: "workspace-archive-kpis" })}
       <div class="workspace-dashboard-grid workspace-dashboard-grid-two workspace-dashboard-support-grid">
-        ${renderReadinessScoreCard(archiveScore, totalExports, "Archive completion score", totalExports ? `${safeNumber(summary.exportsComplete)} of ${totalExports} package requests are complete.` : "No package requests to summarize yet.")}
-        ${renderDashboardCard("Archive distribution", "Ready, in progress, and failed packages", renderStackedDistribution(exportRows, "Archive export distribution"))}
+        ${renderReadinessScoreCard(archiveScore, totalExports, "Final-file completion score", totalExports ? `${safeNumber(summary.exportsComplete)} of ${totalExports} package requests are complete.` : "No package requests to summarize yet.")}
+        ${renderDashboardCard("Final-file distribution", "Ready, in progress, and failed packages", renderStackedDistribution(exportRows, "Final-file export distribution"))}
       </div>
       ${renderAdminArchiveExportFilters(recentExports, activeFilter)}
-      ${renderDashboardCard("Current package requests", "Real archive export rows for follow-up", renderAdminArchiveExportRows(filteredExports, activeFilter, recentExports.length))}
+      ${renderDashboardCard("Current package requests", "Real final-file export rows for follow-up", renderAdminArchiveExportRows(filteredExports, activeFilter, recentExports.length))}
       ${renderDashboardCard("Export Snapshot", "Package status", renderSnapshotRows(dashboard.archiveSnapshot))}
     </section>
   `;
@@ -5239,7 +5318,7 @@ function renderAdminArchiveExportFilters(rows = [], activeFilter = "all") {
     complete: safeRows.filter((row) => adminArchiveExportRowFilterKey(row) === "complete").length,
   };
   return `
-    <div class="workspace-filter-bar" data-admin-archive-export-filters="true" aria-label="Archive export filters">
+    <div class="workspace-filter-bar" data-admin-archive-export-filters="true" aria-label="Final-file export filters">
       ${[
         ["all", "all-exports"],
         ["failed", "failed-exports"],
@@ -5258,15 +5337,15 @@ function renderAdminArchiveExportRows(rows = [], activeFilter = "all", totalRows
   const safeRows = Array.isArray(rows) ? rows : [];
   if (!safeRows.length) {
     const heading = cleanAdminArchiveExportFilter(activeFilter) === "all"
-      ? "No archive package requests are available right now."
-      : `No ${adminArchiveExportFilterLabel(activeFilter).toLowerCase()} archive package requests are available right now.`;
+      ? "No final-file package requests are available right now."
+      : `No ${adminArchiveExportFilterLabel(activeFilter).toLowerCase()} final-file package requests are available right now.`;
     const nextAction = cleanAdminArchiveExportFilter(activeFilter) === "failed"
-      ? "Review the full archive summary or switch filters to check in-progress and completed requests."
-      : "Switch filters to review another export status or return later after package requests are created.";
+      ? "Review the full final-file summary or switch filters to check in-progress and completed requests."
+      : "Switch filters to review another export status or return later after final-file package requests are created.";
     return `
       <section class="workspace-empty-state-card" data-admin-archive-export-empty="${escapeHtml(cleanAdminArchiveExportFilter(activeFilter))}">
         <strong>${escapeHtml(heading)}</strong>
-        <p>${escapeHtml(totalRows ? nextAction : "Archive package requests will appear here after staff start or finish archive delivery work.")}</p>
+        <p>${escapeHtml(totalRows ? nextAction : "Final-file package requests will appear here after staff start or finish final-file delivery work.")}</p>
       </section>
     `;
   }
@@ -5346,7 +5425,7 @@ function renderStudentSection() {
         <div>
           <p class="workspace-kicker">Student home</p>
           <h2 id="studentProgressTitle">Your Senior Project</h2>
-          <p>Track what is complete, what is missing, and what to do next.</p>
+          <p>See what is done, what is missing, and what to do next.</p>
         </div>
         ${studentStatusBadge(summary.currentStatus)}
       </div>
@@ -5359,14 +5438,14 @@ function renderStudentSection() {
           <div class="workspace-student-progress-meter" role="progressbar" aria-label="Overall senior project completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${escapeHtml(summary.completionPercent)}">
             <span style="width: ${escapeHtml(summary.completionPercent)}%"></span>
           </div>
-          <p>${escapeHtml(summary.requirementsTotal ? `${summary.requirementsComplete} of ${summary.requirementsTotal} requirements are complete.` : "Your teacher has not added project requirements yet.")}</p>
+          <p>${escapeHtml(summary.requirementsTotal ? `${summary.requirementsComplete} of ${summary.requirementsTotal} work items are done.` : "Your teacher has not added Senior Project work yet.")}</p>
         </div>
       </div>
       <div class="workspace-student-summary-grid">
-        ${renderStudentSummaryTile("Project Phases", `${summary.phasesComplete} of ${summary.phasesTotal || 0} complete`, summary.phasesTotal ? "Progress is grouped by senior project phase." : "Project phases are not available yet.", "student")}
-        ${renderStudentSummaryTile("Required Submissions", `${summary.submittedRequiredCount} of ${summary.requirementsTotal || 0} submitted`, summary.requirementsTotal ? `${summary.missingRequiredCount} still missing or in draft.` : "No required submissions are assigned yet.", summary.missingRequiredCount ? "warning" : "student")}
-        ${renderStudentSummaryTile("Review Status", reviewMetric(summary), reviewExplanation(summary), summary.revisionRequestedCount ? "danger" : summary.waitingForReviewCount ? "warning" : "student")}
-        ${renderStudentSummaryTile("Mentor / Support", summary.mentor.assigned ? `Mentor: ${summary.mentor.name}` : "No mentor assigned yet", summary.mentor.assigned ? "Ask your mentor or program teacher if something looks wrong." : "Ask your program teacher who can help with mentor questions.", summary.mentor.assigned ? "mentor" : "warning")}
+        ${renderStudentSummaryTile("Senior Project Phases", `${summary.phasesComplete} of ${summary.phasesTotal || 0} done`, summary.phasesTotal ? "Your work is grouped by the same phases as the Senior booklet." : "Project phases are not available yet.", "student")}
+        ${renderStudentSummaryTile("Work Sent In", `${summary.submittedRequiredCount} of ${summary.requirementsTotal || 0} sent`, summary.requirementsTotal ? `${summary.missingRequiredCount} still not sent or still a draft.` : "No required work is assigned yet.", summary.missingRequiredCount ? "warning" : "student")}
+        ${renderStudentSummaryTile("Teacher Review", reviewMetric(summary), reviewExplanation(summary), summary.revisionRequestedCount ? "danger" : summary.waitingForReviewCount ? "warning" : "student")}
+        ${renderStudentSummaryTile("Mentor Help", summary.mentor.assigned ? `Mentor: ${summary.mentor.name}` : "No mentor assigned yet", summary.mentor.assigned ? "Ask your mentor or program teacher if something looks wrong." : "Ask your program teacher who can help with mentor questions.", summary.mentor.assigned ? "mentor" : "warning")}
       </div>
     </section>
     ${renderStudentPrimaryNextAction(summary, nextSteps)}
@@ -5389,8 +5468,8 @@ function renderStudentWorkspaceDisclosurePanels(dashboard, summary, submissions,
         scope: "student",
         id: "requirements",
         kicker: "All required work",
-        title: "Requirement Checklist",
-        summary: `${requirementCount} requirement${requirementCount === 1 ? "" : "s"} available after you need the full phase-by-phase view.`,
+        title: "Senior Project Checklist",
+        summary: `${requirementCount} work item${requirementCount === 1 ? "" : "s"} listed by booklet phase.`,
         openLabel: "Open checklist",
         closeLabel: "Hide checklist",
         dataAttrs: 'data-student-requirements-panel="true" tabindex="-1"',
@@ -5412,7 +5491,7 @@ function renderStudentWorkspaceDisclosurePanels(dashboard, summary, submissions,
         id: "progress",
         kicker: "Support and details",
         title: "Progress Details",
-        summary: "Current phase, archive facts, and support shortcuts stay here when you need extra context.",
+        summary: "Current phase, May 5 file-saving status, and help links stay here.",
         openLabel: "Open details",
         closeLabel: "Hide details",
         dataAttrs: 'data-student-progress-details-panel="true" tabindex="-1"',
@@ -5422,19 +5501,19 @@ function renderStudentWorkspaceDisclosurePanels(dashboard, summary, submissions,
         scope: "student",
         id: "evidence",
         kicker: "Add your work",
-        title: "Submit Evidence",
-        summary: submissionCount ? "Attach links or upload files for an existing submission." : "Evidence tools appear after an active submission is ready.",
-        openLabel: "Open evidence tools",
-        closeLabel: "Hide evidence tools",
+        title: "Add Proof or Links",
+        summary: submissionCount ? "Add links or upload files for work you already started." : "Upload tools appear after work is ready.",
+        openLabel: "Open upload tools",
+        closeLabel: "Hide upload tools",
         dataAttrs: 'data-student-evidence-panel="true" tabindex="-1"',
-        bodyHtml: submissions.length ? renderEvidenceForms(submissions) : `<div class="workspace-empty">No active submission is ready for evidence yet. Check back after your teacher adds a requirement.</div>`,
+        bodyHtml: submissions.length ? renderEvidenceForms(submissions) : `<div class="workspace-empty">No started work is ready for uploads yet. Check back after your teacher adds work.</div>`,
       })}
       ${renderWorkspaceDisclosurePanel({
         scope: "student",
         id: "submissions",
-        kicker: "Submission history",
-        title: "Your Submitted Work",
-        summary: submissionCount ? `${submissionCount} started submission${submissionCount === 1 ? "" : "s"} available, with status filters after opening.` : "Submission history appears after you start project work.",
+        kicker: "Work history",
+        title: "Work You Sent In",
+        summary: submissionCount ? `${submissionCount} started item${submissionCount === 1 ? "" : "s"} available, with filters after opening.` : "Sent work appears after you start project work.",
         openLabel: "Open submitted work",
         closeLabel: "Hide submitted work",
         dataAttrs: 'data-student-submissions-panel="true" tabindex="-1"',
@@ -5443,9 +5522,9 @@ function renderStudentWorkspaceDisclosurePanels(dashboard, summary, submissions,
       ${renderWorkspaceDisclosurePanel({
         scope: "student",
         id: "files",
-        kicker: "Evidence and files",
+        kicker: "Files and links",
         title: "Uploaded and linked work",
-        summary: `${evidenceCount} evidence item${evidenceCount === 1 ? "" : "s"} available after you need the complete file list.`,
+        summary: `${evidenceCount} proof item${evidenceCount === 1 ? "" : "s"} available when you need the full file list.`,
         openLabel: "Open files",
         closeLabel: "Hide files",
         dataAttrs: 'data-student-files-panel="true" tabindex="-1"',
@@ -5485,8 +5564,8 @@ function studentPrimaryNextAction(summary, nextSteps = []) {
       submissionId: firstStep.submissionId || null,
       submissionStatus: firstStep.submissionStatus || null,
       evidenceCount: safeNumber(firstStep.evidenceCount),
-      title: firstStep.title || "Continue your next requirement",
-      detail: firstStep.detail || "Open the requirement in the list below and continue your project work.",
+      title: firstStep.title || "Keep working on the next item",
+      detail: firstStep.detail || "Open the item in the list below and keep working.",
       status: firstStep.status || "pending",
       owner: "Your action",
       when: studentDueText(firstStep, "Use the next-steps list below."),
@@ -5498,11 +5577,11 @@ function studentPrimaryNextAction(summary, nextSteps = []) {
       submissionId: null,
       submissionStatus: null,
       evidenceCount: 0,
-      title: "Revise submitted work",
-      detail: "Review the item marked Needs Revision and update your evidence or submission before moving forward.",
+      title: "Fix and send again",
+      detail: "Open the item marked Needs Revision, make the changes, then send it back to your teacher.",
       status: "revision_requested",
       owner: "Your action",
-      when: "Start with the submission list below.",
+      when: "Start with Work You Sent In below.",
     };
   }
   if (summary.missingRequiredCount) {
@@ -5511,11 +5590,11 @@ function studentPrimaryNextAction(summary, nextSteps = []) {
       submissionId: null,
       submissionStatus: null,
       evidenceCount: 0,
-      title: "Finish a missing submission",
-      detail: "Choose a draft or missing requirement and attach the work your teacher requested.",
+      title: "Finish work that is missing",
+      detail: "Choose a draft or missing item and add the work your teacher asked for.",
       status: "draft",
       owner: "Your action",
-      when: "Use Submit Evidence after choosing the requirement.",
+      when: "Use Add Proof or Links after choosing the item.",
     };
   }
   if (summary.waitingForReviewCount) {
@@ -5525,20 +5604,20 @@ function studentPrimaryNextAction(summary, nextSteps = []) {
       submissionStatus: null,
       evidenceCount: 0,
       title: "Wait for teacher review",
-      detail: "Your submitted work is waiting for review. Check back for feedback before changing direction.",
+      detail: "Your work is waiting for your teacher. Check back for feedback before changing direction.",
       status: "submitted",
       owner: "Teacher review",
-      when: "No extra upload is needed right now.",
+      when: "No extra file or link is needed right now.",
     };
   }
   return {
     requirementId: null,
     submissionId: null,
     submissionStatus: null,
-    evidenceCount: 0,
-    title: "Keep your project moving",
-    detail: "Review your progress details and ask your mentor or program teacher if anything looks missing.",
-    status: summary.requirementsTotal ? "ready" : "pending",
+      evidenceCount: 0,
+      title: "Keep your project moving",
+      detail: "Check your checklist and ask your mentor or program teacher if anything looks missing.",
+      status: summary.requirementsTotal ? "ready" : "pending",
     owner: summary.mentor.assigned ? "You and your mentor" : "You and your program teacher",
     when: summary.lastUpdatedAt ? `Last updated ${formatDate(summary.lastUpdatedAt)}` : "Check back after requirements are added.",
   };
@@ -5568,6 +5647,7 @@ function studentProgressSummary(dashboard) {
   };
   const summary = dashboard?.summary || {};
   const completionPercent = clampPercent(summary.completionPercent);
+  const currentPhase = studentBookletPhaseInfo(summary.currentPhase || summary.currentPhaseLabel || "");
   return {
     ...fallback,
     ...summary,
@@ -5580,6 +5660,8 @@ function studentProgressSummary(dashboard) {
     missingRequiredCount: safeNumber(summary.missingRequiredCount),
     waitingForReviewCount: safeNumber(summary.waitingForReviewCount),
     revisionRequestedCount: safeNumber(summary.revisionRequestedCount),
+    currentPhase: currentPhase.key || "",
+    currentPhaseLabel: currentPhase.key ? currentPhase.label : (summary.currentPhaseLabel || fallback.currentPhaseLabel),
     mentor: {
       ...fallback.mentor,
       ...(summary.mentor || {}),
@@ -5633,14 +5715,14 @@ function renderStudentNextSteps(nextSteps, summary) {
         <div>
           <p class="workspace-kicker">Next steps</p>
           <h2 id="studentNextStepsTitle">What to Work On Next</h2>
-          ${hiddenCount ? `<p class="workspace-muted">${escapeHtml(`${hiddenCount} more step${hiddenCount === 1 ? "" : "s"} are in the requirement checklist.`)}</p>` : ""}
+          ${hiddenCount ? `<p class="workspace-muted">${escapeHtml(`${hiddenCount} more step${hiddenCount === 1 ? "" : "s"} are in the checklist.`)}</p>` : ""}
         </div>
       </div>
       <div class="workspace-list">
         ${rows.length ? rows.map(renderStudentNextStepRow).join("") : `
           <article class="workspace-empty-state-card">
             <strong>You are caught up right now.</strong>
-            <p>${escapeHtml(summary.waitingForReviewCount ? "Check back after your teacher reviews your work." : "Check back after your teacher adds or reviews project requirements.")}</p>
+            <p>${escapeHtml(summary.waitingForReviewCount ? "Check back after your teacher reviews your work." : "Check back after your teacher adds or checks project work.")}</p>
           </article>
         `}
       </div>
@@ -5653,8 +5735,8 @@ function renderStudentNextStepRow(item) {
   return `
     <article class="workspace-row workspace-student-next-step">
       <div>
-        <strong>${escapeHtml(item.title || "Senior Project requirement")}</strong>
-        <p>${escapeHtml(item.detail || "Review this requirement and continue your next step.")}</p>
+        <strong>${escapeHtml(item.title || "Senior Project work")}</strong>
+        <p>${escapeHtml(item.detail || "Review this item and continue your next step.")}</p>
         <p class="workspace-muted" data-student-next-step-due="true">${escapeHtml(studentDueText(item))}</p>
       </div>
       <div class="workspace-row-actions">
@@ -5676,8 +5758,8 @@ function renderStudentDeadlinePanel(requirements = [], summary = {}) {
     ? "No due dates need work right now."
     : "Due dates will appear after your teacher adds them.";
   const emptyDetail = summary?.dueDatesAvailable
-    ? "Keep using the checklist below for any work that is still waiting on review or evidence."
-    : "Keep using your next steps and requirement checklist until your teacher adds deadline dates.";
+    ? "Keep using the checklist below for any work that is still waiting on review or proof."
+    : "Keep using your next steps and checklist until your teacher adds deadline dates.";
   return `
     <section class="workspace-dashboard-card workspace-student-deadlines-panel" data-student-deadlines-panel="true" data-student-deadlines-count="${escapeHtml(rows.length)}" aria-labelledby="studentDeadlinesTitle">
       <div class="workspace-card-head">
@@ -5727,17 +5809,18 @@ function studentDueSortValue(item) {
 
 function renderStudentDeadlineRow(item, summary = {}) {
   const actionButtons = renderStudentStepButtons(item);
-  const phaseLabel = String(item?.phaseLabel || "Project phase").trim() || "Project phase";
-  const currentPhaseKey = studentRequirementPhaseKey(summary?.currentPhase || "");
+  const phase = studentBookletPhaseInfo(item?.phase || item?.phaseLabel || "", item?.phaseLabel || "Project phase");
+  const phaseLabel = phase.label || "Project phase";
+  const currentPhaseKey = studentRequirementPhaseKey(summary?.currentPhase || summary?.currentPhaseLabel || "");
   const itemPhaseKey = studentRequirementPhaseKey(item?.phase || item?.phaseLabel || "");
   const phaseContext = itemPhaseKey && itemPhaseKey === currentPhaseKey ? `${phaseLabel} / Current phase` : phaseLabel;
   return `
     <article class="workspace-row workspace-student-deadline-row" data-student-deadline-row="true" data-student-deadline-requirement-id="${escapeHtml(studentRequirementId(item))}">
       <div>
-        <strong>${escapeHtml(item?.title || "Senior Project requirement")}</strong>
+        <strong>${escapeHtml(item?.title || "Senior Project work")}</strong>
         <p class="workspace-muted" data-student-deadline-phase="true">${escapeHtml(phaseContext)}</p>
         <p data-student-deadline-due="true">${escapeHtml(studentDueText(item))}</p>
-        <p class="workspace-muted" data-student-deadline-next="true">${escapeHtml(item?.nextAction || "Open this requirement and keep moving.")}</p>
+        <p class="workspace-muted" data-student-deadline-next="true">${escapeHtml(item?.nextAction || "Open this item and keep moving.")}</p>
       </div>
       <div class="workspace-row-actions">
         ${actionButtons}
@@ -5747,7 +5830,7 @@ function renderStudentDeadlineRow(item, summary = {}) {
   `;
 }
 
-function renderStudentStepButtons(item, openLabel = "Open requirement") {
+function renderStudentStepButtons(item, openLabel = "Open item") {
   const openRequirementButton = renderStudentRequirementOpenButton(item, openLabel);
   const submissionActionButton = renderStudentSubmissionActionButton(item);
   return `${openRequirementButton}${submissionActionButton}`;
@@ -5759,9 +5842,9 @@ function renderStudentRequirementPanel(requirements = [], summary = {}, feedback
     <section class="workspace-dashboard-card workspace-student-requirements-panel" data-student-requirements-panel="true" data-student-requirements-count="${escapeHtml(rows.length)}" aria-labelledby="studentRequirementChecklistTitle">
       <div class="workspace-card-head">
         <div>
-          <p class="workspace-kicker">Requirement checklist</p>
+          <p class="workspace-kicker">Booklet checklist</p>
           <h2 id="studentRequirementChecklistTitle">Your Required Work</h2>
-          <p>${escapeHtml(rows.length ? "Review each project phase, requirement, and next step." : "Required work will appear after your teacher adds project requirements.")}</p>
+          <p>${escapeHtml(rows.length ? "Work one booklet phase at a time: open the current phase, finish the item, add proof, then send it for review." : "Required work will appear after your teacher adds project work.")}</p>
         </div>
       </div>
       ${renderStudentRequirementPanelBody(requirements, summary, feedback, detailState, evidence, historyState)}
@@ -5781,8 +5864,8 @@ function renderStudentRequirementPanelBody(requirements = [], summary = {}, feed
       <div class="workspace-list">
         ${visiblePhaseGroups.length ? visiblePhaseGroups.map((group) => renderStudentRequirementPhaseGroup(group, feedback, detailState, evidence, historyState)).join("") : `
           <article class="workspace-empty-state-card" data-student-requirements-empty="true">
-            <strong>No project requirements yet.</strong>
-            <p>${escapeHtml(summary.waitingForReviewCount ? "Check back after your teacher updates your project requirements." : "Ask your program teacher when your project requirements will be ready.")}</p>
+            <strong>No Senior Project work yet.</strong>
+            <p>${escapeHtml(summary.waitingForReviewCount ? "Check back after your teacher updates your project work." : "Ask your program teacher when your project work will be ready.")}</p>
           </article>
         `}
       </div>
@@ -5792,30 +5875,68 @@ function renderStudentRequirementPanelBody(requirements = [], summary = {}, feed
 function groupStudentRequirementsByPhase(rows) {
   const groups = [];
   const byPhase = new Map();
-  for (const row of rows) {
-    const key = studentRequirementPhaseKey(row?.phase || row?.phaseLabel || "unassigned");
+  rows.forEach((row, index) => {
+    const phase = studentBookletPhaseInfo(row?.phase || row?.phaseLabel || "unassigned", row?.phaseLabel || "");
+    const key = phase.key || "unassigned";
     if (!byPhase.has(key)) {
       const group = {
         key,
-        label: row?.phaseLabel || (row?.phase ? statusText(row.phase) : "Other required work"),
+        label: phase.label || row?.phaseLabel || (row?.phase ? statusText(row.phase) : "Other required work"),
+        guidance: phase.guidance || "Use this phase to check the listed work, proof, and next step.",
         rows: [],
         completeCount: 0,
         remainingCount: 0,
+        originalIndex: index,
       };
       byPhase.set(key, group);
       groups.push(group);
     }
     byPhase.get(key).rows.push(row);
-  }
+  });
   groups.forEach((group) => {
     group.completeCount = group.rows.filter((row) => isStudentRequirementComplete(row?.status)).length;
     group.remainingCount = Math.max(0, group.rows.length - group.completeCount);
   });
-  return groups;
+  return groups.sort((left, right) => {
+    const phaseDelta = studentBookletPhaseRank(left.key) - studentBookletPhaseRank(right.key);
+    if (phaseDelta !== 0) return phaseDelta;
+    return left.originalIndex - right.originalIndex;
+  });
 }
 
 function studentRequirementPhaseKey(value) {
-  return cleanDirectoryFilter(value || "unassigned");
+  return cleanDirectoryFilter(studentBookletPhaseKey(value || "unassigned"));
+}
+
+function studentBookletPhaseKey(value) {
+  const normalized = String(value || "")
+    .trim()
+    .replace(/[^a-z0-9]+/gi, "-")
+    .replace(/^-+|-+$/g, "")
+    .toLowerCase();
+  if (!normalized) return "";
+  return STUDENT_BOOKLET_PHASE_ALIASES[normalized] || normalized;
+}
+
+function studentBookletPhaseInfo(value, fallbackLabel = "") {
+  const key = studentBookletPhaseKey(value || fallbackLabel || "");
+  const known = STUDENT_BOOKLET_PHASES[key];
+  if (known) return { key, ...known };
+  const label = String(fallbackLabel || value || "")
+    .trim()
+    .replace(/[-_]+/g, " ")
+    .replace(/\b\w/g, (match) => match.toUpperCase());
+  return {
+    key,
+    label: label || "Other required work",
+    guidance: "Use this phase to check the listed work, proof, and next step.",
+  };
+}
+
+function studentBookletPhaseRank(value) {
+  const key = studentBookletPhaseKey(value);
+  const index = STUDENT_BOOKLET_PHASE_ORDER.indexOf(key);
+  return index === -1 ? STUDENT_BOOKLET_PHASE_ORDER.length : index;
 }
 
 function activeStudentRequirementPhaseKey(phaseGroups = [], detailState = defaultStudentRequirementDetailState()) {
@@ -5827,10 +5948,10 @@ function activeStudentRequirementPhaseKey(phaseGroups = [], detailState = defaul
 function renderStudentRequirementPhaseFilters(phaseGroups = [], summary = {}, detailState = defaultStudentRequirementDetailState()) {
   const activePhaseKey = activeStudentRequirementPhaseKey(phaseGroups, detailState);
   const activeGroup = phaseGroups.find((group) => group.key === activePhaseKey) || null;
-  const currentPhaseKey = studentRequirementPhaseKey(summary?.currentPhase || "");
+  const currentPhaseKey = studentRequirementPhaseKey(summary?.currentPhase || summary?.currentPhaseLabel || "");
   const currentGroup = phaseGroups.find((group) => group.key === currentPhaseKey) || null;
   const note = activeGroup
-    ? `${activeGroup.label}: ${activeGroup.completeCount} of ${activeGroup.rows.length} complete${activeGroup.remainingCount ? `, ${activeGroup.remainingCount} still need work.` : ". Everything in this phase is complete."}`
+    ? `${activeGroup.label}: ${activeGroup.completeCount} of ${activeGroup.rows.length} done${activeGroup.remainingCount ? `, ${activeGroup.remainingCount} still need work.` : ". Everything in this phase is done."}`
     : currentGroup
       ? `Current phase: ${currentGroup.label}. Focus one phase at a time if you want a shorter checklist.`
       : "Focus one project phase at a time if you want a shorter checklist.";
@@ -5858,14 +5979,16 @@ function renderStudentRequirementPhaseGroup(group, feedback = [], detailState = 
   const rows = Array.isArray(group?.rows) ? group.rows : [];
   const completeCount = safeNumber(group?.completeCount);
   const remainingCount = safeNumber(group?.remainingCount);
+  const guidance = String(group?.guidance || "").trim();
   const phaseSummary = rows.length
-    ? `${completeCount} of ${rows.length} complete${remainingCount ? ` / ${remainingCount} still need work` : ""}`
-    : "No requirements in this phase yet.";
+    ? `${completeCount} of ${rows.length} done${remainingCount ? ` / ${remainingCount} still need work` : ""}`
+    : "No work in this phase yet.";
   return `
     <section class="workspace-student-requirement-phase" data-student-requirement-phase="true" data-student-requirement-phase-key="${escapeHtml(group?.key || "unassigned")}" data-student-requirement-phase-total="${escapeHtml(rows.length)}" data-student-requirement-phase-complete="${escapeHtml(completeCount)}">
       <div class="workspace-student-requirement-phase-head">
         <div>
           <h3>${escapeHtml(group?.label || "Other required work")}</h3>
+          ${guidance ? `<p data-student-requirement-phase-guidance="true">${escapeHtml(guidance)}</p>` : ""}
           <p class="workspace-muted">${escapeHtml(phaseSummary)}</p>
         </div>
       </div>
@@ -5888,6 +6011,7 @@ function renderStudentRequirementRow(item, feedback = [], detailState = defaultS
   const submissionId = String(item?.submissionId || "").trim();
   const evidenceCount = safeNumber(item?.evidenceCount);
   const requirementId = studentRequirementId(item);
+  const phase = studentBookletPhaseInfo(item?.phase || item?.phaseLabel || "", item?.phaseLabel || "");
   const detailDomId = studentRequirementDetailDomId(requirementId);
   const selected = requirementId && detailState?.selectedRequirementId === requirementId;
   const latestFeedback = latestFeedbackForRequirement(item, feedback);
@@ -5895,17 +6019,17 @@ function renderStudentRequirementRow(item, feedback = [], detailState = defaultS
   return `
     <article class="workspace-row workspace-student-requirement-row" data-student-requirement-row="true" data-student-requirement-id="${escapeHtml(requirementId)}" data-student-requirement-submission-id="${escapeHtml(submissionId)}" data-student-requirement-evidence-count="${escapeHtml(evidenceCount)}">
       <div>
-        <strong>${escapeHtml(item?.title || "Senior Project requirement")}</strong>
+        <strong>${escapeHtml(item?.title || "Senior Project work")}</strong>
         ${description ? `<p class="workspace-student-requirement-guidance" data-student-requirement-description="true">${escapeHtml(description)}</p>` : ""}
         ${qualityPrompt ? `<p class="workspace-muted workspace-student-requirement-nudge" data-student-requirement-quality="true">Try this: ${escapeHtml(qualityPrompt)}</p>` : ""}
-        <p>${escapeHtml(item?.phaseLabel || "Not available yet")} / Last updated ${escapeHtml(updatedAt)}</p>
+        <p>${escapeHtml(phase.label || "Not available yet")} / Last updated ${escapeHtml(updatedAt)}</p>
         <p class="workspace-muted" data-student-requirement-due="true">${escapeHtml(studentDueText(item))}</p>
         <p class="workspace-muted" data-student-requirement-next="true">${escapeHtml(item?.nextAction || "Ask your program teacher what to do next.")}</p>
       </div>
       <div class="workspace-row-actions">
-        ${submissionId ? `<span class="workspace-site-context-badge" data-student-requirement-evidence="true">${escapeHtml(evidenceCount)} evidence</span>` : ""}
+        ${submissionId ? `<span class="workspace-site-context-badge" data-student-requirement-evidence="true">${escapeHtml(evidenceCount)} proof item${evidenceCount === 1 ? "" : "s"}</span>` : ""}
         ${version > 0 ? `<span class="workspace-site-context-badge" data-student-requirement-version="true">Version ${escapeHtml(version)}</span>` : ""}
-        ${requirementId ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-requirement-action="toggle-detail" data-student-requirement-id="${escapeHtml(requirementId)}" aria-expanded="${selected ? "true" : "false"}" aria-controls="${escapeHtml(detailDomId)}">${escapeHtml(selected ? "Hide details" : "Review details")}</button>` : ""}
+        ${requirementId ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-requirement-action="toggle-detail" data-student-requirement-id="${escapeHtml(requirementId)}" aria-expanded="${selected ? "true" : "false"}" aria-controls="${escapeHtml(detailDomId)}">${escapeHtml(selected ? "Hide details" : "Check details")}</button>` : ""}
         ${renderStudentRequirementAction(item, evidenceCount)}
         ${statusPill(item?.status || "missing")}
       </div>
@@ -5954,30 +6078,32 @@ function renderStudentRequirementDetail(item, latestFeedback = null, evidenceRow
   const status = statusText(item?.status || "missing");
   const submissionStatus = item?.submissionStatus ? statusText(item.submissionStatus) : status;
   const progressStatus = item?.progressStatus ? statusText(item.progressStatus) : "Not started";
+  const phase = studentBookletPhaseInfo(item?.phase || item?.phaseLabel || "", item?.phaseLabel || "");
   const timelineSelected = studentFeedbackSelectionMatches(historyState, submissionId, "requirements");
   return `
     <section id="${escapeHtml(detailDomId)}" class="workspace-student-requirement-detail" data-student-requirement-detail="true">
       <div>
-        <h4>Requirement details</h4>
-        <p class="workspace-muted">Use this summary to check the status, due date, feedback, and next action for this requirement.</p>
+        <h4>What to check</h4>
+        <p class="workspace-muted">Use this summary to check the status, due date, teacher feedback, and next step for this item.</p>
       </div>
       <div class="workspace-student-requirement-detail-grid">
         ${renderStudentRequirementDetailFact("Status", status)}
+        ${renderStudentRequirementDetailFact("Booklet phase", phase.label)}
         ${renderStudentRequirementDetailFact("Due date", studentDueText(item))}
-        ${renderStudentRequirementDetailFact("Evidence", `${evidenceCount} ${pluralize(evidenceCount, "item")} attached`)}
-        ${renderStudentRequirementDetailFact("Submission", version > 0 ? `Version ${version} / ${submissionStatus}` : "No submitted version yet")}
+        ${renderStudentRequirementDetailFact("Proof added", `${evidenceCount} ${pluralize(evidenceCount, "item")} attached`)}
+        ${renderStudentRequirementDetailFact("Sent work", version > 0 ? `Version ${version} / ${submissionStatus}` : "Not sent yet")}
         ${renderStudentRequirementDetailFact("Progress", progressStatus)}
-        ${renderStudentRequirementDetailFact("Next action", item?.nextAction || "Ask your program teacher what to do next.")}
+        ${renderStudentRequirementDetailFact("Next step", item?.nextAction || "Ask your program teacher what to do next.")}
       </div>
       ${latestFeedback ? `
         <article class="workspace-mini-row" data-student-requirement-feedback="true">
           <span>Latest teacher feedback</span>
-          <small>${escapeHtml(latestFeedback.message || "Teacher feedback was recorded for this submission.")}</small>
+          <small>${escapeHtml(latestFeedback.message || "Teacher feedback was recorded for this work.")}</small>
           <small>${escapeHtml(latestFeedback.authorName || "Program teacher")} / ${escapeHtml(formatDate(latestFeedback.createdAt))}</small>
         </article>
       ` : `
         <article class="workspace-mini-row" data-student-requirement-feedback-empty="true">
-          <span>No teacher feedback for this requirement yet.</span>
+          <span>No teacher feedback for this item yet.</span>
           <small>Feedback meant for you will appear after your teacher reviews or comments on this work.</small>
         </article>
       `}
@@ -5991,8 +6117,8 @@ function renderStudentRequirementDetail(item, latestFeedback = null, evidenceRow
       ${timelineSelected ? `<div data-student-requirement-timeline="true">${renderStudentFeedbackTimeline(historyState)}</div>` : ""}
       ${evidenceRows.length ? `
         <div>
-          <h4>Matching uploaded and linked work</h4>
-          <p class="workspace-muted">These are the current files and links already attached to this requirement.</p>
+          <h4>Files and links already added</h4>
+          <p class="workspace-muted">These are the files and links already attached to this work.</p>
         </div>
         <div class="workspace-list" data-student-requirement-evidence-list="true">
           ${evidenceRows.map(renderStudentRequirementEvidenceRow).join("")}
@@ -6019,7 +6145,7 @@ function renderStudentRequirementAction(item, evidenceCount = 0) {
   });
 }
 
-function renderStudentRequirementOpenButton(item, label = "Open requirement") {
+function renderStudentRequirementOpenButton(item, label = "Open item") {
   const requirementId = cleanDirectoryFilter(item?.requirementId || "");
   if (!requirementId) return "";
   return `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-requirement-action="open-detail" data-student-requirement-id="${escapeHtml(requirementId)}">${escapeHtml(label)}</button>`;
@@ -6045,8 +6171,8 @@ function renderStudentRequirementEvidenceRow(item) {
   const createdAt = item?.created_at ? formatDate(item.created_at) : "Added recently";
   return `
     <article class="workspace-mini-row" data-student-requirement-evidence-item="true">
-      <span>${escapeHtml(item.title || "Evidence")}</span>
-      <small>${escapeHtml(evidenceSourceLabel(item.source_kind))} / ${escapeHtml(statusText(item.artifact_type || "evidence"))}</small>
+      <span>${escapeHtml(item.title || "Proof item")}</span>
+      <small>${escapeHtml(evidenceSourceLabel(item.source_kind))} / ${escapeHtml(statusText(item.artifact_type || "proof"))}</small>
       <small>${escapeHtml(createdAt)} / ${escapeHtml(statusText(item.review_status || "pending_review"))}</small>
       ${actions.length ? `<div class="workspace-row-actions">${actions.join("")}</div>` : ""}
     </article>
@@ -6059,7 +6185,7 @@ function renderStudentSubmissionActionButton(item) {
   const evidenceCount = safeNumber(item?.evidenceCount);
   if (!submissionId || !["draft", "revision_requested"].includes(status)) return "";
   if (evidenceCount <= 0) {
-    return `<button class="workspace-button workspace-button-small workspace-button-secondary" type="button" data-student-submission-action="focus-evidence" data-student-submission-id="${escapeHtml(submissionId)}">Add evidence</button>`;
+    return `<button class="workspace-button workspace-button-small workspace-button-secondary" type="button" data-student-submission-action="focus-evidence" data-student-submission-id="${escapeHtml(submissionId)}">Add proof</button>`;
   }
   const label = status === "revision_requested" ? "Send revision" : "Send for review";
   return `<button class="workspace-button workspace-button-small workspace-button-primary" type="button" data-student-submission-action="submit" data-student-submission-id="${escapeHtml(submissionId)}">${escapeHtml(label)}</button>`;
@@ -6201,8 +6327,8 @@ function renderStudentFeedbackRow(item, historyState = defaultStudentFeedbackHis
   return `
     <article class="workspace-row workspace-student-feedback-row" data-student-feedback-item="${escapeHtml(item.id || "")}">
       <div>
-        <strong>${escapeHtml(item.requirementTitle || "Senior Project submission")}</strong>
-        <p>${escapeHtml(item.message || "Teacher feedback was recorded for this submission.")}</p>
+        <strong>${escapeHtml(item.requirementTitle || "Senior Project work")}</strong>
+        <p>${escapeHtml(item.message || "Teacher feedback was recorded for this work.")}</p>
         ${submissionMeta ? `<p class="workspace-muted" data-student-feedback-context="true">${escapeHtml(submissionMeta)}</p>` : ""}
         <p class="workspace-muted">${escapeHtml(item.authorName || "Program teacher")} / ${escapeHtml(formatDate(item.createdAt))}</p>
       </div>
@@ -6240,15 +6366,15 @@ function renderStudentFeedbackTimeline(historyState = defaultStudentFeedbackHist
   if (historyState.loading) {
     return `
       <section class="workspace-student-feedback-timeline" data-student-feedback-timeline-loading="true">
-        <h3>Submission timeline</h3>
-        <p class="workspace-muted">Loading the review timeline for this submission.</p>
+        <h3>Work timeline</h3>
+        <p class="workspace-muted">Loading the review timeline for this work.</p>
       </section>
     `;
   }
   if (historyState.result && !historyState.result.ok) {
     return `
       <section class="workspace-empty-state-card workspace-student-feedback-timeline" data-student-feedback-timeline-error="true">
-        <h3>Submission timeline unavailable</h3>
+        <h3>Work timeline unavailable</h3>
         ${renderProblemState({
           reason: "We could not load this feedback timeline right now.",
           owner: "Program teacher",
@@ -6268,7 +6394,7 @@ function renderStudentFeedbackTimeline(historyState = defaultStudentFeedbackHist
   return `
     <section class="workspace-student-feedback-timeline" data-student-feedback-timeline="true">
       <div>
-        <h3>Submission timeline</h3>
+        <h3>Work timeline</h3>
         <p class="workspace-muted">Only feedback meant for you is shown here.</p>
       </div>
       ${renderStudentFeedbackTimelineSummary(history, versions, statusHistory, noteRows)}
@@ -6278,7 +6404,7 @@ function renderStudentFeedbackTimeline(historyState = defaultStudentFeedbackHist
           ${renderStudentTimelineList("Status changes", statusHistory, "No status changes are listed yet.", renderStudentStatusTimelineItem)}
           ${renderStudentTimelineList("Teacher notes", noteRows, "No teacher notes are listed yet.", renderStudentNoteTimelineItem)}
         </div>
-      ` : `<div class="workspace-empty">No timeline entries are available for this submission yet.</div>`}
+      ` : `<div class="workspace-empty">No timeline entries are available for this work yet.</div>`}
     </section>
   `;
 }
@@ -6318,7 +6444,7 @@ function renderStudentVersionTimelineItem(row, currentVersion = 0) {
   const isCurrentVersion = version > 0 && version === safeNumber(currentVersion);
   const detailParts = [
     statusText(row?.status || "submitted"),
-    evidenceCount ? `${evidenceCount} ${pluralize(evidenceCount, "evidence item")}` : "No evidence snapshot",
+    evidenceCount ? `${evidenceCount} proof item${evidenceCount === 1 ? "" : "s"}` : "No proof saved",
     formatDate(row?.submittedAt || row?.submitted_at),
   ];
   if (isCurrentVersion) detailParts.push("Current version");
@@ -6396,14 +6522,14 @@ function renderStudentProgressDetailsBody(summary, dashboard) {
       <div class="workspace-student-details-panel">
         <div class="workspace-student-details-grid">
           ${renderStudentDetailFact("Current phase", summary.currentPhaseLabel || "Not available yet")}
-          ${renderStudentDetailFact("Completed requirements", `${summary.requirementsComplete} of ${summary.requirementsTotal || 0}`)}
-          ${renderStudentDetailFact("Missing submissions", summary.missingRequiredCount ? `${summary.missingRequiredCount} to finish` : "None right now")}
-          ${renderStudentDetailFact("Waiting for review", summary.waitingForReviewCount ? `${summary.waitingForReviewCount} submitted` : "Nothing waiting")}
+          ${renderStudentDetailFact("Work done", `${summary.requirementsComplete} of ${summary.requirementsTotal || 0}`)}
+          ${renderStudentDetailFact("Work still missing", summary.missingRequiredCount ? `${summary.missingRequiredCount} to finish` : "None right now")}
+          ${renderStudentDetailFact("Waiting for review", summary.waitingForReviewCount ? `${summary.waitingForReviewCount} sent` : "Nothing waiting")}
           ${renderStudentDetailFact("Needs revision", summary.revisionRequestedCount ? `${summary.revisionRequestedCount} item${summary.revisionRequestedCount === 1 ? "" : "s"}` : "Nothing right now")}
           ${renderStudentDetailFact("Last updated", summary.lastUpdatedAt ? formatDate(summary.lastUpdatedAt) : "Not available yet")}
-          ${renderStudentDetailFact("Evidence added", `${evidence.length} item${evidence.length === 1 ? "" : "s"}`)}
+          ${renderStudentDetailFact("Proof added", `${evidence.length} item${evidence.length === 1 ? "" : "s"}`)}
           ${renderStudentDetailFact("Teacher feedback", summary.revisionRequestedCount ? "Review the item marked Needs Revision." : "You do not have feedback that needs action right now.")}
-          ${archiveFact ? renderStudentDetailFact("May 5 archive", archiveFact) : ""}
+          ${archiveFact ? renderStudentDetailFact("May 5 files", archiveFact) : ""}
         </div>
       </div>
       <div class="workspace-student-support-box" data-student-support-box="true">
@@ -6418,7 +6544,7 @@ function renderStudentProgressDetailsBody(summary, dashboard) {
 function renderStudentSubmissionsPanelBody(submissions = [], filteredSubmissions = [], feedback = [], activeSubmissionFilter = "all") {
   return `
     <div>
-      <p class="workspace-muted">${escapeHtml(submissions.length ? `Showing the latest ${submissions.length} submission${submissions.length === 1 ? "" : "s"} you have started.` : "Your submission history will appear here after you start project work.")}</p>
+      <p class="workspace-muted">${escapeHtml(submissions.length ? `Showing the latest ${submissions.length} item${submissions.length === 1 ? "" : "s"} you have started or sent.` : "Your sent work will appear here after you start project work.")}</p>
       ${submissions.length > 1 || activeSubmissionFilter !== "all" ? renderStudentSubmissionFilters(submissions, activeSubmissionFilter) : ""}
       <div class="workspace-list">
         ${filteredSubmissions.length
@@ -6434,7 +6560,7 @@ function renderStudentFilesPanelBody(evidence = []) {
     <div class="workspace-list">
       ${evidence.length
         ? evidence.map(renderEvidenceRow).join("")
-        : `<div class="workspace-empty">Evidence will appear here after you attach a link or upload a file. Open a requirement or the evidence tools when you are ready to add your work.</div>`}
+        : `<div class="workspace-empty">Proof will appear here after you attach a link or upload a file. Open a checklist item or the proof tools when you are ready to add your work.</div>`}
     </div>
   `;
 }
@@ -6445,23 +6571,23 @@ function studentSupportGuidance(summary, dashboard) {
   const submissions = Array.isArray(dashboard?.submissions) ? dashboard.submissions : [];
   const requirements = Array.isArray(dashboard?.requirements) ? dashboard.requirements : [];
   if (summary?.revisionRequestedCount && feedback.length) {
-    return "Start with the feedback notes that still need revision, then update the matching submission.";
+    return "Start with the feedback notes that still need fixes, then update the matching work.";
   }
   if (summary?.waitingForReviewCount && submissions.length) {
-    return "Your teacher is reviewing submitted work. Use Submitted Work to confirm what is waiting right now.";
+    return "Your teacher is reviewing work you sent in. Use Work Sent In to confirm what is waiting right now.";
   }
   if (summary?.missingRequiredCount && requirements.length) {
-    return "Open the next requirement to see what is still missing and which step comes next.";
+    return "Open the next checklist item to see what is still missing and which step comes next.";
   }
   if (!summary?.mentor?.assigned) {
-    return "Keep using your next steps and requirement checklist while your program teacher helps with mentor questions.";
+    return "Keep using your next steps and checklist while your program teacher helps with mentor questions.";
   }
   if (summary?.dueDatesAvailable) {
     return "Use Upcoming deadlines or Your Required Work when you want a shorter path through the work below.";
   }
   return progress.length || submissions.length || requirements.length
-    ? "Use the submission list, feedback notes, or requirement checklist below to keep your project moving."
-    : "Your teacher has not added project requirements yet.";
+    ? "Use the work list, feedback notes, or checklist below to keep your project moving."
+    : "Your teacher has not added project work yet.";
 }
 
 function renderStudentSupportActions(summary, dashboard) {
@@ -6493,7 +6619,7 @@ function renderStudentSupportActions(summary, dashboard) {
   }
   const focusItem = studentSupportRequirementItem(dashboard);
   if (focusItem?.requirementId) {
-    buttons.push(renderStudentRequirementOpenButton(focusItem, "Open next requirement"));
+    buttons.push(renderStudentRequirementOpenButton(focusItem, "Open next item"));
   } else if (requirements.length) {
     const action = summary?.dueDatesAvailable ? "focus-deadlines" : "focus-requirements";
     const label = summary?.dueDatesAvailable ? "Show deadlines" : "Open required work";
@@ -6531,7 +6657,7 @@ function renderStudentDetailFact(label, value) {
 
 function renderEvidenceForms(submissions) {
   const options = submissions.map((submission) => `
-    <option value="${escapeHtml(submission.id)}">${escapeHtml(submission.requirement_title || "Capstone Project submission")} - ${escapeHtml(statusText(submission.status))}</option>
+    <option value="${escapeHtml(submission.id)}">${escapeHtml(submission.requirement_title || "Senior Project work")} - ${escapeHtml(statusText(submission.status))}</option>
   `).join("");
 
   return `
@@ -6540,7 +6666,7 @@ function renderEvidenceForms(submissions) {
       <form id="workspaceEvidenceLinkForm" class="workspace-form">
         <div class="workspace-form-grid">
           <label class="workspace-label">
-            Submission
+            Work item
             <select class="workspace-select" name="submissionId" required>${options}</select>
           </label>
           <label class="workspace-label">
@@ -6550,11 +6676,11 @@ function renderEvidenceForms(submissions) {
             </select>
           </label>
           <label class="workspace-label workspace-label-wide">
-            Evidence title
+            Proof title
             <input class="workspace-input" name="title" autocomplete="off" maxlength="160" required>
           </label>
           <label class="workspace-label workspace-label-wide">
-            Evidence link
+            Proof link
             <input class="workspace-input" name="url" type="url" inputmode="url" autocomplete="off" required>
           </label>
         </div>
@@ -6568,7 +6694,7 @@ function renderEvidenceForms(submissions) {
       <form id="workspaceFileUploadForm" class="workspace-form">
         <div class="workspace-form-grid">
           <label class="workspace-label">
-            Submission
+            Work item
             <select class="workspace-select" name="submissionId" required>${options}</select>
           </label>
           <label class="workspace-label">
@@ -6640,7 +6766,7 @@ function uploadMessageForState(state) {
   if (state === "verifying") return "Checking that the upload finished safely.";
   if (state === "complete") return "Your file was received and added to your evidence.";
   if (state === "failed") return "The upload did not finish. Review the message and try again if available.";
-  return "Choose a file to upload evidence.";
+  return "Choose a file to upload as proof.";
 }
 
 function clampUploadProgress(value) {
@@ -6686,7 +6812,7 @@ function renderTeacherSection() {
           <p class="workspace-kicker">Teacher review queue</p>
           <h1 id="reviewQueueTitle">Review Queue</h1>
           <p>
-            Submitted work, revision follow-up, protected evidence, and teacher review for assigned records.
+            Submitted work, revision follow-up, protected proof, and teacher review for assigned records.
             No student messaging.
           </p>
         </div>
@@ -6706,8 +6832,8 @@ function renderTeacherSection() {
       <div class="workspace-metric-grid">
         ${renderMetricTile("Submitted", summary.submitted, "Ready for teacher review", "teacher")}
         ${renderMetricTile("Needs Revision", summary.revisionRequested, "Open revision loops", "warning")}
-        ${renderMetricTile("Evidence Attached", summary.evidenceAttached, "Private evidence summaries", "admin", "teacher", { label: "Review rows", preset: "evidence-attached-review" })}
-        ${renderMetricTile("Evidence Missing", summary.evidenceMissing, "Confirm evidence before approval", safeNumber(summary.evidenceMissing) ? "warning" : "mentor", "teacher", { label: "Review rows", preset: "evidence-missing-review" })}
+        ${renderMetricTile("Proof Attached", summary.evidenceAttached, "Private proof summaries", "admin", "teacher", { label: "Review rows", preset: "evidence-attached-review" })}
+        ${renderMetricTile("Proof Missing", summary.evidenceMissing, "Confirm proof before approval", safeNumber(summary.evidenceMissing) ? "warning" : "mentor", "teacher", { label: "Review rows", preset: "evidence-missing-review" })}
         ${renderMetricTile("High Risk", summary.highRisk, "Prioritize follow-up", safeNumber(summary.highRisk) ? "danger" : "admin", "teacher", { label: "Review rows", preset: "high-risk" })}
         ${renderMetricTile("Stale Activity", summary.overdueOrStale, "Check-ins may be needed", safeNumber(summary.overdueOrStale) ? "warning" : "admin", "teacher", { label: "Review rows", preset: "stale-review" })}
         ${renderMetricTile("Missing Mentor", summary.noMentor, "Needs mentor coverage", safeNumber(summary.noMentor) ? "warning" : "mentor", "teacher", { label: "Review rows", preset: "missing-mentor-review" })}
@@ -6821,7 +6947,7 @@ function renderReviewQueueFilters(body) {
       <label>
         <span>Evidence</span>
         <select name="evidenceStatus">
-          <option value="" ${!filters.evidenceStatus ? "selected" : ""}>Any evidence status</option>
+          <option value="" ${!filters.evidenceStatus ? "selected" : ""}>Any proof status</option>
           ${(options.evidenceStatuses || ["attached", "missing"]).map((status) => `
             <option value="${escapeHtml(status)}" ${filters.evidenceStatus === status ? "selected" : ""}>${escapeHtml(evidenceStatusFilterLabel(status))}</option>
           `).join("")}
@@ -6878,16 +7004,16 @@ function reviewQueueEmptyState(body, filters = {}) {
 function reviewQueueFilteredEmptyStateCopy(filters = {}, options = {}) {
   if (filters.evidenceStatus === "missing") {
     return {
-      heading: "No matching evidence follow-up",
-      reason: "No submitted or revision-requested work without attached evidence matches these filters.",
-      nextAction: "Clear the evidence filter or check Operations Evidence Missing for broader readiness follow-up.",
+      heading: "No matching proof follow-up",
+      reason: "No submitted or revision-requested work without attached proof matches these filters.",
+      nextAction: "Clear the proof filter or check Operations Proof Missing for broader readiness follow-up.",
     };
   }
   if (filters.evidenceStatus === "attached") {
     return {
-      heading: "No matching evidence-ready reviews",
-      reason: "No submitted or revision-requested work with attached evidence matches these filters.",
-      nextAction: "Clear the evidence filter or adjust status and risk filters.",
+      heading: "No matching proof-ready reviews",
+      reason: "No submitted or revision-requested work with attached proof matches these filters.",
+      nextAction: "Clear the proof filter or adjust status and risk filters.",
     };
   }
   if (filters.status === "submitted") {
@@ -6984,14 +7110,14 @@ function renderReviewQueueRow(item, selectedId, permissions = {}) {
       <div class="workspace-student-card">
         <div>
           <strong>${escapeHtml(item.studentName || "Student")}</strong>
-          <p>${escapeHtml(item.requirementTitle || "Capstone Project submission")}</p>
+          <p>${escapeHtml(item.requirementTitle || "Senior Project work")}</p>
           <p class="workspace-muted">${escapeHtml(item.programName || "Unassigned")} / version ${safeNumber(item.version)} / updated ${escapeHtml(formatDate(item.updatedAt))}</p>
         </div>
         <div class="workspace-row-meta">
           ${statusPill(item.status)}
           ${item.storyBucket ? `<span class="workspace-story-chip">${escapeHtml(storyLabel(item.storyBucket))}</span>` : ""}
           ${renderRiskChips(item.riskFlags || [])}
-          <span>${safeNumber(item.evidenceCount)} evidence</span>
+          <span>${safeNumber(item.evidenceCount)} proof item${safeNumber(item.evidenceCount) === 1 ? "" : "s"}</span>
           <span>${safeNumber(item.reviewCount)} reviews</span>
           <span>${safeNumber(item.commentCount)} comments</span>
         </div>
@@ -7078,17 +7204,17 @@ function renderReviewSubmissionPanel(selected, body) {
       <div class="workspace-card-head">
         <div>
           <h2>${escapeHtml(selected.studentName || "Student")}</h2>
-          <p>${escapeHtml(selected.requirementTitle || "Capstone Project submission")}</p>
+          <p>${escapeHtml(selected.requirementTitle || "Senior Project work")}</p>
         </div>
         ${statusPill(selected.status)}
       </div>
       <div class="workspace-detail-grid">
         <span class="workspace-site-context-badge">${escapeHtml(selected.programName || "Unassigned")}</span>
-        <span class="workspace-site-context-badge">${safeNumber(selected.evidenceCount)} private evidence</span>
+        <span class="workspace-site-context-badge">${safeNumber(selected.evidenceCount)} private proof</span>
         <span class="workspace-site-context-badge">${safeNumber(selected.reviewCount)} reviews</span>
         <span class="workspace-site-context-badge">${safeNumber(selected.commentCount)} comments</span>
       </div>
-      <p>${escapeHtml(selected.nextAction || "Review evidence and history.")}</p>
+      <p>${escapeHtml(selected.nextAction || "Review proof and history.")}</p>
       <p class="workspace-muted" data-review-selected-guidance="true">${escapeHtml(canDecide
         ? "Teacher decisions are ready on this submitted row."
         : permissions.canReview
@@ -7229,7 +7355,7 @@ function renderMentorSection() {
           <article class="workspace-row">
             <div>
               <strong>${escapeHtml(item.studentName || "Student")}</strong>
-              <p>${escapeHtml(item.evidenceCount || 0)} evidence item${Number(item.evidenceCount || 0) === 1 ? "" : "s"} attached.</p>
+              <p>${escapeHtml(item.evidenceCount || 0)} proof item${Number(item.evidenceCount || 0) === 1 ? "" : "s"} attached.</p>
             </div>
             ${statusPill(item.submissionStatus || "not_started")}
           </article>
@@ -7263,7 +7389,7 @@ function renderAggregateReadinessDashboard(result, report = {}, scopeLabel = "Ag
   const blockers = [
     { label: "Submitted for review", value: submitted, tone: "warning", detail: "Work waiting for teacher review" },
     { label: "Needs revision", value: revisionRequested, tone: "danger", detail: "Follow-up requested by reviewers" },
-    { label: "Archive packages queued", value: safeNumber(report.exportsQueued), tone: "admin", detail: "Closeout packages waiting to finish" },
+    { label: "Final-file packages queued", value: safeNumber(report.exportsQueued), tone: "admin", detail: "Closeout packages waiting to finish" },
   ].filter((row) => safeNumber(row.value) > 0);
   return `
     <section class="workspace-command-center workspace-readiness-dashboard" data-readiness-report="aggregate" aria-labelledby="readinessDashboardTitle">
@@ -7318,8 +7444,8 @@ function renderSiteReadinessDashboard(operationsBody = {}, readinessResult = nul
       ${renderDashboardKpis([
         { label: "Readiness score", value: dashboard.score === null ? "No data" : `${dashboard.score}/100`, detail: dashboard.scoreDetail, tone: dashboard.score !== null && dashboard.score < 70 ? "warning" : "mentor" },
         { label: "Ready signals", value: metricWithPercent(dashboard.readySignals, dashboard.total), detail: "Best available ready/complete count", tone: "mentor" },
-        { label: "Blocked/failed", value: dashboard.blockers.filter((row) => ["Archive failed", "Storage setup needed"].includes(row.label)).reduce((sum, row) => sum + safeNumber(row.value), 0), detail: "Archive failure and setup blockers", tone: "danger" },
-        { label: "Missing evidence", value: dashboard.blockers.find((row) => row.label === "Evidence missing")?.value || 0, detail: "Evidence or progress missing", tone: "warning" },
+        { label: "Blocked/failed", value: dashboard.blockers.filter((row) => ["final_files_failed", "archive_failed", "storage_setup_needed"].includes(normalizeStatus(row.label))).reduce((sum, row) => sum + safeNumber(row.value), 0), detail: "Final-file failure and setup blockers", tone: "danger" },
+        { label: "Missing proof", value: dashboard.blockers.find((row) => ["proof_missing", "evidence_missing"].includes(normalizeStatus(row.label)))?.value || 0, detail: "Proof or progress missing", tone: "warning" },
         { label: "Stale activity", value: dashboard.blockers.find((row) => row.label === "Stale activity")?.value || 0, detail: "No recent student progress", tone: "warning" },
       ], { label: "Readiness top summary", className: "workspace-readiness-kpis" })}
       <div class="workspace-dashboard-grid workspace-dashboard-grid-two workspace-dashboard-support-grid">
@@ -7386,6 +7512,8 @@ function renderAdminUsersSection() {
     return renderPermissionDeniedSection("Users & Access", "account provisioning records");
   }
   const canCreateGlobal = hasGlobalAdminRole(roles);
+  const authConfig = authConfigForUi();
+  const localAccountsOnly = !authConfig.googleSsoEnabled;
 
   return `
     <section class="workspace-card" data-admin-section="users">
@@ -7412,8 +7540,9 @@ function renderAdminUsersSection() {
               Sign-in method
               <select class="workspace-select" name="identityType" required>
                 <option value="local">Local account</option>
-                <option value="sso">SSO account</option>
+                ${localAccountsOnly ? "" : `<option value="sso">SSO account</option>`}
               </select>
+              <span class="workspace-muted">${escapeHtml(localAccountsOnly ? "Local accounts only. SSO is disabled for this setup." : "Choose Local account unless your school identity provider is ready.")}</span>
             </label>
           </div>
         </div>
@@ -7726,6 +7855,7 @@ function renderAdminAccessAssignmentPanel() {
       </div>
       ${renderApiNotice(result)}
       ${renderSiteAccessSafetyNote()}
+      ${renderSiteAccountManagementPanel(users, body.scope, permissions)}
       ${renderSiteAccessAssignmentSummary(users, programs, assignments, permissions)}
       ${renderSiteAccessAssignmentHistory(body.history, users, programs)}
       ${renderSiteAccessGuidanceDisclosure()}
@@ -7745,6 +7875,90 @@ function renderSiteAccessSafetyNote() {
     <article class="workspace-empty-state-card workspace-quiet-helper" data-site-access-safety-note="true">
       <strong>Access changes stay scoped to this school.</strong>
       <span>Assign grants or restores access. Remove records an access change for review and does not delete accounts, students, programs, or school records.</span>
+    </article>
+  `;
+}
+
+function renderSiteAccountManagementPanel(users = {}, scope = {}, permissions = {}) {
+  const accounts = siteAccountRows(users);
+  const canManage = canUseUsersAccess(roleIds(currentUser));
+  return `
+    <div class="workspace-assignment-summary" data-site-account-management="true">
+      <div>
+        <p class="workspace-kicker">Accounts at this school</p>
+        <h3>Active Accounts</h3>
+        <p class="workspace-muted">Remove archives this school membership. If the account has no other active school, sign-in is disabled and sessions are closed.</p>
+      </div>
+      ${accounts.length ? `
+        <div class="workspace-list">
+          ${accounts.map((account) => renderSiteAccountRow(account, scope, canManage && permissions.canAssignMentors !== false)).join("")}
+        </div>
+      ` : `
+        <article class="workspace-empty-state-card" data-site-account-empty="true">
+          <strong>No accounts are assigned to this school yet.</strong>
+          <p>Create local accounts above, then assign mentor, viewer, teacher, or administration access as needed.</p>
+        </article>
+      `}
+    </div>
+  `;
+}
+
+function siteAccountRows(users = {}) {
+  const groups = [
+    ["students", "Student"],
+    ["mentors", "Mentor"],
+    ["viewers", "Viewer"],
+    ["programTeachers", "Program Teacher"],
+    ["administration", "Administration"],
+    ["siteAdmins", "Site Admin"],
+  ];
+  const rows = [];
+  const seen = new Set();
+  for (const [key, label] of groups) {
+    const values = Array.isArray(users[key]) ? users[key] : [];
+    for (const user of values) {
+      const userId = user.userId || user.studentId || user.id || "";
+      if (!userId) continue;
+      const existing = rows.find((row) => row.userId === userId);
+      if (existing) {
+        if (!existing.roleLabels.includes(label)) existing.roleLabels.push(label);
+        continue;
+      }
+      if (seen.has(userId)) continue;
+      seen.add(userId);
+      rows.push({
+        userId,
+        displayName: user.displayName || user.studentName || user.email || userId,
+        email: user.email || "",
+        roleLabels: [label],
+      });
+    }
+  }
+  return rows.sort((left, right) => left.displayName.localeCompare(right.displayName));
+}
+
+function renderSiteAccountRow(account = {}, scope = {}, canManage = false) {
+  const isSelf = account.userId && currentUser?.id === account.userId;
+  return `
+    <article class="workspace-row" data-site-account-row="${escapeHtml(account.userId || "")}">
+      <div>
+        <strong>${escapeHtml(account.displayName || "Account")}</strong>
+        <p>${escapeHtml(account.email || "")}</p>
+        <p class="workspace-muted">${escapeHtml((account.roleLabels || []).join(", ") || "Assigned account")}</p>
+      </div>
+      <div class="workspace-row-actions">
+        ${statusPill("active")}
+      </div>
+      ${canManage && !isSelf ? `
+        <form class="workspace-inline-action-form" data-admin-account-remove-form="true" data-admin-account-id="${escapeHtml(account.userId || "")}">
+          <input type="hidden" name="siteId" value="${escapeHtml(scope.siteId || currentAccessSiteId())}">
+          <label class="workspace-label">
+            Admin note
+            <input class="workspace-input" name="adminNote" maxlength="500" required>
+          </label>
+          <button class="workspace-button workspace-button-secondary" type="submit">Remove account</button>
+        </form>
+      ` : `<span class="workspace-chip">${isSelf ? "Signed in" : "Managed"}</span>`}
     </article>
   `;
 }
@@ -8201,6 +8415,9 @@ function bindWorkspaceForms() {
   document.querySelectorAll("[data-site-access-assignment-form]").forEach((form) => {
     form.addEventListener("submit", submitSiteAccessAssignment);
   });
+  document.querySelectorAll("[data-admin-account-remove-form]").forEach((form) => {
+    form.addEventListener("submit", submitAdminAccountRemoval);
+  });
   document.querySelectorAll("[data-site-program-form]").forEach((form) => {
     form.addEventListener("submit", submitSiteProgramChange);
   });
@@ -8231,6 +8448,9 @@ function bindWorkspaceForms() {
     button.addEventListener("click", handleStudentSupportAction);
   });
   document.querySelector("#siteStudentFilterForm")?.addEventListener("submit", applySiteStudentFilters);
+  document.querySelectorAll("[data-site-student-remove-form]").forEach((form) => {
+    form.addEventListener("submit", submitSiteStudentRemoval);
+  });
   document.querySelectorAll("[data-site-student-action]").forEach((button) => {
     button.addEventListener("click", handleSiteStudentAction);
   });
@@ -8361,7 +8581,7 @@ function handleStudentRequirementAction(event) {
   }
   if (opening) requestStudentRequirementFocus(requirementId);
   activeSection = "student";
-  renderAppShell(opening ? "Requirement details opened." : "Requirement details closed.", "success");
+  renderAppShell(opening ? "Item details opened." : "Item details closed.", "success");
 }
 
 function handleStudentSupportAction(event) {
@@ -8482,7 +8702,7 @@ function focusEvidenceFormsForSubmission(submissionId) {
   pendingStudentEvidenceSubmissionId = normalizedSubmissionId;
   requestStudentSectionFocus("evidence");
   activeSection = "student";
-  renderAppShell("Evidence tools opened.", "success");
+  renderAppShell("Proof tools opened.", "success");
 }
 
 async function openStudentFeedbackHistory(submissionId, source = "feedback") {
@@ -8507,14 +8727,14 @@ async function openStudentFeedbackHistory(submissionId, source = "feedback") {
     loading: true,
   };
   activeSection = "student";
-  renderAppShell("Loading submission timeline...");
+  renderAppShell("Loading work timeline...");
   const historyResult = await settleApi(apiJson(`/api/reviews/${encodeURIComponent(selectedSubmissionId)}/history`));
   studentFeedbackHistoryState = {
     ...studentFeedbackHistoryState,
     loading: false,
     result: historyResult,
   };
-  renderAppShell(historyResult.ok ? "Submission timeline loaded." : "Submission timeline unavailable.", historyResult.ok ? "success" : "error");
+  renderAppShell(historyResult.ok ? "Work timeline loaded." : "Work timeline unavailable.", historyResult.ok ? "success" : "error");
 }
 
 async function applySiteStudentFilters(event) {
@@ -9415,13 +9635,13 @@ function renderPresentationSlotsEmptyState(totalSlots, activeFilter) {
 function renderArchiveSection() {
   const result = currentData.archiveReadiness;
   if (result?.status === 403) {
-    return renderPermissionDeniedSection("Archive readiness", "student archive records");
+    return renderPermissionDeniedSection("Final files", "student final-file records");
   }
   const body = unwrap(result);
   if (!body) {
     return `
       <section class="workspace-card workspace-error-card">
-        <h2>Archive readiness unavailable</h2>
+        <h2>Final files unavailable</h2>
         ${renderApiNotice(result)}
       </section>
     `;
@@ -9440,50 +9660,50 @@ function renderArchiveSection() {
     <section class="workspace-command-center workspace-archive-dashboard" data-archive-status="${escapeHtml(archive.status || "unknown")}" aria-labelledby="archiveDashboardTitle">
       <div class="workspace-command-hero">
         <div>
-          <p class="workspace-kicker">Closeout and archive</p>
-          <h1 id="archiveDashboardTitle">Archive</h1>
-          <p>${escapeHtml(archive.message || "Review closeout evidence, package status, storage readiness, and download windows.")}</p>
+          <p class="workspace-kicker">Final files</p>
+          <h1 id="archiveDashboardTitle">Download and Keep</h1>
+          <p>${escapeHtml(archive.message || "Before May 5, make sure your important Senior Project files can be downloaded and kept in your personal files.")}</p>
         </div>
         ${statusPill(summary.archiveAvailableToRequest ? "ready" : archive.status || "not_requested")}
       </div>
       ${renderDashboardKpis([
-        { label: "Archive ready", value: metricWithPercent(dashboard.readyChecks, dashboard.totalChecks), detail: "Closeout checks ready", tone: "mentor" },
+        { label: "Files ready", value: metricWithPercent(dashboard.readyChecks, dashboard.totalChecks), detail: "Final checks ready", tone: "mentor" },
         { label: "Needs action", value: metricWithPercent(dashboard.needsAction, dashboard.totalChecks), detail: "Checks still missing or blocked", tone: dashboard.needsAction ? "warning" : "mentor" },
         { label: "Package status", value: statusText(archive.status || "not_requested"), detail: downloadMessage, tone: archive.status === "failed" ? "danger" : "admin" },
-        { label: "Storage setup", value: storage.credentialsConfigured ? "Configured" : "Setup needed", detail: storage.credentialsConfigured ? "Archive storage is available" : "Storage must be configured before downloads are ready", tone: storage.credentialsConfigured ? "mentor" : "danger" },
+        { label: "Storage setup", value: storage.credentialsConfigured ? "Configured" : "Setup needed", detail: storage.credentialsConfigured ? "File storage is available" : "Storage must be configured before downloads are ready", tone: storage.credentialsConfigured ? "mentor" : "danger" },
         { label: "Download window", value: retention.downloadExpiresSoon ? "Expiring soon" : `${retention.downloadWindowDays || 14} days`, detail: retention.policyReviewRequired ? "Policy review needed" : "Current retention window", tone: retention.downloadExpiresSoon ? "warning" : "admin" },
-      ], { label: "Archive top summary", className: "workspace-archive-kpis" })}
+      ], { label: "Final files top summary", className: "workspace-archive-kpis" })}
       <div class="workspace-dashboard-grid workspace-dashboard-grid-two workspace-dashboard-support-grid">
-        ${renderReadinessScoreCard(dashboard.score, dashboard.totalChecks, "Archive readiness score", dashboard.totalChecks ? `${dashboard.readyChecks} of ${dashboard.totalChecks} closeout checks are ready.` : "No archive checks assigned yet.")}
-        ${renderDashboardCard("Archive distribution", "Checks, package, storage, and retention state", renderStackedDistribution(dashboard.distribution, "Archive status distribution"))}
+        ${renderReadinessScoreCard(dashboard.score, dashboard.totalChecks, "Final files readiness score", dashboard.totalChecks ? `${dashboard.readyChecks} of ${dashboard.totalChecks} final checks are ready.` : "No final-file checks assigned yet.")}
+        ${renderDashboardCard("Final files distribution", "Checks, package, storage, and download state", renderStackedDistribution(dashboard.distribution, "Final files status distribution"))}
       </div>
       ${renderStudentArchiveGuidance(body)}
       <section class="workspace-dashboard-card">
         <div class="workspace-card-head">
           <div>
-            <p class="workspace-kicker">Archive checklist</p>
-            <h2>Closeout Requirements</h2>
+            <p class="workspace-kicker">Final checklist</p>
+            <h2>What Still Needs Work</h2>
           </div>
           <span class="workspace-chip">${escapeHtml(body.source || "persisted rows")}</span>
         </div>
         ${renderApiNotice(result)}
         <div class="workspace-list workspace-archive-worklist">
-          ${checks.length ? checks.map(renderArchiveCheckRow).join("") : `<div class="workspace-empty">Archive checks will appear after closeout requirements are assigned.</div>`}
+          ${checks.length ? checks.map(renderArchiveCheckRow).join("") : `<div class="workspace-empty">Final-file checks will appear after your teacher adds them.</div>`}
         </div>
       </section>
       <section class="workspace-dashboard-card">
         <div class="workspace-card-head">
           <div>
             <p class="workspace-kicker">Storage</p>
-            <h2>Archive Download</h2>
+            <h2>Download</h2>
           </div>
           ${statusPill(storage.credentialsConfigured ? "configured" : "provider_unavailable")}
         </div>
         <div class="workspace-worklist workspace-archive-status-worklist">
-          ${renderArchiveStatusRow("Download status", downloadMessage, archive.status || "not_requested", scopedDownloadReady && archive.downloadUrl ? `<a class="workspace-link-button workspace-link-button-small" data-archive-download="manifest" href="${escapeHtml(archive.downloadUrl)}">Download archive manifest</a>` : "")}
+          ${renderArchiveStatusRow("Download status", downloadMessage, archive.status || "not_requested", scopedDownloadReady && archive.downloadUrl ? `<a class="workspace-link-button workspace-link-button-small" data-archive-download="manifest" href="${escapeHtml(archive.downloadUrl)}">Download file list</a>` : "")}
           ${renderArchiveStatusRow("Privacy guard", "Private file details stay hidden from this workspace.", storage.storageIdentifiersRedacted ? "ready" : "needs_review")}
-          ${renderArchiveStatusRow("Archive package file", drivePackageStatus === "ready" ? "Archive package file is stored for protected download." : "Archive package file will appear after staff prepares it and storage is ready.", drivePackageStatus, "", `data-archive-drive-package="${escapeHtml(drivePackageStatus)}"`)}
-          ${renderArchiveStatusRow("Retention window", retention.policyReviewRequired ? "Retention policy needs school review before archive packages are used broadly." : `Archive downloads stay available for ${retention.downloadWindowDays || 14} days.`, retention.downloadExpiresSoon ? "expiring_soon" : retention.policyStatus || "policy_review_required", "", `data-archive-retention-status="${escapeHtml(retention.policyStatus || "unknown")}"`)}
+          ${renderArchiveStatusRow("Final file package", drivePackageStatus === "ready" ? "Final file package is stored for protected download." : "Final file package will appear after staff prepares it and storage is ready.", drivePackageStatus, "", `data-archive-drive-package="${escapeHtml(drivePackageStatus)}"`)}
+          ${renderArchiveStatusRow("Download window", retention.policyReviewRequired ? "School download policy still needs review." : `Downloads stay available for ${retention.downloadWindowDays || 14} days.`, retention.downloadExpiresSoon ? "expiring_soon" : retention.policyStatus || "policy_review_required", "", `data-archive-retention-status="${escapeHtml(retention.policyStatus || "unknown")}"`)}
         </div>
       </section>
     </section>
@@ -9520,12 +9740,12 @@ function renderArchiveStatusRow(label, detail, status, actionHtml = "", extraAtt
   return `
     <article class="workspace-worklist-row" ${extraAttrs}>
       <div>
-        <span class="workspace-worklist-label">Archive item</span>
-        <strong>${escapeHtml(label || "Archive status")}</strong>
+        <span class="workspace-worklist-label">Final files item</span>
+        <strong>${escapeHtml(label || "Final files status")}</strong>
       </div>
       <div>
         <span class="workspace-worklist-label">Context</span>
-        <span>${escapeHtml(detail || "Review archive status.")}</span>
+        <span>${escapeHtml(detail || "Review final files status.")}</span>
       </div>
       <div>
         <span class="workspace-worklist-label">Status</span>
@@ -9541,19 +9761,19 @@ function renderArchiveStatusRow(label, detail, status, actionHtml = "", extraAtt
 function studentArchiveDownloadStatusCopy(archive = {}, storage = {}) {
   const archiveStatus = String(archive.status || "not_requested");
   const scopedDownloadReady = Boolean(archive.scopedDownloadReady || archive.signedDownloadReady);
-  if (archive.downloadExpired) return "The previous archive download window expired. Ask staff to generate a fresh package.";
+  if (archive.downloadExpired) return "The previous download window expired. Ask staff to generate a fresh package.";
   if (scopedDownloadReady) {
     return archive.downloadExpiresAt
-      ? `Your archive download is ready until ${formatDate(archive.downloadExpiresAt)}.`
-      : "Your archive download is ready.";
+      ? `Your download is ready until ${formatDate(archive.downloadExpiresAt)}.`
+      : "Your download is ready.";
   }
-  if (archive.downloadExpiresSoon) return "The archive download window is ending soon, but the download is not available in this view.";
-  if (archiveStatus === "queued" || archiveStatus === "running") return "Staff are preparing your archive package.";
-  if (archiveStatus === "failed") return "Archive package preparation needs staff follow-up.";
+  if (archive.downloadExpiresSoon) return "The download window is ending soon, but the download is not available in this view.";
+  if (archiveStatus === "queued" || archiveStatus === "running") return "Staff are preparing your final file package.";
+  if (archiveStatus === "failed") return "Final file package preparation needs staff follow-up.";
   if (storage.credentialsConfigured === false || (storage.providerStatus && storage.providerStatus !== "ready" && storage.providerStatus !== "configured")) {
-    return "Storage setup is needed before archive package downloads are ready.";
+    return "Storage setup is needed before downloads are ready.";
   }
-  return "Your archive download is not ready yet.";
+  return "Your download is not ready yet.";
 }
 
 function renderStudentArchiveGuidance(body) {
@@ -9562,7 +9782,7 @@ function renderStudentArchiveGuidance(body) {
     <section class="workspace-dashboard-card workspace-student-archive-guidance" data-archive-guidance="true" data-archive-guidance-status="${escapeHtml(guidance.status)}" aria-labelledby="studentArchiveGuidanceTitle">
       <div class="workspace-card-head">
         <div>
-          <p class="workspace-kicker">Archive next step</p>
+          <p class="workspace-kicker">Final files next step</p>
           <h2 id="studentArchiveGuidanceTitle">${escapeHtml(guidance.title)}</h2>
           <p>${escapeHtml(guidance.detail)}</p>
         </div>
@@ -9592,25 +9812,25 @@ function studentArchiveGuidance(body) {
   const totalChecks = safeNumber(summary.totalChecks || checks.length);
   const readyChecks = safeNumber(summary.readyChecks);
   const progressText = totalChecks
-    ? `${readyChecks} of ${totalChecks} closeout checks ready.`
-    : "Closeout checks will appear after they are assigned.";
+    ? `${readyChecks} of ${totalChecks} final checks ready.`
+    : "Final checks will appear after they are assigned.";
   const archiveStatus = String(archive.status || "not_requested");
   const scopedDownloadReady = Boolean(archive.scopedDownloadReady || archive.signedDownloadReady);
 
   if (archive.downloadExpired) {
     return {
       status: "expired",
-      title: "Ask for a fresh archive package",
+      title: "Ask for a fresh download",
       detail: "The previous download window expired. Ask your program teacher or administrator to generate a fresh package.",
       owner: "Staff support",
-      when: "No new evidence is needed unless a check below changed.",
+      when: "No new proof is needed unless a check below changed.",
     };
   }
 
   if (scopedDownloadReady) {
     return {
       status: "ready",
-      title: "Your archive package is ready",
+      title: "Your download is ready",
       detail: "Use the download link below before the window expires.",
       owner: "Your action",
       when: archive.downloadExpiresAt ? `Download by ${formatDate(archive.downloadExpiresAt)}.` : "Download when you are ready.",
@@ -9620,8 +9840,8 @@ function studentArchiveGuidance(body) {
   if (archiveStatus === "queued" || archiveStatus === "running") {
     return {
       status: archiveStatus,
-      title: "Staff are preparing your archive package",
-      detail: `${progressText} No extra upload is needed right now.`,
+      title: "Staff are preparing your final files",
+      detail: `${progressText} No extra file or link is needed right now.`,
       owner: "Staff support",
       when: "Check back after the package finishes.",
     };
@@ -9631,18 +9851,18 @@ function studentArchiveGuidance(body) {
   if (blockingCheck) {
     return {
       status: blockingCheck.status || "missing",
-      title: `Finish ${blockingCheck.label || "a closeout requirement"}`,
+      title: `Finish ${blockingCheck.label || "one final check"}`,
       detail: `${progressText} ${archiveGuidanceDetailForCheck(blockingCheck)}`,
       owner: blockingCheck.status === "attention_required" ? "Ask your program teacher" : "Your action",
-      when: `Evidence matched: ${safeNumber(blockingCheck.evidenceCount)}`,
+      when: `Proof matched: ${safeNumber(blockingCheck.evidenceCount)}`,
     };
   }
 
   if (archiveStatus === "failed") {
     return {
       status: "failed",
-      title: "Staff need to review your archive package",
-      detail: `${progressText} Archive package preparation did not finish. Your checklist can still be reviewed while staff follow up.`,
+      title: "Staff need to review your final files",
+      detail: `${progressText} Final file package preparation did not finish. Your checklist can still be reviewed while staff follow up.`,
       owner: "Staff support",
       when: "No retry action is needed from you right now.",
     };
@@ -9651,8 +9871,8 @@ function studentArchiveGuidance(body) {
   if (summary.archiveAvailableToRequest) {
     return {
       status: "ready",
-      title: "Closeout checks are ready",
-      detail: `${progressText} Ask your program teacher or administrator to generate your May 5 archive package.`,
+      title: "Final checks are ready",
+      detail: `${progressText} Ask your program teacher or administrator to prepare your May 5 download.`,
       owner: "Staff support",
       when: "Your checklist is ready for staff review.",
     };
@@ -9662,7 +9882,7 @@ function studentArchiveGuidance(body) {
     return {
       status: "provider_unavailable",
       title: "Staff setup is needed before download",
-      detail: `${progressText} Your checklist can still be reviewed, but archive package downloads are not ready yet.`,
+      detail: `${progressText} Your checklist can still be reviewed, but downloads are not ready yet.`,
       owner: "Staff support",
       when: "Keep finishing the checklist below.",
     };
@@ -9670,8 +9890,8 @@ function studentArchiveGuidance(body) {
 
   return {
     status: archiveStatus,
-    title: "Review your closeout checklist",
-    detail: `${progressText} Use the checklist below to see what is ready and what still needs evidence or teacher review.`,
+    title: "Review your final checklist",
+    detail: `${progressText} Use the checklist below to see what is ready and what still needs proof or teacher review.`,
     owner: "Your action",
     when: "Start with any check that is not ready.",
   };
@@ -9690,12 +9910,12 @@ function firstArchiveBlockingCheck(checks) {
 }
 
 function archiveGuidanceDetailForCheck(check) {
-  const message = check.message || "Review this archive requirement.";
+  const message = check.message || "Review this final check.";
   if (check.status === "attention_required") {
     return `${message} Ask your program teacher whether this applies to your project.`;
   }
   if (check.status === "in_progress") {
-    return `${message} Add or update evidence if your teacher asked for more.`;
+    return `${message} Add or update proof if your teacher asked for more.`;
   }
   return `${message} Add the missing work or ask your program teacher what to attach.`;
 }
@@ -9704,9 +9924,9 @@ function renderArchiveCheckRow(check) {
   return `
     <article class="workspace-row" data-archive-check="${escapeHtml(check.id)}" data-archive-check-status="${escapeHtml(check.status || "unknown")}">
       <div>
-        <strong>${escapeHtml(check.label || "Archive check")}</strong>
-        <p>${escapeHtml(check.message || "Review this archive requirement.")}</p>
-        <p class="workspace-muted">${escapeHtml(check.evidenceCount || 0)} evidence item${Number(check.evidenceCount || 0) === 1 ? "" : "s"} matched.</p>
+        <strong>${escapeHtml(check.label || "Final check")}</strong>
+        <p>${escapeHtml(check.message || "Review this final check.")}</p>
+        <p class="workspace-muted">${escapeHtml(check.evidenceCount || 0)} proof item${Number(check.evidenceCount || 0) === 1 ? "" : "s"} matched.</p>
       </div>
       ${statusPill(check.status)}
     </article>
@@ -9814,7 +10034,7 @@ async function attachEvidenceLink(event) {
       renderAppShell(messageForEvidenceError(body?.error, response.status), "error");
       return;
     }
-    await loadWorkspaceData("Evidence link attached. Your teacher can now review it.");
+    await loadWorkspaceData("Proof link attached. Your teacher can now review it.");
   } catch (error) {
     renderAppShell(messageForNetworkError(error), "error");
   } finally {
@@ -9853,7 +10073,7 @@ function handleUploadFileSelected(event) {
     updateUploadState({
       state: "idle",
       progress: 0,
-      message: "Choose a file to upload evidence.",
+      message: "Choose a file to upload as proof.",
       fileName: "",
       fileSize: 0,
       retryReady: false,
@@ -9939,12 +10159,12 @@ async function runEvidenceUploadAttempt(attempt, form) {
     updateUploadState({
       state: "complete",
       progress: 100,
-      message: "Your file was received and added to your evidence.",
+      message: "Your file was received and added to your proof.",
       fileName: attempt.file.name || "Selected file",
       fileSize: attempt.file.size || 0,
       retryReady: false,
     });
-    await loadWorkspaceData("Your file was received and added to your Capstone Project evidence.");
+    await loadWorkspaceData("Your file was received and added to your Senior Project proof.");
   } catch (error) {
     updateUploadState({
       state: "failed",
@@ -9979,7 +10199,7 @@ function formDataForUploadAttempt(attempt) {
 }
 
 function validateUploadAttempt(attempt) {
-  if (!attempt.submissionId) return "Choose the submission this file belongs to.";
+  if (!attempt.submissionId) return "Choose the work item this file belongs to.";
   if (!attempt.title.trim()) return "Add a short title for this file.";
   return validateWorkspaceUploadFile(attempt.file);
 }
@@ -10261,7 +10481,7 @@ function nextStepText() {
   const dashboard = unwrap(currentData.dashboard);
   if (dashboard?.nextAction) return dashboard.nextAction;
   const roles = roleIds(currentUser);
-  if (roles.has("site_admin")) return "Review site progress, student readiness, mentor coverage, presentation status, and archive signals available to this account.";
+  if (roles.has("site_admin")) return "Review site progress, student readiness, mentor coverage, presentation status, and final-file signals available to this account.";
   if (roles.has("administration")) return "Review assigned site students, readiness, presentation, and progress dashboards.";
   if (roles.has("org_admin")) return "Review assigned organization and site summaries available to this account.";
   if (hasGlobalAdminRole(roles)) return "Review platform setup and multisite readiness available to this account.";
@@ -10515,7 +10735,7 @@ function renderReviewQueueSummary(rows = [], options = {}) {
           <article class="workspace-row">
             <div>
               <strong>${escapeHtml(item.studentName || item.student_name || "Student")}</strong>
-              <p>${escapeHtml(item.requirementTitle || item.requirement_title || "Capstone Project submission")} / ${safeNumber(item.evidenceCount ?? item.evidence_count)} evidence</p>
+              <p>${escapeHtml(item.requirementTitle || item.requirement_title || "Senior Project work")} / ${safeNumber(item.evidenceCount ?? item.evidence_count)} proof item${safeNumber(item.evidenceCount ?? item.evidence_count) === 1 ? "" : "s"}</p>
             </div>
             <div class="workspace-row-actions">
               ${statusPill(item.status)}
@@ -10933,9 +11153,9 @@ function renderSubmissionRow(submission, feedback = [], historyState = defaultSt
   return `
     <article class="workspace-row workspace-student-submission-row" data-student-submission-row="${escapeHtml(submissionId || "true")}">
       <div>
-        <strong>${escapeHtml(submission.requirement_title || "Capstone Project submission")}</strong>
+        <strong>${escapeHtml(submission.requirement_title || "Senior Project work")}</strong>
         <p>Version ${escapeHtml(submission.version || 1)}. Updated ${escapeHtml(formatDate(submission.updated_at))}.</p>
-        ${latestFeedback ? `<p class="workspace-muted" data-submission-feedback="true">Latest teacher feedback: ${escapeHtml(latestFeedback.message || "Teacher feedback was recorded for this submission.")}</p>` : ""}
+        ${latestFeedback ? `<p class="workspace-muted" data-submission-feedback="true">Latest teacher feedback: ${escapeHtml(latestFeedback.message || "Teacher feedback was recorded for this work.")}</p>` : ""}
       </div>
       <div class="workspace-row-actions">
         ${submissionId ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-feedback-action="open-history" data-student-feedback-origin="submissions" data-student-feedback-submission-id="${escapeHtml(submissionId)}">${escapeHtml(isSelected ? "Refresh timeline" : "View timeline")}</button>` : ""}
@@ -10990,11 +11210,11 @@ function studentSubmissionFilterKey(value) {
 }
 
 function studentSubmissionFilterLabel(value) {
-  if (value === "draft") return "draft submissions";
-  if (value === "submitted") return "submitted work waiting for review";
+  if (value === "draft") return "draft work";
+  if (value === "submitted") return "work waiting for review";
   if (value === "revision_requested") return "work that needs revision";
-  if (value === "approved") return "approved submissions";
-  return "all submitted work";
+  if (value === "approved") return "approved work";
+  return "all work you sent in";
 }
 
 function filterStudentSubmissionRows(rows = [], filterKey = "all") {
@@ -11006,29 +11226,29 @@ function filterStudentSubmissionRows(rows = [], filterKey = "all") {
 
 function renderStudentSubmissionEmptyState(filterKey = "all", totalRows = 0) {
   if (!totalRows) {
-    return `<div class="workspace-empty">No submissions have been started yet.</div>`;
+    return `<div class="workspace-empty">No work has been started yet.</div>`;
   }
   const activeFilter = studentSubmissionFilterKey(filterKey);
   const copy = {
     draft: {
-      title: "No draft submissions are listed right now.",
-      detail: "Switch filters to review work waiting for feedback, revision work, or approved submissions.",
+      title: "No draft work is listed right now.",
+      detail: "Switch filters to review work waiting for feedback, work to fix, or approved work.",
     },
     submitted: {
       title: "No work is waiting for review right now.",
-      detail: "Switch filters to check drafts, revision work, or approved submissions.",
+      detail: "Switch filters to check drafts, work to fix, or approved work.",
     },
     revision_requested: {
-      title: "No revision work is listed right now.",
-      detail: "Switch filters to review drafts, waiting work, or approved submissions.",
+      title: "No work to fix is listed right now.",
+      detail: "Switch filters to review drafts, waiting work, or approved work.",
     },
     approved: {
-      title: "No approved submissions are listed yet.",
-      detail: "Approved work will appear here after your teacher marks submitted work complete.",
+      title: "No approved work is listed yet.",
+      detail: "Approved work will appear here after your teacher marks sent work complete.",
     },
     all: {
-      title: "No submissions have been started yet.",
-      detail: "Your submission history will appear here after you start project work.",
+      title: "No work has been started yet.",
+      detail: "Your work history will appear here after you start project work.",
     },
   };
   const selectedCopy = copy[activeFilter] || copy.all;
@@ -11052,8 +11272,8 @@ function renderEvidenceRow(item) {
   return `
     <article class="workspace-row">
       <div>
-        <strong>${escapeHtml(item.title || "Evidence")}</strong>
-        <p>${escapeHtml(evidenceSourceLabel(item.source_kind))} / ${escapeHtml(statusText(item.artifact_type || "evidence"))}</p>
+        <strong>${escapeHtml(item.title || "Proof item")}</strong>
+        <p>${escapeHtml(evidenceSourceLabel(item.source_kind))} / ${escapeHtml(statusText(item.artifact_type || "proof"))}</p>
         ${item.requirementTitle ? `<p class="workspace-muted">For ${escapeHtml(item.requirementTitle)}</p>` : ""}
       </div>
       <div class="workspace-row-actions">
@@ -11068,7 +11288,7 @@ function evidenceSourceLabel(value) {
   if (value === "google_drive_file") return "Uploaded file";
   if (value === "external_link") return "Linked work";
   if (value === "generated_export") return "Exported package";
-  return "Evidence";
+  return "Proof item";
 }
 
 function statusPill(status) {
@@ -11102,8 +11322,8 @@ function storyLabel(value) {
     awaiting_review: "Awaiting review",
     revision_requested: "Revision requested",
     presentation_pending: "Presentation pending",
-    archive_ready: "Archive ready",
-    archive_failed: "Archive failed",
+    archive_ready: "Final files ready",
+    archive_failed: "Final files failed",
     high_risk: "High risk",
     rich_timeline: "Rich timeline",
   };
@@ -11119,12 +11339,12 @@ function riskLabel(value) {
     low: "Low risk",
     stale: "Stale activity",
     no_mentor: "No mentor",
-    missing_evidence: "Missing evidence",
+    missing_evidence: "Missing proof",
     mentor_meeting: "Mentor meetings",
     awaiting_review: "Awaiting review",
     revision_requested: "Revision requested",
     presentation_pending: "Presentation pending",
-    archive_failed: "Archive failed",
+    archive_failed: "Final files failed",
   };
   const normalized = normalizeStatus(value);
   return labels[normalized] || statusText(value);
@@ -11137,11 +11357,11 @@ function riskExplanation(value) {
     low: "No urgent risk signal is active right now.",
     stale: "Recent activity has slowed and may need staff follow-up.",
     no_mentor: "No active mentor is assigned yet.",
-    missing_evidence: "Evidence still needs to be attached.",
+    missing_evidence: "Proof still needs to be attached.",
     awaiting_review: "Submitted work is still waiting for teacher review.",
     revision_requested: "Revision feedback is still open.",
     presentation_pending: "Presentation readiness is still incomplete.",
-    archive_failed: "Archive closeout hit a failure that needs staff review.",
+    archive_failed: "Final-file closeout hit a failure that needs staff review.",
   };
   const normalized = normalizeStatus(value);
   return labels[normalized] || `${riskLabel(value)} needs follow-up.`;
@@ -11149,9 +11369,9 @@ function riskExplanation(value) {
 
 function evidenceStatusFilterLabel(value) {
   const normalized = normalizeStatus(value);
-  if (normalized === "attached") return "Evidence attached";
-  if (normalized === "missing") return "Evidence missing";
-  return statusText(value || "Any evidence status");
+  if (normalized === "attached") return "Proof attached";
+  if (normalized === "missing") return "Proof missing";
+  return statusText(value || "Any proof status");
 }
 
 function reviewStatusFilterLabel(value) {
@@ -11169,7 +11389,7 @@ function progressStatusFilterLabel(value) {
   if (normalized === "on_track") return "On track";
   if (normalized === "behind") return "Behind / needs support";
   if (normalized === "missing_mentor") return "Missing mentor";
-  if (normalized === "missing_evidence") return "Missing evidence";
+  if (normalized === "missing_evidence") return "Missing proof";
   if (normalized === "needs_review") return "Needs review";
   if (normalized === "needs_revision") return "Needs revision";
   if (normalized === "mentor_meeting_follow_up") return "Mentor meeting follow-up";
@@ -11179,7 +11399,7 @@ function progressStatusFilterLabel(value) {
 
 function categoryLabel(value) {
   const labels = {
-    archive: "Archive",
+    archive: "Files",
     risk: "Risk",
     mentor: "Mentor coverage",
     review: "Review",
@@ -11213,6 +11433,331 @@ const ROLE_LABELS = {
 
 function roleLabel(roleId) {
   return ROLE_LABELS[roleId] || statusText(roleId);
+}
+
+const ROLE_PROFILE_ALIASES = {
+  platform_admin: "global_admin",
+  admin: "global_admin",
+};
+
+const ROLE_WORKING_PROFILES = {
+  student: {
+    title: "Student working profile",
+    job: "Finish your Senior Project one step at a time. Use this app to see your checklist, add proof, read feedback, prepare to present, and save your final files.",
+    see: [
+      "Your checklist, due dates, current phase, and next step.",
+      "Your sent work, proof, teacher feedback, mentor information, presentation status, and May 5 file-saving checks.",
+      "Only your own Senior Project work.",
+    ],
+    do: [
+      "Open the Student Workspace to follow the checklist and work on the next item.",
+      "Add proof with an upload or private link when your teacher asks for it.",
+      "Read feedback, fix work, send it again, prepare for presentation, and download final files by May 5.",
+    ],
+    limits: [
+      "You do not review other students.",
+      "You do not manage accounts, mentors, schedules for other people, or staff-only reports.",
+    ],
+    actions: [
+      { section: "student", label: "Open Student Workspace", detail: "Checklist, sent work, feedback, and proof." },
+      { section: "presentation", label: "Open Presentation", detail: "Schedule, outline, check-out, and check-in status." },
+      { section: "archive", label: "Open Final Files", detail: "May 5 download and file-saving checks." },
+      { section: "security", label: "Open Account", detail: "Password and session controls." },
+    ],
+  },
+  mentor: {
+    title: "Mentor working profile",
+    job: "Support the students assigned to you by checking their progress, meeting status, evidence, feedback needs, and presentation readiness.",
+    see: [
+      "Only students actively assigned to you.",
+      "Progress signals, proof counts, mentor meeting status, presentation status, and student detail context for assigned students.",
+      "Student records needed for mentoring, without account-management tools.",
+    ],
+    do: [
+      "Use Mentor Dashboard to find assigned students who need help first.",
+      "Open Assigned Students to review each student before meetings or presentation preparation.",
+      "Record mentor meeting notes where the workspace allows it.",
+    ],
+    limits: [
+      "You do not approve teacher review work.",
+      "You do not manage users, roles, mentor assignments, audit records, or school-wide settings.",
+    ],
+    actions: [
+      { section: "mentorDashboard", label: "Open Mentor Dashboard", detail: "Assigned-student risks and focus filters." },
+      { section: "mentor", label: "Open Assigned Students", detail: "Student cards and proof counts." },
+      { section: "presentation", label: "Open Presentation", detail: "Presentation status for assigned work." },
+      { section: "security", label: "Open Account", detail: "Password and session controls." },
+    ],
+  },
+  viewer: {
+    title: "Viewer working profile",
+    job: "Read assigned student records for context without changing student work, reviews, assignments, accounts, or school operations.",
+    see: [
+      "Only the student records assigned to you.",
+      "Student detail, progress signals, proof summaries, and status history that your assignment allows.",
+      "Read-only context for support conversations.",
+    ],
+    do: [
+      "Search assigned students and open the student detail page.",
+      "Review progress, feedback, proof counts, and readiness context.",
+      "Use the information to support students outside the app when appropriate.",
+    ],
+    limits: [
+      "You do not submit work, review work, approve work, manage mentors, change schedules, or manage accounts.",
+      "You do not see school-wide tools unless another assigned role grants them.",
+    ],
+    actions: [
+      { section: "students", label: "Open Students", detail: "Search assigned student records." },
+      { section: "security", label: "Open Account", detail: "Password and session controls." },
+    ],
+  },
+  program_teacher: {
+    title: "Program Teacher working profile",
+    job: "Guide students in your assigned program or cohort by reviewing submitted work, requesting revisions, approving ready work, and watching program-level blockers.",
+    see: [
+      "Students in your assigned program or cohort.",
+      "Review Queue, Program Dashboard, student detail, proof summaries, readiness signals, and presentation status.",
+      "Mentor coverage and operations signals for students in your scope.",
+    ],
+    do: [
+      "Use Program Dashboard to find the highest-priority students.",
+      "Use Review Queue to approve, request revision, or leave comment-only feedback where allowed.",
+      "Open student detail and operations views to coordinate follow-up with site staff.",
+    ],
+    limits: [
+      "You do not manage global security or platform setup.",
+      "You do not manage users unless another assigned role grants that access.",
+    ],
+    actions: [
+      { section: "programDashboard", label: "Open Program Dashboard", detail: "Program or cohort progress and blockers." },
+      { section: "teacher", label: "Open Review Queue", detail: "Submitted and revision-requested work." },
+      { section: "students", label: "Open Students", detail: "Student detail and scoped filters." },
+      { section: "operations", label: "Open Operations", detail: "Presentation, archive, and readiness blockers." },
+      { section: "presentation", label: "Open Presentation", detail: "Schedule, outline, and day-of status." },
+    ],
+  },
+  administration: {
+    title: "Administration working profile",
+    job: "Monitor assigned school progress in read-only mode so leadership can see student status, readiness, presentation needs, and closeout blockers.",
+    see: [
+      "Assigned school dashboard, student directory, operations readiness, presentation status, and aggregate readiness.",
+      "Student detail context for leadership follow-up.",
+      "Read-only school health and progress signals.",
+    ],
+    do: [
+      "Review the Site Dashboard for school-wide status.",
+      "Open Students, Operations, Presentation, and Readiness to find who needs staff follow-up.",
+      "Share clear follow-up needs with site staff who can take action.",
+    ],
+    limits: [
+      "You do not change reviews, sent work, mentor assignments, users, security, or final-file packages.",
+      "You do not use global platform tools.",
+    ],
+    actions: [
+      { section: "siteDashboard", label: "Open Site Dashboard", detail: "School-wide progress and needs." },
+      { section: "students", label: "Open Students", detail: "Read-only student directory." },
+      { section: "operations", label: "Open Operations", detail: "Presentation, final-file, and readiness blockers." },
+      { section: "presentation", label: "Open Presentation", detail: "Schedule and day-of status." },
+      { section: "readiness", label: "Open Readiness", detail: "Aggregate school readiness." },
+    ],
+  },
+  site_admin: {
+    title: "Site Admin working profile",
+    job: "Run the assigned school's capstone setup and operations: students, programs, mentor coverage, site access, readiness, presentations, and closeout follow-up.",
+    see: [
+      "Assigned school dashboards, student directory, review context, mentor coverage, operations readiness, presentation status, and site access records.",
+      "User and assignment tools limited to the assigned school.",
+      "Readiness and final-file signals needed for local follow-up.",
+    ],
+    do: [
+      "Choose the current school, review Site Dashboard, and open priority student records.",
+      "Manage site programs, site users, viewer access, mentors, and mentor assignments where allowed.",
+      "Coordinate presentation, final-file, and readiness follow-up for the school.",
+    ],
+    limits: [
+      "You do not manage every school unless assigned to them.",
+      "You do not create or remove Global Admin access.",
+    ],
+    actions: [
+      { section: "siteDashboard", label: "Open Site Dashboard", detail: "School-wide progress and needs." },
+      { section: "adminUsers", label: "Open Users & Access", detail: "Site users and role assignments." },
+      { section: "mentorAssignments", label: "Open Mentor Assignments", detail: "Coverage and assignment workflow." },
+      { section: "programs", label: "Open Programs", detail: "Programs active at the school." },
+      { section: "students", label: "Open Students", detail: "Student detail and filters." },
+      { section: "operations", label: "Open Operations", detail: "Readiness and closeout blockers." },
+    ],
+  },
+  org_admin: {
+    title: "Organization Admin working profile",
+    job: "Monitor assigned organization and school activity across the sites you can access, then route follow-up to the right site staff.",
+    see: [
+      "Assigned organization or site dashboards.",
+      "Student directory, review queue, mentor assignment view, and operations signals for accessible sites.",
+      "Cross-site context without global security control.",
+    ],
+    do: [
+      "Use the site switcher to choose the school you want to review.",
+      "Open dashboards, student lists, review queue, mentor coverage, and operations to compare needs across accessible sites.",
+      "Coordinate follow-up with site admins and program staff.",
+    ],
+    limits: [
+      "You do not manage platform-wide security or every school by default.",
+      "You do not create Global Admin access.",
+    ],
+    actions: [
+      { section: "siteDashboard", label: "Open Site Dashboard", detail: "Selected school progress and needs." },
+      { section: "students", label: "Open Students", detail: "Student directory for the selected site." },
+      { section: "teacher", label: "Open Review Queue", detail: "Review work visible at the selected site." },
+      { section: "mentorAssignments", label: "Open Mentor Assignments", detail: "Coverage and assignment view." },
+      { section: "operations", label: "Open Operations", detail: "Readiness and closeout blockers." },
+    ],
+  },
+  global_admin: {
+    title: "Global Admin working profile",
+    job: "Operate the full platform: all schools, users, site access, audit visibility, final-file export follow-up, readiness, and high-level workflow health.",
+    see: [
+      "All platform schools and the global command center.",
+      "Student directory, review queue, site dashboards, mentor coverage, operations, readiness, audit activity, and final-file export status.",
+      "User and access tools needed to keep the system running.",
+    ],
+    do: [
+      "Use Admin Command Center to watch platform risks and open the right worklist.",
+      "Manage users and access, inspect audit activity, and follow final-file export failures.",
+      "Use the site switcher to review one school at a time when a route needs site context.",
+    ],
+    limits: [
+      "Use global access carefully because it can affect every school.",
+      "Keep student records scoped to real operational need.",
+    ],
+    actions: [
+      { section: "adminDashboard", label: "Open Command Center", detail: "Platform risks and quick actions." },
+      { section: "siteDashboard", label: "Open Site Dashboard", detail: "Selected school progress and needs." },
+      { section: "adminUsers", label: "Open Users & Access", detail: "Create users and manage access." },
+      { section: "audit", label: "Open Audit", detail: "Protected activity review." },
+      { section: "archiveExports", label: "Open Final Files", detail: "Closeout package status." },
+      { section: "readiness", label: "Open Readiness", detail: "Aggregate readiness reports." },
+    ],
+  },
+  misc_admin: {
+    title: "Legacy Reporting Admin working profile",
+    job: "Review aggregate readiness reporting without opening individual student records or changing operational data.",
+    see: [
+      "Aggregate readiness signals available to the legacy reporting role.",
+      "Summary counts and high-level readiness status.",
+      "Account settings for your own sign-in.",
+    ],
+    do: [
+      "Open Readiness to review aggregate project status.",
+      "Share summary follow-up needs with authorized school staff.",
+    ],
+    limits: [
+      "You do not open individual student records.",
+      "You do not manage users, reviews, mentor assignments, presentation operations, audit activity, or final-file packages.",
+    ],
+    actions: [
+      { section: "readiness", label: "Open Readiness", detail: "Aggregate project readiness." },
+      { section: "security", label: "Open Account", detail: "Password and session controls." },
+    ],
+  },
+  role_pending: {
+    title: "Role pending profile",
+    job: "Wait for the project coordinator or site administrator to assign the correct workspace role before using protected project tools.",
+    see: [
+      "Your signed-in account state.",
+      "The account page for password and session controls.",
+    ],
+    do: [
+      "Ask the project coordinator or site administrator to assign the right role.",
+      "Refresh the workspace after access is assigned.",
+    ],
+    limits: [
+      "You cannot open student, staff, site, review, mentor, readiness, or admin work until a role is assigned.",
+    ],
+    actions: [
+      { section: "security", label: "Open Account", detail: "Password and session controls." },
+    ],
+  },
+};
+
+function roleProfileKey(roleId) {
+  const normalized = normalizeStatus(roleId || "role_pending");
+  return ROLE_PROFILE_ALIASES[normalized] || normalized;
+}
+
+function workingProfileForRole(roleId) {
+  return ROLE_WORKING_PROFILES[roleProfileKey(roleId)] || ROLE_WORKING_PROFILES.role_pending;
+}
+
+function renderRoleProfileSection(options = {}) {
+  const primaryRole = primaryRoleForUser(currentUser);
+  const profileKey = roleProfileKey(primaryRole);
+  const profile = workingProfileForRole(primaryRole);
+  const compact = Boolean(options.compact);
+  const titleId = compact ? "roleProfileOverviewTitle" : "roleProfileTitle";
+  return `
+    <section class="workspace-role-profile" data-role-profile="${escapeHtml(primaryRole)}" data-role-profile-key="${escapeHtml(profileKey)}" aria-labelledby="${escapeHtml(titleId)}">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">${compact ? "Working profile" : "Role profile"}</p>
+          <h2 id="${escapeHtml(titleId)}">${escapeHtml(profile.title)}</h2>
+          <p class="workspace-muted">${escapeHtml(profile.job)}</p>
+        </div>
+        <span class="workspace-site-context-badge">${escapeHtml(roleLabel(primaryRole))}</span>
+      </div>
+      <div class="workspace-role-profile-grid">
+        ${renderRoleProfileBlock("What you can see", profile.see)}
+        ${renderRoleProfileBlock("What you do here", profile.do)}
+        ${renderRoleProfileBlock("What stays out of this role", profile.limits)}
+      </div>
+      ${renderRoleProfileActions(profile.actions)}
+      ${compact ? "" : renderRoleProfileScopeSummary()}
+    </section>
+  `;
+}
+
+function renderRoleProfileBlock(title, items = []) {
+  return `
+    <article class="workspace-role-profile-block">
+      <h3>${escapeHtml(title)}</h3>
+      <ul>
+        ${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+      </ul>
+    </article>
+  `;
+}
+
+function renderRoleProfileActions(actions = []) {
+  const sectionIds = availableSectionIds();
+  const visibleActions = actions.filter((action) => action.section && sectionIds.has(action.section));
+  if (!visibleActions.length) {
+    return `
+      <div class="workspace-empty" data-role-profile-actions="none">
+        No workspace sections are open for this role yet. Ask the project coordinator to confirm access.
+      </div>
+    `;
+  }
+  return `
+    <div class="workspace-role-profile-actions" data-role-profile-actions="${escapeHtml(String(visibleActions.length))}">
+      ${visibleActions.map((action) => `
+        <button class="workspace-quick-action" type="button" data-section="${escapeHtml(action.section)}" data-profile-action-section="${escapeHtml(action.section)}">
+          <strong>${escapeHtml(action.label || "Open section")}</strong>
+          <span>${escapeHtml(action.detail || "Open this workspace section.")}</span>
+        </button>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderRoleProfileScopeSummary() {
+  const roles = currentUser?.roles || [];
+  return `
+    <section class="workspace-role-profile-scope" aria-label="Assigned access">
+      <p class="workspace-kicker">Assigned access</p>
+      <div class="workspace-chip-row">
+        ${roles.length ? roleChips(currentUser) : `<span class="workspace-chip">Role pending</span>`}
+      </div>
+    </section>
+  `;
 }
 
 function roleIds(user) {
@@ -11454,7 +11999,7 @@ async function handleWorkspaceUrlPopState() {
   }
   if (state.hasAdminArchiveExportState && currentUser && availableSectionIds().has("archiveExports")) {
     renderAppShell(adminArchiveExportFilter === "all"
-      ? "Archive / Exports link restored."
+      ? "Final Files link restored."
       : `${adminArchiveExportFilterLabel(adminArchiveExportFilter)} archive filter restored.`, "success");
     return;
   }
@@ -12292,7 +12837,7 @@ function updateAdminImportScopeFields() {
   if (!roleSelect || !identitySelect) return;
 
   const roleId = roleSelect.value;
-  const showSite = roleId === "administration" || roleId === "site_admin";
+  const showSite = roleId === "student" || roleId === "administration" || roleId === "site_admin";
   const showProgram = roleId === "program_teacher";
   const showStudent = roleId === "mentor" || roleId === "viewer";
   const showGlobal = roleId === "global_admin";
@@ -12338,6 +12883,9 @@ function buildAdminImportBody(form) {
   if ((roleId === "administration" || roleId === "site_admin") && siteIds.length === 0) {
     return { ok: false, message: "Choose at least one site for this role." };
   }
+  if (roleId === "student" && siteIds.length === 0) {
+    return { ok: false, message: "Choose at least one site for this student." };
+  }
   if (roleId === "program_teacher" && programIds.length === 0) {
     return { ok: false, message: "Choose at least one program for this Program Teacher." };
   }
@@ -12370,7 +12918,7 @@ function renderAdminAccessPreview(form) {
   if (!preview || !roleCopy) return;
 
   const copy = {
-    student: "Self only. Can view their own dashboard, work, evidence, feedback, and readiness.",
+    student: "Assigned school. Can view their own dashboard, work, evidence, feedback, and readiness.",
     mentor: "Assigned students only. Can view assigned student progress and feedback workflows.",
     viewer: "Assigned students only. Read-only.",
     program_teacher: "Assigned program. Can view all students in selected program records.",
@@ -12432,6 +12980,73 @@ async function submitSiteAccessAssignment(event) {
     }
     activeSection = "adminUsers";
     await loadWorkspaceData("Access assignment saved.");
+  } catch (error) {
+    renderAppShell(messageForNetworkError(error), "error");
+  } finally {
+    setFormBusy(form, false);
+    busy = false;
+  }
+}
+
+async function submitAdminAccountRemoval(event) {
+  event.preventDefault();
+  if (busy) return;
+  const form = event.currentTarget;
+  const userId = cleanDirectoryFilter(form?.dataset?.adminAccountId || "");
+  const body = Object.fromEntries(new FormData(form).entries());
+  if (!userId || !String(body.adminNote || "").trim()) {
+    renderAppShell("Add the admin note before removing this account.", "error");
+    return;
+  }
+  busy = true;
+  setFormBusy(form, true);
+  try {
+    const response = await fetch(`/api/admin/users/${encodeURIComponent(userId)}`, {
+      method: "DELETE",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await safeJson(response);
+    if (!response.ok) {
+      renderAppShell(messageForAccountRemovalError(data?.error, response.status), "error");
+      return;
+    }
+    activeSection = "adminUsers";
+    await loadWorkspaceData(data?.disabled ? "Account removed and sign-in disabled." : "Account removed from this school.");
+  } catch (error) {
+    renderAppShell(messageForNetworkError(error), "error");
+  } finally {
+    setFormBusy(form, false);
+    busy = false;
+  }
+}
+
+async function submitSiteStudentRemoval(event) {
+  event.preventDefault();
+  if (busy) return;
+  const form = event.currentTarget;
+  const studentId = cleanDirectoryFilter(form?.dataset?.siteStudentId || "");
+  const body = Object.fromEntries(new FormData(form).entries());
+  if (!studentId || !String(body.adminNote || "").trim()) {
+    renderAppShell("Add the admin note before removing this student.", "error");
+    return;
+  }
+  busy = true;
+  setFormBusy(form, true);
+  try {
+    const response = await fetch(`/api/site/students/${encodeURIComponent(studentId)}`, {
+      method: "DELETE",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await safeJson(response);
+    if (!response.ok) {
+      renderAppShell(messageForStudentRemovalError(data?.error, response.status), "error");
+      return;
+    }
+    activeSection = "students";
+    siteStudentDetailState = defaultSiteStudentDetailState();
+    await loadWorkspaceData(data?.disabled ? "Student removed and sign-in disabled." : "Student removed from this school.");
   } catch (error) {
     renderAppShell(messageForNetworkError(error), "error");
   } finally {
@@ -12522,8 +13137,9 @@ function messageForChangePasswordError(error, status) {
 function messageForAdminImportError(error, status) {
   if (status === 401) return "Sign in again before creating accounts.";
   if (error === "credential_delivery_policy_required") {
-    return "Real local-account creation is blocked until the credential delivery policy is approved. Use SSO or the approved proof account flow.";
+    return "Local-account creation is not enabled for this environment yet.";
   }
+  if (error === "sso_disabled") return "SSO is disabled for this setup. Choose Local account.";
   if (status === 403) return "This account cannot create or change that access.";
   if (error === "missing_admin_note" || error === "missing_reason") return "Add the admin note for this change.";
   if (error === "invalid_user") return "Check the email, name, role, sign-in method, and access before creating the account.";
@@ -12532,10 +13148,29 @@ function messageForAdminImportError(error, status) {
   if (error === "program_not_found") return "That program was not found for the selected site.";
   if (error === "site_not_found") return "That site was not found.";
   if (error === "student_not_found") return "That student was not found.";
+  if (error === "student_requires_site_assignment") return "Choose at least one site for this student.";
   if (error === "global_admin_requires_local_account") return "Global Admin must use a local login so platform access is still available if SSO is unavailable.";
   if (error === "last_active_local_global_admin") return "At least one active local Global Admin must remain.";
   if (error === "too_many_users") return "Create fewer accounts in one request.";
   return "Account creation is unavailable right now. Check the details and try again.";
+}
+
+function messageForAccountRemovalError(error, status) {
+  if (status === 401) return "Sign in again before removing accounts.";
+  if (error === "missing_admin_note") return "Add the admin note before removing this account.";
+  if (error === "cannot_remove_self") return "You cannot remove the account you are currently using.";
+  if (error === "last_active_local_global_admin") return "At least one active local Global Admin must remain.";
+  if (error === "user_not_in_site" || error === "user_not_found" || status === 404) return "That account is not active in this school.";
+  if (status === 403) return "This account cannot remove that user.";
+  return "Account removal could not be saved right now.";
+}
+
+function messageForStudentRemovalError(error, status) {
+  if (status === 401) return "Sign in again before removing students.";
+  if (error === "missing_admin_note") return "Add the admin note before removing this student.";
+  if (error === "student_not_found" || status === 404) return "That student is not active in this school.";
+  if (status === 403) return "This account cannot remove students for that school.";
+  return "Student removal could not be saved right now.";
 }
 
 function messageForSiteProgramError(error, status) {
@@ -12589,25 +13224,25 @@ function workspaceStateForAuthError(error) {
 }
 
 function messageForEvidenceError(error, status) {
-  if (error === "invalid_https_evidence_url") return "Use a full HTTPS link for evidence, beginning with https://.";
-  if (error === "missing_submission_id" || status === 404) return "We could not find that submission. Refresh and try again.";
-  if (status === 403) return "This account does not have permission to add evidence to that submission.";
-  if (status === 401) return "Sign in again before adding evidence.";
-  return "We could not attach that evidence link. Check the information and try again.";
+  if (error === "invalid_https_evidence_url") return "Use a full HTTPS link for your proof, beginning with https://.";
+  if (error === "missing_submission_id" || status === 404) return "We could not find that work. Refresh and try again.";
+  if (status === 403) return "This account cannot add proof to that work.";
+  if (status === 401) return "Sign in again before adding proof.";
+  return "We could not attach that proof link. Check the information and try again.";
 }
 
 function messageForStudentSubmissionError(error, status) {
-  if (error === "submission_missing_evidence") return "Attach evidence before sending this work for teacher review.";
+  if (error === "submission_missing_evidence") return "Add proof before sending this work for teacher review.";
   if (error === "submission_not_submittable" || status === 409) return "This work is not ready to send right now.";
-  if (error === "missing_submission_id" || status === 404) return "We could not find that submission. Refresh and try again.";
-  if (status === 403) return "This account cannot send that submission for review.";
+  if (error === "missing_submission_id" || status === 404) return "We could not find that work. Refresh and try again.";
+  if (status === 403) return "This account cannot send that work for review.";
   if (status === 401) return "Sign in again before sending work for review.";
   return "We could not send this work for review. Try again or ask your program teacher for help.";
 }
 
 function messageForUploadError(error, status) {
   if (error === "drive_config_missing" || error === "drive_credentials_missing" || status === 503) {
-    return "We could not upload this file yet because storage is not configured for this environment. Try an evidence link or contact your instructor.";
+    return "We could not upload this file yet because file storage is not ready here. Try a proof link or contact your instructor.";
   }
   if (error === "missing_file") return "Choose a file before uploading.";
   if (error === "empty_file") return "The selected file is empty. Choose a file with content and try again.";
@@ -12616,8 +13251,8 @@ function messageForUploadError(error, status) {
   if (error === "drive_token_exchange_failed" || error === "drive_provider_error" || error === "drive_upload_failed" || status === 502) {
     return "The storage provider could not receive the file. Try again or contact your instructor.";
   }
-  if (status === 403) return "This account does not have permission to upload for that submission.";
-  if (status === 401) return "Sign in again before uploading evidence.";
+  if (status === 403) return "This account cannot upload for that work.";
+  if (status === 401) return "Sign in again before uploading proof.";
   return "We could not upload this file. Try again or contact your instructor.";
 }
 

@@ -77,7 +77,7 @@ test("public site exposes Student and Teacher guide modes without treating them 
   assert.match(appJs, /student check-out\/check-in/);
   assert.match(appJs, /first 10 minutes in class rule/);
   assert.match(appJs, /paper rubric option/);
-  assert.match(appJs, /May 5 archive\/download copy/);
+  assert.match(appJs, /By May 5, download and keep important Senior Project files/);
   assert.match(appJs, /not login, permission, or a private workflow/);
 });
 
@@ -88,13 +88,13 @@ test("public guide home exposes no-hidden-core-content route coverage", () => {
   assert.match(appJs, /const noHiddenCoreContentRoutes = \[/);
   for (const phrase of [
     "Plan the right project",
-    "Build with evidence",
+    "Build and prove",
     "Prepare to present",
-    "Finish and archive",
+    "Finish and keep",
     "Requirements, program expectations, due windows",
     "Meeting duties, missed-meeting follow-up",
     "paper-rubric option",
-    "May 5 archive reminder"
+    "May 5 download reminder"
   ]) {
     assert.match(appJs, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }

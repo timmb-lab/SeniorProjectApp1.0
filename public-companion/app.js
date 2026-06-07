@@ -6,7 +6,7 @@ const phases = [
     time: "Before Phase 1",
     pages: "1-3",
     summary:
-      "Start by understanding why the Senior Capstone exists, where official updates live, and how your program teacher will shape the project requirements for your CTE pathway.",
+      "Start by understanding why the Senior Capstone exists, where official updates live, and how your program teacher will shape the required Senior Project work for your CTE pathway.",
     goal:
       "By the end of this stop, you should know where to check for official updates, who your primary adult guide is, whether your project is individual or group-based, and what kind of project evidence your program expects.",
     quickStart: [
@@ -59,7 +59,7 @@ const phases = [
       "This guide: keeps the steps, page references, templates, and student reminders in one place."
     ],
     bookletConnection:
-      "Page 1 points students to Senior Remind and the class website. Pages 2-3 explain that each career path is unique and that the senior program teacher provides the essential project requirements.",
+      "Page 1 points students to Senior Remind and the class website. Pages 2-3 explain that each career path is unique and that the senior program teacher provides the essential Senior Project work.",
     templates: ["Project Idea Notes", "Program Requirement Notes", "Core Concept Proposal"]
   },
   {
@@ -827,17 +827,17 @@ const guideModes = {
       {
         title: "Build And Prove",
         items: [
-          "Keep the Senior Project Folder, linked document, resume, due dates, and evidence artifacts current.",
+          "Keep the Senior Project folder, linked document, resume, due dates, and proof current.",
           "Prepare Mentor Meeting 1, Mentor Meeting 2, and the presentation outline before the due windows.",
-          "Track Presentation Day, Celebration Day, ingredient lists for food items, and required audience/display evidence."
+          "Track Presentation Day, Celebration Day, ingredient lists for food items, and proof for your audience or display."
         ]
       },
       {
-        title: "Finish And Archive",
+        title: "Finish And Keep",
         items: [
           "Complete thank-you work, including handwritten notes and the required mentor note.",
-          "Finish reflections, portfolio minimum or maximum path, rubric checks, grade-location reminders, and special recognition evidence.",
-          "Save the May 5 archive/download copy before school account access changes."
+          "Finish reflections, portfolio path, rubric checks, grade-location reminders, and special recognition proof.",
+          "By May 5, download and keep important Senior Project files before school account access changes."
         ]
       }
     ]
@@ -875,7 +875,7 @@ const guideModes = {
         items: [
           "Support reflection and portfolio week by checking the five reflection expectations and required final artifacts.",
           "Use rubric evidence to decide what is approved, what needs revision, and what is ready for recognition.",
-          "Help students preserve final work for archive/export without moving private evidence into public pages."
+          "Help students preserve final work for final-file export without moving private proof into public pages."
         ]
       }
     ]
@@ -941,8 +941,8 @@ const noHiddenCoreContentRoutes = [
     ]
   },
   {
-    title: "Build with evidence",
-    student: "Phase work, supplies, vision checks, drafts, artifacts, and evidence to save.",
+    title: "Build and prove",
+    student: "Phase work, supplies, vision checks, drafts, and proof to save.",
     teacher: "Places to redirect students when work is vague, under-scoped, or missing proof.",
     links: [
       ["Phase 1", "phase-1.html"],
@@ -964,9 +964,9 @@ const noHiddenCoreContentRoutes = [
     ]
   },
   {
-    title: "Finish and archive",
-    student: "Celebration display, gratitude, reflections, portfolio path, grades, and May 5 archive reminder.",
-    teacher: "Rubric checks, paper-rubric option, portfolio week support, recognition, and final evidence expectations.",
+    title: "Finish and keep",
+    student: "Celebration display, gratitude, reflections, portfolio path, grades, and May 5 download reminder.",
+    teacher: "Rubric checks, paper-rubric option, portfolio week support, recognition, and final proof expectations.",
     links: [
       ["Celebration", "celebrate.html"],
       ["Portfolio", "portfolio.html"],
@@ -1705,7 +1705,7 @@ const curriculumSupports = {
     support: {
       stuck: "Make three labels first: problem or goal, process, final result.",
       onTrack: "Use the 30-second visitor test before Celebration Day.",
-      mastery: "Add evidence of testing, revision, impact, or professional-level skill."
+      mastery: "Add proof of testing, revision, impact, or professional-level skill."
     },
     checks: [
       "Stand six feet away. Can the title, sequence, and main evidence still be read?",
@@ -2089,16 +2089,16 @@ const resourcePages = {
     summary:
       "Keep the project focused, realistic, and visible as the first big build stretch begins.",
     appTie:
-      "The app should make this visible through milestones, blockers, progress notes, status history, and evidence artifacts.",
+      "The app should make this visible through milestones, blockers, progress notes, status history, and proof records.",
     actions: [
       "Rewrite the project goal in one sentence before every major work session.",
       "Choose the next visible proof: sketch, prototype, recipe test, code screen, interview, photo, draft, or log.",
       "Use check-ins to name what changed, what is blocked, and what support is needed.",
-      "Remove features that make the project bigger without making the CTE evidence stronger."
+      "Remove features that make the project bigger without making the CTE proof stronger."
     ],
     teacherMoves: [
       "Listen for scope creep and help students cut features that do not strengthen the required evidence.",
-      "Ask for the next visible proof when a student describes progress without artifacts.",
+      "Ask for the next visible proof when a student describes progress without examples of the work.",
       "Use check-ins to separate normal confusion from blockers that need adult support."
     ],
     cards: [
@@ -2317,7 +2317,7 @@ const productPreviewRoles = [
   {
     id: "student",
     label: "Student",
-    scope: "Own workspace, own submissions, visible feedback, private evidence.",
+    scope: "Own workspace, own sent work, visible feedback, private proof.",
     nav: ["My Progress", "Submit Work", "Feedback", "Deadlines", "Portfolio", "Resources"]
   },
   {
@@ -2363,7 +2363,7 @@ const productMetrics = {
     { value: "486", label: "Cohort records", detail: "Sample operational student records.", tone: "blue" },
     { value: "27", label: "Missing mentors", detail: "Assignment gaps before Phase 2B.", tone: "amber" },
     { value: "11", label: "Provisioning issues", detail: "Accounts or roles need correction.", tone: "red" },
-    { value: "4", label: "Exports queued", detail: "Archive packages awaiting generation.", tone: "teal" }
+    { value: "4", label: "Exports queued", detail: "Final-file packages awaiting generation.", tone: "teal" }
   ]
 };
 
@@ -2473,7 +2473,7 @@ const programHealthRows = [
 
 const auditEvents = [
   { action: "Role assignment changed", actor: "Admin", scope: "Program teacher -> IT cohort", status: "Overridden" },
-  { action: "Private evidence reviewed", actor: "Program teacher", scope: "Assigned student only", status: "Approved" },
+  { action: "Private proof reviewed", actor: "Program teacher", scope: "Assigned student only", status: "Approved" },
   { action: "Revision requested", actor: "Program teacher", scope: "Proposal v2", status: "Revision requested" },
   { action: "Export package queued", actor: "Admin", scope: "Student archive", status: "Under review" }
 ];
@@ -3305,7 +3305,7 @@ function supportCardHtml([title, body, href]) {
 
 function supportCardsHtml() {
   return [
-    ["Capstone Project Workspace", "Sign in to review project status, submit evidence, and follow feedback.", workspaceHref],
+    ["Capstone Project Workspace", "Sign in to review project status, add proof, send work, and follow feedback.", workspaceHref],
     ["Sponsorship Support", "Plan donations, outside help, approvals, and thank-you evidence.", "sponsorship-support.html"],
     ["Calendar", "See the year as proposal, build, mentor, presentation, showcase, and portfolio windows.", "calendar.html"],
     ["Gathering Supplies", "Make materials, tools, safety, cost, and fallback plans visible.", "gathering-supplies.html"],
@@ -3467,7 +3467,7 @@ function syncBlueprintHtml() {
         <p class="eyebrow">Secure app</p>
         <h2>Track The Work</h2>
         ${listHtml([
-          "Private evidence, uploads, revision history, and status changes.",
+          "Private proof, uploads, revision history, and status changes.",
           "Teacher review queues, mentor assignments, and role-aware dashboards.",
           "Protected actions, permissions, and operational reporting."
         ])}
@@ -3919,7 +3919,7 @@ function studentRolePanelHtml() {
       </div>
       <section class="product-preview-card">
         <div class="section-subhead">
-          <p class="eyebrow">Private evidence</p>
+          <p class="eyebrow">Private proof</p>
           <h3>Uploads, Links, And Staff Notes</h3>
         </div>
         ${evidenceRowsHtml()}
@@ -4075,7 +4075,7 @@ function renderAppPreviewPage(root) {
       eyebrow: "Workspace workflow guide",
       title: "How The Signed-In Workspace Works",
       summary:
-        "A public guide to the signed-in workflow for students, mentors, program teachers, and admins. It explains how private evidence, review decisions, revision loops, dashboards, and protected activity fit together; real student records stay inside the Capstone Project Workspace."
+        "A public guide to the signed-in workflow for students, mentors, program teachers, and admins. It explains how private proof, review decisions, revision loops, dashboards, and protected activity fit together; real student records stay inside the Capstone Project Workspace."
     })}
     <section class="section section-tight">
       <div class="product-preview-shell">

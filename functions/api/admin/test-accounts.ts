@@ -144,7 +144,7 @@ async function seedAlphaAssignments(env: Env): Promise<void> {
      VALUES (
        'req-proposal-draft',
        NULL,
-       'proposal-and-research',
+       'phase-1',
        'Senior Project Proposal Draft',
        'Student drafts proposal in the app or uploads a proposal document.',
        1,
@@ -165,7 +165,7 @@ async function seedAlphaAssignments(env: Env): Promise<void> {
        'progress-alpha-maya-proposal',
        'test_user_student_maya',
        'req-proposal-draft',
-       'proposal-and-research',
+        'phase-1',
        'in_progress',
        'test_user_student_maya'
      )

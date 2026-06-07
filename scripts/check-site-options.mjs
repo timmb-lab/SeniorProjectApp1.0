@@ -24,12 +24,12 @@ const publicCompanion = {
 const retiredOptions = [
   {
     label: "retired Titan Blend option",
-    dir: "stakeholder-options/titan-blend",
+    dir: "old/stakeholder-options/titan-blend",
     bannerPattern: /Stakeholder review option\. Not the canonical production site or app\./i,
   },
   {
     label: "retired Back To Basics option",
-    dir: "stakeholder-options/back-to-basics",
+    dir: "old/stakeholder-options/back-to-basics",
     bannerPattern: /Stakeholder review option\. Not the canonical production site or app\./i,
   },
 ];

@@ -133,7 +133,7 @@ function stripJsonComments(text) {
 }
 
 function classifyPath(relativePath) {
-  if (relativePath.startsWith("stakeholder-options/titan-blend/")) {
+  if (relativePath.startsWith("old/stakeholder-options/titan-blend/")) {
     return {
       classification: "retired-stakeholder-option",
       deployProject: "senior-capstone-option-titan",
@@ -141,7 +141,7 @@ function classifyPath(relativePath) {
       reason: "Retired stakeholder option kept only as historical review output; not an active deploy target.",
     };
   }
-  if (relativePath.startsWith("stakeholder-options/back-to-basics/")) {
+  if (relativePath.startsWith("old/stakeholder-options/back-to-basics/")) {
     return {
       classification: "retired-stakeholder-option",
       deployProject: "senior-capstone-option-primary",
@@ -173,12 +173,12 @@ function classifyPath(relativePath) {
       reason: "Internal account smoke/QA surface.",
     };
   }
-  if (relativePath === "audit.html" || relativePath === "roadmap.html") {
+  if (relativePath === "old/legacy-redirects/audit.html" || relativePath === "old/legacy-redirects/roadmap.html") {
     return {
       classification: "legacy",
       deployProject: "senior-capstone-app",
-      productionSafe: "yes",
-      reason: "Legacy redirect to the public guide home.",
+      productionSafe: "historical-only",
+      reason: "Archived legacy redirect to the public guide home.",
     };
   }
   if (relativePath === "workspace.html") {
@@ -403,8 +403,9 @@ for (const file of allFiles.filter((entry) => entry.endsWith("wrangler.jsonc")))
 
 const generatedRows = [
   ["public-companion/", "scripts/build-public-site.mjs", "generated-output", "senior-capstone-public", "East Tech guide mirror"],
-  ["stakeholder-options/titan-blend/", "historical output retained; active build/deploy scripts retired", "retired-stakeholder-option", "senior-capstone-option-titan", "historical Titan direction source"],
-  ["stakeholder-options/back-to-basics/", "historical output retained; active build/deploy scripts retired", "retired-stakeholder-option", "senior-capstone-option-primary", "historical retired option"],
+  ["old/stakeholder-options/titan-blend/", "historical output archived; active build/deploy scripts retired", "retired-stakeholder-option", "senior-capstone-option-titan", "historical Titan direction source"],
+  ["old/stakeholder-options/back-to-basics/", "historical output archived; active build/deploy scripts retired", "retired-stakeholder-option", "senior-capstone-option-primary", "historical retired option"],
+  ["old/legacy-redirects/", "legacy root redirect shells archived", "legacy", "senior-capstone-app", "historical redirect reference"],
 ];
 
 const output = `# Production Route Inventory

@@ -70,36 +70,51 @@
   ],
   "phaseGroups": [
     {
-      "slug": "setup",
-      "title": "Setup and Senior Project Folder Replacement",
+      "slug": "start",
+      "title": "Start: Setup",
       "appTranslation": "Replace the copied linked-document folder workflow with a private student workspace that can hold uploads, links, drafts, reflections, and approved artifacts."
     },
     {
-      "slug": "proposal-and-research",
-      "title": "Proposal, Approval, and Research Challenge",
+      "slug": "phase-1",
+      "title": "Phase 1: Kickoff and Proposal",
       "appTranslation": "Guide students from problem selection through evidence, counterclaim, AI-supported revision, final proposal, and teacher approval."
     },
     {
-      "slug": "mentor-checkpoints",
-      "title": "Mentor Meetings and Presentation Readiness",
-      "appTranslation": "Track meeting prep, attendance, missed meetings, outline approval, next actions, and presentation scheduling."
+      "slug": "phase-2a",
+      "title": "Phase 2A: Build",
+      "appTranslation": "Track logistics, planning, check-ins, visible build evidence, and Mentor Meeting 1 preparation."
     },
     {
-      "slug": "presentation-and-celebration",
-      "title": "Presentation Day and Celebration Day",
-      "appTranslation": "Manage slides, schedule, check-out/check-in, presentation grading, celebration setup evidence, food ingredient requirements, photos, and rubrics."
+      "slug": "phase-2b",
+      "title": "Phase 2B: Build Part II",
+      "appTranslation": "Track Mentor Meeting 2, outline approval, presentation slot confirmation, and final preparation."
     },
     {
-      "slug": "reflection-and-archive",
-      "title": "Reflections, Portfolio, and Personal Archive",
-      "appTranslation": "Collect final reflections, best-work evidence, next-year planning, thank-you evidence, export packages, and personal download reminders."
+      "slug": "phase-3a",
+      "title": "Phase 3A: Present",
+      "appTranslation": "Manage slides, schedule, check-out/check-in, presentation grading, and presentation evidence."
+    },
+    {
+      "slug": "phase-3b",
+      "title": "Phase 3B: Celebrate",
+      "appTranslation": "Manage Celebration Day setup evidence, food ingredient requirements, photos, and rubrics."
+    },
+    {
+      "slug": "phase-4",
+      "title": "Phase 4: Give Thanks, Reflect, Launch",
+      "appTranslation": "Collect thank-you evidence, reflections, portfolio artifacts, and launch-ready student proof."
+    },
+    {
+      "slug": "finish",
+      "title": "Finish: Download and Keep",
+      "appTranslation": "Remind students to download and keep final Senior Project files before school account access ends."
     }
   ],
   "requirements": [
     {
       "slug": "senior-project-workspace",
       "title": "Senior Project Workspace",
-      "phaseGroup": "setup",
+      "phaseGroup": "start",
       "sourceDocuments": [
         "senior-project-cycle-linked-document",
         "senior-guide"
@@ -134,7 +149,7 @@
     {
       "slug": "resume",
       "title": "Resume",
-      "phaseGroup": "setup",
+      "phaseGroup": "start",
       "sourceDocuments": [
         "senior-project-cycle-linked-document",
         "senior-guide"
@@ -164,7 +179,7 @@
     {
       "slug": "proposal-draft",
       "title": "Senior Project Proposal Draft",
-      "phaseGroup": "proposal-and-research",
+      "phaseGroup": "phase-1",
       "sourceDocuments": [
         "senior-project-cycle-linked-document"
       ],
@@ -205,7 +220,7 @@
     {
       "slug": "approved-proposal",
       "title": "Senior Project Proposal - Approved",
-      "phaseGroup": "proposal-and-research",
+      "phaseGroup": "phase-1",
       "sourceDocuments": [
         "senior-project-cycle-linked-document",
         "senior-guide"
@@ -248,7 +263,7 @@
     {
       "slug": "research-proposal-challenge",
       "title": "Research Proposal Challenge",
-      "phaseGroup": "proposal-and-research",
+      "phaseGroup": "phase-1",
       "sourceDocuments": [
         "research-proposal-challenge",
         "senior-project-cycle-linked-document",
@@ -362,7 +377,7 @@
     {
       "slug": "mentor-meeting-one-plan",
       "title": "Mentor Meeting One Plan of Action",
-      "phaseGroup": "mentor-checkpoints",
+      "phaseGroup": "phase-2a",
       "sourceDocuments": [
         "senior-guide",
         "mentor-teacher-guide"
@@ -396,7 +411,7 @@
     {
       "slug": "mentor-meeting-two-outline",
       "title": "Mentor Meeting Two Outline",
-      "phaseGroup": "mentor-checkpoints",
+      "phaseGroup": "phase-2b",
       "sourceDocuments": [
         "senior-project-cycle-linked-document",
         "senior-guide",
@@ -438,7 +453,7 @@
     {
       "slug": "thanks-and-thanks",
       "title": "Thanks and Thanks Senior Project Week",
-      "phaseGroup": "reflection-and-archive",
+      "phaseGroup": "phase-4",
       "sourceDocuments": [
         "senior-project-cycle-linked-document",
         "senior-guide"
@@ -470,7 +485,7 @@
     {
       "slug": "presentation-day",
       "title": "Senior Project Presentation Day",
-      "phaseGroup": "presentation-and-celebration",
+      "phaseGroup": "phase-3a",
       "sourceDocuments": [
         "senior-project-cycle-linked-document",
         "senior-guide",
@@ -508,7 +523,7 @@
     {
       "slug": "celebration-day",
       "title": "Senior Project Celebration Day",
-      "phaseGroup": "presentation-and-celebration",
+      "phaseGroup": "phase-3b",
       "sourceDocuments": [
         "senior-project-cycle-linked-document",
         "senior-guide",
@@ -545,7 +560,7 @@
     {
       "slug": "reflection-best-work",
       "title": "Reflection 1: My Best Work",
-      "phaseGroup": "reflection-and-archive",
+      "phaseGroup": "phase-4",
       "sourceDocuments": [
         "senior-project-cycle-linked-document",
         "senior-guide"
@@ -573,7 +588,7 @@
     {
       "slug": "reflection-senior-project",
       "title": "Reflection 2: Senior Project Reflection",
-      "phaseGroup": "reflection-and-archive",
+      "phaseGroup": "phase-4",
       "sourceDocuments": [
         "senior-project-cycle-linked-document",
         "senior-guide"
@@ -598,7 +613,7 @@
     {
       "slug": "reflection-tenet-mastery",
       "title": "Reflection 3: Tenet Mastery Reflection",
-      "phaseGroup": "reflection-and-archive",
+      "phaseGroup": "phase-4",
       "sourceDocuments": [
         "senior-project-cycle-linked-document",
         "senior-guide"
@@ -625,7 +640,7 @@
     {
       "slug": "reflection-project-based-learning",
       "title": "Reflection 4: Project-Based Learning Reflection",
-      "phaseGroup": "reflection-and-archive",
+      "phaseGroup": "phase-4",
       "sourceDocuments": [
         "senior-project-cycle-linked-document",
         "senior-guide"
@@ -651,7 +666,7 @@
     {
       "slug": "reflection-next-year-plan",
       "title": "Reflection 5: Plan for the Next Year",
-      "phaseGroup": "reflection-and-archive",
+      "phaseGroup": "phase-4",
       "sourceDocuments": [
         "senior-project-cycle-linked-document",
         "senior-guide"
@@ -677,7 +692,7 @@
     {
       "slug": "personal-archive-export",
       "title": "Download and Keep Personal Copies",
-      "phaseGroup": "reflection-and-archive",
+      "phaseGroup": "finish",
       "sourceDocuments": [
         "senior-project-cycle-linked-document"
       ],

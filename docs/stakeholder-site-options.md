@@ -6,8 +6,8 @@ The stakeholder comparison is over. Titan Blend and Back To Basics are retired a
 
 Historical artifacts:
 
-- `stakeholder-options/titan-blend/`
-- `stakeholder-options/back-to-basics/`
+- `old/stakeholder-options/titan-blend/`
+- `old/stakeholder-options/back-to-basics/`
 - `senior-capstone-option-titan`
 - `senior-capstone-option-primary`
 

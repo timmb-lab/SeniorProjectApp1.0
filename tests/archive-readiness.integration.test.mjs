@@ -45,7 +45,7 @@ test("student archive readiness derives closeout checks from persisted rows and 
   const body = await response.json();
   assert.equal(body.ok, true);
   assert.equal(body.studentId, "student-a");
-  assert.equal(body.viewer.scope, "student-own archive");
+  assert.equal(body.viewer.scope, "student-own final files");
   assert.equal(body.source, "persisted_rows");
   assert.equal(body.storage.provider, "google_drive");
   assert.equal(body.storage.credentialsConfigured, false);
@@ -131,7 +131,7 @@ test("admin archive readiness can inspect a scoped student with school-facing do
 
   assert.equal(response.status, 200);
   const body = await response.json();
-  assert.equal(body.viewer.scope, "admin archive");
+  assert.equal(body.viewer.scope, "admin final files");
   assert.equal(body.archive.status, "complete");
   assert.equal(body.archive.signedDownloadReady, false);
   assert.equal(body.archive.scopedDownloadReady, false);
@@ -150,7 +150,7 @@ test("admin archive export records provider-unavailable state when Drive credent
     request: buildJsonRequest(
       "https://example.test/api/admin/exports/student-archive",
       fixture.token,
-      { studentId: "student-a", reason: "May 5 archive package" },
+      { studentId: "student-a", reason: "May 5 final-file package" },
       "POST",
     ),
     env: fixture.env,
@@ -228,7 +228,7 @@ test("admin archive export records Drive access failures without generating arti
       request: buildJsonRequest(
         "https://example.test/api/admin/exports/student-archive",
         fixture.token,
-        { studentId: "student-a", reason: "May 5 archive package" },
+        { studentId: "student-a", reason: "May 5 final-file package" },
         "POST",
       ),
       env: fixture.env,
@@ -254,7 +254,7 @@ test("admin archive export generates a scoped manifest artifact without storage 
       request: buildJsonRequest(
         "https://example.test/api/admin/exports/student-archive",
         fixture.token,
-        { studentId: "student-a", reason: "May 5 archive package" },
+        { studentId: "student-a", reason: "May 5 final-file package" },
         "POST",
       ),
       env: fixture.env,
@@ -312,7 +312,7 @@ test("admin archive export classifies native Google Docs export cases without st
       request: buildJsonRequest(
         "https://example.test/api/admin/exports/student-archive",
         fixture.token,
-        { studentId: "student-a", reason: "May 5 archive package" },
+        { studentId: "student-a", reason: "May 5 final-file package" },
         "POST",
       ),
       env: fixture.env,
@@ -359,7 +359,7 @@ test("admin archive export fails safely when Drive package upload fails", async 
       request: buildJsonRequest(
         "https://example.test/api/admin/exports/student-archive",
         fixture.token,
-        { studentId: "student-a", reason: "May 5 archive package" },
+        { studentId: "student-a", reason: "May 5 final-file package" },
         "POST",
       ),
       env: fixture.env,
@@ -387,7 +387,7 @@ test("export download streams the generated archive manifest for scoped users", 
       request: buildJsonRequest(
         "https://example.test/api/admin/exports/student-archive",
         fixture.token,
-        { studentId: "student-a", reason: "May 5 archive package" },
+        { studentId: "student-a", reason: "May 5 final-file package" },
         "POST",
       ),
       env: fixture.env,

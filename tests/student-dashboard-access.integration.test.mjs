@@ -4,6 +4,16 @@ import test from "node:test";
 import { sha256Hex } from "../functions/_lib/crypto.ts";
 import { onRequestGet } from "../functions/api/student/dashboard.ts";
 
+function collectStringValues(value, output = []) {
+  if (typeof value === "string") output.push(value);
+  if (Array.isArray(value)) {
+    for (const item of value) collectStringValues(item, output);
+  } else if (value && typeof value === "object") {
+    for (const item of Object.values(value)) collectStringValues(item, output);
+  }
+  return output;
+}
+
 test("student dashboard returns 401 and audits when session is missing", async () => {
   const { env, db } = createFixture();
 
@@ -50,7 +60,7 @@ test("student dashboard returns own rows without storage ids and audits the view
   assert.equal(body.ok, true);
   assert.equal(body.studentId, "student-a");
   assert.equal(body.viewer.self, true);
-  assert.equal(body.nextAction, "Start or finish Core Concept Proposal.");
+  assert.equal(body.nextAction, "Open Phase 1: Kickoff and Proposal and finish Core Concept Proposal. Add the requested proof before sending it for review.");
   assert.deepEqual(body.summary, {
     requirementsTotal: 1,
     requirementsComplete: 0,
@@ -61,8 +71,8 @@ test("student dashboard returns own rows without storage ids and audits the view
     missingRequiredCount: 1,
     waitingForReviewCount: 0,
     revisionRequestedCount: 0,
-    currentPhase: "proposal",
-    currentPhaseLabel: "Proposal",
+    currentPhase: "phase-1",
+    currentPhaseLabel: "Phase 1: Kickoff and Proposal",
     currentStatus: "Getting Started",
     lastUpdatedAt: "2026-05-20T08:20:00.000Z",
     mentor: {
@@ -76,7 +86,7 @@ test("student dashboard returns own rows without storage ids and audits the view
     {
       title: "Core Concept Proposal",
       status: "Missing",
-      detail: "Start or finish Core Concept Proposal.",
+      detail: "Open Phase 1: Kickoff and Proposal and finish Core Concept Proposal. Add the requested proof before sending it for review.",
       dueDate: "2025-10-09T00:00:00Z",
       dueLabel: "October 9 and 10",
       requirementId: "req-proposal-draft",
@@ -91,8 +101,8 @@ test("student dashboard returns own rows without storage ids and audits the view
         submissionId: "submission-student-a",
         title: "Core Concept Proposal",
         description: "Draft the proposal with a clear problem, solution, audience, and proof of work.",
-        phase: "proposal",
-        phaseLabel: "Proposal",
+        phase: "phase-1",
+        phaseLabel: "Phase 1: Kickoff and Proposal",
         status: "draft",
         progressStatus: "draft",
         submissionStatus: "draft",
@@ -100,7 +110,7 @@ test("student dashboard returns own rows without storage ids and audits the view
         evidenceCount: 1,
         dueDate: "2025-10-09T00:00:00Z",
         dueLabel: "October 9 and 10",
-        qualityPrompt: "Name the problem, who benefits, and the evidence that proves your work.",
+        qualityPrompt: "Name the problem, who benefits, and the proof that shows your work.",
         lastUpdatedAt: "2026-05-20T08:10:00.000Z",
         nextAction: "Send Core Concept Proposal for teacher review.",
       },
@@ -116,6 +126,18 @@ test("student dashboard returns own rows without storage ids and audits the view
   assert.equal(body.evidence[0].externalUrl, null);
   assert.equal(body.evidence[0].storageIdentifiersRedacted, true);
   assert.doesNotMatch(JSON.stringify(body), /drive_file_id|driveFileId|drive-secret/i);
+  const studentCopy = collectStringValues(body).join(" ");
+  for (const pattern of [
+    /Archive and Recognition/i,
+    /evidence artifact/i,
+    /quality prompt/i,
+    /Attach or link/i,
+    /complete Core Concept/i,
+    /this requirement/i,
+    /Start the proposal requirement/i,
+  ]) {
+    assert.doesNotMatch(studentCopy, pattern);
+  }
 
   const [event] = fixture.db.data.auditEvents;
   assert.equal(event.actor_user_id, "student-a");
@@ -186,6 +208,47 @@ test("student dashboard returns latest review feedback scoped to the viewed stud
     createdAt: "2026-05-24T18:40:00.000Z",
   });
   assert.doesNotMatch(JSON.stringify(body.feedback), /another student|drive-secret|staff_only/i);
+});
+
+test("student dashboard maps framework requirements to Your Senior booklet phases", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+  seedStudentRecord(fixture.db, "student-a");
+  fixture.db.data.requirements = [
+    { id: "req-proposal-draft", program_id: null, phase: "proposal-and-research", title: "Core Concept Proposal", required: 1, sort_order: 1 },
+    { id: "req-mentor-meeting-one-plan", program_id: null, phase: "mentor-checkpoints", title: "Mentor Meeting One Plan", required: 1, sort_order: 2 },
+    { id: "req-mentor-meeting-two-outline", program_id: null, phase: "mentor-checkpoints", title: "Mentor Meeting Two Outline", required: 1, sort_order: 3 },
+    { id: "req-reflection-best-work", program_id: null, phase: "reflection-and-archive", title: "Reflection 1: My Best Work", required: 1, sort_order: 4 },
+    { id: "req-personal-archive-export", program_id: null, phase: "reflection-and-archive", title: "Download and Keep Personal Copies", required: 1, sort_order: 5 },
+    { id: "req-presentation-day", program_id: null, phase: "presentation-and-celebration", title: "Senior Project Presentation Day", required: 1, sort_order: 6 },
+    { id: "req-celebration-day", program_id: null, phase: "presentation-and-celebration", title: "Senior Project Celebration Day", required: 1, sort_order: 7 },
+  ];
+
+  const response = await onRequestGet({
+    request: buildRequest("https://example.test/api/student/dashboard", fixture.token),
+    env: fixture.env,
+  });
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.summary.currentPhase, "phase-1");
+  assert.equal(body.summary.currentPhaseLabel, "Phase 1: Kickoff and Proposal");
+  assert.deepEqual(body.requirements.map((row) => [row.requirementId, row.phase, row.phaseLabel]), [
+    ["req-proposal-draft", "phase-1", "Phase 1: Kickoff and Proposal"],
+    ["req-mentor-meeting-one-plan", "phase-2a", "Phase 2A: Build"],
+    ["req-mentor-meeting-two-outline", "phase-2b", "Phase 2B: Build Part II"],
+    ["req-presentation-day", "phase-3a", "Phase 3A: Present"],
+    ["req-celebration-day", "phase-3b", "Phase 3B: Celebrate"],
+    ["req-reflection-best-work", "phase-4", "Phase 4: Give Thanks, Reflect, Launch"],
+    ["req-personal-archive-export", "finish", "Finish: Download and Keep"],
+  ]);
+  assert.deepEqual(body.nextSteps.map((row) => row.requirementId), [
+    "req-proposal-draft",
+    "req-mentor-meeting-one-plan",
+    "req-mentor-meeting-two-outline",
+    "req-presentation-day",
+    "req-celebration-day",
+  ]);
+  assert.doesNotMatch(JSON.stringify(body.requirements), /proposal-and-research|mentor-checkpoints|presentation-and-celebration|reflection-and-archive/i);
 });
 
 test("student dashboard denies another student's record and audits role scope", async () => {
@@ -337,7 +400,7 @@ function createFixture() {
       {
         id: "qc-proposal-draft-1",
         requirement_id: "req-proposal-draft",
-        prompt: "Name the problem, who benefits, and the evidence that proves your work.",
+        prompt: "Name the problem, who benefits, and the proof that shows your work.",
         sort_order: 1,
         active: 1,
       },

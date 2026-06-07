@@ -12,7 +12,7 @@ const validFixture = {
     "public-companion/_redirects": "# Public companion serves static guide pages only.\n",
   },
   stakeholderFiles: {
-    "stakeholder-options/titan-blend/index.html": "Stakeholder review option. Not the canonical production site or app.",
+    "old/stakeholder-options/titan-blend/index.html": "Stakeholder review option. Not the canonical production site or app.",
   },
   alphaHtml: "Internal alpha / QA only. Not production navigation. Do not enter real student records.",
   accountHtml: "Internal QA account smoke. Fake .test accounts only. Do not use this page as the student or staff production path, and do not enter real student records.",
@@ -92,7 +92,7 @@ test("Option C selected while files still served fails", () => {
 
 test("stakeholder alpha link without internal QA label fails", () => {
   const fixture = cloneFixture();
-  fixture.stakeholderFiles["stakeholder-options/titan-blend/index.html"] = '<a href="alpha.html">Open alpha</a>';
+  fixture.stakeholderFiles["old/stakeholder-options/titan-blend/index.html"] = '<a href="alpha.html">Open alpha</a>';
   const result = evaluateAlphaAccountGatingFixture(fixture);
   assert.equal(result.ok, false);
   assert.match(result.failures.map((failure) => failure.code).join("\n"), /STAKEHOLDER_ALPHA_LINK_UNLABELED/);

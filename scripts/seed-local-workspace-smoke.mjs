@@ -260,7 +260,7 @@ async function buildSeedSql(accounts) {
      VALUES (
        ${sql(FIXTURES.requirementId)},
        NULL,
-       'proposal-and-research',
+        'phase-1',
        'Senior Project Proposal Draft',
        'Student drafts proposal in the app or uploads a proposal document.',
        1,
@@ -277,7 +277,7 @@ async function buildSeedSql(accounts) {
      VALUES (
        ${sql(FIXTURES.presentationRequirementId)},
        NULL,
-       'presentation',
+        'phase-3a',
        'Presentation Day',
        'Student completes presentation day schedule, check-out, and check-in workflow.',
        1,
@@ -295,7 +295,7 @@ async function buildSeedSql(accounts) {
        ${sql(FIXTURES.progressRecordId)},
        'test_user_student_maya',
        ${sql(FIXTURES.requirementId)},
-       'proposal-and-research',
+        'phase-1',
        'submitted',
        'test_user_student_maya'
      )

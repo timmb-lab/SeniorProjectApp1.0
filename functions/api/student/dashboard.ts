@@ -150,6 +150,63 @@ interface StudentRequirementDetail {
   nextAction: string;
 }
 
+const BOOKLET_PHASE_LABELS: Record<string, string> = {
+  start: "Start: Setup",
+  "phase-1": "Phase 1: Kickoff and Proposal",
+  "phase-2a": "Phase 2A: Build",
+  "phase-2b": "Phase 2B: Build Part II",
+  "phase-3a": "Phase 3A: Present",
+  "phase-3b": "Phase 3B: Celebrate",
+  "phase-4": "Phase 4: Give Thanks, Reflect, Launch",
+  finish: "Finish: Download and Keep",
+};
+
+const BOOKLET_PHASE_ORDER = [
+  "start",
+  "phase-1",
+  "phase-2a",
+  "phase-2b",
+  "phase-3a",
+  "phase-3b",
+  "phase-4",
+  "finish",
+];
+
+const BOOKLET_PHASE_ALIASES: Record<string, string> = {
+  setup: "start",
+  purpose: "start",
+  proposal: "phase-1",
+  "proposal-and-research": "phase-1",
+  "mentor-checkpoints": "phase-2a",
+  "mentor-meetings": "phase-2a",
+  presentation: "phase-3a",
+  "presentation-day": "phase-3a",
+  "presentation-and-celebration": "phase-3a",
+  "celebration-day": "phase-3b",
+  portfolio: "phase-4",
+  "reflection-and-archive": "phase-4",
+  "wrap-up": "finish",
+};
+
+const BOOKLET_PHASE_BY_REQUIREMENT_ID: Record<string, string> = {
+  "req-senior-project-workspace": "start",
+  "req-resume": "start",
+  "req-proposal-draft": "phase-1",
+  "req-approved-proposal": "phase-1",
+  "req-research-proposal-challenge": "phase-1",
+  "req-mentor-meeting-one-plan": "phase-2a",
+  "req-mentor-meeting-two-outline": "phase-2b",
+  "req-presentation-day": "phase-3a",
+  "req-celebration-day": "phase-3b",
+  "req-thanks-and-thanks": "phase-4",
+  "req-reflection-best-work": "phase-4",
+  "req-reflection-senior-project": "phase-4",
+  "req-reflection-tenet-mastery": "phase-4",
+  "req-reflection-project-based-learning": "phase-4",
+  "req-reflection-next-year-plan": "phase-4",
+  "req-personal-archive-export": "finish",
+};
+
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const url = new URL(request.url);
   const requestedStudentId = url.searchParams.get("studentId") || null;
@@ -391,11 +448,11 @@ async function loadStudentVisibleFeedback(env: Env, studentId: string): Promise<
     id: row.id,
     kind: "review",
     submissionId: row.submission_id,
-    requirementTitle: safeStudentText(row.requirement_title, "Senior Project submission", 180),
+    requirementTitle: safeStudentText(row.requirement_title, "Senior Project work", 180),
     submissionStatus: row.submission_status,
     submissionVersion: row.submission_version || 1,
     status: studentFeedbackStatus(row.decision),
-    message: safeStudentText(row.feedback, "Teacher feedback was recorded for this submission.", 420),
+    message: safeStudentText(row.feedback, "Teacher feedback was recorded for this work.", 420),
     authorName: safeStudentText(row.reviewer_name, "Program teacher", 120),
     createdAt: row.created_at,
   }));
@@ -408,33 +465,37 @@ function buildStudentProgressSummary(
   evidence: EvidenceSummaryRow[],
   mentor: MentorSupportRow | null,
 ): StudentProgressSummary {
+  const orderedRequirements = sortRequirementsByBookletPhase(requirements);
   const requiredIds = new Set(requirements.map((requirement) => requirement.id));
   const progressByRequirement = latestByRequirement(progressRows);
   const submissionsByRequirement = latestByRequirement(submissions);
   const completedStatuses = new Set(["approved", "archived"]);
   const submittedStatuses = new Set(["submitted", "revision_requested", "approved", "archived"]);
-  const requirementsComplete = requirements.filter((requirement) =>
+  const requirementsComplete = orderedRequirements.filter((requirement) =>
     completedStatuses.has(progressByRequirement.get(requirement.id)?.status || ""),
   ).length;
-  const submittedRequiredCount = requirements.filter((requirement) =>
+  const submittedRequiredCount = orderedRequirements.filter((requirement) =>
     submittedStatuses.has(submissionsByRequirement.get(requirement.id)?.status || ""),
   ).length;
-  const missingRequiredCount = Math.max(0, requirements.length - submittedRequiredCount);
+  const missingRequiredCount = Math.max(0, orderedRequirements.length - submittedRequiredCount);
   const waitingForReviewCount = submissions.filter((submission) => submission.status === "submitted").length;
   const revisionRequestedCount = submissions.filter((submission) => submission.status === "revision_requested").length;
-  const phases = [...new Set(requirements.map((requirement) => requirement.phase).filter(Boolean))];
+  const phaseByRequirement = new Map(orderedRequirements.map((requirement) => [requirement.id, studentBookletPhaseKey(requirement)]));
+  const phases = sortBookletPhaseKeys([...new Set(orderedRequirements.map((requirement) => phaseByRequirement.get(requirement.id)).filter(Boolean))]);
   const phasesComplete = phases.filter((phase) => {
-    const phaseRequirements = requirements.filter((requirement) => requirement.phase === phase);
+    const phaseRequirements = orderedRequirements.filter((requirement) => phaseByRequirement.get(requirement.id) === phase);
     return phaseRequirements.length > 0 && phaseRequirements.every((requirement) =>
       completedStatuses.has(progressByRequirement.get(requirement.id)?.status || ""),
     );
   }).length;
-  const currentRequirement = requirements.find((requirement) =>
+  const currentRequirement = orderedRequirements.find((requirement) =>
     !completedStatuses.has(progressByRequirement.get(requirement.id)?.status || ""),
-  ) || requirements[requirements.length - 1] || null;
-  const currentPhase = currentRequirement?.phase || progressRows[0]?.phase || "";
-  const completionPercent = requirements.length > 0
-    ? Math.round((requirementsComplete / requirements.length) * 100)
+  ) || orderedRequirements[orderedRequirements.length - 1] || null;
+  const currentPhase = currentRequirement
+    ? studentBookletPhaseKey(currentRequirement)
+    : studentBookletPhaseKeyForValue(progressRows[0]?.phase || "");
+  const completionPercent = orderedRequirements.length > 0
+    ? Math.round((requirementsComplete / orderedRequirements.length) * 100)
     : 0;
   const lastUpdatedAt = latestTimestamp([
     ...progressRows.map((row) => row.updated_at),
@@ -444,7 +505,7 @@ function buildStudentProgressSummary(
   ]);
 
   return {
-    requirementsTotal: requirements.length,
+    requirementsTotal: orderedRequirements.length,
     requirementsComplete,
     completionPercent,
     phasesTotal: phases.length,
@@ -456,7 +517,7 @@ function buildStudentProgressSummary(
     currentPhase,
     currentPhaseLabel: currentPhase ? phaseLabel(currentPhase) : "Not available yet",
     currentStatus: deriveProgressStatus({
-      requirementsTotal: requirements.length,
+      requirementsTotal: orderedRequirements.length,
       requirementsComplete,
       completionPercent,
       waitingForReviewCount,
@@ -471,7 +532,7 @@ function buildStudentProgressSummary(
         ? `${mentor.mentor_name} can help with project questions.`
         : "No mentor assigned yet.",
     },
-    dueDatesAvailable: requirements.some((requirement) => Boolean(requirement.due_at || requirement.due_label)),
+    dueDatesAvailable: orderedRequirements.some((requirement) => Boolean(requirement.due_at || requirement.due_label)),
   };
 }
 
@@ -481,6 +542,7 @@ function buildStudentNextSteps(
   submissions: SubmissionSummaryRow[],
   summary: StudentProgressSummary,
 ): StudentNextStep[] {
+  const orderedRequirements = sortRequirementsByBookletPhase(requirements);
   const progressByRequirement = latestByRequirement(progressRows);
   const submissionsByRequirement = latestByRequirement(submissions);
   const output: StudentNextStep[] = [];
@@ -506,21 +568,21 @@ function buildStudentNextSteps(
     addStep(
       requirementFor(requirements, submission.requirement_id),
       "Needs Revision",
-      `Revise ${submission.requirement_title || "this submission"} and send it back for review.`,
+      `Open teacher feedback for ${submission.requirement_title || "this work"}, make the requested changes, then send it back for review.`,
     );
   }
 
-  for (const requirement of requirements) {
+  for (const requirement of orderedRequirements) {
     const submission = submissionsByRequirement.get(requirement.id);
     if (!submission || submission.status === "draft") {
-      addStep(requirement, "Missing", `Start or finish ${requirement.title}.`);
+      addStep(requirement, "Missing", `Open ${phaseLabel(studentBookletPhaseKey(requirement))} and finish ${requirement.title}. Add the requested proof before sending it for review.`);
     }
   }
 
-  for (const requirement of requirements.filter((row) => row.phase === summary.currentPhase)) {
+  for (const requirement of orderedRequirements.filter((row) => studentBookletPhaseKey(row) === summary.currentPhase)) {
     const progress = progressByRequirement.get(requirement.id);
     if (progress && ["not_started", "in_progress"].includes(progress.status)) {
-      addStep(requirement, statusTextForStudent(progress.status), `Keep working on ${requirement.title}.`);
+      addStep(requirement, statusTextForStudent(progress.status), `Keep working on ${requirement.title}. Check the due date, proof, and teacher tip.`);
     }
   }
 
@@ -528,15 +590,15 @@ function buildStudentNextSteps(
     addStep(
       requirementFor(requirements, submission.requirement_id),
       "Waiting for Review",
-      `${submission.requirement_title || "This submission"} is waiting for teacher review.`,
+      `${submission.requirement_title || "This work"} is waiting for teacher review. No extra file or link is needed unless your teacher asks.`,
     );
   }
 
   if (output.length === 0 && summary.requirementsTotal > 0 && summary.requirementsComplete < summary.requirementsTotal) {
     addStep(
-      requirements.find((requirement) => !["approved", "archived"].includes(progressByRequirement.get(requirement.id)?.status || "")) || null,
+      orderedRequirements.find((requirement) => !["approved", "archived"].includes(progressByRequirement.get(requirement.id)?.status || "")) || null,
       "Next",
-      "Continue the next senior project requirement.",
+      "Open the next booklet phase, check what proof is needed, and keep moving.",
     );
   }
 
@@ -550,18 +612,19 @@ function buildStudentRequirementDetails(
 ): StudentRequirementDetail[] {
   const progressByRequirement = latestByRequirement(progressRows);
   const submissionsByRequirement = latestByRequirement(submissions);
-  return requirements.map((requirement) => {
+  return sortRequirementsByBookletPhase(requirements).map((requirement) => {
     const progress = progressByRequirement.get(requirement.id) || null;
     const submission = submissionsByRequirement.get(requirement.id) || null;
     const status = studentRequirementStatus(progress, submission);
     const evidenceCount = safeNumber(submission?.evidence_count);
+    const phase = studentBookletPhaseKey(requirement);
     return {
       requirementId: requirement.id,
       submissionId: submission?.id || null,
       title: safeStudentText(requirement.title, "Senior Project requirement", 180),
       description: safeStudentText(requirement.description, "", 240) || null,
-      phase: requirement.phase || "",
-      phaseLabel: requirement.phase ? phaseLabel(requirement.phase) : "Not available yet",
+      phase,
+      phaseLabel: phase ? phaseLabel(phase) : "Not available yet",
       status,
       progressStatus: progress?.status || null,
       submissionStatus: submission?.status || null,
@@ -599,21 +662,21 @@ function studentRequirementNextAction(
   status: string,
   evidenceCount: number,
 ): string {
-  const title = safeStudentText(requirement.title || submission?.requirement_title || progress?.requirement_title, "this requirement", 180);
+  const title = safeStudentText(requirement.title || submission?.requirement_title || progress?.requirement_title, "this item", 180);
   if (status === "revision_requested") {
     return evidenceCount > 0
-      ? `Send the revised ${title} back for teacher review.`
-      : `Update evidence for ${title}, then send it back for review.`;
+      ? `Open teacher feedback, revise ${title}, then send it back for review.`
+      : `Add the revised proof for ${title}, then send it back for review.`;
   }
-  if (status === "submitted") return `${title} is waiting for teacher review.`;
-  if (status === "approved" || status === "archived") return `${title} is complete for now.`;
+  if (status === "submitted") return `${title} is waiting for teacher review. No extra file or link is needed unless your teacher asks.`;
+  if (status === "approved" || status === "archived") return `${title} is complete for now. Keep it for your final files.`;
   if (status === "draft") {
     return evidenceCount > 0
       ? `Send ${title} for teacher review.`
-      : `Finish ${title} and attach the work your teacher requested.`;
+      : `Add the work or proof your teacher requested for ${title}, then send it for review.`;
   }
-  if (status === "in_progress") return `Keep working on ${title}.`;
-  if (status === "missing") return `Start ${title} when your teacher is ready for this step.`;
+  if (status === "in_progress") return `Keep working on ${title}. Check the due date, proof, and teacher tip.`;
+  if (status === "missing") return `Open ${phaseLabel(studentBookletPhaseKey(requirement))} and start ${title}. Add or link proof when it is ready.`;
   return `Review ${title} and ask your program teacher what to do next.`;
 }
 
@@ -670,11 +733,51 @@ function deriveProgressStatus(input: {
 }
 
 function phaseLabel(value: string): string {
+  const normalized = studentBookletPhaseKeyForValue(value);
+  if (BOOKLET_PHASE_LABELS[normalized]) return BOOKLET_PHASE_LABELS[normalized];
   return String(value || "")
     .split(/[-_\s]+/)
     .filter(Boolean)
     .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
     .join(" ");
+}
+
+function studentBookletPhaseKey(requirement: RequirementRow): string {
+  const requirementId = String(requirement?.id || "").trim();
+  if (BOOKLET_PHASE_BY_REQUIREMENT_ID[requirementId]) return BOOKLET_PHASE_BY_REQUIREMENT_ID[requirementId];
+  return studentBookletPhaseKeyForValue(requirement?.phase || "");
+}
+
+function sortRequirementsByBookletPhase(requirements: RequirementRow[]): RequirementRow[] {
+  return [...requirements].sort((left, right) => {
+    const phaseDelta = bookletPhaseRank(studentBookletPhaseKey(left)) - bookletPhaseRank(studentBookletPhaseKey(right));
+    if (phaseDelta !== 0) return phaseDelta;
+    const sortDelta = safeNumber(left.sort_order) - safeNumber(right.sort_order);
+    if (sortDelta !== 0) return sortDelta;
+    return String(left.title || left.id || "").localeCompare(String(right.title || right.id || ""));
+  });
+}
+
+function sortBookletPhaseKeys(phases: Array<string | undefined>): string[] {
+  return phases
+    .filter((phase): phase is string => Boolean(phase))
+    .sort((left, right) => bookletPhaseRank(left) - bookletPhaseRank(right));
+}
+
+function bookletPhaseRank(value: string): number {
+  const key = studentBookletPhaseKeyForValue(value);
+  const index = BOOKLET_PHASE_ORDER.indexOf(key);
+  return index === -1 ? BOOKLET_PHASE_ORDER.length : index;
+}
+
+function studentBookletPhaseKeyForValue(value: string): string {
+  const normalized = String(value || "")
+    .trim()
+    .replace(/[^a-z0-9]+/gi, "-")
+    .replace(/^-+|-+$/g, "")
+    .toLowerCase();
+  if (!normalized) return "";
+  return BOOKLET_PHASE_ALIASES[normalized] || normalized;
 }
 
 function statusTextForStudent(value: string): string {
@@ -703,13 +806,13 @@ function safeStudentText(value: string | null | undefined, fallback: string, max
 
 function deriveNextAction(submissions: SubmissionSummaryRow[], evidence: EvidenceSummaryRow[]): string {
   const current = submissions[0];
-  if (!current) return "Start the proposal requirement.";
-  if (evidence.length === 0) return "Attach at least one evidence artifact.";
-  if (current.status === "draft") return "Submit the proposal for teacher review.";
-  if (current.status === "revision_requested") return "Revise and resubmit the proposal.";
+  if (!current) return "Start the proposal.";
+  if (evidence.length === 0) return "Add at least one proof item.";
+  if (current.status === "draft") return "Send the proposal to your teacher.";
+  if (current.status === "revision_requested") return "Fix and send the proposal again.";
   if (current.status === "submitted") return "Wait for teacher review.";
-  if (current.status === "approved") return "Move into build evidence and mentor preparation.";
-  return "Review the current capstone status.";
+  if (current.status === "approved") return "Move into build work and mentor prep.";
+  return "Review the current Senior Project status.";
 }
 
 function summarizeEvidence(row: EvidenceSummaryRow, submissions: SubmissionSummaryRow[]): EvidenceSummary {

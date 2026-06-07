@@ -17,15 +17,15 @@ Final decision: stakeholder option comparison is over.
 
 Retired historical roots:
 
-- `stakeholder-options/titan-blend/`
-- `stakeholder-options/back-to-basics/`
+- `old/stakeholder-options/titan-blend/`
+- `old/stakeholder-options/back-to-basics/`
 
 Retired Cloudflare Pages project names:
 
 - `senior-capstone-option-titan`
 - `senior-capstone-option-primary`
 
-The directories may remain temporarily as historical review output, but they are not active deploy targets and must not be linked from normal product or guide navigation.
+The directories are archived as historical review output, but they are not active deploy targets and must not be linked from normal product or guide navigation.
 
 Removed active package scripts:
 
@@ -43,6 +43,10 @@ npm run check:site-options
 ```
 
 That checker now validates retirement state, not active option generation.
+
+Archived generator:
+
+- `old/scripts/build-stakeholder-sites.mjs`
 
 ## Cloudflare Follow-Up
 

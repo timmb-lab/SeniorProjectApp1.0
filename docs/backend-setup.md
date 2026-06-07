@@ -9,7 +9,7 @@ This records the first MVP backend foundation now configured for the Capstone Pr
 - Hosting: GitHub-connected Cloudflare Pages project `senior-capstone-app` (legacy technical project name retained).
 - Backend runtime: Cloudflare Pages Functions in `functions/`.
 - Database: Cloudflare D1 database `senior-capstone-db`.
-- Auth direction: hardened username/password remains for fake `.test` accounts, local smoke tests, approved fallback, and break-glass access; Google Workspace SSO is the preferred production target once tenant domains and OAuth client settings are configured and tested.
+- Auth direction: the 1.0 setup is local accounts only through hardened username/password. Google Workspace SSO remains scaffolded but disabled until Bryan intentionally re-enables it after tenant, OAuth, and hosted regression proof.
 - Evidence uploads: Google Drive repository path, with D1 storing metadata and access state. The Drive service account/repository is separate from Google Workspace SSO login.
 
 ## Production Surface Boundary
@@ -47,6 +47,10 @@ Remote D1 migration state was corrected on 2026-05-20 PT. Wrangler initially rep
 - `0008_update_drive_resource_ids.sql` - corrected the default Google Drive repository row to the verified sandbox Workspace root folder and index sheet.
 - `0009_update_drive_shared_drive_root.sql` - moved the default evidence repository to the accepted Shared Drive root.
 - `0010_tenant_google_sso.sql` - tenant/subscription, tenant-domain, Google Workspace identity-provider, tenant-user membership, auth-identity, and OAuth state tables for the tenant-aware SSO direction.
+- `0011_multisite_site_role_foundation.sql` - site, site-user, and site-program tables plus the first site-scoped role foundation.
+- `0012_users_access_v5.sql` - Global Admin, Site Admin, Administration, Viewer, and viewer-student assignment support with compatibility mapping from legacy role rows.
+- `0013_student_booklet_phase_alignment.sql` - requirement phase values aligned to the Your Senior booklet sequence.
+- `0014_local_only_empty_test_schools.sql` - local-account-only mode, disabled Google Workspace identity providers, archived former seed schools, and two active empty schools: Test High School and East Career & Technical Academy.
 
 After apply, `wrangler d1 migrations list senior-capstone-db --remote` reported no pending migrations. Remote schema probes verified `user_accounts`, `sessions`, `user_roles`, `submissions`, `evidence_repositories`, `evidence_artifacts`, `audit_events`, `exports`, `export_artifacts`, and `presentation_slots`.
 
@@ -62,6 +66,7 @@ Seeded records:
 - 9 CTE programs.
 - Default Google Drive evidence repository row pointing at the evidence root folder and index sheet.
 - Account reset tooling now recreates only the two approved local-auth global admins: `bryan@learntechonline.com` and `bryan.timm89@gmail.com`.
+- The active school baseline after migration `0014` is empty: `Test High School` and `East Career & Technical Academy` have no active students, accounts, or assigned site programs until Bryan adds them through the app.
 - Fake `.test` alpha accounts are not recreated by the reset path. They can be recreated later only through explicit fake test-account seed tooling.
 
 ## Auth Boundary
@@ -78,7 +83,17 @@ The pilot auth flow uses:
 - One-time admin bootstrap endpoint gated by `BOOTSTRAP_SETUP_KEY`; production setup key is removed after first-admin creation.
 - Cloudflare Pages preview/production now have `PASSWORD_PEPPER` and `SESSION_PEPPER` stored as `secret_text` environment variables.
 
-Google Workspace SSO is scaffolded behind safe config:
+The current 1.0 auth mode is local-account-only:
+
+```text
+AUTH_MODE=hardened_username_password
+AUTH_GOOGLE_SSO_ENABLED=false
+AUTH_LOCAL_LOGIN_ENABLED=true
+```
+
+In this mode, `/api/auth/config` reports Google SSO disabled, the workspace renders only the local sign-in path, and `/api/admin/users/import` can create real local pending-reset accounts for authorized admins without `ALLOW_REAL_TEMP_CREDENTIAL_IMPORT`.
+
+Google Workspace SSO remains scaffolded behind safe config for a future re-enable:
 
 - `/api/auth/config` returns only client-safe flags and labels.
 - `/api/auth/google/start` creates a hashed state/nonce record, sets an HttpOnly state-binding cookie, and redirects to Google only when SSO is fully configured.
@@ -87,7 +102,7 @@ Google Workspace SSO is scaffolded behind safe config:
 - The OAuth `hd` request parameter is only a Google login-screen hint. Authorization must validate the returned ID-token hosted-domain claim and tenant-domain policy.
 - Login scopes stay minimal: `openid email profile`. Do not request Drive scopes for login.
 
-SSO environment variables:
+Future SSO environment variables:
 
 ```text
 AUTH_MODE=hybrid_google_workspace_local
@@ -205,9 +220,13 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\ru
 
 The credential file is intentionally ignored by git through `.secrets/`. Never paste, commit, or print the passwords.
 
-## Local Demo Workspace Seed
+## Local 1.0 School Baseline
 
-The full local-only demo seed is separate from the account reset script and the smaller smoke seed:
+Migration `0014_local_only_empty_test_schools.sql` is the current account-building baseline. It leaves `Test High School` and `East Career & Technical Academy` active and empty, with no active site users and no active site programs. Add schools' programs, students, and staff accounts through the authenticated workspace.
+
+## Legacy Synthetic Demo Workspace Seed
+
+The old synthetic demo seed is separate from the account reset script, smaller smoke seed, and current 1.0 empty-school baseline:
 
 ```powershell
 npm run seed:demo:local:dry-run
@@ -215,7 +234,7 @@ npm run seed:demo:local:reset
 npm run prove:demo:local
 ```
 
-It refuses remote D1, verifies the repo/package/local D1 shape, verifies the two protected local admins, deletes only demo-owned rows, and reseeds a deterministic synthetic workspace. The current seed creates 250 fake students, 12 fake program teachers, 25 fake mentors, 225 active mentor assignments, 25 intentionally unassigned students, scoped program teacher roles, fake submissions, evidence-link metadata, teacher/mentor comments, reviews, mentor meetings, presentation slots, submission versions, archive export metadata, and dashboard-ready aggregate records. It no longer creates announcements.
+It refuses remote D1, verifies the repo/package/local D1 shape, verifies the two protected local admins, deletes only demo-owned rows, and reseeds a deterministic synthetic workspace. The current legacy seed creates populated fake schools, fake students, fake program teachers, fake mentors, active mentor assignments, scoped program teacher roles, fake submissions, evidence-link metadata, teacher/mentor comments, reviews, mentor meetings, presentation slots, submission versions, archive export metadata, and dashboard-ready aggregate records. It no longer creates announcements.
 
 All fake accounts use `.test` domains only: students under `demo-student.capstone.test`, staff/mentors under `demo-staff.capstone.test`. Evidence rows are metadata-only with `https://example.com/capstone-demo/...` links. No real student data, no real district data, no physical Google Drive files, and no Drive IDs are created. Demo staff login credentials are written only to ignored `.secrets/demo-staff-logins-*.json` files and are never printed or committed.
 

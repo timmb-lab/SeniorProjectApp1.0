@@ -797,6 +797,7 @@
 
 .workspace-card,
 .workspace-rail-card,
+.workspace-role-profile,
 .workspace-role-panel,
 .workspace-panel {
   border: 1px solid var(--border-soft);
@@ -807,6 +808,7 @@
 
 .workspace-card,
 .workspace-rail-card,
+.workspace-role-profile,
 .workspace-role-panel {
   display: grid;
   gap: 0.75rem;
@@ -824,6 +826,51 @@
   max-width: none;
   font-size: clamp(2rem, 4vw, 3.6rem);
   line-height: 1;
+}
+
+.workspace-role-profile {
+  border-left: 6px solid var(--workspace-primary);
+}
+
+.workspace-role-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.workspace-role-profile-block {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-card);
+  background: var(--surface-row);
+  padding: 0.75rem;
+}
+
+.workspace-role-profile-block h3 {
+  font-size: 0.9rem;
+}
+
+.workspace-role-profile-block ul {
+  display: grid;
+  gap: 0.38rem;
+  margin: 0;
+  padding-left: 1.05rem;
+  color: var(--text-muted);
+}
+
+.workspace-role-profile-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0.55rem;
+}
+
+.workspace-role-profile-scope {
+  display: grid;
+  gap: 0.45rem;
+  border-top: 1px solid var(--border-soft);
+  padding-top: 0.72rem;
 }
 
 .workspace-card-head,
@@ -908,6 +955,24 @@
   justify-content: flex-end;
   gap: 0.5rem;
   flex-wrap: wrap;
+}
+
+.workspace-inline-action-form {
+  display: grid;
+  grid-template-columns: minmax(10rem, 1fr) auto;
+  align-items: end;
+  gap: 0.5rem;
+  min-width: min(100%, 24rem);
+}
+
+.workspace-row > .workspace-inline-action-form {
+  margin-top: 0.65rem;
+}
+
+.workspace-student-row > .workspace-inline-action-form {
+  grid-column: 1 / -1;
+  justify-self: end;
+  width: min(100%, 32rem);
 }
 
 .workspace-mentor-signal-grid {
@@ -2698,6 +2763,12 @@ button.workspace-metric-tile,
     grid-template-columns: 1fr;
   }
 
+  .workspace-inline-action-form {
+    grid-template-columns: 1fr;
+    justify-self: stretch;
+    width: 100%;
+  }
+
   .workspace-student-progress-number strong {
     font-size: 3rem;
   }
@@ -2715,6 +2786,10 @@ button.workspace-metric-tile,
   }
 
   .workspace-problem-state-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-role-profile-grid {
     grid-template-columns: 1fr;
   }
 

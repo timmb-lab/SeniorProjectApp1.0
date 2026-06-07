@@ -81,30 +81,56 @@ test("RoleId and permission source recognize new roles while preserving legacy r
   }
 });
 
-test("local migration proof creates sandbox site, site programs, roles, and clean foreign keys", async () => {
+test("local migration proof creates two empty active test schools and clean foreign keys", async () => {
   const db = createSqliteD1({ migrations: foundationMigrations() });
 
-  const site = await db.prepare(
+  const oldSite = await db.prepare(
     `SELECT id, tenant_id, name, slug, status, timezone, school_year
      FROM sites
      WHERE id = 'site-capstone-sandbox-main'`,
   ).first();
-  assert.deepEqual({ ...site }, {
+  assert.deepEqual({ ...oldSite }, {
     id: "site-capstone-sandbox-main",
     tenant_id: "tenant-capstone-sandbox",
     name: "Capstone Sandbox High School",
     slug: "capstone-sandbox-main",
-    status: "active",
+    status: "archived",
     timezone: "America/Los_Angeles",
     school_year: "2026-2027",
   });
 
-  const programCounts = await db.prepare(
+  const activeSites = await db.prepare(
+    `SELECT id, tenant_id, name, slug, status, school_year
+     FROM sites
+     WHERE status = 'active'
+     ORDER BY name`,
+  ).all();
+  assert.deepEqual(activeSites.results.map((row) => ({ ...row })), [
+    {
+      id: "site-east-career-technical-academy",
+      tenant_id: "tenant-capstone-sandbox",
+      name: "East Career & Technical Academy",
+      slug: "east-career-technical-academy",
+      status: "active",
+      school_year: "2026-2027",
+    },
+    {
+      id: "site-test-high-school",
+      tenant_id: "tenant-capstone-sandbox",
+      name: "Test High School",
+      slug: "test-high-school",
+      status: "active",
+      school_year: "2026-2027",
+    },
+  ]);
+
+  const emptySchoolCounts = await db.prepare(
     `SELECT
-       (SELECT COUNT(*) FROM programs WHERE active = 1) AS active_programs,
-       (SELECT COUNT(*) FROM site_programs WHERE site_id = 'site-capstone-sandbox-main' AND active = 1) AS site_programs`,
+       (SELECT COUNT(*) FROM site_programs WHERE site_id IN ('site-test-high-school', 'site-east-career-technical-academy') AND active = 1) AS site_programs,
+       (SELECT COUNT(*) FROM site_users WHERE site_id IN ('site-test-high-school', 'site-east-career-technical-academy') AND membership_status = 'active') AS site_users`,
   ).first();
-  assert.equal(Number(programCounts.site_programs), Number(programCounts.active_programs));
+  assert.equal(Number(emptySchoolCounts.site_programs), 0);
+  assert.equal(Number(emptySchoolCounts.site_users), 0);
 
   const roles = await db.prepare(
     `SELECT id

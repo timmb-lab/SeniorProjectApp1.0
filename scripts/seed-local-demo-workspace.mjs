@@ -657,7 +657,7 @@ async function loadLookups(adapter) {
     programs,
     requirements,
     proposalRequirementId: proposal?.id || null,
-    proposalPhase: proposal?.phase || "proposal-and-research",
+    proposalPhase: proposal?.phase || "phase-1",
     presentationRequirementId: presentation?.id || null,
   };
 }

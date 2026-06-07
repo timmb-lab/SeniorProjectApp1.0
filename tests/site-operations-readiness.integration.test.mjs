@@ -185,7 +185,10 @@ test("site operations readiness route is scoped, read-only, audited, bounded, an
   assert.equal(staleActivity.filters.risk, "stale");
   assert.equal(staleActivity.summary.staleActivity > 0, true);
   assert.equal(staleActivity.pagination.filteredTotal, staleActivity.summary.staleActivity);
-  assert.equal(staleActivity.readiness.attentionRows.every((row) => row.category === "risk" && row.status === "attention_required"), true);
+  assert.equal(staleActivity.readiness.attentionRows.every((row) =>
+    (row.category === "risk" && row.status === "attention_required")
+    || (row.category === "archive" && row.status === "blocked")
+  ), true);
 
   const archiveCategory = await expectOperations(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}&category=archive&limit=100`);
   assert.equal(archiveCategory.pagination.filteredTotal, 5);

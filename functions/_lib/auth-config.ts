@@ -13,6 +13,10 @@ export function authMode(env: Env): AuthMode {
   return AUTH_MODES.has(value as AuthMode) ? (value as AuthMode) : "hardened_username_password";
 }
 
+export function isLocalOnlyAuthMode(env: Env): boolean {
+  return authMode(env) === "hardened_username_password";
+}
+
 export function isLocalLoginEnabled(env: Env): boolean {
   const explicit = parseBooleanEnv(env.AUTH_LOCAL_LOGIN_ENABLED);
   if (explicit !== null) return explicit;
@@ -28,7 +32,13 @@ export function hasGoogleOAuthClientConfig(env: Env): boolean {
 }
 
 export function isGoogleSsoEnabled(env: Env): boolean {
+  if (isLocalOnlyAuthMode(env)) return false;
   return parseBooleanEnv(env.AUTH_GOOGLE_SSO_ENABLED) === true && hasGoogleOAuthClientConfig(env);
+}
+
+export function isManagedLocalAccountCreationEnabled(env: Env): boolean {
+  if (parseBooleanEnv(env.ALLOW_REAL_TEMP_CREDENTIAL_IMPORT) === true) return true;
+  return isLocalOnlyAuthMode(env) && isLocalLoginEnabled(env);
 }
 
 export function allowedGoogleDomains(env: Env): string[] {

@@ -34,8 +34,6 @@ const productionRootHtml = new Set([
   "grades.html",
   "start.html",
   "app-preview.html",
-  "audit.html",
-  "roadmap.html",
 ]);
 
 const internalRoutePatterns = [
@@ -224,7 +222,7 @@ async function loadFixtureFromRepo() {
   }
 
   const stakeholderFiles = {};
-  for (const root of ["stakeholder-options/titan-blend", "stakeholder-options/back-to-basics"]) {
+  for (const root of ["old/stakeholder-options/titan-blend", "old/stakeholder-options/back-to-basics"]) {
     for (const file of await listFiles(root)) {
       if (/\.(html|js|css|json)$/.test(file) || path.basename(file).startsWith("_")) {
         stakeholderFiles[file] = await readText(file);

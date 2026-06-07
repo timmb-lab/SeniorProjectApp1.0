@@ -10,6 +10,7 @@ import {
 import {
   canManageMentorAssignments,
   canManageSecurity,
+  canManageSiteUsers,
   canManageUsers,
   canViewArchiveOperations,
   canViewPresentationOperations,
@@ -266,6 +267,7 @@ async function loadPermissions(env: Env, user: UserAccount, siteId: string, read
     canViewPresentationOperationsPermission,
     canViewArchiveOperationsPermission,
     canManageUsersPermission,
+    canManageSiteUsersPermission,
     canManageSecurityPermission,
   ] = await Promise.all([
     canViewDirectoryPermission(env, user, siteId),
@@ -274,6 +276,7 @@ async function loadPermissions(env: Env, user: UserAccount, siteId: string, read
     canViewPresentationOperations(env, user, siteId),
     canViewArchiveOperations(env, user, siteId),
     canManageUsers(env, user),
+    canManageSiteUsers(env, user, siteId),
     canManageSecurity(env, user),
   ]);
 
@@ -285,6 +288,7 @@ async function loadPermissions(env: Env, user: UserAccount, siteId: string, read
     canViewPresentationOperations: canViewPresentationOperationsPermission,
     canViewArchiveOperations: canViewArchiveOperationsPermission,
     canManageUsers: readOnly || programTeacherScoped ? false : canManageUsersPermission,
+    canManageSiteUsers: readOnly || programTeacherScoped ? false : canManageSiteUsersPermission,
     canManageSecurity: readOnly || programTeacherScoped ? false : canManageSecurityPermission,
   };
 }

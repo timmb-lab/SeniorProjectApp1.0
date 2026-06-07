@@ -58,7 +58,7 @@ const REFLECTION_REQUIREMENTS = [
 const CHECKS: ArchiveCheckDefinition[] = [
   {
     id: "celebration_evidence",
-    label: "Celebration Day evidence",
+    label: "Celebration Day proof",
     requirementIds: ["req-celebration-day"],
     evidenceTerms: ["celebration", "display", "setup", "photo", "ingredient"],
     minEvidence: 1,
@@ -138,7 +138,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
        LEFT JOIN requirements ON requirements.id = progress.requirement_id
        WHERE progress.student_id = ?
          AND (
-           progress.phase = 'reflection-and-archive'
+            progress.phase IN ('reflection-and-archive', 'phase-4', 'finish')
            OR progress.requirement_id IN (
              'req-celebration-day',
              'req-thanks-and-thanks',
@@ -291,9 +291,9 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       ),
     },
     guardrails: [
-      "Archive readiness is derived from D1 progress, evidence, and export rows.",
+      "Final file readiness is derived from D1 progress, proof, and export rows.",
       "Private Drive storage identifiers are not returned.",
-      "Archive readiness views and denied access are audited.",
+      "Final file readiness views and denied access are audited.",
     ],
   });
 };
@@ -334,9 +334,9 @@ function matchesEvidence(row: EvidenceRow, definition: ArchiveCheckDefinition): 
 }
 
 function messageForCheckStatus(status: string): string {
-  if (status === "ready") return "Ready for archive review.";
+  if (status === "ready") return "Ready for final-file review.";
   if (status === "in_progress") return "Started, but final review may still be needed.";
-  return "Needs evidence or staff review before the archive package is ready.";
+  return "Needs proof or staff review before final files are ready.";
 }
 
 function archiveMessage(
@@ -347,15 +347,15 @@ function archiveMessage(
   downloadExpired: boolean,
   downloadExpiresSoon: boolean,
 ): string {
-  if (downloadExpired) return "Archive package download expired. Ask an admin to generate a fresh package.";
-  if (downloadExpiresSoon && scopedDownloadReady) return "Archive package is ready, but the download window is expiring soon.";
-  if (scopedDownloadReady) return "Archive package is ready for protected download.";
-  if (!providerReady) return "Storage setup is needed before archive package downloads are ready.";
-  if (!signedDownloadsEnabled) return "Archive package checks are available. Staff will share the protected download when the package is ready.";
-  if (status === "complete") return "Archive package is complete and ready for a protected download link.";
-  if (status === "queued" || status === "running") return "Archive package is being prepared.";
-  if (status === "failed") return "Archive package failed and needs staff follow-up.";
-  return "Archive package has not been requested yet.";
+  if (downloadExpired) return "The final file download expired. Ask an admin to generate a fresh package.";
+  if (downloadExpiresSoon && scopedDownloadReady) return "Your final file package is ready, but the download window is ending soon.";
+  if (scopedDownloadReady) return "Your final file package is ready for protected download.";
+  if (!providerReady) return "Storage setup is needed before final file downloads are ready.";
+  if (!signedDownloadsEnabled) return "Final file checks are available. Staff will share the protected download when the package is ready.";
+  if (status === "complete") return "Your final file package is complete and ready for a protected download link.";
+  if (status === "queued" || status === "running") return "Your final file package is being prepared.";
+  if (status === "failed") return "Your final file package needs staff follow-up.";
+  return "Your final file package has not been requested yet.";
 }
 
 function safeRoleScopes(roleAssignments: Awaited<ReturnType<typeof getRoleAssignments>>) {
@@ -373,10 +373,10 @@ function viewerScope(
   roleAssignments: Awaited<ReturnType<typeof getRoleAssignments>>,
 ): string {
   if (user.id === studentId && roleAssignments.some((role) => role.role_id === "student")) {
-    return "student-own archive";
+    return "student-own final files";
   }
-  if (roleAssignments.some((role) => role.role_id === "admin")) return "admin archive";
-  if (roleAssignments.some((role) => role.role_id === "program_teacher")) return "program-teacher scoped archive";
-  if (roleAssignments.some((role) => role.role_id === "mentor")) return "mentor assigned archive";
-  return "scoped archive";
+  if (roleAssignments.some((role) => role.role_id === "admin")) return "admin final files";
+  if (roleAssignments.some((role) => role.role_id === "program_teacher")) return "program-teacher scoped final files";
+  if (roleAssignments.some((role) => role.role_id === "mentor")) return "mentor assigned final files";
+  return "scoped final files";
 }

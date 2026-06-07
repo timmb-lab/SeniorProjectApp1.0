@@ -29,8 +29,8 @@ Repo edits do not equal Cloudflare custom-domain changes. Live state is verified
 | Internal alpha page | `alpha.html` | `senior-capstone-app` | `internal-alpha` | Bryan and QA testers | No for public navigation | Internal seeded alpha walkthrough. | `npm run check:alpha-contract`; `npm run check:alpha-account-gating`; `npm run test` |
 | Internal account page | `account.html` | `senior-capstone-app` | `internal-smoke` | Bryan and QA testers | No for public navigation | Fake `.test` account/session/evidence smoke workflow. | `npm run check:alpha-account-gating`; `npm run test` |
 | App workflow preview | `app-preview.html` | `senior-capstone-app`, copied to `public-companion/` | `preview` | Public stakeholders and staff | No as canonical app | Clearly labeled workflow preview only. | `npm run check:production-surfaces` |
-| Retired Titan Blend option | `stakeholder-options/titan-blend/` | `senior-capstone-option-titan` historical project | `retired-stakeholder-option` | Historical review only | No active deploy target | Titan direction absorbed into East Tech guide. | `npm run check:site-options` |
-| Retired Back To Basics option | `stakeholder-options/back-to-basics/` | `senior-capstone-option-primary` historical project | `retired-stakeholder-option` | Historical review only | No active deploy target | Stakeholder comparison is over. | `npm run check:site-options` |
+| Retired Titan Blend option | `old/stakeholder-options/titan-blend/` | `senior-capstone-option-titan` historical project | `retired-stakeholder-option` | Historical review only | No active deploy target | Titan direction absorbed into East Tech guide. | `npm run check:site-options` |
+| Retired Back To Basics option | `old/stakeholder-options/back-to-basics/` | `senior-capstone-option-primary` historical project | `retired-stakeholder-option` | Historical review only | No active deploy target | Stakeholder comparison is over. | `npm run check:site-options` |
 
 ## Deploy Targets
 
@@ -60,7 +60,7 @@ Normal production navigation must not link to `alpha.html`, `account.html`, inte
 | `public-companion/*.html` | `senior-capstone-public` | `generated-output` | East Tech students, families, staff, mentors | Yes for public guide | Generated mirror includes the source Student/Teacher guide mode through `public-companion/app.js`. | `npm run build:public-site`; `npm run check:generated-output-drift`; `npm run check:site-options` |
 | `public-companion/app.js` | `senior-capstone-public` | `generated-output` | Browser asset for public guide | Yes | Generated JS mirror of public guide logic. | `npm run check:generated-output-drift`; `npm run check:production-surfaces` |
 | `public-companion/styles.css` | `senior-capstone-public` | `generated-output` | Browser asset for public guide | Yes | Generated CSS mirror with Titan/East Tech tokens. | `npm run check:generated-output-drift`; `npm run check:site-options` |
-| `stakeholder-options/**` | Historical retired Pages projects | `retired-stakeholder-option` | Historical review only | No active deploy target | Kept temporarily only as archived context. | `npm run check:site-options` |
+| `old/stakeholder-options/**` | Historical retired Pages projects | `retired-stakeholder-option` | Historical review only | No active deploy target | Archived context only. | `npm run check:site-options` |
 
 ## API Routes
 
