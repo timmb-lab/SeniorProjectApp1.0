@@ -421,10 +421,11 @@ class WranglerD1Adapter {
 }
 
 class RemoteD1ApiAdapter {
-  constructor({ accountId, databaseId, token }) {
+  constructor({ accountId, databaseId, token, repoRoot = REPO_ROOT }) {
     this.accountId = accountId;
     this.databaseId = databaseId;
     this.token = token;
+    this.repoRoot = repoRoot;
   }
 
   async query(sql) {
@@ -454,8 +455,34 @@ class RemoteD1ApiAdapter {
     return normalizeBatchResultRows(body);
   }
 
-  async executeScript(sqlText) {
-    await this.queryBatch(splitSqlStatements(sqlText));
+  async executeScript(sqlText, { repoRoot = this.repoRoot, assertIgnored = assertGitIgnored, label = "account-reset" } = {}) {
+    if (!existsSync(WRANGLER_JS)) {
+      throw new AccountResetError("WRANGLER_NOT_FOUND", "Local Wrangler CLI is missing. Run npm install before D1 reset.");
+    }
+    const tempFile = path.join(repoRoot, ".secrets", `${label}-remote-${Date.now()}.sql`);
+    assertSecretPath(repoRoot, tempFile);
+    assertIgnored(repoRoot, ".secrets/");
+    assertIgnored(repoRoot, path.relative(repoRoot, tempFile));
+    mkdirSync(path.dirname(tempFile), { recursive: true });
+    writeFileSync(tempFile, sqlText, "utf8");
+    try {
+      const result = spawnSync(process.execPath, [WRANGLER_JS, "d1", "execute", DATABASE_NAME, "--remote", "--file", tempFile], {
+        cwd: repoRoot,
+        encoding: "utf8",
+        env: { ...process.env, CI: "1", CLOUDFLARE_ACCOUNT_ID: this.accountId },
+        maxBuffer: D1_SPAWN_MAX_BUFFER,
+        windowsHide: true,
+      });
+      if (result.status !== 0) {
+        throw new AccountResetError("REMOTE_D1_WRITE_FAILED", "Remote D1 write failed.", {
+          status: result.status,
+          stdout: String(result.stdout || "").slice(-2000),
+          stderr: String(result.stderr || "").slice(-2000),
+        });
+      }
+    } finally {
+      rmSync(tempFile, { force: true });
+    }
   }
 }
 
@@ -855,10 +882,10 @@ function writeCredentialFile({ repoRoot, credentials, baseUrl, target, now = new
 
 function buildResetSql({ plan, credentials, target, backupPath, credentialPath, now = new Date() }) {
   const resetTableNames = new Set(plan.resetTables.map((item) => item.table));
-  const lines = [
-    "PRAGMA foreign_keys = ON;",
-    "BEGIN TRANSACTION;",
-  ];
+  const lines = ["PRAGMA foreign_keys = ON;"];
+  if (target !== "remote") {
+    lines.push("BEGIN TRANSACTION;");
+  }
   for (const table of plan.deleteOrder) {
     lines.push(`DELETE FROM ${quoteIdent(table)};`);
   }
@@ -919,7 +946,9 @@ function buildResetSql({ plan, credentials, target, backupPath, credentialPath, 
        VALUES (${sqlString(randomId("audit"))}, NULL, 'local_admin_account_recreated', 'user_account', ${sqlString(credential.id)}, ${sqlString(JSON.stringify(metadata))});`,
     );
   }
-  lines.push("COMMIT;");
+  if (target !== "remote") {
+    lines.push("COMMIT;");
+  }
   lines.push("");
   return `${lines.join("\n")}\n`;
 }
@@ -1069,6 +1098,7 @@ async function runAccountReset(args, options = {}) {
       accountId: env.CLOUDFLARE_ACCOUNT_ID || DEFAULT_ACCOUNT_ID,
       databaseId: databaseInfo.databaseId,
       token: env.CLOUDFLARE_API_TOKEN || "",
+      repoRoot,
     })
     : new WranglerD1Adapter({ repoRoot, target: args.target }));
   const plan = await buildResetPlan(adapter);
