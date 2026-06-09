@@ -7520,7 +7520,8 @@ function renderAdminUsersSection() {
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Users & Access</p>
-          <h2>Add User</h2>
+          <h2>Add staff, admin, or student account</h2>
+          <p class="workspace-muted">Create local accounts for students, mentors, viewers, program teachers, administration, and site admins.</p>
         </div>
         <span class="workspace-chip">${canCreateGlobal ? "Global Admin" : "Site Admin"}</span>
       </div>
@@ -7547,10 +7548,11 @@ function renderAdminUsersSection() {
           </div>
         </div>
         <div class="workspace-form-section">
-          <p class="workspace-kicker">Role</p>
+          <p class="workspace-kicker">Choose account type</p>
+          ${renderAdminRoleQuickPicks(canCreateGlobal)}
           <div class="workspace-form-grid">
             <label class="workspace-label">
-              Role
+              Account role
               <select class="workspace-select" name="roleId" required>
                 ${adminRoleOptions(canCreateGlobal)}
               </select>
@@ -7560,6 +7562,7 @@ function renderAdminUsersSection() {
         </div>
         <div class="workspace-form-section">
           <p class="workspace-kicker">Access / assignment</p>
+          <p class="workspace-muted">Only the fields needed for the selected account type stay open.</p>
           <div class="workspace-form-grid">
             <label class="workspace-label" data-access-group="site">
               Site
@@ -7883,11 +7886,11 @@ function renderSiteAccountManagementPanel(users = {}, scope = {}, permissions = 
   const accounts = siteAccountRows(users);
   const canManage = canUseUsersAccess(roleIds(currentUser));
   return `
-    <div class="workspace-assignment-summary" data-site-account-management="true">
+    <div class="workspace-assignment-summary" data-site-account-management="true" data-site-staff-account-management="true">
       <div>
-        <p class="workspace-kicker">Accounts at this school</p>
-        <h3>Active Accounts</h3>
-        <p class="workspace-muted">Remove archives this school membership. If the account has no other active school, sign-in is disabled and sessions are closed.</p>
+        <p class="workspace-kicker">Add/remove school accounts</p>
+        <h3>Staff, admin, teacher, and student accounts</h3>
+        <p class="workspace-muted">Use Remove account for teachers, mentors, viewers, administration, site admins, or students who should no longer be active at this school. If the account has no other active school, sign-in is disabled and sessions are closed.</p>
       </div>
       ${accounts.length ? `
         <div class="workspace-list">
@@ -7896,7 +7899,7 @@ function renderSiteAccountManagementPanel(users = {}, scope = {}, permissions = 
       ` : `
         <article class="workspace-empty-state-card" data-site-account-empty="true">
           <strong>No accounts are assigned to this school yet.</strong>
-          <p>Create local accounts above, then assign mentor, viewer, teacher, or administration access as needed.</p>
+          <p>Create a local account above as Student, Mentor, Viewer, Program Teacher, Administration, or Site Admin. It will appear here with a Remove account control after it is assigned to this school.</p>
         </article>
       `}
     </div>
@@ -8292,16 +8295,38 @@ function siteProgramOptions(programs = [], promptLabel = "Choose a program") {
 }
 
 function adminRoleOptions(canCreateGlobal) {
+  return adminRoleChoices(canCreateGlobal)
+    .map((role) => `<option value="${escapeHtml(role.value)}">${escapeHtml(role.label)}</option>`)
+    .join("");
+}
+
+function adminRoleChoices(canCreateGlobal) {
   const roles = [
-    ["student", "Student"],
-    ["mentor", "Mentor"],
-    ["viewer", "Viewer"],
-    ["program_teacher", "Program Teacher"],
-    ["administration", "Administration"],
-    ["site_admin", "Site Admin"],
+    { value: "student", label: "Student", detail: "Own checklist and proof." },
+    { value: "mentor", label: "Mentor", detail: "Assigned students only." },
+    { value: "viewer", label: "Viewer", detail: "Read-only student access." },
+    { value: "program_teacher", label: "Program Teacher", detail: "Program review access." },
+    { value: "administration", label: "Administration", detail: "School leadership view." },
+    { value: "site_admin", label: "Site Admin", detail: "Manage this school." },
   ];
-  if (canCreateGlobal) roles.push(["global_admin", "Global Admin"]);
-  return roles.map(([value, label]) => `<option value="${value}">${label}</option>`).join("");
+  if (canCreateGlobal) roles.push({ value: "global_admin", label: "Global Admin", detail: "Manage every site." });
+  return roles;
+}
+
+function renderAdminRoleQuickPicks(canCreateGlobal, selectedRoleId = "student") {
+  return `
+    <div class="workspace-role-choice-grid" data-admin-role-quick-picks="true" aria-label="Account role choices">
+      ${adminRoleChoices(canCreateGlobal).map((role) => {
+        const selected = role.value === selectedRoleId;
+        return `
+          <button class="workspace-role-choice ${selected ? "is-active" : ""}" type="button" data-admin-role-pick="${escapeHtml(role.value)}" aria-pressed="${selected ? "true" : "false"}">
+            <strong>${escapeHtml(role.label)}</strong>
+            <span>${escapeHtml(role.detail)}</span>
+          </button>
+        `;
+      }).join("")}
+    </div>
+  `;
 }
 
 function siteOptionsForAdminForm() {
@@ -8408,6 +8433,9 @@ function bindWorkspaceForms() {
   adminImportForm?.addEventListener("submit", submitAdminUserImport);
   adminImportForm?.querySelector?.('[name="roleId"]')?.addEventListener("change", updateAdminImportScopeFields);
   adminImportForm?.querySelector?.('[name="identityType"]')?.addEventListener("change", updateAdminImportScopeFields);
+  adminImportForm?.querySelectorAll?.("[data-admin-role-pick]")?.forEach((button) => {
+    button.addEventListener("click", handleAdminRolePick);
+  });
   adminImportForm?.querySelectorAll?.('[name="siteIds"], [name="programIds"], [name="studentIds"]')?.forEach((field) => {
     field.addEventListener("change", () => renderAdminAccessPreview(adminImportForm));
   });
@@ -12837,6 +12865,7 @@ function updateAdminImportScopeFields() {
   if (!roleSelect || !identitySelect) return;
 
   const roleId = roleSelect.value;
+  syncAdminRoleQuickPicks(form, roleId);
   const showSite = roleId === "student" || roleId === "administration" || roleId === "site_admin";
   const showProgram = roleId === "program_teacher";
   const showStudent = roleId === "mentor" || roleId === "viewer";
@@ -12858,6 +12887,23 @@ function updateAdminImportScopeFields() {
   if (showGlobal) identitySelect.value = "local";
   identitySelect.querySelector('option[value="sso"]')?.toggleAttribute("disabled", showGlobal);
   renderAdminAccessPreview(form);
+}
+
+function handleAdminRolePick(event) {
+  const roleId = event?.currentTarget?.dataset?.adminRolePick || "";
+  const form = event?.currentTarget?.closest?.("form") || document.querySelector("#workspaceAdminImportForm");
+  const roleSelect = form?.querySelector?.('[name="roleId"]');
+  if (!roleId || !roleSelect) return;
+  roleSelect.value = roleId;
+  updateAdminImportScopeFields();
+}
+
+function syncAdminRoleQuickPicks(form, roleId) {
+  form?.querySelectorAll?.("[data-admin-role-pick]")?.forEach((button) => {
+    const selected = button?.dataset?.adminRolePick === roleId;
+    button.classList?.toggle?.("is-active", selected);
+    button.setAttribute?.("aria-pressed", selected ? "true" : "false");
+  });
 }
 
 function buildAdminImportBody(form) {
