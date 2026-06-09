@@ -92,6 +92,114 @@ test("site admin account removal archives ordinary site accounts but cannot remo
   assert.equal(blocked.status, 403);
 });
 
+test("School Admin account removal includes mentors and Program Teachers but not Site Admins", async () => {
+  const { db, env, tokens } = await createManagementFixture();
+
+  const removedTeacher = await onRemoveAccount({
+    request: buildRequest("https://local.capstone.test/api/admin/users/program-teacher-target", tokens.schoolAdmin, {
+      method: "DELETE",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        siteId: TEST_SITE_ID,
+        adminNote: "Program teacher is no longer assigned to this test school.",
+      }),
+    }),
+    env,
+    params: { id: "program-teacher-target" },
+  });
+
+  assert.equal(removedTeacher.status, 200);
+  assert.equal((await removedTeacher.json()).disabled, true);
+  const teacherMembership = await db.prepare(
+    "SELECT membership_status FROM site_users WHERE site_id = ? AND user_id = 'program-teacher-target'",
+  ).bind(TEST_SITE_ID).first();
+  assert.equal(teacherMembership.membership_status, "archived");
+
+  const removedMentor = await onRemoveAccount({
+    request: buildRequest("https://local.capstone.test/api/admin/users/mentor-local-a", tokens.schoolAdmin, {
+      method: "DELETE",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        siteId: TEST_SITE_ID,
+        adminNote: "Mentor is no longer active for this test school.",
+      }),
+    }),
+    env,
+    params: { id: "mentor-local-a" },
+  });
+
+  assert.equal(removedMentor.status, 200);
+  assert.equal((await removedMentor.json()).disabled, true);
+
+  const blocked = await onRemoveAccount({
+    request: buildRequest("https://local.capstone.test/api/admin/users/site-admin-peer", tokens.schoolAdmin, {
+      method: "DELETE",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        siteId: TEST_SITE_ID,
+        adminNote: "School Admin should not remove Site Admin access.",
+      }),
+    }),
+    env,
+    params: { id: "site-admin-peer" },
+  });
+  assert.equal(blocked.status, 403);
+});
+
+test("Program Teacher account removal includes students and mentors only", async () => {
+  const { db, env, tokens } = await createManagementFixture();
+
+  const removedStudent = await onRemoveAccount({
+    request: buildRequest("https://local.capstone.test/api/admin/users/student-local-a", tokens.programTeacher, {
+      method: "DELETE",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        siteId: TEST_SITE_ID,
+        adminNote: "Student is no longer in this program roster.",
+      }),
+    }),
+    env,
+    params: { id: "student-local-a" },
+  });
+
+  assert.equal(removedStudent.status, 200);
+  assert.equal((await removedStudent.json()).disabled, true);
+  const studentMembership = await db.prepare(
+    "SELECT membership_status FROM site_users WHERE site_id = ? AND user_id = 'student-local-a'",
+  ).bind(TEST_SITE_ID).first();
+  assert.equal(studentMembership.membership_status, "archived");
+
+  const removedMentor = await onRemoveAccount({
+    request: buildRequest("https://local.capstone.test/api/admin/users/mentor-local-a", tokens.programTeacher, {
+      method: "DELETE",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        siteId: TEST_SITE_ID,
+        adminNote: "Mentor is no longer in this program roster.",
+      }),
+    }),
+    env,
+    params: { id: "mentor-local-a" },
+  });
+
+  assert.equal(removedMentor.status, 200);
+  assert.equal((await removedMentor.json()).disabled, true);
+
+  const blocked = await onRemoveAccount({
+    request: buildRequest("https://local.capstone.test/api/admin/users/program-teacher-target", tokens.programTeacher, {
+      method: "DELETE",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        siteId: TEST_SITE_ID,
+        adminNote: "Program Teacher should not remove another Program Teacher.",
+      }),
+    }),
+    env,
+    params: { id: "program-teacher-target" },
+  });
+  assert.equal(blocked.status, 403);
+});
+
 test("global admin can disable an ordinary account across schools and leaves at least one local global admin", async () => {
   const { db, env, tokens } = await createManagementFixture();
 
@@ -137,20 +245,31 @@ async function createManagementFixture() {
 
   await seedUser(db, { id: "site-admin-local", roleId: "site_admin", scopeType: "site", scopeId: TEST_SITE_ID });
   await seedUser(db, { id: "site-admin-peer", roleId: "site_admin", scopeType: "site", scopeId: TEST_SITE_ID });
+  await seedUser(db, { id: "school-admin-local", roleId: "administration", scopeType: "site", scopeId: TEST_SITE_ID });
+  await seedUser(db, { id: "program-teacher-local", roleId: "program_teacher", scopeType: "program", scopeId: "it" });
+  await seedUser(db, { id: "program-teacher-target", roleId: "program_teacher", scopeType: "program", scopeId: "it" });
   await seedUser(db, { id: "student-local-a", roleId: "student" });
   await seedUser(db, { id: "mentor-local-a", roleId: "mentor" });
   await seedUser(db, { id: "viewer-local-a", roleId: "viewer" });
+
+  await db.prepare(
+    `INSERT OR IGNORE INTO site_programs (site_id, program_id, active)
+     VALUES (?, 'it', 1)`,
+  ).bind(TEST_SITE_ID).run();
 
   await db.prepare(
     `INSERT INTO site_users (site_id, user_id, membership_status)
      VALUES
        (?, 'site-admin-local', 'active'),
        (?, 'site-admin-peer', 'active'),
+       (?, 'school-admin-local', 'active'),
+       (?, 'program-teacher-local', 'active'),
+       (?, 'program-teacher-target', 'active'),
        (?, 'student-local-a', 'active'),
        (?, 'mentor-local-a', 'active'),
        (?, 'viewer-local-a', 'active'),
        (?, 'viewer-local-a', 'active')`,
-  ).bind(TEST_SITE_ID, TEST_SITE_ID, TEST_SITE_ID, TEST_SITE_ID, TEST_SITE_ID, EAST_SITE_ID).run();
+  ).bind(TEST_SITE_ID, TEST_SITE_ID, TEST_SITE_ID, TEST_SITE_ID, TEST_SITE_ID, TEST_SITE_ID, TEST_SITE_ID, TEST_SITE_ID, EAST_SITE_ID).run();
 
   await db.prepare(
     `INSERT INTO mentor_assignments (id, mentor_user_id, student_user_id, active)
@@ -164,6 +283,8 @@ async function createManagementFixture() {
   const tokens = {
     globalAdmin: await seedSession(db, env, "global-admin-local", "management-global"),
     siteAdmin: await seedSession(db, env, "site-admin-local", "management-site-admin"),
+    schoolAdmin: await seedSession(db, env, "school-admin-local", "management-school-admin"),
+    programTeacher: await seedSession(db, env, "program-teacher-local", "management-program-teacher"),
   };
 
   return { db, env, tokens };

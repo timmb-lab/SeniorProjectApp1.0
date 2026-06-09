@@ -1885,9 +1885,9 @@ function renderReadOnlyBanner() {
   }
   if (!isReadOnlyAdministrationUser(currentUser)) return "";
   return `
-    <section class="workspace-read-only-banner" data-workspace-mode="read-only" aria-label="Administration read-only mode">
-      <span class="workspace-chip workspace-role-chip" data-role-id="administration">Administration</span>
-      <p>Read-only monitoring workspace. You can review assigned student records, presentation readiness, and closeout status for this school. Review approvals, mentor assignment changes, account updates, and security controls stay with authorized staff.</p>
+    <section class="workspace-read-only-banner" data-workspace-mode="read-only" aria-label="School Admin read-only mode">
+      <span class="workspace-chip workspace-role-chip" data-role-id="administration">School Admin</span>
+      <p>Read-only monitoring workspace. You can review assigned student records, presentation readiness, and closeout status for this school. Ask a Global Admin to confirm this account's school access if account-management controls are missing.</p>
     </section>
   `;
 }
@@ -1901,7 +1901,7 @@ function siteReadOnlyAudience(scope = {}) {
 }
 
 function siteAccessModeLabel(scope = {}) {
-  if (!scope.readOnly) return "Administration access";
+  if (!scope.readOnly) return "School access";
   return siteReadOnlyAudience(scope) === "administration"
     ? "Leadership monitoring"
     : "Read-only viewer";
@@ -1911,8 +1911,8 @@ function readOnlyMonitoringOverviewCopy(scope = {}) {
   if (siteReadOnlyAudience(scope) === "administration") {
     return {
       kicker: "Leadership priorities",
-      title: "Administration monitoring queue",
-      detail: "Open the exact student lists and follow-up queues you can already monitor here; teachers and site staff still handle approvals, mentor assignment changes, account updates, and security settings.",
+      title: "School Admin monitoring queue",
+      detail: "Open the exact student lists and follow-up queues you can already monitor here; teachers and site staff still handle approvals, account changes, and security settings.",
       operationsTitle: "School follow-up to monitor",
       operationsDetail: "presentation or archive records need staff follow-up.",
     };
@@ -2006,7 +2006,7 @@ function renderSiteDashboardSection() {
         ${renderApiNotice(result)}
         ${renderProblemState({
           reason: "The school dashboard could not load for the assigned site.",
-          owner: "Administration or platform support.",
+          owner: "School Admin or platform support.",
           nextAction: "Refresh after the site assignment is confirmed.",
         })}
       </section>
@@ -2231,7 +2231,7 @@ function renderSiteStudentDirectorySection() {
         ${renderApiNotice(result)}
         ${renderProblemState({
           reason: "The student directory could not load for the assigned site.",
-          owner: "Administration or platform support.",
+          owner: "School Admin or platform support.",
           nextAction: "Refresh after the site assignment is confirmed.",
         })}
       </section>
@@ -2788,7 +2788,7 @@ function renderSiteStudentDetailSurface(directory) {
           ${renderApiNotice(state.result)}
           ${renderProblemState({
             reason: "This student detail is unavailable for the current school assignment.",
-            owner: "Administration or platform support.",
+            owner: "School Admin or platform support.",
             nextAction: "Use the visible rows or confirm the selected site assignment.",
           })}
         </div>
@@ -3287,7 +3287,7 @@ function renderStudentDetailTimeline(detail, state) {
           ${renderApiNotice(state.timelineResult)}
           ${renderProblemState({
             reason: "The full timeline could not be loaded for this account and school assignment.",
-            owner: "Administration or platform support.",
+            owner: "School Admin or platform support.",
             nextAction: "Use the preview or confirm the site assignment.",
           })}
         </div>
@@ -3547,7 +3547,9 @@ function renderSiteNextActions(actions = [], readOnly = false) {
   }
   return `
     <div class="workspace-list">
-      ${actions.map((action) => `
+      ${actions.map((action) => {
+        const canOpenAction = Boolean(action.actionSection && action.actionPreset && availableSectionIds().has(action.actionSection));
+        return `
         <article class="workspace-row">
           <div>
             <strong>${escapeHtml(action.label || "Next action")}</strong>
@@ -3555,14 +3557,15 @@ function renderSiteNextActions(actions = [], readOnly = false) {
           </div>
           <div class="workspace-row-actions">
             ${statusPill(action.status || "pending")}
-            ${action.actionSection && action.actionPreset ? `
+            ${canOpenAction ? `
               <button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(action.actionSection)}" data-section-preset="${escapeHtml(action.actionPreset)}">
                 ${escapeHtml(action.actionLabel || "Open")}
               </button>
             ` : `<span class="workspace-summary-badge">Summary only</span>`}
           </div>
         </article>
-      `).join("")}
+      `;
+      }).join("")}
     </div>
   `;
 }
@@ -7512,6 +7515,7 @@ function renderAdminUsersSection() {
     return renderPermissionDeniedSection("Users & Access", "account provisioning records");
   }
   const canCreateGlobal = hasGlobalAdminRole(roles);
+  const roleChoices = adminRoleChoicesForRoles(roles);
   const authConfig = authConfigForUi();
   const localAccountsOnly = !authConfig.googleSsoEnabled;
 
@@ -7521,9 +7525,9 @@ function renderAdminUsersSection() {
         <div>
           <p class="workspace-kicker">Users & Access</p>
           <h2>Add staff, admin, or student account</h2>
-          <p class="workspace-muted">Create local accounts for students, mentors, viewers, program teachers, administration, and site admins.</p>
+          <p class="workspace-muted">Create local accounts for the roles this workspace is allowed to manage at the selected school.</p>
         </div>
-        <span class="workspace-chip">${canCreateGlobal ? "Global Admin" : "Site Admin"}</span>
+        <span class="workspace-chip">${escapeHtml(canCreateGlobal ? "Global Admin" : canUseStaffAccessManagement(roles) ? "School staff access" : "Student and mentor access")}</span>
       </div>
       <form id="workspaceAdminImportForm" class="workspace-form" data-admin-action="import-users" data-admin-endpoint="/api/admin/users/import" data-admin-cache="no-store-response">
         <div class="workspace-form-section">
@@ -7549,12 +7553,12 @@ function renderAdminUsersSection() {
         </div>
         <div class="workspace-form-section">
           <p class="workspace-kicker">Choose account type</p>
-          ${renderAdminRoleQuickPicks(canCreateGlobal)}
+          ${renderAdminRoleQuickPicks(roleChoices)}
           <div class="workspace-form-grid">
             <label class="workspace-label">
               Account role
               <select class="workspace-select" name="roleId" required>
-                ${adminRoleOptions(canCreateGlobal)}
+                ${adminRoleOptions(roleChoices)}
               </select>
             </label>
             <div class="workspace-access-preview" data-admin-role-copy aria-live="polite"></div>
@@ -7851,7 +7855,7 @@ function renderAdminAccessAssignmentPanel() {
     <section class="workspace-card" data-admin-section="site-assignments">
       <div class="workspace-card-head">
         <div>
-          <p class="workspace-kicker">Site Admin management</p>
+          <p class="workspace-kicker">School access management</p>
           <h2>Manage Site Access</h2>
         </div>
         <span class="workspace-chip">${escapeHtml(body.scope?.siteName || "Current site")}</span>
@@ -7863,10 +7867,10 @@ function renderAdminAccessAssignmentPanel() {
       ${renderSiteAccessAssignmentHistory(body.history, users, programs)}
       ${renderSiteAccessGuidanceDisclosure()}
       <div class="workspace-assignment-tabs">
-        ${renderAccessAssignmentForm("mentor_student", "Mentors", users.mentors, students, "mentorUserId", "studentId")}
-        ${renderAccessAssignmentForm("viewer_student", "Viewers", users.viewers, students, "viewerUserId", "studentId")}
-        ${renderProgramTeacherAssignmentForm(users.programTeachers, programs)}
-        ${renderSiteRoleAssignmentForm("administration_site", "Administration", users.administration, body.scope?.siteId)}
+        ${permissions.canAssignMentors ? renderAccessAssignmentForm("mentor_student", "Mentors", users.mentors, students, "mentorUserId", "studentId") : ""}
+        ${permissions.canAssignViewers ? renderAccessAssignmentForm("viewer_student", "Viewers", users.viewers, students, "viewerUserId", "studentId") : ""}
+        ${permissions.canAssignProgramTeachers ? renderProgramTeacherAssignmentForm(users.programTeachers, programs) : ""}
+        ${permissions.canAssignAdministration ? renderSiteRoleAssignmentForm("administration_site", "School Admins", users.administration, body.scope?.siteId) : ""}
         ${permissions.canAssignSiteAdmins ? renderSiteRoleAssignmentForm("site_admin_site", "Site Admins", users.siteAdmins, body.scope?.siteId) : ""}
       </div>
     </section>
@@ -7890,16 +7894,16 @@ function renderSiteAccountManagementPanel(users = {}, scope = {}, permissions = 
       <div>
         <p class="workspace-kicker">Add/remove school accounts</p>
         <h3>Staff, admin, teacher, and student accounts</h3>
-        <p class="workspace-muted">Use Remove account for teachers, mentors, viewers, administration, site admins, or students who should no longer be active at this school. If the account has no other active school, sign-in is disabled and sessions are closed.</p>
+        <p class="workspace-muted">Use Remove account for the students, mentors, viewers, program teachers, School Admins, or Site Admins your role is allowed to manage at this school. If the account has no other active school, sign-in is disabled and sessions are closed.</p>
       </div>
       ${accounts.length ? `
         <div class="workspace-list">
-          ${accounts.map((account) => renderSiteAccountRow(account, scope, canManage && permissions.canAssignMentors !== false)).join("")}
+          ${accounts.map((account) => renderSiteAccountRow(account, scope, canManage && permissions.canAssignMentors !== false && canManageSiteAccountRow(account))).join("")}
         </div>
       ` : `
         <article class="workspace-empty-state-card" data-site-account-empty="true">
           <strong>No accounts are assigned to this school yet.</strong>
-          <p>Create a local account above as Student, Mentor, Viewer, Program Teacher, Administration, or Site Admin. It will appear here with a Remove account control after it is assigned to this school.</p>
+          <p>Create a local account above as an allowed role. It will appear here with a Remove account control after it is assigned to this school.</p>
         </article>
       `}
     </div>
@@ -7908,16 +7912,16 @@ function renderSiteAccountManagementPanel(users = {}, scope = {}, permissions = 
 
 function siteAccountRows(users = {}) {
   const groups = [
-    ["students", "Student"],
-    ["mentors", "Mentor"],
-    ["viewers", "Viewer"],
-    ["programTeachers", "Program Teacher"],
-    ["administration", "Administration"],
-    ["siteAdmins", "Site Admin"],
+    ["students", "Student", "student"],
+    ["mentors", "Mentor", "mentor"],
+    ["viewers", "Viewer", "viewer"],
+    ["programTeachers", "Program Teacher", "program_teacher"],
+    ["administration", "School Admin", "administration"],
+    ["siteAdmins", "Site Admin", "site_admin"],
   ];
   const rows = [];
   const seen = new Set();
-  for (const [key, label] of groups) {
+  for (const [key, label, roleId] of groups) {
     const values = Array.isArray(users[key]) ? users[key] : [];
     for (const user of values) {
       const userId = user.userId || user.studentId || user.id || "";
@@ -7925,6 +7929,7 @@ function siteAccountRows(users = {}) {
       const existing = rows.find((row) => row.userId === userId);
       if (existing) {
         if (!existing.roleLabels.includes(label)) existing.roleLabels.push(label);
+        if (!existing.roleIds.includes(roleId)) existing.roleIds.push(roleId);
         continue;
       }
       if (seen.has(userId)) continue;
@@ -7934,10 +7939,21 @@ function siteAccountRows(users = {}) {
         displayName: user.displayName || user.studentName || user.email || userId,
         email: user.email || "",
         roleLabels: [label],
+        roleIds: [roleId],
       });
     }
   }
   return rows.sort((left, right) => left.displayName.localeCompare(right.displayName));
+}
+
+function canManageSiteAccountRow(account = {}) {
+  const roles = roleIds(currentUser);
+  const targetRoles = Array.isArray(account.roleIds) ? account.roleIds : [];
+  if (hasGlobalAdminRole(roles)) return true;
+  if (!targetRoles.length) return false;
+  if (roles.has("program_teacher")) return targetRoles.every((roleId) => ["student", "mentor"].includes(roleId));
+  if (canUseStaffAccessManagement(roles)) return targetRoles.every((roleId) => ["student", "mentor", "viewer", "program_teacher"].includes(roleId));
+  return false;
 }
 
 function renderSiteAccountRow(account = {}, scope = {}, canManage = false) {
@@ -8000,13 +8016,13 @@ function renderSiteAccessAssignmentSummary(users = {}, programs = [], assignment
       ),
     }),
     renderAccessAssignmentSummaryRows({
-      title: "Administration access",
+      title: "School admin access",
       rows: assignments.administrationSite,
-      empty: "No administration access is active for this school.",
+      empty: "No School Admin access is active for this school.",
       renderRow: (row) => accessAssignmentRow(
         labels.user(row.userId),
         labels.site(row.siteId),
-        "Leadership visibility is read-only for this school.",
+        "School Admins can manage student, mentor, viewer, and program teacher access inside this school.",
       ),
     }),
   ];
@@ -8081,7 +8097,7 @@ function siteAccessHistoryTitle(row = {}) {
     mentor_student: "Mentor access",
     viewer_student: "Viewer access",
     program_teacher_program: "Program teacher access",
-    administration_site: "Administration access",
+    administration_site: "School admin access",
     site_admin_site: "Site admin access",
   }[row.assignmentType] || "Access";
   return `${label} ${row.action === "remove" ? "removed" : "assigned"}`;
@@ -8294,8 +8310,8 @@ function siteProgramOptions(programs = [], promptLabel = "Choose a program") {
   ].join("");
 }
 
-function adminRoleOptions(canCreateGlobal) {
-  return adminRoleChoices(canCreateGlobal)
+function adminRoleOptions(choices = []) {
+  return choices
     .map((role) => `<option value="${escapeHtml(role.value)}">${escapeHtml(role.label)}</option>`)
     .join("");
 }
@@ -8306,17 +8322,28 @@ function adminRoleChoices(canCreateGlobal) {
     { value: "mentor", label: "Mentor", detail: "Assigned students only." },
     { value: "viewer", label: "Viewer", detail: "Read-only student access." },
     { value: "program_teacher", label: "Program Teacher", detail: "Program review access." },
-    { value: "administration", label: "Administration", detail: "School leadership view." },
+    { value: "administration", label: "School Admin", detail: "School account support." },
     { value: "site_admin", label: "Site Admin", detail: "Manage this school." },
   ];
   if (canCreateGlobal) roles.push({ value: "global_admin", label: "Global Admin", detail: "Manage every site." });
   return roles;
 }
 
-function renderAdminRoleQuickPicks(canCreateGlobal, selectedRoleId = "student") {
+function adminRoleChoicesForRoles(roles) {
+  const choices = adminRoleChoices(hasGlobalAdminRole(roles));
+  if (hasGlobalAdminRole(roles)) return choices;
+  const allowed = roles.has("program_teacher")
+    ? ["student", "mentor"]
+    : canUseStaffAccessManagement(roles)
+      ? ["student", "mentor", "viewer", "program_teacher"]
+      : [];
+  return choices.filter((role) => allowed.includes(role.value));
+}
+
+function renderAdminRoleQuickPicks(choices = [], selectedRoleId = choices[0]?.value || "student") {
   return `
     <div class="workspace-role-choice-grid" data-admin-role-quick-picks="true" aria-label="Account role choices">
-      ${adminRoleChoices(canCreateGlobal).map((role) => {
+      ${choices.map((role) => {
         const selected = role.value === selectedRoleId;
         return `
           <button class="workspace-role-choice ${selected ? "is-active" : ""}" type="button" data-admin-role-pick="${escapeHtml(role.value)}" aria-pressed="${selected ? "true" : "false"}">
@@ -8386,7 +8413,7 @@ function renderSiteAccessGuidanceDisclosure() {
     ["Mentors", "Assign grants or restores mentor access for one student. Remove should match a current mentor-student row and does not delete student work."],
     ["Viewers", "Assign grants or restores read-only viewer access for one student. Remove only changes access and keeps account and student records intact."],
     ["Program Teachers", "Assign grants or restores program teacher access for this school. Remove does not delete accounts or program records."],
-    ["Administration", "Assign grants or restores read-only leadership visibility for this school. Remove only changes site visibility."],
+    ["School Admins", "Assign grants or restores school admin access for this school. Remove only changes site access and keeps school records intact."],
     ["Site Admins", "Assign grants or restores site admin access where this account is allowed to do that. Remove is recorded for review and keeps school records intact."],
   ];
   return renderWorkspaceDisclosurePanel({
@@ -8416,7 +8443,7 @@ function assignmentActionGuidance(type) {
     mentor_student: "Assign or remove one student's mentor access. Full rules are in Access guidance above.",
     viewer_student: "Assign or remove one student's read-only viewer access. Full rules are in Access guidance above.",
     program_teacher_program: "Assign or remove program teacher access for this school. Full rules are in Access guidance above.",
-    administration_site: "Assign or remove administration visibility for this school. Full rules are in Access guidance above.",
+    administration_site: "Assign or remove School Admin access for this school. Full rules are in Access guidance above.",
     site_admin_site: "Assign or remove site admin access for this school. Full rules are in Access guidance above.",
   };
   return `<p class="workspace-muted workspace-quiet-helper" data-site-access-action-guidance="${escapeHtml(type || "site_access")}">${escapeHtml(copy[type] || "Assign or remove access for the selected record. Full rules are in Access guidance above.")}</p>`;
@@ -10497,7 +10524,7 @@ function greetingForUser() {
   if (hasGlobalAdminRole(roles)) return "Global Admin workspace is ready.";
   if (roles.has("org_admin")) return "Organization workspace is ready.";
   if (roles.has("site_admin")) return "Site Admin workspace is ready.";
-  if (roles.has("administration")) return "Administration workspace is ready.";
+  if (roles.has("administration")) return "School Admin workspace is ready.";
   if (roles.has("student")) return "Your senior project is ready.";
   if (roles.has("program_teacher")) return "Teacher review is ready.";
   if (roles.has("mentor")) return "Mentor workspace is ready.";
@@ -10510,7 +10537,7 @@ function nextStepText() {
   if (dashboard?.nextAction) return dashboard.nextAction;
   const roles = roleIds(currentUser);
   if (roles.has("site_admin")) return "Review site progress, student readiness, mentor coverage, presentation status, and final-file signals available to this account.";
-  if (roles.has("administration")) return "Review assigned site students, readiness, presentation, and progress dashboards.";
+  if (roles.has("administration")) return "Review assigned school students, readiness, presentation, progress dashboards, and access needs.";
   if (roles.has("org_admin")) return "Review assigned organization and site summaries available to this account.";
   if (hasGlobalAdminRole(roles)) return "Review platform setup and multisite readiness available to this account.";
   if (roles.has("viewer")) return "Review assigned students in read-only mode.";
@@ -11450,7 +11477,7 @@ const ROLE_LABELS = {
   admin: "Global Admin",
   org_admin: "Organization Admin",
   site_admin: "Site Admin",
-  administration: "Administration",
+  administration: "School Admin",
   program_teacher: "Program Teacher",
   mentor: "Mentor",
   viewer: "Viewer",
@@ -11551,39 +11578,43 @@ const ROLE_WORKING_PROFILES = {
       "Use Program Dashboard to find the highest-priority students.",
       "Use Review Queue to approve, request revision, or leave comment-only feedback where allowed.",
       "Open student detail and operations views to coordinate follow-up with site staff.",
+      "Add or remove student and mentor accounts when your school asks you to keep your program roster current.",
     ],
     limits: [
       "You do not manage global security or platform setup.",
-      "You do not manage users unless another assigned role grants that access.",
+      "You do not manage Program Teacher, School Admin, Site Admin, or Global Admin accounts.",
     ],
     actions: [
       { section: "programDashboard", label: "Open Program Dashboard", detail: "Program or cohort progress and blockers." },
       { section: "teacher", label: "Open Review Queue", detail: "Submitted and revision-requested work." },
       { section: "students", label: "Open Students", detail: "Student detail and scoped filters." },
       { section: "operations", label: "Open Operations", detail: "Presentation, archive, and readiness blockers." },
+      { section: "adminUsers", label: "Open Users & Access", detail: "Student and mentor accounts." },
       { section: "presentation", label: "Open Presentation", detail: "Schedule, outline, and day-of status." },
     ],
   },
   administration: {
-    title: "Administration working profile",
-    job: "Monitor assigned school progress in read-only mode so leadership can see student status, readiness, presentation needs, and closeout blockers.",
+    title: "School Admin working profile",
+    job: "Support one or more assigned schools by managing student, mentor, viewer, and Program Teacher access while watching student status, readiness, presentation needs, and closeout blockers.",
     see: [
-      "Assigned school dashboard, student directory, operations readiness, presentation status, and aggregate readiness.",
+      "Assigned school dashboard, student directory, mentor coverage, site access records, operations readiness, presentation status, and aggregate readiness.",
       "Student detail context for leadership follow-up.",
-      "Read-only school health and progress signals.",
+      "School health and progress signals for the schools assigned to you.",
     ],
     do: [
       "Review the Site Dashboard for school-wide status.",
+      "Open Users & Access to add or remove students, mentors, viewers, and Program Teachers for assigned schools.",
       "Open Students, Operations, Presentation, and Readiness to find who needs staff follow-up.",
-      "Share clear follow-up needs with site staff who can take action.",
     ],
     limits: [
-      "You do not change reviews, sent work, mentor assignments, users, security, or final-file packages.",
-      "You do not use global platform tools.",
+      "You do not create or remove Global Admin or Site Admin access.",
+      "You do not use global platform tools or change platform security setup.",
     ],
     actions: [
       { section: "siteDashboard", label: "Open Site Dashboard", detail: "School-wide progress and needs." },
-      { section: "students", label: "Open Students", detail: "Read-only student directory." },
+      { section: "adminUsers", label: "Open Users & Access", detail: "Students, mentors, viewers, and Program Teachers." },
+      { section: "mentorAssignments", label: "Open Mentor Assignments", detail: "Coverage and assignment workflow." },
+      { section: "students", label: "Open Students", detail: "Student directory and follow-up filters." },
       { section: "operations", label: "Open Operations", detail: "Presentation, final-file, and readiness blockers." },
       { section: "presentation", label: "Open Presentation", detail: "Schedule and day-of status." },
       { section: "readiness", label: "Open Readiness", detail: "Aggregate school readiness." },
@@ -11797,12 +11828,15 @@ function hasGlobalAdminRole(roles) {
 }
 
 function isReadOnlyAdministrationUser(user) {
-  const roles = roleIds(user);
-  return roles.has("administration") && !hasGlobalAdminRole(roles) && !roles.has("org_admin") && !roles.has("site_admin");
+  return false;
 }
 
 function canUseUsersAccess(roles) {
-  return hasGlobalAdminRole(roles) || roles.has("site_admin");
+  return hasGlobalAdminRole(roles) || roles.has("site_admin") || roles.has("administration") || roles.has("program_teacher");
+}
+
+function canUseStaffAccessManagement(roles) {
+  return hasGlobalAdminRole(roles) || roles.has("site_admin") || roles.has("administration");
 }
 
 function canUseSitePrograms(roles) {
@@ -11822,7 +11856,7 @@ function hasSiteReviewQueueRole(roles) {
 }
 
 function hasSiteMentorAssignmentRole(roles) {
-  return ["platform_admin", "global_admin", "admin", "org_admin", "site_admin", "program_teacher"].some((role) => roles.has(role));
+  return ["platform_admin", "global_admin", "admin", "org_admin", "site_admin", "administration", "program_teacher"].some((role) => roles.has(role));
 }
 
 function hasSiteOperationsRole(roles) {
@@ -12866,7 +12900,7 @@ function updateAdminImportScopeFields() {
 
   const roleId = roleSelect.value;
   syncAdminRoleQuickPicks(form, roleId);
-  const showSite = roleId === "student" || roleId === "administration" || roleId === "site_admin";
+  const showSite = roleId === "student" || roleId === "mentor" || roleId === "viewer" || roleId === "administration" || roleId === "site_admin";
   const showProgram = roleId === "program_teacher";
   const showStudent = roleId === "mentor" || roleId === "viewer";
   const showGlobal = roleId === "global_admin";
@@ -12932,6 +12966,9 @@ function buildAdminImportBody(form) {
   if (roleId === "student" && siteIds.length === 0) {
     return { ok: false, message: "Choose at least one site for this student." };
   }
+  if ((roleId === "mentor" || roleId === "viewer") && siteIds.length === 0 && studentIds.length === 0) {
+    return { ok: false, message: `Choose at least one site or student for this ${roleLabel(roleId)}.` };
+  }
   if (roleId === "program_teacher" && programIds.length === 0) {
     return { ok: false, message: "Choose at least one program for this Program Teacher." };
   }
@@ -12967,8 +13004,8 @@ function renderAdminAccessPreview(form) {
     student: "Assigned school. Can view their own dashboard, work, evidence, feedback, and readiness.",
     mentor: "Assigned students only. Can view assigned student progress and feedback workflows.",
     viewer: "Assigned students only. Read-only.",
-    program_teacher: "Assigned program. Can view all students in selected program records.",
-    administration: "Assigned site. Leadership visibility over students and dashboards; no user or security management.",
+    program_teacher: "Assigned program. Can review assigned program records and manage student and mentor accounts.",
+    administration: "Assigned school. Can manage students, mentors, viewers, and Program Teachers for that school.",
     site_admin: "Assigned site. Can manage users and assignments inside the selected site.",
     global_admin: "Entire platform. Local account only and can manage every site.",
   }[roleId] || "Assigned records";

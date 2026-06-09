@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { onRequestGet as onSiteAccessAssignments } from "../functions/api/site/access-assignments.ts";
+import {
+  onRequestGet as onSiteAccessAssignments,
+  onRequestPost as onSiteAccessAssignmentsPost,
+} from "../functions/api/site/access-assignments.ts";
 import {
   DirectD1Adapter,
   runDemoSeed,
@@ -40,6 +43,10 @@ test("site access assignments route returns scoped recent access history without
 
   const siteAdmin = await expectAccessAssignments(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}`);
   assert.equal(siteAdmin.scope.siteId, PRIMARY_SITE_ID);
+  assert.equal(siteAdmin.permissions.canAssignMentors, true);
+  assert.equal(siteAdmin.permissions.canAssignProgramTeachers, true);
+  assert.equal(siteAdmin.permissions.canAssignAdministration, false);
+  assert.equal(siteAdmin.permissions.canAssignSiteAdmins, false);
   assert.equal(Array.isArray(siteAdmin.history), true);
   assert.equal(siteAdmin.history.length, 2);
   assert.deepEqual(siteAdmin.history.map((entry) => entry.action), ["assign", "remove"]);
@@ -59,6 +66,52 @@ test("site access assignments route returns scoped recent access history without
   const viewer = await routeAccessAssignments(env, tokens.viewerPrimary, `?siteId=${PRIMARY_SITE_ID}`);
   assert.equal(viewer.response.status, 403);
   assert.deepEqual(viewer.body, { error: "forbidden" });
+
+  const schoolAdmin = await expectAccessAssignments(env, tokens.schoolAdminPrimary, `?siteId=${PRIMARY_SITE_ID}`);
+  assert.equal(schoolAdmin.permissions.canAssignMentors, true);
+  assert.equal(schoolAdmin.permissions.canAssignViewers, true);
+  assert.equal(schoolAdmin.permissions.canAssignProgramTeachers, true);
+  assert.equal(schoolAdmin.permissions.canAssignAdministration, false);
+  assert.equal(schoolAdmin.permissions.canAssignSiteAdmins, false);
+
+  const programTeacher = await expectAccessAssignments(env, tokens.programTeacher, `?siteId=${PRIMARY_SITE_ID}`);
+  assert.equal(programTeacher.permissions.canAssignMentors, true);
+  assert.equal(programTeacher.permissions.canAssignViewers, false);
+  assert.equal(programTeacher.permissions.canAssignProgramTeachers, false);
+  assert.equal(programTeacher.permissions.canAssignAdministration, false);
+  assert.equal(programTeacher.permissions.canAssignSiteAdmins, false);
+
+  const teacherMentorPost = await routeAccessAssignmentsPost(env, tokens.programTeacher, {
+    siteId: PRIMARY_SITE_ID,
+    assignmentType: "mentor_student",
+    action: "assign",
+    targetUserId: "demo-mentor-001",
+    studentId: "demo-student-001",
+    adminNote: "Program Teacher assigns mentor support for a scoped student.",
+  });
+  assert.equal(teacherMentorPost.response.status, 200);
+  assert.equal(teacherMentorPost.body.ok, true);
+
+  const teacherProgramPost = await routeAccessAssignmentsPost(env, tokens.programTeacher, {
+    siteId: PRIMARY_SITE_ID,
+    assignmentType: "program_teacher_program",
+    action: "assign",
+    targetUserId: "demo-teacher-it-01",
+    programId: "it",
+    adminNote: "Program Teacher should not assign Program Teacher access.",
+  });
+  assert.equal(teacherProgramPost.response.status, 403);
+
+  const schoolAdminProgramPost = await routeAccessAssignmentsPost(env, tokens.schoolAdminPrimary, {
+    siteId: PRIMARY_SITE_ID,
+    assignmentType: "program_teacher_program",
+    action: "assign",
+    targetUserId: "demo-teacher-it-01",
+    programId: "it",
+    adminNote: "School Admin assigns Program Teacher access for this school.",
+  });
+  assert.equal(schoolAdminProgramPost.response.status, 200);
+  assert.equal(schoolAdminProgramPost.body.ok, true);
 
   assert.doesNotMatch(JSON.stringify(siteAdmin), FORBIDDEN_RESPONSE_FIELDS);
 
@@ -106,6 +159,8 @@ async function createSeededDemoFixture() {
 
   const tokens = {
     siteAdminPrimary: await seedSession(db, env, "demo-site-admin-desert-valley-high", "site-access-site-admin"),
+    schoolAdminPrimary: await seedSession(db, env, "demo-administration-desert-valley-high", "site-access-school-admin"),
+    programTeacher: await seedSession(db, env, "demo-teacher-it-01", "site-access-program-teacher"),
     viewerPrimary: await seedSession(db, env, "demo-viewer-desert-valley-high", "site-access-viewer"),
   };
 
@@ -185,4 +240,16 @@ async function routeAccessAssignments(env, token, query = "") {
   });
   const body = await response.json();
   return { response, body };
+}
+
+async function routeAccessAssignmentsPost(env, token, body) {
+  const response = await onSiteAccessAssignmentsPost({
+    request: buildRequest("https://local.capstone.test/api/site/access-assignments", token, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+    env,
+  });
+  return { response, body: await response.json() };
 }

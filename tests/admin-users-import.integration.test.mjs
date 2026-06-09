@@ -45,7 +45,7 @@ test("admin users import returns 403 when caller is not admin", async () => {
   assert.equal(fixture.db.data.auditEvents[0].action, "access.scope_validation_rejected");
   assert.equal(fixture.db.data.auditEvents[0].actor_user_id, "mentor-a");
   assert.equal(fixture.db.data.auditEvents[0].metadata.reason, "forbidden");
-  assert.equal(fixture.db.data.auditEvents[0].metadata.requiredRole, "global_admin_or_site_admin");
+  assert.equal(fixture.db.data.auditEvents[0].metadata.requiredRole, "global_admin_school_admin_site_admin_or_program_teacher");
 });
 
 test("admin users import validates json, reason, users, duplicate emails, and role scopes", async () => {
@@ -371,7 +371,7 @@ test("admin users import accepts V5 global, site, administration, and viewer rol
         users: [
           studentInput({ email: "global.admin@senior-capstone.test", displayName: "Global Admin", roleId: "global_admin", globalAdminConfirmation: true }),
           studentInput({ email: "site.admin@senior-capstone.test", displayName: "Site Admin", roleId: "site_admin", siteIds: ["site-a"] }),
-          studentInput({ email: "administration@senior-capstone.test", displayName: "Administration", roleId: "administration", siteIds: ["site-a"] }),
+          studentInput({ email: "administration@senior-capstone.test", displayName: "School Admin", roleId: "administration", siteIds: ["site-a"] }),
           studentInput({ email: "viewer@senior-capstone.test", displayName: "Viewer", roleId: "viewer", studentIds: ["student-scope"] }),
         ],
       },
@@ -390,6 +390,88 @@ test("admin users import accepts V5 global, site, administration, and viewer rol
   assert.equal(fixture.db.data.userRoles.some((row) => row.role_id === "administration" && row.scope_type === "site" && row.scope_id === "site-a"), true);
   assert.equal(fixture.db.data.userRoles.some((row) => row.role_id === "viewer" && row.scope_type === "global"), true);
   assert.equal(fixture.db.data.viewerStudentAssignments.some((row) => row.student_user_id === "student-scope" && Number(row.active) === 1), true);
+});
+
+test("School Admin can create mentors and Program Teachers for an assigned school", async () => {
+  const fixture = await createFixtureWithSession({ userId: "school-admin-a", roleId: "administration" });
+  const actorRole = fixture.db.data.userRoles.find((row) => row.user_id === "school-admin-a" && row.role_id === "administration");
+  actorRole.scope_type = "site";
+  actorRole.scope_id = "site-a";
+  fixture.db.data.siteUsers.push({ site_id: "site-a", user_id: "school-admin-a", membership_status: "active" });
+
+  const response = await onRequestPost({
+    request: buildJsonRequest(
+      "https://example.test/api/admin/users/import",
+      {
+        adminNote: "School admin adds staff for the test school.",
+        users: [
+          studentInput({ email: "mentor.school@senior-capstone.test", displayName: "School Mentor", roleId: "mentor", siteIds: ["site-a"] }),
+          teacherInput({ email: "teacher.school@senior-capstone.test", displayName: "School Program Teacher", programIds: ["it"] }),
+        ],
+      },
+      { cookie: `sc_session=${fixture.token}` },
+    ),
+    env: fixture.env,
+    params: {},
+  });
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.importedCount, 2);
+  const mentor = body.users.find((user) => user.email === "mentor.school@senior-capstone.test");
+  const teacher = body.users.find((user) => user.email === "teacher.school@senior-capstone.test");
+  assert.equal(fixture.db.data.userRoles.some((row) => row.user_id === mentor.id && row.role_id === "mentor"), true);
+  assert.equal(fixture.db.data.userRoles.some((row) => row.user_id === teacher.id && row.role_id === "program_teacher" && row.scope_type === "program" && row.scope_id === "it"), true);
+  assert.equal(fixture.db.data.siteUsers.some((row) => row.site_id === "site-a" && row.user_id === mentor.id && row.membership_status === "active"), true);
+  assert.equal(fixture.db.data.siteUsers.some((row) => row.site_id === "site-a" && row.user_id === teacher.id && row.membership_status === "active"), true);
+});
+
+test("Program Teacher can create students and mentors but not Program Teachers", async () => {
+  const fixture = await createFixtureWithSession({ userId: "program-teacher-a", roleId: "program_teacher" });
+  const actorRole = fixture.db.data.userRoles.find((row) => row.user_id === "program-teacher-a" && row.role_id === "program_teacher");
+  actorRole.scope_type = "program";
+  actorRole.scope_id = "it";
+  fixture.db.data.siteUsers.push({ site_id: "site-a", user_id: "program-teacher-a", membership_status: "active" });
+
+  const allowed = await onRequestPost({
+    request: buildJsonRequest(
+      "https://example.test/api/admin/users/import",
+      {
+        adminNote: "Program teacher maintains the local roster.",
+        users: [
+          studentInput({ email: "student.program@senior-capstone.test", displayName: "Program Student", siteIds: ["site-a"] }),
+          studentInput({ email: "mentor.program@senior-capstone.test", displayName: "Program Mentor", roleId: "mentor", siteIds: ["site-a"] }),
+        ],
+      },
+      { cookie: `sc_session=${fixture.token}` },
+    ),
+    env: fixture.env,
+    params: {},
+  });
+
+  assert.equal(allowed.status, 200);
+  const allowedBody = await allowed.json();
+  assert.equal(allowedBody.importedCount, 2);
+  const student = allowedBody.users.find((user) => user.email === "student.program@senior-capstone.test");
+  const mentor = allowedBody.users.find((user) => user.email === "mentor.program@senior-capstone.test");
+  assert.equal(fixture.db.data.userRoles.some((row) => row.user_id === student.id && row.role_id === "student"), true);
+  assert.equal(fixture.db.data.userRoles.some((row) => row.user_id === mentor.id && row.role_id === "mentor"), true);
+
+  const blocked = await onRequestPost({
+    request: buildJsonRequest(
+      "https://example.test/api/admin/users/import",
+      {
+        adminNote: "Program teacher should not create another teacher.",
+        users: [teacherInput({ email: "teacher.program.blocked@senior-capstone.test", displayName: "Blocked Program Teacher", programIds: ["it"] })],
+      },
+      { cookie: `sc_session=${fixture.token}` },
+    ),
+    env: fixture.env,
+    params: {},
+  });
+
+  assert.equal(blocked.status, 403);
+  assert.equal((await blocked.json()).error, "program_assignment_forbidden");
 });
 
 test("admin users import enforces reset-first login and keeps credential values out of audits", async () => {
@@ -762,8 +844,22 @@ class MockPreparedStatement {
       return { results: this.data.sites.filter((row) => row.status === "active").map((row) => ({ id: row.id })) };
     }
 
+    if (this.sql.startsWith("select distinct student.id from site_users")) {
+      const siteIds = this.params.map(String);
+      return {
+        results: this.data.siteUsers
+          .filter((row) => siteIds.includes(row.site_id) && row.membership_status === "active")
+          .filter((row) => this.data.userRoles.some((role) => role.user_id === row.user_id && role.role_id === "student"))
+          .map((row) => ({ id: row.user_id })),
+      };
+    }
+
     if (this.sql.startsWith("select id from programs where active = 1")) {
       return { results: this.data.programs.map((row) => ({ id: row.id })) };
+    }
+
+    if (this.sql.startsWith("select distinct user_accounts.id from user_accounts join user_roles")) {
+      return { results: [] };
     }
 
     if (this.sql.startsWith("select user_accounts.id from user_accounts join user_roles")) {

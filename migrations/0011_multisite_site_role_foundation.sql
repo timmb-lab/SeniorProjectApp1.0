@@ -43,7 +43,7 @@ CREATE INDEX IF NOT EXISTS idx_site_programs_program_active
 INSERT OR IGNORE INTO roles (id, label, description) VALUES
   ('platform_admin', 'Platform Admin', 'Platform/system administration across organizations and sites.'),
   ('org_admin', 'Organization Admin', 'Organization-level oversight across assigned sites.'),
-  ('site_admin', 'Administration', 'Site-level administration/leadership visibility and operations.'),
+  ('site_admin', 'Site Admin', 'Site-level administration/leadership visibility and operations.'),
   ('viewer', 'Viewer', 'Read-only operational visibility for assigned scope.');
 
 INSERT OR IGNORE INTO sites (

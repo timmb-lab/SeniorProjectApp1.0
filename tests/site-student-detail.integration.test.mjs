@@ -159,7 +159,15 @@ test("site student detail and timeline are scoped, bounded, role-aware, and reda
   const teacher = await expectDetail(env, tokens.programTeacher, stories.revisionLoop.id, `?siteId=${PRIMARY_SITE_ID}`);
   assert.equal(teacher.scope.role, "program_teacher");
   assert.equal(teacher.student.programId, "it");
-  for (const key of MUTATION_PERMISSION_KEYS) assert.equal(teacher.permissions[key], false, `program teacher ${key}`);
+  for (const key of [
+    "canMutateReviewDecision",
+    "canAddStaffNote",
+    "canManagePresentationOperations",
+    "canManageArchiveOperations",
+    "canManageSecurity",
+  ]) assert.equal(teacher.permissions[key], false, `program teacher ${key}`);
+  assert.equal(teacher.permissions.canManageMentorAssignments, true, "program teacher canManageMentorAssignments");
+  assert.equal(teacher.permissions.canManageUsers, false, "program teacher canManageUsers");
   const teacherDenied = await routeDetail(env, tokens.programTeacher, nonItStudent.id, `?siteId=${PRIMARY_SITE_ID}`);
   assert.equal(teacherDenied.response.status, 404);
   assert.deepEqual(teacherDenied.body, { error: "not_found" });

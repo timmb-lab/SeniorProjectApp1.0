@@ -20,7 +20,7 @@ export const ROLE_DISPLAY_LABELS: Record<string, string> = {
   mentor: "Mentor",
   viewer: "Viewer",
   program_teacher: "Program Teacher",
-  administration: "Administration",
+  administration: "School Admin",
   site_admin: "Site Admin",
   global_admin: "Global Admin",
   admin: "Global Admin",
@@ -202,16 +202,25 @@ export async function getViewerAssignedStudentIds(env: Env, viewerId: string): P
 export async function canActorManageSite(env: Env, actor: UserAccount, siteId: string): Promise<boolean> {
   const access = await loadEffectiveAccess(env, actor);
   if (access.isGlobalAdmin) return activeSiteExists(env, siteId);
-  return access.canonicalRoleIds.includes("site_admin") && access.siteIds.includes(siteId);
+  return ["site_admin", "administration", "program_teacher"].some((roleId) => access.canonicalRoleIds.includes(roleId as RoleId))
+    && access.siteIds.includes(siteId);
 }
 
 export async function canActorCreateRole(env: Env, actor: UserAccount, roleId: RoleId, siteIds: string[]): Promise<boolean> {
   const access = await loadEffectiveAccess(env, actor);
   if (access.isGlobalAdmin) return true;
-  if (!access.canonicalRoleIds.includes("site_admin")) return false;
   if (isGlobalAdminRole(roleId) || roleId === "global_admin") return false;
   if (roleId === "site_admin") return false;
-  if (!siteIds.length && ["student", "mentor", "viewer", "program_teacher"].includes(roleId)) {
+
+  const siteManager = access.canonicalRoleIds.includes("site_admin") || access.canonicalRoleIds.includes("administration");
+  const programTeacher = access.canonicalRoleIds.includes("program_teacher");
+  const allowedRoles = siteManager
+    ? ["student", "mentor", "viewer", "program_teacher"]
+    : programTeacher
+      ? ["student", "mentor"]
+      : [];
+  if (!allowedRoles.includes(roleId)) return false;
+  if (!siteIds.length && allowedRoles.includes(roleId)) {
     return access.siteIds.length > 0;
   }
   return siteIds.every((siteId) => access.siteIds.includes(siteId));

@@ -929,7 +929,7 @@ async function verifySiteDashboardRouteProof(env, demoCredentials) {
     account.role === "site_admin" && account.scope === `site:${PRIMARY_SITE_ID}`
   ));
   if (!administrationAccount || !siteAdminAccount) {
-    throw new DemoProofError("SITE_DASHBOARD_CREDENTIALS_MISSING", "Missing demo Administration or site-admin credential for site dashboard proof.");
+    throw new DemoProofError("SITE_DASHBOARD_CREDENTIALS_MISSING", "Missing demo School Admin or Site Admin credential for site dashboard proof.");
   }
 
   const administrationCookie = await login(env, administrationAccount);
@@ -970,7 +970,7 @@ async function verifySiteProgramsRouteProof(env, demoCredentials) {
   ));
   const globalAdminAccount = (demoCredentials.personaLogins || []).find((account) => account.role === "global_admin");
   if (!administrationAccount || !siteAdminAccount || !teacherAccount || !mentorAccount || !viewerAccount || !globalAdminAccount) {
-    throw new DemoProofError("SITE_PROGRAMS_CREDENTIALS_MISSING", "Missing demo Administration, Site Admin, Program Teacher, Mentor, Viewer, or Global Admin credential for Programs proof.");
+    throw new DemoProofError("SITE_PROGRAMS_CREDENTIALS_MISSING", "Missing demo School Admin, Site Admin, Program Teacher, Mentor, Viewer, or Global Admin credential for Programs proof.");
   }
 
   const administrationCookie = await login(env, administrationAccount);
@@ -1477,7 +1477,7 @@ async function verifySiteOperationsReadinessRouteProof(env, demoCredentials) {
   const teacherAccount = (demoCredentials.programTeacherLogins || []).find((account) => account.scope === "program:it");
   const mentorAccount = (demoCredentials.mentorLogins || []).find((account) => account.email.includes("mentor001"));
   if (!administrationAccount || !siteAdminAccount || !teacherAccount || !mentorAccount) {
-    throw new DemoProofError("SITE_OPERATIONS_READINESS_CREDENTIALS_MISSING", "Missing demo Administration, site-admin, program-teacher, or mentor credential for operations readiness proof.");
+    throw new DemoProofError("SITE_OPERATIONS_READINESS_CREDENTIALS_MISSING", "Missing demo School Admin, Site Admin, Program Teacher, or Mentor credential for operations readiness proof.");
   }
 
   const administrationCookie = await login(env, administrationAccount);

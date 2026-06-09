@@ -59,12 +59,13 @@ test("V5 viewer access is limited to explicitly assigned students", async () => 
   assert.equal(await canManageUsers(env, users.viewer), false);
 });
 
-test("V5 distinguishes Administration read-only visibility from Site Admin management", async () => {
+test("V5 distinguishes School Admin school access from Site Admin program management", async () => {
   const { env, users } = await createV5Fixture();
 
   assert.equal(await canViewSiteDashboard(env, users.administration, "site-a"), true);
   assert.equal(await canViewReadinessReports(env, users.administration, "site-a"), true);
-  assert.equal(await canManageSiteUsers(env, users.administration, "site-a"), false);
+  assert.equal(await canViewMentorAssignments(env, users.administration, "site-a"), true);
+  assert.equal(await canManageSiteUsers(env, users.administration, "site-a"), true);
   assert.equal(await canManageSitePrograms(env, users.administration, "site-a"), false);
   assert.equal(await canViewReviewQueue(env, users.administration, "site-a"), false);
 

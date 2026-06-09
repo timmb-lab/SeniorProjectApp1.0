@@ -155,7 +155,7 @@ test("viewer has assigned-student read-only capabilities and no mutation or secu
   assert.equal(await canViewAuditEvents(env, users.viewerA1, "site-a1"), false);
 });
 
-test("program teacher remains program scoped and cannot manage users or security", async () => {
+test("program teacher remains program scoped and only manages mentor coverage", async () => {
   const { env, users } = await createSitePermissionFixture();
 
   assert.equal(await isProgramTeacher(env, users.teacherIt.id), true);
@@ -171,7 +171,7 @@ test("program teacher remains program scoped and cannot manage users or security
   assert.equal(await canMutateReviewDecision(env, users.teacherIt, "submission-b1"), false);
   assert.equal(await canManageUsers(env, users.teacherIt), false);
   assert.equal(await canManageSecurity(env, users.teacherIt), false);
-  assert.equal(await canManageMentorAssignments(env, users.teacherIt, "site-a1"), false);
+  assert.equal(await canManageMentorAssignments(env, users.teacherIt, "site-a1"), true);
 
   assert.equal(await canViewStudentDirectory(env, users.teacherEmpty, "site-a1"), false);
   assert.equal(await canMutateReviewDecision(env, users.teacherEmpty, "submission-a1"), false);

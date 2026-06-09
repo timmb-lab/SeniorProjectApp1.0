@@ -132,8 +132,10 @@ export function isReadOnlyViewer(roleIds: RoleId[]): boolean {
     || roleId === "global_admin"
     || roleId === "org_admin"
     || roleId === "site_admin"
+    || roleId === "administration"
+    || roleId === "program_teacher"
   ));
-  return (roleIds.includes("viewer") || roleIds.includes("administration")) && !mutationRole;
+  return roleIds.includes("viewer") && !mutationRole;
 }
 
 export function cleanId(value: string | null): string {

@@ -60,9 +60,9 @@ export const onRequestDelete: PagesFunction<Env> = async ({ request, env, params
       });
       return json({ error: "forbidden" }, { status: 403 });
     }
-    if (targetAccess.isGlobalAdmin || targetAccess.canonicalRoleIds.includes("site_admin")) {
+    if (!canRemoveSiteAccount(callerAccess, targetAccess)) {
       await auditAccountRemoval(env, request, caller, "security.denied_access", {
-        reason: "elevated_target_requires_global_admin",
+        reason: "target_role_not_allowed",
         targetUserId,
         siteId,
         actorRole: callerAccess.primaryRole,
@@ -247,6 +247,28 @@ async function auditAccountRemoval(
     request,
     metadata,
   });
+}
+
+function canRemoveSiteAccount(
+  callerAccess: Awaited<ReturnType<typeof loadEffectiveAccess>>,
+  targetAccess: Awaited<ReturnType<typeof loadEffectiveAccess>>,
+): boolean {
+  if (callerAccess.isGlobalAdmin) return true;
+  if (targetAccess.isGlobalAdmin) return false;
+
+  const targetRoles = targetAccess.canonicalRoleIds;
+  if (callerAccess.canonicalRoleIds.includes("program_teacher")) {
+    return hasOnlyAllowedTargetRoles(targetRoles, ["student", "mentor"]);
+  }
+  if (callerAccess.canonicalRoleIds.includes("site_admin") || callerAccess.canonicalRoleIds.includes("administration")) {
+    return hasOnlyAllowedTargetRoles(targetRoles, ["student", "mentor", "viewer", "program_teacher"]);
+  }
+  return false;
+}
+
+function hasOnlyAllowedTargetRoles(targetRoles: string[], allowedRoles: string[]): boolean {
+  return targetRoles.length > 0
+    && targetRoles.every((roleId) => allowedRoles.includes(roleId));
 }
 
 function routeParam(params: Record<string, string | string[]> | undefined, key: string): string {

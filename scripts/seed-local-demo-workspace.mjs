@@ -904,7 +904,7 @@ async function buildDemoDataset({
   await addStaffPersona({
     id: "demo-administration-desert-valley-high",
     email: `administration.desert-valley-high@${STAFF_DOMAIN}`,
-    displayName: "Avery Administration",
+    displayName: "Avery School Admin",
     roleId: "administration",
     scopeType: "site",
     scopeId: PRIMARY_SITE_ID,

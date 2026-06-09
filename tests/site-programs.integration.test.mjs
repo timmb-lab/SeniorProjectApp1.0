@@ -144,7 +144,7 @@ test("site programs route stays scoped and supports add/remove site mappings", a
   assert.equal(Number(restoredRow.active), 1);
 
   for (const [label, token, adminNote] of [
-    ["administration", tokens.administrationPrimary, "Administration should not manage site programs"],
+    ["administration", tokens.administrationPrimary, "School Admin should not manage site programs"],
     ["program_teacher", tokens.teacherPrimary, "Program Teacher should not manage site programs"],
     ["mentor", tokens.mentorPrimary, "Mentor should not manage site programs"],
     ["viewer", tokens.viewerPrimary, "Viewer should not manage site programs"],

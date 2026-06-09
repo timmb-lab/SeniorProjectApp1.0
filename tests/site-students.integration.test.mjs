@@ -88,7 +88,7 @@ test("site student directory is site-scoped, paginated, filterable, role-gated, 
   assert.equal(teacher.students.every((student) => student.programId === "it"), true);
   assert.deepEqual(teacher.filterOptions.programs.map((program) => program.programId), ["it"]);
   assert.equal(teacher.scope.accessibleSites.length, 1);
-  assert.equal(teacher.permissions.canManageMentorAssignments, false);
+  assert.equal(teacher.permissions.canManageMentorAssignments, true);
 
   for (const [label, token] of [
     ["mentor", tokens.mentor],

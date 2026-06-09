@@ -43,7 +43,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   if (!user) return json({ error: "unauthorized" }, { status: 401 });
 
   const context = await siteContext(env, user);
-  if (!context.roleIds.some((roleId) => ["global_admin", "admin", "platform_admin", "site_admin"].includes(roleId))) {
+  if (!context.roleIds.some((roleId) => ["global_admin", "admin", "platform_admin", "site_admin", "administration", "program_teacher"].includes(roleId))) {
     await auditAccessAssignments(env, request, user, context, "security.denied_access", {
       reason: "role_not_allowed_for_site_access_assignments",
     });
@@ -58,7 +58,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     context,
     requestedSiteId,
     canViewSite: (siteId) => canManageSiteUsers(env, user, siteId),
-    defaultSiteRoleIds: ["global_admin", "admin", "platform_admin"],
+    defaultSiteRoleIds: ["global_admin", "admin", "platform_admin", "administration", "program_teacher"],
   });
 
   if (selection.kind === "denied") {
@@ -108,6 +108,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     loadRecentAccessAssignmentHistory(env, siteId),
   ]);
 
+  const actorAccess = await loadEffectiveAccess(env, user);
+
   await auditAccessAssignments(env, request, user, context, "site_access_assignments_viewed", {
     siteId,
   });
@@ -142,12 +144,12 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     },
     history,
     permissions: {
-      canAssignMentors: true,
-      canAssignViewers: true,
-      canAssignProgramTeachers: true,
-      canAssignAdministration: true,
-      canAssignSiteAdmins: (await loadEffectiveAccess(env, user)).isGlobalAdmin,
-      canCreateGlobalAdmin: (await loadEffectiveAccess(env, user)).isGlobalAdmin,
+      canAssignMentors: canManageAccessAssignmentType(actorAccess, "mentor_student"),
+      canAssignViewers: canManageAccessAssignmentType(actorAccess, "viewer_student"),
+      canAssignProgramTeachers: canManageAccessAssignmentType(actorAccess, "program_teacher_program"),
+      canAssignAdministration: canManageAccessAssignmentType(actorAccess, "administration_site"),
+      canAssignSiteAdmins: canManageAccessAssignmentType(actorAccess, "site_admin_site"),
+      canCreateGlobalAdmin: actorAccess.isGlobalAdmin,
     },
   });
 };
@@ -180,6 +182,15 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   if (!await canManageSiteUsers(env, user, requestedSiteId)) {
     await auditAccessAssignments(env, request, user, context, "security.denied_access", {
       reason: "site_not_manageable",
+      requestedSiteId,
+      assignmentType,
+    });
+    return json({ error: "forbidden" }, { status: 403 });
+  }
+  const actorAccess = await loadEffectiveAccess(env, user);
+  if (!canManageAccessAssignmentType(actorAccess, assignmentType)) {
+    await auditAccessAssignments(env, request, user, context, "security.denied_access", {
+      reason: "assignment_type_not_allowed",
       requestedSiteId,
       assignmentType,
     });
@@ -522,6 +533,20 @@ function roleForAssignmentType(type: AssignmentType): RoleId {
   if (type === "program_teacher_program") return "program_teacher";
   if (type === "administration_site") return "administration";
   return "site_admin";
+}
+
+function canManageAccessAssignmentType(
+  actorAccess: Awaited<ReturnType<typeof loadEffectiveAccess>>,
+  type: AssignmentType,
+): boolean {
+  if (actorAccess.isGlobalAdmin) return true;
+  if (actorAccess.canonicalRoleIds.includes("program_teacher")) return type === "mentor_student";
+  if (actorAccess.canonicalRoleIds.includes("site_admin") || actorAccess.canonicalRoleIds.includes("administration")) {
+    return type === "mentor_student"
+      || type === "viewer_student"
+      || type === "program_teacher_program";
+  }
+  return false;
 }
 
 function auditActionFor(type: AssignmentType, action: string): string {

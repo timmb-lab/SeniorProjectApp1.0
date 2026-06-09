@@ -377,7 +377,7 @@ export async function canAddStaffNote(env: Env, viewer: UserAccount, studentId: 
 
 export async function canViewMentorAssignments(env: Env, viewer: UserAccount, siteId?: string): Promise<boolean> {
   if (await isPlatformAdmin(env, viewer.id)) return siteId ? activeSiteExists(env, normalizeScopeId(siteId)) : true;
-  if (await hasAnyRole(env, viewer.id, ["org_admin", "site_admin"])) {
+  if (await hasAnyRole(env, viewer.id, ["org_admin", "site_admin", "administration"])) {
     return siteId ? canAccessSite(env, viewer, siteId) : (await getAccessibleSiteIds(env, viewer)).length > 0;
   }
   if (await hasRole(env, viewer.id, "program_teacher")) return siteId ? canAccessSite(env, viewer, siteId) : (await getProgramTeacherScopedStudentIds(env, viewer)).valid;
@@ -387,7 +387,7 @@ export async function canViewMentorAssignments(env: Env, viewer: UserAccount, si
 
 export async function canManageMentorAssignments(env: Env, viewer: UserAccount, siteId?: string): Promise<boolean> {
   if (await isPlatformAdmin(env, viewer.id)) return siteId ? activeSiteExists(env, normalizeScopeId(siteId)) : true;
-  if (!await hasAnyRole(env, viewer.id, ["org_admin", "site_admin"])) return false;
+  if (!await hasAnyRole(env, viewer.id, ["org_admin", "site_admin", "administration", "program_teacher"])) return false;
   return siteId ? canAccessSite(env, viewer, siteId) : (await getAccessibleSiteIds(env, viewer)).length > 0;
 }
 
@@ -564,7 +564,7 @@ export async function canManageUsers(env: Env, viewer: UserAccount): Promise<boo
 
 export async function canManageSiteUsers(env: Env, viewer: UserAccount, siteId?: string): Promise<boolean> {
   if (await isGlobalAdmin(env, viewer.id)) return siteId ? activeSiteExists(env, normalizeScopeId(siteId)) : true;
-  if (!await hasRole(env, viewer.id, "site_admin")) return false;
+  if (!await hasAnyRole(env, viewer.id, ["site_admin", "administration", "program_teacher"])) return false;
   return siteId ? canAccessSite(env, viewer, siteId) : (await getAccessibleSiteIds(env, viewer)).length > 0;
 }
 

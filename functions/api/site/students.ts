@@ -284,11 +284,11 @@ async function loadPermissions(env: Env, user: UserAccount, siteId: string, read
     canViewStudentDetail: canViewDirectory,
     canViewStudentEvidence: canViewDirectory,
     canViewReviewQueue: canViewReviewQueuePermission,
-    canManageMentorAssignments: readOnly || programTeacherScoped ? false : canManageMentorAssignmentsPermission,
+    canManageMentorAssignments: readOnly ? false : canManageMentorAssignmentsPermission,
     canViewPresentationOperations: canViewPresentationOperationsPermission,
     canViewArchiveOperations: canViewArchiveOperationsPermission,
     canManageUsers: readOnly || programTeacherScoped ? false : canManageUsersPermission,
-    canManageSiteUsers: readOnly || programTeacherScoped ? false : canManageSiteUsersPermission,
+    canManageSiteUsers: readOnly ? false : canManageSiteUsersPermission,
     canManageSecurity: readOnly || programTeacherScoped ? false : canManageSecurityPermission,
   };
 }

@@ -2,7 +2,7 @@ PRAGMA foreign_keys = ON;
 
 INSERT OR IGNORE INTO roles (id, label, description) VALUES
   ('global_admin', 'Global Admin', 'Platform-level administration across every site. Requires local credentials.'),
-  ('administration', 'Administration', 'Assigned-site leadership visibility over students and programs.'),
+  ('administration', 'School Admin', 'School-level account and progress administration for assigned sites.'),
   ('viewer', 'Viewer', 'Read-only visibility for specifically assigned students.'),
   ('site_admin', 'Site Admin', 'Operational user and assignment administration for assigned sites.');
 
@@ -22,8 +22,8 @@ SET label = 'Site Admin',
 WHERE id = 'site_admin';
 
 UPDATE roles
-SET label = 'Administration',
-    description = 'Assigned-site leadership visibility over students and programs.'
+SET label = 'School Admin',
+    description = 'School-level account and progress administration for assigned sites.'
 WHERE id = 'administration';
 
 UPDATE roles
@@ -70,7 +70,7 @@ WHERE user_roles.role_id = 'site_admin'
   AND user_roles.scope_type = 'global';
 
 -- Legacy misc_admin was narrow reporting access. Only users that already
--- have an active site membership are mapped to Administration for that site.
+-- have an active site membership are mapped to School Admin for that site.
 INSERT OR IGNORE INTO user_roles (user_id, role_id, scope_type, scope_id, assigned_by)
 SELECT user_roles.user_id, 'administration', 'site', site_users.site_id, user_roles.assigned_by
 FROM user_roles

@@ -35,7 +35,7 @@ const CANYON_SITE_ID = "site-canyon-ridge-career";
 const FORBIDDEN_RESPONSE_FIELDS = /drive_file_id|drive_parent_folder_id|root_folder_id|index_sheet_id|storage_key|password_hash|password_salt|token_hash|client_secret|refresh_token|access_token|private_key|content_sha256|body_json|PASSWORD_PEPPER|temporaryPassword|setupPassword/i;
 const MUTATION_PERMISSION_KEYS = ["canManageMentorAssignments", "canManageUsers", "canManageSecurity"];
 
-test("site mentor assignment route is scoped, mutable for site ops, read-only by role, audited, and redacted", async () => {
+test("site mentor assignment route is scoped, mutable for school ops and Program Teachers, audited, and redacted", async () => {
   const { env, db, tokens } = await createSeededDemoFixture();
   const missingPrimary = await findMissingMentorStudents(env, PRIMARY_SITE_ID, 3);
   const missingCanyon = await findMissingMentorStudents(env, CANYON_SITE_ID, 1);
@@ -61,9 +61,9 @@ test("site mentor assignment route is scoped, mutable for site ops, read-only by
   assert.equal(legacy.scope.role, "global_admin");
   assert.equal(legacy.permissions.canManageMentorAssignments, true);
 
-  const administrationDenied = await routeAssignments(env, tokens.orgAdmin, `?siteId=${PRIMARY_SITE_ID}`);
-  assert.equal(administrationDenied.response.status, 403);
-  assert.deepEqual(administrationDenied.body, { error: "forbidden" });
+  const schoolAdmin = await expectAssignments(env, tokens.orgAdmin, `?siteId=${PRIMARY_SITE_ID}`);
+  assert.equal(schoolAdmin.scope.role, "administration");
+  assert.equal(schoolAdmin.permissions.canManageMentorAssignments, true);
 
   const siteAdmin = await expectAssignments(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}`);
   assert.equal(siteAdmin.scope.role, "site_admin");
@@ -83,9 +83,9 @@ test("site mentor assignment route is scoped, mutable for site ops, read-only by
 
   const teacher = await expectAssignments(env, tokens.programTeacher, `?siteId=${PRIMARY_SITE_ID}&limit=100`);
   assert.equal(teacher.scope.role, "program_teacher");
-  assert.equal(teacher.scope.readOnly, true);
+  assert.equal(teacher.scope.readOnly, false);
   assert.equal(teacher.scope.studentScope, "program_teacher");
-  assert.equal(teacher.permissions.canManageMentorAssignments, false);
+  assert.equal(teacher.permissions.canManageMentorAssignments, true);
   assert.equal(teacher.pagination.total < platform.pagination.total, true);
   assert.equal([...teacher.unassignedStudents, ...teacher.assignments].every((row) => row.programId === "it"), true);
 
@@ -167,6 +167,37 @@ test("site mentor assignment route is scoped, mutable for site ops, read-only by
   const afterDashboard = await expectDashboard(env, tokens.siteAdminPrimary);
   assert.equal(afterDashboard.summary.studentsNoMentor, beforeNoMentor - 1);
 
+  const teacherAssignable = teacher.unassignedStudents.find(
+    (row) => ![missingPrimary[0].id, missingPrimary[1].id, missingPrimary[2].id].includes(row.studentId),
+  );
+  assert.ok(teacherAssignable, "expected a Program Teacher scoped student without a mentor");
+  const teacherCreated = await routeAssignmentPost(env, tokens.programTeacher, {
+    siteId: PRIMARY_SITE_ID,
+    studentId: teacherAssignable.studentId,
+    mentorUserId: primaryMentor.id,
+    reason: "Program Teacher assigns mentor coverage for a scoped student.",
+  });
+  assert.equal(teacherCreated.response.status, 200);
+  assert.equal(teacherCreated.body.ok, true);
+
+  const schoolAdminAssignable = teacher.unassignedStudents.find(
+    (row) => ![
+      missingPrimary[0].id,
+      missingPrimary[1].id,
+      missingPrimary[2].id,
+      teacherAssignable.studentId,
+    ].includes(row.studentId),
+  );
+  assert.ok(schoolAdminAssignable, "expected another scoped student for School Admin assignment");
+  const schoolAdminCreated = await routeAssignmentPost(env, tokens.orgAdmin, {
+    siteId: PRIMARY_SITE_ID,
+    studentId: schoolAdminAssignable.studentId,
+    mentorUserId: primaryMentor.id,
+    reason: "School Admin assigns mentor coverage for an assigned school student.",
+  });
+  assert.equal(schoolAdminCreated.response.status, 200);
+  assert.equal(schoolAdminCreated.body.ok, true);
+
   await db.prepare(
     `INSERT INTO user_roles (user_id, role_id, scope_type, scope_id)
      VALUES (?, 'site_admin', 'site', ?)`,
@@ -222,8 +253,6 @@ test("site mentor assignment route is scoped, mutable for site ops, read-only by
 
   for (const [label, token] of [
     ["viewer", tokens.viewerPrimary],
-    ["administration", tokens.orgAdmin],
-    ["program_teacher", tokens.programTeacher],
     ["mentor", tokens.mentor],
     ["student", tokens.student],
     ["misc", tokens.miscAdmin],
@@ -237,7 +266,7 @@ test("site mentor assignment route is scoped, mutable for site ops, read-only by
     assert.equal(denied.response.status, 403, label);
   }
 
-  for (const body of [platform, legacy, siteAdmin, teacher, noMentor, paged, offset, searched, programFiltered, mentorFiltered]) {
+  for (const body of [platform, legacy, schoolAdmin, siteAdmin, teacher, noMentor, paged, offset, searched, programFiltered, mentorFiltered]) {
     assert.doesNotMatch(JSON.stringify(body), FORBIDDEN_RESPONSE_FIELDS);
   }
 

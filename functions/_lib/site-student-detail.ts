@@ -1419,7 +1419,8 @@ async function loadDetailPermissions(
 ) {
   const programTeacherScoped = roleIds.includes("program_teacher");
   const mentorScoped = roleIds.includes("mentor");
-  const suppressDetailMutation = readOnly || programTeacherScoped || mentorScoped;
+  const suppressReviewAndOperationsMutation = readOnly || programTeacherScoped || mentorScoped;
+  const suppressAccountAndMentorMutation = readOnly || mentorScoped;
   const [
     canViewStudentEvidencePermission,
     canDownloadStudentEvidencePermission,
@@ -1452,15 +1453,15 @@ async function loadDetailPermissions(
     canViewStudentEvidence: canViewStudentEvidencePermission,
     canDownloadStudentEvidence: readOnly ? false : canDownloadStudentEvidencePermission,
     canViewReviewQueue: canViewReviewQueuePermission,
-    canMutateReviewDecision: suppressDetailMutation ? false : canMutateReviewDecisionPermission,
-    canAddStaffNote: suppressDetailMutation ? false : canAddStaffNotePermission,
-    canManageMentorAssignments: suppressDetailMutation ? false : canManageMentorAssignmentsPermission,
+    canMutateReviewDecision: suppressReviewAndOperationsMutation ? false : canMutateReviewDecisionPermission,
+    canAddStaffNote: suppressReviewAndOperationsMutation ? false : canAddStaffNotePermission,
+    canManageMentorAssignments: suppressAccountAndMentorMutation ? false : canManageMentorAssignmentsPermission,
     canViewPresentationOperations: canViewPresentationOperationsPermission,
-    canManagePresentationOperations: suppressDetailMutation ? false : canManagePresentationOperationsPermission,
+    canManagePresentationOperations: suppressReviewAndOperationsMutation ? false : canManagePresentationOperationsPermission,
     canViewArchiveOperations: canViewArchiveOperationsPermission,
-    canManageArchiveOperations: suppressDetailMutation ? false : canManageArchiveOperationsPermission,
-    canManageUsers: suppressDetailMutation ? false : canManageUsersPermission,
-    canManageSecurity: suppressDetailMutation ? false : canManageSecurityPermission,
+    canManageArchiveOperations: suppressReviewAndOperationsMutation ? false : canManageArchiveOperationsPermission,
+    canManageUsers: suppressAccountAndMentorMutation ? false : canManageUsersPermission,
+    canManageSecurity: suppressReviewAndOperationsMutation ? false : canManageSecurityPermission,
   };
 }
 
@@ -1590,7 +1591,7 @@ async function loadTimelineEvents(
       actorName: row.requested_by_name || "",
       status: row.status,
       reason: "",
-      owner: "Administration",
+      owner: "School Admin",
       nextAction: archiveNextAction(canonicalArchiveStatus(row.status), row.status),
     })),
   ];

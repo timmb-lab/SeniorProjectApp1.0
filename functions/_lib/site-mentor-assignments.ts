@@ -144,7 +144,7 @@ export async function handleSiteMentorAssignmentsGet({
     context,
     requestedSiteId,
     canViewSite: (siteId) => canViewMentorAssignments(env, user, siteId),
-    defaultSiteRoleIds: ["platform_admin", "global_admin", "admin", "org_admin", "program_teacher"],
+    defaultSiteRoleIds: ["platform_admin", "global_admin", "admin", "org_admin", "administration", "program_teacher"],
   });
 
   if (selection.kind === "denied") {
@@ -253,7 +253,7 @@ export async function handleSiteMentorAssignmentsPost({
     context,
     requestedSiteId,
     canViewSite: (siteId) => canManageMentorAssignments(env, user, siteId),
-    defaultSiteRoleIds: ["platform_admin", "global_admin", "admin", "org_admin", "site_admin"],
+    defaultSiteRoleIds: ["platform_admin", "global_admin", "admin", "org_admin", "site_admin", "administration", "program_teacher"],
   });
 
   if (selection.kind === "denied") {
@@ -377,6 +377,7 @@ function canUseMentorAssignmentRole(roleIds: RoleId[]): boolean {
     || roleId === "global_admin"
     || roleId === "org_admin"
     || roleId === "site_admin"
+    || roleId === "administration"
     || roleId === "program_teacher"
   ));
 }
@@ -419,7 +420,7 @@ async function buildMentorAssignmentPayload({
   }
 
   const programTeacherScoped = Boolean(teacherScope);
-  const readOnly = isReadOnlyViewer(context.roleIds) || programTeacherScoped;
+  const readOnly = isReadOnlyViewer(context.roleIds);
   const scopeSql = buildScopeSql(site.id, teacherScope ? teacherScope.studentIds : null);
   const filterWhere = buildFilterWhere(filters);
   const [total, filteredTotal] = await Promise.all([
@@ -787,7 +788,7 @@ async function loadPermissions(env: Env, user: UserAccount, siteId: string, read
     canViewStudentDirectory(env, user, siteId),
   ]);
   return {
-    canManageMentorAssignments: readOnly || programTeacherScoped ? false : canManageAssignmentsPermission,
+    canManageMentorAssignments: readOnly ? false : canManageAssignmentsPermission,
     canViewStudentDetail: canViewDetail || canViewDirectory,
     canViewStudentDirectory: canViewDirectory,
     canManageUsers: false,

@@ -66,8 +66,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const caller = await getCurrentUser(request, env);
   if (!caller) return workflowError("unauthorized", 401);
   const actorAccess = await loadEffectiveAccess(env, caller);
-  if (!actorAccess.isGlobalAdmin && !actorAccess.canonicalRoleIds.includes("site_admin")) {
-    await auditRejected(env, request, caller, "forbidden", { requiredRole: "global_admin_or_site_admin" });
+  if (!canUseUserImport(actorAccess)) {
+    await auditRejected(env, request, caller, "forbidden", { requiredRole: "global_admin_school_admin_site_admin_or_program_teacher" });
     return workflowError("forbidden", 403);
   }
 
@@ -250,6 +250,13 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   });
 };
 
+function canUseUserImport(actorAccess: Awaited<ReturnType<typeof loadEffectiveAccess>>): boolean {
+  return actorAccess.isGlobalAdmin
+    || actorAccess.canonicalRoleIds.includes("site_admin")
+    || actorAccess.canonicalRoleIds.includes("administration")
+    || actorAccess.canonicalRoleIds.includes("program_teacher");
+}
+
 function normalizeUserInput(value: unknown): NormalizedImportUser | null {
   if (!value || typeof value !== "object") return null;
   const input = value as ImportUserInput;
@@ -347,6 +354,10 @@ async function validateUser(
 
   if (!await canActorCreateRole(env, caller, roleId, user.siteIds)) {
     return reject(403, "role_creation_forbidden", "You do not have permission to create that role.");
+  }
+
+  for (const siteId of user.siteIds) {
+    if (!await activeSiteExists(env, siteId)) return reject(404, "site_not_found", "The selected site was not found.");
   }
 
   for (const studentId of user.studentIds) {

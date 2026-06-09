@@ -107,13 +107,13 @@ function profileRoutesForRole(roleId) {
       status: 200,
       body: { ok: true, checks: [], archive: { status: "not_requested" }, storage: {}, retention: {} },
     },
-    "/api/site/dashboard": { status: 200, body: siteDashboardFixture({ readOnly: roleId === "viewer" || roleId === "administration" }) },
+    "/api/site/dashboard": { status: 200, body: siteDashboardFixture({ readOnly: roleId === "viewer", role: roleId }) },
     "/api/site/programs": { status: 200, body: siteProgramsFixture() },
-    "/api/site/students": { status: 200, body: siteStudentsFixture({ readOnly: roleId === "viewer" || roleId === "administration", role: roleId }) },
+    "/api/site/students": { status: 200, body: siteStudentsFixture({ readOnly: roleId === "viewer", role: roleId }) },
     "/api/site/review-queue": { status: 200, body: siteReviewQueueFixture({ role: roleId, readOnly: roleId !== "program_teacher" }) },
     "/api/site/mentor-assignments": { status: 200, body: siteMentorAssignmentsFixture({ role: roleId }) },
     "/api/site/access-assignments": { status: 200, body: siteAccessAssignmentsFixture() },
-    "/api/site/operations-readiness": { status: 200, body: siteOperationsReadinessFixture({ role: roleId, readOnly: roleId === "viewer" || roleId === "administration" }) },
+    "/api/site/operations-readiness": { status: 200, body: siteOperationsReadinessFixture({ role: roleId, readOnly: roleId === "viewer" }) },
     "/api/admin/role-assignments": { status: 200, body: { ok: true, assignments: [] } },
     "/api/admin/dashboard": {
       status: 200,
@@ -272,7 +272,7 @@ test("workspace renders simplified working profiles for every role", async () =>
     { roleId: "mentor", title: "Mentor working profile", action: "mentorDashboard", button: "Open Mentor Dashboard" },
     { roleId: "viewer", title: "Viewer working profile", action: "students", button: "Open Students" },
     { roleId: "program_teacher", title: "Program Teacher working profile", action: "teacher", button: "Open Review Queue" },
-    { roleId: "administration", title: "Administration working profile", action: "siteDashboard", button: "Open Site Dashboard" },
+    { roleId: "administration", title: "School Admin working profile", action: "siteDashboard", button: "Open Site Dashboard" },
     { roleId: "site_admin", title: "Site Admin working profile", action: "adminUsers", button: "Open Users &amp; Access" },
     { roleId: "org_admin", title: "Organization Admin working profile", action: "operations", button: "Open Operations" },
     { roleId: "global_admin", title: "Global Admin working profile", action: "adminDashboard", button: "Open Command Center" },
@@ -427,7 +427,7 @@ test("workspace exposes Figma-aligned design tokens and future site patterns", (
   assert.match(workspaceJs, /function renderReadOnlyBanner/);
   assert.match(workspaceJs, /data-workspace-mode="read-only"/);
   assert.match(workspaceJs, /site_admin: "Site Admin"/);
-  assert.match(workspaceJs, /administration: "Administration"/);
+  assert.match(workspaceJs, /administration: "School Admin"/);
   assert.match(workspaceJs, /platform_admin: "Global Admin"/);
   assert.match(workspaceJs, /org_admin: "Organization Admin"/);
   assert.match(workspaceJs, /viewer: "Viewer"/);
@@ -642,7 +642,7 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.doesNotMatch(siteDashboard, /Database-backed MVP|Cloudflare target|Audit-sensitive admin|Senior Capstone Product/);
   assert.match(siteDashboard, /workspace-site-context-badge/);
   assert.match(siteDashboard, /Default site/);
-  assert.match(siteDashboard, /Administration access/);
+  assert.match(siteDashboard, /School access/);
   assert.match(siteDashboard, /workspace-metric-tile/);
   assert.match(siteDashboard, /Students/);
   assert.match(siteDashboard, /No Mentor/);
@@ -2221,7 +2221,7 @@ test("program teacher dashboard detail actions preserve program dashboard contex
     },
     "/api/site/mentor-assignments": {
       status: 200,
-      body: siteMentorAssignmentsFixture({ role: "program_teacher", readOnly: true, canManage: false }),
+      body: siteMentorAssignmentsFixture({ role: "program_teacher", readOnly: false, canManage: true }),
     },
     "/api/program-teacher/dashboard": {
       status: 200,
@@ -4660,7 +4660,7 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
     },
     "/api/site/mentor-assignments": {
       status: 200,
-      body: siteMentorAssignmentsFixture({ role: "program_teacher", readOnly: true, canManage: false }),
+      body: siteMentorAssignmentsFixture({ role: "program_teacher", readOnly: false, canManage: true }),
     },
     "/api/site/operations-readiness": {
       status: 200,
@@ -4731,22 +4731,30 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
         user: {
           id: "administration-operations",
           email: "administration.operations@example.edu",
-          displayName: "Administration Operations",
+          displayName: "School Admin Operations",
           roles: [{ role_id: "administration", scope_type: "site", scope_id: "site-desert-valley-high" }],
         },
       },
     },
     "/api/site/dashboard": {
       status: 200,
-      body: siteDashboardFixture({ readOnly: true }),
+      body: siteDashboardFixture({ readOnly: false, role: "administration" }),
     },
     "/api/site/students": {
       status: 200,
-      body: siteStudentsFixture({ role: "administration", readOnly: true }),
+      body: siteStudentsFixture({ role: "administration", readOnly: false }),
+    },
+    "/api/site/mentor-assignments": {
+      status: 200,
+      body: siteMentorAssignmentsFixture({ role: "administration", readOnly: false, canManage: true }),
+    },
+    "/api/site/access-assignments": {
+      status: 200,
+      body: siteAccessAssignmentsFixture(),
     },
     "/api/site/operations-readiness": {
       status: 200,
-      body: siteOperationsReadinessFixture({ role: "administration", readOnly: true }),
+      body: siteOperationsReadinessFixture({ role: "administration", readOnly: false }),
     },
     "/api/presentation-slots": {
       status: 200,
@@ -5474,8 +5482,8 @@ test("workspace gates mentor assignment visibility and refresh behavior by role"
   const mentorRoleHelperBlock = workspaceJs.match(/function hasSiteMentorAssignmentRole[\s\S]*?function hasSiteOperationsRole/)?.[0] || "";
   const sectionOpenBlock = workspaceJs.match(/async function openWorkspaceSection[\s\S]*?function availableSections/)?.[0] || "";
   assert.match(workspaceJs, /function hasSiteMentorAssignmentRole\(roles\)/);
-  assert.match(mentorRoleHelperBlock, /"platform_admin",\s+"global_admin",\s+"admin",\s+"org_admin",\s+"site_admin",\s+"program_teacher"/);
-  assert.doesNotMatch(mentorRoleHelperBlock, /"viewer"|"administration"|"mentor"|"student"|"misc_admin"/);
+  assert.match(mentorRoleHelperBlock, /"platform_admin",\s+"global_admin",\s+"admin",\s+"org_admin",\s+"site_admin",\s+"administration",\s+"program_teacher"/);
+  assert.doesNotMatch(mentorRoleHelperBlock, /"viewer"|"mentor"|"student"|"misc_admin"/);
   assert.match(availableSectionsBlock, /id: "mentorAssignments", label: "Mentor Assignments", detail: "Coverage and assignment workflow"/);
   assert.match(loadWorkspaceDataBlock, /hasSiteMentorAssignmentRole\(roles\).*\/api\/site\/mentor-assignments/s);
   assert.match(sectionOpenBlock, /section === "mentorAssignments" && button\.dataset\.sectionPreset === "no-mentor"/);
@@ -7314,22 +7322,30 @@ test("workspace renders role-pending and permission-denied access states", async
         user: {
           id: "administration-read-only",
           email: "administration.readonly@example.edu",
-          displayName: "Administration Readonly",
+          displayName: "School Admin",
           roles: [{ role_id: "administration", scope_type: "site", scope_id: "site-desert-valley-high" }],
         },
       },
     },
     "/api/site/dashboard": {
       status: 200,
-      body: siteDashboardFixture({ readOnly: true, role: "administration" }),
+      body: siteDashboardFixture({ readOnly: false, role: "administration" }),
     },
     "/api/site/students": {
       status: 200,
-      body: siteStudentsFixture({ readOnly: true, role: "administration" }),
+      body: siteStudentsFixture({ readOnly: false, role: "administration" }),
+    },
+    "/api/site/mentor-assignments": {
+      status: 200,
+      body: siteMentorAssignmentsFixture({ role: "administration", readOnly: false, canManage: true }),
+    },
+    "/api/site/access-assignments": {
+      status: 200,
+      body: siteAccessAssignmentsFixture(),
     },
     "/api/site/operations-readiness": {
       status: 200,
-      body: siteOperationsReadinessFixture({ role: "administration", readOnly: true }),
+      body: siteOperationsReadinessFixture({ role: "administration", readOnly: false }),
     },
     "/api/presentation-slots": {
       status: 200,
@@ -7346,12 +7362,11 @@ test("workspace renders role-pending and permission-denied access states", async
       },
     },
   });
-  assert.match(administration, /data-workspace-mode="read-only"/);
-  assert.match(administration, /Read-only monitoring workspace/);
-  assert.match(administration, /Administration/);
+  assert.doesNotMatch(administration, /Read-only monitoring workspace/);
+  assert.match(administration, /School Admin/);
 });
 
-test("workspace renders Administration site dashboard and readiness without viewer-only labels", async () => {
+test("workspace renders School Admin site dashboard and readiness without viewer-only labels", async () => {
   const sharedResponses = {
     "/api/auth/me": {
       status: 200,
@@ -7360,22 +7375,30 @@ test("workspace renders Administration site dashboard and readiness without view
         user: {
           id: "administration-dashboard",
           email: "administration.dashboard@example.edu",
-          displayName: "Administration Dashboard",
+          displayName: "School Admin Dashboard",
           roles: [{ role_id: "administration", scope_type: "site", scope_id: "site-desert-valley-high" }],
         },
       },
     },
     "/api/site/dashboard": {
       status: 200,
-      body: siteDashboardFixture({ readOnly: true, role: "administration" }),
+      body: siteDashboardFixture({ readOnly: false, role: "administration" }),
     },
     "/api/site/students": {
       status: 200,
-      body: siteStudentsFixture({ readOnly: true, role: "administration" }),
+      body: siteStudentsFixture({ readOnly: false, role: "administration" }),
+    },
+    "/api/site/mentor-assignments": {
+      status: 200,
+      body: siteMentorAssignmentsFixture({ role: "administration", readOnly: false, canManage: true }),
+    },
+    "/api/site/access-assignments": {
+      status: 200,
+      body: siteAccessAssignmentsFixture(),
     },
     "/api/site/operations-readiness": {
       status: 200,
-      body: siteOperationsReadinessFixture({ role: "administration", readOnly: true }),
+      body: siteOperationsReadinessFixture({ role: "administration", readOnly: false }),
     },
     "/api/reports/readiness": {
       status: 200,
@@ -7390,22 +7413,20 @@ test("workspace renders Administration site dashboard and readiness without view
   };
 
   const administrationDashboard = await renderWorkspaceWithFetch(sharedResponses, "siteDashboard");
-  assert.match(administrationDashboard, /Leadership priorities/);
-  assert.match(administrationDashboard, /Administration monitoring queue/);
-  assert.match(administrationDashboard, /Leadership monitoring/);
-  assert.match(administrationDashboard, /School follow-up to monitor/);
+  assert.match(administrationDashboard, /School access/);
+  assert.match(administrationDashboard, /data-section="students" data-section-preset="missing-mentors"/);
+  assert.match(administrationDashboard, /Summary only/);
+  assert.doesNotMatch(administrationDashboard, /Leadership priorities|School Admin monitoring queue|Leadership monitoring/);
   assert.doesNotMatch(administrationDashboard, /Viewer priorities|Read-only viewer/);
 
   const administrationReadiness = await renderWorkspaceWithFetch(sharedResponses, "readiness");
   assert.match(administrationReadiness, /data-readiness-report="site-operations"/);
-  assert.match(administrationReadiness, /Leadership readiness/);
   assert.match(administrationReadiness, /School Readiness/);
-  assert.match(administrationReadiness, /Leadership monitoring/);
-  assert.match(administrationReadiness, /teachers and site staff still handle approvals, mentor assignments, account updates, and security settings/i);
+  assert.match(administrationReadiness, /School access/);
   assert.doesNotMatch(administrationReadiness, /Read-only viewer/);
 });
 
-test("Administration next actions stay role-safe on the Site Dashboard", async () => {
+test("School Admin next actions stay role-safe on the Site Dashboard", async () => {
   const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {
       status: 200,
@@ -7414,22 +7435,30 @@ test("Administration next actions stay role-safe on the Site Dashboard", async (
         user: {
           id: "administration-next-actions",
           email: "administration.next.actions@example.edu",
-          displayName: "Administration Next Actions",
+          displayName: "School Admin Next Actions",
           roles: [{ role_id: "administration", scope_type: "site", scope_id: "site-desert-valley-high" }],
         },
       },
     },
     "/api/site/dashboard": {
       status: 200,
-      body: siteDashboardFixture({ readOnly: true, role: "administration" }),
+      body: siteDashboardFixture({ readOnly: false, role: "administration" }),
     },
     "/api/site/students": {
       status: 200,
-      body: siteStudentsFixture({ readOnly: true, role: "administration" }),
+      body: siteStudentsFixture({ readOnly: false, role: "administration" }),
+    },
+    "/api/site/mentor-assignments": {
+      status: 200,
+      body: siteMentorAssignmentsFixture({ role: "administration", readOnly: false, canManage: true }),
+    },
+    "/api/site/access-assignments": {
+      status: 200,
+      body: siteAccessAssignmentsFixture(),
     },
     "/api/site/operations-readiness": {
       status: 200,
-      body: siteOperationsReadinessFixture({ role: "administration", readOnly: true }),
+      body: siteOperationsReadinessFixture({ role: "administration", readOnly: false }),
     },
     "/api/reports/readiness": {
       status: 200,
@@ -7444,8 +7473,8 @@ test("Administration next actions stay role-safe on the Site Dashboard", async (
   }, { activeSection: "siteDashboard" });
 
   openWorkspaceDisclosure(context, "dashboard", "siteDashboard");
-  assert.match(workspaceRoot.innerHTML, /Review assigned site records[\s\S]*data-section="students" data-section-preset="all-students"[\s\S]*Open student list/);
-  assert.match(workspaceRoot.innerHTML, /Teacher follow-up[\s\S]*data-section="students" data-section-preset="revision-students"[\s\S]*Open student list/);
+  assert.match(workspaceRoot.innerHTML, /Act on assigned site records[\s\S]*data-section="students" data-section-preset="all-students"[\s\S]*Open student list/);
+  assert.match(workspaceRoot.innerHTML, /Teacher follow-up[\s\S]*Summary only/);
   assert.match(workspaceRoot.innerHTML, /Presentation and final-file follow-up[\s\S]*data-section="operations" data-section-preset="archive-failed"[\s\S]*Open operations/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-section="teacher" data-section-preset="revision-requested"[\s\S]*Open review queue/);
 });
@@ -7953,8 +7982,8 @@ test("workspace renders admin import controls and one-time setup output", async 
   assert.match(adminUsers, /data-admin-role-pick="program_teacher"/);
   assert.match(adminUsers, /data-admin-role-pick="administration"/);
   assert.match(adminUsers, /data-admin-role-pick="site_admin"/);
+  assert.match(adminUsers, /data-admin-role-pick="global_admin"/);
   assert.match(adminUsers, /Program Teacher/);
-  assert.match(adminUsers, /Site Admin/);
   assert.match(adminUsers, /Full name/);
   assert.match(adminUsers, /Admin note/);
   assert.match(adminUsers, /Create account/);
@@ -7969,6 +7998,60 @@ test("workspace renders admin import controls and one-time setup output", async 
   assert.match(adminUsers, /N9!aA-setup-zZ/);
   assert.match(adminUsers, /pending reset/i);
   assert.match(adminUsers, /will create a new password at first sign-in/i);
+});
+
+test("workspace scopes Users & Access GUI controls for School Admin and Program Teacher", async () => {
+  const schoolAdminAccess = siteAccessAssignmentsFixture();
+  schoolAdminAccess.permissions = {
+    ...schoolAdminAccess.permissions,
+    canAssignMentors: true,
+    canAssignViewers: true,
+    canAssignProgramTeachers: true,
+    canAssignAdministration: false,
+    canAssignSiteAdmins: false,
+    canCreateGlobalAdmin: false,
+  };
+  const schoolAdminRoutes = {
+    ...profileRoutesForRole("administration"),
+    "/api/site/access-assignments": { status: 200, body: schoolAdminAccess },
+    "/api/site/mentor-assignments": { status: 200, body: siteMentorAssignmentsFixture({ role: "administration", readOnly: false, canManage: true }) },
+  };
+  const schoolAdmin = await renderWorkspaceWithFetch(schoolAdminRoutes, "adminUsers");
+
+  assert.match(schoolAdmin, /data-admin-role-pick="student"/);
+  assert.match(schoolAdmin, /data-admin-role-pick="mentor"/);
+  assert.match(schoolAdmin, /data-admin-role-pick="viewer"/);
+  assert.match(schoolAdmin, /data-admin-role-pick="program_teacher"/);
+  assert.doesNotMatch(schoolAdmin, /data-admin-role-pick="administration"|data-admin-role-pick="site_admin"|data-admin-role-pick="global_admin"/);
+  assert.match(schoolAdmin, /data-assignment-type="mentor_student"/);
+  assert.match(schoolAdmin, /data-assignment-type="viewer_student"/);
+  assert.match(schoolAdmin, /data-assignment-type="program_teacher_program"/);
+  assert.doesNotMatch(schoolAdmin, /data-assignment-type="administration_site"|data-assignment-type="site_admin_site"/);
+  assert.equal((schoolAdmin.match(/data-admin-account-remove-form="true"/g) || []).length, 4);
+
+  const programTeacherAccess = siteAccessAssignmentsFixture();
+  programTeacherAccess.permissions = {
+    ...programTeacherAccess.permissions,
+    canAssignMentors: true,
+    canAssignViewers: false,
+    canAssignProgramTeachers: false,
+    canAssignAdministration: false,
+    canAssignSiteAdmins: false,
+    canCreateGlobalAdmin: false,
+  };
+  const programTeacherRoutes = {
+    ...profileRoutesForRole("program_teacher"),
+    "/api/site/access-assignments": { status: 200, body: programTeacherAccess },
+    "/api/site/mentor-assignments": { status: 200, body: siteMentorAssignmentsFixture({ role: "program_teacher", readOnly: false, canManage: true }) },
+  };
+  const programTeacher = await renderWorkspaceWithFetch(programTeacherRoutes, "adminUsers");
+
+  assert.match(programTeacher, /data-admin-role-pick="student"/);
+  assert.match(programTeacher, /data-admin-role-pick="mentor"/);
+  assert.doesNotMatch(programTeacher, /data-admin-role-pick="viewer"|data-admin-role-pick="program_teacher"|data-admin-role-pick="administration"|data-admin-role-pick="site_admin"|data-admin-role-pick="global_admin"/);
+  assert.match(programTeacher, /data-assignment-type="mentor_student"/);
+  assert.doesNotMatch(programTeacher, /data-assignment-type="viewer_student"|data-assignment-type="program_teacher_program"|data-assignment-type="administration_site"|data-assignment-type="site_admin_site"/);
+  assert.equal((programTeacher.match(/data-admin-account-remove-form="true"/g) || []).length, 2);
 });
 
 test("workspace renders recent role assignments for global admins before site access forms", async () => {
@@ -8053,7 +8136,7 @@ test("workspace renders recent role assignments for global admins before site ac
   assert.match(adminUsersWithRoles, /Assigned by Program Director/);
   assert.match(adminUsersWithRoles, /data-role-assignment-action="open-program-students"/);
   assert.match(adminUsersWithRoles, /Site Access Principal/);
-  assert.match(adminUsersWithRoles, /Administration \/ Site access \/ Desert Valley High School/);
+  assert.match(adminUsersWithRoles, /School Admin \/ Site access \/ Desert Valley High School/);
   assert.match(adminUsersWithRoles, /Assigned by Global Access Lead/);
   assert.match(adminUsersWithRoles, /<span class="workspace-chip">Current school<\/span>/);
   assertMarkupOrder(adminUsers, "Recent role assignments", "data-site-access-assignment-form", "recent role assignments should render before assignment forms");
@@ -8192,7 +8275,7 @@ test("workspace uses route-backed scope names in recent role assignments without
 
   const adminUsers = workspaceRoot.innerHTML;
   assert.match(adminUsers, /Site Scope Principal/);
-  assert.match(adminUsers, /Site Scope Principal[\s\S]*Administration \/ Site access \/ Canyon Ridge Career Academy/);
+  assert.match(adminUsers, /Site Scope Principal[\s\S]*School Admin \/ Site access \/ Canyon Ridge Career Academy/);
   assert.match(adminUsers, /Site Scope Principal[\s\S]*Assigned by Global Scope Admin/);
   assert.match(adminUsers, /data-site-switch-id="site-canyon-ridge-career"/);
   assert.match(adminUsers, /Program Scope Teacher[\s\S]*Program Teacher \/ Program access \/ Biotechnology/);
@@ -8629,7 +8712,7 @@ test("workspace renders current site access assignments before management forms"
   assert.match(adminUsers, /Program teacher access/);
   assert.match(adminUsers, /Program Teacher One/);
   assert.match(adminUsers, /Information Technology/);
-  assert.match(adminUsers, /Administration access/);
+  assert.match(adminUsers, /School admin access/);
   assert.match(adminUsers, /Principal One/);
   assert.match(adminUsers, /Desert Valley High School/);
   assert.match(adminUsers, /No site admin access is active for this school/);
@@ -9635,7 +9718,7 @@ function siteAccessAssignmentsFixture() {
       canAssignMentors: true,
       canAssignViewers: true,
       canAssignProgramTeachers: true,
-      canAssignAdministration: true,
+      canAssignAdministration: false,
       canAssignSiteAdmins: false,
       canCreateGlobalAdmin: false,
     },
@@ -9833,11 +9916,11 @@ function siteStudentsFixture({
       canViewStudentDetail: true,
       canViewStudentEvidence: true,
       canViewReviewQueue: true,
-      canManageMentorAssignments: !readOnly && role !== "program_teacher",
+      canManageMentorAssignments: !readOnly && ["site_admin", "administration", "program_teacher", "admin", "global_admin", "platform_admin"].includes(role),
       canViewPresentationOperations: true,
       canViewArchiveOperations: true,
       canManageUsers: false,
-      canManageSiteUsers: !readOnly && role === "site_admin",
+      canManageSiteUsers: !readOnly && ["site_admin", "administration", "program_teacher", "admin", "global_admin", "platform_admin"].includes(role),
       canManageSecurity: false,
     },
     emptyState: filteredTotal === 0 ? {
@@ -9976,8 +10059,8 @@ function siteReviewQueueFixture({
 
 function siteMentorAssignmentsFixture({
   role = "site_admin",
-  readOnly = !["site_admin", "admin", "org_admin", "platform_admin"].includes(role),
-  canManage = !readOnly && role !== "program_teacher" && role !== "viewer",
+  readOnly = !["site_admin", "administration", "program_teacher", "admin", "global_admin", "org_admin", "platform_admin"].includes(role),
+  canManage = !readOnly && role !== "viewer",
   filters = null,
   unassignedStudents = null,
   pagination = null,
