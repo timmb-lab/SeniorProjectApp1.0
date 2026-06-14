@@ -42,6 +42,7 @@ const productionAssetFiles = new Set([
 ]);
 
 const textExtensions = new Set([".html", ".js", ".css", ".md"]);
+const sensitiveScanExtensions = new Set([".html", ".js", ".css", ".md", ".json", ".jsonc", ".ts", ".mjs", ".yml", ".yaml"]);
 
 const forbiddenPhrases = [
   ["internal alpha", /\binternal\s+alpha\b/i],
@@ -103,6 +104,16 @@ const normalNavLinkPatterns = [
   ["account.html link", /\bhref=["'][^"']*account\.html\b/i],
   ["internal alpha route text", /\bopen\s+app\s+alpha\b/i],
   ["account smoke route text", /\baccount\s+smoke\s+test\b/i],
+];
+
+const sensitiveValuePatterns = [
+  ["private key material", /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/i],
+  ["Cloudflare token assignment", /\bCLOUDFLARE_API_TOKEN\s*[:=]\s*["']?[A-Za-z0-9_\-.]{24,}/i],
+  ["Google API key", /\bAIza[0-9A-Za-z_-]{32,}/],
+  ["OAuth token value", /\b(?:access_token|refresh_token|id_token)\s*[:=]\s*["'][A-Za-z0-9._~+/-]{24,}["']/i],
+  ["Drive id assignment", /\b(?:drive_file_id|driveFileId|drive_parent_folder_id|driveParentFolderId|folderId)\s*[:=]\s*["'][A-Za-z0-9_-]{16,}["']/i],
+  ["temporary setup credential value", /\b(?:temporaryPassword|setupPassword|setup_password)\s*[:=]\s*["'][^"']{8,}["']/i],
+  ["password hash value", /\bpassword_hash\s*[:=]\s*["'][A-Za-z0-9$./+_-]{16,}["']/i],
 ];
 
 // Allowlist rules are intentionally path-based so a new production file cannot
@@ -204,6 +215,19 @@ function shouldCheckNormalNavigation(relativePath) {
   );
 }
 
+function shouldSensitiveScan(relativePath) {
+  if (relativePath.startsWith("tests/")) return false;
+  if (relativePath.startsWith("migrations/")) return false;
+  if (relativePath.startsWith("old/")) return false;
+  if (relativePath.startsWith("node_modules/")) return false;
+  if (relativePath.startsWith(".git/")) return false;
+  if (relativePath.startsWith(".secrets/")) return false;
+  if (isProductionTextSurface(relativePath)) return true;
+  if (relativePath === "README.md" || relativePath === "package.json" || relativePath === "wrangler.jsonc" || relativePath === "_headers") return true;
+  if (relativePath.startsWith("docs/")) return true;
+  return false;
+}
+
 function findLineAndColumn(text, index) {
   const before = text.slice(0, index);
   const lines = before.split(/\r?\n/);
@@ -217,9 +241,20 @@ const allFiles = await listFiles(repoRoot);
 const scannedFiles = [];
 const findings = [];
 const navFindings = [];
+const sensitiveFindings = [];
 
 for (const fullPath of allFiles) {
   const relativePath = normalizePath(path.relative(repoRoot, fullPath));
+  const textExtension = path.extname(relativePath);
+  if (sensitiveScanExtensions.has(textExtension) && shouldSensitiveScan(relativePath)) {
+    const text = await readFile(fullPath, "utf8").catch(() => "");
+    for (const [label, pattern] of sensitiveValuePatterns) {
+      const match = pattern.exec(text);
+      if (!match) continue;
+      const { line, column } = findLineAndColumn(text, match.index);
+      sensitiveFindings.push({ relativePath, label, line, column });
+    }
+  }
   if (!isProductionTextSurface(relativePath)) continue;
   scannedFiles.push(relativePath);
 
@@ -298,13 +333,16 @@ for (const [relativePath, text] of workspaceText) {
   }
 }
 
-if (findings.length > 0 || navFindings.length > 0) {
+if (findings.length > 0 || navFindings.length > 0 || sensitiveFindings.length > 0) {
   console.error("Production surface leak check failed.");
   for (const finding of findings) {
     console.error(`${finding.relativePath}:${finding.line}:${finding.column} -> ${finding.phrase}`);
   }
   for (const finding of navFindings) {
     console.error(`${finding.relativePath}:${finding.line}:${finding.column} -> normal nav leak: ${finding.label}`);
+  }
+  for (const finding of sensitiveFindings) {
+    console.error(`${finding.relativePath}:${finding.line}:${finding.column} -> sensitive value leak: ${finding.label}`);
   }
   console.error(`Scanned ${scannedFiles.length} production text surface(s).`);
   process.exit(1);

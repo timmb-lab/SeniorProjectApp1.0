@@ -1,6 +1,6 @@
 import type { Env } from "../../../_types.ts";
 import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
-import { badRequest, json, readJson } from "../../../_lib/http.ts";
+import { badRequest, json, readJson, requireDelete } from "../../../_lib/http.ts";
 import { canManageSiteUsers } from "../../../_lib/permissions.ts";
 import { cleanId } from "../../../_lib/site-scope.ts";
 import { handleSiteStudentDetailRequest } from "../../../_lib/site-student-detail.ts";
@@ -19,6 +19,9 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
 };
 
 export const onRequestDelete: PagesFunction<Env> = async ({ request, env, params }) => {
+  const methodError = requireDelete(request);
+  if (methodError) return methodError;
+
   const caller = await getCurrentUser(request, env);
   if (!caller) return json({ error: "unauthorized" }, { status: 401 });
 

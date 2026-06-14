@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { badRequest, json, readJson, requirePost } from "../functions/_lib/http.ts";
+import { badRequest, json, readJson, requireDelete, requirePost } from "../functions/_lib/http.ts";
 
 test("json helper applies no-store and browser hardening headers", async () => {
   const body = JSON.stringify({ ok: true });
@@ -110,6 +110,21 @@ test("requirePost blocks cross-origin browser posts while allowing same-origin p
 
   const allowed = requirePost(new Request("https://example.test/api/auth/login", {
     method: "POST",
+    headers: { origin: "https://example.test" },
+  }));
+  assert.equal(allowed, null);
+});
+
+test("requireDelete blocks cross-origin browser deletes while allowing same-origin deletes", async () => {
+  const blocked = requireDelete(new Request("https://example.test/api/admin/users/user-a", {
+    method: "DELETE",
+    headers: { origin: "https://attacker.test" },
+  }));
+  assert.equal(blocked?.status, 403);
+  assert.deepEqual(await blocked?.json(), { error: "cross_origin_post_denied" });
+
+  const allowed = requireDelete(new Request("https://example.test/api/admin/users/user-a", {
+    method: "DELETE",
     headers: { origin: "https://example.test" },
   }));
   assert.equal(allowed, null);

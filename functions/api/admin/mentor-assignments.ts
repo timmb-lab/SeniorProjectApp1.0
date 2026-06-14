@@ -1,7 +1,7 @@
 import type { Env } from "../../_types.ts";
 import { getCurrentUser, writeAudit } from "../../_lib/auth.ts";
 import { randomId } from "../../_lib/crypto.ts";
-import { badRequest, json, readJson, requirePost } from "../../_lib/http.ts";
+import { badRequest, json, readJson, requireDelete, requirePost } from "../../_lib/http.ts";
 import { hasRole, isAdmin } from "../../_lib/permissions.ts";
 import { workflowError } from "../../_lib/workflow.ts";
 
@@ -191,6 +191,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 };
 
 export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
+  const methodError = requireDelete(request);
+  if (methodError) return methodError;
+
   const user = await getCurrentUser(request, env);
   if (!user) return workflowError("unauthorized", 401);
   if (!await isAdmin(env, user.id)) return workflowError("forbidden", 403);

@@ -1,7 +1,7 @@
 import type { Env, RoleAssignment, RoleId, UserAccount } from "../_types.ts";
 import { getCurrentUser, writeAudit } from "./auth.ts";
 import { randomId } from "./crypto.ts";
-import { json } from "./http.ts";
+import { json, requirePost } from "./http.ts";
 import {
   cleanId,
   isReadOnlyViewer,
@@ -203,6 +203,9 @@ export async function handleSiteMentorAssignmentsPost({
   request: Request;
   env: Env;
 }): Promise<Response> {
+  const methodError = requirePost(request);
+  if (methodError) return methodError;
+
   const user = await getCurrentUser(request, env);
   if (!user) {
     await auditMentorAssignments(env, request, null, null, "site_mentor_assignments_unauthorized", {

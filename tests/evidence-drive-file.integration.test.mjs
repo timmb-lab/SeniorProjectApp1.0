@@ -6,6 +6,11 @@ import { sha256Hex } from "../functions/_lib/crypto.ts";
 import { onRequestPost as onUploadEvidenceFile } from "../functions/api/submissions/[id]/evidence/upload.ts";
 import { onRequestGet as onDownloadEvidenceFile } from "../functions/api/evidence/[id]/download.ts";
 
+function fileNameExtension(name) {
+  const match = /\.[a-z0-9]+$/i.exec(String(name || "").trim());
+  return match ? match[0].toLowerCase() : "";
+}
+
 test("evidence file upload returns 401 when session is missing", async () => {
   const fixture = createFixture();
   fixture.db.data.submissions.push({
@@ -316,6 +321,57 @@ test("evidence file upload rejects mismatched MIME and extension before provider
   }
 });
 
+test("evidence file upload rejects executable signatures hidden behind allowed names before provider calls", async () => {
+  const cases = [
+    { fileName: "renamed-proof.pdf", fileType: "application/pdf", fileBytes: new Uint8Array([0x4d, 0x5a, 0x90, 0x00]) },
+    { fileName: "notes.txt", fileType: "text/plain", fileBytes: new Uint8Array([0x7f, 0x45, 0x4c, 0x46, 0x02]) },
+    { fileName: "legacy-proof.pdf", fileType: "application/octet-stream", fileBytes: new Uint8Array([0xcf, 0xfa, 0xed, 0xfe]) },
+  ];
+
+  for (const testCase of cases) {
+    const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+    fixture.db.data.submissions.push({
+      id: "submission-1",
+      student_id: "student-a",
+      requirement_id: null,
+      status: "draft",
+      version: 1,
+    });
+
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = async () => {
+      throw new Error(`fetch should not be called for executable signature ${testCase.fileName}`);
+    };
+
+    try {
+      const response = await onUploadEvidenceFile({
+        request: buildUploadRequest({
+          url: "https://example.test/api/submissions/submission-1/evidence/upload",
+          token: fixture.token,
+          fileName: testCase.fileName,
+          fileType: testCase.fileType,
+          fileBytes: testCase.fileBytes,
+        }),
+        env: fixture.env,
+        params: { id: "submission-1" },
+      });
+
+      assert.equal(response.status, 400, testCase.fileName);
+      assert.deepEqual(await response.json(), { error: "blocked_file_signature" }, testCase.fileName);
+      assert.equal(fixture.db.data.evidenceArtifacts.length, 0, testCase.fileName);
+      assert.equal(fixture.db.data.auditEvents.length, 1, testCase.fileName);
+      assert.equal(fixture.db.data.auditEvents[0].action, "evidence_upload_blocked_signature", testCase.fileName);
+      assert.equal(fixture.db.data.auditEvents[0].entity_id, "submission-1", testCase.fileName);
+      assert.equal(fixture.db.data.auditEvents[0].metadata.studentId, "student-a", testCase.fileName);
+      assert.equal(fixture.db.data.auditEvents[0].metadata.extension, fileNameExtension(testCase.fileName), testCase.fileName);
+      assert.equal(fixture.db.data.auditEvents[0].metadata.mimeType, testCase.fileType, testCase.fileName);
+      assert.match(fixture.db.data.auditEvents[0].metadata.signature, /executable$/, testCase.fileName);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  }
+});
+
 test("evidence file upload rejects empty files before provider calls", async () => {
   const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
   fixture.db.data.submissions.push({
@@ -385,6 +441,52 @@ test("evidence file upload rejects oversized files before token exchange or prov
     assert.deepEqual(await response.json(), { error: "file_too_large" });
     assert.equal(fixture.db.data.evidenceArtifacts.length, 0);
     assert.equal(fixture.db.data.auditEvents.length, 0);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("evidence file upload rate limits repeated uploads for one submission before provider calls", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+  fixture.db.data.submissions.push({
+    id: "submission-1",
+    student_id: "student-a",
+    requirement_id: null,
+    status: "draft",
+    version: 1,
+  });
+  for (let index = 0; index < 8; index += 1) {
+    fixture.db.data.evidenceArtifacts.push({
+      id: `recent-upload-${index}`,
+      student_id: "student-a",
+      submission_id: "submission-1",
+      source_kind: "google_drive_file",
+      deleted_at: null,
+    });
+  }
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => {
+    throw new Error("fetch should not be called when upload rate limit is exceeded");
+  };
+
+  try {
+    const response = await onUploadEvidenceFile({
+      request: buildUploadRequest({
+        url: "https://example.test/api/submissions/submission-1/evidence/upload",
+        token: fixture.token,
+        fileName: "proof.txt",
+        fileType: "text/plain",
+      }),
+      env: fixture.env,
+      params: { id: "submission-1" },
+    });
+
+    assert.equal(response.status, 429);
+    assert.deepEqual(await response.json(), { error: "rate_limited", ok: false });
+    assert.equal(fixture.db.data.auditEvents.length, 1);
+    assert.equal(fixture.db.data.auditEvents[0].action, "evidence_upload_rate_limited");
+    assert.equal(fixture.db.data.auditEvents[0].metadata.maxRecentUploads, 8);
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -1326,6 +1428,18 @@ class MockPreparedStatement {
     if (this.sql.startsWith("select id, student_id, requirement_id, status, version from submissions where id = ?")) {
       const [submissionId] = this.params;
       return this.data.submissions.find((row) => row.id === submissionId) ?? null;
+    }
+
+    if (this.sql.startsWith("select count(*) as count from evidence_artifacts where student_id = ? and submission_id = ? and source_kind = 'google_drive_file'")) {
+      const [studentId, submissionId] = this.params;
+      return {
+        count: this.data.evidenceArtifacts.filter((row) =>
+          row.student_id === studentId
+          && row.submission_id === submissionId
+          && row.source_kind === "google_drive_file"
+          && !row.deleted_at
+        ).length,
+      };
     }
 
     if (this.sql.startsWith("select id, student_id, source_kind, drive_file_id, mime_type, title, deleted_at from evidence_artifacts where id = ?")) {

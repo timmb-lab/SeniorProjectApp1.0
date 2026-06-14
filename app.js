@@ -828,6 +828,7 @@ const guideModes = {
         title: "Build And Prove",
         items: [
           "Keep the Senior Project folder, linked document, resume, due dates, and proof current.",
+          "Use the signed-in workspace when you need to attach private proof, send work for review, or read feedback.",
           "Prepare Mentor Meeting 1, Mentor Meeting 2, and the presentation outline before the due windows.",
           "Track Presentation Day, Celebration Day, ingredient lists for food items, and proof for your audience or display."
         ]
@@ -858,6 +859,7 @@ const guideModes = {
         title: "Coach And Review",
         items: [
           "Clarify program-specific expectations, collaboration rules, and proposal approval criteria.",
+          "Approve next steps manually in the signed-in workspace after proof and feedback are reviewed.",
           "Review Core Concept Proposal and Research Proposal Challenge evidence against rubric language.",
           "Use intervention signals when a project is too vague, too small, late, or weakly connected to the CTE pathway."
         ]
@@ -881,6 +883,53 @@ const guideModes = {
     ]
   }
 };
+
+const protectedWorkspaceBridge = [
+  {
+    title: "Public guide",
+    body: "Use these pages to understand directions, rubrics, timelines, examples, and adult support without exposing private student records.",
+    action: "Read the public step first"
+  },
+  {
+    title: "Signed-in workspace",
+    body: "Use the protected workspace to attach proof, send work for review, read feedback, approve next steps, manage mentor coverage, and monitor final files.",
+    action: "Sign in only when you need private workflow tools"
+  },
+  {
+    title: "Clear handoff",
+    body: "When a page says proof, review, approval, mentor assignment, or final-file status, finish that action in the signed-in workspace.",
+    action: "Do the private action there"
+  }
+];
+
+const teacherApprovalCheckpoints = [
+  ["Phase 1", "Review proposal proof, give feedback if needed, then approve the student for build work."],
+  ["Phase 2A", "Check visible build proof and Mentor Meeting 1 notes before the student treats the plan as on track."],
+  ["Phase 2B", "Review second mentor feedback, outline quality, and presentation logistics before presentation readiness."],
+  ["Phase 3A", "Confirm presentation evidence and day-of completion before celebration or portfolio follow-up."],
+  ["Phase 3B", "Check display/photo/ingredient evidence before marking Celebration Day work complete."],
+  ["Phase 4", "Review gratitude, reflection, portfolio, and final-file readiness before closeout."]
+];
+
+const projectTypeExamples = [
+  ["Service", "Run a community support effort and save planning, approval, impact, reflection, and thank-you evidence."],
+  ["Research", "Study a real program problem and save sources, notes, drafts, conclusions, and presentation proof."],
+  ["Design", "Create a product, prototype, brand, exhibit, model, or environment and save revisions plus feedback."],
+  ["Teaching", "Build a lesson, training, guide, or workshop and save audience needs, materials, delivery, and reflection."],
+  ["Portfolio", "Curate professional work samples that prove growth, technical skill, feedback, and readiness."]
+];
+
+const mentorBeforeMeetingChecklist = [
+  "Read the student's current goal, latest proof, and any revision note before the meeting.",
+  "Ask what changed since the last check-in, what is blocked, and what evidence should appear next.",
+  "Leave the student with one decision, one next action, and one piece of proof to save."
+];
+
+const familyTimelinePolicy = [
+  "Families can use the public calendar and support pages to understand the year.",
+  "Private student progress, mentor assignments, proof, and approval status stay inside the signed-in workspace.",
+  "A separate family/guardian timeline page should only be added after the program approves what family access should include."
+];
 
 const homeEssentials = [
   {
@@ -3361,6 +3410,113 @@ function guideModeHomeHtml() {
       ${guideModeCardHtml("student")}
       ${guideModeCardHtml("teacher")}
     </div>
+    ${protectedWorkspaceBridgeHtml()}
+    ${teacherApprovalCheckpointsHtml()}
+    ${projectTypeExamplesHtml()}
+    ${mentorBeforeMeetingChecklistHtml()}
+    ${familyTimelinePolicyHtml()}
+  `;
+}
+
+function protectedWorkspaceBridgeHtml() {
+  return `
+    <section class="content-card" data-public-workspace-bridge="true" aria-labelledby="workspace-bridge-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Signed-in handoff</p>
+          <h3 id="workspace-bridge-title">Use The Right Place For Each Step</h3>
+        </div>
+        <p class="section-note">Public pages explain the work. The protected workspace holds private student actions and staff decisions.</p>
+      </div>
+      <div class="section-card-grid">
+        ${protectedWorkspaceBridge
+          .map((item) => `
+            <article class="resource-focus-card">
+              <h4>${item.title}</h4>
+              <p>${item.body}</p>
+              <strong>${item.action}</strong>
+            </article>
+          `)
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
+function teacherApprovalCheckpointsHtml() {
+  return `
+    <section class="content-card" data-teacher-approval-checkpoints="true" aria-labelledby="teacher-approval-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Manual approval checkpoints</p>
+          <h3 id="teacher-approval-title">Program Teacher Approval Moves Students Forward</h3>
+        </div>
+        <p class="section-note">Students should not treat the next phase as open until the Program Teacher has reviewed the proof and approved the next step.</p>
+      </div>
+      <div class="checkpoint-grid">
+        ${teacherApprovalCheckpoints
+          .map(([phase, action]) => `
+            <article class="checkpoint-card">
+              <strong>${phase}</strong>
+              <p>${action}</p>
+            </article>
+          `)
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
+function projectTypeExamplesHtml() {
+  return `
+    <section class="content-card" data-project-type-examples="true" aria-labelledby="project-type-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Project types</p>
+          <h3 id="project-type-title">Strong Projects Can Take Several Shapes</h3>
+        </div>
+        <p class="section-note">The proposal should prove program skill and feasibility whether the student builds, serves, researches, designs, teaches, or curates a portfolio.</p>
+      </div>
+      <div class="checkpoint-grid">
+        ${projectTypeExamples
+          .map(([type, example]) => `
+            <article class="checkpoint-card">
+              <strong>${type}</strong>
+              <p>${example}</p>
+            </article>
+          `)
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
+function mentorBeforeMeetingChecklistHtml() {
+  return `
+    <section class="content-card" data-mentor-before-meeting-checklist="true" aria-labelledby="mentor-before-meeting-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Mentor meeting prep</p>
+          <h3 id="mentor-before-meeting-title">Before Each Mentor Meeting</h3>
+        </div>
+        <p class="section-note">Mentors help students think clearly while students remain responsible for the work.</p>
+      </div>
+      ${listHtml(mentorBeforeMeetingChecklist)}
+    </section>
+  `;
+}
+
+function familyTimelinePolicyHtml() {
+  return `
+    <section class="content-card" data-family-timeline-policy="true" aria-labelledby="family-timeline-policy-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Family support boundary</p>
+          <h3 id="family-timeline-policy-title">Family Timeline Access Needs A Program Decision</h3>
+        </div>
+      </div>
+      ${listHtml(familyTimelinePolicy)}
+    </section>
   `;
 }
 

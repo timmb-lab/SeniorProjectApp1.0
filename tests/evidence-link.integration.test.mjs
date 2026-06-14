@@ -103,9 +103,50 @@ test("evidence link attach rejects credential-bearing proof URLs", async () => {
   });
 
   assert.equal(response.status, 400);
-  assert.deepEqual(await response.json(), { error: "invalid_https_evidence_url" });
+  assert.deepEqual(await response.json(), { error: "unsafe_evidence_url" });
   assert.equal(fixture.db.data.evidenceArtifacts.length, 0);
-  assert.equal(fixture.db.data.auditEvents.length, 0);
+  assert.equal(fixture.db.data.auditEvents.length, 1);
+  assert.equal(fixture.db.data.auditEvents[0].action, "evidence_link_blocked_unsafe_url");
+  assert.equal(fixture.db.data.auditEvents[0].entity_type, "submission");
+  assert.equal(fixture.db.data.auditEvents[0].entity_id, "submission-1");
+  assert.equal(fixture.db.data.auditEvents[0].metadata.reason, "url_credentials_present");
+  assert.equal(fixture.db.data.auditEvents[0].metadata.studentId, "student-a");
+  assert.equal(fixture.db.data.auditEvents[0].metadata.hostname, "example.test");
+  assert.equal(fixture.db.data.auditEvents[0].metadata.urlLength, "https://student:secret@example.test/proof".length);
+  assert.deepEqual(fixture.db.data.auditEvents[0].metadata.actorRoleScopes, [{ roleId: "student", scopeType: "global", scopeId: "" }]);
+  assert.doesNotMatch(JSON.stringify(fixture.db.data.auditEvents[0]), /student:secret|password|token/i);
+});
+
+test("evidence link attach rejects credential-harvesting proof URL patterns", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+  fixture.db.data.submissions.push(buildSubmission("submission-1", "student-a"));
+
+  const response = await onAttachEvidenceLink({
+    request: buildJsonRequest({
+      url: "https://example.test/api/submissions/submission-1/evidence",
+      token: fixture.token,
+      body: {
+        title: "Suspicious proof link",
+        url: "https://school-login-verify.example.test/password-reset",
+      },
+    }),
+    env: fixture.env,
+    params: { id: "submission-1" },
+  });
+
+  assert.equal(response.status, 400);
+  assert.deepEqual(await response.json(), { error: "unsafe_evidence_url" });
+  assert.equal(fixture.db.data.evidenceArtifacts.length, 0);
+  assert.equal(fixture.db.data.auditEvents.length, 1);
+  assert.equal(fixture.db.data.auditEvents[0].action, "evidence_link_blocked_unsafe_url");
+  assert.equal(fixture.db.data.auditEvents[0].entity_type, "submission");
+  assert.equal(fixture.db.data.auditEvents[0].entity_id, "submission-1");
+  assert.equal(fixture.db.data.auditEvents[0].metadata.reason, "deceptive_host");
+  assert.equal(fixture.db.data.auditEvents[0].metadata.studentId, "student-a");
+  assert.equal(fixture.db.data.auditEvents[0].metadata.hostname, "school-login-verify.example.test");
+  assert.equal(fixture.db.data.auditEvents[0].metadata.urlLength, "https://school-login-verify.example.test/password-reset".length);
+  assert.deepEqual(fixture.db.data.auditEvents[0].metadata.actorRoleScopes, [{ roleId: "student", scopeType: "global", scopeId: "" }]);
+  assert.doesNotMatch(JSON.stringify(fixture.db.data.auditEvents[0]), /password-reset|https:\/\//i);
 });
 
 test("evidence link attach rejects oversized proof URLs", async () => {

@@ -12,6 +12,7 @@ import {
 import {
   canReviewSubmission,
   cleanWorkflowText,
+  countActiveEvidenceForSubmission,
   getSubmission,
   type SubmissionRow,
   type SubmissionDecision,
@@ -85,6 +86,20 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
   }
   if (submission.status !== "submitted") {
     return workflowError("submission_not_in_review", 409);
+  }
+
+  if (decision === "approved") {
+    const evidenceCount = await countActiveEvidenceForSubmission(env, submission.id);
+    if (evidenceCount <= 0) {
+      await auditReviewDecisionAccess(env, request, user, "review_decision_blocked_missing_evidence", submission.id, {
+        reason: "missing_required_evidence",
+        studentId: submission.student_id,
+        siteId: siteId || undefined,
+        decision,
+        evidenceCount,
+      });
+      return workflowError("submission_missing_evidence", 409);
+    }
   }
 
   const feedback = cleanWorkflowText(

@@ -146,6 +146,12 @@ function Invoke-KnownProjectScript {
             Invoke-Node "scripts\check-alpha-contract.mjs"
             Invoke-Node "scripts\check-predeploy-gate.mjs"
             Invoke-Node "scripts\check-production-surfaces.mjs"
+            Invoke-Node "scripts\verify-permission-role-matrix.mjs"
+            Invoke-Node "scripts\verify-mutation-origin-coverage.mjs"
+            Invoke-Node "scripts\verify-workspace-url-state.mjs"
+            Invoke-Node "scripts\check-workspace-accessibility-contract.mjs"
+            Invoke-Node "scripts\check-workspace-error-state-contract.mjs"
+            Invoke-Node "scripts\check-workspace-mobile-contract.mjs"
             Invoke-Node "scripts\inventory-production-routes.mjs" "--check"
             Invoke-Node "scripts\check-generated-output-drift.mjs"
             Invoke-Node "scripts\check-site-options.mjs"
@@ -169,6 +175,41 @@ function Invoke-KnownProjectScript {
         "check:production-surfaces" {
             $script:KnownProjectScriptHandled = $true
             Invoke-Node "scripts\check-production-surfaces.mjs" @ScriptArgs
+            return
+        }
+        "verify:permission-matrix" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "scripts\verify-permission-role-matrix.mjs" @ScriptArgs
+            return
+        }
+        "verify:mutation-origin" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "scripts\verify-mutation-origin-coverage.mjs" @ScriptArgs
+            return
+        }
+        "verify:workspace-url-state" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "scripts\verify-workspace-url-state.mjs" @ScriptArgs
+            return
+        }
+        "check:workspace-accessibility" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "scripts\check-workspace-accessibility-contract.mjs" @ScriptArgs
+            return
+        }
+        "check:workspace-errors" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "scripts\check-workspace-error-state-contract.mjs" @ScriptArgs
+            return
+        }
+        "check:workspace-mobile" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "scripts\check-workspace-mobile-contract.mjs" @ScriptArgs
+            return
+        }
+        "readiness:weekly" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "scripts\report-weekly-readiness.mjs" @ScriptArgs
             return
         }
         "check:route-inventory" {
@@ -267,6 +308,11 @@ function Invoke-KnownProjectScript {
         "check:workspace:hosted-dashboard" {
             $script:KnownProjectScriptHandled = $true
             Invoke-Node "scripts\check-hosted-workspace-permissions.mjs" @ScriptArgs
+            return
+        }
+        "prove:pilot:local" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "scripts\prove-pilot-flow-local.mjs" @ScriptArgs
             return
         }
         "verify:functionality-ux-automation" {

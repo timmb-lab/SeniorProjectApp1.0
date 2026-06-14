@@ -228,6 +228,38 @@ test("student submission blocks when no evidence artifacts exist", async () => {
   });
 });
 
+test("review approval blocks when submitted work has no active proof", async () => {
+  const fixture = await createFixture({ includeEvidence: false });
+  fixture.db.data.submissions[0].status = "submitted";
+
+  const response = await onReviewSubmission({
+    request: buildAuthedJsonRequest(
+      "https://example.test/api/reviews/submission-1/decision",
+      fixture.teacherToken,
+      { decision: "approved", feedback: "Looks complete." },
+    ),
+    env: fixture.env,
+    params: { submissionId: "submission-1" },
+  });
+
+  assert.equal(response.status, 409);
+  assert.deepEqual(await response.json(), { error: "submission_missing_evidence", ok: false });
+  assert.equal(fixture.db.data.submissions[0].status, "submitted");
+  assert.equal(fixture.db.data.progressRecords[0].status, "in_progress");
+  assert.equal(fixture.db.data.reviews.length, 0);
+  assert.equal(fixture.db.data.comments.length, 0);
+  assert.equal(fixture.db.data.statusHistory.length, 0);
+  assert.equal(fixture.db.data.auditEvents.length, 1);
+  assert.equal(fixture.db.data.auditEvents[0].action, "review_decision_blocked_missing_evidence");
+  assert.deepEqual(fixture.db.data.auditEvents[0].metadata, {
+    reason: "missing_required_evidence",
+    studentId: "student-a",
+    decision: "approved",
+    evidenceCount: 0,
+    actorRoleScopes: [{ roleId: "program_teacher", scopeType: "global", scopeId: "" }],
+  });
+});
+
 test("student submission audits unauthorized and denied access", async () => {
   {
     const fixture = await createFixture();

@@ -80,6 +80,23 @@ test("public site exposes Student and Teacher guide modes without treating them 
   assert.match(appJs, /paper rubric option/);
   assert.match(appJs, /By May 5, download and keep important Senior Project files/);
   assert.match(appJs, /not login, permission, or a private workflow/);
+  assert.match(appJs, /data-public-workspace-bridge="true"/);
+  assert.match(appJs, /Use The Right Place For Each Step/);
+  assert.match(appJs, /Sign in only when you need private workflow tools/);
+  assert.match(appJs, /data-teacher-approval-checkpoints="true"/);
+  assert.match(appJs, /Program Teacher Approval Moves Students Forward/);
+  assert.match(appJs, /Approve next steps manually in the signed-in workspace/);
+  assert.match(appJs, /data-project-type-examples="true"/);
+  assert.match(appJs, /Service/);
+  assert.match(appJs, /Research/);
+  assert.match(appJs, /Design/);
+  assert.match(appJs, /Teaching/);
+  assert.match(appJs, /Portfolio/);
+  assert.match(appJs, /data-mentor-before-meeting-checklist="true"/);
+  assert.match(appJs, /Before Each Mentor Meeting/);
+  assert.match(appJs, /one decision, one next action, and one piece of proof to save/);
+  assert.match(appJs, /data-family-timeline-policy="true"/);
+  assert.match(appJs, /Family Timeline Access Needs A Program Decision/);
 });
 
 test("public guide home exposes no-hidden-core-content route coverage", () => {
@@ -229,5 +246,8 @@ test("protected app deployment includes baseline anti-clickjacking headers", () 
   assert.match(rootHeaders, /Permissions-Policy: camera=\(\), microphone=\(\), geolocation=\(\)/);
   assert.match(rootHeaders, /X-Frame-Options: DENY/);
   assert.match(rootHeaders, /Content-Security-Policy: frame-ancestors 'none'/);
+  assert.match(rootHeaders, /Cross-Origin-Resource-Policy: same-origin/);
+  assert.match(rootHeaders, /^\/api\/\*/m);
+  assert.match(rootHeaders, /\/api\/\*[\s\S]*Cache-Control: no-store/);
   assert.doesNotMatch(rootHeaders, /Access-Control-Allow-Origin:\s*\*/);
 });

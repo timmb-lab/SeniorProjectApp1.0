@@ -1,6 +1,6 @@
 import type { Env, RoleId } from "../../_types.ts";
 import { getCurrentUser, writeAudit } from "../../_lib/auth.ts";
-import { badRequest, json, readJson, requirePost } from "../../_lib/http.ts";
+import { badRequest, json, readJson, requireDelete, requirePost } from "../../_lib/http.ts";
 import {
   canActorCreateRole,
   canRemoveGlobalAdminGrant,
@@ -274,6 +274,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 };
 
 export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
+  const methodError = requireDelete(request);
+  if (methodError) return methodError;
+
   const caller = await getCurrentUser(request, env);
   if (!caller) return workflowError("unauthorized", 401);
   if (!await canActorCreateRole(env, caller, "viewer", [])) return workflowError("forbidden", 403);

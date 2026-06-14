@@ -294,20 +294,25 @@ async function runHostedWorkspacePermissionCheck() {
   }
   const workspaceText = `${await workspaceHtml.text()}\n${await workspaceJs.text()}`;
   assertHostedWorkspaceSafe(workspaceText, "hosted workspace assets");
-  for (const marker of [
-    'data-workspace-state="no-active-assignment"',
-    'data-workspace-state="${escapeHtml(workspaceState)}"',
-    'data-presentation-state="${escapeHtml(status)}"',
-    'data-archive-check-status',
-    'data-archive-download="manifest"',
-    'data-archive-drive-package',
-    'data-admin-action="import-users"',
-  ]) {
+  const workspaceMarkers = [
+    { name: "no_assignment_state", marker: 'data-workspace-state="no-active-assignment"' },
+    { name: "dynamic_auth_state", marker: 'data-workspace-state="${escapeHtml(workspaceState)}"' },
+    { name: "role_pending_state", marker: '"role-pending"' },
+    { name: "permission_denied_state", marker: '"permission-denied"' },
+    { name: "session_expired_state", marker: '"session-expired"' },
+    { name: "reset_required_state", marker: '"reset-required"' },
+    { name: "presentation_state", marker: 'data-presentation-state="${escapeHtml(status)}"' },
+    { name: "archive_check_status", marker: "data-archive-check-status" },
+    { name: "archive_manifest_download", marker: 'data-archive-download="manifest"' },
+    { name: "archive_drive_package", marker: "data-archive-drive-package" },
+    { name: "admin_import", marker: 'data-admin-action="import-users"' },
+  ];
+  for (const { marker } of workspaceMarkers) {
     if (!workspaceText.includes(marker)) {
       throw new WorkspacePermissionCheckError("workspace_ui_bug", `Hosted workspace is missing expected marker ${marker}.`);
     }
   }
-  log("PASS workspace: canonical assets loaded with production-safe state markers and no internal shortcuts.");
+  log("PASS workspace: canonical assets loaded with production-safe role-state markers and no internal shortcuts.");
 
   const signedOut = new SessionClient(baseUrl);
   const me = await signedOut.fetchJson("/api/auth/me");
@@ -363,6 +368,7 @@ async function runHostedWorkspacePermissionCheck() {
       realStudentDataUsed: false,
       fakeTestAccountsOnly: true,
     },
+    roleStateMarkers: workspaceMarkers.map(({ name }) => ({ name, status: "asset_marker_present" })),
     logs,
   };
 }
@@ -379,6 +385,7 @@ try {
     credentialFilePresent: result.credentialFilePresent,
     missingRoles: result.missingRoles,
     roleResults: result.roleResults,
+    roleStateMarkers: result.roleStateMarkers,
   }, null, 2));
 } catch (error) {
   if (error instanceof WorkspacePermissionCheckError) {

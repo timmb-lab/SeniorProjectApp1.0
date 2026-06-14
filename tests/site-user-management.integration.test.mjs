@@ -9,6 +9,53 @@ import { createSqliteD1, foundationMigrations } from "./helpers/d1-sqlite.mjs";
 const TEST_SITE_ID = "site-test-high-school";
 const EAST_SITE_ID = "site-east-career-technical-academy";
 
+test("account and student removal reject cross-origin deletes before mutation", async () => {
+  const { db, env, tokens } = await createManagementFixture();
+
+  const accountResponse = await onRemoveAccount({
+    request: buildRequest("https://local.capstone.test/api/admin/users/mentor-local-a", tokens.siteAdmin, {
+      method: "DELETE",
+      headers: {
+        "content-type": "application/json",
+        origin: "https://attacker.example",
+      },
+      body: JSON.stringify({
+        siteId: TEST_SITE_ID,
+        adminNote: "Cross-origin account removal should stop before mutation.",
+      }),
+    }),
+    env,
+    params: { id: "mentor-local-a" },
+  });
+
+  assert.equal(accountResponse.status, 403);
+  assert.deepEqual(await accountResponse.json(), { error: "cross_origin_post_denied" });
+
+  const studentResponse = await onRemoveStudent({
+    request: buildRequest(`https://local.capstone.test/api/site/students/student-local-a?siteId=${TEST_SITE_ID}`, tokens.siteAdmin, {
+      method: "DELETE",
+      headers: {
+        "content-type": "application/json",
+        origin: "https://attacker.example",
+      },
+      body: JSON.stringify({
+        siteId: TEST_SITE_ID,
+        adminNote: "Cross-origin student removal should stop before mutation.",
+      }),
+    }),
+    env,
+    params: { studentId: "student-local-a" },
+  });
+
+  assert.equal(studentResponse.status, 403);
+  assert.deepEqual(await studentResponse.json(), { error: "cross_origin_post_denied" });
+
+  const mentor = await db.prepare("SELECT status FROM user_accounts WHERE id = 'mentor-local-a'").first();
+  const student = await db.prepare("SELECT status FROM user_accounts WHERE id = 'student-local-a'").first();
+  assert.equal(mentor.status, "active");
+  assert.equal(student.status, "active");
+});
+
 test("site student removal archives the school membership, disables orphaned student sign-in, and audits the action", async () => {
   const { db, env, tokens } = await createManagementFixture();
 

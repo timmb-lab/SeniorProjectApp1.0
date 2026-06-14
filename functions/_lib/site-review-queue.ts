@@ -362,6 +362,7 @@ function buildQueueScopeSql(siteId: string, scopedStudentIds: string[] | null) {
             FROM evidence_artifacts
             WHERE evidence_artifacts.submission_id = submissions.id
              AND evidence_artifacts.deleted_at IS NULL
+             AND evidence_artifacts.review_status != 'archived'
           ) AS evidence_count,
           (
             SELECT COUNT(*)
@@ -409,6 +410,7 @@ function buildQueueScopeSql(siteId: string, scopedStudentIds: string[] | null) {
               SELECT 1 FROM evidence_artifacts
               WHERE evidence_artifacts.submission_id = submissions.id
                AND evidence_artifacts.deleted_at IS NULL
+               AND evidence_artifacts.review_status != 'archived'
             ) THEN 2 ELSE 0 END
             + CASE WHEN scoped_students.display_name LIKE 'High Risk Demo%' THEN 2 ELSE 0 END
             + CASE WHEN julianday('now') - julianday(COALESCE(submissions.updated_at, 'now')) > 14 THEN 1 ELSE 0 END
@@ -574,6 +576,8 @@ function buildFilterWhere(filters: ReviewQueueFilters): FilterWhere {
 
 function queueResponse(row: QueueRow) {
   const riskFlags = riskFlagsFor(row);
+  const evidenceCount = Number(row.evidence_count || 0);
+  const decisionAvailability = decisionAvailabilityForQueue(row.status, evidenceCount);
   return {
     submissionId: row.submission_id,
     studentId: row.student_id,
@@ -590,13 +594,17 @@ function queueResponse(row: QueueRow) {
     version: Number(row.version || 0),
     submittedAt: row.submitted_at || "",
     updatedAt: row.updated_at || "",
-    evidenceCount: Number(row.evidence_count || 0),
+    evidenceCount,
     reviewCount: Number(row.review_count || 0),
     commentCount: Number(row.comment_count || 0),
     storyBucket: row.story_bucket || "",
     riskScore: Number(row.risk_score || 0),
     riskFlags,
-    nextAction: nextActionForQueue(row.status, Number(row.evidence_count || 0), riskFlags),
+    decisionState: decisionAvailability.state,
+    approvalBlockedReason: decisionAvailability.approvalBlockedReason,
+    availableDecisions: decisionAvailability.availableDecisions,
+    decisionGuidance: decisionAvailability.guidance,
+    nextAction: nextActionForQueue(row.status, evidenceCount, riskFlags),
   };
 }
 
@@ -614,9 +622,58 @@ function riskFlagsFor(row: QueueRow): string[] {
 function nextActionForQueue(status: string, evidenceCount: number, riskFlags: string[]): string {
   if (status === "submitted" && evidenceCount > 0) return "Review evidence and record teacher feedback.";
   if (status === "submitted") return "Confirm evidence before approval.";
-  if (status === "revision_requested") return "Wait for student revision or add comment-only guidance.";
+  if (status === "revision_requested") return "Wait for student revision before recording another decision.";
   if (riskFlags.includes("high")) return "Prioritize teacher follow-up.";
   return "Review status and student detail context.";
+}
+
+function decisionAvailabilityForQueue(status: string, evidenceCount: number) {
+  if (status === "submitted" && evidenceCount > 0) {
+    return {
+      state: "decision-ready",
+      approvalBlockedReason: "",
+      availableDecisions: {
+        approved: true,
+        revision_requested: true,
+        comment_only: true,
+      },
+      guidance: "Decision needed: active proof is attached. Review history, then approve next steps or request revision.",
+    };
+  }
+  if (status === "submitted") {
+    return {
+      state: "proof-missing",
+      approvalBlockedReason: "missing_evidence",
+      availableDecisions: {
+        approved: false,
+        revision_requested: true,
+        comment_only: true,
+      },
+      guidance: "Approval locked: active proof is missing. Request revision or add comment-only guidance until proof is attached.",
+    };
+  }
+  if (status === "revision_requested") {
+    return {
+      state: "student-revision",
+      approvalBlockedReason: "not_submitted",
+      availableDecisions: {
+        approved: false,
+        revision_requested: false,
+        comment_only: false,
+      },
+      guidance: "Student action needed: wait for the revised submission before recording another Program Teacher decision.",
+    };
+  }
+  return {
+    state: "context",
+    approvalBlockedReason: "not_in_review",
+    availableDecisions: {
+      approved: false,
+      revision_requested: false,
+      comment_only: false,
+    },
+    guidance: "Context only: open submitted work when a Program Teacher decision is needed.",
+  };
 }
 
 function responseFilters(filters: ReviewQueueFilters) {

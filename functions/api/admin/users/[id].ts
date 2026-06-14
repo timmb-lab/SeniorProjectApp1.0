@@ -1,7 +1,7 @@
 import type { Env, UserAccount } from "../../../_types.ts";
 import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
 import { canRemoveGlobalAdminGrant, loadEffectiveAccess } from "../../../_lib/effective-access.ts";
-import { badRequest, json, readJson } from "../../../_lib/http.ts";
+import { badRequest, json, readJson, requireDelete } from "../../../_lib/http.ts";
 import { canManageSiteUsers, canManageUsers } from "../../../_lib/permissions.ts";
 import { cleanId } from "../../../_lib/site-scope.ts";
 
@@ -16,6 +16,9 @@ interface TargetUserRow {
 }
 
 export const onRequestDelete: PagesFunction<Env> = async ({ request, env, params }) => {
+  const methodError = requireDelete(request);
+  if (methodError) return methodError;
+
   const caller = await getCurrentUser(request, env);
   if (!caller) return json({ error: "unauthorized" }, { status: 401 });
 

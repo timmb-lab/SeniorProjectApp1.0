@@ -50,16 +50,24 @@ export function methodNotAllowed(): Response {
 }
 
 export function requirePost(request: Request): Response | null {
-  if (request.method !== "POST") {
+  return requireMutationMethod(request, "POST");
+}
+
+export function requireDelete(request: Request): Response | null {
+  return requireMutationMethod(request, "DELETE");
+}
+
+function requireMutationMethod(request: Request, method: string): Response | null {
+  if (request.method !== method) {
     return methodNotAllowed();
   }
-  if (!hasAllowedPostOrigin(request)) {
+  if (!hasAllowedMutationOrigin(request)) {
     return json({ error: "cross_origin_post_denied" }, { status: 403 });
   }
   return null;
 }
 
-function hasAllowedPostOrigin(request: Request): boolean {
+function hasAllowedMutationOrigin(request: Request): boolean {
   const origin = request.headers.get("origin");
   if (!origin) {
     return true;

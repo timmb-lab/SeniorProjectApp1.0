@@ -13,6 +13,8 @@ import { cleanWorkflowText, getSubmission, workflowError } from "../../../../_li
 
 const MULTIPART_UPLOAD_MAX_BYTES = 5 * 1024 * 1024;
 const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
+const UPLOAD_RATE_LIMIT_WINDOW_MINUTES = 10;
+const MAX_RECENT_UPLOADS_PER_SUBMISSION = 8;
 const ALLOWED_UPLOAD_MIME_TYPES = new Set([
   "application/pdf",
   "application/vnd.openxmlformats-officedocument.presentationml.presentation",
@@ -102,6 +104,14 @@ function isAllowedUploadFile(file: UploadedFile): boolean {
   return ALLOWED_UPLOAD_MIME_TYPES_BY_EXTENSION.get(extension)?.has(type) === true;
 }
 
+function disallowedUploadSignature(bytes: Uint8Array): string {
+  if (bytes.length >= 2 && bytes[0] === 0x4d && bytes[1] === 0x5a) return "windows_executable";
+  if (bytes.length >= 4 && bytes[0] === 0x7f && bytes[1] === 0x45 && bytes[2] === 0x4c && bytes[3] === 0x46) return "elf_executable";
+  if (bytes.length >= 4 && bytes[0] === 0xcf && bytes[1] === 0xfa && bytes[2] === 0xed && bytes[3] === 0xfe) return "mach_o_executable";
+  if (bytes.length >= 4 && bytes[0] === 0xfe && bytes[1] === 0xed && bytes[2] === 0xfa && bytes[3] === 0xcf) return "mach_o_executable";
+  return "";
+}
+
 export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }) => {
   const methodError = requirePost(request);
   if (methodError) return methodError;
@@ -146,6 +156,42 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
   }
   if (!isAllowedUploadFile(file)) {
     return badRequest("unsupported_file_type");
+  }
+
+  if (await recentUploadCountExceeded(env, submission.student_id, submission.id)) {
+    await writeAudit(env, {
+      actorUserId: user.id,
+      action: "evidence_upload_rate_limited",
+      entityType: "submission",
+      entityId: submission.id,
+      request,
+      metadata: {
+        studentId: submission.student_id,
+        windowMinutes: UPLOAD_RATE_LIMIT_WINDOW_MINUTES,
+        maxRecentUploads: MAX_RECENT_UPLOADS_PER_SUBMISSION,
+      },
+    });
+    return workflowError("rate_limited", 429);
+  }
+
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const blockedSignature = disallowedUploadSignature(bytes);
+  if (blockedSignature) {
+    await writeAudit(env, {
+      actorUserId: user.id,
+      action: "evidence_upload_blocked_signature",
+      entityType: "submission",
+      entityId: submission.id,
+      request,
+      metadata: {
+        studentId: submission.student_id,
+        extension: fileExtension(file.name),
+        mimeType: String(file.type || "").slice(0, 120),
+        size: file.size,
+        signature: blockedSignature,
+      },
+    });
+    return badRequest("blocked_file_signature");
   }
 
   const rootFolderId = String(env.GOOGLE_DRIVE_EVIDENCE_ROOT_ID || "").trim();
@@ -196,7 +242,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
   const evidenceId = randomId("evidence");
   const driveFileName = `${evidenceId}-${safeStorageFileName(file.name)}`;
   const mimeType = file.type || "application/octet-stream";
-  const bytes = new Uint8Array(await file.arrayBuffer());
 
   let uploadResult;
   try {
@@ -298,3 +343,16 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
     },
   });
 };
+
+async function recentUploadCountExceeded(env: Env, studentId: string, submissionId: string): Promise<boolean> {
+  const row = await env.DB.prepare(
+    `SELECT COUNT(*) AS count
+     FROM evidence_artifacts
+     WHERE student_id = ?
+       AND submission_id = ?
+       AND source_kind = 'google_drive_file'
+       AND deleted_at IS NULL
+       AND created_at > strftime('%Y-%m-%dT%H:%M:%fZ', 'now', ?)`,
+  ).bind(studentId, submissionId, `-${UPLOAD_RATE_LIMIT_WINDOW_MINUTES} minutes`).first<{ count: number }>();
+  return Number(row?.count || 0) >= MAX_RECENT_UPLOADS_PER_SUBMISSION;
+}

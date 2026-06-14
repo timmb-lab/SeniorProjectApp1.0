@@ -24,6 +24,16 @@ interface EvidenceSnapshotRow {
 
 const MAX_WORKFLOW_HTTPS_URL_LENGTH = 2048;
 
+export type HttpsUrlValidationError = "invalid_https_evidence_url" | "unsafe_evidence_url";
+
+export interface HttpsUrlValidationResult {
+  url: string | null;
+  error: HttpsUrlValidationError | null;
+  reason: string;
+  hostname: string;
+  urlLength: number;
+}
+
 export function cleanWorkflowText(value: unknown, fallback: string, maxLength = 800): string {
   if (typeof value !== "string") return fallback;
   const trimmed = value.trim().replace(/\s+/g, " ");
@@ -31,23 +41,55 @@ export function cleanWorkflowText(value: unknown, fallback: string, maxLength = 
 }
 
 export function cleanHttpsUrl(value: unknown): string | null {
-  if (typeof value !== "string") return null;
+  return validateHttpsUrl(value).url;
+}
+
+export function validateHttpsUrl(value: unknown): HttpsUrlValidationResult {
+  const base = {
+    url: null,
+    error: "invalid_https_evidence_url" as HttpsUrlValidationError,
+    reason: "invalid_value",
+    hostname: "",
+    urlLength: typeof value === "string" ? value.trim().length : 0,
+  };
+  if (typeof value !== "string") return base;
   const trimmed = value.trim();
-  if (trimmed.length > MAX_WORKFLOW_HTTPS_URL_LENGTH) return null;
+  if (trimmed.length > MAX_WORKFLOW_HTTPS_URL_LENGTH) {
+    return { ...base, reason: "url_too_long", urlLength: trimmed.length };
+  }
   try {
     const url = new URL(trimmed);
     const normalized = url.toString();
-    if (
-      url.protocol !== "https:"
-      || !url.hostname.includes(".")
-      || url.username
-      || url.password
-      || normalized.length > MAX_WORKFLOW_HTTPS_URL_LENGTH
-    ) return null;
-    return normalized;
+    const hostname = String(url.hostname || "");
+    const urlLength = normalized.length;
+    if (url.protocol !== "https:") return { ...base, reason: "not_https", hostname, urlLength };
+    if (!url.hostname.includes(".")) return { ...base, reason: "hostname_missing_dot", hostname, urlLength };
+    if (url.username || url.password) {
+      return { url: null, error: "unsafe_evidence_url", reason: "url_credentials_present", hostname, urlLength };
+    }
+    if (normalized.length > MAX_WORKFLOW_HTTPS_URL_LENGTH) {
+      return { ...base, reason: "url_too_long_after_normalize", hostname, urlLength };
+    }
+    const unsafeReason = unsafeEvidenceUrlReason(url);
+    if (unsafeReason) {
+      return { url: null, error: "unsafe_evidence_url", reason: unsafeReason, hostname, urlLength };
+    }
+    return { url: normalized, error: null, reason: "", hostname, urlLength };
   } catch {
-    return null;
+    return base;
   }
+}
+
+function unsafeEvidenceUrlReason(url: URL): string {
+  const hostname = String(url.hostname || "").toLowerCase();
+  const pathAndQuery = `${url.pathname || ""} ${url.search || ""}`.toLowerCase();
+  const fullText = `${hostname} ${pathAndQuery}`;
+  const credentialIntent = /(credential|password|passcode|login|signin|sign-in|verify|verification|reset|token|auth)/i.test(fullText);
+  const targetIntent = /(google|drive|workspace|school|student|account|email|microsoft|office|dropbox|onedrive)/i.test(fullText);
+  const deceptiveHost = /(google|drive|microsoft|office|dropbox|onedrive|school|student)[-_.]?(login|verify|password|account)|(?:login|verify|password|account)[-_.]?(google|drive|microsoft|office|dropbox|onedrive|school|student)/i.test(hostname);
+  if (deceptiveHost) return "deceptive_host";
+  if (credentialIntent && targetIntent) return "credential_collection_pattern";
+  return "";
 }
 
 export async function getSubmission(env: Env, submissionId: string): Promise<SubmissionRow | null> {
@@ -56,6 +98,18 @@ export async function getSubmission(env: Env, submissionId: string): Promise<Sub
      FROM submissions
      WHERE id = ?`,
   ).bind(submissionId).first<SubmissionRow>();
+}
+
+export async function countActiveEvidenceForSubmission(env: Env, submissionId: string): Promise<number> {
+  const row = await env.DB.prepare(
+    `SELECT COUNT(id) AS evidence_count
+     FROM evidence_artifacts
+     WHERE submission_id = ?
+       AND deleted_at IS NULL
+       AND review_status != 'archived'`,
+  ).bind(submissionId).first<{ evidence_count: number }>();
+  const count = Number(row?.evidence_count || 0);
+  return Number.isFinite(count) ? count : 0;
 }
 
 export async function canReviewSubmission(env: Env, reviewer: UserAccount, submission: SubmissionRow): Promise<boolean> {

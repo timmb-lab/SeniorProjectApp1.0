@@ -36,9 +36,11 @@ test("site review queue is scoped, read-only by role, mutable for program teache
   const submittedIt = await findSubmittedProgramSubmissions(env, "it", 4);
   const revisionIt = await findSubmissionByStatusAndProgram(env, "revision_requested", "it");
   const nonItSubmitted = await findSubmittedOutsideProgram(env, "it");
+  await ensureActiveEvidenceForSubmission(env, submittedIt[0]);
   await env.DB.prepare(
     "DELETE FROM evidence_artifacts WHERE submission_id = ?",
   ).bind(submittedIt[3].id).run();
+  await insertArchivedEvidenceForSubmission(env, submittedIt[3]);
 
   {
     const { response, body } = await routeQueue(env, null, `?siteId=${PRIMARY_SITE_ID}`);
@@ -80,6 +82,16 @@ test("site review queue is scoped, read-only by role, mutable for program teache
   assert.equal(teacher.queue.every((row) => row.siteId === PRIMARY_SITE_ID && row.programId === "it"), true);
   assert.equal(teacher.pagination.total < platform.pagination.total, true);
   assert.equal(teacher.pagination.total < 69, true);
+  const revisionQueueRow = teacher.queue.find((row) => row.status === "revision_requested");
+  assert.ok(revisionQueueRow);
+  assert.equal(revisionQueueRow.decisionState, "student-revision");
+  assert.equal(revisionQueueRow.approvalBlockedReason, "not_submitted");
+  assert.deepEqual(revisionQueueRow.availableDecisions, {
+    approved: false,
+    revision_requested: false,
+    comment_only: false,
+  });
+  assert.match(revisionQueueRow.nextAction, /Wait for student revision before recording another decision/);
 
   const paged = await expectQueue(env, tokens.programTeacher, `?siteId=${PRIMARY_SITE_ID}&limit=2`);
   assert.equal(paged.pagination.limit, 2);
@@ -93,11 +105,32 @@ test("site review queue is scoped, read-only by role, mutable for program teache
   assert.equal(evidenceAttached.queue.length > 0, true);
   assert.equal(evidenceAttached.queue.every((row) => row.evidenceCount > 0), true);
   assert.equal(evidenceAttached.pagination.filteredTotal, evidenceAttached.summary.evidenceAttached);
+  const approvalReadyRow = evidenceAttached.queue.find((row) => row.submissionId === submittedIt[0].id);
+  assert.ok(approvalReadyRow);
+  assert.equal(approvalReadyRow.decisionState, "decision-ready");
+  assert.equal(approvalReadyRow.approvalBlockedReason, "");
+  assert.deepEqual(approvalReadyRow.availableDecisions, {
+    approved: true,
+    revision_requested: true,
+    comment_only: true,
+  });
+  assert.match(approvalReadyRow.decisionGuidance, /active proof is attached/i);
   const evidenceMissing = await expectQueue(env, tokens.programTeacher, `?siteId=${PRIMARY_SITE_ID}&evidenceStatus=missing&limit=100`);
   assert.equal(evidenceMissing.queue.length > 0, true);
   assert.equal(evidenceMissing.queue.every((row) => row.evidenceCount === 0), true);
   assert.equal(evidenceMissing.queue.every((row) => row.riskFlags.includes("missing_evidence")), true);
   assert.equal(evidenceMissing.pagination.filteredTotal, evidenceMissing.summary.evidenceMissing);
+  const archivedOnlyProofRow = evidenceMissing.queue.find((row) => row.submissionId === submittedIt[3].id);
+  assert.ok(archivedOnlyProofRow);
+  assert.equal(archivedOnlyProofRow.evidenceCount, 0);
+  assert.equal(archivedOnlyProofRow.decisionState, "proof-missing");
+  assert.equal(archivedOnlyProofRow.approvalBlockedReason, "missing_evidence");
+  assert.deepEqual(archivedOnlyProofRow.availableDecisions, {
+    approved: false,
+    revision_requested: true,
+    comment_only: true,
+  });
+  assert.match(archivedOnlyProofRow.decisionGuidance, /active proof is missing/i);
   const missingMentor = await expectQueue(env, tokens.programTeacher, `?siteId=${PRIMARY_SITE_ID}&risk=no_mentor&limit=100`);
   assert.equal(missingMentor.queue.length > 0, true);
   assert.equal(missingMentor.queue.every((row) => row.riskFlags.includes("no_mentor")), true);
@@ -137,6 +170,10 @@ test("site review queue is scoped, read-only by role, mutable for program teache
   assert.equal(comment.body.submission.status, "submitted");
   await assertDecisionRecords(env, submittedIt[2].id, "comment_only", "submitted");
 
+  const missingProof = await routeDecision(env, tokens.programTeacher, submittedIt[3].id, "approved", "Should attach proof before approval.", `?siteId=${PRIMARY_SITE_ID}`);
+  assert.equal(missingProof.response.status, 409);
+  assert.deepEqual(missingProof.body, { error: "submission_missing_evidence", ok: false });
+
   const history = await routeHistory(env, tokens.siteAdminPrimary, submittedIt[0].id, `?siteId=${PRIMARY_SITE_ID}`);
   assert.equal(history.response.status, 200);
   assert.equal(history.body.ok, true);
@@ -168,7 +205,7 @@ test("site review queue is scoped, read-only by role, mutable for program teache
   assert.equal(legacyCompat.response.status, 200);
   assert.equal(legacyCompat.body.review.decision, "comment_only");
 
-  for (const body of [platform, legacy, siteAdmin, teacher, paged, offset, submitted, evidenceAttached, evidenceMissing, missingMentor, searched, noMatches, approved.body, revision.body, comment.body, legacyCompat.body]) {
+  for (const body of [platform, legacy, siteAdmin, teacher, paged, offset, submitted, evidenceAttached, evidenceMissing, missingMentor, searched, noMatches, approved.body, revision.body, comment.body, missingProof.body, legacyCompat.body]) {
     assert.doesNotMatch(JSON.stringify(body), FORBIDDEN_RESPONSE_FIELDS);
   }
 
@@ -184,6 +221,7 @@ test("site review queue is scoped, read-only by role, mutable for program teache
   assert.equal(audits.some((event) => event.action === "submission_approved"), true);
   assert.equal(audits.some((event) => event.action === "submission_revision_requested"), true);
   assert.equal(audits.some((event) => event.action === "submission_review_comment_added"), true);
+  assert.equal(audits.some((event) => event.action === "review_decision_blocked_missing_evidence"), true);
   assert.doesNotMatch(JSON.stringify(audits), FORBIDDEN_RESPONSE_FIELDS);
 });
 
@@ -282,6 +320,50 @@ async function routeHistory(env, token, submissionId, query = "") {
   });
   const body = await response.json();
   return { response, body };
+}
+
+async function ensureActiveEvidenceForSubmission(env, submission) {
+  await env.DB.prepare(
+    `INSERT OR IGNORE INTO evidence_artifacts (
+       id,
+       student_id,
+       submission_id,
+       artifact_type,
+       source_kind,
+       external_url,
+       title,
+       review_status,
+       created_by
+     ) VALUES (?, ?, ?, 'review_proof', 'external_link', ?, 'Review approval proof', 'pending_review', ?)`,
+  ).bind(
+    `test-proof-${submission.id}`,
+    submission.studentId,
+    submission.id,
+    `https://example.com/capstone-demo/proof/${encodeURIComponent(submission.id)}`,
+    submission.studentId,
+  ).run();
+}
+
+async function insertArchivedEvidenceForSubmission(env, submission) {
+  await env.DB.prepare(
+    `INSERT INTO evidence_artifacts (
+       id,
+       student_id,
+       submission_id,
+       artifact_type,
+       source_kind,
+       external_url,
+       title,
+       review_status,
+       created_by
+     ) VALUES (?, ?, ?, 'review_proof', 'external_link', ?, 'Archived approval proof', 'archived', ?)`,
+  ).bind(
+    `test-archived-proof-${submission.id}`,
+    submission.studentId,
+    submission.id,
+    `https://example.com/capstone-demo/archived-proof/${encodeURIComponent(submission.id)}`,
+    submission.studentId,
+  ).run();
 }
 
 async function findSubmittedProgramSubmissions(env, programId, limit) {

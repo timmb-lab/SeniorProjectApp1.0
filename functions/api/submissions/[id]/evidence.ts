@@ -3,7 +3,7 @@ import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
 import { randomId } from "../../../_lib/crypto.ts";
 import { badRequest, json, readJson, requirePost } from "../../../_lib/http.ts";
 import { getRoleAssignments, hasRole } from "../../../_lib/permissions.ts";
-import { cleanHttpsUrl, cleanWorkflowText, getSubmission, workflowError } from "../../../_lib/workflow.ts";
+import { cleanWorkflowText, getSubmission, validateHttpsUrl, workflowError } from "../../../_lib/workflow.ts";
 
 interface EvidenceLinkBody {
   title?: string;
@@ -43,8 +43,19 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
     return workflowError("forbidden", 403);
   }
 
-  const externalUrl = cleanHttpsUrl(body.url);
-  if (!externalUrl) return badRequest("invalid_https_evidence_url");
+  const urlValidation = validateHttpsUrl(body.url);
+  const externalUrl = urlValidation.url;
+  if (!externalUrl) {
+    if (urlValidation.error === "unsafe_evidence_url") {
+      await auditEvidenceLink(env, request, user, "evidence_link_blocked_unsafe_url", "submission", submission.id, {
+        reason: urlValidation.reason,
+        studentId: submission.student_id,
+        hostname: urlValidation.hostname,
+        urlLength: urlValidation.urlLength,
+      });
+    }
+    return badRequest(urlValidation.error || "invalid_https_evidence_url");
+  }
 
   const title = cleanWorkflowText(body.title, "Capstone evidence link", 160);
   const artifactType = cleanWorkflowText(body.artifactType, "planning_document", 80).replace(/[^a-z0-9_-]/gi, "_");
