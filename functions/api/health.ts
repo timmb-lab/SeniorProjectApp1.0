@@ -2,7 +2,7 @@ import type { Env } from "../_types";
 import { json } from "../_lib/http";
 
 export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
-  const row = await env.DB.prepare("SELECT COUNT(*) AS count FROM user_accounts").first<{ count: number }>();
+  const row = await env.DB.prepare("SELECT 1 AS ready").first<{ ready: number }>();
   const driveClientEmailConfigured = isConfiguredSecret(env.GOOGLE_DRIVE_CLIENT_EMAIL);
   const drivePrivateKeyConfigured = isConfiguredSecret(env.GOOGLE_DRIVE_PRIVATE_KEY);
   const driveProviderConfigured = env.EVIDENCE_STORAGE_PROVIDER === "google_drive";
@@ -13,20 +13,15 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
     app: "senior-capstone-app",
     environment: env.APP_ENV || null,
     authMode: env.AUTH_MODE,
+    databaseReady: row?.ready === 1,
     evidenceStorageProvider: env.EVIDENCE_STORAGE_PROVIDER,
     evidenceRootConfigured: driveRootConfigured,
-    evidenceIndexSheetId: env.GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID || null,
     evidenceIndexConfigured: driveIndexConfigured,
     googleDriveProviderConfigured: driveProviderConfigured,
     googleDriveRootIdConfigured: driveRootConfigured,
     googleDriveIndexConfigured: driveIndexConfigured,
     googleDriveCredentialsConfigured: driveClientEmailConfigured && drivePrivateKeyConfigured,
-    googleDriveCredentialParts: {
-      clientEmail: driveClientEmailConfigured,
-      privateKey: drivePrivateKeyConfigured,
-    },
     googleDriveLiveProbeSupported: true,
-    userCount: row?.count ?? 0,
   });
 };
 

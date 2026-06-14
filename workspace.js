@@ -50,15 +50,34 @@ let presentationSlotFilter = "all";
 let adminArchiveExportFilter = "all";
 let adminAuditFilters = defaultAdminAuditFilters();
 const WORKSPACE_UPLOAD_MAX_BYTES = 20 * 1024 * 1024;
+const WORKSPACE_PROOF_LINK_MAX_LENGTH = 2048;
 const WORKSPACE_UPLOAD_ALLOWED_MIME_TYPES = new Set([
   "application/pdf",
-  "text/plain",
-  "text/csv",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "image/gif",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "text/csv",
+  "text/plain",
 ]);
-const WORKSPACE_UPLOAD_ALLOWED_EXTENSIONS = [".pdf", ".txt", ".csv", ".docx", ".pptx", ".xlsx"];
+const WORKSPACE_UPLOAD_ALLOWED_EXTENSIONS = new Set([".csv", ".docx", ".gif", ".jpeg", ".jpg", ".pdf", ".png", ".pptx", ".txt", ".webp", ".xlsx"]);
+const WORKSPACE_UPLOAD_GENERIC_MIME_TYPES = new Set(["", "application/octet-stream"]);
+const WORKSPACE_UPLOAD_ALLOWED_MIME_TYPES_BY_EXTENSION = new Map([
+  [".csv", new Set(["text/csv"])],
+  [".docx", new Set(["application/vnd.openxmlformats-officedocument.wordprocessingml.document"])],
+  [".gif", new Set(["image/gif"])],
+  [".jpeg", new Set(["image/jpeg"])],
+  [".jpg", new Set(["image/jpeg"])],
+  [".pdf", new Set(["application/pdf"])],
+  [".png", new Set(["image/png"])],
+  [".pptx", new Set(["application/vnd.openxmlformats-officedocument.presentationml.presentation"])],
+  [".txt", new Set(["text/plain"])],
+  [".webp", new Set(["image/webp"])],
+  [".xlsx", new Set(["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"])],
+]);
 const WORKSPACE_POSTURE_CHIPS = [
   "Student progress",
   "Private proof",
@@ -201,11 +220,11 @@ const STUDENT_BOOKLET_PHASES = {
   },
   "phase-2a": {
     label: "Phase 2A: Build",
-    guidance: "Start building. Keep proof of what you do and get ready for Mentor Meeting 1.",
+    guidance: "Start building after your proposal is approved. Keep proof of what you do and get ready for Mentor Meeting 1.",
   },
   "phase-2b": {
     label: "Phase 2B: Build Part II",
-    guidance: "Use mentor feedback, finish your outline, and choose your presentation time.",
+    guidance: "Use mentor feedback, finish your outline, choose your presentation time, and wait for approval before presentation day.",
   },
   "phase-3a": {
     label: "Phase 3A: Present",
@@ -5452,6 +5471,7 @@ function renderStudentSection() {
       </div>
     </section>
     ${renderStudentPrimaryNextAction(summary, nextSteps)}
+    ${renderStudentStagePlaybook(summary, nextSteps)}
     ${renderStudentNextSteps(nextSteps, summary)}
     ${renderStudentDeadlinePanel(dashboard.requirements || [], summary)}
     ${renderStudentWorkspaceDisclosurePanels(dashboard, summary, submissions, evidence, filteredSubmissions, activeSubmissionFilter)}
@@ -5557,6 +5577,101 @@ function renderStudentPrimaryNextAction(summary, nextSteps = []) {
       ${actionButtons ? `<div class="workspace-row-actions">${actionButtons}</div>` : ""}
     </section>
   `;
+}
+
+function renderStudentStagePlaybook(summary, nextSteps = []) {
+  const playbook = studentStagePlaybook(summary, nextSteps);
+  return `
+    <section class="workspace-dashboard-card workspace-student-stage-guide" data-student-stage-playbook="true" aria-labelledby="studentStageGuideTitle">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Stage guide</p>
+          <h2 id="studentStageGuideTitle">${escapeHtml(playbook.title)}</h2>
+          <p>${escapeHtml(playbook.summary)}</p>
+        </div>
+        ${statusPill(playbook.status)}
+      </div>
+      <ol class="workspace-student-stage-steps">
+        ${playbook.steps.map((step, index) => `
+          <li data-student-stage-step="true">
+            <span aria-hidden="true">${escapeHtml(index + 1)}</span>
+            <div>
+              <strong>${escapeHtml(step.title)}</strong>
+              <p>${escapeHtml(step.detail)}</p>
+            </div>
+          </li>
+        `).join("")}
+      </ol>
+      <div class="workspace-student-approval-checkpoint" data-student-manual-approval="true">
+        <strong>Program Teacher approval required for next steps</strong>
+        <p>${escapeHtml("Start the next phase only after your program teacher marks the current phase work approved. Mentor check-ins may be part of the phase, but the recorded approval comes from teacher review.")}</p>
+      </div>
+    </section>
+  `;
+}
+
+function studentStagePlaybook(summary = {}, nextSteps = []) {
+  const phaseLabel = summary.currentPhaseLabel || "your current phase";
+  const firstStep = Array.isArray(nextSteps) ? nextSteps[0] : null;
+  const nextTitle = firstStep?.title || "the current item";
+  if (!summary.requirementsTotal) {
+    return {
+      title: "Wait for your project setup",
+      summary: "Your program teacher has not added the first required work yet.",
+      status: "pending",
+      steps: [
+        { title: "Check this page", detail: "Required work will appear here when your teacher is ready for you to start." },
+        { title: "Ask your program teacher", detail: "If you think work is missing, ask your teacher which phase you should be in." },
+        { title: "Do not skip ahead", detail: "Start the first phase only after your teacher has added it here." },
+      ],
+    };
+  }
+  if (summary.revisionRequestedCount) {
+    return {
+      title: "Fix this phase, then send it back",
+      summary: `Current phase: ${phaseLabel}. Start with teacher feedback before doing new phase work.`,
+      status: "revision_requested",
+      steps: [
+        { title: "Open teacher feedback", detail: `Read the note for ${nextTitle} and find exactly what needs to change.` },
+        { title: "Fix the work and proof", detail: "Update the work, add the corrected proof, and send it back for review." },
+        { title: "Wait for approval", detail: "Stay in this phase until your program teacher approves it for next steps." },
+      ],
+    };
+  }
+  if (summary.waitingForReviewCount) {
+    return {
+      title: "Wait for approval before moving on",
+      summary: `Current phase: ${phaseLabel}. Your teacher has work to review before the next phase starts.`,
+      status: "submitted",
+      steps: [
+        { title: "Check what you sent", detail: "Use Work You Sent In to confirm the right work and proof are waiting." },
+        { title: "Hold the next phase", detail: "Do not change direction or start the next phase unless your teacher tells you to." },
+        { title: "Use the decision", detail: "If it is approved, follow the next phase. If revision is requested, fix and send again." },
+      ],
+    };
+  }
+  if (summary.missingRequiredCount) {
+    return {
+      title: "Finish the current phase in order",
+      summary: `Current phase: ${phaseLabel}. Do the listed work first, then ask for review.`,
+      status: "draft",
+      steps: [
+        { title: "Open the current item", detail: `Start with ${nextTitle} or the first missing item in this phase.` },
+        { title: "Add proof", detail: "Attach the link or file that shows the work your teacher asked for." },
+        { title: "Send it for review", detail: "After proof is attached, send the item to your program teacher and wait for approval." },
+      ],
+    };
+  }
+  return {
+    title: "Use the approved next step",
+    summary: `Current phase: ${phaseLabel}. Keep following the phase your teacher has approved.`,
+    status: "approved",
+    steps: [
+      { title: "Check approved work", detail: "Use Feedback History or the checklist to confirm what has been approved." },
+      { title: "Follow the next listed item", detail: "Open the next item shown on this page and complete it in order." },
+      { title: "Ask before skipping", detail: "If the next phase is unclear, ask your program teacher before moving ahead." },
+    ],
+  };
 }
 
 function studentPrimaryNextAction(summary, nextSteps = []) {
@@ -6006,17 +6121,36 @@ function isStudentRequirementComplete(status) {
   return ["approved", "archived", "complete", "completed"].includes(normalizeStatus(status));
 }
 
+function studentRequirementApprovalGateText(item = {}) {
+  const status = normalizeStatus(item?.submissionStatus || item?.status || item?.progressStatus);
+  if (["approved", "archived", "complete", "completed"].includes(status)) {
+    return "Approved for next steps. Continue with the next assigned item.";
+  }
+  if (["submitted", "under_review", "pending_review"].includes(status)) {
+    return "Wait here. Your program teacher must approve this item before next steps.";
+  }
+  if (status === "revision_requested") {
+    return "Revise this item, send it again, then wait for program teacher approval before next steps.";
+  }
+  if (status === "blocked") {
+    return "Ask your program teacher what is blocking this item before next steps.";
+  }
+  return "Do this item, add proof if needed, then send it for teacher review before next steps.";
+}
+
 function renderStudentRequirementRow(item, feedback = [], detailState = defaultStudentRequirementDetailState(), evidence = [], historyState = defaultStudentFeedbackHistoryState()) {
   const version = safeNumber(item?.submissionVersion);
   const updatedAt = item?.lastUpdatedAt ? formatDate(item.lastUpdatedAt) : "Not available yet";
   const description = String(item?.description || "").trim();
   const qualityPrompt = String(item?.qualityPrompt || "").trim();
+  const approvalGate = studentRequirementApprovalGateText(item);
   const submissionId = String(item?.submissionId || "").trim();
   const evidenceCount = safeNumber(item?.evidenceCount);
   const requirementId = studentRequirementId(item);
   const phase = studentBookletPhaseInfo(item?.phase || item?.phaseLabel || "", item?.phaseLabel || "");
   const detailDomId = studentRequirementDetailDomId(requirementId);
   const selected = requirementId && detailState?.selectedRequirementId === requirementId;
+  const detailActionLabel = selected ? "Hide details" : "Check details";
   const latestFeedback = latestFeedbackForRequirement(item, feedback);
   const relatedEvidence = matchingEvidenceForRequirement(item, evidence);
   return `
@@ -6028,11 +6162,12 @@ function renderStudentRequirementRow(item, feedback = [], detailState = defaultS
         <p>${escapeHtml(phase.label || "Not available yet")} / Last updated ${escapeHtml(updatedAt)}</p>
         <p class="workspace-muted" data-student-requirement-due="true">${escapeHtml(studentDueText(item))}</p>
         <p class="workspace-muted" data-student-requirement-next="true">${escapeHtml(item?.nextAction || "Ask your program teacher what to do next.")}</p>
+        <p class="workspace-student-requirement-gate" data-student-requirement-approval-gate="true">${escapeHtml(approvalGate)}</p>
       </div>
       <div class="workspace-row-actions">
         ${submissionId ? `<span class="workspace-site-context-badge" data-student-requirement-evidence="true">${escapeHtml(evidenceCount)} proof item${evidenceCount === 1 ? "" : "s"}</span>` : ""}
         ${version > 0 ? `<span class="workspace-site-context-badge" data-student-requirement-version="true">Version ${escapeHtml(version)}</span>` : ""}
-        ${requirementId ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-requirement-action="toggle-detail" data-student-requirement-id="${escapeHtml(requirementId)}" aria-expanded="${selected ? "true" : "false"}" aria-controls="${escapeHtml(detailDomId)}">${escapeHtml(selected ? "Hide details" : "Check details")}</button>` : ""}
+        ${requirementId ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-requirement-action="toggle-detail" data-student-requirement-id="${escapeHtml(requirementId)}" aria-expanded="${selected ? "true" : "false"}" aria-controls="${escapeHtml(detailDomId)}" aria-label="${escapeHtml(`${detailActionLabel}: ${studentRequirementActionLabel(item)}`)}">${escapeHtml(detailActionLabel)}</button>` : ""}
         ${renderStudentRequirementAction(item, evidenceCount)}
         ${statusPill(item?.status || "missing")}
       </div>
@@ -6082,6 +6217,7 @@ function renderStudentRequirementDetail(item, latestFeedback = null, evidenceRow
   const submissionStatus = item?.submissionStatus ? statusText(item.submissionStatus) : status;
   const progressStatus = item?.progressStatus ? statusText(item.progressStatus) : "Not started";
   const phase = studentBookletPhaseInfo(item?.phase || item?.phaseLabel || "", item?.phaseLabel || "");
+  const approvalGate = studentRequirementApprovalGateText(item);
   const timelineSelected = studentFeedbackSelectionMatches(historyState, submissionId, "requirements");
   return `
     <section id="${escapeHtml(detailDomId)}" class="workspace-student-requirement-detail" data-student-requirement-detail="true">
@@ -6097,6 +6233,7 @@ function renderStudentRequirementDetail(item, latestFeedback = null, evidenceRow
         ${renderStudentRequirementDetailFact("Sent work", version > 0 ? `Version ${version} / ${submissionStatus}` : "Not sent yet")}
         ${renderStudentRequirementDetailFact("Progress", progressStatus)}
         ${renderStudentRequirementDetailFact("Next step", item?.nextAction || "Ask your program teacher what to do next.")}
+        ${renderStudentRequirementDetailFact("Approval gate", approvalGate)}
       </div>
       ${latestFeedback ? `
         <article class="workspace-mini-row" data-student-requirement-feedback="true">
@@ -6151,22 +6288,41 @@ function renderStudentRequirementAction(item, evidenceCount = 0) {
 function renderStudentRequirementOpenButton(item, label = "Open item") {
   const requirementId = cleanDirectoryFilter(item?.requirementId || "");
   if (!requirementId) return "";
-  return `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-requirement-action="open-detail" data-student-requirement-id="${escapeHtml(requirementId)}">${escapeHtml(label)}</button>`;
+  const actionLabel = studentRequirementActionLabel(item);
+  return `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-requirement-action="open-detail" data-student-requirement-id="${escapeHtml(requirementId)}" aria-label="${escapeHtml(`${label}: ${actionLabel}`)}">${escapeHtml(label)}</button>`;
+}
+
+function studentRequirementActionLabel(item = {}) {
+  const label = String(item.title || item.requirementTitle || item.requirement_title || "requirement").trim().replace(/\s+/g, " ");
+  return label ? label.slice(0, 120) : "requirement";
 }
 
 function renderEvidenceActions(item, options = {}) {
   const includeRequirementAction = options.includeRequirementAction !== false;
   const actions = [];
+  const actionLabel = evidenceActionLabel(item);
   if (includeRequirementAction && item.requirementId) {
     actions.push(renderStudentRequirementOpenButton(item));
   }
-  if (item.source_kind === "google_drive_file" && item.downloadUrl) {
-    actions.push(`<a class="workspace-link-button workspace-link-button-small" data-evidence-download="file" href="${escapeHtml(item.downloadUrl)}">Download file</a>`);
+  const downloadUrl = item.source_kind === "google_drive_file" ? cleanWorkspaceEvidenceDownloadUrl(item.downloadUrl) : "";
+  if (downloadUrl) {
+    actions.push(`<a class="workspace-link-button workspace-link-button-small" data-evidence-download="file" href="${escapeHtml(downloadUrl)}" aria-label="Download proof file: ${escapeHtml(actionLabel)}">Download file</a>`);
   }
-  if (item.source_kind === "external_link" && item.externalUrl) {
-    actions.push(`<a class="workspace-link-button workspace-link-button-small" data-evidence-link="external" href="${escapeHtml(item.externalUrl)}" target="_blank" rel="noreferrer">Open link</a>`);
+  const externalUrl = item.source_kind === "external_link" ? cleanWorkspaceHttpsUrl(item.externalUrl) : "";
+  if (externalUrl) {
+    actions.push(`<a class="workspace-link-button workspace-link-button-small" data-evidence-link="external" href="${escapeHtml(externalUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Open proof link: ${escapeHtml(actionLabel)}">Open proof link</a>`);
   }
   return actions;
+}
+
+function evidenceActionLabel(item = {}) {
+  const label = String(item.title || item.requirementTitle || "proof").trim().replace(/\s+/g, " ");
+  return label ? label.slice(0, 120) : "proof";
+}
+
+function cleanWorkspaceEvidenceDownloadUrl(value) {
+  const trimmed = String(value || "").trim();
+  return /^\/api\/evidence\/[^/?#]+\/download$/.test(trimmed) ? trimmed : "";
 }
 
 function renderStudentRequirementEvidenceRow(item) {
@@ -6326,6 +6482,7 @@ function renderStudentFeedbackEmptyState(summary = {}, filterKey = "all", totalR
 function renderStudentFeedbackRow(item, historyState = defaultStudentFeedbackHistoryState()) {
   const submissionMeta = studentFeedbackSubmissionMeta(item);
   const submissionId = cleanDirectoryFilter(item?.submissionId);
+  const approvalGate = studentFeedbackApprovalGateText(item);
   const isSelected = studentFeedbackSelectionMatches(historyState, submissionId, "feedback");
   return `
     <article class="workspace-row workspace-student-feedback-row" data-student-feedback-item="${escapeHtml(item.id || "")}">
@@ -6333,6 +6490,7 @@ function renderStudentFeedbackRow(item, historyState = defaultStudentFeedbackHis
         <strong>${escapeHtml(item.requirementTitle || "Senior Project work")}</strong>
         <p>${escapeHtml(item.message || "Teacher feedback was recorded for this work.")}</p>
         ${submissionMeta ? `<p class="workspace-muted" data-student-feedback-context="true">${escapeHtml(submissionMeta)}</p>` : ""}
+        <p class="workspace-student-feedback-gate" data-student-feedback-approval-gate="true">${escapeHtml(approvalGate)}</p>
         <p class="workspace-muted">${escapeHtml(item.authorName || "Program teacher")} / ${escapeHtml(formatDate(item.createdAt))}</p>
       </div>
       <div class="workspace-row-actions">
@@ -6342,6 +6500,20 @@ function renderStudentFeedbackRow(item, historyState = defaultStudentFeedbackHis
       ${isSelected ? renderStudentFeedbackTimeline(historyState) : ""}
     </article>
   `;
+}
+
+function studentFeedbackApprovalGateText(item = {}) {
+  const status = normalizeStatus(item?.submissionStatus || item?.status);
+  if (["approved", "archived", "complete", "completed"].includes(status)) {
+    return "Approved for next steps. Use this teacher approval to continue with the next assigned item.";
+  }
+  if (["submitted", "under_review", "reviewing", "pending_review"].includes(status)) {
+    return "Wait here. Your program teacher must approve this work before next steps.";
+  }
+  if (["revision_requested", "needs_revision"].includes(status)) {
+    return "Fix this feedback item, send the revision, then wait for program teacher approval.";
+  }
+  return "Read this note, update your work if needed, and ask your program teacher before skipping ahead.";
 }
 
 function studentFeedbackSelectionMatches(historyState, submissionId, source = "feedback") {
@@ -6684,7 +6856,8 @@ function renderEvidenceForms(submissions) {
           </label>
           <label class="workspace-label workspace-label-wide">
             Proof link
-            <input class="workspace-input" name="url" type="url" inputmode="url" autocomplete="off" required>
+            <input class="workspace-input" name="url" type="url" inputmode="url" autocomplete="off" maxlength="${WORKSPACE_PROOF_LINK_MAX_LENGTH}" aria-describedby="workspaceProofLinkHelp" required>
+            <span id="workspaceProofLinkHelp" class="workspace-muted">Use a secure https:// link under 2,048 characters. Do not include usernames or passwords in the link.</span>
           </label>
         </div>
         <div class="workspace-form-actions">
@@ -6712,10 +6885,10 @@ function renderEvidenceForms(submissions) {
           </label>
           <label class="workspace-label workspace-label-wide">
             File
-            <input class="workspace-input" name="file" type="file" accept="image/*,.pdf,.txt,.csv,.docx,.pptx,.xlsx,application/pdf,text/plain,text/csv,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" data-upload-action="select-file" required>
+            <input class="workspace-input" name="file" type="file" accept="image/*,.pdf,.txt,.csv,.docx,.pptx,.xlsx,application/pdf,text/plain,text/csv,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" data-upload-action="select-file" aria-describedby="workspaceFileUploadHelp" required>
           </label>
         </div>
-        <p class="workspace-muted">Files up to 20 MB can be uploaded when file storage is available.</p>
+        <p id="workspaceFileUploadHelp" class="workspace-muted">Upload a PDF, image, text file, spreadsheet, presentation, or document up to 20 MB when file storage is available.</p>
         ${renderUploadStatus()}
         <div class="workspace-form-actions">
           <button class="workspace-button workspace-button-primary" type="submit">Upload file</button>
@@ -7219,7 +7392,7 @@ function renderReviewSubmissionPanel(selected, body) {
       </div>
       <p>${escapeHtml(selected.nextAction || "Review proof and history.")}</p>
       <p class="workspace-muted" data-review-selected-guidance="true">${escapeHtml(canDecide
-        ? "Teacher decisions are ready on this submitted row."
+        ? "This submitted row is ready for a teacher decision. Approval is the manual checkpoint students are told to wait for before next steps."
         : permissions.canReview
           ? `${statusText(selected.status)} is follow-up only here. Use history and student detail for context.`
           : "This row is read-only here. Use history and student detail for context." )}</p>
@@ -7229,6 +7402,7 @@ function renderReviewSubmissionPanel(selected, body) {
         </button>
       </div>
       ${renderReviewHistorySummary(historyResult, history)}
+      ${renderReviewNextStepCheckpoint(selected, canDecide, permissions)}
       ${canDecide ? renderReviewDecisionForm(selected) : `
         <section class="workspace-empty-state-card" data-review-mutation-disabled="true">
           <h2>No teacher decision available for this row</h2>
@@ -7239,6 +7413,44 @@ function renderReviewSubmissionPanel(selected, body) {
           })}
         </section>
       `}
+    </section>
+  `;
+}
+
+function renderReviewNextStepCheckpoint(selected, canDecide, permissions = {}) {
+  const status = statusText(selected?.status || "submitted");
+  const canReview = Boolean(permissions.canReview);
+  const steps = canDecide
+    ? [
+        ["Check proof and history", "Open the student detail if mentor, timeline, or phase context is needed before deciding."],
+        ["Approve next steps only when ready", "Choose approval when this work is complete enough for the student to move forward."],
+        ["Request revision to hold the phase", "Choose revision when the student should fix this phase before moving ahead."],
+      ]
+    : canReview
+      ? [
+          ["Use this as follow-up context", `${status} work is not open for a new decision from this row.`],
+          ["Open submitted work for decisions", "Only submitted work exposes approval, revision, and comment decisions."],
+          ["Keep the phase signal clear", "Use student detail and review history before telling the student to move ahead."],
+        ]
+      : [
+          ["Read the review context", "This account can view the row but cannot record a teacher decision here."],
+          ["Send students to assigned staff", "Program teachers record approval or revision decisions from their review queue."],
+          ["Keep next steps consistent", "Students should wait for recorded approval before starting the next phase."],
+        ];
+  return `
+    <section class="workspace-review-checkpoint-guide" data-review-next-step-checkpoint="true">
+      <strong>${escapeHtml(canDecide ? "Approval controls the student's next steps" : "Next-step approval context")}</strong>
+      <ol>
+        ${steps.map((step, index) => `
+          <li>
+            <span aria-hidden="true">${escapeHtml(index + 1)}</span>
+            <div>
+              <b>${escapeHtml(step[0])}</b>
+              <p>${escapeHtml(step[1])}</p>
+            </div>
+          </li>
+        `).join("")}
+      </ol>
     </section>
   `;
 }
@@ -7326,11 +7538,11 @@ function renderReviewDecisionForm(selected) {
         <textarea name="feedback" rows="5" maxlength="800"></textarea>
       </label>
       <div class="workspace-row-actions">
-        <button class="workspace-button workspace-button-primary" type="submit" name="decision" value="approved" data-review-decision="approved">Approve</button>
+        <button class="workspace-button workspace-button-primary" type="submit" name="decision" value="approved" data-review-decision="approved">Approve next steps</button>
         <button class="workspace-button workspace-button-secondary" type="submit" name="decision" value="revision_requested" data-review-decision="revision_requested">Request revision</button>
         <button class="workspace-button workspace-button-secondary" type="submit" name="decision" value="comment_only" data-review-decision="comment_only">Add comment only</button>
       </div>
-      <p class="workspace-muted">Saved decisions refresh this queue.</p>
+      <p class="workspace-muted">Saved decisions refresh this queue and update the student's approval signal.</p>
       <input type="hidden" name="submissionId" value="${escapeHtml(selected.submissionId || "")}">
     </form>
   `;
@@ -9708,6 +9920,7 @@ function renderArchiveSection() {
   const storage = body.storage || {};
   const retention = body.retention || {};
   const scopedDownloadReady = Boolean(archive.scopedDownloadReady || archive.signedDownloadReady);
+  const archiveDownloadUrl = scopedDownloadReady ? cleanWorkspaceArchiveDownloadUrl(archive.downloadUrl) : "";
   const drivePackageStatus = archive.drivePackageReady || storage.drivePackageReady ? "ready" : "pending";
   const downloadMessage = studentArchiveDownloadStatusCopy(archive, storage);
   const dashboard = studentArchiveDashboardModel(body);
@@ -9755,7 +9968,7 @@ function renderArchiveSection() {
           ${statusPill(storage.credentialsConfigured ? "configured" : "provider_unavailable")}
         </div>
         <div class="workspace-worklist workspace-archive-status-worklist">
-          ${renderArchiveStatusRow("Download status", downloadMessage, archive.status || "not_requested", scopedDownloadReady && archive.downloadUrl ? `<a class="workspace-link-button workspace-link-button-small" data-archive-download="manifest" href="${escapeHtml(archive.downloadUrl)}">Download file list</a>` : "")}
+          ${renderArchiveStatusRow("Download status", downloadMessage, archive.status || "not_requested", archiveDownloadUrl ? `<a class="workspace-link-button workspace-link-button-small" data-archive-download="manifest" href="${escapeHtml(archiveDownloadUrl)}">Download file list</a>` : "")}
           ${renderArchiveStatusRow("Privacy guard", "Private file details stay hidden from this workspace.", storage.storageIdentifiersRedacted ? "ready" : "needs_review")}
           ${renderArchiveStatusRow("Final file package", drivePackageStatus === "ready" ? "Final file package is stored for protected download." : "Final file package will appear after staff prepares it and storage is ready.", drivePackageStatus, "", `data-archive-drive-package="${escapeHtml(drivePackageStatus)}"`)}
           ${renderArchiveStatusRow("Download window", retention.policyReviewRequired ? "School download policy still needs review." : `Downloads stay available for ${retention.downloadWindowDays || 14} days.`, retention.downloadExpiresSoon ? "expiring_soon" : retention.policyStatus || "policy_review_required", "", `data-archive-retention-status="${escapeHtml(retention.policyStatus || "unknown")}"`)}
@@ -9763,6 +9976,11 @@ function renderArchiveSection() {
       </section>
     </section>
   `;
+}
+
+function cleanWorkspaceArchiveDownloadUrl(value) {
+  const trimmed = String(value || "").trim();
+  return /^\/api\/exports\/[^/?#]+\/download$/.test(trimmed) ? trimmed : "";
 }
 
 function studentArchiveDashboardModel(body = {}) {
@@ -10069,9 +10287,15 @@ function renderPermissionDeniedSection(title, detail) {
 async function attachEvidenceLink(event) {
   event.preventDefault();
   if (busy) return;
-  busy = true;
   const form = event.currentTarget;
   const values = Object.fromEntries(new FormData(form).entries());
+  const validationMessage = validateEvidenceLinkValues(values);
+  const externalUrl = cleanWorkspaceHttpsUrl(values.url);
+  if (validationMessage || !externalUrl) {
+    renderAppShell(validationMessage || messageForEvidenceError("invalid_https_evidence_url"), "error");
+    return;
+  }
+  busy = true;
   setFormBusy(form, true);
 
   try {
@@ -10080,7 +10304,7 @@ async function attachEvidenceLink(event) {
       headers: { "content-type": "application/json", accept: "application/json" },
       body: JSON.stringify({
         title: values.title,
-        url: values.url,
+        url: externalUrl,
         artifactType: values.artifactType,
       }),
     });
@@ -10094,6 +10318,32 @@ async function attachEvidenceLink(event) {
     renderAppShell(messageForNetworkError(error), "error");
   } finally {
     busy = false;
+  }
+}
+
+function validateEvidenceLinkValues(values = {}) {
+  if (!String(values.submissionId || "").trim()) return "Choose the work item this proof link belongs to.";
+  if (!String(values.title || "").trim()) return "Add a short title for this proof link.";
+  if (!cleanWorkspaceHttpsUrl(values.url)) return messageForEvidenceError("invalid_https_evidence_url");
+  return "";
+}
+
+function cleanWorkspaceHttpsUrl(value) {
+  const trimmed = String(value || "").trim();
+  if (trimmed.length > WORKSPACE_PROOF_LINK_MAX_LENGTH) return "";
+  try {
+    const url = new URL(trimmed);
+    const normalized = url.toString();
+    if (
+      url.protocol !== "https:"
+      || !url.hostname.includes(".")
+      || url.username
+      || url.password
+      || normalized.length > WORKSPACE_PROOF_LINK_MAX_LENGTH
+    ) return "";
+    return normalized;
+  } catch {
+    return "";
   }
 }
 
@@ -10270,16 +10520,30 @@ function validateWorkspaceUploadFile(file) {
     return "This file is larger than the current 20 MB limit. Choose a smaller file or ask your instructor for help.";
   }
   if (!workspaceUploadFileSupported(file)) {
-    return "Choose a PDF, image, text file, spreadsheet, presentation, or document for this upload.";
+    return workspaceUploadTypeMessage();
   }
   return "";
 }
 
 function workspaceUploadFileSupported(file) {
   const mimeType = String(file?.type || "").toLowerCase().split(";")[0].trim();
-  if (mimeType.startsWith("image/") || WORKSPACE_UPLOAD_ALLOWED_MIME_TYPES.has(mimeType)) return true;
-  const fileName = String(file?.name || "").toLowerCase();
-  return WORKSPACE_UPLOAD_ALLOWED_EXTENSIONS.some((extension) => fileName.endsWith(extension));
+  const extension = workspaceUploadFileExtension(file?.name);
+  if (WORKSPACE_UPLOAD_GENERIC_MIME_TYPES.has(mimeType)) {
+    return WORKSPACE_UPLOAD_ALLOWED_EXTENSIONS.has(extension);
+  }
+  if (!extension) {
+    return WORKSPACE_UPLOAD_ALLOWED_MIME_TYPES.has(mimeType);
+  }
+  return WORKSPACE_UPLOAD_ALLOWED_MIME_TYPES_BY_EXTENSION.get(extension)?.has(mimeType) === true;
+}
+
+function workspaceUploadFileExtension(name) {
+  const match = /\.[a-z0-9]+$/i.exec(String(name || "").trim());
+  return match ? match[0].toLowerCase() : "";
+}
+
+function workspaceUploadTypeMessage() {
+  return "Choose a PDF, image, text file, spreadsheet, presentation, or document. If the file was renamed, make sure its extension matches the file type.";
 }
 
 function canRetryUploadFailure(error, status) {
@@ -11204,6 +11468,7 @@ function pluralize(count, singular, plural = `${singular}s`) {
 function renderSubmissionRow(submission, feedback = [], historyState = defaultStudentFeedbackHistoryState()) {
   const latestFeedback = latestFeedbackForSubmission(submission, feedback);
   const submissionId = cleanDirectoryFilter(submission?.id || "");
+  const approvalGate = studentSubmissionApprovalGateText(submission);
   const isSelected = studentFeedbackSelectionMatches(historyState, submissionId, "submissions");
   return `
     <article class="workspace-row workspace-student-submission-row" data-student-submission-row="${escapeHtml(submissionId || "true")}">
@@ -11211,6 +11476,7 @@ function renderSubmissionRow(submission, feedback = [], historyState = defaultSt
         <strong>${escapeHtml(submission.requirement_title || "Senior Project work")}</strong>
         <p>Version ${escapeHtml(submission.version || 1)}. Updated ${escapeHtml(formatDate(submission.updated_at))}.</p>
         ${latestFeedback ? `<p class="workspace-muted" data-submission-feedback="true">Latest teacher feedback: ${escapeHtml(latestFeedback.message || "Teacher feedback was recorded for this work.")}</p>` : ""}
+        <p class="workspace-student-submission-gate" data-student-submission-approval-gate="true">${escapeHtml(approvalGate)}</p>
       </div>
       <div class="workspace-row-actions">
         ${submissionId ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-feedback-action="open-history" data-student-feedback-origin="submissions" data-student-feedback-submission-id="${escapeHtml(submissionId)}">${escapeHtml(isSelected ? "Refresh timeline" : "View timeline")}</button>` : ""}
@@ -11219,6 +11485,20 @@ function renderSubmissionRow(submission, feedback = [], historyState = defaultSt
       ${isSelected ? `<div data-student-submission-timeline="true">${renderStudentFeedbackTimeline(historyState)}</div>` : ""}
     </article>
   `;
+}
+
+function studentSubmissionApprovalGateText(submission = {}) {
+  const status = normalizeStatus(submission?.status);
+  if (["approved", "archived", "complete", "completed"].includes(status)) {
+    return "Approved for next steps. Use this approval to continue with the next assigned item.";
+  }
+  if (["submitted", "under_review", "reviewing", "pending_review"].includes(status)) {
+    return "Wait here. Your program teacher must approve this sent work before next steps.";
+  }
+  if (["revision_requested", "needs_revision"].includes(status)) {
+    return "Fix this sent work, send the revision, then wait for program teacher approval.";
+  }
+  return "Finish this work, attach proof if needed, then send it for teacher review.";
 }
 
 function renderStudentSubmissionFilters(rows = [], activeFilter = "all") {
@@ -11810,8 +12090,8 @@ function renderRoleProfileActions(actions = []) {
 function renderRoleProfileScopeSummary() {
   const roles = currentUser?.roles || [];
   return `
-    <section class="workspace-role-profile-scope" aria-label="Assigned access">
-      <p class="workspace-kicker">Assigned access</p>
+    <section class="workspace-role-profile-scope" aria-label="Workspace assignments">
+      <p class="workspace-kicker">Workspace assignments</p>
       <div class="workspace-chip-row">
         ${roles.length ? roleChips(currentUser) : `<span class="workspace-chip">Role pending</span>`}
       </div>
@@ -13307,7 +13587,7 @@ function workspaceStateForAuthError(error) {
 }
 
 function messageForEvidenceError(error, status) {
-  if (error === "invalid_https_evidence_url") return "Use a full HTTPS link for your proof, beginning with https://.";
+  if (error === "invalid_https_evidence_url") return "Use a full HTTPS link for your proof, beginning with https://, under 2,048 characters, and without usernames or passwords.";
   if (error === "missing_submission_id" || status === 404) return "We could not find that work. Refresh and try again.";
   if (status === 403) return "This account cannot add proof to that work.";
   if (status === 401) return "Sign in again before adding proof.";
@@ -13330,7 +13610,7 @@ function messageForUploadError(error, status) {
   if (error === "missing_file") return "Choose a file before uploading.";
   if (error === "empty_file") return "The selected file is empty. Choose a file with content and try again.";
   if (error === "file_too_large") return "This file is larger than the current upload limit. Choose a smaller file or ask your instructor for help.";
-  if (error === "unsupported_file_type") return "Choose a PDF, image, text file, spreadsheet, presentation, or document for this upload.";
+  if (error === "unsupported_file_type") return workspaceUploadTypeMessage();
   if (error === "drive_token_exchange_failed" || error === "drive_provider_error" || error === "drive_upload_failed" || status === 502) {
     return "The storage provider could not receive the file. Try again or contact your instructor.";
   }

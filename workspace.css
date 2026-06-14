@@ -1084,12 +1084,22 @@
 }
 
 .workspace-student-requirement-guidance,
-.workspace-student-requirement-nudge {
+.workspace-student-requirement-nudge,
+.workspace-student-requirement-gate,
+.workspace-student-submission-gate,
+.workspace-student-feedback-gate {
   max-width: 68ch;
 }
 
 .workspace-student-requirement-guidance {
   color: var(--text);
+}
+
+.workspace-student-requirement-gate,
+.workspace-student-submission-gate,
+.workspace-student-feedback-gate {
+  color: var(--ink);
+  font-weight: 700;
 }
 
 .workspace-student-requirement-detail {
@@ -2253,6 +2263,72 @@
 .workspace-student-primary-action {
   border-left: 6px solid var(--abc-blue);
   background: color-mix(in srgb, var(--abc-blue-soft) 72%, white);
+}
+
+.workspace-student-stage-guide {
+  border-left: 6px solid var(--abc-green);
+  background: color-mix(in srgb, var(--abc-green-soft) 70%, white);
+}
+
+.workspace-student-stage-steps,
+.workspace-review-checkpoint-guide ol {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.workspace-student-stage-steps li,
+.workspace-review-checkpoint-guide li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.workspace-student-stage-steps li > span,
+.workspace-review-checkpoint-guide li > span {
+  display: inline-grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--abc-ink);
+  color: #fff;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.workspace-student-stage-steps strong,
+.workspace-review-checkpoint-guide b {
+  display: block;
+  color: var(--abc-ink);
+}
+
+.workspace-student-stage-steps p,
+.workspace-review-checkpoint-guide p {
+  margin: 0.16rem 0 0;
+  color: var(--abc-charcoal);
+}
+
+.workspace-student-approval-checkpoint,
+.workspace-review-checkpoint-guide {
+  display: grid;
+  gap: 0.65rem;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-card);
+  background: #fff;
+  padding: 0.85rem;
+}
+
+.workspace-student-approval-checkpoint {
+  margin-top: 0.85rem;
+}
+
+.workspace-student-approval-checkpoint strong,
+.workspace-review-checkpoint-guide > strong {
+  color: var(--abc-ink);
 }
 
 .workspace-student-action-focus {

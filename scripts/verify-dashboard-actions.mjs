@@ -429,8 +429,8 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function renderTeacherSection\([\s\S]*renderMetricTile\("Evidence Attached"[\s\S]*"teacher", \{ label: "Review rows", preset: "evidence-attached-review" \}\)/,
-  "Review Queue Evidence Attached metric must open the existing evidence-attached Review Queue filter",
+  /function renderTeacherSection\([\s\S]*renderMetricTile\("Proof Attached"[\s\S]*"teacher", \{ label: "Review rows", preset: "evidence-attached-review" \}\)/,
+  "Review Queue Proof Attached metric must open the existing evidence-attached Review Queue filter",
 );
 assertMatches(
   "workspaceJs",
@@ -439,8 +439,8 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function renderTeacherSection\([\s\S]*renderMetricTile\("Evidence Missing"[\s\S]*"teacher", \{ label: "Review rows", preset: "evidence-missing-review" \}\)/,
-  "Review Queue Evidence Missing metric must open the existing evidence-missing Review Queue filter",
+  /function renderTeacherSection\([\s\S]*renderMetricTile\("Proof Missing"[\s\S]*"teacher", \{ label: "Review rows", preset: "evidence-missing-review" \}\)/,
+  "Review Queue Proof Missing metric must open the existing evidence-missing Review Queue filter",
 );
 assertMatches(
   "workspaceJs",
@@ -479,7 +479,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /operationsRankedNextActions\([\s\S]*label: "Review archive failures"[\s\S]*preset: "archive-failed"/,
+  /operationsRankedNextActions\([\s\S]*label: "Review final-file failures"[\s\S]*preset: "archive-failed"/,
   "Operations Archive Failed metric must open the existing archive-failed worklist filter",
 );
 assertMatches(
@@ -489,7 +489,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /operationsRankedNextActions\([\s\S]*label: "Confirm archive packages in progress"[\s\S]*preset: "archive-in-progress"/,
+  /operationsRankedNextActions\([\s\S]*label: "Confirm final-file packages in progress"[\s\S]*preset: "archive-in-progress"/,
   "Operations Archive In Progress metric must open the existing queued/running archive worklist filter",
 );
 assertMatches(
@@ -499,7 +499,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /operationsRankedNextActions\([\s\S]*label: "Watch expiring archive downloads"[\s\S]*preset: "archive-expiring-soon"/,
+  /operationsRankedNextActions\([\s\S]*label: "Watch expiring downloads"[\s\S]*preset: "archive-expiring-soon"/,
   "Operations Archive Expiring Soon metric must open the existing expiring-soon archive worklist filter",
 );
 assertMatches(
@@ -509,7 +509,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /operationsRankedNextActions\([\s\S]*label: "Refresh expired archive downloads"[\s\S]*preset: "archive-expired"/,
+  /operationsRankedNextActions\([\s\S]*label: "Refresh expired downloads"[\s\S]*preset: "archive-expired"/,
   "Operations Archive Expired metric must open the existing expired archive worklist filter",
 );
 assertMatches(
@@ -559,7 +559,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /operationsBlockerBars\([\s\S]*label: "Evidence missing"[\s\S]*preset: "evidence-missing"[\s\S]*operationsRankedNextActions\([\s\S]*label: "Resolve missing evidence rows"[\s\S]*preset: "evidence-missing"/,
+  /operationsBlockerBars\([\s\S]*label: "Proof missing"[\s\S]*preset: "evidence-missing"[\s\S]*operationsRankedNextActions\([\s\S]*label: "Resolve missing proof rows"[\s\S]*preset: "evidence-missing"/,
   "Operations Evidence Missing metric must open the existing evidence-missing worklist filter",
 );
 assertMatches(

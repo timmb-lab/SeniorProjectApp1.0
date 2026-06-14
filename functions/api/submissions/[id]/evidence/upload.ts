@@ -38,6 +38,20 @@ const ALLOWED_UPLOAD_EXTENSIONS = new Set([
   ".webp",
   ".xlsx",
 ]);
+const GENERIC_UPLOAD_MIME_TYPES = new Set(["", "application/octet-stream"]);
+const ALLOWED_UPLOAD_MIME_TYPES_BY_EXTENSION = new Map([
+  [".csv", new Set(["text/csv"])],
+  [".docx", new Set(["application/vnd.openxmlformats-officedocument.wordprocessingml.document"])],
+  [".gif", new Set(["image/gif"])],
+  [".jpeg", new Set(["image/jpeg"])],
+  [".jpg", new Set(["image/jpeg"])],
+  [".pdf", new Set(["application/pdf"])],
+  [".png", new Set(["image/png"])],
+  [".pptx", new Set(["application/vnd.openxmlformats-officedocument.presentationml.presentation"])],
+  [".txt", new Set(["text/plain"])],
+  [".webp", new Set(["image/webp"])],
+  [".xlsx", new Set(["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"])],
+]);
 
 type UploadedFile = {
   name: string;
@@ -60,9 +74,32 @@ function fileExtension(name: string): string {
   return match ? match[0].toLowerCase() : "";
 }
 
+function safeStorageFileName(name: string): string {
+  const segment = String(name || "").split(/[\\/]+/).filter(Boolean).pop() || "";
+  const extension = fileExtension(segment);
+  const stem = extension ? segment.slice(0, -extension.length) : segment;
+  const safeStem = stem
+    .trim()
+    .replace(/[\x00-\x1f\x7f]+/g, " ")
+    .replace(/[^a-zA-Z0-9._ -]+/g, "_")
+    .replace(/\s+/g, " ")
+    .replace(/_+/g, "_")
+    .replace(/^[.\s_-]+|[.\s_-]+$/g, "");
+  const safeExtension = ALLOWED_UPLOAD_EXTENSIONS.has(extension) ? extension : "";
+  const maxStemLength = Math.max(1, 120 - safeExtension.length);
+  return `${(safeStem || "evidence-upload").slice(0, maxStemLength)}${safeExtension}`;
+}
+
 function isAllowedUploadFile(file: UploadedFile): boolean {
   const type = String(file.type || "").trim().toLowerCase();
-  return ALLOWED_UPLOAD_MIME_TYPES.has(type) || ALLOWED_UPLOAD_EXTENSIONS.has(fileExtension(file.name));
+  const extension = fileExtension(file.name);
+  if (GENERIC_UPLOAD_MIME_TYPES.has(type)) {
+    return ALLOWED_UPLOAD_EXTENSIONS.has(extension);
+  }
+  if (!extension) {
+    return ALLOWED_UPLOAD_MIME_TYPES.has(type);
+  }
+  return ALLOWED_UPLOAD_MIME_TYPES_BY_EXTENSION.get(extension)?.has(type) === true;
 }
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }) => {
@@ -157,7 +194,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
   const artifactType = cleanWorkflowText(formData.get("artifactType"), "file_upload", 80).replace(/[^a-z0-9_-]/gi, "_");
   const evidenceTitle = cleanWorkflowText(formData.get("title"), file.name || "Evidence upload", 160);
   const evidenceId = randomId("evidence");
-  const driveFileName = `${evidenceId}-${cleanWorkflowText(file.name, "evidence-upload", 120)}`;
+  const driveFileName = `${evidenceId}-${safeStorageFileName(file.name)}`;
   const mimeType = file.type || "application/octet-stream";
   const bytes = new Uint8Array(await file.arrayBuffer());
 

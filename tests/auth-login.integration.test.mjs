@@ -23,6 +23,36 @@ test("auth login/me/logout covers active, disabled, reset-required, invalid, and
   assert.equal(fixture.db.data.auditEvents.length, 1);
   assert.equal(fixture.db.data.auditEvents[0].action, "login");
 
+  // explicit cross-origin browser POSTs are blocked before session or attempt work
+  {
+    const response = await onLogin({
+      request: buildJsonRequest("https://example.test/api/auth/login", {
+        email: fixture.activeUser.email,
+        password: fixture.password,
+      }, { origin: "https://attacker.test" }),
+      env: fixture.env,
+    });
+    assert.equal(response.status, 403);
+    assert.deepEqual(await response.json(), { error: "cross_origin_post_denied" });
+    assert.equal(fixture.db.data.sessions.length, 1);
+    assert.equal(fixture.db.data.loginAttempts.length, 1);
+  }
+
+  // same-origin browser POSTs continue to work
+  {
+    const sameOriginFixture = await createFixture();
+    const response = await onLogin({
+      request: buildJsonRequest("https://example.test/api/auth/login", {
+        email: sameOriginFixture.activeUser.email,
+        password: sameOriginFixture.password,
+      }, { origin: "https://example.test" }),
+      env: sameOriginFixture.env,
+    });
+    assert.equal(response.status, 200);
+    assert.equal(sameOriginFixture.db.data.sessions.length, 1);
+    assert.equal(sameOriginFixture.db.data.loginAttempts.length, 1);
+  }
+
   // /me authenticates and returns roles
   {
     const response = await onMe({

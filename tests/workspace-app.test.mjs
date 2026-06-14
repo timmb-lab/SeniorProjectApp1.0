@@ -3057,7 +3057,13 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(teacher, /workspace-risk-chip/);
   assert.match(teacher, /Why this row is highlighted: Submitted work is still waiting for teacher review\. Recent activity has slowed and may need staff follow-up\./);
   assert.match(teacher, /Selected row\. History and available actions are loaded on the right\./);
-  assert.match(teacher, /Teacher decisions are ready on this submitted row\./);
+  assert.match(teacher, /This submitted row is ready for a teacher decision/);
+  assert.match(teacher, /Approval is the manual checkpoint students are told to wait for before next steps/);
+  assert.match(teacher, /data-review-next-step-checkpoint="true"/);
+  assert.match(teacher, /Approval controls the student&#039;s next steps/);
+  assert.match(teacher, /Check proof and history/);
+  assert.match(teacher, /Approve next steps only when ready/);
+  assert.match(teacher, /Request revision to hold the phase/);
   assert.match(teacher, /data-review-queue-action="open-student"/);
   assert.match(teacher, /data-review-history-section="true"/);
   assert.match(teacher, /data-review-comment-visibility-summary="true"/);
@@ -3065,6 +3071,7 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(teacher, /Staff-only comments: 1/);
   assert.match(teacher, /Only counts are shown here; teacher note text stays protected/);
   assert.match(teacher, /data-review-decision="approved"/);
+  assert.match(teacher, /Approve next steps/);
   assert.match(teacher, /data-review-decision="revision_requested"/);
   assert.match(teacher, /data-review-decision="comment_only"/);
   assert.match(teacher, /<textarea name="feedback"/);
@@ -5628,14 +5635,131 @@ test("production surface checker includes the authenticated workspace", () => {
 test("workspace evidence forms capture values before disabling controls", () => {
   assert.match(
     workspaceJs,
-    /const values = Object\.fromEntries\(new FormData\(form\)\.entries\(\)\);\s+setFormBusy\(form, true\);/,
+    /const values = Object\.fromEntries\(new FormData\(form\)\.entries\(\)\);\s+const validationMessage = validateEvidenceLinkValues\(values\);/,
   );
+  assert.match(workspaceJs, /if \(validationMessage \|\| !externalUrl\)[\s\S]*renderAppShell\(validationMessage \|\| messageForEvidenceError\("invalid_https_evidence_url"\), "error"\);/);
+  assert.match(workspaceJs, /url: externalUrl,/);
   assert.match(
     workspaceJs,
     /const attempt = buildUploadAttemptFromForm\(form\);\s+const validationMessage = validateUploadAttempt\(attempt\);/,
   );
   assert.match(workspaceJs, /function buildUploadAttemptFromForm\(form\)[\s\S]*new FormData\(form\)/);
   assert.match(workspaceJs, /function formDataForUploadAttempt\(attempt\)[\s\S]*formData\.set\("file", attempt\.file/);
+});
+
+test("workspace proof link validation matches server HTTPS rules", async () => {
+  const { context } = await createWorkspaceContextWithFetch(profileRoutesForRole("student"));
+  const httpsMessage = "Use a full HTTPS link for your proof, beginning with https://, under 2,048 characters, and without usernames or passwords.";
+
+  assert.equal(
+    vm.runInContext('validateEvidenceLinkValues({ submissionId: "submission-link", title: "Proof link", url: "https://example.test/proof" })', context),
+    "",
+  );
+  assert.equal(
+    vm.runInContext('cleanWorkspaceHttpsUrl(" https://example.test/proof ")', context),
+    "https://example.test/proof",
+  );
+  assert.equal(
+    vm.runInContext('validateEvidenceLinkValues({ submissionId: "submission-link", title: "Proof link", url: "http://example.test/proof" })', context),
+    httpsMessage,
+  );
+  assert.equal(
+    vm.runInContext('validateEvidenceLinkValues({ submissionId: "submission-link", title: "Proof link", url: "https://localhost/proof" })', context),
+    httpsMessage,
+  );
+  assert.equal(
+    vm.runInContext('validateEvidenceLinkValues({ submissionId: "submission-link", title: "Proof link", url: "https://student:secret@example.test/proof" })', context),
+    httpsMessage,
+  );
+  assert.equal(
+    vm.runInContext('cleanWorkspaceHttpsUrl("https://student:secret@example.test/proof")', context),
+    "",
+  );
+  assert.equal(
+    vm.runInContext('validateEvidenceLinkValues({ submissionId: "submission-link", title: "Proof link", url: "https://example.test/" + "a".repeat(2050) })', context),
+    httpsMessage,
+  );
+  assert.equal(
+    vm.runInContext('cleanWorkspaceHttpsUrl("https://example.test/" + "a".repeat(2050))', context),
+    "",
+  );
+  assert.equal(
+    vm.runInContext('validateEvidenceLinkValues({ submissionId: "submission-link", title: "", url: "https://example.test/proof" })', context),
+    "Add a short title for this proof link.",
+  );
+});
+
+test("workspace evidence actions only render safe proof and file links", async () => {
+  const { context } = await createWorkspaceContextWithFetch(profileRoutesForRole("student"));
+
+  assert.equal(
+    vm.runInContext('renderEvidenceActions({ source_kind: "external_link", externalUrl: "javascript:alert(1)" }).length', context),
+    0,
+  );
+  assert.equal(
+    vm.runInContext('renderEvidenceActions({ source_kind: "external_link", externalUrl: "https://student:secret@example.test/proof" }).length', context),
+    0,
+  );
+  assert.equal(
+    vm.runInContext('renderEvidenceActions({ source_kind: "external_link", externalUrl: "https://example.test/" + "a".repeat(2050) }).length', context),
+    0,
+  );
+  assert.equal(
+    vm.runInContext('renderEvidenceActions({ source_kind: "google_drive_file", downloadUrl: "javascript:alert(1)" }).length', context),
+    0,
+  );
+  assert.equal(
+    vm.runInContext('renderEvidenceActions({ source_kind: "google_drive_file", downloadUrl: "https://example.test/api/evidence/evidence-1/download" }).length', context),
+    0,
+  );
+
+  const rendered = vm.runInContext('renderEvidenceActions({ title: " Research proof  link ", source_kind: "external_link", externalUrl: " https://example.test/proof " }).join("")', context);
+  assert.match(rendered, /href="https:\/\/example\.test\/proof"/);
+  assert.match(rendered, /rel="noopener noreferrer"/);
+  assert.match(rendered, /aria-label="Open proof link: Research proof link"/);
+  assert.match(rendered, /Open proof link/);
+
+  const download = vm.runInContext('renderEvidenceActions({ title: "Prototype screen recording", source_kind: "google_drive_file", downloadUrl: " /api/evidence/evidence-1/download " }).join("")', context);
+  assert.match(download, /data-evidence-download="file"/);
+  assert.match(download, /href="\/api\/evidence\/evidence-1\/download"/);
+  assert.match(download, /aria-label="Download proof file: Prototype screen recording"/);
+  assert.match(download, /Download file/);
+
+  const fallbackDownload = vm.runInContext('renderEvidenceActions({ source_kind: "google_drive_file", downloadUrl: "/api/evidence/evidence-1/download" }).join("")', context);
+  assert.match(fallbackDownload, /aria-label="Download proof file: proof"/);
+
+  assert.equal(vm.runInContext('cleanWorkspaceArchiveDownloadUrl(" /api/exports/export-ready/download ")', context), "/api/exports/export-ready/download");
+  assert.equal(vm.runInContext('cleanWorkspaceArchiveDownloadUrl("javascript:alert(1)")', context), "");
+  assert.equal(vm.runInContext('cleanWorkspaceArchiveDownloadUrl("https://example.test/api/exports/export-ready/download")', context), "");
+});
+
+test("workspace upload validation matches server file type rules", async () => {
+  const { context } = await createWorkspaceContextWithFetch(profileRoutesForRole("student"));
+
+  assert.equal(
+    vm.runInContext('validateWorkspaceUploadFile({ name: "proof.pdf", size: 2048, type: "application/pdf" })', context),
+    "",
+  );
+  assert.equal(
+    vm.runInContext('validateWorkspaceUploadFile({ name: "photo.png", size: 2048, type: "image/png" })', context),
+    "",
+  );
+  assert.equal(
+    vm.runInContext('validateWorkspaceUploadFile({ name: "legacy-proof.pdf", size: 2048, type: "application/octet-stream" })', context),
+    "",
+  );
+  assert.equal(
+    vm.runInContext('validateWorkspaceUploadFile({ name: "renamed-proof.pdf", size: 2048, type: "image/png" })', context),
+    "Choose a PDF, image, text file, spreadsheet, presentation, or document. If the file was renamed, make sure its extension matches the file type.",
+  );
+  assert.equal(
+    vm.runInContext('validateWorkspaceUploadFile({ name: "no-extension", size: 2048, type: "application/pdf" })', context),
+    "",
+  );
+  assert.equal(
+    vm.runInContext('validateWorkspaceUploadFile({ name: "script.exe", size: 2048, type: "application/octet-stream" })', context),
+    "Choose a PDF, image, text file, spreadsheet, presentation, or document. If the file was renamed, make sure its extension matches the file type.",
+  );
 });
 
 test("workspace renders upload progress, validation, completion, and retry states safely", async () => {
@@ -5714,6 +5838,11 @@ test("workspace renders upload progress, validation, completion, and retry state
   assert.match(uploading, /role="progressbar"/);
   assert.match(uploading, /aria-live="polite"/);
   assert.match(uploading, /progress-proof\.txt/);
+  assert.match(uploading, /maxlength="2048"/);
+  assert.match(uploading, /Use a secure https:\/\/ link under 2,048 characters\. Do not include usernames or passwords in the link\./);
+  assert.match(uploading, /name="file"[\s\S]*aria-describedby="workspaceFileUploadHelp"/);
+  assert.match(uploading, /id="workspaceFileUploadHelp"/);
+  assert.match(uploading, /Upload a PDF, image, text file, spreadsheet, presentation, or document up to 20 MB/i);
   assert.match(uploading, /Your Senior Project/);
   assert.doesNotMatch(uploading, /workspace-product-header/);
   assert.doesNotMatch(uploading, /Database-backed MVP|Cloudflare target|Audit-sensitive admin/);
@@ -5959,9 +6088,19 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.match(student, /Do this next/);
   assert.match(student, /Senior Project Proposal/);
   assert.match(student, /Your action/);
+  assert.match(student, /data-student-stage-playbook="true"/);
+  assert.match(student, /Fix this phase, then send it back/);
+  assert.match(student, /Open teacher feedback/);
+  assert.match(student, /Fix the work and proof/);
+  assert.match(student, /Wait for approval/);
+  assert.match(student, /Program Teacher approval required for next steps/);
+  assert.match(student, /Start the next phase only after your program teacher marks the current phase work approved/);
+  assert.match(student, /Mentor check-ins may be part of the phase/);
   assert.match(student, /What to Work On Next/);
   assert.match(student, /data-student-requirement-action="open-detail"/);
   assert.match(student, /Open item/);
+  assert.match(student, /aria-label="Open item: Senior Project Proposal"/);
+  assert.match(student, /aria-label="Open item: Mentor Meeting One Plan"/);
   assert.match(student, /data-student-requirements-panel="true"/);
   assert.match(student, /3 work items listed by booklet phase/);
   assert.match(student, /Senior Project Checklist/);
@@ -5990,6 +6129,11 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.match(student, /data-student-requirement-quality="true"/);
   assert.match(student, /Try this: Add one measurable success target before you send the proposal back/);
   assert.match(student, /Fix Senior Project Proposal and send it back for teacher review/);
+  assert.match(student, /aria-label="Check details: Senior Project Proposal"/);
+  assert.equal((student.match(/data-student-requirement-approval-gate="true"/g) || []).length, 3);
+  assert.match(student, /Revise this item, send it again, then wait for program teacher approval before next steps/);
+  assert.match(student, /Do this item, add proof if needed, then send it for teacher review before next steps/);
+  assert.match(student, /Approved for next steps\. Continue with the next assigned item/);
   assert.match(student, /data-student-next-step-due="true"/);
   assert.match(student, /data-student-deadlines-panel="true"/);
   assert.match(student, /Upcoming deadlines/);
@@ -6185,17 +6329,20 @@ test("student requirement rows open in-page details without another route", asyn
   assert.match(workspaceRoot.innerHTML, /aria-expanded="true"/);
   assert.match(workspaceRoot.innerHTML, /data-student-requirement-action="toggle-detail"/);
   assert.match(workspaceRoot.innerHTML, /Hide details/);
+  assert.match(workspaceRoot.innerHTML, /aria-label="Hide details: Senior Project Proposal"/);
   assert.match(workspaceRoot.innerHTML, /data-student-requirement-detail="true"/);
   assert.match(workspaceRoot.innerHTML, /What to check/);
   assert.match(workspaceRoot.innerHTML, /Due October 9 and 10/);
   assert.match(workspaceRoot.innerHTML, /Proof added[\s\S]*1 item attached/);
   assert.match(workspaceRoot.innerHTML, /Version 2 \/ Revision requested/);
+  assert.match(workspaceRoot.innerHTML, /Approval gate[\s\S]*Revise this item, send it again, then wait for program teacher approval before next steps/);
   assert.match(workspaceRoot.innerHTML, /Latest teacher feedback/);
   assert.match(workspaceRoot.innerHTML, /Add one measurable success target before resubmitting/);
   assert.match(workspaceRoot.innerHTML, /Files and links already added/);
   assert.match(workspaceRoot.innerHTML, /Proposal draft link/);
   assert.match(workspaceRoot.innerHTML, /href="https:\/\/example\.test\/proposal-detail"/);
-  assert.match(workspaceRoot.innerHTML, /Open link/);
+  assert.match(workspaceRoot.innerHTML, /rel="noopener noreferrer"/);
+  assert.match(workspaceRoot.innerHTML, /Open proof link/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /href="#"/);
 });
 
@@ -6621,6 +6768,8 @@ test("student feedback rows open a student-safe review timeline", async () => {
   assert.match(workspaceRoot.innerHTML, /data-student-feedback-action="open-history"/);
   assert.match(workspaceRoot.innerHTML, /data-student-feedback-origin="feedback"/);
   assert.match(workspaceRoot.innerHTML, /data-student-feedback-submission-id="submission-proposal"/);
+  assert.match(workspaceRoot.innerHTML, /data-student-feedback-approval-gate="true"/);
+  assert.match(workspaceRoot.innerHTML, /Fix this feedback item, send the revision, then wait for program teacher approval/);
 
   await vm.runInContext(
     'handleStudentFeedbackAction({ currentTarget: { dataset: { studentFeedbackAction: "open-history", studentFeedbackSubmissionId: "submission-proposal" } } })',
@@ -6755,6 +6904,10 @@ test("student feedback filters focus action-needed notes and clear hidden feedba
   assert.match(workspaceRoot.innerHTML, /Needs revision \(1\)/);
   assert.match(workspaceRoot.innerHTML, /Teacher notes \(1\)/);
   assert.match(workspaceRoot.innerHTML, /Approved \(1\)/);
+  assert.equal((workspaceRoot.innerHTML.match(/data-student-feedback-approval-gate="true"/g) || []).length, 3);
+  assert.match(workspaceRoot.innerHTML, /Fix this feedback item, send the revision, then wait for program teacher approval/);
+  assert.match(workspaceRoot.innerHTML, /Wait here\. Your program teacher must approve this work before next steps/);
+  assert.match(workspaceRoot.innerHTML, /Approved for next steps\. Use this teacher approval to continue with the next assigned item/);
 
   await vm.runInContext(
     'handleStudentFeedbackAction({ currentTarget: { dataset: { studentFeedbackAction: "open-history", studentFeedbackOrigin: "feedback", studentFeedbackSubmissionId: "submission-approved" } } })',
@@ -6885,6 +7038,8 @@ test("student submission rows open the student-safe review timeline without dupl
   openWorkspaceDisclosure(context, "student", "submissions");
   assert.match(workspaceRoot.innerHTML, /data-student-feedback-origin="submissions"/);
   assert.match(workspaceRoot.innerHTML, /data-student-feedback-submission-id="submission-proposal"/);
+  assert.match(workspaceRoot.innerHTML, /data-student-submission-approval-gate="true"/);
+  assert.match(workspaceRoot.innerHTML, /Fix this sent work, send the revision, then wait for program teacher approval/);
 
   await vm.runInContext(
     'handleStudentFeedbackAction({ currentTarget: { dataset: { studentFeedbackAction: "open-history", studentFeedbackOrigin: "submissions", studentFeedbackSubmissionId: "submission-proposal" } } })',
@@ -7001,6 +7156,11 @@ test("student submission filters narrow rows and clear hidden submission timelin
   assert.match(workspaceRoot.innerHTML, /Waiting for review \(1\)/);
   assert.match(workspaceRoot.innerHTML, /Needs revision \(1\)/);
   assert.match(workspaceRoot.innerHTML, /Approved \(1\)/);
+  assert.equal((workspaceRoot.innerHTML.match(/data-student-submission-approval-gate="true"/g) || []).length, 4);
+  assert.match(workspaceRoot.innerHTML, /Finish this work, attach proof if needed, then send it for teacher review/);
+  assert.match(workspaceRoot.innerHTML, /Wait here\. Your program teacher must approve this sent work before next steps/);
+  assert.match(workspaceRoot.innerHTML, /Fix this sent work, send the revision, then wait for program teacher approval/);
+  assert.match(workspaceRoot.innerHTML, /Approved for next steps\. Use this approval to continue with the next assigned item/);
 
   await vm.runInContext(
     'handleStudentFeedbackAction({ currentTarget: { dataset: { studentFeedbackAction: "open-history", studentFeedbackOrigin: "submissions", studentFeedbackSubmissionId: "submission-approved" } } })',
@@ -7649,7 +7809,8 @@ test("workspace renders evidence download and external-link actions without stor
   assert.match(student, /data-student-requirement-action="open-detail"/);
   assert.match(student, /data-evidence-link="external"/);
   assert.match(student, /href="https:\/\/example\.edu\/research"/);
-  assert.match(student, /Open link/);
+  assert.match(student, /rel="noopener noreferrer"/);
+  assert.match(student, /Open proof link/);
   assert.doesNotMatch(student, /drive_file_id|driveFileId|drive-secret/i);
 });
 
@@ -7750,7 +7911,7 @@ test("student files rows reopen the matching requirement detail", async () => {
   assert.match(workspaceRoot.innerHTML, /Version 2 \/ Revision requested/);
   assert.match(workspaceRoot.innerHTML, /Files and links already added/);
   assert.match(workspaceRoot.innerHTML, /Proposal draft/);
-  assert.match(workspaceRoot.innerHTML, /Open link/);
+  assert.match(workspaceRoot.innerHTML, /Open proof link/);
 });
 
 test("student requirement detail opens the submission timeline inline", async () => {
@@ -9251,6 +9412,7 @@ test("workspace renders final-file readiness from persisted rows", async () => {
   assert.match(archive, /data-archive-guidance="true"/);
   assert.match(archive, /Your download is ready/);
   assert.match(archive, /data-archive-download="manifest"/);
+  assert.match(archive, /href="\/api\/exports\/export-ready\/download"/);
   assert.match(archive, /Download file list/);
   assert.match(archive, /Your download is ready until/);
   assert.match(archive, /Private file details stay hidden/);

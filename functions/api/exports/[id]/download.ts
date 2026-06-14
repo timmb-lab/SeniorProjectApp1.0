@@ -187,6 +187,11 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
   headers.set("content-type", artifact.mime_type || "application/json");
   headers.set("content-disposition", contentDispositionAttachment(artifact.title));
   headers.set("x-content-type-options", "nosniff");
+  headers.set("referrer-policy", "strict-origin-when-cross-origin");
+  headers.set("cross-origin-resource-policy", "same-origin");
+  if (Number.isSafeInteger(artifact.byte_length) && artifact.byte_length >= 0) {
+    headers.set("content-length", String(artifact.byte_length));
+  }
   headers.set("x-archive-expires-at", artifact.expires_at || "");
   headers.set("x-archive-content-sha256", artifact.content_sha256);
   headers.set("x-archive-storage-identifiers-redacted", "true");
@@ -196,12 +201,19 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
 };
 
 function contentDispositionAttachment(title: string): string {
-  const safeTitle = String(title || "senior-project-archive")
-    .replace(/[\r\n]+/g, " ")
-    .replace(/[^\w.\- ()]/g, "_")
-    .trim()
-    .slice(0, 120) || "senior-project-archive";
-
+  const safeTitle = safeArchiveDownloadFileName(title);
   const fileName = safeTitle.toLowerCase().endsWith(".json") ? safeTitle : `${safeTitle}.json`;
   return `attachment; filename="${fileName.replace(/"/g, "")}"`;
+}
+
+function safeArchiveDownloadFileName(title: string): string {
+  const segment = String(title || "").split(/[\\/]+/).filter(Boolean).pop() || "";
+  return segment
+    .replace(/[\r\n\x00-\x1f\x7f]+/g, " ")
+    .replace(/[^\w.\- ()]/g, "_")
+    .replace(/\s+/g, " ")
+    .replace(/_+/g, "_")
+    .replace(/^[.\s_-]+|[.\s_-]+$/g, "")
+    .trim()
+    .slice(0, 120) || "senior-project-archive";
 }

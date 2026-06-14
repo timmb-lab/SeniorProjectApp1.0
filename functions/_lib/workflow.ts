@@ -22,6 +22,8 @@ interface EvidenceSnapshotRow {
   created_at: string;
 }
 
+const MAX_WORKFLOW_HTTPS_URL_LENGTH = 2048;
+
 export function cleanWorkflowText(value: unknown, fallback: string, maxLength = 800): string {
   if (typeof value !== "string") return fallback;
   const trimmed = value.trim().replace(/\s+/g, " ");
@@ -31,10 +33,18 @@ export function cleanWorkflowText(value: unknown, fallback: string, maxLength = 
 export function cleanHttpsUrl(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
+  if (trimmed.length > MAX_WORKFLOW_HTTPS_URL_LENGTH) return null;
   try {
     const url = new URL(trimmed);
-    if (url.protocol !== "https:" || !url.hostname.includes(".")) return null;
-    return url.toString();
+    const normalized = url.toString();
+    if (
+      url.protocol !== "https:"
+      || !url.hostname.includes(".")
+      || url.username
+      || url.password
+      || normalized.length > MAX_WORKFLOW_HTTPS_URL_LENGTH
+    ) return null;
+    return normalized;
   } catch {
     return null;
   }

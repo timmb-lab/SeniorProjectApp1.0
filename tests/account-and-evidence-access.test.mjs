@@ -9,6 +9,7 @@ const buildPublicSite = await readFile("scripts/build-public-site.mjs", "utf8");
 const evidenceRoute = await readFile("functions/api/evidence/[id]/check-access.ts", "utf8");
 const healthRoute = await readFile("functions/api/health.ts", "utf8");
 const envTypes = await readFile("functions/_types.ts", "utf8");
+const rootHeaders = await readFile("_headers", "utf8");
 
 test("account smoke page exercises real auth endpoints without storing credentials", () => {
   assert.match(accountHtml, /Fake Test Account Smoke Page/);
@@ -208,11 +209,25 @@ test("protected evidence access route is scoped, audited, and avoids storage id 
   assert.doesNotMatch(evidenceRoute, /drive_file_id|drive_parent_folder_id/);
 });
 
-test("health route reports Drive credential readiness without exposing secret values", () => {
+test("health route reports readiness without exposing sensitive operational details", () => {
   assert.match(envTypes, /GOOGLE_DRIVE_CLIENT_EMAIL/);
   assert.match(envTypes, /GOOGLE_DRIVE_PRIVATE_KEY/);
+  assert.match(healthRoute, /SELECT 1 AS ready/);
+  assert.match(healthRoute, /databaseReady/);
   assert.match(healthRoute, /googleDriveCredentialsConfigured/);
-  assert.match(healthRoute, /googleDriveCredentialParts/);
   assert.match(healthRoute, /isConfiguredSecret/);
   assert.doesNotMatch(healthRoute, /GOOGLE_DRIVE_PRIVATE_KEY\s*[,}]/);
+  assert.doesNotMatch(healthRoute, /googleDriveCredentialParts/);
+  assert.doesNotMatch(healthRoute, /evidenceIndexSheetId/);
+  assert.doesNotMatch(healthRoute, /userCount/);
+});
+
+test("protected app deployment includes baseline anti-clickjacking headers", () => {
+  assert.match(rootHeaders, /^\/\*/m);
+  assert.match(rootHeaders, /X-Content-Type-Options: nosniff/);
+  assert.match(rootHeaders, /Referrer-Policy: strict-origin-when-cross-origin/);
+  assert.match(rootHeaders, /Permissions-Policy: camera=\(\), microphone=\(\), geolocation=\(\)/);
+  assert.match(rootHeaders, /X-Frame-Options: DENY/);
+  assert.match(rootHeaders, /Content-Security-Policy: frame-ancestors 'none'/);
+  assert.doesNotMatch(rootHeaders, /Access-Control-Allow-Origin:\s*\*/);
 });

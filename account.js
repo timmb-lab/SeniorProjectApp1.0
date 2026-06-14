@@ -906,11 +906,11 @@ async function copyCurrentUserSummary() {
 }
 
 function renderHealthSummary(data) {
-  const evidenceIndexConfigured = data.evidenceIndexConfigured ?? Boolean(data.evidenceIndexSheetId);
+  const evidenceIndexConfigured = Boolean(data.evidenceIndexConfigured);
   const checks = [
     ["API", data.ok, data.environment || "unknown environment"],
     ["Auth", Boolean(data.authMode), data.authMode || "auth mode missing"],
-    ["D1 users", Number(data.userCount || 0) > 0, `${data.userCount ?? 0} active user records`],
+    ["D1 database", Boolean(data.databaseReady), data.databaseReady ? "database reachable" : "database check pending"],
     ["Evidence root", Boolean(data.evidenceRootConfigured), data.evidenceStorageProvider || "provider unknown"],
     ["Evidence index", Boolean(evidenceIndexConfigured), evidenceIndexConfigured ? "index configured" : "index pending"],
     ["Drive credentials", Boolean(data.googleDriveCredentialsConfigured), data.googleDriveCredentialsConfigured ? "credential pair present" : "credential pair pending"],
@@ -935,9 +935,9 @@ function renderHealthSummary(data) {
         environment: data.environment,
         authMode: data.authMode,
         evidenceStorageProvider: data.evidenceStorageProvider,
+        databaseReady: data.databaseReady,
         evidenceRootConfigured: data.evidenceRootConfigured,
         googleDriveCredentialsConfigured: data.googleDriveCredentialsConfigured,
-        userCount: data.userCount,
         evidenceIndexConfigured,
       })}
     </details>

@@ -53,6 +53,7 @@ Status uses simple rules:
 
 - Progress hero with title, percentage, status badge, and accessible progress bar.
 - Four summary cards: Senior Project Phases, Work Sent In, Teacher Review, and Mentor Help.
+- Stage Guide, a numbered "do this, then this, then wait for approval" panel that changes copy for missing work, revision work, waiting-for-review work, complete work, or teacher setup. It explicitly tells students not to start the next phase until Program Teacher approval is recorded. Mentor check-ins are shown as phase support/context, while the recorded approval remains teacher review.
 - What to Work On Next, prioritized by revision items, missing sent work, current-phase work, waiting review, then next remaining checklist item.
 - Upcoming deadlines, which reorders the existing incomplete checklist rows into a due-date-first list so students can start with the nearest deadline without leaving the current dashboard or opening a fake calendar page.
 - Senior Project Checklist is now a secondary disclosure, not a default-open wall. It still uses the existing student-scoped dashboard data, booklet phase groups, phase-focus filters, item descriptions, simple teacher tips, status/version/due-date context, next steps, and in-page detail disclosure after the student opens it.
@@ -96,6 +97,7 @@ No new fake links were added. The dashboard keeps existing real actions only:
 - Open in-page item details from a checklist row. The detail disclosure uses the already loaded student dashboard payload to summarize status, due date, proof count, sent version, progress state, next action, and the latest matching teacher feedback without calling a new route.
 - Open the full work timeline from item detail through the existing `/api/reviews/:submissionId/history` route when a student needs version history, status changes, or student-visible teacher notes in the same panel.
 - Focus the checklist on one booklet phase at a time using in-page phase buttons, then switch back to all phases without leaving the student workspace or adding a new route.
+- Use the Stage Guide to follow the current phase in order. This guide does not add a fake phase-advance button; it points students back to real proof, submit, feedback, and review actions already backed by existing routes.
 - Review May 5 final-file readiness through the existing Final Files workspace section; the student home only summarizes the next final-file blocker and does not add a fake package request action.
 - Open a feedback-row timeline through the existing `/api/reviews/:submissionId/history` route. The route already enforces own-student or assigned-scope access and filters staff-only comments before the workspace renders the timeline.
 - Open the same work timeline from a Work You Sent In row through the existing `/api/reviews/:submissionId/history` route when a student wants the timeline from the sent-work list instead of the feedback panel.
@@ -113,8 +115,9 @@ Student-facing copy on this route now uses "work," "proof," "sent work," "fix an
 
 1. Extend the student-safe item detail disclosure only if students need more than the current checklist, proof focus action, send-for-review action, inline timeline handoff, and in-page status/feedback summary.
 2. Add dedicated phase-specific student progress pages only if students need more than the current grouped checklist, phase-focus filters, and in-page item detail.
-3. Add shareable sent-work-list URL state only if students need more than the current in-page status filters, feedback filters, version/proof timeline cues, and in-row timeline.
-4. Add mentor contact/support workflow only if policy allows a real contact path beyond the current in-page support actions.
-5. Add a richer due-date timeline or calendar only if students need more than the upcoming-deadlines panel plus checklist-item deadline labels.
-6. Add a downloadable student progress summary.
-7. Add a parent/guardian-friendly print view after policy review.
+3. Add a separate durable mentor approval or mentor-readiness confirmation only if the program decides mentors should record an approval distinct from Program Teacher review.
+4. Add shareable sent-work-list URL state only if students need more than the current in-page status filters, feedback filters, version/proof timeline cues, and in-row timeline.
+5. Add mentor contact/support workflow only if policy allows a real contact path beyond the current in-page support actions.
+6. Add a richer due-date timeline or calendar only if students need more than the upcoming-deadlines panel plus checklist-item deadline labels.
+7. Add a downloadable student progress summary.
+8. Add a parent/guardian-friendly print view after policy review.

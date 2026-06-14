@@ -175,12 +175,18 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
   const headers = new Headers();
   headers.set("cache-control", "no-store");
   headers.set("x-content-type-options", "nosniff");
+  headers.set("referrer-policy", "strict-origin-when-cross-origin");
+  headers.set("cross-origin-resource-policy", "same-origin");
 
   const contentType = usesWorkspaceExport
     ? workspaceExport.exportMimeType || "application/pdf"
     : driveResponse.headers.get("content-type") || artifact.mime_type || "application/octet-stream";
   headers.set("content-type", contentType);
   headers.set("content-disposition", contentDispositionAttachment(artifact.title, contentType));
+  const contentLength = safeContentLength(driveResponse.headers.get("content-length"));
+  if (contentLength) {
+    headers.set("content-length", contentLength);
+  }
 
   return new Response(driveResponse.body, { status: 200, headers });
 };
@@ -223,15 +229,22 @@ function serializeRoleScopes(assignments: RoleAssignment[]): Array<{
 }
 
 function contentDispositionAttachment(title: string, contentType: string): string {
-  const safeTitle = String(title || "evidence")
-    .replace(/[\r\n]+/g, " ")
-    .replace(/[^\w.\- ()]/g, "_")
-    .trim()
-    .slice(0, 120) || "evidence";
-
+  const safeTitle = safeDownloadFileName(title);
   const extension = guessExtension(contentType);
   const fileName = extension && !safeTitle.toLowerCase().endsWith(`.${extension}`) ? `${safeTitle}.${extension}` : safeTitle;
   return `attachment; filename=\"${fileName.replace(/\"/g, "")}\"`;
+}
+
+function safeDownloadFileName(title: string): string {
+  const segment = String(title || "").split(/[\\/]+/).filter(Boolean).pop() || "";
+  return segment
+    .replace(/[\r\n\x00-\x1f\x7f]+/g, " ")
+    .replace(/[^\w.\- ()]/g, "_")
+    .replace(/\s+/g, " ")
+    .replace(/_+/g, "_")
+    .replace(/^[.\s_-]+|[.\s_-]+$/g, "")
+    .trim()
+    .slice(0, 120) || "evidence";
 }
 
 function guessExtension(contentType: string): string {
@@ -242,4 +255,13 @@ function guessExtension(contentType: string): string {
   if (normalized === "text/plain") return "txt";
   if (normalized === "text/csv") return "csv";
   return "";
+}
+
+function safeContentLength(value: string | null): string | null {
+  const normalized = String(value || "").trim();
+  if (!/^\d+$/.test(normalized)) {
+    return null;
+  }
+  const byteLength = Number(normalized);
+  return Number.isSafeInteger(byteLength) ? normalized : null;
 }

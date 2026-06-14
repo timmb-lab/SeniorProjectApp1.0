@@ -679,7 +679,7 @@ async function runDriveLiveCheck(options = {}) {
   }
   if (!health.googleDriveCredentialsConfigured) {
     throw new DriveLiveCheckError(DRIVE_FAILURES.CREDENTIALS_MISSING, "Live health reports Google Drive credential parts are missing.", {
-      credentialParts: health.googleDriveCredentialParts || null,
+      credentialsConfigured: Boolean(health.googleDriveCredentialsConfigured),
     });
   }
   log("PASS health: live runtime reports provider config and credential parts configured.");

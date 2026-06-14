@@ -85,6 +85,52 @@ test("evidence link attach denies cross-student and staff attempts with role sco
   }
 });
 
+test("evidence link attach rejects credential-bearing proof URLs", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+  fixture.db.data.submissions.push(buildSubmission("submission-1", "student-a"));
+
+  const response = await onAttachEvidenceLink({
+    request: buildJsonRequest({
+      url: "https://example.test/api/submissions/submission-1/evidence",
+      token: fixture.token,
+      body: {
+        title: "Credential-bearing proof link",
+        url: "https://student:secret@example.test/proof",
+      },
+    }),
+    env: fixture.env,
+    params: { id: "submission-1" },
+  });
+
+  assert.equal(response.status, 400);
+  assert.deepEqual(await response.json(), { error: "invalid_https_evidence_url" });
+  assert.equal(fixture.db.data.evidenceArtifacts.length, 0);
+  assert.equal(fixture.db.data.auditEvents.length, 0);
+});
+
+test("evidence link attach rejects oversized proof URLs", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+  fixture.db.data.submissions.push(buildSubmission("submission-1", "student-a"));
+
+  const response = await onAttachEvidenceLink({
+    request: buildJsonRequest({
+      url: "https://example.test/api/submissions/submission-1/evidence",
+      token: fixture.token,
+      body: {
+        title: "Oversized proof link",
+        url: `https://example.test/${"a".repeat(2050)}`,
+      },
+    }),
+    env: fixture.env,
+    params: { id: "submission-1" },
+  });
+
+  assert.equal(response.status, 400);
+  assert.deepEqual(await response.json(), { error: "invalid_https_evidence_url" });
+  assert.equal(fixture.db.data.evidenceArtifacts.length, 0);
+  assert.equal(fixture.db.data.auditEvents.length, 0);
+});
+
 test("evidence link attach stores scoped metadata and omits Drive storage ids", async () => {
   const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
   fixture.db.data.submissions.push(buildSubmission("submission-1", "student-a"));

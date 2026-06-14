@@ -272,6 +272,50 @@ test("evidence file upload rejects unsupported file types before provider calls"
   }
 });
 
+test("evidence file upload rejects mismatched MIME and extension before provider calls", async () => {
+  const cases = [
+    { fileName: "payload.exe", fileType: "application/pdf" },
+    { fileName: "proposal.pdf", fileType: "application/x-msdownload" },
+    { fileName: "photo.png", fileType: "image/jpeg" },
+  ];
+
+  for (const testCase of cases) {
+    const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+    fixture.db.data.submissions.push({
+      id: "submission-1",
+      student_id: "student-a",
+      requirement_id: null,
+      status: "draft",
+      version: 1,
+    });
+
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = async () => {
+      throw new Error(`fetch should not be called for mismatched upload ${testCase.fileName}`);
+    };
+
+    try {
+      const response = await onUploadEvidenceFile({
+        request: buildUploadRequest({
+          url: "https://example.test/api/submissions/submission-1/evidence/upload",
+          token: fixture.token,
+          fileName: testCase.fileName,
+          fileType: testCase.fileType,
+        }),
+        env: fixture.env,
+        params: { id: "submission-1" },
+      });
+
+      assert.equal(response.status, 400, testCase.fileName);
+      assert.deepEqual(await response.json(), { error: "unsupported_file_type" }, testCase.fileName);
+      assert.equal(fixture.db.data.evidenceArtifacts.length, 0, testCase.fileName);
+      assert.equal(fixture.db.data.auditEvents.length, 0, testCase.fileName);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  }
+});
+
 test("evidence file upload rejects empty files before provider calls", async () => {
   const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
   fixture.db.data.submissions.push({
@@ -357,12 +401,14 @@ test("evidence file upload returns 200, writes DB rows, and omits storage ids", 
   });
 
   const originalFetch = globalThis.fetch;
-  globalThis.fetch = async (input) => {
+  let driveMetadata = null;
+  globalThis.fetch = async (input, init = {}) => {
     const url = resolveFetchUrl(input);
     if (url === "https://oauth2.googleapis.com/token") {
       return jsonResponse({ access_token: "test-token", expires_in: 3600, token_type: "Bearer" });
     }
     if (url.startsWith("https://www.googleapis.com/upload/drive/v3/files")) {
+      driveMetadata = await readMultipartDriveMetadata(init.body);
       return jsonResponse({ id: "drive-file-123", name: "uploaded.bin", mimeType: "application/octet-stream", size: "5" });
     }
     throw new Error(`Unexpected fetch URL in test: ${url}`);
@@ -374,6 +420,8 @@ test("evidence file upload returns 200, writes DB rows, and omits storage ids", 
         url: "https://example.test/api/submissions/submission-1/evidence/upload",
         token: fixture.token,
         title: "My evidence",
+        fileName: "..\\..\\Proof:Final?.pdf",
+        fileType: "application/pdf",
       }),
       env: fixture.env,
       params: { id: "submission-1" },
@@ -389,6 +437,8 @@ test("evidence file upload returns 200, writes DB rows, and omits storage ids", 
     assert.equal(fixture.db.data.evidenceArtifacts.length, 1);
     assert.equal(fixture.db.data.auditEvents.length, 1);
     assert.equal(fixture.db.data.auditEvents[0].action, "evidence_file_uploaded");
+    assert.match(driveMetadata?.name || "", /^evidence_[a-f0-9]+-Proof_Final\.pdf$/);
+    assert.doesNotMatch(driveMetadata?.name || "", /[\\/:?<>]|\.\./);
     assert.doesNotMatch(JSON.stringify(body), /drive_file_id|driveFileId|access_token|PRIVATE KEY/i);
   } finally {
     globalThis.fetch = originalFetch;
@@ -892,7 +942,7 @@ test("evidence download returns 200 and streams bytes for owning student", async
     source_kind: "google_drive_file",
     drive_file_id: "drive-file-123",
     mime_type: "application/pdf",
-    title: "Evidence PDF",
+    title: "..\\..\\Student: Final? Proof",
     deleted_at: null,
   });
 
@@ -903,7 +953,10 @@ test("evidence download returns 200 and streams bytes for owning student", async
       return jsonResponse({ access_token: "test-token", expires_in: 3600, token_type: "Bearer" });
     }
     if (url.includes("https://www.googleapis.com/drive/v3/files/") && url.includes("alt=media")) {
-      return new Response("pdf-bytes", { status: 200, headers: { "content-type": "application/pdf" } });
+      return new Response("pdf-bytes", {
+        status: 200,
+        headers: { "content-type": "application/pdf", "content-length": "9" },
+      });
     }
     throw new Error(`Unexpected fetch URL in test: ${url}`);
   };
@@ -923,6 +976,10 @@ test("evidence download returns 200 and streams bytes for owning student", async
 
     assert.equal(response.status, 200);
     assert.equal(response.headers.get("content-type"), "application/pdf");
+    assert.equal(response.headers.get("content-disposition"), "attachment; filename=\"Student_ Final_ Proof.pdf\"");
+    assert.equal(response.headers.get("referrer-policy"), "strict-origin-when-cross-origin");
+    assert.equal(response.headers.get("cross-origin-resource-policy"), "same-origin");
+    assert.equal(response.headers.get("content-length"), "9");
     assert.equal(await response.text(), "pdf-bytes");
     assert.equal(fixture.db.data.auditEvents.length, 1);
     const [event] = fixture.db.data.auditEvents;
@@ -1117,6 +1174,18 @@ function resolveFetchUrl(input) {
   if (input instanceof URL) return input.toString();
   if (input && typeof input === "object" && typeof input.url === "string") return input.url;
   return String(input);
+}
+
+async function readMultipartDriveMetadata(body) {
+  assert.ok(body && typeof body.text === "function");
+  const multipart = await body.text();
+  const marker = "Content-Type: application/json; charset=UTF-8\r\n\r\n";
+  const start = multipart.indexOf(marker);
+  assert.notEqual(start, -1);
+  const jsonStart = start + marker.length;
+  const jsonEnd = multipart.indexOf("\r\n", jsonStart);
+  assert.notEqual(jsonEnd, -1);
+  return JSON.parse(multipart.slice(jsonStart, jsonEnd));
 }
 
 function buildUploadRequest({

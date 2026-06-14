@@ -393,6 +393,7 @@ test("export download streams the generated archive manifest for scoped users", 
       env: fixture.env,
     });
     const queued = await queueResponse.json();
+    fixture.db.data.exportArtifacts[0].title = "..\\..\\Archive: Final? Manifest";
     fixture.db.data.auditEvents.length = 0;
 
     const response = await onExportDownload({
@@ -403,7 +404,10 @@ test("export download streams the generated archive manifest for scoped users", 
 
     assert.equal(response.status, 200);
     assert.match(response.headers.get("content-type"), /application\/json/);
-    assert.match(response.headers.get("content-disposition"), /attachment/);
+    assert.equal(response.headers.get("content-disposition"), "attachment; filename=\"Archive_ Final_ Manifest.json\"");
+    assert.equal(response.headers.get("referrer-policy"), "strict-origin-when-cross-origin");
+    assert.equal(response.headers.get("cross-origin-resource-policy"), "same-origin");
+    assert.equal(response.headers.get("content-length"), String(fixture.db.data.exportArtifacts[0].byte_length));
     assert.equal(response.headers.get("x-archive-storage-identifiers-redacted"), "true");
     assert.equal(response.headers.get("x-archive-drive-package-ready"), "true");
     const manifest = await response.json();
