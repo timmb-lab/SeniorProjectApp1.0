@@ -8,6 +8,7 @@ import { setTimeout as sleep } from 'node:timers/promises';
 
 const ROOT = process.cwd();
 const BASE_URL = (process.env.HOSTED_BASE_URL || 'https://senior-capstone-app.pages.dev').replace(/\/$/, '');
+const WORKSPACE_ENTRY_PATH = normalizeWorkspaceEntryPath(process.env.WORKSPACE_BROWSER_ENTRY_PATH || '/workspace.html');
 const CREDENTIALS_PATH = process.env.TEST_ACCOUNTS_PATH || path.join('.secrets', 'test-accounts-2026-05-18.json');
 const SCREENSHOT_DIR = process.env.HOSTED_BROWSER_SCREENSHOT_DIR || path.join('docs', 'sales', 'screenshots', '2026-06-29');
 const MANIFEST_PATH =
@@ -33,7 +34,7 @@ const SCREENSHOT_PLAN = [
   {
     id: '01-signed-out-home',
     label: 'Signed-out workspace route',
-    url: '/workspace.html',
+    url: workspaceUrl(),
     viewport: desktopViewport(),
     expected: ['Sign in'],
     authRole: null
@@ -41,7 +42,7 @@ const SCREENSHOT_PLAN = [
   {
     id: '02-student-dashboard',
     label: 'Student dashboard',
-    url: '/workspace.html?section=student',
+    url: workspaceUrl('?section=student'),
     viewport: desktopViewport(),
     expected: ['My Work', 'Upcoming deadlines'],
     authRole: 'student'
@@ -49,7 +50,7 @@ const SCREENSHOT_PLAN = [
   {
     id: '03-program-teacher-dashboard',
     label: 'Program Teacher dashboard',
-    url: '/workspace.html?section=programDashboard',
+    url: workspaceUrl('?section=programDashboard'),
     viewport: desktopViewport(),
     expected: ['Program Dashboard'],
     authRole: 'program_teacher'
@@ -57,7 +58,7 @@ const SCREENSHOT_PLAN = [
   {
     id: '04-mentor-dashboard',
     label: 'Mentor dashboard',
-    url: '/workspace.html?section=mentorDashboard',
+    url: workspaceUrl('?section=mentorDashboard'),
     viewport: desktopViewport(),
     expected: ['Mentor Dashboard'],
     authRole: 'mentor'
@@ -65,7 +66,7 @@ const SCREENSHOT_PLAN = [
   {
     id: '05-viewer-directory',
     label: 'Viewer read-only student directory',
-    url: '/workspace.html?section=students',
+    url: workspaceUrl('?section=students'),
     viewport: desktopViewport(),
     expected: ['Student Directory'],
     authRole: 'viewer'
@@ -73,7 +74,7 @@ const SCREENSHOT_PLAN = [
   {
     id: '06-site-admin-dashboard',
     label: 'Site Admin dashboard',
-    url: '/workspace.html?section=siteDashboard',
+    url: workspaceUrl('?section=siteDashboard'),
     viewport: desktopViewport(),
     expected: ['Site Dashboard'],
     authRole: 'site_admin'
@@ -81,7 +82,7 @@ const SCREENSHOT_PLAN = [
   {
     id: '07-admin-command-center',
     label: 'Admin command center',
-    url: '/workspace.html?section=adminDashboard',
+    url: workspaceUrl('?section=adminDashboard'),
     viewport: desktopViewport(),
     expected: ['Admin Command Center'],
     authRole: 'admin'
@@ -89,7 +90,7 @@ const SCREENSHOT_PLAN = [
   {
     id: '08-misc-admin-readiness',
     label: 'Misc Admin readiness',
-    url: '/workspace.html?section=readiness',
+    url: workspaceUrl('?section=readiness'),
     viewport: desktopViewport(),
     expected: ['Readiness'],
     authRole: 'misc_admin'
@@ -97,12 +98,21 @@ const SCREENSHOT_PLAN = [
   {
     id: '09-student-mobile-dashboard',
     label: 'Student mobile dashboard',
-    url: '/workspace.html?section=student',
+    url: workspaceUrl('?section=student'),
     viewport: mobileViewport(),
     expected: ['My Work', 'Upcoming deadlines'],
     authRole: 'student'
   }
 ];
+
+function normalizeWorkspaceEntryPath(value) {
+  const trimmed = String(value || '').trim() || '/workspace.html';
+  return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+}
+
+function workspaceUrl(search = '') {
+  return `${WORKSPACE_ENTRY_PATH}${search}`;
+}
 
 function desktopViewport() {
   return { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false };
@@ -415,6 +425,7 @@ async function run() {
     proof: 'hosted_fake_pilot_browser',
     verdict: 'PENDING',
     baseUrl: BASE_URL,
+    workspaceEntryPath: WORKSPACE_ENTRY_PATH,
     startedAt,
     completedAt: null,
     browser: {
@@ -439,7 +450,7 @@ async function run() {
 
     for (const planItem of SCREENSHOT_PLAN) {
       await setViewport(client, planItem.viewport);
-      await navigate(client, `${BASE_URL}/workspace.html`);
+      await navigate(client, `${BASE_URL}${WORKSPACE_ENTRY_PATH}`);
       await logout(client);
       let loginResult = null;
       if (planItem.authRole) {

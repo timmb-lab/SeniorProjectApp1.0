@@ -23,6 +23,13 @@ let currentData = {
   auditEvents: null,
 };
 let activeSection = "overview";
+let activeWorkspaceMode = "workspace";
+let blockedWorkspaceMode = "";
+let blockedWorkspaceSection = "";
+const workspaceModeLastSections = {
+  workspace: "overview",
+  admin: "overview",
+};
 let busy = false;
 let lastAdminImportResult = null;
 let workspaceNavCollapsed = shouldCollapseWorkspaceNavByDefault();
@@ -339,6 +346,7 @@ const WORKSPACE_SECTION_IDS = new Set([
   "archiveExports",
   "security",
 ]);
+const WORKSPACE_MODES = new Set(["workspace", "admin"]);
 const ADMIN_ARCHIVE_EXPORT_FILTER_VALUES = new Set(["all", "failed", "in_progress", "complete"]);
 const ADMIN_AUDIT_SAVED_FILTERS = [
   {
@@ -751,7 +759,7 @@ function renderWorkspaceHomeInfoBox() {
 
 function problemStateDefaultActions() {
   if (!currentUser) return [];
-  const allowed = availableSectionIds();
+  const allowed = availableSectionIdsForAnyMode();
   const actions = [{ label: "Refresh workspace", problemAction: "refresh" }];
   if (allowed.has("profile")) actions.push({ label: "Review profile", section: "profile" });
   if (allowed.has("security")) actions.push({ label: hasGlobalAdminRole(roleIds(currentUser)) ? "Open Security" : "Open Account", section: "security" });
@@ -980,20 +988,38 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     return;
   }
 
-  const sections = availableSections();
+  ensureActiveWorkspaceModeAndSection();
+  const consoleCapabilities = adminConsoleCapabilitiesFor(currentUser);
+  const isAdminConsole = activeWorkspaceMode === "admin" && consoleCapabilities.canSee;
+  const sections = availableSections({ mode: activeWorkspaceMode });
   const primaryRole = primaryRoleForUser(currentUser);
   const roles = roleIds(currentUser);
   const siteContext = currentSiteWorkspaceContext();
-  const headerTitle = primaryRole === "student" ? "Capstone Project Workspace" : "Capstone Workspace";
-  const headerSubtitle = workspaceHeaderSubtitle(primaryRole, siteContext);
-  const headerContext = workspaceHeaderContext(primaryRole, siteContext);
-  const roleFirstOverview = primaryRole === "program_teacher" && activeSection === "overview";
-  const studentFirstWorkspace = primaryRole === "student" && activeSection === "student";
+  const headerTitle = isAdminConsole
+    ? "Admin Console"
+    : primaryRole === "student" ? "Capstone Project Workspace" : "Capstone Workspace";
+  const headerSubtitle = isAdminConsole
+    ? adminConsoleSubtitle(consoleCapabilities)
+    : workspaceHeaderSubtitle(primaryRole, siteContext);
+  const headerContext = isAdminConsole
+    ? adminConsoleHeaderContext(consoleCapabilities)
+    : workspaceHeaderContext(primaryRole, siteContext);
+  const roleFirstOverview = !isAdminConsole && primaryRole === "program_teacher" && activeSection === "overview";
+  const studentFirstWorkspace = !isAdminConsole && primaryRole === "student" && activeSection === "student";
   const activeSectionFirst = roleFirstOverview || studentFirstWorkspace;
-  const screenGuidance = renderScreenGuidance(activeSection, primaryRole, roles, sections);
-  const activeSectionMarkup = renderActiveSection();
+  const modeUnavailableNotice = blockedWorkspaceMode === "admin" && !isAdminConsole
+    ? renderAdminConsoleUnavailableNotice()
+    : "";
+  const sectionUnavailableNotice = blockedWorkspaceSection
+    ? renderWorkspaceSectionUnavailableNotice(blockedWorkspaceSection)
+    : "";
+  const renderBlockedSectionOnly = Boolean(sectionUnavailableNotice);
+  const screenGuidance = renderBlockedSectionOnly ? "" : renderScreenGuidance(activeSection, primaryRole, roles, sections);
+  const activeSectionMarkup = renderBlockedSectionOnly
+    ? ""
+    : isAdminConsole ? renderAdminConsoleActiveSection() : renderActiveSection();
   workspaceMain.innerHTML = `
-    <section class="workspace-app" data-primary-role="${escapeHtml(primaryRole)}" data-nav-state="${workspaceNavCollapsed ? "collapsed" : "expanded"}">
+    <section class="workspace-app" data-primary-role="${escapeHtml(primaryRole)}" data-app-mode="${escapeHtml(activeWorkspaceMode)}" data-nav-state="${workspaceNavCollapsed ? "collapsed" : "expanded"}">
       <header class="workspace-topbar">
         <div class="workspace-topbar-start">
           <button class="workspace-menu-toggle" id="workspaceMenuToggle" type="button" aria-controls="workspaceNavigationRail" aria-expanded="${workspaceNavCollapsed ? "false" : "true"}" aria-pressed="${workspaceNavCollapsed ? "true" : "false"}" aria-label="${workspaceNavCollapsed ? "Open menu" : "Close menu"}">
@@ -1006,6 +1032,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
             <span>Capstone Project Workspace</span>
           </a>
         </div>
+        ${renderWorkspaceModeSwitch(consoleCapabilities)}
         ${renderWorkspaceStudentSearchControl(roles)}
         <div class="workspace-user">
           ${renderSiteSwitcherControl()}
@@ -1017,19 +1044,20 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
           <button class="workspace-button workspace-button-secondary" id="workspaceLogout" type="button">Sign out</button>
         </div>
       </header>
-      <div class="workspace-content">
-        <aside class="workspace-rail" id="workspaceNavigationRail" aria-label="Workspace navigation" ${workspaceNavCollapsed ? 'hidden aria-hidden="true"' : ""}>
+      <div class="workspace-content ${isAdminConsole ? "workspace-admin-console-content" : ""}">
+        <aside class="workspace-rail ${isAdminConsole ? "workspace-admin-console-rail" : ""}" id="workspaceNavigationRail" aria-label="${isAdminConsole ? "Admin Console navigation" : "Workspace navigation"}" ${workspaceNavCollapsed ? 'hidden aria-hidden="true"' : ""}>
           <section class="workspace-rail-card">
-            <p class="workspace-kicker">Your access</p>
+            <p class="workspace-kicker">${isAdminConsole ? "Console access" : "Your access"}</p>
             <div class="workspace-role-banner">
               <strong>${escapeHtml(roleLabel(primaryRole))}</strong>
-              <span>${escapeHtml(roleScopeSummary(currentUser))}</span>
+              <span>${escapeHtml(isAdminConsole ? consoleCapabilities.scope.detail : roleScopeSummary(currentUser))}</span>
             </div>
             <div class="workspace-chip-row">
               ${roleChips(currentUser)}
+              ${isAdminConsole ? `<span class="workspace-chip workspace-console-scope-chip">${escapeHtml(consoleCapabilities.scope.label)}</span>` : ""}
             </div>
           </section>
-          <nav class="workspace-tabs" aria-label="Workspace sections">
+          <nav class="workspace-tabs" aria-label="${isAdminConsole ? "Admin Console sections" : "Workspace sections"}">
             ${sections.map((section) => `
               <button class="workspace-tab ${section.id === activeSection ? "is-active" : ""}" data-section="${escapeHtml(section.id)}" type="button" title="${escapeHtml(section.label)}" aria-label="${escapeHtml(`${section.label}: ${section.detail}`)}" ${section.id === activeSection ? 'aria-current="page"' : ""}>
                 <span class="workspace-tab-short" aria-hidden="true">${escapeHtml(sectionShortLabel(section))}</span>
@@ -1039,19 +1067,21 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
             `).join("")}
           </nav>
           <section class="workspace-rail-card">
-            <p class="workspace-kicker">Next step</p>
-            <p>${escapeHtml(nextStepText())}</p>
+            <p class="workspace-kicker">${isAdminConsole ? "Mode" : "Next step"}</p>
+            <p>${escapeHtml(isAdminConsole ? adminConsoleRailNote(consoleCapabilities) : nextStepText())}</p>
           </section>
         </aside>
-        <div class="workspace-main">
+        <div class="workspace-main ${isAdminConsole ? "workspace-admin-console-main" : ""}">
           ${statusMessage ? statusHtml(statusMessage, tone) : ""}
-          ${primaryRole === "student" ? "" : renderProductHeader({
+          ${isAdminConsole ? renderAdminConsoleHeader(consoleCapabilities, sections) : primaryRole === "student" ? "" : renderProductHeader({
             eyebrow: "",
             title: headerTitle,
             subtitle: headerSubtitle,
             context: headerContext,
             readOnly: roles.has("viewer"),
           })}
+          ${modeUnavailableNotice}
+          ${sectionUnavailableNotice}
           ${activeSectionFirst ? activeSectionMarkup : ""}
           ${screenGuidance}
           ${renderReadOnlyBanner()}
@@ -1067,6 +1097,9 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   document.querySelector("#workspaceSiteSelect")?.addEventListener("change", (event) => selectWorkspaceSite(event.currentTarget?.value || ""));
   document.querySelectorAll("[data-site-switch-id]").forEach((button) => {
     button.addEventListener("click", () => selectWorkspaceSite(button.dataset.siteSwitchId || ""));
+  });
+  document.querySelectorAll("[data-workspace-mode-target]").forEach((button) => {
+    button.addEventListener("click", () => switchWorkspaceMode(button));
   });
   document.querySelector("#workspaceRefresh")?.addEventListener("click", () => loadWorkspaceData("Workspace refreshed."));
   document.querySelector("#workspaceLogout")?.addEventListener("click", signOut);
@@ -1093,6 +1126,348 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   flushPendingStudentRequirementFocus();
   flushPendingStudentSectionFocus();
   flushPendingStudentEvidenceFocus();
+}
+
+function renderWorkspaceModeSwitch(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  if (!capabilities.canSee) return "";
+  const modes = [
+    ["workspace", "Workspace"],
+    ["admin", "Admin Console"],
+  ];
+  return `
+    <nav class="workspace-mode-switch" aria-label="Protected app mode" data-workspace-mode-switch="true">
+      ${modes.map(([mode, label]) => `
+        <button class="workspace-mode-button ${activeWorkspaceMode === mode ? "is-active" : ""}" type="button" data-workspace-mode-target="${escapeHtml(mode)}" ${activeWorkspaceMode === mode ? 'aria-current="page"' : ""}>
+          ${escapeHtml(label)}
+        </button>
+      `).join("")}
+    </nav>
+  `;
+}
+
+function switchWorkspaceMode(button) {
+  const nextMode = cleanWorkspaceMode(button?.dataset?.workspaceModeTarget || "");
+  if (!nextMode || nextMode === activeWorkspaceMode) return;
+  const capabilities = adminConsoleCapabilitiesFor(currentUser);
+  rememberCurrentModeSection();
+  if (nextMode === "admin" && !capabilities.canSee) {
+    blockedWorkspaceMode = "admin";
+    activeWorkspaceMode = "workspace";
+    activeSection = defaultSectionForMode("workspace");
+    syncCurrentWorkspaceUrlState({ replace: true });
+    renderAppShell("Admin Console is not available for this role.", "error");
+    return;
+  }
+  blockedWorkspaceMode = "";
+  activeWorkspaceMode = nextMode;
+  activeSection = defaultSectionForMode(nextMode);
+  syncCurrentWorkspaceUrlState();
+  renderAppShell(nextMode === "admin" ? "Admin Console opened." : "Workspace opened.", "success");
+}
+
+function renderAdminConsoleActiveSection() {
+  const capabilities = adminConsoleCapabilitiesFor(currentUser);
+  if (!capabilities.canSee) return renderAdminConsoleUnavailableNotice();
+  if (activeSection === "overview") return renderAdminConsoleOverviewSection(capabilities);
+  if (!availableSectionIds("admin").has(activeSection)) {
+    return renderPermissionDeniedSection("Admin Console", "a console section available to this role");
+  }
+  return renderActiveSection();
+}
+
+function renderAdminConsoleHeader(capabilities = adminConsoleCapabilitiesFor(currentUser), sections = availableSections({ mode: "admin" })) {
+  const active = sections.find((section) => section.id === activeSection) || sections[0] || {};
+  return `
+    <section class="workspace-admin-console-header" aria-labelledby="adminConsoleTitle" data-admin-console-header="true">
+      <div>
+        <p class="workspace-kicker">Protected staff mode</p>
+        <h1 id="adminConsoleTitle">Admin Console</h1>
+        <p>${escapeHtml(adminConsoleSubtitle(capabilities))}</p>
+      </div>
+      <div class="workspace-admin-console-badges" aria-label="Console scope">
+        <span class="workspace-site-context-badge">${escapeHtml(capabilities.scope.label)}</span>
+        ${capabilities.readOnly ? `<span class="workspace-read-only-chip">Read-only</span>` : `<span class="workspace-status-pill approved">Writable where allowed</span>`}
+        ${active.label ? `<span class="workspace-summary-badge">${escapeHtml(active.label)}</span>` : ""}
+      </div>
+    </section>
+  `;
+}
+
+function adminConsoleSubtitle(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  if (capabilities.readOnly) {
+    return "Monitor assigned student records without edit, review, assignment, program, or security actions.";
+  }
+  return "Manage, monitor, review, and configure only the records allowed by this account's role and scope.";
+}
+
+function adminConsoleHeaderContext(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  return [
+    capabilities.scope.detail,
+    capabilities.readOnly ? "Read-only" : "Role-scoped actions",
+  ].filter(Boolean);
+}
+
+function adminConsoleRailNote(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  if (capabilities.readOnly) return "Read-only monitoring. Mutation controls stay hidden.";
+  if (capabilities.scope.key === "global") return "Global view. Use site selection when a section needs a school.";
+  if (capabilities.scope.key === "site") return "Site-scoped tools for the assigned school.";
+  if (capabilities.scope.key === "program") return "Program-scoped monitoring and review.";
+  if (capabilities.scope.key === "assigned_students") return "Assigned-student monitoring only.";
+  return "Role-scoped console tools.";
+}
+
+function renderAdminConsoleUnavailableNotice() {
+  return `
+    <section class="workspace-card workspace-error-card" data-admin-console-unavailable="true" data-workspace-state="permission-denied">
+      <p class="workspace-kicker">Admin Console</p>
+      <h2>Admin Console is not available for this role</h2>
+      <p>Students use Workspace only. Staff console sections appear only when the signed-in account has a monitoring or admin-capable role.</p>
+      ${renderProblemState({
+        reason: "This account does not have a staff or admin console capability.",
+        owner: "Project coordinator or site administrator.",
+        nextAction: "Use Workspace or ask for the correct assigned role.",
+      })}
+    </section>
+  `;
+}
+
+function renderWorkspaceSectionUnavailableNotice(sectionId = "") {
+  const title = workspaceSectionTitle(sectionId);
+  const details = {
+    teacher: "submitted student work and program teacher review records",
+    operations: "site presentation, final-file, and readiness worklists",
+    mentorAssignments: "assigned site mentor coverage records",
+    students: "student directory records",
+    siteDashboard: "assigned site dashboard records",
+    programs: "site program management records",
+    adminUsers: "account and access management records",
+    audit: "protected audit records",
+    archiveExports: "final-file export records",
+  };
+  return renderPermissionDeniedSection(title, details[sectionId] || `${title.toLowerCase()} records`);
+}
+
+function workspaceSectionTitle(sectionId = "") {
+  const labels = {
+    overview: "Overview",
+    profile: "Profile",
+    siteDashboard: "Site Dashboard",
+    programs: "Programs",
+    students: "Students",
+    student: "My Work",
+    archive: "Final Files",
+    mentorDashboard: "Mentor Dashboard",
+    mentor: "Mentor students",
+    programDashboard: "Program dashboard",
+    teacher: "Program Teacher review queue",
+    mentorAssignments: "Mentor assignments",
+    operations: "Operations readiness",
+    presentation: "Presentation schedule",
+    adminDashboard: "Admin command center",
+    readiness: "Readiness report",
+    adminUsers: "Users & Access",
+    audit: "Audit",
+    archiveExports: "Final files",
+    security: hasGlobalAdminRole(roleIds(currentUser)) ? "Security" : "Account",
+  };
+  return labels[sectionId] || "Workspace section";
+}
+
+function renderAdminConsoleOverviewSection(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  const sections = capabilities.sections.filter((section) => section.id !== "overview");
+  return `
+    <section class="workspace-admin-console-overview" data-admin-console-overview="true" data-admin-console-read-only="${escapeHtml(String(capabilities.readOnly))}">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Console overview</p>
+          <h2>What this role can manage or monitor</h2>
+          <p class="workspace-muted">${escapeHtml(capabilities.scope.detail)}</p>
+        </div>
+        ${capabilities.readOnly ? `<span class="workspace-read-only-chip">Read-only</span>` : `<span class="workspace-site-context-badge">${escapeHtml(capabilities.scope.label)}</span>`}
+      </div>
+      <div class="workspace-admin-console-metrics">
+        ${renderAdminConsoleMetrics(capabilities)}
+      </div>
+      <div class="workspace-admin-console-grid">
+        ${renderAdminConsoleActionCards(capabilities)}
+      </div>
+      <section class="workspace-card workspace-admin-console-matrix" data-admin-console-section-matrix="true" aria-labelledby="adminConsoleMatrixTitle">
+        <div class="workspace-card-head">
+          <div>
+            <p class="workspace-kicker">Visible sections</p>
+            <h3 id="adminConsoleMatrixTitle">Role-based console access</h3>
+          </div>
+          <span class="workspace-summary-badge">${escapeHtml(String(sections.length))} sections</span>
+        </div>
+        <div class="workspace-table">
+          ${sections.map((section) => renderAdminConsoleSectionRow(section, capabilities)).join("")}
+        </div>
+      </section>
+    </section>
+  `;
+}
+
+function renderAdminConsoleMetrics(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  const studentCount = adminConsoleStudentCount();
+  const reviewCount = adminConsoleReviewCount();
+  const operationsCount = adminConsoleOperationsCount();
+  return [
+    renderMetricTile("Students in scope", studentCount, capabilities.scope.label, "", consoleStudentSectionId(capabilities), { label: "Open students" }),
+    renderMetricTile("Review / evidence", reviewCount, "Submitted or review-related rows", "", capabilities.sectionIds.has("teacher") ? "teacher" : "", { label: "Open review" }),
+    renderMetricTile("Operations signals", operationsCount, "Presentation, mentor, or final-file blockers", "", capabilities.sectionIds.has("operations") ? "operations" : "", { label: "Open operations" }),
+    renderMetricTile("Console sections", capabilities.sections.length, capabilities.readOnly ? "Read-only tools only" : "Role-scoped tools", "", "overview"),
+  ].join("");
+}
+
+function renderAdminConsoleActionCards(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  const cards = [];
+  const sectionIds = capabilities.sectionIds;
+  const studentSection = consoleStudentSectionId(capabilities);
+  if (studentSection) {
+    cards.push({
+      title: "Students",
+      detail: capabilities.scope.key === "assigned_students"
+        ? "Monitor assigned students and mentoring signals."
+        : "Search, filter, and open only the student records this role can see.",
+      section: studentSection,
+      action: "Open students",
+      badge: capabilities.readOnly ? "Read-only" : capabilities.scope.label,
+    });
+  }
+  if (sectionIds.has("teacher")) {
+    cards.push({
+      title: "Review / Evidence",
+      detail: capabilities.actions.review.writable
+        ? "Review submitted work, check proof, and record Program Teacher decisions."
+        : "Monitor submitted work and evidence status without decision controls.",
+      section: "teacher",
+      preset: "submitted",
+      action: "Open review",
+      badge: capabilities.actions.review.writable ? "Review allowed" : "Monitor",
+    });
+  }
+  if (sectionIds.has("adminUsers")) {
+    cards.push({
+      title: "People & Access",
+      detail: "Manage only the user, assignment, and access actions allowed by the current API scope.",
+      section: "adminUsers",
+      action: "Open access",
+      badge: capabilities.actions.peopleAccess.writable ? "Writable" : "Read-only",
+    });
+  }
+  if (sectionIds.has("programs")) {
+    cards.push({
+      title: "Programs",
+      detail: "Use existing site program add, remove, restore, and management workflows.",
+      section: "programs",
+      action: "Open programs",
+      badge: capabilities.actions.programs.writable ? "Writable" : "Scoped",
+    });
+  }
+  if (sectionIds.has("audit")) {
+    cards.push({
+      title: "Audit",
+      detail: "Review protected-record activity without exposing secret or private storage values.",
+      section: "audit",
+      action: "Open audit",
+      badge: "Global",
+    });
+  }
+  if (!cards.length) {
+    return `<div class="workspace-empty">No console actions are available for this role yet.</div>`;
+  }
+  return cards.map((card) => renderAdminConsoleActionCard(card)).join("");
+}
+
+function renderAdminConsoleActionCard(card = {}) {
+  return `
+    <article class="workspace-admin-console-card">
+      <div>
+        <span class="workspace-summary-badge">${escapeHtml(card.badge || "Scoped")}</span>
+        <h3>${escapeHtml(card.title || "Console section")}</h3>
+        <p>${escapeHtml(card.detail || "Open this role-scoped console section.")}</p>
+      </div>
+      <button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(card.section || "overview")}" ${card.preset ? `data-section-preset="${escapeHtml(card.preset)}"` : ""}>
+        ${escapeHtml(card.action || "Open")}
+      </button>
+    </article>
+  `;
+}
+
+function renderAdminConsoleSectionRow(section = {}, capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  return `
+    <article class="workspace-table-row" data-admin-console-section="${escapeHtml(section.id || "")}">
+      <div>
+        <strong>${escapeHtml(section.label || "Console section")}</strong>
+        <span>${escapeHtml(section.detail || "Role-scoped console section.")}</span>
+      </div>
+      <div class="workspace-row-actions">
+        <span class="workspace-summary-badge">${escapeHtml(adminConsoleSectionAccessLabel(section.id, capabilities))}</span>
+        <button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(section.id || "overview")}">Open</button>
+      </div>
+    </article>
+  `;
+}
+
+function adminConsoleSectionAccessLabel(sectionId, capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  if (capabilities.readOnly) return "Read-only";
+  if (sectionId === "teacher") return capabilities.actions.review.writable ? "Review writable" : "Monitor";
+  if (sectionId === "adminUsers") return capabilities.actions.peopleAccess.writable ? "Writable in scope" : "Monitor";
+  if (sectionId === "programs") return capabilities.actions.programs.writable ? "Writable in scope" : "Monitor";
+  if (sectionId === "security") return capabilities.actions.settings.writable ? "Global admin" : "Account only";
+  return capabilities.scope.label;
+}
+
+function consoleStudentSectionId(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  if (capabilities.sectionIds.has("students")) return "students";
+  if (capabilities.sectionIds.has("mentorDashboard")) return "mentorDashboard";
+  if (capabilities.sectionIds.has("mentor")) return "mentor";
+  return "";
+}
+
+function adminConsoleStudentCount() {
+  const siteStudents = unwrap(currentData.siteStudents) || {};
+  const siteSummary = siteStudents.summary || {};
+  const programDashboard = unwrap(currentData.programTeacherDashboard) || {};
+  const mentorDashboard = unwrap(currentData.mentorDashboard) || {};
+  const mentorAssigned = unwrap(currentData.mentorAssigned) || {};
+  const candidates = [
+    siteStudents.pagination?.total,
+    siteSummary.studentsTotal,
+    siteSummary.total,
+    programDashboard.summary?.studentsTotal,
+    programDashboard.summary?.studentCount,
+    Array.isArray(programDashboard.students) ? programDashboard.students.length : 0,
+    mentorDashboard.summary?.assignedCount,
+    Array.isArray(mentorDashboard.assignedStudents) ? mentorDashboard.assignedStudents.length : 0,
+    Array.isArray(mentorAssigned.assignedStudents) ? mentorAssigned.assignedStudents.length : 0,
+  ].map((value) => safeNumber(value)).filter((value) => value > 0);
+  return candidates.length ? candidates[0] : 0;
+}
+
+function adminConsoleReviewCount() {
+  const reviewQueue = unwrap(currentData.reviewQueue) || {};
+  const programDashboard = unwrap(currentData.programTeacherDashboard) || {};
+  const candidates = [
+    reviewQueue.summary?.submitted,
+    reviewQueue.summary?.needsReview,
+    reviewQueue.pagination?.total,
+    Array.isArray(reviewQueue.queue) ? reviewQueue.queue.length : 0,
+    Array.isArray(programDashboard.needsReview) ? programDashboard.needsReview.length : 0,
+  ].map((value) => safeNumber(value)).filter((value) => value > 0);
+  return candidates.length ? candidates[0] : 0;
+}
+
+function adminConsoleOperationsCount() {
+  const operations = unwrap(currentData.operationsReadiness) || {};
+  const siteDashboard = unwrap(currentData.siteDashboard) || {};
+  const candidates = [
+    operations.summary?.needsAttention,
+    operations.summary?.attentionRequired,
+    Array.isArray(operations.rows) ? operations.rows.length : 0,
+    Array.isArray(siteDashboard.needsAttention) ? siteDashboard.needsAttention.length : 0,
+  ].map((value) => safeNumber(value)).filter((value) => value > 0);
+  return candidates.length ? candidates[0] : 0;
 }
 
 function handleProblemStateAction(button) {
@@ -1387,7 +1762,7 @@ function renderSiteSwitcherControl() {
 }
 
 function renderWorkspaceStudentSearchControl(roles = roleIds(currentUser)) {
-  if (!hasSiteStudentDirectoryRole(roles)) return "";
+  if (!roles?.size || !availableSectionIds(activeWorkspaceMode).has("students")) return "";
   const accessibleSites = accessibleSitesForWorkspace();
   const currentSiteId = selectedSiteQueryValue() || currentSiteWorkspaceContext().siteId || (accessibleSites.length === 1 ? accessibleSites[0]?.siteId || "" : "");
   const searchValue = cleanSearchFilter(siteStudentFilters?.search || "");
@@ -1536,10 +1911,13 @@ async function handleRoleAssignmentAction(event) {
 async function openWorkspaceSection(button) {
   const section = button?.dataset?.section;
   if (!section) return;
-  if (!availableSectionIds().has(section)) {
+  const sectionMode = modeForAvailableSection(section);
+  if (!sectionMode) {
     renderAppShell("This workspace section is not available for your account.", "error");
     return;
   }
+  activeWorkspaceMode = sectionMode;
+  blockedWorkspaceMode = "";
   if (section === "mentorAssignments" && button.dataset.sectionPreset === "no-mentor") {
     mentorAssignmentFilters = {
       ...defaultMentorAssignmentFilters(),
@@ -2272,7 +2650,10 @@ function screenOrientationActionCandidates(sectionId = "overview", primaryRole =
 }
 
 function screenOrientationActionsFor(sectionId = "overview", primaryRole = primaryRoleForUser(currentUser), roles = roleIds(currentUser), sections = availableSections()) {
-  const allowedIds = new Set(sections.map((section) => section.id));
+  const allowedIds = new Set([
+    ...sections.map((section) => section.id),
+    ...availableSectionIdsForAnyMode(),
+  ]);
   const seen = new Set();
   return screenOrientationActionCandidates(sectionId, primaryRole, roles)
     .filter((action) => action?.section && allowedIds.has(action.section))
@@ -3087,35 +3468,63 @@ function renderScreenDoneGuide(sectionId = activeSection, primaryRole = primaryR
   `;
 }
 
-function availableSections() {
-  const roles = roleIds(currentUser);
+function availableSections(options = {}) {
+  const mode = cleanWorkspaceMode(options.mode || activeWorkspaceMode) || "workspace";
+  return mode === "admin" ? availableAdminConsoleSections() : availableWorkspaceSections();
+}
+
+function availableWorkspaceSections(user = currentUser) {
+  const roles = roleIds(user);
   const sections = [
-    { id: "overview", label: "Overview", detail: "Workspace priorities and access" },
+    { id: "overview", label: "Overview", detail: "Daily priorities and access" },
     { id: "profile", label: "Profile", detail: "Plain-language role guide" },
   ];
-  if (hasSiteDashboardRole(roles)) sections.push({ id: "siteDashboard", label: "Site Dashboard", detail: "School-wide capstone health" });
-  if (canUseSitePrograms(roles)) sections.push({ id: "programs", label: "Programs", detail: "Add or remove site programs" });
-  if (hasSiteStudentDirectoryRole(roles)) sections.push({ id: "students", label: "Students", detail: "Search and filter capstone progress" });
-  if (roles.has("student")) sections.push({ id: "student", label: "My Work", detail: "Next step, phase goals, proof, and feedback" });
-  if (roles.has("student")) sections.push({ id: "archive", label: "Final Files", detail: "May 5 downloads" });
-  if (roles.has("mentor")) sections.push({ id: "mentorDashboard", label: "Mentor Dashboard", detail: "Assigned student risks" });
-  if (roles.has("mentor")) sections.push({ id: "mentor", label: "Assigned Students", detail: "Assigned students and proof counts" });
-  if (roles.has("program_teacher")) sections.push({ id: "programDashboard", label: "Program Dashboard", detail: "Your students and review needs" });
-  if (hasSiteReviewQueueRole(roles)) sections.push({ id: "teacher", label: "Review Queue", detail: "Program Teacher review and submitted work" });
-  if (hasSiteMentorAssignmentRole(roles)) sections.push({ id: "mentorAssignments", label: "Mentor Assignments", detail: "Coverage and assignment workflow" });
-  if (hasSiteOperationsRole(roles)) sections.push({ id: "operations", label: "Operations", detail: "Presentation, final files, and readiness" });
-  if (roles.has("student") || roles.has("mentor") || roles.has("program_teacher") || hasGlobalAdminRole(roles) || roles.has("site_admin") || roles.has("administration")) {
-    sections.push({ id: "presentation", label: "Presentation", detail: "Schedule, outline, and day-of status" });
+  const studentDirectorySection = { id: "students", label: "Students", detail: "Search and filter capstone progress" };
+  const add = (id, label, detail) => {
+    if (!sections.some((section) => section.id === id)) sections.push({ id, label, detail });
+  };
+
+  if (roles.has("student")) {
+    add("student", "My Work", "Next step, phase goals, proof, and feedback");
+    add("presentation", "Presentation", "Schedule, outline, and day-of status");
+    add("archive", "Final Files", "May 5 downloads");
   }
-  if (hasGlobalAdminRole(roles)) sections.push({ id: "adminDashboard", label: "Admin Command Center", detail: "Platform operations" });
-  if (hasGlobalAdminRole(roles) || roles.has("site_admin") || roles.has("administration") || roles.has("misc_admin")) sections.push({ id: "readiness", label: "Readiness", detail: "Aggregate project readiness" });
-  if (canUseUsersAccess(roles)) sections.push({ id: "adminUsers", label: "Users & Access", detail: "Create users and manage access" });
-  if (hasGlobalAdminRole(roles)) sections.push({ id: "audit", label: "Audit", detail: "Recent protected-record activity" });
-  if (hasGlobalAdminRole(roles)) sections.push({ id: "archiveExports", label: "Final Files", detail: "Closeout package status" });
+  if (roles.has("mentor")) {
+    add("mentorDashboard", "Mentor Dashboard", "Assigned student risks");
+    add("mentor", "Assigned Students", "Assigned students and proof counts");
+    add("presentation", "Presentation", "Schedule, outline, and day-of status");
+  }
+  if (roles.has("viewer")) {
+    add(studentDirectorySection.id, studentDirectorySection.label, studentDirectorySection.detail);
+  }
+  if (roles.has("program_teacher")) {
+    add("programDashboard", "Program Dashboard", "Your students and review needs");
+    add(studentDirectorySection.id, studentDirectorySection.label, studentDirectorySection.detail);
+    add("teacher", "Review Queue", "Program Teacher review and submitted work");
+    add("operations", "Operations", "Presentation, mentor, and final-file blockers");
+    add("presentation", "Presentation", "Schedule, outline, and day-of status");
+  }
+  if (roles.has("administration")) {
+    add("siteDashboard", "Site Dashboard", "School-wide capstone health");
+    add(studentDirectorySection.id, studentDirectorySection.label, studentDirectorySection.detail);
+    add("operations", "Operations", "Presentation, final files, and readiness");
+  }
+  if (hasGlobalAdminRole(roles) || roles.has("site_admin") || roles.has("administration")) {
+    add("presentation", "Presentation", "Schedule, outline, and day-of status");
+    add("readiness", "Readiness", "Aggregate project readiness");
+  }
+  if (roles.has("misc_admin")) {
+    add("readiness", "Readiness", "Aggregate project readiness");
+  }
+
   sections.push(hasGlobalAdminRole(roles)
     ? { id: "security", label: "Security", detail: "Password and session controls" }
     : { id: "security", label: "Account", detail: "Password and sessions" });
   return sections;
+}
+
+function availableAdminConsoleSections(user = currentUser) {
+  return adminConsoleCapabilitiesFor(user).sections;
 }
 
 function renderActiveSection() {
@@ -3144,7 +3553,8 @@ function renderActiveSection() {
 function renderOverviewSection() {
   const primaryRole = primaryRoleForUser(currentUser);
   const profile = renderRoleProfileSection({ compact: true });
-  if (["platform_admin", "global_admin", "admin", "site_admin", "administration"].includes(primaryRole)) return `${profile}${renderSiteDashboardSection()}`;
+  if (["platform_admin", "global_admin", "admin", "site_admin"].includes(primaryRole)) return `${profile}${renderWorkspaceAdminConsoleHandoff()}`;
+  if (primaryRole === "administration") return `${profile}${renderSiteDashboardSection()}`;
   if (primaryRole === "viewer") return `${profile}${renderViewerOverviewSection()}`;
   if (primaryRole === "program_teacher") return `${profile}${renderProgramTeacherDashboardSection()}`;
   if (primaryRole === "mentor") return `${profile}${renderMentorDashboardSection()}`;
@@ -3196,6 +3606,41 @@ function renderViewerOverviewSection() {
   return `
     ${renderReadOnlyMonitoringOverview(summary, scope)}
     ${renderSiteStudentDirectorySection()}
+  `;
+}
+
+function renderWorkspaceAdminConsoleHandoff() {
+  const capabilities = adminConsoleCapabilitiesFor(currentUser);
+  if (!capabilities.canSee) return renderAccessBoundarySummary();
+  const primaryAction = capabilities.readOnly ? "Open read-only console" : "Open Admin Console";
+  return `
+    <section class="workspace-card workspace-console-handoff" data-workspace-admin-console-handoff="true" aria-labelledby="workspaceConsoleHandoffTitle">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Workspace</p>
+          <h2 id="workspaceConsoleHandoffTitle">Daily workspace is clear. Management lives in Admin Console.</h2>
+          <p class="workspace-muted">Use Workspace for your account, role profile, and immediate work. Use Admin Console for student monitoring, review, access, programs, operations, and security sections allowed by this role.</p>
+        </div>
+        <span class="workspace-site-context-badge">${escapeHtml(capabilities.scope.label)}</span>
+      </div>
+      <div class="workspace-console-handoff-actions">
+        <button class="workspace-button workspace-button-primary" type="button" data-workspace-mode-target="admin">
+          ${escapeHtml(primaryAction)}
+        </button>
+        <button class="workspace-button workspace-button-secondary" type="button" data-section="profile">
+          Review role profile
+        </button>
+      </div>
+      <div class="workspace-admin-console-matrix" data-workspace-admin-console-preview="true">
+        ${capabilities.sections.filter((section) => section.id !== "overview").slice(0, 5).map((section) => `
+          <article class="workspace-empty-state-card">
+            <strong>${escapeHtml(section.label)}</strong>
+            <span>${escapeHtml(section.detail)}</span>
+            ${statusPill(capabilities.readOnly ? "read_only" : "configured")}
+          </article>
+        `).join("")}
+      </div>
+    </section>
   `;
 }
 
@@ -3302,7 +3747,7 @@ function renderReadOnlyEscalationGuide(audience = "viewer") {
           <article>
             <span>${escapeHtml(label)}</span>
             <small>${escapeHtml(detail)}</small>
-            ${availableSectionIds().has(section) ? `
+            ${availableSectionIdsForAnyMode().has(section) ? `
               <button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(section)}"${preset ? ` data-section-preset="${escapeHtml(preset)}"` : ""}>
                 Share this worklist
               </button>
@@ -3438,7 +3883,7 @@ function renderSiteDashboardSection() {
   const summary = dashboard.summary || {};
   const scope = dashboard.scope || {};
   const readOnly = Boolean(scope.readOnly);
-  const canOpenAudit = availableSectionIds().has("audit");
+  const canOpenAudit = availableSectionIdsForAnyMode().has("audit");
   const presentationsTotal = safeNumber(summary.presentationsScheduled) + safeNumber(summary.presentationsPending);
   const archiveTotal = safeNumber(summary.exportsQueued)
     + safeNumber(summary.exportsRunning)
@@ -3548,9 +3993,9 @@ function renderSiteDashboardActionMap(dashboard = {}, readOnly = false) {
   if (noMentor) {
     setupGaps.push({
       label: "mentor coverage",
-      section: availableSectionIds().has("mentorAssignments") ? "mentorAssignments" : "students",
-      preset: availableSectionIds().has("mentorAssignments") ? "no-mentor" : "missing-mentors",
-      actionLabel: availableSectionIds().has("mentorAssignments") ? "Assign mentors" : "View students",
+      section: availableSectionIdsForAnyMode().has("mentorAssignments") ? "mentorAssignments" : "students",
+      preset: availableSectionIdsForAnyMode().has("mentorAssignments") ? "no-mentor" : "missing-mentors",
+      actionLabel: availableSectionIdsForAnyMode().has("mentorAssignments") ? "Assign mentors" : "View students",
     });
   }
   if (!safeNumber(summary.programTeachers)) {
@@ -3600,8 +4045,8 @@ function renderSiteDashboardActionMap(dashboard = {}, readOnly = false) {
         ? `${noMentor} ${pluralize(noMentor, "student")} ${noMentor === 1 ? "needs" : "need"} an active mentor before normal check-ins can work.`
         : "No missing-mentor count is visible on this dashboard.",
       source: "Mentor assignment source",
-      actionSection: availableSectionIds().has("mentorAssignments") ? "mentorAssignments" : "students",
-      actionPreset: availableSectionIds().has("mentorAssignments") ? "no-mentor" : "missing-mentors",
+      actionSection: availableSectionIdsForAnyMode().has("mentorAssignments") ? "mentorAssignments" : "students",
+      actionPreset: availableSectionIdsForAnyMode().has("mentorAssignments") ? "no-mentor" : "missing-mentors",
       actionLabel: noMentor ? "Open coverage" : "View coverage",
     },
     {
@@ -3680,7 +4125,7 @@ function renderSiteDashboardActionMap(dashboard = {}, readOnly = false) {
 }
 
 function renderSiteDashboardActionMapCard(card = {}) {
-  const hasAction = card.actionSection && availableSectionIds().has(card.actionSection);
+  const hasAction = card.actionSection && availableSectionIdsForAnyMode().has(card.actionSection);
   const actionPreset = card.actionPreset
     ? ` data-section-preset="${escapeHtml(card.actionPreset)}"`
     : "";
@@ -3722,7 +4167,7 @@ function renderSiteAdminFirstDayChecklist(dashboard = {}) {
         ? `${safeNumber(summary.studentsNoMentor)} ${pluralize(summary.studentsNoMentor, "student")} ${safeNumber(summary.studentsNoMentor) === 1 ? "needs" : "need"} a mentor assignment.`
         : "No missing mentor count is visible right now.",
       state: safeNumber(summary.studentsNoMentor) ? "blocked" : "ready",
-      action: availableSectionIds().has("mentorAssignments")
+      action: availableSectionIdsForAnyMode().has("mentorAssignments")
         ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="mentorAssignments" data-section-preset="no-mentor">Assign mentors</button>`
         : `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="students" data-section-preset="missing-mentors">View missing mentors</button>`,
     },
@@ -3732,7 +4177,7 @@ function renderSiteAdminFirstDayChecklist(dashboard = {}) {
         ? `${safeNumber(summary.submissionsSubmitted)} submitted ${pluralize(summary.submissionsSubmitted, "item")} waiting for Program Teacher review.`
         : "No submitted work is waiting in the dashboard summary.",
       state: safeNumber(summary.submissionsSubmitted) ? "needs_review" : "ready",
-      action: availableSectionIds().has("teacher")
+      action: availableSectionIdsForAnyMode().has("teacher")
         ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="teacher" data-section-preset="submitted">Open review queue</button>`
         : `<span class="workspace-summary-badge">Summary only</span>`,
     },
@@ -3742,7 +4187,7 @@ function renderSiteAdminFirstDayChecklist(dashboard = {}) {
         ? `${programCount} program ${pluralize(programCount, "group")} visible in this school dashboard.`
         : "Open Programs and confirm which programs run at this school.",
       state: programCount ? "ready" : "needs_review",
-      action: availableSectionIds().has("programs")
+      action: availableSectionIdsForAnyMode().has("programs")
         ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="programs">Open programs</button>`
         : `<span class="workspace-summary-badge">Summary only</span>`,
     },
@@ -3884,7 +4329,7 @@ function renderSiteProgramsSetupFlow(activePrograms = [], availablePrograms = []
   const rows = [
     ["1. Confirm school", body?.scope?.siteName || "Current site", activeCount || availableCount ? "ready" : "context"],
     ["2. Add missing program", availableCount ? `${availableCount} active program ${pluralize(availableCount, "option")} can be added.` : "No additional active programs are waiting.", availableCount ? "needs_review" : "ready"],
-    ["3. Confirm Program Teacher access", "Use Users & Access after the program mapping is correct.", availableSectionIds().has("adminUsers") ? "ready" : "context"],
+    ["3. Confirm Program Teacher access", "Use Users & Access after the program mapping is correct.", availableSectionIdsForAnyMode().has("adminUsers") ? "ready" : "context"],
     ["4. Review before save", "Add or remove one school mapping at a time. Historical student and assignment records stay intact.", "configured"],
   ];
   return `
@@ -4796,7 +5241,7 @@ function renderSiteStudentDetailSurface(directory) {
           ${renderProblemState({
             reason: "This student detail is unavailable for the current school assignment.",
             owner: "School Admin or platform support.",
-            nextAction: "Use the visible rows or confirm the selected site assignment.",
+            nextAction: "Use the visible rows or confirm the current school assignment.",
           })}
         </div>
       </aside>
@@ -5675,7 +6120,7 @@ function renderSiteNextActions(actions = [], readOnly = false) {
   return `
     <div class="workspace-list">
       ${actions.map((action) => {
-        const canOpenAction = Boolean(action.actionSection && action.actionPreset && availableSectionIds().has(action.actionSection));
+        const canOpenAction = Boolean(action.actionSection && action.actionPreset && availableSectionIdsForAnyMode().has(action.actionSection));
         return `
         <article class="workspace-row">
           <div>
@@ -5880,7 +6325,7 @@ function renderProgramTeacherDashboardSection() {
           detail: "No urgent support signal.",
           tone: "student",
           concept: "On Track",
-          actionHtml: availableSectionIds().has("students")
+          actionHtml: availableSectionIdsForAnyMode().has("students")
             ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="students" data-section-preset="on-track-students">View students</button>`
             : `<span class="workspace-summary-badge">Summary only</span>`,
         },
@@ -5927,7 +6372,7 @@ function renderProgramTeacherReviewFirstList(dashboard = {}) {
           <h2>Review First</h2>
           <p>${escapeHtml(visibleRows.length ? "Manual approvals and revision requests control student next steps." : "No submitted work is waiting in this dashboard slice.")}</p>
         </div>
-        ${availableSectionIds().has("teacher") ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="teacher" data-section-preset="submitted">Open Review Queue</button>` : ""}
+        ${availableSectionIdsForAnyMode().has("teacher") ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="teacher" data-section-preset="submitted">Open Review Queue</button>` : ""}
       </div>
       <div class="workspace-list">
         ${visibleRows.length ? visibleRows.map((row) => renderProgramTeacherReviewFirstRow(row)).join("") : `
@@ -6910,7 +7355,7 @@ function renderOperationsRoleActionGuide(body = {}, dashboard = {}) {
           <article>
             <span>${escapeHtml(label)}</span>
             <small>${escapeHtml(detail)}</small>
-            ${availableSectionIds().has(section) ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(section)}"${preset ? ` data-section-preset="${escapeHtml(preset)}"` : ""}>Open</button>` : `<span class="workspace-summary-badge">Summary only</span>`}
+            ${availableSectionIdsForAnyMode().has(section) ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(section)}"${preset ? ` data-section-preset="${escapeHtml(preset)}"` : ""}>Open</button>` : `<span class="workspace-summary-badge">Summary only</span>`}
           </article>
         `).join("")}
       </div>
@@ -7317,7 +7762,7 @@ function operationsRankedActionNextStep(action = {}) {
 }
 
 function operationsPresetButton(preset, label = "Review rows") {
-  if (!preset || !availableSectionIds().has("operations")) return "";
+  if (!preset || !availableSectionIdsForAnyMode().has("operations")) return "";
   return `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="operations" data-section-preset="${escapeHtml(preset)}">${escapeHtml(label)}</button>`;
 }
 
@@ -7825,7 +8270,7 @@ function renderAdminAuditActionMap(events = [], activeFilters = {}) {
       owner: "Access admin",
       count: `${safeNumber(anomalyById.get("denied-access")?.count)} ${pluralize(anomalyById.get("denied-access")?.count, "denial", "denials")}`,
       title: "Check denied access first",
-      detail: "Confirm the school, program, student, or role scope before widening access.",
+      detail: "Confirm the current school, program, or student before widening access.",
       source: "Protected-record denials",
       action: "evidence_download_denied",
       entityType: "evidence_artifact",
@@ -12154,6 +12599,7 @@ function reviewQueueShareHref(body = {}) {
     url.searchParams.delete(param);
   }
   url.searchParams.delete("view");
+  url.searchParams.set("mode", cleanWorkspaceMode(activeWorkspaceMode) || "workspace");
   url.searchParams.set("section", "teacher");
   const filters = body?.filters || reviewQueueFilters || defaultReviewQueueFilters();
   const siteId = selectedSiteQueryValue() || body?.scope?.siteId || unwrap(currentData.reviewQueue)?.scope?.siteId || "";
@@ -13504,7 +13950,7 @@ function renderReadinessActionMapCard(card = {}) {
 }
 
 function renderReadinessActionMapButton(card = {}) {
-  if (card.section && availableSectionIds().has(card.section)) {
+  if (card.section && availableSectionIdsForAnyMode().has(card.section)) {
     const preset = card.preset ? ` data-section-preset="${escapeHtml(card.preset)}"` : "";
     const programId = card.programId ? ` data-program-id="${escapeHtml(card.programId)}"` : "";
     return `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(card.section)}"${preset}${programId}>${escapeHtml(card.actionLabel || "Open")}</button>`;
@@ -13632,8 +14078,8 @@ function renderStudentAccountPath(authConfig = authConfigForUi()) {
 function renderSecurityActionMap({ roles = roleIds(currentUser), globalAdmin = hasGlobalAdminRole(roles), authConfig = authConfigForUi() } = {}) {
   const primaryRole = primaryRoleForUser(currentUser);
   const studentView = primaryRole === "student";
-  const canOpenUsersAccess = canUseUsersAccess(roles) && availableSectionIds().has("adminUsers");
-  const canOpenAudit = globalAdmin && availableSectionIds().has("audit");
+  const canOpenUsersAccess = canUseUsersAccess(roles) && availableSectionIdsForAnyMode().has("adminUsers");
+  const canOpenAudit = globalAdmin && availableSectionIdsForAnyMode().has("audit");
   const signInMode = securitySignInModeLabel(authConfig, { studentView });
   const email = currentUser?.email || "this signed-in account";
   const cards = [
@@ -13769,7 +14215,7 @@ function renderSecurityActionMapCard(card = {}) {
 }
 
 function renderSecurityActionMapButton(card = {}) {
-  if (card.section && availableSectionIds().has(card.section)) {
+  if (card.section && availableSectionIdsForAnyMode().has(card.section)) {
     return `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(card.section)}">${escapeHtml(card.actionLabel || "Open")}</button>`;
   }
   if (card.focus) {
@@ -14149,7 +14595,7 @@ function renderUsersAccessActionMapCard(card = {}) {
 }
 
 function renderUsersAccessActionMapButton(card = {}) {
-  if (card.section && availableSectionIds().has(card.section)) {
+  if (card.section && availableSectionIdsForAnyMode().has(card.section)) {
     return `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(card.section)}">${escapeHtml(card.actionLabel || "Open")}</button>`;
   }
   if (card.focus) {
@@ -17695,7 +18141,7 @@ function renderMetricTile(label, value, detail = "", tone = "", actionSection = 
     ? ` data-section-preset="${escapeHtml(actionOptions.preset)}"`
     : "";
   const customActionHtml = actionOptions.actionHtml || "";
-  const hasSectionAction = actionSection && availableSectionIds().has(actionSection);
+  const hasSectionAction = actionSection && availableSectionIdsForAnyMode().has(actionSection);
   const hasAction = Boolean(hasSectionAction || customActionHtml);
   const action = hasSectionAction
     ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(actionSection)}"${actionPreset}>${escapeHtml(actionLabel)}</button>`
@@ -17824,7 +18270,7 @@ function renderNeedsAttention(items = []) {
   return `
     <div class="workspace-attention-list">
       ${items.map((item) => {
-        const hasAction = item.actionSection && item.actionPreset && availableSectionIds().has(item.actionSection);
+        const hasAction = item.actionSection && item.actionPreset && availableSectionIdsForAnyMode().has(item.actionSection);
         return `
           <article class="workspace-attention-item ${escapeHtml(item.severity || "info")}">
             <div>
@@ -17910,7 +18356,7 @@ function renderProgramBreakdown(rows = []) {
 
 function renderReviewQueueSummary(rows = [], options = {}) {
   if (!rows.length) return `<div class="workspace-empty">No submitted or revision-requested records need Program Teacher review right now.</div>`;
-  const allowStudentDetail = Boolean(options.allowStudentDetail && availableSectionIds().has("students"));
+  const allowStudentDetail = Boolean(options.allowStudentDetail && availableSectionIdsForAnyMode().has("students"));
   return `
     <div class="workspace-list">
       ${rows.slice(0, 8).map((item) => {
@@ -17975,7 +18421,7 @@ function renderMentorCoverage(rows = [], summary = {}) {
 
 function renderStatusBreakdown(rows = []) {
   if (!rows.length) return `<div class="workspace-empty">No student status rows are available yet.</div>`;
-  const canOpenStudents = availableSectionIds().has("students");
+  const canOpenStudents = availableSectionIdsForAnyMode().has("students");
   return `
     <div class="workspace-list">
       ${rows.map((row) => {
@@ -18048,7 +18494,7 @@ function snapshotRowAction(row = {}, type = "") {
 
 function renderAuditSummary(rows = [], options = {}) {
   const emptyMessage = options.emptyMessage || "No recent audit rows are available for this view.";
-  const allowAuditDrillDown = Boolean(options.allowAuditDrillDown && availableSectionIds().has("audit"));
+  const allowAuditDrillDown = Boolean(options.allowAuditDrillDown && availableSectionIdsForAnyMode().has("audit"));
   if (!rows.length) return `<div class="workspace-empty">${escapeHtml(emptyMessage)}</div>`;
   return `
     <div class="workspace-list">
@@ -19368,7 +19814,7 @@ function renderRoleProfileBlock(title, items = []) {
 }
 
 function renderRoleProfileActions(actions = []) {
-  const sectionIds = availableSectionIds();
+  const sectionIds = availableSectionIdsForAnyMode();
   const visibleActions = actions.filter((action) => action.section && sectionIds.has(action.section));
   if (!visibleActions.length) {
     return `
@@ -19443,6 +19889,137 @@ function hasSiteMentorAssignmentRole(roles) {
 
 function hasSiteOperationsRole(roles) {
   return ["platform_admin", "global_admin", "admin", "site_admin", "administration", "program_teacher"].some((role) => roles.has(role));
+}
+
+function adminConsoleCapabilitiesFor(user = currentUser) {
+  const roles = roleIds(user);
+  const globalAdmin = hasGlobalAdminRole(roles);
+  const writableStaff = globalAdmin
+    || roles.has("site_admin")
+    || roles.has("administration")
+    || roles.has("program_teacher")
+    || roles.has("mentor");
+  const canSee = globalAdmin
+    || roles.has("site_admin")
+    || roles.has("administration")
+    || roles.has("program_teacher")
+    || roles.has("mentor")
+    || roles.has("viewer");
+  const readOnly = roles.has("viewer") && !writableStaff;
+  const scope = adminConsoleScopeForRoles(roles);
+  const sections = canSee ? adminConsoleSectionsForRoles(roles) : [];
+  return {
+    canSee,
+    readOnly,
+    scope,
+    sections,
+    sectionIds: new Set(sections.map((section) => section.id)),
+    actions: {
+      students: {
+        visible: sections.some((section) => ["students", "mentorDashboard", "mentor"].includes(section.id)),
+        writable: false,
+      },
+      review: {
+        visible: sections.some((section) => section.id === "teacher"),
+        writable: roles.has("program_teacher"),
+      },
+      peopleAccess: {
+        visible: sections.some((section) => section.id === "adminUsers"),
+        writable: !readOnly && canUseUsersAccess(roles),
+      },
+      programs: {
+        visible: sections.some((section) => section.id === "programs"),
+        writable: !readOnly && canUseSitePrograms(roles),
+      },
+      settings: {
+        visible: sections.some((section) => section.id === "security"),
+        writable: globalAdmin,
+      },
+    },
+  };
+}
+
+function adminConsoleScopeForRoles(roles) {
+  if (hasGlobalAdminRole(roles)) {
+    return { key: "global", label: "Global", detail: "All schools where the current APIs allow access." };
+  }
+  if (roles.has("site_admin")) {
+    return { key: "site", label: "Site", detail: "Assigned site only." };
+  }
+  if (roles.has("administration")) {
+    return { key: "site", label: "School", detail: "Assigned school oversight." };
+  }
+  if (roles.has("program_teacher")) {
+    return { key: "program", label: "Program", detail: "Assigned program students and review work." };
+  }
+  if (roles.has("mentor")) {
+    return { key: "assigned_students", label: "Assigned students", detail: "Students actively assigned to this mentor." };
+  }
+  if (roles.has("viewer")) {
+    return { key: "read_only", label: "Read-only", detail: "Assigned student records only." };
+  }
+  return { key: "none", label: "Workspace", detail: "No staff console scope is assigned." };
+}
+
+function adminConsoleSectionsForRoles(roles) {
+  const sections = [];
+  const add = (id, label, detail) => {
+    if (!sections.some((section) => section.id === id)) sections.push({ id, label, detail });
+  };
+  add("overview", "Overview", "Console scope, counts, and next admin actions");
+
+  if (roles.has("viewer")) {
+    add("students", "Students", "Read-only assigned student monitoring");
+  }
+  if (roles.has("mentor")) {
+    add("mentorDashboard", "Student Monitor", "Assigned-student risks and support needs");
+    add("mentor", "Assigned Students", "Mentor student cards and proof counts");
+  }
+  if (roles.has("program_teacher")) {
+    add("programDashboard", "Program Progress", "Assigned program students and blockers");
+    add("students", "Students", "Program-scoped student directory");
+    add("teacher", "Review / Evidence", "Submitted work, proof, and review decisions");
+    add("mentorAssignments", "Mentors", "Read-only mentor coverage");
+    add("operations", "Operations", "Presentation, mentor, and final-file blockers");
+    if (canUseUsersAccess(roles)) add("adminUsers", "People & Access", "Scoped roster and access corrections");
+  }
+  if (roles.has("administration")) {
+    add("siteDashboard", "School Overview", "School-wide student health");
+    add("students", "Students", "Allowed school student oversight");
+    add("mentorAssignments", "Mentors", "Coverage and assignment workflow");
+    add("operations", "Operations", "Presentation, final-file, and readiness blockers");
+    if (canUseUsersAccess(roles)) add("adminUsers", "People & Access", "Scoped users and access");
+    add("presentation", "Presentation", "Schedule and day-of status");
+    add("readiness", "Readiness", "Aggregate school readiness");
+  }
+  if (roles.has("site_admin")) {
+    add("siteDashboard", "Site Overview", "Site-wide student and program health");
+    add("students", "Students", "Site-scoped student directory");
+    add("teacher", "Review / Evidence", "Submitted work and proof status");
+    add("mentorAssignments", "Mentors", "Mentor coverage and assignments");
+    add("operations", "Operations", "Presentation, final-file, and readiness blockers");
+    add("adminUsers", "People & Access", "Staff, viewer, mentor, teacher, and admin access");
+    add("programs", "Programs", "Site programs add, remove, and restore");
+    add("presentation", "Presentation", "Schedule and day-of status");
+    add("readiness", "Readiness", "Aggregate site readiness");
+  }
+  if (hasGlobalAdminRole(roles)) {
+    add("adminDashboard", "Global Overview", "Cross-site command center");
+    add("siteDashboard", "Site Overview", "Current-site health");
+    add("students", "Students", "Cross-site student directory when allowed");
+    add("teacher", "Review / Evidence", "Submitted work and proof status");
+    add("mentorAssignments", "Mentors", "Mentor coverage and assignments");
+    add("operations", "Operations", "Platform readiness blockers");
+    add("adminUsers", "People & Access", "Global and site access management");
+    add("programs", "Programs", "Site program management");
+    add("presentation", "Presentation", "Schedule and day-of status");
+    add("readiness", "Readiness", "Aggregate readiness");
+    add("audit", "Audit", "Protected-record activity");
+    add("archiveExports", "Final Files", "Closeout package status");
+    add("security", "Settings / Security", "Local admin account and session controls");
+  }
+
+  return sections;
 }
 
 function defaultSiteStudentFilters() {
@@ -19644,17 +20221,17 @@ async function handleWorkspaceUrlPopState() {
     renderAppShell(mentorDashboardFilter === "all" ? "Mentor dashboard link restored." : "Mentor dashboard focus restored.", "success");
     return;
   }
-  if (state.hasPresentationScheduleState && currentUser && availableSectionIds().has("presentation")) {
+  if (state.hasPresentationScheduleState && currentUser && availableSectionIdsForAnyMode().has("presentation")) {
     renderAppShell(presentationSlotFilter === "all" ? "Presentation schedule link restored." : "Presentation schedule focus restored.", "success");
     return;
   }
-  if (state.hasAdminAuditState && currentUser && availableSectionIds().has("audit")) {
+  if (state.hasAdminAuditState && currentUser && availableSectionIdsForAnyMode().has("audit")) {
     await loadAdminAuditEventsResult(adminAuditFilters.action || adminAuditFilters.entityType
       ? "Protected activity link restored."
       : "Audit link restored.");
     return;
   }
-  if (state.hasAdminArchiveExportState && currentUser && availableSectionIds().has("archiveExports")) {
+  if (state.hasAdminArchiveExportState && currentUser && availableSectionIdsForAnyMode().has("archiveExports")) {
     renderAppShell(adminArchiveExportFilter === "all"
       ? "Final Files link restored."
       : `${adminArchiveExportFilterLabel(adminArchiveExportFilter)} archive filter restored.`, "success");
@@ -19674,8 +20251,28 @@ async function handleWorkspaceUrlPopState() {
 function applyWorkspaceUrlState(state, options = {}) {
   if (!state) return;
   if (state.siteId) selectedSiteId = state.siteId;
-  if (state.section && (options.initial || availableSectionIds().has(state.section))) {
+  const requestedMode = cleanWorkspaceMode(state.mode);
+  if (requestedMode === "admin") {
+    if (adminConsoleCapabilitiesFor(currentUser).canSee) {
+      activeWorkspaceMode = "admin";
+      blockedWorkspaceMode = "";
+    } else {
+      activeWorkspaceMode = "workspace";
+      blockedWorkspaceMode = "admin";
+    }
+  } else if (requestedMode === "workspace") {
+    activeWorkspaceMode = "workspace";
+    blockedWorkspaceMode = "";
+  } else if (state.section) {
+    const inferredMode = modeForAvailableSection(state.section);
+    if (inferredMode) activeWorkspaceMode = inferredMode;
+    blockedWorkspaceMode = "";
+  } else {
+    blockedWorkspaceMode = "";
+  }
+  if (state.section && availableSectionIds(activeWorkspaceMode).has(state.section)) {
     activeSection = state.section;
+    workspaceModeLastSections[activeWorkspaceMode] = state.section;
   }
   if (state.hasReviewQueueState) {
     reviewQueueFilters = state.reviewQueueFilters;
@@ -19732,6 +20329,7 @@ function workspaceUrlStateFromLocation() {
   const url = currentWorkspaceUrl();
   if (!url) return null;
   const params = url.searchParams;
+  const requestedMode = cleanWorkspaceMode(params.get("mode"));
   const requestedSection = cleanWorkspaceSection(params.get("section"));
   const requestedView = cleanDirectoryFilter(params.get("view"));
   const reviewQueueViewRequested = requestedSection === "teacher" || requestedView === "reviewQueue" || requestedView === "review-queue";
@@ -19763,6 +20361,7 @@ function workspaceUrlStateFromLocation() {
   const hasAdminArchiveExportState = requestedSection === "archiveExports" || (!requestedSection && !requestedView && hasAdminArchiveExportFilterParams(params));
   const hasSiteStudentDetailState = hasSiteStudentDetailUrlState(params, resolvedSection);
   return {
+    mode: requestedMode,
     section: resolvedSection,
     siteId: cleanDirectoryFilter(params.get("siteId")),
     hasReviewQueueState,
@@ -20130,6 +20729,7 @@ function syncFilteredWorkspaceUrlState(section, filters, options = {}, writeFilt
     url.searchParams.delete(param);
   }
   url.searchParams.delete("view");
+  url.searchParams.set("mode", cleanWorkspaceMode(activeWorkspaceMode) || "workspace");
   url.searchParams.set("section", section);
   const siteId = selectedSiteQueryValue()
     || unwrap(currentData.siteDashboard)?.scope?.siteId
@@ -20157,6 +20757,7 @@ function syncWorkspaceSectionOnlyUrlState(section, options = {}) {
     url.searchParams.delete(param);
   }
   url.searchParams.delete("view");
+  url.searchParams.set("mode", cleanWorkspaceMode(activeWorkspaceMode) || "workspace");
   const sectionId = cleanWorkspaceSection(section) || "overview";
   url.searchParams.set("section", sectionId);
   const siteId = selectedSiteQueryValue();
@@ -20268,8 +20869,69 @@ function appendSiteStudentDetailUrlState(url, section) {
   if (timelineType) url.searchParams.set("detailTimelineType", timelineType);
 }
 
-function availableSectionIds() {
-  return new Set(availableSections().map((section) => section.id));
+function availableSectionIds(mode = activeWorkspaceMode) {
+  return new Set(availableSections({ mode }).map((section) => section.id));
+}
+
+function availableSectionIdsForAnyMode() {
+  return new Set([
+    ...availableSectionIds("workspace"),
+    ...availableSectionIds("admin"),
+  ]);
+}
+
+function modeForAvailableSection(section) {
+  const sectionId = cleanWorkspaceSection(section);
+  if (!sectionId) return "";
+  if (availableSectionIds(activeWorkspaceMode).has(sectionId)) return activeWorkspaceMode;
+  if (availableSectionIds("admin").has(sectionId)) return "admin";
+  if (availableSectionIds("workspace").has(sectionId)) return "workspace";
+  return "";
+}
+
+function defaultSectionForMode(mode = activeWorkspaceMode) {
+  const sectionIds = availableSectionIds(mode);
+  if (sectionIds.has(workspaceModeLastSections[mode])) return workspaceModeLastSections[mode];
+  return availableSections({ mode })[0]?.id || "overview";
+}
+
+function rememberCurrentModeSection() {
+  const mode = cleanWorkspaceMode(activeWorkspaceMode) || "workspace";
+  if (availableSectionIds(mode).has(activeSection)) {
+    workspaceModeLastSections[mode] = activeSection;
+  }
+}
+
+function ensureActiveWorkspaceModeAndSection() {
+  blockedWorkspaceSection = "";
+  const requestedMode = cleanWorkspaceMode(activeWorkspaceMode) || "workspace";
+  const capabilities = adminConsoleCapabilitiesFor(currentUser);
+  if (requestedMode === "admin" && !capabilities.canSee) {
+    activeWorkspaceMode = "workspace";
+  } else {
+    activeWorkspaceMode = requestedMode;
+  }
+  let allowedIds = availableSectionIds(activeWorkspaceMode);
+  if (allowedIds.has(activeSection)) {
+    rememberCurrentModeSection();
+    return;
+  }
+  const sectionMode = modeForAvailableSection(activeSection);
+  if (sectionMode && sectionMode !== activeWorkspaceMode) {
+    activeWorkspaceMode = sectionMode;
+    allowedIds = availableSectionIds(activeWorkspaceMode);
+  }
+  if (!allowedIds.has(activeSection)) {
+    const attemptedSection = cleanWorkspaceSection(activeSection);
+    if (attemptedSection) blockedWorkspaceSection = attemptedSection;
+    activeSection = defaultSectionForMode(activeWorkspaceMode);
+  }
+  rememberCurrentModeSection();
+}
+
+function cleanWorkspaceMode(value) {
+  const mode = cleanDirectoryFilter(value);
+  return WORKSPACE_MODES.has(mode) ? mode : "";
 }
 
 function canonicalReviewQueueValue(value, allowed, fallback = "") {
@@ -20614,7 +21276,7 @@ function renderAdminAccessPreview(form) {
     viewer: "Assigned students only. Read-only.",
     program_teacher: "Assigned program. Can review assigned program records and manage student and mentor accounts.",
     administration: "Assigned school. Can manage students, mentors, viewers, and Program Teachers for that school.",
-    site_admin: "Assigned site. Can manage users and assignments inside the selected site.",
+    site_admin: "Assigned site. Can manage users and assignments inside the current school.",
     global_admin: "Entire platform. Local account only and can manage every site.",
   }[roleId] || "Assigned records";
   roleCopy.textContent = copy;
@@ -20844,7 +21506,7 @@ function messageForAdminImportError(error, status) {
   if (error === "invalid_user") return "Check the email, name, role, sign-in method, and access before creating the account.";
   if (error === "duplicate_email" || error === "email_already_exists") return "That email is already included or already has an account.";
   if (error === "invalid_role_scope") return "That role and scope combination is not available.";
-  if (error === "program_not_found") return "That program was not found for the selected site.";
+  if (error === "program_not_found") return "That program was not found for the current school.";
   if (error === "site_not_found") return "That site was not found.";
   if (error === "student_not_found") return "That student was not found.";
   if (error === "student_requires_site_assignment") return "Choose at least one site for this student.";

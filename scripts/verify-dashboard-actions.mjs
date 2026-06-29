@@ -47,6 +47,7 @@ for (const key of ["workspaceHtml", "workspaceJs"]) scanForbiddenText(key);
 
 const allowedSections = new Set([
   "overview",
+  "profile",
   "siteDashboard",
   "programs",
   "students",
@@ -177,7 +178,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function screenActionImpactsFor\(sectionId = "overview"[\s\S]*Proof links or uploads are saved to the selected work item[\s\S]*The decision form records the Program Teacher outcome[\s\S]*Account creation and import forms save users, roles, and school, program, or student access/,
+  /function screenActionImpactsFor\(sectionId = "overview"[\s\S]*Proof links or uploads are saved to the exact checklist item you selected[\s\S]*The decision form records the Program Teacher outcome[\s\S]*Account creation and import forms save users, roles, and school, program, or student access/,
   "screen action-impact terms must distinguish safe navigation from saved proof, review, and account changes",
 );
 assertMatches(
@@ -197,7 +198,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function screenStartRequirementsFor\(sectionId = "overview"[\s\S]*Have the proof link or file ready before adding proof or sending work for review[\s\S]*Have the setup handoff and admin note ready[\s\S]*Set action, person, or record filters before investigating the log/,
+  /function screenStartRequirementsFor\(sectionId = "overview"[\s\S]*Have the exact proof link or file ready before adding proof or sending work for review[\s\S]*Have the setup handoff and admin note ready[\s\S]*Set action, person, or record filters before investigating the log/,
   "screen start requirements must cover student proof readiness, account setup preparation, and audit filters",
 );
 assertMatches(
@@ -207,7 +208,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function screenDoneSignalsFor\(sectionId = "overview"[\s\S]*The checklist row shows the new proof count, waiting review state, revision message, or approval status[\s\S]*Current access shows the intended person, role, and school, program, cohort, or student[\s\S]*Filters point to the action, person, or record pattern you needed to investigate/,
+  /function screenDoneSignalsFor\(sectionId = "overview"[\s\S]*The current phase item shows the new proof count, waiting review state, revision message, or approval status[\s\S]*Current access shows the intended person, role, and school, program, cohort, or student[\s\S]*Filters point to the action, person, or record pattern you needed to investigate/,
   "screen done signals must cover student status, account access rows, and audit investigations",
 );
 assertMatches(
@@ -395,7 +396,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function renderNeedsAttention\([\s\S]*availableSectionIds\(\)\.has\(item\.actionSection\)[\s\S]*workspace-summary-badge">Summary only<\/span>/,
+  /function renderNeedsAttention\([\s\S]*availableSectionIdsForAnyMode\(\)\.has\(item\.actionSection\)[\s\S]*workspace-summary-badge">Summary only<\/span>/,
   "dashboard attention rows must hide unavailable destination buttons behind summary-only treatment",
 );
 assertMatches(

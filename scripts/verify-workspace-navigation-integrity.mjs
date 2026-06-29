@@ -154,7 +154,8 @@ assertMatches("workspaceJs", /data-mentor-assignment-controls-hidden="true"[\s\S
 assertMatches("workspaceJs", /data-operations-read-only="true"[\s\S]*Read-only operations worklists/, "Operations view must remain monitoring-only");
 assertMatches("workspaceJs", /\/api\/site\/programs/, "Programs section must load the scoped site-programs route");
 assertMatches("workspaceJs", /function canUseSitePrograms\(roles\)\s*\{\s*return hasGlobalAdminRole\(roles\) \|\| roles\.has\("site_admin"\);\s*\}/, "Programs navigation must stay hidden for School Admin, Viewer, Program Teacher, Mentor, and Student roles");
-assertMatches("workspaceJs", /canUseSitePrograms\(roles\)[\s\S]*id: "programs"[\s\S]*Add or remove site programs/, "Programs section must stay limited to site and global admins");
+assertMatches("workspaceJs", /if \(roles\.has\("site_admin"\)\)[\s\S]*add\("programs", "Programs", "Site programs add, remove, and restore"\)/, "Site Admin Programs section must live in the scoped Admin Console");
+assertMatches("workspaceJs", /if \(hasGlobalAdminRole\(roles\)\)[\s\S]*add\("programs", "Programs", "Site program management"\)/, "Global Admin Programs section must live in the scoped Admin Console");
 assertMatches("workspaceJs", /data-site-programs-section="true"[\s\S]*Active site programs[\s\S]*Programs you can add/, "Programs section must render real current and available program states");
 assertMatches("workspaceJs", /data-site-program-form/, "Programs section must expose real program forms");
 assertMatches("workspaceJs", /renderSiteProgramForm\("assign", "Add program"/, "Programs section must expose a real add-program form");

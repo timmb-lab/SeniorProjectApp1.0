@@ -123,6 +123,19 @@
   --workspace-soft: var(--abc-soft-purple);
 }
 
+.workspace-app[data-app-mode="admin"] {
+  --workspace-primary: #22303a;
+  --workspace-primary-dark: #172026;
+  --workspace-secondary: var(--abc-teal);
+  --workspace-accent: var(--abc-gold);
+  --workspace-soft: #eef5f3;
+}
+
+.workspace-app[data-app-mode="admin"] .workspace-shell,
+.workspace-app[data-app-mode="admin"] {
+  background: #f3f7f5;
+}
+
 .workspace-loading {
   display: grid;
   min-height: 100vh;
@@ -718,6 +731,42 @@
   min-height: 40px;
 }
 
+.workspace-mode-switch {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(0, auto));
+  align-items: center;
+  gap: 0.18rem;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-card);
+  background: #fff;
+  padding: 0.18rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.workspace-mode-button {
+  min-height: 34px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--abc-charcoal);
+  padding: 0.42rem 0.68rem;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 950;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.workspace-mode-button.is-active {
+  background: var(--workspace-primary);
+  color: #fff;
+}
+
+.workspace-mode-button:focus-visible {
+  box-shadow: var(--focus-ring);
+  outline: 0;
+}
+
 .workspace-brand {
   display: inline-flex;
   align-items: center;
@@ -805,6 +854,13 @@
   padding: 0.62rem clamp(0.9rem, 2vw, 1.6rem) 1.35rem;
 }
 
+.workspace-admin-console-content {
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  background:
+    linear-gradient(90deg, rgba(34, 48, 58, 0.06), transparent 34%),
+    #f3f7f5;
+}
+
 .workspace-app[data-nav-state="collapsed"] .workspace-content {
   grid-template-columns: minmax(0, 1fr);
 }
@@ -815,6 +871,20 @@
   display: grid;
   align-content: start;
   gap: 0.85rem;
+}
+
+.workspace-admin-console-rail .workspace-rail-card,
+.workspace-admin-console-rail .workspace-tab {
+  border-color: rgba(34, 48, 58, 0.2);
+}
+
+.workspace-admin-console-rail .workspace-rail-card {
+  background: #f9fbfa;
+}
+
+.workspace-admin-console-rail .workspace-tab.is-active {
+  border-left-color: var(--abc-teal);
+  background: #e9f7f4;
 }
 
 .workspace-app[data-nav-state="collapsed"] .workspace-rail-card {
@@ -829,6 +899,10 @@
   display: grid;
   gap: 0.72rem;
   min-width: 0;
+}
+
+.workspace-admin-console-main {
+  gap: 0.85rem;
 }
 
 .workspace-card,
@@ -849,6 +923,122 @@
   display: grid;
   gap: 0.75rem;
   padding: 0.85rem;
+}
+
+.workspace-admin-console-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid rgba(34, 48, 58, 0.16);
+  border-radius: var(--radius-card);
+  background:
+    linear-gradient(135deg, rgba(34, 48, 58, 0.98), rgba(4, 123, 131, 0.88)),
+    var(--abc-charcoal);
+  color: #fff;
+  padding: clamp(0.9rem, 2vw, 1.25rem);
+  box-shadow: var(--shadow-card);
+}
+
+.workspace-admin-console-header h1,
+.workspace-admin-console-header p {
+  margin: 0;
+}
+
+.workspace-admin-console-header h1 {
+  font-size: clamp(1.55rem, 2.4vw, 2.15rem);
+  line-height: 1.08;
+}
+
+.workspace-admin-console-header .workspace-kicker,
+.workspace-admin-console-header p {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.workspace-admin-console-badges,
+.workspace-console-handoff-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.workspace-admin-console-overview {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.workspace-admin-console-metrics,
+.workspace-admin-console-grid,
+.workspace-admin-console-matrix {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.workspace-admin-console-metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.workspace-admin-console-grid,
+.workspace-admin-console-matrix {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.workspace-admin-console-matrix {
+  grid-template-columns: 1fr;
+}
+
+.workspace-admin-console-card,
+.workspace-console-handoff {
+  display: grid;
+  gap: 0.8rem;
+  border: 1px solid rgba(34, 48, 58, 0.16);
+  border-radius: var(--radius-card);
+  background: #fff;
+  padding: 0.9rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.workspace-admin-console-card {
+  align-content: space-between;
+  min-height: 170px;
+}
+
+.workspace-admin-console-card h3,
+.workspace-admin-console-card p {
+  margin: 0.45rem 0 0;
+}
+
+.workspace-admin-console-card h3 {
+  font-size: 1.08rem;
+}
+
+.workspace-admin-console-card p {
+  color: var(--muted);
+}
+
+.workspace-console-handoff {
+  box-shadow: var(--shadow-card);
+}
+
+.workspace-console-scope-chip {
+  border-color: rgba(4, 123, 131, 0.28);
+  background: #e9f7f8;
+  color: #03545a;
+}
+
+.workspace-read-only-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  border: 1px solid rgba(4, 123, 131, 0.34);
+  border-radius: var(--radius-pill);
+  background: #e9f7f8;
+  color: #03545a;
+  padding: 0.18rem 0.58rem;
+  font-size: 0.78rem;
+  font-weight: 950;
 }
 
 .workspace-hero-card {
@@ -6823,6 +7013,7 @@ button.workspace-metric-tile,
 @media (max-width: 900px) {
   .workspace-auth,
   .workspace-content,
+  .workspace-admin-console-content,
   .workspace-form-grid {
     grid-template-columns: 1fr;
   }
@@ -6839,6 +7030,20 @@ button.workspace-metric-tile,
 
   .workspace-topbar-search-row {
     grid-template-columns: 1fr;
+  }
+
+  .workspace-mode-switch {
+    justify-self: start;
+  }
+
+  .workspace-admin-console-header,
+  .workspace-admin-console-metrics,
+  .workspace-admin-console-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-admin-console-header {
+    display: grid;
   }
 
   .workspace-site-switcher {
@@ -7071,7 +7276,9 @@ button.workspace-metric-tile,
   .workspace-topbar,
   .workspace-user,
   .workspace-topbar-search-row,
+  .workspace-mode-switch,
   .workspace-product-header-main,
+  .workspace-admin-console-header,
   .workspace-card-head,
   .workspace-row,
   .workspace-read-only-banner,
@@ -7095,6 +7302,15 @@ button.workspace-metric-tile,
   .workspace-topbar-start {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
+    width: 100%;
+  }
+
+  .workspace-mode-switch {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .workspace-mode-button {
     width: 100%;
   }
 

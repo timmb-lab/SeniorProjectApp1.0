@@ -2,8 +2,8 @@
   "proof": "hosted_fake_pilot_browser",
   "verdict": "GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF",
   "baseUrl": "https://senior-capstone-app.pages.dev",
-  "startedAt": "2026-06-29T20:06:48.712Z",
-  "completedAt": "2026-06-29T20:08:01.522Z",
+  "startedAt": "2026-06-29T21:31:12.667Z",
+  "completedAt": "2026-06-29T21:32:36.119Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"

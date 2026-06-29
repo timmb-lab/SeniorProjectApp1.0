@@ -359,9 +359,10 @@ test("workspace renders simplified working profiles for every role", async () =>
   assertMarkupOrder(
     siteAdminOverview,
     "Site Admin working profile",
-    "siteDashboardTitle",
-    "overview should explain the role before the site dashboard",
+    "data-workspace-admin-console-handoff",
+    "overview should explain the role before pointing Site Admins to the Admin Console",
   );
+  assert.doesNotMatch(siteAdminOverview, /siteDashboardTitle/, "site admin workspace overview should not inline the Site Dashboard");
 
   const programTeacherOverview = await renderWorkspaceWithFetch(profileRoutesForRole("program_teacher"));
   assertMarkupOrder(
@@ -387,6 +388,121 @@ test("workspace renders simplified working profiles for every role", async () =>
     "overview should give students profile guidance before the work dashboard",
   );
   assert.match(studentOverview, /data-role-profile-start-card="next"[\s\S]*Start with Do this next/);
+});
+
+test("workspace separates Admin Console mode by role and URL state", async () => {
+  const studentWorkspace = await renderWorkspaceWithFetch(profileRoutesForRole("student"));
+  assert.doesNotMatch(studentWorkspace, /data-workspace-mode-switch="true"/);
+  assert.doesNotMatch(studentWorkspace, /Admin Console/);
+
+  const studentAdminDeepLink = await renderWorkspaceWithFetch(profileRoutesForRole("student"), "", "", {
+    url: "https://workspace.example/workspace.html?mode=admin&section=students",
+  });
+  assert.match(studentAdminDeepLink, /data-app-mode="workspace"/);
+  assert.match(studentAdminDeepLink, /data-admin-console-unavailable="true"/);
+  assert.match(studentAdminDeepLink, /Student working profile/);
+  assert.doesNotMatch(studentAdminDeepLink, /workspace-admin-console-rail|data-admin-console-overview="true"/);
+
+  const roleMatrix = [
+    {
+      roleId: "viewer",
+      scope: "Read-only",
+      present: ["students"],
+      absent: ["teacher", "mentorAssignments", "adminUsers", "programs", "security", "audit", "archiveExports"],
+      readOnly: true,
+    },
+    {
+      roleId: "mentor",
+      scope: "Assigned students",
+      present: ["mentorDashboard", "mentor"],
+      absent: ["students", "teacher", "adminUsers", "programs", "security", "audit", "archiveExports"],
+    },
+    {
+      roleId: "program_teacher",
+      scope: "Program",
+      present: ["programDashboard", "students", "teacher", "mentorAssignments", "operations", "adminUsers"],
+      absent: ["siteDashboard", "programs", "security", "audit", "archiveExports"],
+    },
+    {
+      roleId: "administration",
+      scope: "School",
+      present: ["siteDashboard", "students", "mentorAssignments", "operations", "adminUsers", "presentation", "readiness"],
+      absent: ["programs", "security", "audit", "archiveExports"],
+    },
+    {
+      roleId: "site_admin",
+      scope: "Site",
+      present: ["siteDashboard", "students", "teacher", "mentorAssignments", "operations", "adminUsers", "programs", "presentation", "readiness"],
+      absent: ["security", "audit", "archiveExports"],
+    },
+    {
+      roleId: "global_admin",
+      scope: "Global",
+      present: ["adminDashboard", "siteDashboard", "students", "teacher", "mentorAssignments", "operations", "adminUsers", "programs", "presentation", "readiness", "audit", "archiveExports", "security"],
+      absent: [],
+    },
+  ];
+
+  for (const row of roleMatrix) {
+    const markup = await renderWorkspaceWithFetch(profileRoutesForRole(row.roleId), "", "", {
+      url: "https://workspace.example/workspace.html?mode=admin&section=overview",
+    });
+    assert.match(markup, /data-app-mode="admin"/, `${row.roleId} admin mode`);
+    assert.match(markup, /data-workspace-mode-switch="true"/, `${row.roleId} mode switch`);
+    assert.match(markup, /data-workspace-mode-target="workspace"[\s\S]*Workspace/, `${row.roleId} workspace switch`);
+    assert.match(markup, /data-workspace-mode-target="admin"[\s\S]*Admin Console/, `${row.roleId} admin switch`);
+    assert.match(markup, /data-admin-console-overview="true"/, `${row.roleId} overview`);
+    assert.match(markup, new RegExp(escapeRegExp(row.scope)), `${row.roleId} scope`);
+    for (const section of row.present) {
+      assert.match(markup, new RegExp(`data-admin-console-section="${escapeRegExp(section)}"`), `${row.roleId} should show ${section}`);
+    }
+    for (const section of row.absent) {
+      assert.doesNotMatch(markup, new RegExp(`data-admin-console-section="${escapeRegExp(section)}"`), `${row.roleId} should hide ${section}`);
+    }
+    if (row.readOnly) {
+      assert.match(markup, /data-admin-console-read-only="true"/);
+      assert.match(markup, /Read-only/);
+      assert.doesNotMatch(markup, /data-admin-action="import-users"|data-mentor-assignment-form="true"|data-site-program-action/);
+    }
+  }
+
+  const siteAdminPrograms = await renderWorkspaceWithFetch(profileRoutesForRole("site_admin"), "", "", {
+    url: "https://workspace.example/workspace.html?mode=admin&section=programs",
+  });
+  assert.match(siteAdminPrograms, /data-app-mode="admin"/);
+  assert.match(siteAdminPrograms, /data-site-programs-section="true"/);
+  assert.match(siteAdminPrograms, /Programs at Desert Valley High School/);
+
+  const globalSecurity = await renderWorkspaceWithFetch(profileRoutesForRole("global_admin"), "", "", {
+    url: "https://workspace.example/workspace.html?mode=admin&section=security",
+  });
+  assert.match(globalSecurity, /data-app-mode="admin"/);
+  assert.match(globalSecurity, /Settings \/ Security/);
+  assert.match(globalSecurity, /Local admin account and session controls/);
+  assert.match(globalSecurity, /data-security-action-map-card="users"[\s\S]*Open users/);
+  assert.match(globalSecurity, /data-security-action-map-card="audit"[\s\S]*Open audit/);
+});
+
+test("workspace keeps staff admin tools out of the regular Workspace shell and supports mobile mode UI", async () => {
+  const siteAdminWorkspace = await renderWorkspaceWithFetch(profileRoutesForRole("site_admin"), "", "", {
+    url: "https://workspace.example/workspace.html?mode=workspace",
+  });
+  assert.match(siteAdminWorkspace, /data-app-mode="workspace"/);
+  assert.match(siteAdminWorkspace, /data-workspace-admin-console-handoff="true"/);
+  assert.match(siteAdminWorkspace, /Management lives in Admin Console/);
+  assert.doesNotMatch(siteAdminWorkspace, /workspace-admin-console-content|siteDashboardTitle|data-admin-section="users"|data-site-programs-section="true"/);
+
+  const globalAdminWorkspace = await renderWorkspaceWithFetch(profileRoutesForRole("global_admin"), "", "", {
+    url: "https://workspace.example/workspace.html?mode=workspace",
+  });
+  assert.match(globalAdminWorkspace, /data-app-mode="workspace"/);
+  assert.match(globalAdminWorkspace, /data-workspace-admin-console-handoff="true"/);
+  assert.doesNotMatch(globalAdminWorkspace, /workspace-admin-console-content|adminDashboardTitle|data-admin-section="users"|data-site-programs-section="true"/);
+
+  assert.match(workspaceCss, /\.workspace-mode-switch/);
+  assert.match(workspaceCss, /\.workspace-admin-console-content/);
+  assert.match(workspaceCss, /@media \(max-width: 900px\)[\s\S]*\.workspace-mode-switch/);
+  assert.match(workspaceCss, /@media \(max-width: 620px\)[\s\S]*\.workspace-mode-switch/);
 });
 
 test("workspace production text avoids internal build language", () => {
@@ -684,7 +800,7 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
   assert.match(workspaceCss, /\.workspace-home-info/);
   assert.doesNotMatch(workspaceCss, /app-hero\.jpg/);
   assert.match(workspaceJs, /function canUseSitePrograms\(roles\)\s*\{\s*return hasGlobalAdminRole\(roles\) \|\| roles\.has\("site_admin"\);\s*\}/);
-  assert.match(workspaceJs, /function renderWorkspaceStudentSearchControl\(roles = roleIds\(currentUser\)\)\s*\{\s*if \(!hasSiteStudentDirectoryRole\(roles\)\) return "";/);
+  assert.match(workspaceJs, /function renderWorkspaceStudentSearchControl\(roles = roleIds\(currentUser\)\)\s*\{\s*if \(!roles\?\.size \|\| !availableSectionIds\(activeWorkspaceMode\)\.has\("students"\)\) return "";/);
 
   for (const status of [
     "draft",
@@ -854,8 +970,11 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(siteDashboard, /Desert Valley High School/);
   assert.match(siteDashboard, /Desert Valley High School \/ 2025-2026/);
   assert.match(siteDashboard, /Desert Valley School District/);
-  assert.match(siteDashboard, /workspace-product-header/);
-  assert.match(siteDashboard, /Capstone Workspace/);
+  assert.match(siteDashboard, /data-app-mode="admin"/);
+  assert.match(siteDashboard, /workspace-admin-console-header/);
+  assert.match(siteDashboard, /Protected staff mode/);
+  assert.match(siteDashboard, /Admin Console/);
+  assert.match(siteDashboard, /Site Overview/);
   assert.match(siteDashboard, /Capstone Project Workspace/);
   assert.match(siteDashboard, /data-screen-orientation-section="siteDashboard"/);
   assert.match(siteDashboard, /Use this for/);
@@ -871,9 +990,9 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(siteDashboard, /data-screen-orientation-action="true"[\s\S]*data-section="students" data-section-preset="missing-mentors"[\s\S]*Find missing mentors/);
   assert.match(siteDashboard, /data-section="teacher" data-section-preset="submitted"[\s\S]*Review submitted work/);
   assert.match(siteDashboard, /data-section="operations" data-section-preset="archive-failed"[\s\S]*Review final-file failures/);
-  assert.match(siteDashboard, /Student progress/);
+  assert.match(siteDashboard, /Writable where allowed/);
   assert.match(siteDashboard, /Mentor coverage/);
-  assert.match(siteDashboard, /Site Admin \/ Desert Valley High School/);
+  assert.match(siteDashboard, /Site Admin \/ Assigned school: Desert Valley High School/);
   assert.doesNotMatch(siteDashboard, /site:site-desert-valley-high|Global scope|role scope|total in scope/);
   assert.doesNotMatch(siteDashboard, /Database-backed MVP|Cloudflare target|Audit-sensitive admin|Senior Capstone Product/);
   assert.match(siteDashboard, /workspace-site-context-badge/);
@@ -974,9 +1093,13 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(viewer, /Read-only workspace/);
   assert.match(viewer, /assigned student records for context/);
   assert.match(viewer, /data-workspace-state="permission-denied"/);
-  assert.match(viewer, /Access to Site dashboard is limited/);
+  assert.match(viewer, /Access to Site Dashboard is limited/);
   assert.match(viewer, /assigned site dashboard records/);
-  assert.doesNotMatch(viewer, /data-viewer-monitoring-overview="true"|data-admin-action="import-users"|Assign mentor|data-review-decision="approved"|data-archive-action/);
+  assert.doesNotMatch(viewer, /data-viewer-monitoring-overview="true"/);
+  assert.doesNotMatch(viewer, /data-admin-action="import-users"/);
+  assert.doesNotMatch(viewer, /data-mentor-assignment-form="true"/);
+  assert.doesNotMatch(viewer, /data-review-decision="approved"/);
+  assert.doesNotMatch(viewer, /data-archive-action/);
 
   const selectionRequired = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -2905,7 +3028,7 @@ test("workspace renders route-connected student directory with filters and real 
   }, "students");
 
   assert.match(siteAdmin, /data-section="students"/);
-  assert.match(siteAdmin, /Search and filter capstone progress/);
+  assert.match(siteAdmin, /Site-scoped student directory/);
   assert.match(siteAdmin, /workspace-student-directory/);
   assert.match(siteAdmin, /workspace-filter-bar/);
   assert.match(siteAdmin, /workspace-directory-summary/);
@@ -3851,7 +3974,7 @@ test("workspace guides multi-site staff to choose a school before opening the Re
   assert.match(reviewQueue, /data-problem-action="refresh"[\s\S]*Refresh workspace/);
   assert.match(reviewQueue, /data-section="profile"[\s\S]*Review profile/);
   assert.match(reviewQueue, /data-section="security"[\s\S]*Open Security/);
-  assert.doesNotMatch(reviewQueue, /data-review-queue-filters="true"|Submitted work|Program Teacher decisions enabled/);
+  assert.doesNotMatch(reviewQueue, /data-review-queue-filters="true"|Program Teacher decisions enabled/);
 });
 
 test("workspace clarifies Review Queue row actions and follow-up-only selected rows", async () => {
@@ -6255,10 +6378,11 @@ test("mentor dashboard assigned students open detail and meeting history without
 test("workspace gates student directory visibility by role", () => {
   const loadWorkspaceDataBlock = workspaceJs.match(/async function loadWorkspaceData[\s\S]*?function renderLoading/)?.[0] || "";
   const availableSectionsBlock = workspaceJs.match(/function availableSections[\s\S]*?function renderActiveSection/)?.[0] || "";
-  const directoryRoleHelperBlock = workspaceJs.match(/function hasSiteStudentDirectoryRole[\s\S]*?function defaultSiteStudentFilters/)?.[0] || "";
+  const directoryRoleHelperBlock = workspaceJs.match(/function hasSiteStudentDirectoryRole[\s\S]*?function adminConsoleCapabilitiesFor/)?.[0] || "";
   assert.match(workspaceJs, /function hasSiteStudentDirectoryRole\(roles\)/);
   assert.match(workspaceJs, /"platform_admin",\s+"global_admin",\s+"admin",\s+"site_admin",\s+"administration",\s+"viewer",\s+"program_teacher"/);
-  assert.match(availableSectionsBlock, /id: "students", label: "Students", detail: "Search and filter capstone progress"/);
+  assert.match(availableSectionsBlock, /studentDirectorySection = \{ id: "students", label: "Students", detail: "Search and filter capstone progress" \}/);
+  assert.match(workspaceJs, /add\("students", "Students", "Site-scoped student directory"\)/);
   assert.match(loadWorkspaceDataBlock, /hasSiteStudentDirectoryRole\(roles\).*\/api\/site\/students/s);
   assert.doesNotMatch(directoryRoleHelperBlock, /"mentor"|"student"|"misc_admin"/);
 });
@@ -6270,7 +6394,7 @@ test("workspace gates review queue visibility and refresh behavior by role", () 
   assert.match(workspaceJs, /function hasSiteReviewQueueRole\(roles\)/);
   assert.match(reviewRoleHelperBlock, /"platform_admin",\s+"global_admin",\s+"admin",\s+"site_admin",\s+"program_teacher"/);
   assert.doesNotMatch(reviewRoleHelperBlock, /"viewer"|"administration"|"mentor"|"student"|"misc_admin"/);
-  assert.match(availableSectionsBlock, /id: "teacher", label: "Review Queue", detail: "Program Teacher review and submitted work"/);
+  assert.match(availableSectionsBlock, /add\("teacher", "Review Queue", "Program Teacher review and submitted work"\)/);
   assert.match(loadWorkspaceDataBlock, /hasSiteReviewQueueRole\(roles\).*\/api\/site\/review-queue/s);
   assert.match(workspaceJs, /function submitReviewDecision/);
   assert.match(workspaceJs, /button\.dataset\.sectionPreset === "submitted"/);
@@ -6286,13 +6410,12 @@ test("workspace gates review queue visibility and refresh behavior by role", () 
 
 test("workspace gates mentor assignment visibility and refresh behavior by role", () => {
   const loadWorkspaceDataBlock = workspaceJs.match(/async function loadWorkspaceData[\s\S]*?function renderLoading/)?.[0] || "";
-  const availableSectionsBlock = workspaceJs.match(/function availableSections[\s\S]*?function renderActiveSection/)?.[0] || "";
   const mentorRoleHelperBlock = workspaceJs.match(/function hasSiteMentorAssignmentRole[\s\S]*?function hasSiteOperationsRole/)?.[0] || "";
   const sectionOpenBlock = workspaceJs.match(/async function openWorkspaceSection[\s\S]*?function availableSections/)?.[0] || "";
   assert.match(workspaceJs, /function hasSiteMentorAssignmentRole\(roles\)/);
   assert.match(mentorRoleHelperBlock, /"platform_admin",\s+"global_admin",\s+"admin",\s+"site_admin",\s+"administration",\s+"program_teacher"/);
   assert.doesNotMatch(mentorRoleHelperBlock, /"viewer"|"mentor"|"student"|"misc_admin"/);
-  assert.match(availableSectionsBlock, /id: "mentorAssignments", label: "Mentor Assignments", detail: "Coverage and assignment workflow"/);
+  assert.match(workspaceJs, /add\("mentorAssignments", "Mentors", "Mentor coverage and assignments"\)/);
   assert.match(loadWorkspaceDataBlock, /hasSiteMentorAssignmentRole\(roles\).*\/api\/site\/mentor-assignments/s);
   assert.match(sectionOpenBlock, /section === "mentorAssignments" && button\.dataset\.sectionPreset === "no-mentor"/);
   assert.match(sectionOpenBlock, /status:\s*"unassigned"/);
@@ -6318,11 +6441,12 @@ test("workspace gates mentor assignment visibility and refresh behavior by role"
 test("workspace gates operations readiness visibility and keeps it read-only", () => {
   const loadWorkspaceDataBlock = workspaceJs.match(/async function loadWorkspaceData[\s\S]*?function renderLoading/)?.[0] || "";
   const availableSectionsBlock = workspaceJs.match(/function availableSections[\s\S]*?function renderActiveSection/)?.[0] || "";
-  const operationsRoleHelperBlock = workspaceJs.match(/function hasSiteOperationsRole[\s\S]*?function defaultSiteStudentFilters/)?.[0] || "";
+  const operationsRoleHelperBlock = workspaceJs.match(/function hasSiteOperationsRole[\s\S]*?function adminConsoleCapabilitiesFor/)?.[0] || "";
   assert.match(workspaceJs, /function hasSiteOperationsRole\(roles\)/);
   assert.match(operationsRoleHelperBlock, /"platform_admin",\s+"global_admin",\s+"admin",\s+"site_admin",\s+"administration",\s+"program_teacher"/);
   assert.doesNotMatch(operationsRoleHelperBlock, /"viewer"|"mentor"|"student"|"misc_admin"/);
-  assert.match(availableSectionsBlock, /id: "operations", label: "Operations", detail: "Presentation, final files, and readiness"/);
+  assert.match(availableSectionsBlock, /add\("operations", "Operations", "Presentation, final files, and readiness"\)/);
+  assert.match(workspaceJs, /add\("operations", "Operations", "Presentation, final-file, and readiness blockers"\)/);
   assert.match(loadWorkspaceDataBlock, /hasSiteOperationsRole\(roles\).*\/api\/site\/operations-readiness/s);
   assert.match(workspaceJs, /function renderOperationsReadinessSection/);
   assert.match(workspaceJs, /function applyOperationsReadinessFilters/);
@@ -6340,13 +6464,14 @@ test("workspace gates operations readiness visibility and keeps it read-only", (
 });
 
 test("workspace keeps audit and archive export sections global-admin only", () => {
-  const availableSectionsBlock = workspaceJs.match(/function availableSections[\s\S]*?function renderActiveSection/)?.[0] || "";
+  const adminConsoleSectionsBlock = workspaceJs.match(/function adminConsoleSectionsForRoles[\s\S]*?function defaultSiteStudentFilters/)?.[0] || "";
+  const siteAdminConsoleBlock = workspaceJs.match(/if \(roles\.has\("site_admin"\)\) \{[\s\S]*?  \}/)?.[0] || "";
   const siteDashboardBlock = workspaceJs.match(/function renderSiteDashboardSection[\s\S]*?function renderSiteStudentDirectorySection/)?.[0] || "";
-  assert.match(availableSectionsBlock, /if \(hasGlobalAdminRole\(roles\)\) sections\.push\(\{ id: "audit", label: "Audit", detail: "Recent protected-record activity" \}\);/);
-  assert.match(availableSectionsBlock, /if \(hasGlobalAdminRole\(roles\)\) sections\.push\(\{ id: "archiveExports", label: "Final Files", detail: "Closeout package status" \}\);/);
-  assert.doesNotMatch(availableSectionsBlock, /roles\.has\("site_admin"\)\) sections\.push\(\{ id: "audit"/);
-  assert.doesNotMatch(availableSectionsBlock, /roles\.has\("site_admin"\)\) sections\.push\(\{ id: "archiveExports"/);
-  assert.match(siteDashboardBlock, /const canOpenAudit = availableSectionIds\(\)\.has\("audit"\);/);
+  assert.match(adminConsoleSectionsBlock, /if \(hasGlobalAdminRole\(roles\)\) \{[\s\S]*add\("audit", "Audit", "Protected-record activity"\)/);
+  assert.match(adminConsoleSectionsBlock, /if \(hasGlobalAdminRole\(roles\)\) \{[\s\S]*add\("archiveExports", "Final Files", "Closeout package status"\)/);
+  assert.doesNotMatch(siteAdminConsoleBlock, /add\("audit"/);
+  assert.doesNotMatch(siteAdminConsoleBlock, /add\("archiveExports"/);
+  assert.match(siteDashboardBlock, /const canOpenAudit = availableSectionIdsForAnyMode\(\)\.has\("audit"\);/);
   assert.match(siteDashboardBlock, /label: "Recent Activity"[\s\S]*value: safeNumber\(summary\.recentActivityCount\)[\s\S]*detail: canOpenAudit \? "Latest updates are listed below\. Audit destination available\." : "Latest updates are listed below\."/);
   assert.match(siteDashboardBlock, /actionHtml: canOpenAudit[\s\S]*data-section="audit">Open audit<\/button>/);
   assert.match(siteDashboardBlock, /renderDashboardCard\("Recent Activity", "Latest student updates", renderSiteRecentActivity\(dashboard\.recentActivity\)\)/);
