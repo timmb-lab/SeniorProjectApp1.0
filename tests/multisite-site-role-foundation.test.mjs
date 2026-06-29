@@ -13,7 +13,8 @@ import { seedUser } from "./helpers/auth-fixtures.mjs";
 
 const MIGRATION = "migrations/0011_multisite_site_role_foundation.sql";
 const V5_MIGRATION = "migrations/0012_users_access_v5.sql";
-const SITE_FOUNDATION_ROLES = ["platform_admin", "org_admin", "site_admin", "viewer"];
+const ORG_ADMIN_REMOVAL_MIGRATION = "migrations/0015_remove_org_admin_role.sql";
+const SITE_FOUNDATION_ROLES = ["platform_admin", "site_admin", "viewer"];
 const V5_ROLES = ["global_admin", "administration"];
 const NEW_ROLES = [...SITE_FOUNDATION_ROLES, ...V5_ROLES];
 const OLD_ROLES = ["admin", "misc_admin", "student", "mentor", "program_teacher"];
@@ -24,7 +25,7 @@ test("multisite migration source adds site tables, indexes, target roles, and sa
   for (const table of ["sites", "site_users", "site_programs"]) {
     assert.match(source, new RegExp(`CREATE TABLE IF NOT EXISTS ${table}\\b`));
   }
-  for (const roleId of SITE_FOUNDATION_ROLES) {
+  for (const roleId of [...SITE_FOUNDATION_ROLES, "org_admin"]) {
     assert.match(source, new RegExp(`'${roleId}'`));
   }
   for (const indexName of [
@@ -60,6 +61,10 @@ test("RoleId and permission source recognize new roles while preserving legacy r
     assert.match(v5Migration, new RegExp(`'${roleId}'`));
   }
   assert.match(v5Migration, /viewer_student_assignments/);
+
+  const orgAdminRemovalMigration = readFileSync(ORG_ADMIN_REMOVAL_MIGRATION, "utf8");
+  assert.match(orgAdminRemovalMigration, /DELETE FROM user_roles WHERE role_id = 'org_admin'/);
+  assert.match(orgAdminRemovalMigration, /DELETE FROM roles WHERE id = 'org_admin'/);
 
   const effectiveAccess = readFileSync("functions/_lib/effective-access.ts", "utf8");
   const order = [
@@ -142,6 +147,9 @@ test("local migration proof creates two empty active test schools and clean fore
     roles.results.map((row) => row.id).sort(),
     [...NEW_ROLES, ...OLD_ROLES].sort(),
   );
+
+  const orgAdminRole = await db.prepare("SELECT id FROM roles WHERE id = 'org_admin'").first();
+  assert.equal(orgAdminRole, null);
 
   const roleCounts = await db.prepare(
     "SELECT COUNT(*) AS total, COUNT(DISTINCT id) AS distinct_total FROM roles",

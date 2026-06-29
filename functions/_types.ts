@@ -48,7 +48,6 @@ export type RoleId =
   | "administration"
   | "site_admin"
   | "global_admin"
-  | "org_admin"
   | "platform_admin"
   | "admin"
   | "misc_admin";

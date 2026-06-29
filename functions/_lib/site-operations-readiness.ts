@@ -167,7 +167,7 @@ export async function handleSiteOperationsReadinessGet({
     context,
     requestedSiteId,
     canViewSite: (siteId) => canViewOperationsSite(env, user, siteId),
-    defaultSiteRoleIds: ["platform_admin", "global_admin", "admin", "org_admin", "program_teacher"],
+    defaultSiteRoleIds: ["platform_admin", "global_admin", "admin", "program_teacher"],
   });
 
   if (selection.kind === "denied") {
@@ -1145,11 +1145,11 @@ async function canViewOperationsSite(env: Env, user: UserAccount, siteId: string
 }
 
 function canUseOperationsRole(roleIds: RoleId[]): boolean {
-  return roleIds.some((roleId) => ["platform_admin", "global_admin", "admin", "org_admin", "site_admin", "administration", "program_teacher"].includes(roleId));
+  return roleIds.some((roleId) => ["platform_admin", "global_admin", "admin", "site_admin", "administration", "program_teacher"].includes(roleId));
 }
 
 function hasAnyAdminLikeRole(roleIds: RoleId[]): boolean {
-  return roleIds.some((roleId) => ["platform_admin", "global_admin", "admin", "org_admin", "site_admin", "administration"].includes(roleId));
+  return roleIds.some((roleId) => ["platform_admin", "global_admin", "admin", "site_admin", "administration"].includes(roleId));
 }
 
 function canonical(value: string | null, allowed: string[]): string {

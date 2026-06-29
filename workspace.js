@@ -25,7 +25,7 @@ let currentData = {
 let activeSection = "overview";
 let busy = false;
 let lastAdminImportResult = null;
-let workspaceNavCollapsed = false;
+let workspaceNavCollapsed = shouldCollapseWorkspaceNavByDefault();
 let selectedSiteId = "";
 let siteStudentFilters = defaultSiteStudentFilters();
 let siteStudentDetailState = defaultSiteStudentDetailState();
@@ -215,35 +215,91 @@ const STUDENT_BOOKLET_PHASE_ORDER = [
 const STUDENT_BOOKLET_PHASES = {
   start: {
     label: "Start: Setup",
-    guidance: "Set up your Senior Project folder and app space. Make sure your Program Teacher can see your work.",
+    deliverable: "Project folder is ready and your Program Teacher can find it.",
+    checklist: [
+      "Senior Project folder exists",
+      "You can sign in here",
+      "Program Teacher knows where your work lives",
+    ],
+    guidance: "Fix setup before starting proposal work.",
+    done: "You can open Phase 1 work.",
   },
   "phase-1": {
     label: "Phase 1: Kickoff and Proposal",
-    guidance: "Pick your project, finish the proposal, and wait for approval before you build.",
+    deliverable: "An approved project proposal.",
+    checklist: [
+      "What you will make",
+      "Who it helps and why it matters",
+      "How you will prove it worked",
+    ],
+    guidance: "Do not build yet. Get this approved first.",
+    done: "Program Teacher approves the proposal.",
   },
   "phase-2a": {
     label: "Phase 2A: Build",
-    guidance: "Start building after your proposal is approved. Keep proof of what you do and get ready for Mentor Meeting 1.",
+    deliverable: "First build proof and Mentor Meeting 1 plan.",
+    checklist: [
+      "First build or research proof",
+      "Mentor Meeting 1 plan or notes",
+      "Proof attached to the matching item",
+    ],
+    guidance: "Save proof while you work, not at the end.",
+    done: "Phase 2A work is approved or ready for the next build step.",
   },
   "phase-2b": {
     label: "Phase 2B: Build Part II",
-    guidance: "Use mentor feedback, finish your outline, choose your presentation time, and wait for approval before presentation day.",
+    deliverable: "Updated build proof, mentor feedback, presentation outline, and presentation time.",
+    checklist: [
+      "Updated build proof",
+      "Mentor feedback you used",
+      "Presentation outline and time choice",
+    ],
+    guidance: "Use mentor feedback before presentation prep.",
+    done: "Outline and phase work are approved for presentation.",
   },
   "phase-3a": {
     label: "Phase 3A: Present",
-    guidance: "Practice and give your presentation. Show what you made, what you learned, and how it connects to your program.",
+    deliverable: "Completed presentation with your project proof ready to show.",
+    checklist: [
+      "Practice from your approved outline",
+      "Show what you made or learned",
+      "Complete check-out or check-in if your school uses it",
+    ],
+    guidance: "Presentation does not replace missing checklist proof.",
+    done: "Presentation status is complete or checked in.",
   },
   "phase-3b": {
     label: "Phase 3B: Celebrate",
-    guidance: "Set up Celebration Day. Add at least one photo, and post ingredients if you share food.",
+    deliverable: "Celebration Day photo, display or share plan, and food info if needed.",
+    checklist: [
+      "Celebration photo",
+      "Display or share setup",
+      "Ingredients if food is shared",
+    ],
+    guidance: "Follow school rules for what you show or share.",
+    done: "Celebration item is marked complete.",
   },
   "phase-4": {
     label: "Phase 4: Give Thanks, Reflect, Launch",
-    guidance: "Write thank-you notes and reflections. Save work that shows what you learned.",
+    deliverable: "Thank-you notes, reflection answers, best-work choices, and launch plan.",
+    checklist: [
+      "Thank-you notes",
+      "Reflection answers",
+      "Best work saved",
+    ],
+    guidance: "Write what changed because of the project.",
+    done: "Reflection and saved-work items are approved.",
   },
   finish: {
     label: "Finish: Download and Keep",
-    guidance: "By May 5, download and keep your important Senior Project files before your school account closes.",
+    deliverable: "Final files downloaded and saved somewhere you can keep.",
+    checklist: [
+      "Download is ready",
+      "Important files are saved",
+      "Ask staff if downloads are blocked",
+    ],
+    guidance: "Do this before May 5.",
+    done: "Download is saved outside your school account.",
   },
 };
 const STUDENT_BOOKLET_PHASE_ALIASES = {
@@ -693,7 +749,48 @@ function renderWorkspaceHomeInfoBox() {
   `;
 }
 
-function renderProblemState({ reason, owner, nextAction }) {
+function problemStateDefaultActions() {
+  if (!currentUser) return [];
+  const allowed = availableSectionIds();
+  const actions = [{ label: "Refresh workspace", problemAction: "refresh" }];
+  if (allowed.has("profile")) actions.push({ label: "Review profile", section: "profile" });
+  if (allowed.has("security")) actions.push({ label: hasGlobalAdminRole(roleIds(currentUser)) ? "Open Security" : "Open Account", section: "security" });
+  return actions.slice(0, 3);
+}
+
+function renderProblemStateAction(action, index) {
+  const attrs = [
+    'data-problem-state-action="true"',
+    `data-problem-state-action-index="${index + 1}"`,
+  ];
+  if (action.problemAction) attrs.push(`data-problem-action="${escapeHtml(action.problemAction)}"`);
+  if (action.section) attrs.push(`data-section="${escapeHtml(action.section)}"`);
+  if (action.preset) attrs.push(`data-section-preset="${escapeHtml(action.preset)}"`);
+  if (action.auditAction) attrs.push(`data-audit-action="${escapeHtml(action.auditAction)}"`);
+  if (action.auditEntityType) attrs.push(`data-audit-entity-type="${escapeHtml(action.auditEntityType)}"`);
+  return `
+    <button class="workspace-button workspace-button-secondary workspace-problem-state-action" type="button" ${attrs.join(" ")}>
+      ${escapeHtml(action.label || "Open")}
+    </button>
+  `;
+}
+
+function renderProblemStateActions(actions = problemStateDefaultActions()) {
+  const usableActions = (Array.isArray(actions) ? actions : [])
+    .filter((action) => action?.label && (action.problemAction || action.section))
+    .slice(0, 3);
+  if (!usableActions.length) return "";
+  return `
+    <div class="workspace-problem-state-actions" data-problem-state-actions="true" aria-label="Recovery actions">
+      <span>Try next</span>
+      <div>
+        ${usableActions.map((action, index) => renderProblemStateAction(action, index)).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderProblemState({ reason, owner, nextAction, actions } = {}) {
   return `
     <article class="workspace-problem-state">
       <div class="workspace-problem-state-grid">
@@ -710,6 +807,7 @@ function renderProblemState({ reason, owner, nextAction }) {
           <span class="workspace-problem-state-value">${escapeHtml(nextAction || "Refresh after the assigned staff member updates the record.")}</span>
         </div>
       </div>
+      ${renderProblemStateActions(actions)}
     </article>
   `;
 }
@@ -889,6 +987,11 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   const headerTitle = primaryRole === "student" ? "Capstone Project Workspace" : "Capstone Workspace";
   const headerSubtitle = workspaceHeaderSubtitle(primaryRole, siteContext);
   const headerContext = workspaceHeaderContext(primaryRole, siteContext);
+  const roleFirstOverview = primaryRole === "program_teacher" && activeSection === "overview";
+  const studentFirstWorkspace = primaryRole === "student" && activeSection === "student";
+  const activeSectionFirst = roleFirstOverview || studentFirstWorkspace;
+  const screenGuidance = renderScreenGuidance(activeSection, primaryRole, roles, sections);
+  const activeSectionMarkup = renderActiveSection();
   workspaceMain.innerHTML = `
     <section class="workspace-app" data-primary-role="${escapeHtml(primaryRole)}" data-nav-state="${workspaceNavCollapsed ? "collapsed" : "expanded"}">
       <header class="workspace-topbar">
@@ -949,8 +1052,10 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
             context: headerContext,
             readOnly: roles.has("viewer"),
           })}
+          ${activeSectionFirst ? activeSectionMarkup : ""}
+          ${screenGuidance}
           ${renderReadOnlyBanner()}
-          ${renderActiveSection()}
+          ${activeSectionFirst ? "" : activeSectionMarkup}
         </div>
       </div>
     </section>
@@ -974,11 +1079,68 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   document.querySelectorAll("[data-role-assignment-action]").forEach((button) => {
     button.addEventListener("click", handleRoleAssignmentAction);
   });
+  document.querySelectorAll("[data-problem-action]").forEach((button) => {
+    button.addEventListener("click", () => handleProblemStateAction(button));
+  });
+  document.querySelectorAll("[data-users-access-focus]").forEach((button) => {
+    button.addEventListener("click", () => handleUsersAccessFocusAction(button));
+  });
+  document.querySelectorAll("[data-security-focus]").forEach((button) => {
+    button.addEventListener("click", () => handleSecurityFocusAction(button));
+  });
   bindWorkspaceForms();
   flushPendingSiteStudentDetailFocus();
   flushPendingStudentRequirementFocus();
   flushPendingStudentSectionFocus();
   flushPendingStudentEvidenceFocus();
+}
+
+function handleProblemStateAction(button) {
+  const action = button?.dataset?.problemAction || "";
+  if (action === "refresh") {
+    loadWorkspaceData("Refreshing workspace...");
+  }
+}
+
+function handleUsersAccessFocusAction(button) {
+  const target = cleanDirectoryFilter(button?.dataset?.usersAccessFocus || "");
+  const selectors = {
+    create: "#workspaceAdminImportForm",
+    preflight: "[data-admin-import-preflight='true']",
+    "current-access": "[data-site-access-assignment-summary='true']",
+    "assignment-forms": "[data-site-access-assignment-form]",
+    removal: "[data-site-access-removal-warning='true']",
+    accounts: "[data-site-account-management='true']",
+  };
+  const selector = selectors[target];
+  if (!selector) return;
+  const element = document.querySelector(selector);
+  if (!element) return;
+  if (!element.hasAttribute("tabindex")) {
+    element.setAttribute("tabindex", "-1");
+  }
+  element.scrollIntoView?.({ block: "start", behavior: "smooth" });
+  element.focus?.({ preventScroll: true });
+}
+
+function handleSecurityFocusAction(button) {
+  const target = cleanDirectoryFilter(button?.dataset?.securityFocus || "");
+  const selectors = {
+    "password-form": "[data-security-password-form='true']",
+    "password-checklist": "[data-task-finish-checklist='password-change']",
+    "session-impact": "[data-security-session-impact='true']",
+    "sign-in-mode": "[data-security-signin-mode='true']",
+    support: "[data-security-support-guide='true']",
+  };
+  const selector = selectors[target];
+  if (!selector) return;
+  const element = document.querySelector(selector);
+  if (!element) return;
+  if (!element.hasAttribute("tabindex")) {
+    element.setAttribute("tabindex", "-1");
+  }
+  element.scrollIntoView?.({ block: "start", behavior: "smooth" });
+  element.focus?.({ preventScroll: true });
 }
 
 function renderSessionRecoveryGuide(workspaceState = "signed-out") {
@@ -1102,6 +1264,7 @@ function flushPendingStudentEvidenceFocus() {
       const hasOption = Array.from(select.options || []).some((option) => option.value === submissionId);
       if (hasOption) {
         select.value = submissionId;
+        updateStudentProofGuideForSelect(select);
         matched = true;
       }
     });
@@ -1124,10 +1287,17 @@ function handleWorkspaceDisclosureToggle(event) {
   const scope = button?.dataset?.workspaceDisclosureScope || "";
   const id = button?.dataset?.workspaceDisclosureId || "";
   if (!scope || !id) return;
-  const opening = !isWorkspaceDisclosureOpen(scope, id);
+  const requestedAction = button?.dataset?.workspaceDisclosureAction || "toggle";
+  const opening = requestedAction === "open" ? true : !isWorkspaceDisclosureOpen(scope, id);
   setWorkspaceDisclosure(scope, id, opening);
   if (scope === "student") activeSection = "student";
   renderAppShell(opening ? "Details opened." : "Details collapsed.", "success");
+}
+
+function shouldCollapseWorkspaceNavByDefault() {
+  return typeof window !== "undefined"
+    && typeof window.matchMedia === "function"
+    && window.matchMedia("(max-width: 760px)").matches;
 }
 
 function toggleWorkspaceMenu() {
@@ -1139,6 +1309,17 @@ function handleWorkspaceKeydown(event) {
   if (event?.key !== "Escape" || workspaceNavCollapsed) return;
   workspaceNavCollapsed = true;
   renderAppShell("Menu closed.", "success");
+}
+
+function renderScreenGuidance(sectionId = activeSection, primaryRole = primaryRoleForUser(currentUser), roles = roleIds(currentUser), sections = availableSections()) {
+  return `
+    ${renderScreenOrientation(sectionId, primaryRole, roles, sections)}
+    ${renderScreenLanguageGuide(sectionId, primaryRole, roles, sections)}
+    ${renderScreenActionImpactGuide(sectionId, primaryRole, roles, sections)}
+    ${renderScreenVisibilityGuide(sectionId, primaryRole, roles, sections)}
+    ${renderScreenStartGuide(sectionId, primaryRole, roles, sections)}
+    ${renderScreenDoneGuide(sectionId, primaryRole, roles, sections)}
+  `;
 }
 
 function sectionShortLabel(section) {
@@ -1237,7 +1418,6 @@ function canUseSiteSwitcher(roles) {
   return roles.has("platform_admin")
     || roles.has("global_admin")
     || roles.has("admin")
-    || roles.has("org_admin")
     || roles.has("site_admin")
     || roles.has("administration");
 }
@@ -1809,7 +1989,1102 @@ async function openWorkspaceSection(button) {
     return;
   }
   activeSection = section;
+  syncCurrentWorkspaceUrlState();
   renderAppShell();
+}
+
+function screenOrientationFor(sectionId = "overview", primaryRole = primaryRoleForUser(currentUser), roles = roleIds(currentUser)) {
+  const orientations = {
+    overview: {
+      title: "Overview",
+      useFor: "See the highest-priority workspace signals for your access.",
+      start: primaryRole === "student" ? "Read Profile, then open My Work." : "Open the first action that matches your job today.",
+      notFor: "Do not treat a summary count as a saved record change.",
+    },
+    profile: {
+      title: "Profile",
+      useFor: "Learn what your role can see and do.",
+      start: "Read the three columns, then choose a role action.",
+      notFor: "Do not change student, account, or review records here.",
+    },
+    siteDashboard: {
+      title: "Site Dashboard",
+      useFor: "School-wide health and urgent follow-up.",
+      start: "Use urgent tiles and first-day setup before expanding details.",
+      notFor: "Do not edit records from summary-only rows.",
+    },
+    programs: {
+      title: "Programs",
+      useFor: "Choose which programs are active for the selected school.",
+      start: "Check Active programs before adding another program.",
+      notFor: "Do not create user accounts or mentor assignments here.",
+    },
+    students: {
+      title: "Students",
+      useFor: "Find student records you are allowed to view.",
+      start: "Search or pick a saved filter, then open one student.",
+      notFor: "Do not make Program Teacher review decisions here.",
+    },
+    student: {
+      title: primaryRole === "student" ? "My Work" : "Student Workspace",
+      useFor: primaryRole === "student" ? "See what to do next, what this phase must finish, and what proof or feedback needs action." : "Follow the student's Senior Project checklist.",
+      start: primaryRole === "student" ? "Read Do this next, then open the current phase item." : "Read Do this next before opening every panel.",
+      notFor: primaryRole === "student" ? "Do not start the next phase until Program Teacher approval is recorded." : "Do not start a new phase before Program Teacher approval.",
+    },
+    archive: {
+      title: "Final Files",
+      useFor: "Check May 5 final-file readiness and downloads.",
+      start: "Read the blocker or ready state before downloading.",
+      notFor: primaryRole === "student" ? "Do not assume files are ready until this screen says your download is ready." : "Do not assume files are ready while staff prep is failed or pending.",
+    },
+    mentorDashboard: {
+      title: "Mentor Dashboard",
+      useFor: "Find the assigned student who needs mentor support first.",
+      start: "Use focus filters, then open the suggested meeting plan.",
+      notFor: "Do not review Program Teacher submissions here.",
+    },
+    mentor: {
+      title: "Assigned Students",
+      useFor: "Review assigned students and meeting context.",
+      start: "Open one assigned student card and record the next check-in.",
+      notFor: "Do not manage mentor assignments here.",
+    },
+    programDashboard: {
+      title: "Program Dashboard",
+      useFor: "Find your students who need Program Teacher attention.",
+      start: "Start with students who turned in work or are missing proof.",
+      notFor: "Do not manage global or school account access here.",
+    },
+    teacher: {
+      title: "Review Queue",
+      useFor: "Review one submitted or revision item at a time.",
+      start: "Select one row, then check proof and history.",
+      notFor: "Do not approve missing proof or batch approve.",
+    },
+    mentorAssignments: {
+      title: "Mentor Assignments",
+      useFor: "Assign one mentor to one student when coverage is missing.",
+      start: "Use the guided assignment form after confirming the student row.",
+      notFor: "Do not grant broad account roles here.",
+    },
+    operations: {
+      title: "Operations",
+      useFor: "Triage presentation, final-file, and readiness blockers.",
+      start: "Use the ranked actions before opening longer worklists.",
+      notFor: "Do not mark completion from this summary.",
+    },
+    presentation: {
+      title: "Presentation",
+      useFor: primaryRole === "student" ? "Check your presentation time, room, outline status, and check-in status." : "Manage presentation schedule, outline, and day-of status.",
+      start: primaryRole === "student" ? "Read your time, room, and outline status before presentation day." : "Filter to the day or status you are working now.",
+      notFor: primaryRole === "student" ? "Do not use Presentation as checklist approval; missing proof stays in My Work." : "Do not make Program Teacher review decisions here.",
+    },
+    adminDashboard: {
+      title: "Admin Command Center",
+      useFor: "Watch platform-level health and risky work queues.",
+      start: "Open the highest-risk card, then drill into the source screen.",
+      notFor: "Do not change school data from summary counts alone.",
+    },
+    readiness: {
+      title: "Readiness",
+      useFor: "Review aggregate readiness without exposing private proof.",
+      start: "Check blockers and labels before sharing a summary.",
+      notFor: "Do not use aggregate rows as student-detail proof.",
+    },
+    adminUsers: {
+      title: "Users & Access",
+      useFor: "Create or change access only after school access is clear.",
+      start: "Review current access and preflight checks before saving.",
+      notFor: "Do not create real accounts without approved setup-password delivery.",
+    },
+    audit: {
+      title: "Audit",
+      useFor: "Investigate protected activity while staying redacted.",
+      start: "Open saved filters and anomaly cards first.",
+      notFor: "Do not expose private notes, proof links, tokens, or file details.",
+    },
+    archiveExports: {
+      title: "Final Files",
+      useFor: "Track final-file package requests and failures.",
+      start: "Filter failed, pending, or complete rows before follow-up.",
+      notFor: "Do not promise readiness until a package is complete.",
+    },
+    security: {
+      title: hasGlobalAdminRole(roles) ? "Security" : "Account",
+      useFor: primaryRole === "student" ? "Change your own password and understand what signs out." : "Manage your own password and session.",
+      start: primaryRole === "student" ? "Make sure this is your account, then use the password form only if you know the current password." : "Change your password or sign out when the session needs attention.",
+      notFor: "Do not manage other users from this screen.",
+    },
+  };
+  return orientations[sectionId] || orientations.overview;
+}
+
+function roleStartActions(primaryRole = primaryRoleForUser(currentUser), roles = roleIds(currentUser)) {
+  if (primaryRole === "student" || roles.has("student")) {
+    return [
+      { label: "Open My Work", section: "student" },
+      { label: "Check presentation", section: "presentation" },
+      { label: "Check final files", section: "archive" },
+    ];
+  }
+  if (primaryRole === "mentor" || roles.has("mentor")) {
+    return [
+      { label: "Open Mentor Dashboard", section: "mentorDashboard" },
+      { label: "Open Assigned Students", section: "mentor" },
+      { label: "Check presentation", section: "presentation" },
+    ];
+  }
+  if (primaryRole === "program_teacher" || roles.has("program_teacher")) {
+    return [
+      { label: "Open Program Dashboard", section: "programDashboard" },
+      { label: "Review submitted work", section: "teacher", preset: "submitted" },
+      { label: "Find missing proof", section: "students", preset: "missing-evidence-students" },
+    ];
+  }
+  if (roles.has("viewer")) {
+    return [
+      { label: "Open Student Directory", section: "students", preset: "all-students" },
+      { label: "Review profile", section: "profile" },
+      { label: "Open Account", section: "security" },
+    ];
+  }
+  if (roles.has("misc_admin")) {
+    return [
+      { label: "Open Readiness", section: "readiness" },
+      { label: "Review profile", section: "profile" },
+      { label: "Open Account", section: "security" },
+    ];
+  }
+  if (hasGlobalAdminRole(roles) || roles.has("site_admin") || roles.has("administration")) {
+    return [
+      { label: "Open Site Dashboard", section: "siteDashboard" },
+      { label: "Find missing mentors", section: "students", preset: "missing-mentors" },
+      { label: "Open Operations", section: "operations", preset: "needs-attention" },
+    ];
+  }
+  return [
+    { label: "Review profile", section: "profile" },
+    { label: "Open Account", section: "security" },
+  ];
+}
+
+function screenOrientationActionCandidates(sectionId = "overview", primaryRole = primaryRoleForUser(currentUser), roles = roleIds(currentUser)) {
+  const actionsBySection = {
+    overview: roleStartActions(primaryRole, roles),
+    profile: roleStartActions(primaryRole, roles),
+    siteDashboard: [
+      { label: "Find missing mentors", section: "students", preset: "missing-mentors" },
+      { label: "Review submitted work", section: "teacher", preset: "submitted" },
+      { label: "Review final-file failures", section: "operations", preset: "archive-failed" },
+    ],
+    programs: [
+      { label: "Back to Site Dashboard", section: "siteDashboard" },
+      { label: "Open Users & Access", section: "adminUsers" },
+      { label: "Open Security", section: "security" },
+    ],
+    students: [
+      { label: "Find missing mentors", section: "students", preset: "missing-mentors" },
+      { label: "Find submitted work", section: "students", preset: "submitted-students" },
+      { label: "Find high-risk students", section: "students", preset: "high-risk-students" },
+    ],
+    student: [
+      { label: "Check presentation", section: "presentation" },
+      { label: "Check final files", section: "archive" },
+      { label: "Open Account", section: "security" },
+    ],
+    archive: [
+      { label: primaryRole === "student" ? "Open My Work" : "Open Student Workspace", section: "student" },
+      { label: "Check presentation", section: "presentation" },
+      { label: "Open Account", section: "security" },
+    ],
+    mentorDashboard: [
+      { label: "Open Assigned Students", section: "mentor" },
+      { label: "Check presentation", section: "presentation" },
+      { label: "Open Account", section: "security" },
+    ],
+    mentor: [
+      { label: "Open Mentor Dashboard", section: "mentorDashboard" },
+      { label: "Check presentation", section: "presentation" },
+      { label: "Open Account", section: "security" },
+    ],
+    programDashboard: [
+      { label: "Review submitted work", section: "teacher", preset: "submitted" },
+      { label: "Review revisions", section: "teacher", preset: "revision-requested" },
+      { label: "Find missing proof", section: "students", preset: "missing-evidence-students" },
+    ],
+    teacher: [
+      { label: "Needs review", section: "teacher", preset: "submitted" },
+      { label: "Revision follow-up", section: "teacher", preset: "revision-requested" },
+      { label: "Proof attached", section: "teacher", preset: "evidence-attached-review" },
+    ],
+    mentorAssignments: [
+      { label: "Students without mentors", section: "mentorAssignments", preset: "no-mentor" },
+      { label: "Active assignments", section: "mentorAssignments", preset: "active-assignments" },
+      { label: "Open Student Directory", section: "students", preset: "missing-mentors" },
+    ],
+    operations: [
+      { label: "Presentation follow-up", section: "operations", preset: "presentation-pending" },
+      { label: "Final-file failures", section: "operations", preset: "archive-failed" },
+      { label: "Missing proof", section: "operations", preset: "evidence-missing" },
+    ],
+    presentation: primaryRole === "student"
+      ? [
+          { label: "Open My Work", section: "student" },
+          { label: "Check final files", section: "archive" },
+          { label: "Open Account", section: "security" },
+        ]
+      : [
+          { label: "Outline follow-up", section: "presentation", preset: "outline-follow-up" },
+          { label: "Ready for check-out", section: "presentation", preset: "ready-for-check-out" },
+          { label: "Open Operations", section: "operations", preset: "presentation-pending" },
+        ],
+    adminDashboard: [
+      { label: "Open Site Dashboard", section: "siteDashboard" },
+      { label: "Open Audit", section: "audit" },
+      { label: "Failed final files", section: "archiveExports", preset: "failed-exports" },
+    ],
+    readiness: [
+      { label: "Open Operations", section: "operations", preset: "needs-attention" },
+      { label: "Open Site Dashboard", section: "siteDashboard" },
+      { label: "Open Student Directory", section: "students", preset: "all-students" },
+    ],
+    adminUsers: [
+      { label: "Review current school", section: "siteDashboard" },
+      { label: "Review profile", section: "profile" },
+      { label: "Open Security", section: "security" },
+    ],
+    audit: [
+      { label: "Recent protected activity", section: "audit" },
+      { label: "Student dashboard activity", section: "audit", auditAction: "student_dashboard_viewed", auditEntityType: "student_dashboard" },
+      { label: "Review queue activity", section: "audit", auditAction: "review_queue_viewed", auditEntityType: "review_queue" },
+    ],
+    archiveExports: [
+      { label: "Failed packages", section: "archiveExports", preset: "failed-exports" },
+      { label: "Packages in progress", section: "archiveExports", preset: "in-progress-exports" },
+      { label: "Complete packages", section: "archiveExports", preset: "complete-exports" },
+    ],
+    security: [
+      { label: "Review profile", section: "profile" },
+      { label: "Open Overview", section: "overview" },
+    ],
+  };
+  return actionsBySection[sectionId] || roleStartActions(primaryRole, roles);
+}
+
+function screenOrientationActionsFor(sectionId = "overview", primaryRole = primaryRoleForUser(currentUser), roles = roleIds(currentUser), sections = availableSections()) {
+  const allowedIds = new Set(sections.map((section) => section.id));
+  const seen = new Set();
+  return screenOrientationActionCandidates(sectionId, primaryRole, roles)
+    .filter((action) => action?.section && allowedIds.has(action.section))
+    .filter((action) => {
+      const key = [action.section, action.preset || "", action.auditAction || "", action.auditEntityType || ""].join(":");
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, 3);
+}
+
+function renderScreenOrientationAction(action, index) {
+  const attrs = [
+    'data-screen-orientation-action="true"',
+    `data-screen-orientation-action-index="${index + 1}"`,
+    `data-section="${escapeHtml(action.section)}"`,
+  ];
+  if (action.preset) attrs.push(`data-section-preset="${escapeHtml(action.preset)}"`);
+  if (action.auditAction) attrs.push(`data-audit-action="${escapeHtml(action.auditAction)}"`);
+  if (action.auditEntityType) attrs.push(`data-audit-entity-type="${escapeHtml(action.auditEntityType)}"`);
+  return `
+    <button class="workspace-button workspace-button-secondary workspace-screen-orientation-action" type="button" ${attrs.join(" ")}>
+      ${escapeHtml(action.label)}
+    </button>
+  `;
+}
+
+function renderScreenOrientation(sectionId = activeSection, primaryRole = primaryRoleForUser(currentUser), roles = roleIds(currentUser), sections = availableSections()) {
+  const allowedIds = new Set(sections.map((section) => section.id));
+  const activeId = allowedIds.has(sectionId) ? sectionId : "overview";
+  const orientation = screenOrientationFor(activeId, primaryRole, roles);
+  const actions = screenOrientationActionsFor(activeId, primaryRole, roles, sections);
+  return `
+    <section class="workspace-screen-orientation" data-screen-orientation="true" data-screen-orientation-section="${escapeHtml(activeId)}" aria-label="${escapeHtml(`${orientation.title} screen guide`)}">
+      <div class="workspace-screen-orientation-head">
+        <p class="workspace-kicker">Current screen</p>
+        <h2>${escapeHtml(orientation.title)}</h2>
+      </div>
+      <div class="workspace-screen-orientation-grid">
+        <div class="workspace-screen-orientation-item">
+          <span>Use this for</span>
+          <strong>${escapeHtml(orientation.useFor)}</strong>
+        </div>
+        <div class="workspace-screen-orientation-item">
+          <span>Start here</span>
+          <strong>${escapeHtml(orientation.start)}</strong>
+        </div>
+        <div class="workspace-screen-orientation-item">
+          <span>Not for</span>
+          <strong>${escapeHtml(orientation.notFor)}</strong>
+        </div>
+      </div>
+      ${actions.length ? `
+        <div class="workspace-screen-orientation-actions" data-screen-orientation-actions="true" aria-label="Suggested next clicks">
+          <span>Suggested next clicks</span>
+          <div>
+            ${actions.map((action, index) => renderScreenOrientationAction(action, index)).join("")}
+          </div>
+        </div>
+      ` : ""}
+    </section>
+  `;
+}
+
+function screenLanguageTermsFor(sectionId = "overview", primaryRole = primaryRoleForUser(currentUser), roles = roleIds(currentUser)) {
+  const termsBySection = {
+    overview: [
+      ["Signal", "A number or row that points to work. It does not save or change any record by itself."],
+      ["Access", "The role and scope that decide which students, schools, and actions you can use."],
+      ["Next step", "The safest place to start from your current role today."],
+    ],
+    profile: [
+      ["Role", "The job the app thinks you have, such as Student, Mentor, Program Teacher, Site Admin, or Viewer."],
+      ["Scope", "The school, program, cohort, student, or platform area your role is allowed to see."],
+      ["Read-only", "You can monitor records, but an authorized staff member must make changes."],
+    ],
+    siteDashboard: [
+      ["Urgent tile", "A summary tile that points to student or school follow-up needing attention."],
+      ["First-day setup", "The school checks that should be true before staff trust the workspace for daily use."],
+      ["School-wide", "This screen summarizes one selected school, not every school unless your access says so."],
+    ],
+    programs: [
+      ["Active program", "A program currently used at the selected school."],
+      ["Available program", "A program that can be added to the selected school when the school is ready for it."],
+      ["Site program", "A school-level program setting; it is separate from user roles and mentor assignments."],
+    ],
+    students: [
+      ["Saved filter", "A ready-made view that narrows the directory to one kind of follow-up."],
+      ["High risk", "A student row with multiple warning signals or stale progress that needs closer review."],
+      ["Missing proof", "The student has not attached or linked the evidence needed for the listed requirement."],
+    ],
+    student: [
+      ["Current phase deliverable", "The main thing this phase must finish before you move on."],
+      ["Proof", "The file, link, or note that shows one checklist item is complete."],
+      ["Program Teacher approval", "The manual review gate that decides whether submitted work is accepted or needs revision."],
+    ],
+    archive: [
+      ["Final files", primaryRole === "student" ? "The Senior Project files you need to save before school account access closes." : "The finished Senior Project package prepared for end-of-year handoff."],
+      ["Download window", primaryRole === "student" ? "The time you have to save a ready download." : "The time period when the package is available for the student to download."],
+      [primaryRole === "student" ? "Download status" : "Package status", primaryRole === "student" ? "Whether your final files are ready, still being prepared, blocked, expired, or waiting for staff." : "Whether the final-file package is ready, still running, failed, expired, or waiting on setup."],
+    ],
+    mentorDashboard: [
+      ["Focus filter", "A shortcut that shows assigned students needing the same kind of mentor attention."],
+      ["Meeting plan", "A suggested check-in topic based on the student's latest signals."],
+      ["Revision signal", "A reminder that the student may need support before sending corrected work again."],
+    ],
+    mentor: [
+      ["Assigned student", "A student connected to you for mentor support."],
+      ["Meeting record", "The note that captures the purpose, status, and follow-up from a mentor check-in."],
+      ["Follow-up", "The next support step after the meeting, not a Program Teacher approval decision."],
+    ],
+    programDashboard: [
+      ["Review-first list", "The Program Teacher work that should be checked before browsing wider cohort details."],
+      ["Cohort", "The students grouped under your assigned program or class scope."],
+      ["Manual gate", "A decision point that needs Program Teacher approval before a student moves on."],
+    ],
+    teacher: [
+      ["Sent item", "An item a student sent for Program Teacher review."],
+      ["Decision", "Approve, request revision, or use the available review option after checking proof and history."],
+      ["Proof history", "The files, links, versions, notes, and past decisions connected to the selected item."],
+    ],
+    mentorAssignments: [
+      ["Coverage", "Whether a student has an active mentor assignment."],
+      ["Active mentor load", "How many students a mentor is already supporting right now."],
+      ["Assignment reason", "The plain-language note explaining why this student and mentor should be connected."],
+    ],
+    operations: [
+      ["Ranked action", "A sorted follow-up recommendation for presentation, proof, readiness, or final-file blockers."],
+      ["Readiness blocker", "Something that can stop a student or school from being considered ready."],
+      ["Owner", "The person or role responsible for the next move."],
+    ],
+    presentation: [
+      ["Check-out", primaryRole === "student" ? "A staff day-of status that may appear when your presentation starts." : "The day-of presentation step when a scheduled student starts or leaves for the slot."],
+      ["Check-in", primaryRole === "student" ? "A staff day-of status that confirms your presentation row is finished." : "The day-of presentation step confirming the student came back or completed the slot."],
+      ["Outline", primaryRole === "student" ? "Your presentation plan. Fix outline feedback before presentation day." : "The presentation plan or prep item that may still need follow-up before the slot."],
+    ],
+    adminDashboard: [
+      ["Platform risk", "A cross-school or system-level signal that should be investigated from its source screen."],
+      ["Source screen", "The workspace section where the real records and actions live."],
+      ["Protected activity", "A logged event involving private student, review, account, or file-related data."],
+    ],
+    readiness: [
+      ["Aggregate", "A summary across records; it is not a private student-detail view."],
+      ["Private proof", "Student files, links, notes, or protected details that should not be exposed in broad reports."],
+      ["Readiness score", "A directional summary of visible completion and blocker signals."],
+    ],
+    adminUsers: [
+      ["Smallest role", "The lowest access level that lets the person do the job."],
+      ["Scope", "The exact school, program, cohort, student, or platform area tied to the access change."],
+      ["Setup password", "A temporary local login handoff that must follow the school's approved process."],
+    ],
+    audit: [
+      ["Redacted", "Private details are intentionally hidden so the event can be reviewed safely."],
+      ["Anomaly", "A pattern or count that may need account, proof, review, or security follow-up."],
+      ["Protected record", "Student, review, file, account, or access data that should stay private."],
+    ],
+    archiveExports: [
+      ["Export package", "The prepared final-file package for a student."],
+      ["Failed package", "A package request that did not finish and needs staff follow-up before handoff."],
+      ["Complete package", "A package row that finished successfully and can be handled through protected download surfaces."],
+    ],
+    security: [
+      ["Session", "Your current signed-in browser access."],
+      ["Password change", "A personal account update that closes other active sessions when it succeeds."],
+      ["Sign out", "The safe way to end your current workspace session."],
+    ],
+  };
+  const terms = termsBySection[sectionId] || termsBySection.overview;
+  if (primaryRole === "student" && sectionId === "overview") {
+    return [
+      ["My Work", "The main place to see your next Senior Project task, phase deliverable, proof, feedback, and approval status."],
+      ...terms.slice(0, 2),
+    ];
+  }
+  if (roles.has("viewer") && sectionId === "overview") {
+    return [
+      ["Monitoring", "Watching progress without changing records."],
+      ...terms.slice(0, 2),
+    ];
+  }
+  return terms;
+}
+
+function renderScreenLanguageGuide(sectionId = activeSection, primaryRole = primaryRoleForUser(currentUser), roles = roleIds(currentUser), sections = availableSections()) {
+  const allowedIds = new Set(sections.map((section) => section.id));
+  const activeId = allowedIds.has(sectionId) ? sectionId : "overview";
+  const orientation = screenOrientationFor(activeId, primaryRole, roles);
+  const terms = screenLanguageTermsFor(activeId, primaryRole, roles).filter(Boolean).slice(0, 3);
+  if (!terms.length) return "";
+  return `
+    <details class="workspace-language-guide" data-screen-language-guide="${escapeHtml(activeId)}">
+      <summary>
+        <span>Words on this screen</span>
+        <strong>${escapeHtml(orientation.title)}</strong>
+        <small>${escapeHtml(terms.length)} plain-language terms</small>
+      </summary>
+      <div class="workspace-language-grid">
+        ${terms.map((term) => {
+          const label = Array.isArray(term) ? term[0] : term?.label;
+          const detail = Array.isArray(term) ? term[1] : term?.detail;
+          const key = String(label || "term").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "term";
+          return `
+            <article class="workspace-language-term" data-language-term="${escapeHtml(key)}">
+              <span>${escapeHtml(label || "Term")}</span>
+              <p>${escapeHtml(detail || "Plain-language explanation for this screen.")}</p>
+            </article>
+          `;
+        }).join("")}
+      </div>
+    </details>
+  `;
+}
+
+function screenActionImpactsFor(sectionId = "overview", primaryRole = primaryRoleForUser(currentUser), roles = roleIds(currentUser)) {
+  const impactsBySection = {
+    overview: [
+      ["Source-screen links", "Summary cards and suggested clicks move you to the screen where the real work happens.", "route"],
+      ["Refresh", "Refresh reloads workspace data without changing student, review, account, or file records.", "safe"],
+      ["Navigation", "Changing sections updates your view and browser URL; it does not save a record.", "safe"],
+    ],
+    profile: [
+      ["Role actions", "Buttons open workspace sections that match your access.", "route"],
+      ["No record changes", "Reading this profile does not edit student, account, review, or mentor records.", "safe"],
+      ["Access concern", "If what this account can see or change looks wrong, ask the account owner listed by your school process.", "context"],
+    ],
+    siteDashboard: [
+      ["Metric buttons", "Tiles open filtered student, review, mentor, or operations screens.", "route"],
+      ["Details", "Opening details reveals rows and context; it does not save changes.", "safe"],
+      ["Source screens", "Assignments, reviews, accounts, and file handoff changes happen after you open the right source screen.", "context"],
+    ],
+    programs: [
+      ["Program add form", "The add form saves a school-program setting after a current school is selected.", "changes"],
+      ["Program removal", "The removal form changes the selected school's active program list.", "changes"],
+      ["Not account work", "Program forms do not create users, reset passwords, or assign mentors.", "safe"],
+    ],
+    students: [
+      ["Search and filters", "These narrow the directory and update the shareable view.", "safe"],
+      ["Open student", "Opening a student loads the detail panel for one allowed record.", "route"],
+      ["No review save", "Program Teacher review decisions are saved from Review Queue, not from the directory list.", "context"],
+    ],
+    student: [
+      ["Open current item", "Open the checklist item for the current phase before adding proof or sending work.", "safe"],
+      ["Add proof", "Proof links or uploads are saved to the exact checklist item you selected.", "changes"],
+      ["Send for review", "Sending work moves that item to Program Teacher review; wait for the recorded decision before moving on.", "changes"],
+    ],
+    archive: [
+      ["Download", primaryRole === "student" ? "Download starts protected final-file retrieval when your download is ready." : "Download starts protected final-file retrieval when a package is ready.", "changes"],
+      [primaryRole === "student" ? "Blocked downloads" : "Blocked packages", primaryRole === "student" ? "Blocked or failed states explain the issue; this student screen does not restart a download." : "Blocked or failed states explain the issue; this student screen does not retry package generation.", "safe"],
+      ["Suggested clicks", primaryRole === "student" ? "My Work, Presentation, and Account clicks only change screens." : "Student Workspace, Presentation, and Account clicks only change screens.", "route"],
+    ],
+    mentorDashboard: [
+      ["Focus filters", "Filters narrow assigned students without changing records.", "safe"],
+      ["Open detail", "Detail clicks load student context you are allowed to mentor.", "route"],
+      ["Meeting follow-up", "Meeting notes are saved from the meeting form, not from dashboard filters.", "context"],
+    ],
+    mentor: [
+      ["Open assigned student", "Opening a card shows context for a student already assigned to you.", "route"],
+      ["Record meeting", "Submitting the meeting form saves the mentor check-in note.", "changes"],
+      ["Assignments", "This screen does not add or remove mentor assignments.", "safe"],
+    ],
+    programDashboard: [
+      ["Review shortcuts", "Review-first rows open the queue or student detail for scoped students.", "route"],
+      ["Summary rows", "Program summary rows do not approve, reject, or request revision.", "safe"],
+      ["Decision point", "Use Review Queue after checking proof and history when a decision is needed.", "context"],
+    ],
+    teacher: [
+      ["Filters", "Queue filters only change which rows are visible.", "safe"],
+      ["Select row", "Selecting a row opens proof, history, and the decision area for that item.", "route"],
+      ["Save decision", "The decision form records the Program Teacher outcome when your role is allowed to decide.", "changes"],
+    ],
+    mentorAssignments: [
+      ["Filters", "Coverage filters only narrow which students and mentors are visible.", "safe"],
+      ["Save assignment", "The assignment form connects one active mentor to one student.", "changes"],
+      ["No account changes", "Mentor assignment does not create accounts, change roles, or message families.", "safe"],
+    ],
+    operations: [
+      ["Ranked actions", "Ranked actions open filtered worklists for the selected blocker type.", "route"],
+      ["Rows", "Operations rows are monitoring and handoff context, not completion toggles.", "safe"],
+      ["Owner handoff", "Use the listed owner and source screen when a saved change is needed.", "context"],
+    ],
+    presentation: [
+      ["Schedule filters", primaryRole === "student" ? "Filters narrow your presentation rows without changing your schedule." : "Filters narrow presentation rows without changing the schedule.", "safe"],
+      [primaryRole === "student" ? "Day-of status" : "Check-out or check-in", primaryRole === "student" ? "Students can read check-out and check-in status here; staff controls are not shown." : "Day-of controls change the selected presentation slot status.", primaryRole === "student" ? "safe" : "changes"],
+      ["Review decisions", "Presentation actions do not approve Senior Project checklist work.", "safe"],
+    ],
+    adminDashboard: [
+      ["Risk cards", "Cards and quick actions route you to the screen where the real records live.", "route"],
+      ["Summary counts", "Command Center counts do not edit school, user, or file records.", "safe"],
+      ["Protected drilldowns", "Audit and final-file follow-up stays behind role-gated source screens.", "context"],
+    ],
+    readiness: [
+      ["Reports", "Readiness reports summarize visible records without exposing private proof.", "safe"],
+      ["Open source", "Use suggested clicks to move from aggregate reporting into allowed worklists.", "route"],
+      ["No direct save", "This report screen does not change student progress or review status.", "safe"],
+    ],
+    adminUsers: [
+      ["Create or import", "Account creation and import forms save users, roles, and school, program, or student access.", "changes"],
+      ["Current access", "Current-access rows show what exists before you edit or remove anything.", "context"],
+      ["Profile and Security links", "Profile and Security clicks are safe navigation before risky account work.", "route"],
+    ],
+    audit: [
+      ["Filters", "Audit filters narrow logged activity without changing the records.", "safe"],
+      ["Rows", "Rows stay redacted so private notes, proof links, and file details are not exposed.", "safe"],
+      ["Follow-up", "Account, proof, review, or package fixes happen in the source screen, not in the log.", "context"],
+    ],
+    archiveExports: [
+      ["Package filters", "Filters narrow package rows by failed, in-progress, or complete status.", "safe"],
+      ["Downloads", "Download actions use protected package surfaces when a package is complete.", "changes"],
+      ["Failed rows", "Failed package rows need staff follow-up; no retry action is shown here.", "context"],
+    ],
+    security: [
+      ["Change password", "The password form changes your signed-in account when it succeeds.", "changes"],
+      ["Sign out", "Sign out ends the current browser session.", "changes"],
+      ["Profile or Overview", "Profile and Overview clicks only move you to safer context screens.", "route"],
+    ],
+  };
+  const impacts = impactsBySection[sectionId] || impactsBySection.overview;
+  if (primaryRole === "student" && sectionId === "overview") {
+    return [
+      ["Open My Work", "This takes you to your own checklist, current phase deliverable, proof, feedback, and approval status.", "route"],
+      ...impacts.slice(1, 3),
+    ];
+  }
+  if (roles.has("viewer") && sectionId === "overview") {
+    return [
+      ["Monitoring clicks", "Viewer clicks open allowed monitoring screens and do not save records.", "safe"],
+      ...impacts.slice(1, 3),
+    ];
+  }
+  return impacts;
+}
+
+function renderScreenActionImpactGuide(sectionId = activeSection, primaryRole = primaryRoleForUser(currentUser), roles = roleIds(currentUser), sections = availableSections()) {
+  const allowedIds = new Set(sections.map((section) => section.id));
+  const activeId = allowedIds.has(sectionId) ? sectionId : "overview";
+  const orientation = screenOrientationFor(activeId, primaryRole, roles);
+  const impacts = screenActionImpactsFor(activeId, primaryRole, roles).filter(Boolean).slice(0, 3);
+  if (!impacts.length) return "";
+  return `
+    <details class="workspace-action-impact-guide" data-screen-action-impact-guide="${escapeHtml(activeId)}">
+      <summary>
+        <span>What clicks do here</span>
+        <strong>${escapeHtml(orientation.title)}</strong>
+        <small>${escapeHtml(impacts.length)} click effects</small>
+      </summary>
+      <div class="workspace-action-impact-grid">
+        ${impacts.map((impact) => {
+          const label = Array.isArray(impact) ? impact[0] : impact?.label;
+          const detail = Array.isArray(impact) ? impact[1] : impact?.detail;
+          const state = normalizeStatus(Array.isArray(impact) ? impact[2] : impact?.state || "context") || "context";
+          const key = String(label || "action").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "action";
+          return `
+            <article class="workspace-action-impact-item" data-action-impact="${escapeHtml(key)}" data-action-impact-state="${escapeHtml(state)}">
+              <span>${escapeHtml(label || "Click effect")}</span>
+              <p>${escapeHtml(detail || "This explains whether the click changes records, filters a view, or opens another screen.")}</p>
+            </article>
+          `;
+        }).join("")}
+      </div>
+    </details>
+  `;
+}
+
+function screenVisibilityNotesFor(sectionId = "overview", primaryRole = primaryRoleForUser(currentUser), roles = roleIds(currentUser)) {
+  const notesBySection = {
+    overview: [
+      ["Your access", "The page only offers screens your signed-in account is allowed to open.", "self"],
+      ["Summary only", "Overview numbers summarize work and point to source screens before any protected detail is shown.", "context"],
+      ["Private proof", "Student files, links, notes, and review details stay in the allowed student or review screens.", "private"],
+    ],
+    profile: [
+      ["You and authorized staff", "Profile details explain your account access for you and staff who manage workspace accounts.", "shared"],
+      ["No student proof here", "This screen does not show student files, links, review history, or private project notes.", "private"],
+      ["Access questions", "Use this page to spot access concerns before asking an authorized account owner for help.", "context"],
+    ],
+    siteDashboard: [
+      ["School staff view", "This dashboard is for staff allowed to monitor the selected school's capstone work.", "staff"],
+      ["Summary counts", "Tiles and rows summarize school follow-up without exposing full private files or notes.", "context"],
+      ["Private proof hidden", "Open the allowed source screen before reading student proof, review detail, or final-file context.", "private"],
+    ],
+    programs: [
+      ["School setup staff", "Program settings are visible to staff approved to manage the selected school's setup.", "staff"],
+      ["Program list only", "This screen shows school-program availability, not private student progress or account details.", "context"],
+      ["No account details", "User names, passwords, and mentor assignments stay on their own protected screens.", "private"],
+    ],
+    students: [
+      ["Allowed student records", "The directory only lists students your account can monitor or support.", "staff"],
+      ["Directory summaries", "Rows show progress and risk signals before private proof or review history is opened.", "context"],
+      ["Private proof stays protected", "Files, links, and detailed notes stay in student detail, review, or download surfaces.", "private"],
+    ],
+    student: [
+      ["You and your Program Teacher", "This screen is centered on your own Senior Project work and the staff who can review or support it.", "self"],
+      ["Proof visibility", "Proof you add is visible to you and staff who are allowed to review or support that work.", "shared"],
+      ["Mentor view", "Mentors see support context only when they are assigned to you.", "staff"],
+    ],
+    archive: [
+      ["Student download", primaryRole === "student" ? "Final-file details are centered on your own Senior Project files." : "Final-file download details are centered on the signed-in student's own package.", "self"],
+      ["Staff help status", primaryRole === "student" ? "Staff may see download status so they can help you save final files." : "Authorized staff may see package readiness so they can complete end-of-year handoff.", "staff"],
+      ["Private file details", "Protected file contents stay behind the final-file download process.", "private"],
+    ],
+    mentorDashboard: [
+      ["Assigned mentor view", "Mentors see only students assigned to them plus the signals needed for support.", "staff"],
+      ["Student support context", "Risk and meeting-plan details are for coaching, not Program Teacher approval.", "context"],
+      ["No full directory", "The mentor dashboard does not expose every student at the school.", "private"],
+    ],
+    mentor: [
+      ["Assigned students only", "Mentor cards and meeting tools stay limited to students assigned to that mentor.", "staff"],
+      ["Meeting notes", "Meeting records are staff support notes tied to the assigned student.", "shared"],
+      ["Program Teacher review separate", "Mentor notes do not replace Program Teacher feedback or approval decisions.", "context"],
+    ],
+    programDashboard: [
+      ["Assigned students", "Program Teachers see cohort and review signals for students within their allowed program area.", "staff"],
+      ["Program Teacher work", "Review queues and risk lists are for school staff responsible for project approval.", "context"],
+      ["No global account details", "This screen does not show password, global audit, or unrelated school account data.", "private"],
+    ],
+    teacher: [
+      ["Program Teacher reviewers", "Review Queue items are visible to Program Teachers and authorized school staff for the student.", "staff"],
+      ["Student-visible feedback", "Approval and revision feedback can be read by the student after the decision is saved.", "shared"],
+      ["Staff-only notes", "Internal review context stays for staff follow-up and is not a student message.", "private"],
+    ],
+    mentorAssignments: [
+      ["Coverage staff", "Mentor assignment details are for staff approved to manage student support coverage.", "staff"],
+      ["Assignment reason", "The reason explains the staff support decision and should stay tied to the assignment workflow.", "context"],
+      ["No family message", "Saving an assignment does not send a family-facing message from this screen.", "private"],
+    ],
+    operations: [
+      ["School operations staff", "Operations rows are for staff allowed to coordinate readiness, presentations, and final-file handoff.", "staff"],
+      ["Private proof protected", "Readiness blockers summarize proof or review needs without showing every private artifact.", "private"],
+      ["Owner handoff", "Owner and next-action labels help route work to the right staff screen.", "context"],
+    ],
+    presentation: [
+      [primaryRole === "student" ? "Your schedule" : "Schedule staff", primaryRole === "student" ? "You see presentation rows connected to your own presentation." : "Presentation rows are visible to staff and mentors allowed to support the scheduled event.", primaryRole === "student" ? "self" : "staff"],
+      ["Day-of status", primaryRole === "student" ? "Check-out and check-in status helps you know whether the presentation row is still open." : "Check-out and check-in status helps the school coordinate the presentation day.", "shared"],
+      ["No review feedback", "Presentation status does not expose Program Teacher review feedback or proof history.", "private"],
+    ],
+    adminDashboard: [
+      ["Global admin view", "Command Center summaries are limited to global or organization-level administrators.", "staff"],
+      ["Risk summaries", "Cards summarize system risk before private student, account, or file detail is opened.", "context"],
+      ["Source screens protect details", "Use the allowed source screen when investigation needs protected records.", "private"],
+    ],
+    readiness: [
+      ["Aggregate report", "Readiness reports are summary views across records your account is allowed to monitor.", "context"],
+      ["Private proof hidden", "Broad reports avoid exposing student files, links, and private review notes.", "private"],
+      ["Share only summaries", "Use aggregate numbers for planning and open source screens for protected detail.", "shared"],
+    ],
+    adminUsers: [
+      ["Authorized account staff", "Users & Access is for staff approved to manage accounts for the selected school or platform.", "staff"],
+      ["Setup passwords", "Temporary setup passwords are sensitive handoffs and should only be shared through the school-approved process.", "private"],
+      ["Audit trail", "Account creation, access changes, and removals are logged for later review.", "context"],
+    ],
+    audit: [
+      ["Global admin only", "Audit details are limited to global admins and authorized security review staff.", "staff"],
+      ["Redacted rows", "Rows hide private student, proof, account, and file details until a source screen is opened with allowed access.", "redacted"],
+      ["Follow-up elsewhere", "Use the source screen for fixes; the log itself is for review and triage.", "context"],
+    ],
+    archiveExports: [
+      ["Global admin package view", "Final-file package monitoring is limited to staff approved for package follow-up.", "staff"],
+      ["Protected downloads", "Download actions use protected package surfaces and should follow school handoff rules.", "private"],
+      ["No raw file details", "Rows show package status without exposing raw file contents in the table.", "redacted"],
+    ],
+    security: [
+      ["Your own account", "Password and session tools affect only the signed-in account.", "self"],
+      ["Session change", "Changing a password or signing out changes access for this browser session.", "shared"],
+      ["No other users", "This screen cannot edit another person's account, student work, or staff assignment.", "private"],
+    ],
+  };
+  const notes = notesBySection[sectionId] || notesBySection.overview;
+  if (primaryRole === "student" && sectionId === "overview") {
+    return [
+      ["Your workspace", "Overview points you toward your own Senior Project checklist, proof, feedback, and final-file status.", "self"],
+      ...notes.slice(1, 3),
+    ];
+  }
+  if (roles.has("viewer") && sectionId === "overview") {
+    return [
+      ["Read-only view", "Viewer access is for monitoring allowed records without changing them.", "self"],
+      ...notes.slice(1, 3),
+    ];
+  }
+  return notes;
+}
+
+function renderScreenVisibilityGuide(sectionId = activeSection, primaryRole = primaryRoleForUser(currentUser), roles = roleIds(currentUser), sections = availableSections()) {
+  const allowedIds = new Set(sections.map((section) => section.id));
+  const activeId = allowedIds.has(sectionId) ? sectionId : "overview";
+  const orientation = screenOrientationFor(activeId, primaryRole, roles);
+  const notes = screenVisibilityNotesFor(activeId, primaryRole, roles).filter(Boolean).slice(0, 3);
+  if (!notes.length) return "";
+  return `
+    <details class="workspace-visibility-guide" data-screen-visibility-guide="${escapeHtml(activeId)}">
+      <summary>
+        <span>Who can see this</span>
+        <strong>${escapeHtml(orientation.title)}</strong>
+        <small>${escapeHtml(notes.length)} visibility notes</small>
+      </summary>
+      <div class="workspace-visibility-grid">
+        ${notes.map((note) => {
+          const label = Array.isArray(note) ? note[0] : note?.label;
+          const detail = Array.isArray(note) ? note[1] : note?.detail;
+          const state = normalizeStatus(Array.isArray(note) ? note[2] : note?.state || "context") || "context";
+          const key = String(label || "visibility").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "visibility";
+          return `
+            <article class="workspace-visibility-note" data-visibility-note="${escapeHtml(key)}" data-visibility-note-state="${escapeHtml(state)}">
+              <span>${escapeHtml(label || "Visibility note")}</span>
+              <p>${escapeHtml(detail || "This explains who can see this screen's information and where protected details stay.")}</p>
+            </article>
+          `;
+        }).join("")}
+      </div>
+    </details>
+  `;
+}
+
+function screenStartRequirementsFor(sectionId = "overview", primaryRole = primaryRoleForUser(currentUser), roles = roleIds(currentUser)) {
+  const requirementsBySection = {
+    overview: [
+      ["Confirm account", "Check your name, current school, and access banner before acting from this workspace.", "check"],
+      ["Pick one next step", "Use the suggested next click or the highest-priority card instead of opening every screen.", "choose"],
+      ["Use source screens", "Open the source screen before saving any student, review, account, or file change.", "source"],
+    ],
+    profile: [
+      ["Read your access", "Start with the access banner so you know which school, program, or student records are expected.", "check"],
+      ["Compare sections", "Available sections show what this account can actually open today.", "context"],
+      ["Bring access questions", "If access looks wrong, note the missing school, program, student, or task before asking for help.", "prepare"],
+    ],
+    siteDashboard: [
+      ["Choose current school", "Confirm the Current site menu shows the school you intend to monitor.", "choose"],
+      ["Read urgent tiles", "Start with the largest or warning-colored tile before expanding supporting details.", "check"],
+      ["Open source screen", "Use the linked source screen when a row needs a saved change or owner follow-up.", "source"],
+    ],
+    programs: [
+      ["Choose current school", "Confirm the Current site menu before changing school-program settings.", "choose"],
+      ["Confirm program fit", "Know which program belongs at the selected school before using the setup form.", "prepare"],
+      ["Have a setup note", "Keep the reason for the school-program change ready for staff review.", "prepare"],
+    ],
+    students: [
+      ["Choose current school", "Confirm the current school before reading directory rows or opening student detail.", "choose"],
+      ["Start with a filter", "Use search, saved filters, or summary tiles to narrow the list before opening a student.", "choose"],
+      ["Open one student", "Open one allowed record when private detail, history, or support context is needed.", "source"],
+    ],
+    student: [
+      ["Read Do this next", "Start with the action at the top of My Work before opening other panels.", "choose"],
+      ["Open current phase item", "Open the checklist item that belongs to the phase deliverable you are trying to finish.", "choose"],
+      ["Proof ready", "Have the exact proof link or file ready before adding proof or sending work for review.", "prepare"],
+    ],
+    archive: [
+      ["Check download status", primaryRole === "student" ? "Read whether final files are ready, blocked, expired, or still being prepared." : "Read whether the final-file package is ready, blocked, failed, expired, or still running.", "check"],
+      ["Confirm save timing", primaryRole === "student" ? "Use downloads only when this screen says your download is ready." : "Use downloads only when the school says the final-file package is ready for handoff.", "confirm"],
+      ["Ask staff on blockers", primaryRole === "student" ? "If final files are blocked or failed, use the listed reason when asking staff for help." : "If the package is blocked or failed, use the listed reason when asking staff for help.", "prepare"],
+    ],
+    mentorDashboard: [
+      ["Start with focus", "Choose the focus filter that matches the mentor support question you are answering.", "choose"],
+      ["Open assigned student", "Open one assigned student before planning meeting support.", "source"],
+      ["Use meeting tools", "Save meeting results from Assigned Students after you have the check-in outcome.", "source"],
+    ],
+    mentor: [
+      ["Choose assigned student", "Start from one assigned student card before reading support history.", "choose"],
+      ["Prepare meeting result", "Know the check-in result before saving a mentor meeting record.", "prepare"],
+      ["Add follow-up note", "Write the next support step in plain language before recording the meeting.", "prepare"],
+    ],
+    programDashboard: [
+      ["Review risks first", "Start with review and cohort risk rows before browsing lower-priority summaries.", "check"],
+      ["Choose source list", "Open Review Queue or Student Directory when a row needs detail.", "source"],
+      ["Use queue for decisions", "Save approval or revision decisions only from the Review Queue.", "source"],
+    ],
+    teacher: [
+      ["Select one row", "Choose one review item before reading proof, history, or the decision area.", "choose"],
+      ["Proof and history", "Review proof and history before saving a Program Teacher decision.", "check"],
+      ["Choose one outcome", "Decide whether the item is approved, needs revision, or only needs a comment before saving.", "confirm"],
+    ],
+    mentorAssignments: [
+      ["Choose student and mentor", "Pick one student and one active mentor before using the assignment form.", "choose"],
+      ["Check mentor load", "Review the mentor's current student load before saving a new assignment.", "check"],
+      ["Add assignment reason", "Write why this student needs this mentor before saving coverage.", "prepare"],
+    ],
+    operations: [
+      ["Pick blocker type", "Start with the presentation, proof, readiness, or final-file blocker you need to resolve.", "choose"],
+      ["Check listed owner", "Use the owner column to decide who should take the next step.", "check"],
+      ["Open source screen", "Move to the source screen before making a saved change.", "source"],
+    ],
+    presentation: [
+      ["Set schedule filter", "Filter the schedule to the date, status, or student group you need.", "choose"],
+      ["Confirm slot", "Check the student and slot before using day-of status controls.", "confirm"],
+      ["Use known status", "Change check-out or check-in only when the presentation-day status is known.", "confirm"],
+    ],
+    adminDashboard: [
+      ["Start with risk", "Open the risk card that matches the problem you are investigating.", "choose"],
+      ["Keep source screen", "Use source screens for protected detail and saved fixes.", "source"],
+      ["Avoid summary fixes", "Treat Command Center cards as routing and monitoring, not as direct edit forms.", "check"],
+    ],
+    readiness: [
+      ["Choose report context", "Confirm which school, program, or aggregate view the report is summarizing.", "choose"],
+      ["Use summary planning", "Use aggregate numbers for planning before opening protected detail.", "context"],
+      ["Open source for detail", "Move to the source screen when a readiness blocker needs action.", "source"],
+    ],
+    adminUsers: [
+      ["Confirm person and school", "Know the exact person, school, program, cohort, or student before changing access.", "confirm"],
+      ["Choose smallest role", "Choose the lowest access level that lets the person do the job.", "choose"],
+      ["Handoff ready", "Have the setup handoff and admin note ready before creating or importing accounts.", "prepare"],
+    ],
+    audit: [
+      ["Filters first", "Set action, person, or record filters before investigating the log.", "choose"],
+      ["Read redacted row", "Use the redacted row to identify the pattern without exposing protected details.", "check"],
+      ["Fix elsewhere", "Open the source screen when an account, proof, review, or file issue needs a change.", "source"],
+    ],
+    archiveExports: [
+      ["Filter package status", "Start with failed, in-progress, or complete package filters before opening rows.", "choose"],
+      ["Confirm owner", "Know who owns the package follow-up before using download or handoff details.", "confirm"],
+      ["Use protected download", "Use download actions only when the package is complete and handoff is approved.", "confirm"],
+    ],
+    security: [
+      ["Know current password", "Have your current password ready before starting a password change.", "prepare"],
+      ["Choose replacement", "Pick a strong new password that matches the school's account process.", "prepare"],
+      ["End shared sessions", "Use Sign out when you are done on a shared or public device.", "confirm"],
+    ],
+  };
+  const requirements = requirementsBySection[sectionId] || requirementsBySection.overview;
+  if (primaryRole === "student" && sectionId === "overview") {
+    return [
+      ["Start with your task", "Open My Work when you need your checklist, phase deliverable, proof, feedback, or approval status.", "choose"],
+      ...requirements.slice(1, 3),
+    ];
+  }
+  if (roles.has("viewer") && sectionId === "overview") {
+    return [
+      ["Monitor only", "Start by confirming the allowed records you are watching without changing them.", "check"],
+      ...requirements.slice(1, 3),
+    ];
+  }
+  return requirements;
+}
+
+function renderScreenStartGuide(sectionId = activeSection, primaryRole = primaryRoleForUser(currentUser), roles = roleIds(currentUser), sections = availableSections()) {
+  const allowedIds = new Set(sections.map((section) => section.id));
+  const activeId = allowedIds.has(sectionId) ? sectionId : "overview";
+  const orientation = screenOrientationFor(activeId, primaryRole, roles);
+  const requirements = screenStartRequirementsFor(activeId, primaryRole, roles).filter(Boolean).slice(0, 3);
+  if (!requirements.length) return "";
+  return `
+    <details class="workspace-start-guide" data-screen-start-guide="${escapeHtml(activeId)}">
+      <summary>
+        <span>Before you start</span>
+        <strong>${escapeHtml(orientation.title)}</strong>
+        <small>${escapeHtml(requirements.length)} start checks</small>
+      </summary>
+      <div class="workspace-start-grid">
+        ${requirements.map((requirement) => {
+          const label = Array.isArray(requirement) ? requirement[0] : requirement?.label;
+          const detail = Array.isArray(requirement) ? requirement[1] : requirement?.detail;
+          const state = normalizeStatus(Array.isArray(requirement) ? requirement[2] : requirement?.state || "check") || "check";
+          const key = String(label || "start").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "start";
+          return `
+            <article class="workspace-start-item" data-start-requirement="${escapeHtml(key)}" data-start-requirement-state="${escapeHtml(state)}">
+              <span>${escapeHtml(label || "Start check")}</span>
+              <p>${escapeHtml(detail || "This explains what to have ready before using this screen.")}</p>
+            </article>
+          `;
+        }).join("")}
+      </div>
+    </details>
+  `;
+}
+
+function screenDoneSignalsFor(sectionId = "overview", primaryRole = primaryRoleForUser(currentUser), roles = roleIds(currentUser)) {
+  const signalsBySection = {
+    overview: [
+      ["Next screen chosen", "You opened the source screen for the highest-priority card or suggested next click.", "route"],
+      ["No silent save", "Browsing Overview does not change student, review, account, or file records.", "safe"],
+      ["Fresh data checked", "Refresh confirms whether new workspace data changed your next step.", "check"],
+    ],
+    profile: [
+      ["Access understood", "You can explain which school, program, student, or platform area this account can use.", "complete"],
+      ["Concern named", "Any access concern is written as a missing school, program, student, or task.", "followup"],
+      ["Next screen picked", "You know which available section to open for the actual work.", "route"],
+    ],
+    siteDashboard: [
+      ["School confirmed", "The Current site menu still shows the school you meant to monitor.", "complete"],
+      ["Owner found", "The tile or row points to a staff owner or source screen for follow-up.", "route"],
+      ["Summary left unchanged", "Dashboard reading and detail expansion did not save record changes.", "safe"],
+    ],
+    programs: [
+      ["Program setting checked", "The selected school's program list reflects the intended setup after refresh.", "complete"],
+      ["Reason preserved", "The school-program reason is clear enough for staff review later.", "saved"],
+      ["Account work untouched", "Program setup finished without changing users, passwords, or mentor assignments.", "safe"],
+    ],
+    students: [
+      ["List narrowed", "Search, filters, or saved views show the student group you meant to review.", "complete"],
+      ["One record opened", "A student detail panel opens when private detail or history is needed.", "route"],
+      ["Decision work routed", "Review decisions remain in Review Queue instead of the directory.", "safe"],
+    ],
+    student: [
+      ["Phase item updated", "The current phase item shows the new proof count, waiting review state, revision message, or approval status.", "complete"],
+      ["Next action is clear", "Do this next tells you whether to fix work, add proof, send work, wait, or move to another screen.", "complete"],
+      ["Approval gate is clear", "If Program Teacher review is needed, the screen says to wait for the recorded decision before moving on.", "waiting"],
+    ],
+    archive: [
+      ["Download status known", primaryRole === "student" ? "The screen tells you whether saving, staff follow-up, or waiting is next." : "The package status tells you whether download, staff follow-up, or waiting is next.", "complete"],
+      ["Download handled", primaryRole === "student" ? "A ready download opens through the protected download link." : "A ready package opens through the protected download path when handoff is approved.", "handoff"],
+      ["Blocker explained", primaryRole === "student" ? "Blocked, failed, or expired downloads show a reason to bring to staff." : "Blocked, failed, or expired packages show a reason to bring to staff.", "followup"],
+    ],
+    mentorDashboard: [
+      ["Focus list clear", "The filter shows the assigned students who match the support question.", "complete"],
+      ["Student opened", "One assigned student is opened when meeting planning needs detail.", "route"],
+      ["Meeting routed", "Any saved meeting result is handled from Assigned Students.", "source"],
+    ],
+    mentor: [
+      ["Meeting saved", "The assigned student's meeting history shows the new result or follow-up note.", "saved"],
+      ["Next support named", "The follow-up note says what the mentor or student should do next.", "complete"],
+      ["Review left separate", "Program Teacher approval still belongs in Review Queue.", "safe"],
+    ],
+    programDashboard: [
+      ["Risk path chosen", "Each urgent program signal has a Review Queue or Student Directory path.", "route"],
+      ["Cohort checked", "You have checked the assigned student group before leaving the dashboard.", "complete"],
+      ["Decision saved elsewhere", "Approval or revision work stays in Review Queue.", "safe"],
+    ],
+    teacher: [
+      ["Decision saved", "The selected review item shows the saved Program Teacher decision or follow-up message.", "saved"],
+      ["Queue updated", "Filters, row status, or the selected row update after the decision is saved.", "complete"],
+      ["Student next step clear", "Student-facing feedback is ready after the saved decision is visible in the selected item.", "complete"],
+    ],
+    mentorAssignments: [
+      ["Coverage saved", "The student shows the intended active mentor assignment after the form saves.", "saved"],
+      ["Reason visible", "The assignment reason explains why this mentor is supporting this student.", "complete"],
+      ["Load still reasonable", "The mentor load still looks appropriate after the assignment.", "check"],
+    ],
+    operations: [
+      ["Owner identified", "Every blocker you touched has a listed owner or source screen.", "complete"],
+      ["Source opened", "Saved changes happen only after opening the source screen that owns the blocker.", "route"],
+      ["Monitoring complete", "Operations rows remain a monitoring and handoff view.", "safe"],
+    ],
+    presentation: [
+      ["Slot status updated", "The selected presentation slot shows the intended check-out, check-in, or readiness status.", "saved"],
+      ["Schedule narrowed", "Filters show the date, student group, or status needed for the presentation task.", "complete"],
+      ["Review untouched", "Presentation work finishes without changing Program Teacher review outcomes.", "safe"],
+    ],
+    adminDashboard: [
+      ["Risk routed", "The command card or risk row opens the source screen that owns the issue.", "route"],
+      ["Summary only", "Command Center totals remain monitoring signals, not saved edits.", "safe"],
+      ["Protected detail handled", "Protected student, account, audit, or package detail stays in its source screen.", "complete"],
+    ],
+    readiness: [
+      ["Report interpreted", "The aggregate report shows the planning signal you needed.", "complete"],
+      ["Detail routed", "Any blocker needing action has a source screen to open next.", "route"],
+      ["Private proof hidden", "Broad reporting finishes without exposing private proof detail.", "safe"],
+    ],
+    adminUsers: [
+      ["Access row correct", "Current access shows the intended person, role, and school, program, cohort, or student.", "saved"],
+      ["Handoff recorded", "Setup handoff and admin note are ready for the school's approved process.", "handoff"],
+      ["Review trail exists", "Recent access rows can explain account changes later.", "complete"],
+    ],
+    audit: [
+      ["Pattern identified", "Filters point to the action, person, or record pattern you needed to investigate.", "complete"],
+      ["Source screen chosen", "You know which source screen owns any account, proof, review, or file follow-up.", "route"],
+      ["Log stays redacted", "The log remains redacted while fixes happen elsewhere.", "safe"],
+    ],
+    archiveExports: [
+      ["Package row clear", "Each package row shows whether handoff, waiting, or staff follow-up is next.", "complete"],
+      ["Download approved", "Complete packages use protected downloads only when handoff is approved.", "handoff"],
+      ["Failed row routed", "Failed package rows have a follow-up owner or next screen.", "followup"],
+    ],
+    security: [
+      ["Password result clear", "The screen shows whether the password change succeeded or needs correction.", "complete"],
+      ["Session ended", "Sign out returns the browser to the sign-in screen on shared devices.", "complete"],
+      ["No other accounts changed", "Account/Security work finishes without changing another user's access.", "safe"],
+    ],
+  };
+  const signals = signalsBySection[sectionId] || signalsBySection.overview;
+  if (primaryRole === "student" && sectionId === "overview") {
+    return [
+      ["My Work opened", "You opened My Work when your checklist, phase deliverable, proof, feedback, or approval status was the task.", "route"],
+      ...signals.slice(1, 3),
+    ];
+  }
+  if (roles.has("viewer") && sectionId === "overview") {
+    return [
+      ["Monitoring complete", "You checked the allowed records you needed without changing them.", "complete"],
+      ...signals.slice(1, 3),
+    ];
+  }
+  return signals;
+}
+
+function renderScreenDoneGuide(sectionId = activeSection, primaryRole = primaryRoleForUser(currentUser), roles = roleIds(currentUser), sections = availableSections()) {
+  const allowedIds = new Set(sections.map((section) => section.id));
+  const activeId = allowedIds.has(sectionId) ? sectionId : "overview";
+  const orientation = screenOrientationFor(activeId, primaryRole, roles);
+  const signals = screenDoneSignalsFor(activeId, primaryRole, roles).filter(Boolean).slice(0, 3);
+  if (!signals.length) return "";
+  return `
+    <details class="workspace-done-guide" data-screen-done-guide="${escapeHtml(activeId)}">
+      <summary>
+        <span>How you know you're done</span>
+        <strong>${escapeHtml(orientation.title)}</strong>
+        <small>${escapeHtml(signals.length)} done signals</small>
+      </summary>
+      <div class="workspace-done-grid">
+        ${signals.map((signal) => {
+          const label = Array.isArray(signal) ? signal[0] : signal?.label;
+          const detail = Array.isArray(signal) ? signal[1] : signal?.detail;
+          const state = normalizeStatus(Array.isArray(signal) ? signal[2] : signal?.state || "complete") || "complete";
+          const key = String(label || "done").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "done";
+          return `
+            <article class="workspace-done-item" data-done-signal="${escapeHtml(key)}" data-done-signal-state="${escapeHtml(state)}">
+              <span>${escapeHtml(label || "Done signal")}</span>
+              <p>${escapeHtml(detail || "This explains what should look finished before you leave this screen.")}</p>
+            </article>
+          `;
+        }).join("")}
+      </div>
+    </details>
+  `;
 }
 
 function availableSections() {
@@ -1821,11 +3096,11 @@ function availableSections() {
   if (hasSiteDashboardRole(roles)) sections.push({ id: "siteDashboard", label: "Site Dashboard", detail: "School-wide capstone health" });
   if (canUseSitePrograms(roles)) sections.push({ id: "programs", label: "Programs", detail: "Add or remove site programs" });
   if (hasSiteStudentDirectoryRole(roles)) sections.push({ id: "students", label: "Students", detail: "Search and filter capstone progress" });
-  if (roles.has("student")) sections.push({ id: "student", label: "Student Workspace", detail: "Progress, sent work, and proof" });
+  if (roles.has("student")) sections.push({ id: "student", label: "My Work", detail: "Next step, phase goals, proof, and feedback" });
   if (roles.has("student")) sections.push({ id: "archive", label: "Final Files", detail: "May 5 downloads" });
   if (roles.has("mentor")) sections.push({ id: "mentorDashboard", label: "Mentor Dashboard", detail: "Assigned student risks" });
   if (roles.has("mentor")) sections.push({ id: "mentor", label: "Assigned Students", detail: "Assigned students and proof counts" });
-  if (roles.has("program_teacher")) sections.push({ id: "programDashboard", label: "Program Dashboard", detail: "Scoped cohort and review risks" });
+  if (roles.has("program_teacher")) sections.push({ id: "programDashboard", label: "Program Dashboard", detail: "Your students and review needs" });
   if (hasSiteReviewQueueRole(roles)) sections.push({ id: "teacher", label: "Review Queue", detail: "Program Teacher review and submitted work" });
   if (hasSiteMentorAssignmentRole(roles)) sections.push({ id: "mentorAssignments", label: "Mentor Assignments", detail: "Coverage and assignment workflow" });
   if (hasSiteOperationsRole(roles)) sections.push({ id: "operations", label: "Operations", detail: "Presentation, final files, and readiness" });
@@ -1869,7 +3144,7 @@ function renderActiveSection() {
 function renderOverviewSection() {
   const primaryRole = primaryRoleForUser(currentUser);
   const profile = renderRoleProfileSection({ compact: true });
-  if (["platform_admin", "global_admin", "admin", "org_admin", "site_admin", "administration"].includes(primaryRole)) return `${profile}${renderSiteDashboardSection()}`;
+  if (["platform_admin", "global_admin", "admin", "site_admin", "administration"].includes(primaryRole)) return `${profile}${renderSiteDashboardSection()}`;
   if (primaryRole === "viewer") return `${profile}${renderViewerOverviewSection()}`;
   if (primaryRole === "program_teacher") return `${profile}${renderProgramTeacherDashboardSection()}`;
   if (primaryRole === "mentor") return `${profile}${renderMentorDashboardSection()}`;
@@ -2174,7 +3449,17 @@ function renderSiteDashboardSection() {
     <section class="workspace-command-center" aria-labelledby="siteDashboardTitle">
       ${renderSiteDashboardSummary(dashboard)}
       ${renderSiteAdminFirstDayChecklist(dashboard)}
+      ${renderFirstUseGuide("site-dashboard", readOnly ? "Monitor the school without changing records" : "Run the school workspace from this dashboard", [
+        ["Check first-day setup", "Confirm students, mentors, submitted work, and programs before using the rest of the school workspace."],
+        ["Open the most urgent tile", "Use No Mentor, Submitted, Presentations, or Final Files to jump to the exact worklist."],
+        ["Use details for context", "Open dashboard details only after the first-screen metrics tell you where to look."],
+        ["Route the owner", readOnly ? "Share the matching student or operations list with authorized staff." : "Send review work to Program Teachers, mentor gaps to assignment staff, and final-file blockers to site staff."],
+      ], {
+        detail: readOnly ? "This view helps leadership monitor without exposing edit controls." : "This view turns school-level signals into the next staff action.",
+        badge: readOnly ? "Monitor path" : "Site path",
+      })}
       ${readOnly ? renderReadOnlyMonitoringOverview(dashboard.summary || {}, scope) : ""}
+      ${renderSiteDashboardActionMap(dashboard, readOnly)}
       <div class="workspace-dashboard-grid">
         ${renderMetricTile("Students", summary.studentsActive, `${safeNumber(summary.studentsTotal)} visible at this site`, "admin", "students", { label: "Open", preset: "all-students" })}
         ${renderMetricTile("No Mentor", summary.studentsNoMentor, "Students missing active mentor assignments", safeNumber(summary.studentsNoMentor) ? "warning" : "mentor", "students", { label: "View students", preset: "missing-mentors" })}
@@ -2227,6 +3512,195 @@ function renderSiteDashboardSection() {
         `,
       })}
     </section>
+  `;
+}
+
+function renderSiteDashboardActionMap(dashboard = {}, readOnly = false) {
+  const summary = dashboard.summary || {};
+  const scope = dashboard.scope || {};
+  const programCount = Array.isArray(dashboard.programBreakdown) ? dashboard.programBreakdown.length : 0;
+  const riskCount = Array.isArray(dashboard.topRiskStudents) ? dashboard.topRiskStudents.length : 0;
+  const noMentor = safeNumber(summary.studentsNoMentor);
+  const activeStudents = safeNumber(summary.studentsActive || summary.studentsTotal);
+  const submitted = safeNumber(summary.submissionsSubmitted);
+  const revisions = safeNumber(summary.revisionRequested);
+  const reviewTotal = submitted + revisions;
+  const presentationPending = safeNumber(summary.presentationsPending);
+  const failedExports = safeNumber(summary.exportsFailed);
+  const operationsTotal = presentationPending + failedExports;
+  const setupGaps = [];
+
+  if (!activeStudents) {
+    setupGaps.push({
+      label: "student roster",
+      section: "students",
+      preset: "all-students",
+      actionLabel: "Open students",
+    });
+  }
+  if (!programCount) {
+    setupGaps.push({
+      label: "program list",
+      section: "programs",
+      actionLabel: "Open programs",
+    });
+  }
+  if (noMentor) {
+    setupGaps.push({
+      label: "mentor coverage",
+      section: availableSectionIds().has("mentorAssignments") ? "mentorAssignments" : "students",
+      preset: availableSectionIds().has("mentorAssignments") ? "no-mentor" : "missing-mentors",
+      actionLabel: availableSectionIds().has("mentorAssignments") ? "Assign mentors" : "View students",
+    });
+  }
+  if (!safeNumber(summary.programTeachers)) {
+    setupGaps.push({
+      label: "Program Teacher coverage",
+      section: "adminUsers",
+      actionLabel: "Review access",
+    });
+  }
+
+  const setupGap = setupGaps[0];
+  const reviewAction = readOnly
+    ? {
+      section: "students",
+      preset: revisions ? "revision-students" : "submitted-students",
+      actionLabel: revisions ? "Monitor revisions" : "Monitor submitted",
+    }
+    : {
+      section: "teacher",
+      preset: revisions ? "revision-requested" : "submitted",
+      actionLabel: revisions ? "Open revisions" : "Open submitted",
+    };
+  const blockerCount = setupGaps.length + reviewTotal + operationsTotal + riskCount;
+  const allClear = blockerCount === 0;
+  const cards = [
+    {
+      id: "setup",
+      tone: setupGaps.length ? "warning" : "ready",
+      owner: "School Admin",
+      count: setupGaps.length ? `${setupGaps.length} setup` : "Ready",
+      title: setupGaps.length ? "Fix the first setup gap" : "Setup is ready",
+      detail: setupGaps.length
+        ? `Start with ${setupGap.label}; finish setup before trusting the rest of the dashboard.`
+        : "Roster, programs, Program Teacher coverage, and mentor coverage signals are present.",
+      source: `${scope.siteName || "Current school"} setup`,
+      actionSection: setupGap?.section || "students",
+      actionPreset: setupGap?.preset || "all-students",
+      actionLabel: setupGap?.actionLabel || "Open roster",
+    },
+    {
+      id: "mentor",
+      tone: noMentor ? "mentor" : "ready",
+      owner: "Site staff",
+      count: noMentor ? `${noMentor} missing` : "Covered",
+      title: noMentor ? "Assign mentor coverage" : "Mentor coverage looks current",
+      detail: noMentor
+        ? `${noMentor} ${pluralize(noMentor, "student")} ${noMentor === 1 ? "needs" : "need"} an active mentor before normal check-ins can work.`
+        : "No missing-mentor count is visible on this dashboard.",
+      source: "Mentor assignment source",
+      actionSection: availableSectionIds().has("mentorAssignments") ? "mentorAssignments" : "students",
+      actionPreset: availableSectionIds().has("mentorAssignments") ? "no-mentor" : "missing-mentors",
+      actionLabel: noMentor ? "Open coverage" : "View coverage",
+    },
+    {
+      id: "review",
+      tone: reviewTotal ? "review" : "ready",
+      owner: "Program Teacher",
+      count: reviewTotal ? `${reviewTotal} review` : "Clear",
+      title: reviewTotal ? "Route review work" : "No review queue blocker",
+      detail: reviewTotal
+        ? `${submitted} submitted and ${revisions} revision ${pluralize(revisions, "record")} need Program Teacher attention.`
+        : "No submitted or revision-requested count is waiting in the school summary.",
+      source: readOnly ? "Monitoring list" : "Review Queue source",
+      actionSection: reviewAction.section,
+      actionPreset: reviewAction.preset,
+      actionLabel: reviewTotal ? reviewAction.actionLabel : "Open queue",
+    },
+    {
+      id: "proof",
+      tone: riskCount ? "danger" : "proof",
+      owner: "Student + reviewer",
+      count: riskCount ? `${riskCount} risk` : `${safeNumber(summary.evidenceArtifacts)} proof`,
+      title: riskCount ? "Check proof blockers" : "Proof stays summary-safe",
+      detail: riskCount
+        ? `${riskCount} high-risk ${pluralize(riskCount, "student")} need staff to confirm proof, status, and owner before the next handoff.`
+        : "Private proof is counted here without exposing files; use the student list only when proof follow-up is needed.",
+      source: "Private proof signal",
+      actionSection: "students",
+      actionPreset: riskCount ? "high-risk-students" : "missing-evidence-students",
+      actionLabel: riskCount ? "Open high risk" : "Find missing proof",
+    },
+    {
+      id: "operations",
+      tone: failedExports ? "danger" : (operationsTotal ? "operations" : "ready"),
+      owner: "Site operations",
+      count: operationsTotal ? `${operationsTotal} ops` : "Clear",
+      title: operationsTotal ? "Finish operations follow-up" : "Operations look clear",
+      detail: operationsTotal
+        ? `${presentationPending} presentation ${pluralize(presentationPending, "item")} and ${failedExports} final-file ${pluralize(failedExports, "failure")} need site follow-up.`
+        : "No presentation-pending or final-file failure count is visible.",
+      source: "Operations source",
+      actionSection: "operations",
+      actionPreset: failedExports ? "archive-failed" : "presentation-pending",
+      actionLabel: failedExports ? "Open failures" : "Open operations",
+    },
+    {
+      id: "all-clear",
+      tone: allClear ? "ready" : "quiet",
+      owner: "School team",
+      count: allClear ? "All clear" : `${blockerCount} ${pluralize(blockerCount, "signal")}`,
+      title: allClear ? "All clear for routine follow-up" : "Return here after the first blocker",
+      detail: allClear
+        ? "No setup, mentor, review, proof, presentation, or final-file blocker is visible right now."
+        : "Handle the strongest lane first, then come back before expanding dashboard details.",
+      source: `${scope.siteName || "Current school"} / ${scope.schoolYear || "school year"}`,
+      actionSection: "students",
+      actionPreset: "all-students",
+      actionLabel: allClear ? "Open roster" : "Review roster",
+    },
+  ];
+
+  return `
+    <section class="workspace-site-action-map" data-site-action-map="true" aria-label="Site dashboard action map">
+      <div class="workspace-site-action-map-head">
+        <div>
+          <p class="workspace-kicker">${readOnly ? "Monitoring map" : "School action map"}</p>
+          <h2>Where to start at this school</h2>
+          <p>Pick one owner lane before opening the long dashboard details.</p>
+        </div>
+        <span class="workspace-chip">Current school: ${escapeHtml(scope.siteName || "Assigned school")}</span>
+      </div>
+      <div class="workspace-site-action-map-grid">
+        ${cards.map((card) => renderSiteDashboardActionMapCard(card)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderSiteDashboardActionMapCard(card = {}) {
+  const hasAction = card.actionSection && availableSectionIds().has(card.actionSection);
+  const actionPreset = card.actionPreset
+    ? ` data-section-preset="${escapeHtml(card.actionPreset)}"`
+    : "";
+  return `
+    <article class="workspace-site-action-map-card ${escapeHtml(card.tone || "quiet")}" data-site-action-map-card="${escapeHtml(card.id || "action")}" data-site-action-owner="${escapeHtml(card.owner || "School team")}">
+      <div>
+        <div class="workspace-site-action-map-meta">
+          <span>${escapeHtml(card.owner || "School team")}</span>
+          <b>${escapeHtml(card.count || "0")}</b>
+        </div>
+        <strong>${escapeHtml(card.title || "Review this lane")}</strong>
+        <p>${escapeHtml(card.detail || "Use the source screen before taking action.")}</p>
+        ${card.source ? `<small>${escapeHtml(card.source)}</small>` : ""}
+      </div>
+      ${hasAction ? `
+        <button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(card.actionSection)}"${actionPreset}>
+          ${escapeHtml(card.actionLabel || "Open")}
+        </button>
+      ` : `<span class="workspace-summary-badge">Summary only</span>`}
+    </article>
   `;
 }
 
@@ -2410,7 +3884,7 @@ function renderSiteProgramsSetupFlow(activePrograms = [], availablePrograms = []
   const rows = [
     ["1. Confirm school", body?.scope?.siteName || "Current site", activeCount || availableCount ? "ready" : "context"],
     ["2. Add missing program", availableCount ? `${availableCount} active program ${pluralize(availableCount, "option")} can be added.` : "No additional active programs are waiting.", availableCount ? "needs_review" : "ready"],
-    ["3. Confirm Program Teacher scope", "Use Users & Access after the program mapping is correct.", availableSectionIds().has("adminUsers") ? "ready" : "context"],
+    ["3. Confirm Program Teacher access", "Use Users & Access after the program mapping is correct.", availableSectionIds().has("adminUsers") ? "ready" : "context"],
     ["4. Review before save", "Add or remove one school mapping at a time. Historical student and assignment records stay intact.", "configured"],
   ];
   return `
@@ -2513,6 +3987,7 @@ function renderSiteStudentDirectorySection() {
         ${renderMetricTile("High Risk", summary.highRisk, "Prioritize outreach", safeNumber(summary.highRisk) ? "danger" : "admin", "students", { label: "View students", preset: "high-risk-students" })}
       </div>
       ${renderStudentDirectoryOperatingPosture(readOnly)}
+      ${renderStudentDirectoryActionMap(directory)}
       ${renderStudentDirectorySavedFilterChips(summary)}
       ${renderStudentDirectoryFilterBar(directory)}
       ${renderStudentDirectoryActiveFilters(filters, directory.filterOptions || {})}
@@ -2521,6 +3996,167 @@ function renderSiteStudentDirectorySection() {
       ${students.length ? renderStudentRows(students, readOnly, directory.permissions || {}, scope) : renderStudentDirectoryEmptyState(directory)}
     </section>
   `;
+}
+
+function renderStudentDirectoryActionMap(directory = {}) {
+  const summary = directory.summary || {};
+  const students = Array.isArray(directory.students) ? directory.students : [];
+  const filters = directory.filters || {};
+  const totalCount = safeNumber(summary.studentsTotal ?? directory.pagination?.total ?? directory.pagination?.filteredTotal);
+  const lanes = [
+    {
+      id: "all",
+      label: "All students",
+      count: totalCount,
+      detail: "Start with the full assigned roster before narrowing the work.",
+      owner: "Site team",
+      preset: "all-students",
+      tone: "neutral",
+    },
+    {
+      id: "missing-mentor",
+      label: "Missing mentor",
+      count: studentDirectoryMapCount(summary, students, ["noMentor", "missingMentor", "studentsNoMentor"], (student) => Boolean(student?.hasActiveMentor) === false || !cleanDirectoryFilter(student?.mentorUserId || "")),
+      detail: "Assign or confirm active mentor coverage before the next check-in.",
+      owner: "Site Admin or Program Teacher",
+      preset: "missing-mentors",
+      tone: "mentor",
+    },
+    {
+      id: "missing-proof",
+      label: "Missing proof",
+      count: studentDirectoryMapCount(summary, students, ["evidenceMissing", "missingEvidence"], (student) => normalizeStatus(student?.evidenceStatus) === "missing"),
+      detail: "Find students who still need to attach proof for Program Teacher review.",
+      owner: "Student and Program Teacher",
+      preset: "missing-evidence-students",
+      tone: "proof",
+    },
+    {
+      id: "review-needed",
+      label: "Review needed",
+      count: studentDirectoryMapCount(summary, students, ["needsReview", "submitted"], (student) => normalizeStatus(student?.reviewStatus) === "needs_review" || normalizeStatus(student?.latestSubmissionStatus) === "submitted"),
+      detail: "Open the students whose work is waiting on a Program Teacher decision.",
+      owner: "Program Teacher",
+      preset: "needs-review-students",
+      tone: "teacher",
+    },
+    {
+      id: "revision",
+      label: "Revision follow-up",
+      count: studentDirectoryMapCount(summary, students, ["revisionRequested", "needsRevision"], (student) => normalizeStatus(student?.latestSubmissionStatus) === "revision_requested" || normalizeStatus(student?.reviewStatus) === "needs_revision"),
+      detail: "Help students close the loop after requested revisions.",
+      owner: "Program Teacher",
+      preset: "revision-students",
+      tone: "warning",
+    },
+    {
+      id: "high-risk",
+      label: "High risk",
+      count: studentDirectoryMapCount(summary, students, ["highRisk"], (student) => normalizeStatus(student?.risk) === "high" || normalizeStatus(student?.riskLevel) === "high" || (Array.isArray(student?.riskFlags) && student.riskFlags.includes("high"))),
+      detail: "Prioritize outreach for students with the highest support signal.",
+      owner: "School team",
+      preset: "high-risk-students",
+      tone: "danger",
+    },
+    {
+      id: "mentor-meeting",
+      label: "Mentor meeting",
+      count: studentDirectoryMapCount(summary, students, ["mentorMeetingFollowUp", "missingMentorMeeting"], (student) => normalizeStatus(student?.mentorMeetingStatus) === "not_recorded" || normalizeStatus(student?.progressStatus) === "mentor_meeting_follow_up"),
+      detail: "Find students who need a meeting recorded or followed up.",
+      owner: "Mentor",
+      preset: "mentor-meeting-follow-up-students",
+      tone: "mentor",
+    },
+    {
+      id: "presentation",
+      label: "Presentation",
+      count: studentDirectoryMapCount(summary, students, ["presentationPending"], (student) => normalizeStatus(student?.presentationStatus) === "pending"),
+      detail: "Move students toward scheduled, checked-in presentation readiness.",
+      owner: "Program Teacher",
+      preset: "presentation-pending-students",
+      tone: "presentation",
+    },
+    {
+      id: "final-files-ready",
+      label: "Final files ready",
+      count: studentDirectoryMapCount(summary, students, ["archiveReady", "readyComplete"], (student) => normalizeStatus(student?.archiveStatus) === "ready" || normalizeStatus(student?.progressStatus) === "ready_complete"),
+      detail: "Review closeout candidates before final archive handoff.",
+      owner: "Site Admin",
+      preset: "archive-ready-students",
+      tone: "ready",
+    },
+    {
+      id: "final-files-blocked",
+      label: "Final files blocked",
+      count: studentDirectoryMapCount(summary, students, ["archiveFailed"], (student) => normalizeStatus(student?.archiveStatus) === "failed"),
+      detail: "Resolve export or storage blockers before closeout stalls.",
+      owner: "Site Admin",
+      preset: "archive-failed-students",
+      tone: "blocked",
+    },
+  ];
+  const liveLaneCount = lanes.filter((lane) => safeNumber(lane.count) > 0).length;
+  return `
+    <section class="workspace-student-directory-action-map" data-student-directory-action-map="true" aria-label="Student Directory action map">
+      <div class="workspace-student-directory-action-map-head">
+        <div>
+          <strong>Action map</strong>
+          <p>Jump directly to the roster slice that matches the next staff move.</p>
+        </div>
+        <span class="workspace-chip">${liveLaneCount} live lane${liveLaneCount === 1 ? "" : "s"}</span>
+      </div>
+      <div class="workspace-student-directory-action-map-grid">
+        ${lanes.map((lane) => {
+          const active = studentDirectoryPresetMatchesFilters(lane.preset, filters);
+          return `
+            <article class="workspace-student-directory-action-card" data-student-directory-action-card="${escapeHtml(lane.id)}" data-tone="${escapeHtml(lane.tone)}" data-current-filter="${active ? "true" : "false"}">
+              <div class="workspace-student-directory-action-card-head">
+                <strong>${escapeHtml(lane.label)}</strong>
+                <span>${safeNumber(lane.count)}</span>
+              </div>
+              <p>${escapeHtml(lane.detail)}</p>
+              <small>Owner: ${escapeHtml(lane.owner)}</small>
+              <button class="workspace-button workspace-button-small" type="button" data-section="students" data-section-preset="${escapeHtml(lane.preset)}" aria-pressed="${active ? "true" : "false"}">
+                ${active ? "Viewing lane" : "Open lane"}
+              </button>
+            </article>
+          `;
+        }).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function studentDirectoryMapCount(summary = {}, students = [], keys = [], predicate = null) {
+  for (const key of keys) {
+    if (Object.prototype.hasOwnProperty.call(summary, key)) return safeNumber(summary[key]);
+  }
+  if (typeof predicate !== "function") return 0;
+  return students.filter(predicate).length;
+}
+
+function studentDirectoryPresetMatchesFilters(preset, filters = {}) {
+  if (preset === "all-students") return !hasActiveSiteStudentDirectoryFilter(filters);
+  if (preset === "missing-mentors") return Boolean(filters.noMentor) || normalizeStatus(filters.progressStatus) === "missing_mentor";
+  if (preset === "missing-evidence-students") return normalizeStatus(filters.evidenceStatus) === "missing";
+  if (preset === "needs-review-students") return normalizeStatus(filters.reviewStatus) === "needs_review";
+  if (preset === "revision-students") return normalizeStatus(filters.status) === "revision_requested";
+  if (preset === "high-risk-students") return normalizeStatus(filters.risk) === "high";
+  if (preset === "mentor-meeting-follow-up-students") return normalizeStatus(filters.progressStatus) === "mentor_meeting_follow_up";
+  if (preset === "presentation-pending-students") return normalizeStatus(filters.presentationStatus) === "pending";
+  if (preset === "archive-ready-students") return normalizeStatus(filters.archiveStatus) === "ready";
+  if (preset === "archive-failed-students") return normalizeStatus(filters.archiveStatus) === "failed";
+  return false;
+}
+
+function hasActiveSiteStudentDirectoryFilter(filters = {}) {
+  const directKeys = ["search", "programId", "cohortId", "status", "progressStatus", "evidenceStatus", "reviewStatus", "story"];
+  if (directKeys.some((key) => cleanDirectoryFilter(filters[key] || ""))) return true;
+  if (Boolean(filters.noMentor)) return true;
+  if (normalizeStatus(filters.risk || "any") !== "any") return true;
+  if (normalizeStatus(filters.presentationStatus || "any") !== "any") return true;
+  if (normalizeStatus(filters.archiveStatus || "any") !== "any") return true;
+  return false;
 }
 
 function renderStudentDirectorySavedFilterChips(summary = {}) {
@@ -2760,6 +4396,7 @@ function renderStudentRows(students = [], readOnly = false, permissions = {}, sc
 function renderStudentRow(student, readOnly = false, permissions = {}, scope = {}) {
   const riskFlags = Array.isArray(student.riskFlags) ? student.riskFlags : [];
   const canRemoveStudent = !readOnly && permissions.canManageSiteUsers && student.studentId && scope.siteId;
+  const guidance = studentDirectoryRowGuidance(student, readOnly);
   return `
     <article class="workspace-student-row workspace-student-card">
       <div>
@@ -2783,6 +4420,10 @@ function renderStudentRow(student, readOnly = false, permissions = {}, scope = {
         <strong>${escapeHtml(safeNumber(student.progressPercent))}%</strong>
         <p>${escapeHtml(progressStatusFilterLabel(student.progressStatus || ""))}</p>
         <p class="workspace-muted">Last activity ${escapeHtml(formatDate(student.lastActivityAt))}</p>
+      </div>
+      <div class="workspace-owner-action" data-student-directory-row-guidance="true" data-student-directory-owner="${escapeHtml(guidance.owner)}">
+        <span>Owner: ${escapeHtml(guidance.owner)}</span>
+        <small>Do next: ${escapeHtml(guidance.nextAction)}</small>
       </div>
       <div class="workspace-row-actions">
         ${statusPill(student.latestSubmissionStatus || "draft")}
@@ -2816,6 +4457,63 @@ function renderStudentRow(student, readOnly = false, permissions = {}, scope = {
       ` : ""}
     </article>
   `;
+}
+
+function studentDirectoryRowGuidance(student = {}, readOnly = false) {
+  const flags = Array.isArray(student.riskFlags) ? student.riskFlags.map(normalizeStatus) : [];
+  const progress = normalizeStatus(student.progressStatus || "");
+  const submission = normalizeStatus(student.latestSubmissionStatus || student.status || "");
+  const review = normalizeStatus(student.reviewStatus || "");
+  const proof = normalizeStatus(student.evidenceStatus || "");
+  const presentation = normalizeStatus(student.presentationStatus || "");
+  const archive = normalizeStatus(student.archiveStatus || "");
+  const fallback = String(student.nextAction || "").trim() || "Open student detail and confirm the current blocker.";
+  if (readOnly) {
+    return {
+      owner: "Assigned staff",
+      nextAction: "Use this row for context, then share the student name with authorized staff.",
+    };
+  }
+  if (!student.hasActiveMentor || flags.includes("no_mentor") || progress === "missing_mentor") {
+    return {
+      owner: "Site Admin or Program Teacher",
+      nextAction: "Open Mentor Assignments and assign coverage before the next check-in.",
+    };
+  }
+  if (submission === "submitted" || review === "needs_review") {
+    return {
+      owner: "Program Teacher",
+      nextAction: "Open the Review Queue, check proof and history, then record one decision.",
+    };
+  }
+  if (submission === "revision_requested" || review === "needs_revision") {
+    return {
+      owner: "Student with Program Teacher support",
+      nextAction: "Student revises the matching item; Program Teacher reviews only after it is sent again.",
+    };
+  }
+  if (proof === "missing" || progress === "missing_evidence") {
+    return {
+      owner: "Student",
+      nextAction: "Student adds proof to the matching checklist item before review can move forward.",
+    };
+  }
+  if (presentation === "pending" || presentation === "missing") {
+    return {
+      owner: "Program Teacher or site staff",
+      nextAction: "Open Operations or Presentation readiness and confirm the outline or schedule blocker.",
+    };
+  }
+  if (archive === "failed" || archive === "provider_unavailable") {
+    return {
+      owner: "Site Admin",
+      nextAction: "Open Operations final-file rows and resolve the export or storage blocker.",
+    };
+  }
+  return {
+    owner: "Assigned staff",
+    nextAction: fallback,
+  };
 }
 
 function renderStudentDirectoryEmptyState(directory) {
@@ -3586,7 +5284,7 @@ function studentDetailCommentKind(visibility) {
   const normalized = normalizeStatus(visibility);
   if (normalized === "staff_only") return "Staff-only note";
   if (normalized === "student_visible" || normalized === "student_and_staff") return "Student-visible note";
-  if (normalized === "scoped") return "Role-scoped note";
+  if (normalized === "scoped") return "Staff follow-up note";
   return "Visible note";
 }
 
@@ -3599,13 +5297,13 @@ function studentDetailCommentVisibilityMode(detail) {
 
 function studentDetailCommentListDetail(mode) {
   if (mode === "admin_detailed") return "Student-visible and staff-only notes";
-  if (mode === "scoped_staff") return "Role-scoped follow-up notes";
+  if (mode === "scoped_staff") return "Staff follow-up notes";
   return "Student-visible notes";
 }
 
 function studentDetailCommentEmptyMessage(mode) {
   if (mode === "admin_detailed") return "No student-visible or staff-only notes are available for this student.";
-  if (mode === "scoped_staff") return "No role-scoped notes are available for this student.";
+  if (mode === "scoped_staff") return "No staff follow-up notes are available for this student.";
   return "No student-visible notes are available for this student.";
 }
 
@@ -3643,7 +5341,7 @@ function renderStudentDetailCommentVisibilitySummary(detail, comments = []) {
 
   const scopedBadges = mode === "scoped_staff"
     ? [
-        `<span class="workspace-site-context-badge" data-student-detail-comment-visibility="scoped">Role-scoped notes: ${escapeHtml(total)}</span>`,
+        `<span class="workspace-site-context-badge" data-student-detail-comment-visibility="scoped">Staff follow-up notes: ${escapeHtml(total)}</span>`,
         `<span class="workspace-site-context-badge" data-student-detail-comment-visibility="staff-scope">Staff follow-up included</span>`,
         `<span class="workspace-site-context-badge" data-student-detail-comment-visibility="admin-hidden">Admin-only context hidden</span>`,
       ]
@@ -4001,7 +5699,7 @@ function renderSiteNextActions(actions = [], readOnly = false) {
 
 function deniedWorkspaceSections() {
   return [
-    ["dashboard", "Student workspace"],
+    ["dashboard", "My Work"],
     ["siteDashboard", "Site dashboard"],
     ["siteStudents", "Students"],
     ["adminDashboard", "Admin command center"],
@@ -4139,7 +5837,7 @@ function renderAccessAssignmentSelectionRequired(body = {}) {
 function renderProgramTeacherDashboardSection() {
   const result = currentData.programTeacherDashboard;
   if (result?.status === 403) {
-    return renderPermissionDeniedSection("Program dashboard", "assigned program or cohort records");
+    return renderPermissionDeniedSection("Program dashboard", "assigned program records");
   }
   const dashboard = unwrap(result);
   if (!dashboard) {
@@ -4160,7 +5858,7 @@ function renderProgramTeacherDashboardSection() {
         <div>
           <p class="workspace-kicker">Program Dashboard</p>
           <h1>Program Teacher Dashboard</h1>
-          <p>Track student progress, review evidence, and find students who need support in your assigned program or cohort.</p>
+          <p>Track your students, review proof, and find who needs support in your assigned program.</p>
         </div>
         <div class="workspace-command-hero-grid">
           <span class="workspace-chip">${escapeHtml(scopeTypeLabel)}</span>
@@ -4353,6 +6051,15 @@ function renderMentorDashboardSection() {
           <span class="workspace-chip">${safeNumber(summary.assignedCount)} assigned</span>
         </div>
       </div>
+      ${renderFirstUseGuide("mentor-dashboard", "Help the assigned student who needs you first", [
+        ["Use the focus order", "Revision comes before missed meetings, then presentation readiness, then regular check-ins."],
+        ["Open the meeting plan", "Start with the suggested question and compare it to the latest Program Teacher signal."],
+        ["Open student detail when needed", "Use detail for context only for students actively assigned to you."],
+        ["Record the next check-in", "Save meeting purpose, status, and the exact follow-up after the student conversation."],
+      ], {
+        detail: "Mentor tools support students without changing Program Teacher approval decisions.",
+        badge: "Mentor path",
+      })}
       <div class="workspace-dashboard-grid">
         ${renderMetricTile("Assigned", summary.assignedCount, "Active student assignments", "mentor", "", {
           actionHtml: assigned.length ? renderMentorDashboardMetricAction("all", "Show all") : "",
@@ -4367,6 +6074,7 @@ function renderMentorDashboardSection() {
           actionHtml: assigned.length ? renderMentorDashboardMetricAction("presentation", "Focus list") : "",
         })}
       </div>
+      ${assigned.length ? renderMentorDashboardActionMap(assigned, filteredAssigned, activeFilter) : ""}
       ${assigned.length ? renderMentorDashboardFilters(assigned, activeFilter) : ""}
       ${assigned.length ? renderMentorDashboardSortControls(assigned, activeSort) : ""}
       ${assigned.length ? renderMentorDashboardQueueGuide(assigned, activeFilter) : ""}
@@ -4720,6 +6428,15 @@ function renderMentorAssignmentForm(body) {
         </select>
       </label>
       ${renderMentorAssignmentLoadGuidance(mentors)}
+      ${renderTaskFinishChecklist("mentor-assignment-save", "Before assigning this mentor", [
+        ["Student still needs coverage", "Confirm the selected student is in the unassigned queue for this school.", "ready"],
+        ["Mentor load checked", "Use the active assignment count and load label before choosing a mentor.", "ready"],
+        ["Scope is school-only", "This assignment does not create an account, change a role, or message the student.", "context"],
+        ["Reason is specific", "Write why this mentor is the right coverage before saving.", "needs_review"],
+      ], {
+        detail: "Use these checks before saving a mentor assignment.",
+        badge: "Assignment checks",
+      })}
       <label>
         <span>Reason</span>
         <textarea name="reason" rows="4" maxlength="240" required></textarea>
@@ -4898,6 +6615,7 @@ function renderOperationsReadinessSection() {
         <strong>${escapeHtml(copy.bannerTitle)}</strong>
         <p>${escapeHtml(copy.bannerBody)}</p>
       </section>
+      ${renderOperationsActionMap(body, dashboard)}
       ${renderOperationsSummaryDeck(dashboard)}
       ${renderOperationsRoleActionGuide(body, dashboard)}
       <div class="workspace-operations-insight-grid">
@@ -5031,6 +6749,137 @@ function renderOperationsActiveFilters(filters = {}, options = {}) {
   if (safeNumber(filters.limit) !== 50) chips.push(activeFilterChip("Page size", filters.limit));
   if (safeNumber(filters.offset) > 0) chips.push(activeFilterChip("Offset", filters.offset));
   return renderActiveFilterSummary("Operations readiness", chips, 'data-operations-action="reset-filters"');
+}
+
+function renderOperationsActionMap(body = {}, dashboard = {}) {
+  const summary = body.summary || {};
+  const presentationSummary = body.presentation?.summary || {};
+  const archiveSummary = body.archive?.summary || {};
+  const scope = body.scope || {};
+  const sourceDetail = `${scope.siteName || "Current school"} / ${scope.schoolYear || "school year"}`;
+  const failedExports = safeNumber(summary.archiveFailed || archiveSummary.failed);
+  const storageSetup = safeNumber(archiveSummary.providerUnavailable);
+  const missingProof = safeNumber(summary.evidenceMissing);
+  const presentationFollowUp = safeNumber(summary.presentationPending)
+    + safeNumber(summary.outlinePending)
+    + safeNumber(presentationSummary.attentionRequired);
+  const staffAction = safeNumber(summary.needsAttention) || safeNumber(dashboard.nextActions?.[0]?.count);
+  const staleActivity = safeNumber(summary.staleActivity);
+  const readySignals = safeNumber(dashboard.readySignals);
+  const totalSignals = failedExports + storageSetup + missingProof + presentationFollowUp + staffAction + staleActivity;
+  const cards = [
+    {
+      id: "final-files",
+      tone: failedExports ? "danger" : "ready",
+      owner: "Site Admin",
+      count: failedExports ? `${failedExports} failed` : "Clear",
+      title: failedExports ? "Fix failed final files first" : "Final-file failures clear",
+      detail: failedExports
+        ? "Failed exports can block closeout; confirm student detail before promising downloads."
+        : "No failed final-file export count is visible in this operations view.",
+      source: "Final Files source",
+      preset: "archive-failed",
+      actionLabel: failedExports ? "Open failures" : "Review final files",
+    },
+    {
+      id: "storage",
+      tone: storageSetup ? "danger" : "ready",
+      owner: "Site Admin",
+      count: storageSetup ? `${storageSetup} setup` : "Configured",
+      title: storageSetup ? "Confirm storage setup" : "Storage blockers clear",
+      detail: storageSetup
+        ? "Storage setup must be ready before final-file packages or download promises are useful."
+        : "No provider-unavailable final-file blocker is visible right now.",
+      source: "Archive provider source",
+      preset: "archive-provider-unavailable",
+      actionLabel: storageSetup ? "Open setup blockers" : "Review setup",
+    },
+    {
+      id: "proof",
+      tone: missingProof ? "warning" : "ready",
+      owner: "Student + Program Teacher",
+      count: missingProof ? `${missingProof} missing` : "Attached",
+      title: missingProof ? "Route missing proof" : "Proof blockers clear",
+      detail: missingProof
+        ? "Tell the student exactly which proof belongs with the current phase before any approval promise."
+        : "No proof-missing readiness count is visible in this view.",
+      source: "Proof readiness source",
+      preset: "evidence-missing",
+      actionLabel: missingProof ? "Open proof rows" : "Review proof",
+    },
+    {
+      id: "presentation",
+      tone: presentationFollowUp ? "presentation" : "ready",
+      owner: "Program Teacher or site staff",
+      count: presentationFollowUp ? `${presentationFollowUp} follow-up` : "Ready",
+      title: presentationFollowUp ? "Clarify presentation readiness" : "Presentation blockers clear",
+      detail: presentationFollowUp
+        ? "Check schedule, outline, and check-in state before marking presentation readiness complete."
+        : "No pending presentation, outline, or check-in blocker is visible.",
+      source: "Presentation source",
+      preset: safeNumber(presentationSummary.attentionRequired) ? "presentation-attention" : "presentation-pending",
+      actionLabel: presentationFollowUp ? "Open presentation" : "Review presentations",
+    },
+    {
+      id: "staff-action",
+      tone: staffAction ? "attention" : "ready",
+      owner: "Assigned staff",
+      count: staffAction ? `${staffAction} action` : "Clear",
+      title: staffAction ? "Work ranked staff actions" : "No ranked staff action",
+      detail: staffAction
+        ? "Use this lane for high-risk or blocked rows when the owner must be confirmed in student detail."
+        : "No staff-action row is waiting in the current operations summary.",
+      source: "Ranked worklist source",
+      preset: "needs-attention",
+      actionLabel: staffAction ? "Open actions" : "Review actions",
+    },
+    {
+      id: "source-screens",
+      tone: totalSignals ? "quiet" : "ready",
+      owner: "School team",
+      count: totalSignals ? `${totalSignals} ${pluralize(totalSignals, "signal")}` : `${readySignals} ready`,
+      title: totalSignals ? "Return after the first blocker" : "Routine monitoring",
+      detail: totalSignals
+        ? "Open one filtered source, finish that owner lane, then return before scanning every row."
+        : "No major operations blocker is visible; keep monitoring ready, in-progress, and expiring items.",
+      source: sourceDetail,
+      preset: staleActivity ? "stale-activity" : "archive-in-progress",
+      actionLabel: totalSignals ? "Open stale rows" : "Review in progress",
+    },
+  ];
+
+  return `
+    <section class="workspace-operations-action-map" data-operations-action-map="true" aria-label="Operations action map">
+      <div class="workspace-operations-action-map-head">
+        <div>
+          <p class="workspace-kicker">Operations lane map</p>
+          <h2>Work one operations lane first</h2>
+          <p>Pick the strongest blocker, open the filtered source rows, then return here before expanding every detail panel.</p>
+        </div>
+        <span class="workspace-chip">${escapeHtml(sourceDetail)}</span>
+      </div>
+      <div class="workspace-operations-action-map-grid">
+        ${cards.map((card) => renderOperationsActionMapCard(card)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderOperationsActionMapCard(card = {}) {
+  return `
+    <article class="workspace-operations-action-map-card ${escapeHtml(card.tone || "quiet")}" data-operations-action-map-card="${escapeHtml(card.id || "action")}" data-operations-action-owner="${escapeHtml(card.owner || "Assigned staff")}">
+      <div>
+        <div class="workspace-operations-action-map-meta">
+          <span>${escapeHtml(card.owner || "Assigned staff")}</span>
+          <b>${escapeHtml(card.count || "0")}</b>
+        </div>
+        <strong>${escapeHtml(card.title || "Review operations lane")}</strong>
+        <p>${escapeHtml(card.detail || "Open the matching source rows before changing any status.")}</p>
+        ${card.source ? `<small>${escapeHtml(card.source)}</small>` : ""}
+      </div>
+      ${card.preset ? operationsPresetButton(card.preset, card.actionLabel || "Review rows") : `<span class="workspace-summary-badge">Summary only</span>`}
+    </article>
+  `;
 }
 
 function renderOperationsRoleActionGuide(body = {}, dashboard = {}) {
@@ -5253,6 +7102,78 @@ function renderDashboardKpis(items = [], options = {}) {
   `;
 }
 
+function renderFirstUseGuide(id, title, steps = [], options = {}) {
+  const safeSteps = (Array.isArray(steps) ? steps : []).filter(Boolean).slice(0, 5);
+  if (!safeSteps.length) return "";
+  const kicker = options.kicker || "Start here";
+  const detail = options.detail || "Use these steps when you are new to this screen.";
+  const badge = options.badge || `${safeSteps.length} steps`;
+  return `
+    <section class="workspace-first-use-guide" data-first-use-guide="${escapeHtml(id)}" aria-label="${escapeHtml(title)}">
+      <div class="workspace-first-use-head">
+        <div>
+          <p class="workspace-kicker">${escapeHtml(kicker)}</p>
+          <strong>${escapeHtml(title)}</strong>
+          <p>${escapeHtml(detail)}</p>
+        </div>
+        <span class="workspace-site-context-badge">${escapeHtml(badge)}</span>
+      </div>
+      <ol class="workspace-first-use-steps">
+        ${safeSteps.map((step, index) => {
+          const label = Array.isArray(step) ? step[0] : step?.label;
+          const body = Array.isArray(step) ? step[1] : step?.detail;
+          return `
+            <li>
+              <span aria-hidden="true">${escapeHtml(index + 1)}</span>
+              <div>
+                <b>${escapeHtml(label || "Use this step")}</b>
+                <p>${escapeHtml(body || "Follow the screen guidance before moving on.")}</p>
+              </div>
+            </li>
+          `;
+        }).join("")}
+      </ol>
+    </section>
+  `;
+}
+
+function renderTaskFinishChecklist(id, title, items = [], options = {}) {
+  const safeItems = (Array.isArray(items) ? items : [])
+    .filter(Boolean)
+    .slice(0, 5);
+  if (!safeItems.length) return "";
+  const state = normalizeStatus(options.state || "ready") || "ready";
+  return `
+    <section class="workspace-task-finish-checklist" data-task-finish-checklist="${escapeHtml(id)}" data-task-finish-checklist-state="${escapeHtml(state)}" aria-label="${escapeHtml(title)}">
+      <div class="workspace-task-finish-head">
+        <div>
+          <p class="workspace-kicker">${escapeHtml(options.kicker || "Before you finish")}</p>
+          <strong>${escapeHtml(title)}</strong>
+          ${options.detail ? `<p>${escapeHtml(options.detail)}</p>` : ""}
+        </div>
+        <span class="workspace-site-context-badge">${escapeHtml(options.badge || `${safeItems.length} checks`)}</span>
+      </div>
+      <ol class="workspace-task-finish-steps">
+        ${safeItems.map((item) => {
+          const label = Array.isArray(item) ? item[0] : item?.label;
+          const detail = Array.isArray(item) ? item[1] : item?.detail;
+          const itemState = normalizeStatus(Array.isArray(item) ? item[2] : item?.state || "check") || "check";
+          const key = String(label || "check").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "check";
+          return `
+            <li data-task-finish-check="${escapeHtml(key)}" data-task-finish-check-state="${escapeHtml(itemState)}">
+              <span aria-hidden="true"></span>
+              <div>
+                <b>${escapeHtml(label || "Check before continuing")}</b>
+                <p>${escapeHtml(detail || "Confirm this before using the action on this screen.")}</p>
+              </div>
+            </li>
+          `;
+        }).join("")}
+      </ol>
+    </section>
+  `;
+}
+
 function operationsSectionCopy(scope = {}) {
   const role = String(scope.role || "");
   if (role === "program_teacher") {
@@ -5362,12 +7283,37 @@ function renderRankedNextActions(actions = [], options = {}) {
           <div>
             <strong>${escapeHtml(action.count ? `${action.label} (${action.count})` : action.label)}</strong>
             <p>${escapeHtml(action.why || "Review this operational signal.")}</p>
+            <p class="workspace-owner-action workspace-owner-action-inline" data-operations-ranked-owner="true">
+              <span>Owner: ${escapeHtml(operationsRankedActionOwner(action))}</span>
+              <small>Do next: ${escapeHtml(operationsRankedActionNextStep(action))}</small>
+            </p>
           </div>
           ${action.preset ? operationsPresetButton(action.preset) : `<span class="workspace-summary-badge">Summary only</span>`}
         </li>
       `).join("")}
     </ol>
   `;
+}
+
+function operationsRankedActionOwner(action = {}) {
+  const preset = normalizeStatus(action.preset || "");
+  if (["archive_failed", "archive_provider_unavailable", "archive_expired", "archive_expiring_soon", "archive_in_progress"].includes(preset)) return "Site Admin";
+  if (["presentation_pending", "presentation_attention", "outline_pending"].includes(preset)) return "Program Teacher or site staff";
+  if (preset === "evidence_missing") return "Student with Program Teacher follow-up";
+  if (preset === "stale_activity" || preset === "needs_attention") return "Assigned staff";
+  return "Site administration";
+}
+
+function operationsRankedActionNextStep(action = {}) {
+  const preset = normalizeStatus(action.preset || "");
+  if (preset === "archive_provider_unavailable") return "Confirm storage setup before asking students to use final-file downloads.";
+  if (preset === "archive_failed") return "Open failed final-file rows, check student detail, then use the approved export flow.";
+  if (preset === "archive_expired") return "Review the expired download window before promising a package is ready.";
+  if (preset === "evidence_missing") return "Tell the student which proof belongs with the current phase work.";
+  if (preset === "outline_pending") return "Confirm the outline decision before presentation readiness is marked complete.";
+  if (preset === "presentation_pending" || preset === "presentation_attention") return "Confirm schedule, outline, and check-in state in the presentation workflow.";
+  if (preset === "stale_activity") return "Open student detail and verify whether the student, mentor, or Program Teacher owns the next touchpoint.";
+  return "Open the filtered operations rows and route each blocker to the listed owner.";
 }
 
 function operationsPresetButton(preset, label = "Review rows") {
@@ -5822,6 +7768,15 @@ function renderAdminAuditSection() {
         </div>
         <span class="workspace-chip">${safeNumber(events.length)} recent event${safeNumber(events.length) === 1 ? "" : "s"}</span>
       </div>
+      ${renderFirstUseGuide("audit", "Investigate protected activity without exposing secrets", [
+        ["Open a saved filter", "Start with denied access, upload failures, review decisions, account changes, or export failures."],
+        ["Check anomaly counts", "Use the signal cards to decide whether this is support, setup, or security follow-up."],
+        ["Stay redacted", "Do not expose note text, proof links, tokens, or Drive identifiers while investigating."],
+        ["Route the fix", "Send account issues to access admins, proof failures to storage setup, and review issues to Program Teachers."],
+      ], {
+        detail: "Audit is for triage and proof, not for reading private student work.",
+        badge: "Audit path",
+      })}
       <div class="workspace-filter-bar" data-admin-audit-filters="true" aria-label="Audit filters">
         <span class="workspace-muted">${escapeHtml(hasFilters ? `Filtered by ${filterLabel}` : "Showing the latest redacted audit activity.")}</span>
         ${hasFilters ? `
@@ -5830,6 +7785,7 @@ function renderAdminAuditSection() {
           </button>
         ` : ""}
       </div>
+      ${renderAdminAuditActionMap(events, adminAuditFilters)}
       ${renderAdminAuditSavedFilters(events, adminAuditFilters)}
       ${renderAdminAuditAnomalyView(events)}
       ${renderAdminAuditSecurityProofPanel(events)}
@@ -5840,6 +7796,176 @@ function renderAdminAuditSection() {
           : "No recent audit rows are available for this view.",
       }))}
     </section>
+  `;
+}
+
+function renderAdminAuditActionMap(events = [], activeFilters = {}) {
+  const safeEvents = Array.isArray(events) ? events : [];
+  const anomalyRows = adminAuditAnomalyRows(safeEvents);
+  const anomalyById = new Map(anomalyRows.map((row) => [row.id, row]));
+  const eventCount = safeEvents.length;
+  const filterCount = (filter) => safeEvents.filter((event) => adminAuditEventMatchesFilter(event, filter)).length;
+  const reviewCount = safeEvents.filter((event) => /review/i.test(event.entityType || "") || /review/i.test(event.action || "")).length;
+  const accountCount = safeEvents.filter((event) => /user|account|role|access|reset/i.test(`${event.entityType || ""} ${event.action || ""}`)).length;
+  const providerCount = filterCount({ action: "student_archive_export_provider_unavailable", entityType: "export" });
+  const cards = [
+    {
+      id: "recent",
+      tone: "ready",
+      owner: "Global admin",
+      count: `${eventCount} ${pluralize(eventCount, "event")}`,
+      title: "Start with latest protected activity",
+      detail: "Use the unfiltered redacted log when you need the newest platform pattern before choosing a lane.",
+      source: "Recent audit rows",
+      actionLabel: "Show recent",
+    },
+    {
+      id: "denied-access",
+      tone: anomalyById.get("denied-access")?.count ? "danger" : "quiet",
+      owner: "Access admin",
+      count: `${safeNumber(anomalyById.get("denied-access")?.count)} ${pluralize(anomalyById.get("denied-access")?.count, "denial", "denials")}`,
+      title: "Check denied access first",
+      detail: "Confirm the school, program, student, or role scope before widening access.",
+      source: "Protected-record denials",
+      action: "evidence_download_denied",
+      entityType: "evidence_artifact",
+      actionLabel: "Open denials",
+    },
+    {
+      id: "proof-storage",
+      tone: anomalyById.get("failed-uploads")?.count ? "warning" : "quiet",
+      owner: "Storage admin",
+      count: `${safeNumber(anomalyById.get("failed-uploads")?.count)} ${pluralize(anomalyById.get("failed-uploads")?.count, "failure")}`,
+      title: "Separate storage setup from student error",
+      detail: "Review provider failures before asking students to upload the same proof again.",
+      source: "Upload failures",
+      action: "google_drive_upload_failed",
+      entityType: "evidence_repository",
+      actionLabel: "Open uploads",
+    },
+    {
+      id: "blocked-proof",
+      tone: anomalyById.get("blocked-proof-attempts")?.count ? "warning" : "quiet",
+      owner: "Program Teacher or security admin",
+      count: `${safeNumber(anomalyById.get("blocked-proof-attempts")?.count)} ${pluralize(anomalyById.get("blocked-proof-attempts")?.count, "block")}`,
+      title: "Review blocked proof safely",
+      detail: "Decide whether the student needs proof-link help or the pattern needs security follow-up.",
+      source: "Blocked files and links",
+      action: "evidence_upload_blocked_signature",
+      entityType: "submission",
+      actionLabel: "Open blocks",
+    },
+    {
+      id: "review-decisions",
+      tone: reviewCount ? "review" : "quiet",
+      owner: "Program Teacher lead",
+      count: `${reviewCount} ${pluralize(reviewCount, "decision")}`,
+      title: "Confirm review decisions",
+      detail: "Use review rows to verify approvals, revisions, and comments without opening private proof here.",
+      source: "Review rows",
+      action: "",
+      entityType: "review",
+      actionLabel: "Open reviews",
+    },
+    {
+      id: "account-changes",
+      tone: accountCount ? "role" : "quiet",
+      owner: "Access admin",
+      count: `${accountCount} ${pluralize(accountCount, "change")}`,
+      title: "Audit account changes",
+      detail: "Compare account work with current Users & Access rows before adding broader access.",
+      source: "Account and role rows",
+      action: "",
+      entityType: "user_account",
+      actionLabel: "Open accounts",
+    },
+    {
+      id: "export-failures",
+      tone: anomalyById.get("export-failures")?.count ? "danger" : "quiet",
+      owner: "Site Admin",
+      count: `${safeNumber(anomalyById.get("export-failures")?.count)} ${pluralize(anomalyById.get("export-failures")?.count, "failure")}`,
+      title: "Check final-file handoff risk",
+      detail: "Confirm package status before telling students a final-file download is ready.",
+      source: "Export failures",
+      action: "student_archive_export_drive_upload_failed",
+      entityType: "export",
+      actionLabel: "Open exports",
+    },
+    {
+      id: "provider-setup",
+      tone: providerCount ? "warning" : "quiet",
+      owner: "Platform setup",
+      count: `${providerCount} ${pluralize(providerCount, "setup row")}`,
+      title: "Find provider setup blockers",
+      detail: "Use this when final-file or proof work is blocked because storage is unavailable.",
+      source: "Provider setup rows",
+      action: "student_archive_export_provider_unavailable",
+      entityType: "export",
+      actionLabel: "Open setup",
+    },
+    {
+      id: "session-pressure",
+      tone: anomalyById.get("login-rate")?.count ? "history" : "quiet",
+      owner: "Account support",
+      count: `${safeNumber(anomalyById.get("login-rate")?.count)} ${pluralize(anomalyById.get("login-rate")?.count, "signal")}`,
+      title: "Watch sign-in pressure",
+      detail: "Treat repeated failures as support or abuse triage before resetting access.",
+      source: "Login and rate-limit rows",
+      action: "",
+      entityType: "",
+      actionLabel: "Summary only",
+    },
+  ];
+
+  return `
+    <section class="workspace-admin-audit-action-map" data-admin-audit-action-map="true" aria-label="Audit action map">
+      <div class="workspace-admin-audit-action-map-head">
+        <div>
+          <p class="workspace-kicker">Audit action map</p>
+          <h2>Choose one redacted audit lane</h2>
+          <p>Pick the pattern, open the matching redacted filter, then fix the issue in the source screen.</p>
+        </div>
+        <span class="workspace-chip">${escapeHtml(adminAuditFilterLabel(activeFilters))}</span>
+      </div>
+      <div class="workspace-admin-audit-action-map-grid">
+        ${cards.map((card) => renderAdminAuditActionMapCard(card, activeFilters)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderAdminAuditActionMapCard(card = {}, activeFilters = {}) {
+  const isRecentCard = card.id === "recent";
+  const hasCardFilter = Boolean(card.action || card.entityType);
+  const isActive = isRecentCard
+    ? !activeFilters.action && !activeFilters.entityType
+    : hasCardFilter
+      && String(activeFilters.action || "") === String(card.action || "")
+      && String(activeFilters.entityType || "") === String(card.entityType || "");
+  return `
+    <article class="workspace-admin-audit-action-map-card ${escapeHtml(card.tone || "quiet")}" data-admin-audit-action-map-card="${escapeHtml(card.id || "audit-lane")}" data-admin-audit-action-owner="${escapeHtml(card.owner || "Global admin")}" data-current-filter="${isActive ? "true" : "false"}">
+      <div>
+        <div class="workspace-admin-audit-action-map-meta">
+          <span>${escapeHtml(card.owner || "Global admin")}</span>
+          <b>${escapeHtml(card.count || "0")}</b>
+        </div>
+        <strong>${escapeHtml(card.title || "Review protected activity")}</strong>
+        <p>${escapeHtml(card.detail || "Use the matching redacted filter before investigating the source screen.")}</p>
+        ${card.source ? `<small>${escapeHtml(card.source)}</small>` : ""}
+      </div>
+      ${renderAdminAuditActionMapButton(card, isActive)}
+    </article>
+  `;
+}
+
+function renderAdminAuditActionMapButton(card = {}, isActive = false) {
+  if (card.id === "session-pressure") {
+    return `<span class="workspace-summary-badge">Summary only</span>`;
+  }
+  return `
+    <button class="workspace-link-button workspace-link-button-small" type="button" data-section="audit" data-audit-action="${escapeHtml(card.action || "")}" data-audit-entity-type="${escapeHtml(card.entityType || "")}" aria-pressed="${isActive ? "true" : "false"}">
+      ${escapeHtml(isActive ? "Viewing" : card.actionLabel || "Open audit")}
+    </button>
   `;
 }
 
@@ -5898,6 +8024,10 @@ function renderAdminAuditAnomalyView(events = []) {
               <strong>${escapeHtml(row.count)}</strong>
             </div>
             <p>${escapeHtml(row.count ? row.reviewCopy : row.quietCopy)}</p>
+            <div class="workspace-owner-action" data-admin-audit-anomaly-owner="true">
+              <span>Owner: ${escapeHtml(row.owner)}</span>
+              <small>Do next: ${escapeHtml(row.nextAction)}</small>
+            </div>
             ${row.action || row.entityType ? `
               <button class="workspace-link-button workspace-link-button-small" type="button" data-section="audit" data-audit-action="${escapeHtml(row.action || "")}" data-audit-entity-type="${escapeHtml(row.entityType || "")}">
                 Open matching audit
@@ -5920,6 +8050,8 @@ function adminAuditAnomalyRows(events = []) {
       count: countWhere((event) => /denied|unauthorized/i.test(event.action || "")),
       reviewCopy: "Check whether a role, site, or student assignment is wrong before expanding access.",
       quietCopy: "No denied-access rows are visible in this audit view.",
+      owner: "Access admin",
+      nextAction: "Confirm the current school, program, or student assignment before changing access.",
       action: "evidence_download_denied",
       entityType: "evidence_artifact",
     },
@@ -5929,6 +8061,8 @@ function adminAuditAnomalyRows(events = []) {
       count: countWhere((event) => /upload.*failed|missing_config|missing_credentials/i.test(event.action || "")),
       reviewCopy: "Use storage setup and student fallback language before asking students to upload again.",
       quietCopy: "No upload-failure rows are visible in this audit view.",
+      owner: "Storage admin",
+      nextAction: "Check storage readiness, then tell students to use the secure proof-link fallback if needed.",
       action: "google_drive_upload_failed",
       entityType: "evidence_repository",
     },
@@ -5938,6 +8072,8 @@ function adminAuditAnomalyRows(events = []) {
       count: countWhere((event) => /evidence_(upload_blocked_signature|link_blocked_unsafe_url)/i.test(event.action || "")),
       reviewCopy: "Check whether students need help attaching proof safely or whether the pattern looks malicious.",
       quietCopy: "No blocked file or proof-link attempts are visible in this audit view.",
+      owner: "Program Teacher or security admin",
+      nextAction: "Help the student attach proof safely, or escalate repeated unsafe patterns.",
       action: "",
       entityType: "",
     },
@@ -5947,6 +8083,8 @@ function adminAuditAnomalyRows(events = []) {
       count: countWhere((event) => /rate_limited|invalid_credentials|login_failed/i.test(event.action || "")),
       reviewCopy: "Confirm whether this looks like a user support issue or an abuse pattern.",
       quietCopy: "Login failure details stay in the auth attempt table unless a route writes an audit row.",
+      owner: "Account support",
+      nextAction: "Confirm the user is using the approved sign-in path before resetting access.",
       action: "",
       entityType: "",
     },
@@ -5954,8 +8092,10 @@ function adminAuditAnomalyRows(events = []) {
       id: "import-attempts",
       label: "Import attempts",
       count: countWhere((event) => /user\.create|scope_validation|import/i.test(event.action || "")),
-      reviewCopy: "Review role scope, selected site/program, and whether real local accounts were blocked by policy.",
+      reviewCopy: "Review role, school, and program access, plus whether real local accounts were blocked by policy.",
       quietCopy: "No account-import attempts are visible in this audit view.",
+      owner: "Access admin",
+      nextAction: "Check role access and setup-password delivery before retrying account creation.",
       action: "",
       entityType: "user_account",
     },
@@ -5965,6 +8105,8 @@ function adminAuditAnomalyRows(events = []) {
       count: countWhere((event) => /access\.|role|assignment/i.test(event.action || "")),
       reviewCopy: "Confirm this access change was intentional and scoped to the smallest useful role.",
       quietCopy: "No role or access change rows are visible in this audit view.",
+      owner: "Access admin",
+      nextAction: "Compare the change with current assignments before adding broader access.",
       action: "",
       entityType: "site_access_assignment",
     },
@@ -5974,6 +8116,8 @@ function adminAuditAnomalyRows(events = []) {
       count: countWhere((event) => /archive_export.*failed|provider_unavailable|drive_upload_failed/i.test(event.action || "")),
       reviewCopy: "Check final-file package status before telling students a download is ready.",
       quietCopy: "No final-file export failures are visible in this audit view.",
+      owner: "Site Admin",
+      nextAction: "Open final-file or Operations rows and confirm package status before student handoff.",
       action: "student_archive_export_drive_upload_failed",
       entityType: "export",
     },
@@ -6053,6 +8197,7 @@ function renderAdminArchiveExportsSection() {
       </div>
       ${renderAdminArchiveStorageReadinessPanel(dashboard)}
       ${renderAdminArchiveFailureGuide(recentExports, summary)}
+      ${renderAdminArchiveFinishChecklist(dashboard, recentExports)}
       ${renderAdminArchiveExportFilters(recentExports, activeFilter)}
       ${renderDashboardCard("Current package requests", "Real final-file export rows for follow-up", renderAdminArchiveExportRows(filteredExports, activeFilter, recentExports.length))}
       ${renderDashboardCard("Export Snapshot", "Package status", renderSnapshotRows(dashboard.archiveSnapshot))}
@@ -6188,7 +8333,7 @@ function renderAdminArchiveStorageReadinessPanel(dashboard = {}) {
         <div>
           <p class="workspace-kicker">Storage readiness</p>
           <h2>Final-file storage check</h2>
-          <p class="workspace-muted">Use this before telling students a package is ready. It summarizes queue, failure, provider, privacy, and retention state without exposing storage identifiers.</p>
+          <p class="workspace-muted">Use this before telling students a package is ready. It summarizes queue, failure, provider, privacy, and retention state without exposing private file details.</p>
         </div>
         ${statusPill(failed || providerUnavailable ? "needs_staff_action" : "configured")}
       </div>
@@ -6231,16 +8376,34 @@ function renderAdminArchiveFailureGuide(rows = [], summary = {}) {
   `;
 }
 
+function renderAdminArchiveFinishChecklist(dashboard = {}, rows = []) {
+  const summary = dashboard.summary || {};
+  const safeRows = Array.isArray(rows) ? rows : [];
+  const failedCount = Math.max(safeNumber(summary.exportsFailed), safeRows.filter((row) => adminArchiveExportRowFilterKey(row) === "failed").length);
+  const inProgressCount = safeNumber(summary.exportsQueued) + safeNumber(summary.exportsRunning);
+  const completeCount = safeNumber(summary.exportsComplete);
+  return renderTaskFinishChecklist("admin-final-file-handoff", "Before final-file handoff", [
+    ["Failed packages reviewed", failedCount ? `${failedCount} failed package ${pluralize(failedCount, "request")} still need staff follow-up.` : "No failed package requests are visible in this summary.", failedCount ? "blocked" : "ready"],
+    ["In-progress packages not promised", inProgressCount ? `${inProgressCount} package ${pluralize(inProgressCount, "request")} still queued or running.` : "No queued or running package requests are visible.", inProgressCount ? "context" : "ready"],
+    ["Complete row visible", completeCount ? `${completeCount} complete package ${pluralize(completeCount, "request")} can support handoff.` : "Do not promise readiness until a complete package row is visible.", completeCount ? "ready" : "needs_review"],
+    ["Private file details stay hidden", "Use package status and protected download surfaces; do not expose Drive IDs, tokens, or private proof details.", "ready"],
+  ], {
+    detail: "Use these checks before telling a student or school staff member that final files are ready.",
+    badge: "Handoff checks",
+    state: failedCount ? "failed" : inProgressCount ? "pending" : "ready",
+  });
+}
+
 function renderStudentSection() {
   const result = currentData.dashboard;
   if (result?.status === 403) {
-    return renderPermissionDeniedSection("Student workspace", "student project records");
+    return renderPermissionDeniedSection("My Work", "your project records");
   }
   const dashboard = unwrap(result);
   if (!dashboard) {
     return `
       <section class="workspace-card workspace-error-card">
-        <h2>Student workspace unavailable</h2>
+        <h2>My Work is unavailable</h2>
         <p>We could not load your project progress.</p>
         ${renderApiNotice(result)}
         ${renderProblemState({
@@ -6252,8 +8415,10 @@ function renderStudentSection() {
     `;
   }
 
+  const requirements = dashboard.requirements || [];
   const submissions = dashboard.submissions || [];
   const evidence = dashboard.evidence || [];
+  const feedback = dashboard.feedback || [];
   const summary = studentProgressSummary(dashboard);
   const nextSteps = Array.isArray(dashboard.nextSteps) ? dashboard.nextSteps : [];
   const archiveNextAction = studentArchivePrimaryNextAction(unwrap(currentData.archiveReadiness));
@@ -6281,6 +8446,7 @@ function renderStudentSection() {
           <p>${escapeHtml(summary.requirementsTotal ? `${summary.requirementsComplete} of ${summary.requirementsTotal} work items are done.` : "Your Program Teacher has not added Senior Project work yet.")}</p>
         </div>
       </div>
+      ${renderStudentPhasePath(summary, requirements)}
       <div class="workspace-student-summary-grid">
         ${renderStudentSummaryTile("Senior Project Phases", `${summary.phasesComplete} of ${summary.phasesTotal || 0} done`, summary.phasesTotal ? "Your work is grouped by the same phases as the Senior booklet." : "Project phases are not available yet.", "student")}
         ${renderStudentSummaryTile("Work Sent In", `${summary.submittedRequiredCount} of ${summary.requirementsTotal || 0} sent`, summary.requirementsTotal ? `${summary.missingRequiredCount} still not sent or still a draft.` : "No required work is assigned yet.", summary.missingRequiredCount ? "warning" : "student")}
@@ -6288,13 +8454,374 @@ function renderStudentSection() {
         ${renderStudentSummaryTile("Mentor Help", summary.mentor.assigned ? `Mentor: ${summary.mentor.name}` : "No mentor assigned yet", summary.mentor.assigned ? "Ask your mentor or Program Teacher if something looks wrong." : "Ask your Program Teacher who can help with mentor questions.", summary.mentor.assigned ? "mentor" : "warning")}
       </div>
     </section>
+    ${renderStudentSetupGuide(summary, requirements)}
+    ${renderStudentMissionBoard(summary, nextSteps, submissions, evidence, feedback, requirements, archiveNextAction)}
+    ${renderFirstUseGuide("student", "Use My Work in order", [
+      ["Read Do this next", "Start with the single command card before opening every panel."],
+      ["Open the named item", "Use Open item, Feedback, or Work You Sent In only for the item named there."],
+      ["Add proof or send revision", "Attach proof to the matching checklist item, then send for review when the button is available."],
+      ["Stop at the approval gate", "Do not start a new phase until Program Teacher approval is recorded."],
+    ], {
+      detail: "The first screen chooses your next move so you do not have to guess.",
+      badge: "Student path",
+    })}
     ${renderStudentPrimaryNextAction(summary, nextSteps, archiveNextAction)}
     ${renderStudentApprovalGateBanner(summary)}
     ${renderStudentStagePlaybook(summary, nextSteps)}
+    ${renderStudentPhaseDeliverableGuide(summary, requirements)}
     ${renderStudentNextSteps(nextSteps, summary)}
-    ${renderStudentDeadlinePanel(dashboard.requirements || [], summary)}
+    ${renderStudentDeadlinePanel(requirements, summary)}
     ${renderStudentWorkspaceDisclosurePanels(dashboard, summary, submissions, evidence, filteredSubmissions, activeSubmissionFilter)}
   `;
+}
+
+function renderStudentSetupGuide(summary = {}, requirements = []) {
+  if (safeNumber(summary?.requirementsTotal) || (Array.isArray(requirements) && requirements.length)) return "";
+  const steps = [
+    {
+      id: "not-behind",
+      title: "You are not behind yet",
+      detail: "No Senior Project item is assigned, so there is nothing to send or revise from this page right now.",
+      tone: "student",
+    },
+    {
+      id: "ask-first-item",
+      title: "Ask for the first item",
+      detail: "Ask your Program Teacher which Senior Project phase or checklist item should appear first.",
+      tone: "warning",
+    },
+    {
+      id: "wait-proof",
+      title: "Wait to upload proof",
+      detail: "Proof must attach to an exact assigned item. Do not upload random files before the item appears.",
+      tone: "quiet",
+    },
+  ];
+  return `
+    <section class="workspace-student-setup-guide" data-student-setup-guide="true" aria-labelledby="studentSetupGuideTitle">
+      <div class="workspace-student-setup-guide-head">
+        <div>
+          <p class="workspace-kicker">Before work appears</p>
+          <h2 id="studentSetupGuideTitle">Nothing is assigned yet</h2>
+          <p>Use this state to know what is normal and what to ask for next.</p>
+        </div>
+      </div>
+      <div class="workspace-student-setup-guide-grid">
+        ${steps.map((step) => `
+          <article class="workspace-student-setup-step ${escapeHtml(step.tone)}" data-student-setup-step="${escapeHtml(step.id)}">
+            <strong>${escapeHtml(step.title)}</strong>
+            <p>${escapeHtml(step.detail)}</p>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderStudentPhasePath(summary = {}, requirements = []) {
+  const countsByPhase = studentRequirementCountsByPhase(requirements);
+  const currentPhaseKey = studentRequirementPhaseKey(summary?.currentPhase || summary?.currentPhaseLabel || "");
+  const currentRank = studentBookletPhaseRank(currentPhaseKey);
+  const phases = STUDENT_BOOKLET_PHASE_ORDER.map((key) => {
+    const phase = studentBookletPhaseInfo(key);
+    const counts = countsByPhase.get(key) || { total: 0, complete: 0 };
+    return studentPhasePathStep(phase, counts, currentPhaseKey, currentRank);
+  });
+  return `
+    <section class="workspace-student-phase-path" data-student-phase-path="true" aria-labelledby="studentPhasePathTitle">
+      <div class="workspace-student-phase-path-head">
+        <div>
+          <p class="workspace-kicker">Capstone path</p>
+          <h3 id="studentPhasePathTitle">Where you are</h3>
+          <p>See the whole Senior Project path: done, now, needs work, and later.</p>
+        </div>
+      </div>
+      <ol class="workspace-student-phase-path-list" aria-label="Senior Project phase path">
+        ${phases.map((step) => `
+          <li class="workspace-student-phase-step ${escapeHtml(step.state)}" data-student-phase-step="${escapeHtml(step.key)}" data-student-phase-state="${escapeHtml(step.state)}" ${step.current ? 'data-student-phase-current="true"' : ""}>
+            <span>${escapeHtml(step.indexLabel)}</span>
+            <strong>${escapeHtml(step.title)}</strong>
+            <small>${escapeHtml(step.statusLabel)}</small>
+            <p>${escapeHtml(step.detail)}</p>
+          </li>
+        `).join("")}
+      </ol>
+    </section>
+  `;
+}
+
+function studentPhasePathStep(phase = {}, counts = {}, currentPhaseKey = "", currentRank = STUDENT_BOOKLET_PHASE_ORDER.length) {
+  const key = phase.key || "";
+  const total = safeNumber(counts.total);
+  const complete = safeNumber(counts.complete);
+  const remaining = Math.max(0, total - complete);
+  const current = Boolean(key && key === currentPhaseKey);
+  const phaseRank = studentBookletPhaseRank(key);
+  const assignedDetail = total
+    ? `${complete} of ${total} ${pluralize(total, "item")} done here.`
+    : "No checklist item is listed here yet.";
+
+  if (current) {
+    return {
+      key,
+      current,
+      state: remaining ? "current" : "done",
+      indexLabel: studentPhasePathLabel(phase),
+      title: "Now",
+      statusLabel: remaining ? `${remaining} to finish` : "Done",
+      detail: phase.deliverable || assignedDetail,
+    };
+  }
+  if (total && complete >= total) {
+    return {
+      key,
+      current,
+      state: "done",
+      indexLabel: studentPhasePathLabel(phase),
+      title: "Done",
+      statusLabel: `${complete} of ${total}`,
+      detail: assignedDetail,
+    };
+  }
+  if (total && remaining) {
+    return {
+      key,
+      current,
+      state: phaseRank < currentRank ? "needs_work" : "later",
+      indexLabel: studentPhasePathLabel(phase),
+      title: phaseRank < currentRank ? "Check" : "Later",
+      statusLabel: `${remaining} to finish`,
+      detail: phaseRank < currentRank ? "Ask your Program Teacher what still needs attention here." : "Wait until this phase is the next approved step.",
+    };
+  }
+  return {
+    key,
+    current,
+    state: phaseRank < currentRank ? "done" : "later",
+    indexLabel: studentPhasePathLabel(phase),
+    title: phaseRank < currentRank ? "Past" : "Later",
+    statusLabel: phaseRank < currentRank ? "Check if needed" : "Not yet",
+    detail: phaseRank < currentRank ? "No open checklist item is listed here." : "Wait until this phase appears in My Work.",
+  };
+}
+
+function studentPhasePathLabel(phase = {}) {
+  const label = String(phase.label || "Phase").split(":")[0].trim();
+  return label || "Phase";
+}
+
+function renderStudentMissionBoard(summary = {}, nextSteps = [], submissions = [], evidence = [], feedback = [], requirements = [], archiveNextAction = null) {
+  const action = studentPrimaryNextAction(summary, nextSteps, archiveNextAction);
+  const attention = studentAttentionMission(summary, requirements, archiveNextAction);
+  const proof = studentProofMission(summary, submissions, evidence);
+  const recent = studentRecentMission(summary, submissions, evidence, feedback);
+  return `
+    <section class="workspace-student-mission-board" data-student-mission-board="true" aria-labelledby="studentMissionBoardTitle">
+      <div class="workspace-student-mission-head">
+        <div>
+          <p class="workspace-kicker">Today at a glance</p>
+          <h2 id="studentMissionBoardTitle">Start here</h2>
+          <p>Use these four cards to decide what to open first.</p>
+        </div>
+      </div>
+      <div class="workspace-student-mission-grid">
+        ${renderStudentMissionCard({
+          id: "today",
+          tone: normalizeStatus(action.status) === "revision_requested" ? "danger" : "student",
+          label: "Today",
+          title: action.title,
+          detail: studentPrimaryCommandCopy(action, summary),
+          meta: action.when,
+          actionsHtml: renderStudentStepButtons(action, "Open item"),
+        })}
+        ${renderStudentMissionCard(attention)}
+        ${renderStudentMissionCard(proof)}
+        ${renderStudentMissionCard(recent)}
+      </div>
+    </section>
+  `;
+}
+
+function renderStudentMissionCard(card = {}) {
+  return `
+    <article class="workspace-student-mission-card ${escapeHtml(card.tone || "student")}" data-student-mission-card="${escapeHtml(card.id || "mission")}">
+      <div>
+        <span>${escapeHtml(card.label || "Next")}</span>
+        <strong>${escapeHtml(card.title || "Check your next step")}</strong>
+        <p>${escapeHtml(card.detail || "")}</p>
+        ${card.meta ? `<small>${escapeHtml(card.meta)}</small>` : ""}
+      </div>
+      ${card.actionsHtml ? `<div class="workspace-row-actions">${card.actionsHtml}</div>` : ""}
+    </article>
+  `;
+}
+
+function studentAttentionMission(summary = {}, requirements = [], archiveNextAction = null) {
+  const overdueCount = studentOverdueRequirementCount(requirements);
+  if (summary.revisionRequestedCount) {
+    return {
+      id: "attention",
+      tone: "danger",
+      label: "Needs attention",
+      title: `${summary.revisionRequestedCount} revision ${summary.revisionRequestedCount === 1 ? "item" : "items"}`,
+      detail: "Fix revision work before starting new phase work.",
+      meta: overdueCount ? `${overdueCount} overdue item${overdueCount === 1 ? "" : "s"} also need attention.` : "Start with Program Teacher Feedback.",
+    };
+  }
+  if (overdueCount) {
+    return {
+      id: "attention",
+      tone: "danger",
+      label: "Needs attention",
+      title: `${overdueCount} overdue item${overdueCount === 1 ? "" : "s"}`,
+      detail: "Open the overdue checklist item, add proof, and send it for review.",
+      meta: "Overdue work comes before lower-priority tasks.",
+    };
+  }
+  if (summary.missingRequiredCount) {
+    return {
+      id: "attention",
+      tone: "warning",
+      label: "Needs attention",
+      title: `${summary.missingRequiredCount} item${summary.missingRequiredCount === 1 ? "" : "s"} not finished`,
+      detail: "Open the checklist and finish the current phase item.",
+      meta: "Proof and Program Teacher approval still matter.",
+    };
+  }
+  if (summary.waitingForReviewCount) {
+    return {
+      id: "attention",
+      tone: "teacher",
+      label: "Needs attention",
+      title: "Waiting for review",
+      detail: "Your Program Teacher owns the next decision.",
+      meta: `${summary.waitingForReviewCount} sent item${summary.waitingForReviewCount === 1 ? "" : "s"} waiting.`,
+    };
+  }
+  if (archiveNextAction?.status) {
+    return {
+      id: "attention",
+      tone: "warning",
+      label: "Needs attention",
+      title: archiveNextAction.title || "Final files need attention",
+      detail: archiveNextAction.detail || "Read Final Files before closeout.",
+      meta: archiveNextAction.when || "Ask your Program Teacher if this is unclear.",
+    };
+  }
+  return {
+    id: "attention",
+    tone: "ready",
+    label: "Needs attention",
+    title: "No urgent issue",
+    detail: "Keep following the next approved checklist item.",
+    meta: "Ask before skipping ahead.",
+  };
+}
+
+function studentProofMission(summary = {}, submissions = [], evidence = []) {
+  const submissionRows = Array.isArray(submissions) ? submissions : [];
+  const proofRows = Array.isArray(evidence) ? evidence : [];
+  const draftCount = submissionRows.filter((row) => ["draft", "not_started"].includes(normalizeStatus(row?.status))).length;
+  const revisionCount = submissionRows.filter((row) => ["revision_requested", "needs_revision"].includes(normalizeStatus(row?.status))).length;
+  const waitingCount = submissionRows.filter((row) => ["submitted", "under_review", "reviewing", "pending_review"].includes(normalizeStatus(row?.status))).length;
+  if (revisionCount) {
+    return {
+      id: "proof",
+      tone: "warning",
+      label: "Proof",
+      title: `${proofRows.length} proof item${proofRows.length === 1 ? "" : "s"}`,
+      detail: "Corrected proof belongs on the revision item only.",
+      meta: `${revisionCount} revision ${revisionCount === 1 ? "item needs" : "items need"} a clean send-back.`,
+    };
+  }
+  if (draftCount || summary.missingRequiredCount) {
+    return {
+      id: "proof",
+      tone: "student",
+      label: "Proof",
+      title: `${proofRows.length} proof item${proofRows.length === 1 ? "" : "s"}`,
+      detail: "Add a link or upload only after choosing the exact checklist item.",
+      meta: draftCount ? `${draftCount} draft item${draftCount === 1 ? "" : "s"} can still be finished.` : "Use proof when the checklist asks for it.",
+    };
+  }
+  return {
+    id: "proof",
+    tone: waitingCount ? "teacher" : "ready",
+    label: "Proof",
+    title: `${proofRows.length} proof item${proofRows.length === 1 ? "" : "s"}`,
+    detail: waitingCount ? "Proof is waiting with sent work." : "Proof appears here after links or files are attached.",
+    meta: waitingCount ? `${waitingCount} sent item${waitingCount === 1 ? "" : "s"} waiting for review.` : "Keep proof matched to the correct item.",
+  };
+}
+
+function studentRecentMission(summary = {}, submissions = [], evidence = [], feedback = []) {
+  const newest = latestStudentActivity(summary, submissions, evidence, feedback);
+  return {
+    id: "recent",
+    tone: "quiet",
+    label: "Recent",
+    title: newest.title,
+    detail: newest.detail,
+    meta: newest.when,
+  };
+}
+
+function latestStudentActivity(summary = {}, submissions = [], evidence = [], feedback = []) {
+  const rows = [
+    {
+      kind: "Progress update",
+      label: summary.currentPhaseLabel || "Project progress",
+      when: summary.lastUpdatedAt,
+      detail: "Your project summary was updated.",
+    },
+    ...(Array.isArray(submissions) ? submissions : []).map((row) => ({
+      kind: "Sent work",
+      label: studentSubmissionRequirementTitle(row),
+      when: row?.updated_at || row?.updatedAt,
+      detail: "Work status changed or was updated.",
+    })),
+    ...(Array.isArray(evidence) ? evidence : []).map((row) => ({
+      kind: "Proof added",
+      label: row?.title || row?.requirementTitle || "Proof item",
+      when: row?.created_at || row?.createdAt,
+      detail: "A proof link or file was saved.",
+    })),
+    ...(Array.isArray(feedback) ? feedback : []).map((row) => ({
+      kind: "Program Teacher feedback",
+      label: row?.requirementTitle || "Program Teacher note",
+      when: row?.createdAt || row?.created_at,
+      detail: row?.message || "Program Teacher feedback was recorded.",
+    })),
+  ]
+    .map((row) => ({ ...row, time: Date.parse(String(row.when || "")) }))
+    .filter((row) => Number.isFinite(row.time))
+    .sort((left, right) => right.time - left.time);
+  const newest = rows[0];
+  if (!newest) {
+    return {
+      title: "No activity yet",
+      detail: "Activity appears after work, proof, or feedback is saved.",
+      when: "Check back after your Program Teacher adds work.",
+    };
+  }
+  return {
+    title: newest.kind,
+    detail: newest.label ? `${newest.label}: ${studentInstructionCopy(newest.detail)}` : studentInstructionCopy(newest.detail),
+    when: `Updated ${formatDate(newest.when)}`,
+  };
+}
+
+function studentOverdueRequirementCount(requirements = []) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return (Array.isArray(requirements) ? requirements : []).filter((item) => {
+    if (isStudentRequirementComplete(item?.status)) return false;
+    const dueTime = Date.parse(item?.dueDate || "");
+    if (!Number.isFinite(dueTime)) return false;
+    const due = new Date(dueTime);
+    due.setHours(0, 0, 0, 0);
+    return due.getTime() < today.getTime();
+  }).length;
 }
 
 function renderStudentWorkspaceDisclosurePanels(dashboard, summary, submissions, evidence, filteredSubmissions, activeSubmissionFilter) {
@@ -6305,6 +8832,13 @@ function renderStudentWorkspaceDisclosurePanels(dashboard, summary, submissions,
   const submissionCount = Array.isArray(submissions) ? submissions.length : 0;
   const evidenceCount = Array.isArray(evidence) ? evidence.length : 0;
   return `
+    ${renderStudentPanelMap({
+      requirements,
+      feedback,
+      summary,
+      submissions,
+      evidence,
+    })}
     <div class="workspace-disclosure-stack" data-student-secondary-stack="true">
       ${renderWorkspaceDisclosurePanel({
         scope: "student",
@@ -6321,8 +8855,8 @@ function renderStudentWorkspaceDisclosurePanels(dashboard, summary, submissions,
         scope: "student",
         id: "feedback",
         kicker: "Program Teacher notes",
-        title: "Feedback Inbox",
-        summary: `${feedbackCount} Program Teacher note${feedbackCount === 1 ? "" : "s"} available. Action-needed notes stay first; Feedback History and timeline stay here too.`,
+        title: "Program Teacher Feedback",
+        summary: `${feedbackCount} Program Teacher note${feedbackCount === 1 ? "" : "s"} available. Notes that need action stay first.`,
         openLabel: "Open feedback",
         closeLabel: "Hide feedback",
         dataAttrs: `data-student-feedback-panel="true" data-student-feedback-history="true" data-student-feedback-count="${escapeHtml(feedbackCount)}" tabindex="-1"`,
@@ -6332,8 +8866,8 @@ function renderStudentWorkspaceDisclosurePanels(dashboard, summary, submissions,
         scope: "student",
         id: "progress",
         kicker: "Support and details",
-        title: "Progress Details",
-        summary: "Current phase, May 5 file-saving status, and help links stay here.",
+        title: "Project Details",
+        summary: "Current phase, final-file status, and help links stay here.",
         openLabel: "Open details",
         closeLabel: "Hide details",
         dataAttrs: 'data-student-progress-details-panel="true" tabindex="-1"',
@@ -6348,16 +8882,16 @@ function renderStudentWorkspaceDisclosurePanels(dashboard, summary, submissions,
         openLabel: "Open upload tools",
         closeLabel: "Hide upload tools",
         dataAttrs: 'data-student-evidence-panel="true" tabindex="-1"',
-        bodyHtml: submissions.length ? renderEvidenceForms(submissions) : renderStudentEvidenceEmptyState(),
+        bodyHtml: submissions.length ? renderEvidenceForms(submissions, requirements) : renderStudentEvidenceEmptyState(),
       })}
       ${renderWorkspaceDisclosurePanel({
         scope: "student",
         id: "submissions",
         kicker: "Work history",
         title: "Work You Sent In",
-        summary: submissionCount ? `${submissionCount} started item${submissionCount === 1 ? "" : "s"} available, with filters after opening.` : "Sent work appears after you start project work.",
-        openLabel: "Open submitted work",
-        closeLabel: "Hide submitted work",
+        summary: submissionCount ? `${submissionCount} started item${submissionCount === 1 ? "" : "s"} available. Open this to show drafts, waiting work, revisions, or approved work.` : "Sent work appears after you start project work.",
+        openLabel: "Open sent work",
+        closeLabel: "Hide sent work",
         dataAttrs: 'data-student-submissions-panel="true" tabindex="-1"',
         bodyHtml: renderStudentSubmissionsPanelBody(submissions, filteredSubmissions, feedback, activeSubmissionFilter),
       })}
@@ -6365,14 +8899,112 @@ function renderStudentWorkspaceDisclosurePanels(dashboard, summary, submissions,
         scope: "student",
         id: "files",
         kicker: "Files and links",
-        title: "Uploaded and linked work",
-        summary: `${evidenceCount} proof item${evidenceCount === 1 ? "" : "s"} available when you need the full file list.`,
-        openLabel: "Open files",
-        closeLabel: "Hide files",
+        title: "Proof You Added",
+        summary: `${evidenceCount} proof item${evidenceCount === 1 ? "" : "s"} available when you need the full proof list.`,
+        openLabel: "Open proof list",
+        closeLabel: "Hide proof list",
         dataAttrs: 'data-student-files-panel="true" tabindex="-1"',
         bodyHtml: renderStudentFilesPanelBody(evidence),
       })}
     </div>
+  `;
+}
+
+function renderStudentPanelMap({ requirements = [], feedback = [], summary = {}, submissions = [], evidence = [] } = {}) {
+  const rows = studentPanelMapItems({ requirements, feedback, summary, submissions, evidence });
+  if (!rows.length) return "";
+  return `
+    <section class="workspace-student-panel-map" data-student-panel-map="true" aria-labelledby="studentPanelMapTitle">
+      <div class="workspace-student-panel-map-head">
+        <div>
+          <p class="workspace-kicker">Where to work</p>
+          <h2 id="studentPanelMapTitle">Choose where to work</h2>
+          <p class="workspace-muted">Open the one section that matches what you need right now.</p>
+        </div>
+      </div>
+      <div class="workspace-student-panel-map-grid">
+        ${rows.map(renderStudentPanelMapCard).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function studentPanelMapItems({ requirements = [], feedback = [], summary = {}, submissions = [], evidence = [] } = {}) {
+  const requirementRows = Array.isArray(requirements) ? requirements : [];
+  const feedbackRows = Array.isArray(feedback) ? feedback : [];
+  const submissionRows = Array.isArray(submissions) ? submissions : [];
+  const proofRows = Array.isArray(evidence) ? evidence : [];
+  const revisionNotes = feedbackRows.filter((row) => ["revision_requested", "needs_revision"].includes(normalizeStatus(row?.submissionStatus || row?.status))).length;
+  const draftSubmissions = submissionRows.filter((row) => normalizeStatus(row?.status) === "draft").length;
+  const waitingSubmissions = submissionRows.filter((row) => ["submitted", "under_review", "pending_review"].includes(normalizeStatus(row?.status))).length;
+  const missingItems = safeNumber(summary?.missingRequiredCount);
+  const currentPhase = summary?.currentPhaseLabel || "Current phase";
+  return [
+    {
+      id: "requirements",
+      label: "Checklist",
+      value: requirementRows.length ? `${safeNumber(summary.requirementsComplete)} of ${safeNumber(summary.requirementsTotal || requirementRows.length)} done` : "Not set up",
+      detail: revisionNotes ? "Open first for the item that needs revision." : missingItems ? "Open for the next unfinished booklet item." : "Open when you need the full booklet list.",
+      tone: revisionNotes ? "danger" : missingItems ? "warning" : "student",
+      action: "Open checklist",
+    },
+    {
+      id: "feedback",
+      label: "Feedback",
+      value: revisionNotes ? `${revisionNotes} fix` : `${feedbackRows.length} note${feedbackRows.length === 1 ? "" : "s"}`,
+      detail: revisionNotes ? "Read this before changing work or adding new proof." : "Open when you want Program Teacher notes.",
+      tone: revisionNotes ? "danger" : feedbackRows.length ? "teacher" : "quiet",
+      action: "Open feedback",
+    },
+    {
+      id: "progress",
+      label: "Progress",
+      value: currentPhase,
+      detail: "Open for phase status, May 5 file checks, and help guidance.",
+      tone: "student",
+      action: "Open details",
+    },
+    {
+      id: "evidence",
+      label: "Proof tools",
+      value: submissionRows.length ? `${submissionRows.length} item${submissionRows.length === 1 ? "" : "s"}` : "Locked",
+      detail: draftSubmissions || revisionNotes ? "Open when you are ready to attach proof to one selected item." : "Tools appear after work exists.",
+      tone: draftSubmissions || revisionNotes ? "warning" : "quiet",
+      action: "Open proof tools",
+    },
+    {
+      id: "submissions",
+      label: "Sent work",
+      value: waitingSubmissions ? `${waitingSubmissions} waiting` : `${submissionRows.length} started`,
+      detail: waitingSubmissions ? "Open to confirm what your Program Teacher is reviewing." : "Open to review draft, revision, approved, or sent items.",
+      tone: waitingSubmissions ? "teacher" : submissionRows.length ? "student" : "quiet",
+      action: "Open sent work",
+    },
+    {
+      id: "files",
+      label: "Files and links",
+      value: `${proofRows.length} proof`,
+      detail: proofRows.length ? "Open to confirm proof is attached to the right work item." : "Proof appears here after you attach a link or upload.",
+      tone: proofRows.length ? "mentor" : "quiet",
+      action: "Open files",
+    },
+  ];
+}
+
+function renderStudentPanelMapCard(item = {}) {
+  const open = isWorkspaceDisclosureOpen("student", item.id);
+  const domId = workspaceDisclosureDomId("student", item.id);
+  return `
+    <article class="workspace-student-panel-map-card ${escapeHtml(item.tone || "student")}" data-student-panel-map-card="${escapeHtml(item.id || "")}" data-panel-state="${open ? "open" : "closed"}">
+      <div>
+        <span>${escapeHtml(item.label || "Panel")}</span>
+        <strong>${escapeHtml(item.value || "")}</strong>
+        <p>${escapeHtml(item.detail || "")}</p>
+      </div>
+      <button class="workspace-link-button workspace-link-button-small" type="button" data-workspace-disclosure-action="toggle" data-workspace-disclosure-scope="student" data-workspace-disclosure-id="${escapeHtml(item.id || "")}" aria-expanded="${open ? "true" : "false"}" aria-controls="${escapeHtml(domId)}">
+        ${escapeHtml(open ? "Hide" : item.action || "Open")}
+      </button>
+    </article>
   `;
 }
 
@@ -6395,9 +9027,204 @@ function renderStudentPrimaryNextAction(summary, nextSteps = [], archiveNextActi
         <span>${escapeHtml(action.when)}</span>
       </div>
       <p class="workspace-student-command-line" data-student-command-line="true"><strong>Do this now:</strong> ${escapeHtml(command)}</p>
+      ${renderStudentActionPath(action, summary)}
+      ${renderTaskFinishChecklist("student-next-action", "Before you act on this item", studentPrimaryActionChecklist(action, summary), {
+        detail: "Use these checks before opening a panel, uploading proof, sending work, or deciding to wait.",
+        badge: "Student checks",
+        state: action.status,
+      })}
       ${actionButtons ? `<div class="workspace-row-actions">${actionButtons}</div>` : ""}
     </section>
   `;
+}
+
+function renderStudentActionPath(action = {}, summary = {}) {
+  const steps = studentActionPathSteps(action, summary);
+  if (!steps.length) return "";
+  return `
+    <section class="workspace-student-action-path" data-student-action-path="true" aria-labelledby="studentActionPathTitle">
+      <div class="workspace-student-action-path-head">
+        <p class="workspace-kicker">What to click next</p>
+        <h3 id="studentActionPathTitle">Use these clicks in order</h3>
+        <p>Open the right item, check proof and feedback, then send or wait.</p>
+      </div>
+      <ol class="workspace-student-action-path-steps">
+        ${steps.map((step, index) => `
+          <li class="workspace-student-action-step ${escapeHtml(step.tone || "student")}" data-student-action-step="${escapeHtml(step.id)}">
+            <span aria-hidden="true">${escapeHtml(index + 1)}</span>
+            <div>
+              <strong>${escapeHtml(step.title)}</strong>
+              <p>${escapeHtml(step.detail)}</p>
+              ${step.actionsHtml ? `<div class="workspace-row-actions">${step.actionsHtml}</div>` : ""}
+            </div>
+          </li>
+        `).join("")}
+      </ol>
+    </section>
+  `;
+}
+
+function studentActionPathSteps(action = {}, summary = {}) {
+  const status = normalizeStatus(action.submissionStatus || action.status);
+  const actionTitle = studentInstructionCopy(action.itemTitle || action.requirementTitle || action.title || "your current Senior Project item");
+  const openItemButton = renderStudentRequirementOpenButton(action, "Open exact item")
+    || renderStudentDisclosureOpenButton("requirements", "Open checklist");
+  const feedbackButton = renderStudentDisclosureOpenButton("feedback", "Open feedback");
+  const proofButton = renderStudentDisclosureOpenButton("evidence", "Open proof tools");
+  const sentWorkButton = renderStudentDisclosureOpenButton("submissions", "Open sent work");
+  const submitButton = renderStudentSubmissionActionButton(action);
+  const canSend = Boolean(submitButton) && studentSubmissionActionState(action).canSubmit;
+  const waitingCount = safeNumber(summary?.waitingForReviewCount);
+
+  if (status === "revision_requested") {
+    return [
+      {
+        id: "open-item",
+        tone: "danger",
+        title: "Open exact item",
+        detail: `Work on ${actionTitle}, not a different checklist item.`,
+        actionsHtml: openItemButton,
+      },
+      {
+        id: "check-feedback-proof",
+        tone: "warning",
+        title: "Check feedback and proof",
+        detail: "Read the Program Teacher note, then update proof on this same item.",
+        actionsHtml: `${feedbackButton}${proofButton}`,
+      },
+      {
+        id: "send",
+        tone: canSend ? "student" : "warning",
+        title: canSend ? "Send revision" : "Add proof first",
+        detail: canSend ? "Send only after the work and proof match the note." : "Add the corrected proof before sending this back.",
+        actionsHtml: submitButton || proofButton,
+      },
+    ];
+  }
+
+  if (["submitted", "under_review", "pending_review"].includes(status)) {
+    return [
+      {
+        id: "open-sent-work",
+        tone: "teacher",
+        title: "Open sent work",
+        detail: `Confirm the version your Program Teacher is reviewing for ${actionTitle}.`,
+        actionsHtml: sentWorkButton,
+      },
+      {
+        id: "check-feedback-proof",
+        tone: "student",
+        title: "Check feedback and proof",
+        detail: "Use feedback only if a Program Teacher note asks for a change.",
+        actionsHtml: `${feedbackButton}${proofButton}`,
+      },
+      {
+        id: "wait",
+        tone: "quiet",
+        title: "Wait for approval",
+        detail: "Stay in this phase until your Program Teacher records approval.",
+        actionsHtml: "",
+      },
+    ];
+  }
+
+  if (submitButton) {
+    return [
+      {
+        id: "open-item",
+        tone: "student",
+        title: "Open exact item",
+        detail: `Start with ${actionTitle} and check what counts as done.`,
+        actionsHtml: openItemButton,
+      },
+      {
+        id: "add-proof",
+        tone: "warning",
+        title: "Add proof",
+        detail: "Attach the link or file that shows this exact work.",
+        actionsHtml: proofButton,
+      },
+      {
+        id: "send",
+        tone: canSend ? "student" : "quiet",
+        title: canSend ? "Send for review" : "Send after proof",
+        detail: canSend ? "Send it to your Program Teacher, then stop at the approval gate." : "The send button unlocks after proof is attached.",
+        actionsHtml: submitButton,
+      },
+    ];
+  }
+
+  return [
+    {
+      id: "open-item",
+      tone: "student",
+      title: "Open exact item",
+      detail: `Check ${actionTitle} before starting anything new.`,
+      actionsHtml: openItemButton,
+    },
+    {
+      id: "check-status",
+      tone: waitingCount ? "teacher" : "quiet",
+      title: waitingCount ? "Check sent work" : "Check proof and feedback",
+      detail: waitingCount ? "Confirm what is already waiting for Program Teacher review." : "Use proof and feedback panels when there is an assigned item.",
+      actionsHtml: waitingCount ? sentWorkButton : `${proofButton}${feedbackButton}`,
+    },
+    {
+      id: "wait",
+      tone: "quiet",
+      title: "Wait for the next clear step",
+      detail: "Ask your Program Teacher if My Work does not show what to open next.",
+      actionsHtml: "",
+    },
+  ];
+}
+
+function renderStudentDisclosureOpenButton(id, label) {
+  const cleanId = String(id || "").trim();
+  if (!cleanId) return "";
+  const open = isWorkspaceDisclosureOpen("student", cleanId);
+  const domId = workspaceDisclosureDomId("student", cleanId);
+  return `<button class="workspace-link-button workspace-link-button-small" type="button" data-workspace-disclosure-action="open" data-workspace-disclosure-scope="student" data-workspace-disclosure-id="${escapeHtml(cleanId)}" aria-expanded="${open ? "true" : "false"}" aria-controls="${escapeHtml(domId)}">${escapeHtml(label || "Open")}</button>`;
+}
+
+function studentPrimaryActionChecklist(action = {}, summary = {}) {
+  const title = studentInstructionCopy(action.title || "the item named above");
+  const status = normalizeStatus(action.submissionStatus || action.status);
+  if (status === "revision_requested") {
+    return [
+      ["Open the exact item", `Use the checklist or feedback panel for ${title}; do not work from memory.`, "ready"],
+      ["Read the Program Teacher note", "Find the exact change requested before adding new proof.", "ready"],
+      ["Attach corrected proof", "Add the revised link or file to the matching work item only.", "needs_review"],
+      ["Send once it matches", "Send the revision back for Program Teacher review, then stop at the approval gate.", "blocked"],
+    ];
+  }
+  if (["submitted", "under_review", "pending_review"].includes(status)) {
+    return [
+      ["Check what you sent", `Use Work You Sent In for ${title} if you need to confirm the version.`, "context"],
+      ["Do not change direction", "The next phase waits for a recorded Program Teacher decision.", "blocked"],
+      ["Watch for feedback", "If revision is requested, fix only that item and send it back.", "context"],
+    ];
+  }
+  if (["failed", "provider_unavailable", "expired", "expiring_soon"].includes(status)) {
+    return [
+      ["Read the blocker", "Use the final-files message to see whether this needs staff help, download setup, or a fresh window.", "needs_staff_action"],
+      ["Do not upload random files", "Only add proof when a final-file check below asks for it.", "context"],
+      ["Ask the listed owner", "Use the owner shown above before assuming the download is ready.", "blocked"],
+    ];
+  }
+  if (summary?.missingRequiredCount || status === "draft" || status === "missing" || status === "pending") {
+    return [
+      ["Match the checklist item", `Start with ${title} or the first missing item in the current phase.`, "ready"],
+      ["Add proof to this item", "Use a direct proof link or allowed file type for the work your Program Teacher asked for.", "needs_review"],
+      ["Send for review when ready", "Submit only after the proof and title match the assignment.", "context"],
+      ["Wait after sending", "Program Teacher approval controls the next phase.", "blocked"],
+    ];
+  }
+  return [
+    ["Confirm the next listed item", "Use the checklist instead of guessing the next phase.", "ready"],
+    ["Keep proof matched", "Attach links or files only to the correct work item.", "context"],
+    ["Ask before skipping", "If the next move is unclear, ask your Program Teacher before moving ahead.", "needs_review"],
+  ];
 }
 
 function renderStudentApprovalGateBanner(summary = {}) {
@@ -6436,7 +9263,7 @@ function studentApprovalGateBannerCopy(summary = {}) {
       state: "waiting",
       title: "Do not start the next phase yet",
       detail: "Your work is with your Program Teacher. The next phase opens only after approval is recorded.",
-      badge: "Teacher owns next",
+      badge: "Program Teacher owns next",
     };
   }
   if (summary.missingRequiredCount) {
@@ -6480,7 +9307,98 @@ function renderStudentStagePlaybook(summary, nextSteps = []) {
       </ol>
       <div class="workspace-student-approval-checkpoint" data-student-manual-approval="true">
         <strong>Program Teacher approval required for next steps</strong>
-        <p>${escapeHtml("Start the next phase only after your Program Teacher marks the current phase work approved. Mentor check-ins may be part of the phase, but the recorded approval comes from Program Teacher review.")}</p>
+        <p>${escapeHtml("Start the next phase only after your Program Teacher marks this phase approved. Mentor check-ins can help, but Program Teacher approval opens the next step.")}</p>
+      </div>
+    </section>
+  `;
+}
+
+function renderStudentPhaseDeliverableGuide(summary = {}, requirements = []) {
+  const currentPhaseKey = studentRequirementPhaseKey(summary?.currentPhase || summary?.currentPhaseLabel || "");
+  const countsByPhase = studentRequirementCountsByPhase(requirements);
+  const phases = STUDENT_BOOKLET_PHASE_ORDER.map((key) => studentBookletPhaseInfo(key));
+  return `
+    <section class="workspace-dashboard-card workspace-student-phase-guide" data-student-phase-deliverables="true" aria-labelledby="studentPhaseDeliverablesTitle">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Phase goals</p>
+          <h2 id="studentPhaseDeliverablesTitle">What to finish in each phase</h2>
+          <p>Each phase has one main thing to finish. Work on the current phase first, then stop when this page says to wait for Program Teacher approval.</p>
+        </div>
+      </div>
+      <div class="workspace-student-phase-grid">
+        ${phases.map((phase) => renderStudentPhaseDeliverableCard(phase, currentPhaseKey, countsByPhase.get(phase.key))).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function studentRequirementCountsByPhase(requirements = []) {
+  const counts = new Map();
+  (Array.isArray(requirements) ? requirements : []).forEach((row) => {
+    const key = studentRequirementPhaseKey(row?.phase || row?.phaseLabel || "");
+    if (!key) return;
+    const entry = counts.get(key) || { total: 0, complete: 0 };
+    entry.total += 1;
+    if (isStudentRequirementComplete(row?.status)) entry.complete += 1;
+    counts.set(key, entry);
+  });
+  return counts;
+}
+
+function renderStudentPhaseDeliverableCard(phase = {}, currentPhaseKey = "", counts = null, options = {}) {
+  const checklist = Array.isArray(phase.checklist) ? phase.checklist : [];
+  const isCurrent = phase.key && phase.key === currentPhaseKey;
+  const currentLabel = String(options.currentLabel || "Current phase").trim();
+  const hideCount = Boolean(options.hideCount);
+  const total = safeNumber(counts?.total);
+  const complete = safeNumber(counts?.complete);
+  const assignedCopy = total
+    ? `${complete} of ${total} checklist ${pluralize(total, "item")} done here.`
+    : "No checklist item from this phase is listed yet.";
+  return `
+    <article class="workspace-student-phase-card ${isCurrent ? "is-current" : ""}" data-student-phase-deliverable-card="${escapeHtml(phase.key || "")}" ${isCurrent ? 'data-student-phase-deliverable-current="true"' : ""}>
+      <div class="workspace-student-phase-card-head">
+        <span>${escapeHtml(phase.label || "Project phase")}</span>
+        ${isCurrent ? `<b>${escapeHtml(currentLabel || "Current phase")}</b>` : ""}
+      </div>
+      <div class="workspace-student-phase-main">
+        <strong>Main thing to finish</strong>
+        <p data-student-phase-deliverable-main="true">${escapeHtml(phase.deliverable || "Finish the work your Program Teacher lists for this phase.")}</p>
+      </div>
+      ${checklist.length ? `
+        <div class="workspace-student-phase-include" data-student-phase-deliverable-list="true">
+          <strong>Include</strong>
+          <ul>
+            ${checklist.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+          </ul>
+        </div>
+      ` : ""}
+      <p class="workspace-student-phase-done" data-student-phase-deliverable-done="true"><strong>Done when:</strong> ${escapeHtml(phase.done || "Program Teacher marks the listed work approved.")}</p>
+      <p class="workspace-muted" data-student-phase-deliverable-help="true"><strong>Helpful move:</strong> ${escapeHtml(phase.guidance || "Open the matching checklist item and follow the next step.")}</p>
+      ${hideCount ? "" : `<p class="workspace-muted" data-student-phase-deliverable-count="true">${escapeHtml(assignedCopy)}</p>`}
+    </article>
+  `;
+}
+
+function renderStudentPhaseDeliverableSnapshot(phaseKey = "", options = {}) {
+  const phase = studentBookletPhaseInfo(phaseKey);
+  const safeId = cleanDirectoryFilter(options.id || `student-phase-snapshot-${phase.key || "phase"}`);
+  const extraAttrs = String(options.dataAttrs || "").trim();
+  return `
+    <section class="workspace-dashboard-card workspace-student-phase-guide workspace-student-phase-snapshot" data-student-phase-snapshot="${escapeHtml(phase.key || "")}" ${extraAttrs} aria-labelledby="${escapeHtml(safeId)}">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">${escapeHtml(options.kicker || "Phase deliverable")}</p>
+          <h2 id="${escapeHtml(safeId)}">${escapeHtml(options.title || "What this screen helps you finish")}</h2>
+          <p>${escapeHtml(options.detail || "Use this screen for this phase deliverable, then wait for the approval or status shown here.")}</p>
+        </div>
+      </div>
+      <div class="workspace-student-phase-grid">
+        ${renderStudentPhaseDeliverableCard(phase, phase.key, null, {
+          hideCount: true,
+          currentLabel: options.currentLabel || "This screen",
+        })}
       </div>
     </section>
   `;
@@ -6505,12 +9423,12 @@ function studentStagePlaybook(summary = {}, nextSteps = []) {
   if (summary.revisionRequestedCount) {
     return {
       title: "Fix this phase, then send it back",
-      summary: `Current phase: ${phaseLabel}. Start with Program Teacher feedback before doing new phase work.`,
+      summary: `Current phase: ${phaseLabel}. Fix Program Teacher feedback before any new phase work.`,
       status: "revision_requested",
       steps: [
         { title: "Open Program Teacher feedback", detail: `Read the note for ${nextTitle} and find exactly what needs to change.` },
         { title: "Fix the work and proof", detail: "Update the work, add the corrected proof, and send it back for review." },
-        { title: "Wait for approval", detail: "Stay in this phase until your Program Teacher approves it for next steps." },
+        { title: "Wait for approval", detail: "Stay in this phase until your Program Teacher marks it approved." },
       ],
     };
   }
@@ -6533,7 +9451,7 @@ function studentStagePlaybook(summary = {}, nextSteps = []) {
       status: "draft",
       steps: [
         { title: "Open the current item", detail: `Start with ${nextTitle} or the first missing item in this phase.` },
-        { title: "Add proof", detail: "Attach the link or file that shows the work your Program Teacher asked for." },
+        { title: "Add proof", detail: "Attach the link or file that shows this exact work." },
         { title: "Send it for review", detail: "After proof is attached, send the item to your Program Teacher and wait for approval." },
       ],
     };
@@ -6543,7 +9461,7 @@ function studentStagePlaybook(summary = {}, nextSteps = []) {
     summary: `Current phase: ${phaseLabel}. Keep following the phase your Program Teacher has approved.`,
     status: "approved",
     steps: [
-      { title: "Check approved work", detail: "Use Feedback Inbox or the checklist to confirm what has been approved." },
+      { title: "Check approved work", detail: "Use Program Teacher Feedback or the checklist to confirm what has been approved." },
       { title: "Follow the next listed item", detail: "Open the next item shown on this page and complete it in order." },
       { title: "Ask before skipping", detail: "If the next phase is unclear, ask your Program Teacher before moving ahead." },
     ],
@@ -6762,6 +9680,7 @@ function renderStudentDeadlinePanel(requirements = [], summary = {}) {
         </div>
         <span class="workspace-site-context-badge">${escapeHtml(countLabel)}</span>
       </div>
+      ${rows.length ? renderStudentDeadlineStatusGuide(rows) : ""}
       <div class="workspace-list">
         ${rows.length ? rows.map((item) => renderStudentDeadlineRow(item, summary)).join("") : `
           <article class="workspace-empty-state-card" data-student-deadlines-empty="true">
@@ -6771,6 +9690,55 @@ function renderStudentDeadlinePanel(requirements = [], summary = {}) {
         `}
       </div>
     </section>
+  `;
+}
+
+function renderStudentDeadlineStatusGuide(rows = []) {
+  const deadlineRows = Array.isArray(rows)
+    ? rows.map((item) => ({ item, urgency: studentDeadlineUrgency(item) }))
+    : [];
+  const guideRows = [
+    {
+      key: "overdue",
+      title: "Overdue",
+      detail: "Do this first. Open the item, add or fix proof, then send it for review. Ask your Program Teacher what is blocking it if you cannot finish it.",
+      actionLabel: "Open overdue item",
+    },
+    {
+      key: "due-soon",
+      title: "Due soon",
+      detail: "Open the item and add proof before the date. Finish this before lower-priority work.",
+      actionLabel: "Open due-soon item",
+    },
+    {
+      key: "scheduled",
+      title: "Later or no exact date",
+      detail: "Plan this after urgent items. Stay in the approved phase and do not skip ahead.",
+      actionLabel: "Open later item",
+    },
+  ];
+  return `
+    <div class="workspace-student-deadline-guide" data-student-deadline-guide="true">
+      <div>
+        <p class="workspace-kicker">Deadline guide</p>
+        <h3>What deadline timing means</h3>
+        <p>Use this to decide what to open first. Overdue work comes before later phase work.</p>
+      </div>
+      <div class="workspace-student-deadline-guide-grid">
+        ${guideRows.map((guide) => {
+          const matchingRows = deadlineRows.filter((row) => row.urgency.state === guide.key);
+          const focusItem = matchingRows[0]?.item || null;
+          return `
+            <article class="workspace-student-deadline-guide-card" data-student-deadline-guide-status="${escapeHtml(guide.key)}">
+              <span>${escapeHtml(matchingRows.length)} item${matchingRows.length === 1 ? "" : "s"}</span>
+              <strong>${escapeHtml(guide.title)}</strong>
+              <p>${escapeHtml(guide.detail)}</p>
+              ${focusItem ? renderStudentRequirementOpenButton(focusItem, guide.actionLabel) : ""}
+            </article>
+          `;
+        }).join("")}
+      </div>
+    </div>
   `;
 }
 
@@ -6870,8 +9838,8 @@ function renderStudentRequirementPanel(requirements = [], summary = {}, feedback
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Booklet checklist</p>
-          <h2 id="studentRequirementChecklistTitle">Your Required Work</h2>
-          <p>${escapeHtml(rows.length ? "Work one booklet phase at a time: open the current phase, finish the item, add proof, then send it for review." : "Assigned work will appear here after your Program Teacher adds the first Senior Project item.")}</p>
+          <h2 id="studentRequirementChecklistTitle">Your Project Checklist</h2>
+          <p>${escapeHtml(rows.length ? "Work one booklet phase at a time: open the current phase, finish the item, add proof, then send it for review." : "Your Program Teacher has not added the first Senior Project item yet.")}</p>
         </div>
       </div>
       ${renderStudentRequirementPanelBody(requirements, summary, feedback, detailState, evidence, historyState)}
@@ -6910,6 +9878,9 @@ function groupStudentRequirementsByPhase(rows) {
         key,
         label: phase.label || row?.phaseLabel || (row?.phase ? statusText(row.phase) : "Other required work"),
         guidance: phase.guidance || "Use this phase to check the listed work, proof, and next step.",
+        deliverable: phase.deliverable || "Finish the work your Program Teacher lists for this phase.",
+        done: phase.done || "Program Teacher marks the listed work approved.",
+        checklist: Array.isArray(phase.checklist) ? phase.checklist : [],
         rows: [],
         completeCount: 0,
         remainingCount: 0,
@@ -6957,6 +9928,13 @@ function studentBookletPhaseInfo(value, fallbackLabel = "") {
     key,
     label: label || "Other required work",
     guidance: "Use this phase to check the listed work, proof, and next step.",
+    deliverable: "Finish the work your Program Teacher lists for this phase.",
+    checklist: [
+      "Open the listed item",
+      "Add proof that matches it",
+      "Wait for Program Teacher approval",
+    ],
+    done: "Program Teacher marks the listed work approved.",
   };
 }
 
@@ -6966,6 +9944,7 @@ function studentPrimaryActionFromStep(step = null, overrides = {}) {
     submissionId: step?.submissionId || null,
     submissionStatus: step?.submissionStatus || null,
     evidenceCount: safeNumber(step?.evidenceCount),
+    itemTitle: studentInstructionCopy(overrides.itemTitle || step?.title || "your current Senior Project item"),
     title: studentInstructionCopy(overrides.title || step?.title || "Keep working on the next item"),
     detail: studentInstructionCopy(overrides.detail || step?.detail || "Open the item in the list below and keep working."),
     status: overrides.status || step?.status || "pending",
@@ -6977,7 +9956,7 @@ function studentPrimaryActionFromStep(step = null, overrides = {}) {
 function studentPrimaryCommandCopy(action = {}, summary = {}) {
   const status = normalizeStatus(action.status || action.submissionStatus);
   if (status === "revision_requested") return "open the revision item, fix the exact Program Teacher note, attach corrected proof if needed, then send the revision.";
-  if (["submitted", "under_review", "pending_review"].includes(status)) return "check the submitted work once, then wait for Program Teacher approval before starting another phase.";
+  if (["submitted", "under_review", "pending_review"].includes(status)) return "check the sent work once, then wait for Program Teacher approval before starting another phase.";
   if (status === "draft" || status === "missing" || summary?.missingRequiredCount) return "open this checklist item, complete the work, attach proof, and send it to your Program Teacher for review.";
   if (["provider_unavailable", "failed", "expired", "expiring_soon"].includes(status)) return studentInstructionCopy(action.detail || "ask staff for final-file help before closeout.");
   if (summary?.requirementsTotal && !summary?.missingRequiredCount && !summary?.waitingForReviewCount && !summary?.revisionRequestedCount) return "follow the next approved item shown on this page.";
@@ -7020,12 +9999,12 @@ function renderStudentRequirementPhaseFilters(phaseGroups = [], summary = {}, de
   const note = activeGroup
     ? `${activeGroup.label}: ${activeGroup.completeCount} of ${activeGroup.rows.length} done${activeGroup.remainingCount ? `, ${activeGroup.remainingCount} still need work.` : ". Everything in this phase is done."}`
     : currentGroup
-      ? `Current phase: ${currentGroup.label}. Focus one phase at a time if you want a shorter checklist.`
+      ? `Current phase: ${currentGroup.label}. Show one phase if the full checklist feels too long.`
       : "Focus one project phase at a time if you want a shorter checklist.";
   return `
     <section class="workspace-active-filters" data-student-requirement-phase-focus="true">
       <div>
-        <strong>Phase focus</strong>
+        <strong>Show one phase</strong>
         <p class="workspace-active-filter-note">${escapeHtml(note)}</p>
       </div>
       <div class="workspace-detail-tabs" aria-label="Student requirement phase focus">
@@ -7047,6 +10026,8 @@ function renderStudentRequirementPhaseGroup(group, feedback = [], detailState = 
   const completeCount = safeNumber(group?.completeCount);
   const remainingCount = safeNumber(group?.remainingCount);
   const guidance = String(group?.guidance || "").trim();
+  const deliverable = String(group?.deliverable || "").trim();
+  const done = String(group?.done || "").trim();
   const phaseSummary = rows.length
     ? `${completeCount} of ${rows.length} done${remainingCount ? ` / ${remainingCount} still need work` : ""}`
     : "No work in this phase yet.";
@@ -7056,6 +10037,8 @@ function renderStudentRequirementPhaseGroup(group, feedback = [], detailState = 
         <div>
           <h3>${escapeHtml(group?.label || "Other required work")}</h3>
           ${guidance ? `<p data-student-requirement-phase-guidance="true">${escapeHtml(guidance)}</p>` : ""}
+          ${deliverable ? `<p class="workspace-student-phase-goal" data-student-requirement-phase-deliverable="true"><strong>Main thing to finish:</strong> ${escapeHtml(deliverable)}</p>` : ""}
+          ${done ? `<p class="workspace-muted" data-student-requirement-phase-done="true"><strong>Done when:</strong> ${escapeHtml(done)}</p>` : ""}
           <p class="workspace-muted">${escapeHtml(phaseSummary)}</p>
         </div>
       </div>
@@ -7102,13 +10085,15 @@ function renderStudentRequirementRow(item, feedback = [], detailState = defaultS
   const detailActionLabel = selected ? "Hide details" : "Check details";
   const latestFeedback = latestFeedbackForRequirement(item, feedback);
   const relatedEvidence = matchingEvidenceForRequirement(item, evidence);
+  const phaseMeta = [phase.label || "Phase not set", `Updated ${updatedAt}`].filter(Boolean).join(" / ");
   return `
     <article class="workspace-row workspace-student-requirement-row" data-student-requirement-row="true" data-student-requirement-id="${escapeHtml(requirementId)}" data-student-requirement-submission-id="${escapeHtml(submissionId)}" data-student-requirement-evidence-count="${escapeHtml(evidenceCount)}">
       <div>
         <strong>${escapeHtml(item?.title || "Senior Project work")}</strong>
+        ${renderStudentRequirementDeliverableCue(item, phase)}
         ${description ? `<p class="workspace-student-requirement-guidance" data-student-requirement-description="true">${escapeHtml(description)}</p>` : ""}
         ${qualityPrompt ? `<p class="workspace-muted workspace-student-requirement-nudge" data-student-requirement-quality="true">Try this: ${escapeHtml(qualityPrompt)}</p>` : ""}
-        <p>${escapeHtml(phase.label || "Not available yet")} / Last updated ${escapeHtml(updatedAt)}</p>
+        <p>${escapeHtml(phaseMeta)}</p>
         <p class="workspace-muted" data-student-requirement-due="true">${escapeHtml(studentDueText(item))}</p>
         <p class="workspace-muted" data-student-requirement-next="true">${escapeHtml(studentInstructionCopy(item?.nextAction || "Ask your Program Teacher what to do next."))}</p>
         <p class="workspace-student-requirement-gate" data-student-requirement-approval-gate="true">${escapeHtml(approvalGate)}</p>
@@ -7122,6 +10107,18 @@ function renderStudentRequirementRow(item, feedback = [], detailState = defaultS
       </div>
       ${selected ? renderStudentRequirementDetail(item, latestFeedback, relatedEvidence, historyState) : ""}
     </article>
+  `;
+}
+
+function renderStudentRequirementDeliverableCue(item = {}, phase = {}) {
+  const deliverable = String(phase?.deliverable || "").trim();
+  const done = String(phase?.done || "").trim();
+  if (!deliverable && !done) return "";
+  return `
+    <div class="workspace-student-requirement-deliverable" data-student-requirement-deliverable="true">
+      ${deliverable ? `<p><strong>This item helps finish:</strong> ${escapeHtml(deliverable)}</p>` : ""}
+      ${done ? `<p><strong>Done when:</strong> ${escapeHtml(done)}</p>` : ""}
+    </div>
   `;
 }
 
@@ -7166,6 +10163,7 @@ function renderStudentRequirementDetail(item, latestFeedback = null, evidenceRow
   const submissionStatus = item?.submissionStatus ? statusText(item.submissionStatus) : status;
   const progressStatus = item?.progressStatus ? statusText(item.progressStatus) : "Not started";
   const phase = studentBookletPhaseInfo(item?.phase || item?.phaseLabel || "", item?.phaseLabel || "");
+  const phaseChecklist = Array.isArray(phase.checklist) ? phase.checklist : [];
   const approvalGate = studentRequirementApprovalGateText(item);
   const timelineSelected = studentFeedbackSelectionMatches(historyState, submissionId, "requirements");
   return `
@@ -7177,13 +10175,17 @@ function renderStudentRequirementDetail(item, latestFeedback = null, evidenceRow
       <div class="workspace-student-requirement-detail-grid">
         ${renderStudentRequirementDetailFact("Status", status)}
         ${renderStudentRequirementDetailFact("Booklet phase", phase.label)}
+        ${renderStudentRequirementDetailFact("Phase goal", phase.deliverable)}
+        ${renderStudentRequirementDetailFact("Include", phaseChecklist.join("; "))}
+        ${renderStudentRequirementDetailFact("Done when", phase.done)}
         ${renderStudentRequirementDetailFact("Due date", studentDueText(item))}
         ${renderStudentRequirementDetailFact("Proof added", `${evidenceCount} ${pluralize(evidenceCount, "item")} attached`)}
-        ${renderStudentRequirementDetailFact("Sent work", version > 0 ? `Version ${version} / ${submissionStatus}` : "Not sent yet")}
-        ${renderStudentRequirementDetailFact("Progress", progressStatus)}
+        ${renderStudentRequirementDetailFact("Sent work", version > 0 ? `Version ${version}: ${submissionStatus}` : "Not sent yet")}
+        ${renderStudentRequirementDetailFact("Now", progressStatus)}
         ${renderStudentRequirementDetailFact("Next step", studentInstructionCopy(item?.nextAction || "Ask your Program Teacher what to do next."))}
         ${renderStudentRequirementDetailFact("Approval gate", approvalGate)}
       </div>
+      ${renderStudentRequirementSendPath(item, latestFeedback, evidenceRows)}
       ${renderStudentRequirementReadyChecklist(item, latestFeedback, evidenceRows)}
       ${latestFeedback ? `
         <article class="workspace-mini-row" data-student-requirement-feedback="true">
@@ -7200,7 +10202,7 @@ function renderStudentRequirementDetail(item, latestFeedback = null, evidenceRow
       ${submissionId ? `
         <div class="workspace-row-actions" data-student-requirement-timeline-actions="true">
           <button class="workspace-link-button workspace-link-button-small" type="button" data-student-feedback-action="open-history" data-student-feedback-origin="requirements" data-student-feedback-submission-id="${escapeHtml(submissionId)}">
-            ${escapeHtml(timelineSelected ? "Refresh full timeline" : "View full timeline")}
+            ${escapeHtml(timelineSelected ? "Refresh work history" : "View work history")}
           </button>
         </div>
       ` : ""}
@@ -7214,6 +10216,63 @@ function renderStudentRequirementDetail(item, latestFeedback = null, evidenceRow
           ${evidenceRows.map(renderStudentRequirementEvidenceRow).join("")}
         </div>
       ` : ""}
+    </section>
+  `;
+}
+
+function renderStudentRequirementSendPath(item = {}, latestFeedback = null, evidenceRows = []) {
+  const actionState = studentSubmissionActionState(item);
+  const evidenceCount = Math.max(safeNumber(item?.evidenceCount), Array.isArray(evidenceRows) ? evidenceRows.length : 0);
+  const status = normalizeStatus(item?.submissionStatus || item?.status);
+  const phase = studentBookletPhaseInfo(item?.phase || item?.phaseLabel || "", item?.phaseLabel || "");
+  const phaseGoal = phase.deliverable || "the current phase deliverable";
+  const needsRevision = ["revision_requested", "needs_revision"].includes(status);
+  const waitingForReview = ["submitted", "under_review", "reviewing", "pending_review"].includes(status);
+  const approved = ["approved", "archived", "complete", "completed"].includes(status);
+  const cards = [
+    {
+      id: "finish",
+      title: needsRevision ? "Fix the note first" : "Finish this item",
+      detail: needsRevision
+        ? (latestFeedback?.message || "Read the Program Teacher note and make the exact change on this item.")
+        : `This item helps finish ${phaseGoal}. Finish the work described here before sending it.`,
+      tone: needsRevision ? "warning" : "student",
+    },
+    {
+      id: "proof",
+      title: evidenceCount ? "Proof is attached" : "Add matching proof",
+      detail: evidenceCount
+        ? `${evidenceCount} proof ${pluralize(evidenceCount, "item")} is attached to this checklist item.`
+        : "Add a link or file that shows this exact work, not another phase or old draft.",
+      tone: evidenceCount ? "ready" : "warning",
+    },
+    {
+      id: "send",
+      title: approved ? "Approved" : waitingForReview ? "Wait for review" : actionState.canSubmit ? actionState.label : "Not ready to send",
+      detail: approved
+        ? "Use this approval to continue with the next assigned item."
+        : waitingForReview
+          ? "Your Program Teacher owns the next decision. Do not send another version unless they ask."
+          : actionState.canSubmit
+            ? "Send only after the work and proof match this item."
+            : actionState.reason,
+      tone: approved || actionState.canSubmit ? "ready" : waitingForReview ? "teacher" : "quiet",
+    },
+  ];
+  return `
+    <section class="workspace-student-send-path" data-student-send-path="true" aria-label="Before you send this item">
+      <div>
+        <strong>Before you send this item</strong>
+        <p>${escapeHtml(`Stay on this checklist item until the work, proof, and Program Teacher note all match. Phase goal: ${phaseGoal}`)}</p>
+      </div>
+      <div class="workspace-student-send-path-grid">
+        ${cards.map((card) => `
+          <article class="workspace-student-send-path-card ${escapeHtml(card.tone)}" data-student-send-path-card="${escapeHtml(card.id)}">
+            <span>${escapeHtml(card.title)}</span>
+            <p>${escapeHtml(card.detail)}</p>
+          </article>
+        `).join("")}
+      </div>
     </section>
   `;
 }
@@ -7237,7 +10296,7 @@ function renderStudentRequirementReadyChecklist(item = {}, latestFeedback = null
     {
       label: needsRevision ? "Program Teacher revision note checked" : "Program Teacher feedback checked",
       detail: needsRevision
-        ? (latestFeedback?.message || "Open Feedback Inbox and confirm the exact requested change.")
+        ? (latestFeedback?.message || "Open Program Teacher Feedback and confirm the exact requested change.")
         : "No revision note is blocking this item right now.",
       state: needsRevision && !latestFeedback ? "needs_review" : "ready",
     },
@@ -7390,8 +10449,8 @@ function renderStudentFeedbackPanel(feedback = [], summary = {}, historyState = 
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Program Teacher feedback</p>
-          <h2 id="studentFeedbackTitle">Feedback Inbox</h2>
-          <p>${escapeHtml(rows.length ? `Showing the latest ${countLabel} meant for you. Feedback History and timelines stay here too.` : "Program Teacher review notes meant for you will appear here.")}</p>
+          <h2 id="studentFeedbackTitle">Program Teacher Feedback</h2>
+          <p>${escapeHtml(rows.length ? `Showing the latest ${countLabel} meant for you. Open a note to see what happened and what to do next.` : "Program Teacher review notes meant for you will appear here.")}</p>
         </div>
       </div>
       ${renderStudentFeedbackPanelBody(feedback, summary, historyState)}
@@ -7423,7 +10482,7 @@ function renderStudentRevisionLane(rows = []) {
   return `
     <section class="workspace-student-revision-lane" data-student-revision-lane="true" data-student-revision-lane-count="${escapeHtml(revisionRows.length)}">
       <div>
-        <strong>Revision-only lane</strong>
+        <strong>Fix revisions first</strong>
         <p>${escapeHtml(`Start with ${first.requirementTitle || "the first revision item"}. New phase work waits until this is approved.`)}</p>
       </div>
       <ol>
@@ -7442,7 +10501,7 @@ function renderStudentFeedbackInboxGuide(rows = [], summary = {}) {
     : counts.waiting
       ? "Read Program Teacher notes, then wait for the next recorded decision."
       : counts.approved
-        ? "Approved notes are receipts for what you can use next."
+        ? "Approved notes show what is done and can be used next."
         : "Program Teacher feedback will appear here after review.";
   const nextMove = counts.revisionRequested
     ? "Open the matching work, make the requested change, attach corrected proof if needed, then send the revision."
@@ -7543,15 +10602,15 @@ function renderStudentFeedbackEmptyState(summary = {}, filterKey = "all", totalR
   const copy = {
     revision_requested: {
       title: "No revision notes are listed right now.",
-      detail: "Switch filters or check the submission list below for work that is still waiting for review.",
+      detail: "Show all notes or check Work You Sent In for anything still waiting for review.",
     },
     under_review: {
       title: "No general Program Teacher notes are listed right now.",
-      detail: "Switch filters to review revision notes or approved feedback for your recent work.",
+      detail: "Show revision notes or approved feedback for your recent work.",
     },
     approved: {
       title: "No approved feedback is listed yet.",
-      detail: "Approved notes will appear here after your Program Teacher marks submitted work complete.",
+      detail: "Approved notes will appear here after your Program Teacher marks sent work complete.",
     },
     all: {
       title: "No Program Teacher feedback yet.",
@@ -7583,7 +10642,7 @@ function renderStudentFeedbackRow(item, historyState = defaultStudentFeedbackHis
         <p class="workspace-muted">${escapeHtml(item.authorName || "Program Teacher")} / ${escapeHtml(formatDate(item.createdAt))}</p>
       </div>
       <div class="workspace-row-actions">
-        ${submissionId ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-feedback-action="open-history" data-student-feedback-origin="feedback" data-student-feedback-submission-id="${escapeHtml(submissionId)}">${escapeHtml(isSelected ? "Refresh timeline" : "View timeline")}</button>` : ""}
+        ${submissionId ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-feedback-action="open-history" data-student-feedback-origin="feedback" data-student-feedback-submission-id="${escapeHtml(submissionId)}">${escapeHtml(isSelected ? "Refresh work history" : "View work history")}</button>` : ""}
         ${needsRevision ? `<button class="workspace-button workspace-button-small workspace-button-secondary" type="button" data-student-support-action="focus-submissions" data-student-support-filter="revision_requested">Open revision work</button>` : ""}
         ${statusPill(item.status || "under_review")}
       </div>
@@ -7656,7 +10715,7 @@ function studentFeedbackSubmissionMeta(item) {
   const parts = [];
   const version = safeNumber(item?.submissionVersion);
   if (version > 0) parts.push(`Version ${version}`);
-  if (item?.submissionStatus) parts.push(`Current status: ${statusText(item.submissionStatus)}`);
+  if (item?.submissionStatus) parts.push(`Now: ${statusText(item.submissionStatus)}`);
   return parts.join(" / ");
 }
 
@@ -7664,17 +10723,17 @@ function renderStudentFeedbackTimeline(historyState = defaultStudentFeedbackHist
   if (historyState.loading) {
     return `
       <section class="workspace-student-feedback-timeline" data-student-feedback-timeline-loading="true">
-        <h3>Work timeline</h3>
-        <p class="workspace-muted">Loading the review timeline for this work.</p>
+        <h3>Work history</h3>
+        <p class="workspace-muted">Loading what happened with this work.</p>
       </section>
     `;
   }
   if (historyState.result && !historyState.result.ok) {
     return `
       <section class="workspace-empty-state-card workspace-student-feedback-timeline" data-student-feedback-timeline-error="true">
-        <h3>Work timeline unavailable</h3>
+        <h3>Work history unavailable</h3>
         ${renderProblemState({
-          reason: "We could not load this feedback timeline right now.",
+          reason: "We could not load this work history right now.",
           owner: "Program Teacher",
           nextAction: "Try again later or ask your Program Teacher which version to update.",
         })}
@@ -7692,7 +10751,7 @@ function renderStudentFeedbackTimeline(historyState = defaultStudentFeedbackHist
   return `
     <section class="workspace-student-feedback-timeline" data-student-feedback-timeline="true">
       <div>
-        <h3>Work timeline</h3>
+        <h3>Work history</h3>
         <p class="workspace-muted">Only feedback meant for you is shown here.</p>
       </div>
       ${renderStudentFeedbackTimelineSummary(history, versions, statusHistory, noteRows)}
@@ -7700,11 +10759,11 @@ function renderStudentFeedbackTimeline(historyState = defaultStudentFeedbackHist
       ${renderStudentVersionCompare(versions, history.submission?.version)}
       ${hasTimeline ? `
         <div class="workspace-student-feedback-timeline-grid">
-          ${renderStudentTimelineList("Versions", versions, "No submitted versions are listed yet.", (row) => renderStudentVersionTimelineItem(row, history.submission?.version))}
-          ${renderStudentTimelineList("Status changes", statusHistory, "No status changes are listed yet.", renderStudentStatusTimelineItem)}
+          ${renderStudentTimelineList("Sent versions", versions, "No sent versions are listed yet.", (row) => renderStudentVersionTimelineItem(row, history.submission?.version))}
+          ${renderStudentTimelineList("What changed", statusHistory, "No changes are listed yet.", renderStudentStatusTimelineItem)}
           ${renderStudentTimelineList("Program Teacher notes", noteRows, "No Program Teacher notes are listed yet.", renderStudentNoteTimelineItem)}
         </div>
-      ` : `<div class="workspace-empty">No timeline entries are available for this work yet.</div>`}
+      ` : `<div class="workspace-empty">No work history is available for this item yet.</div>`}
     </section>
   `;
 }
@@ -7741,9 +10800,9 @@ function renderStudentVersionCompare(versions = [], currentVersion = 0) {
   const previous = previousStudentTimelineVersion(versions, current.version);
   return `
     <section class="workspace-student-version-compare" data-student-version-compare="true">
-      <strong>Version check</strong>
+      <strong>Sent work check</strong>
       <div>
-        <span>Current: ${escapeHtml(studentTimelineVersionSummary(current))}</span>
+        <span>Newest sent work: ${escapeHtml(studentTimelineVersionSummary(current))}</span>
         <span>Previous: ${escapeHtml(previous ? studentTimelineVersionSummary(previous) : "No previous version listed")}</span>
       </div>
     </section>
@@ -7795,10 +10854,10 @@ function studentTimelineNextMove(status = "") {
 function renderStudentFeedbackTimelineSummary(history = {}, versions = [], statusHistory = [], noteRows = []) {
   const currentVersion = safeNumber(history?.submission?.version);
   const facts = [];
-  if (currentVersion > 0) facts.push({ label: "Current version", value: `Version ${currentVersion}` });
-  facts.push({ label: "Submitted versions", value: `${versions.length}` });
+  if (currentVersion > 0) facts.push({ label: "Newest sent work", value: `Version ${currentVersion}` });
+  facts.push({ label: "Sent versions", value: `${versions.length}` });
   facts.push({ label: "Program Teacher notes", value: `${noteRows.length}` });
-  facts.push({ label: "Status updates", value: `${statusHistory.length}` });
+  facts.push({ label: "What changed", value: `${statusHistory.length}` });
   return `
     <div class="workspace-student-feedback-timeline-summary" data-student-feedback-timeline-summary="true">
       ${facts.map((fact) => `
@@ -7830,7 +10889,7 @@ function renderStudentVersionTimelineItem(row, currentVersion = 0) {
     evidenceCount ? `${evidenceCount} proof item${evidenceCount === 1 ? "" : "s"}` : "No proof saved",
     formatDate(row?.submittedAt || row?.submitted_at),
   ];
-  if (isCurrentVersion) detailParts.push("Current version");
+  if (isCurrentVersion) detailParts.push("Newest sent work");
   return `
     <article class="workspace-mini-row" data-student-feedback-version="${escapeHtml(version || "")}" data-student-feedback-current-version="${isCurrentVersion ? "true" : "false"}">
       <span>${escapeHtml(version ? `Version ${version} submitted` : "Version submitted")}</span>
@@ -7890,8 +10949,8 @@ function renderStudentProgressDetails(summary, dashboard) {
     <section class="workspace-dashboard-card workspace-student-progress-details" aria-labelledby="studentProgressDetailsTitle">
       <div class="workspace-card-head">
         <div>
-          <p class="workspace-kicker">Progress details</p>
-          <h2 id="studentProgressDetailsTitle">Progress Details</h2>
+          <p class="workspace-kicker">Project details</p>
+          <h2 id="studentProgressDetailsTitle">Project Details</h2>
         </div>
       </div>
       ${renderStudentProgressDetailsBody(summary, dashboard)}
@@ -7914,15 +10973,65 @@ function renderStudentProgressDetailsBody(summary, dashboard) {
           ${renderStudentDetailFact("Last updated", summary.lastUpdatedAt ? formatDate(summary.lastUpdatedAt) : "Not available yet")}
           ${renderStudentDetailFact("Proof added", `${evidence.length} item${evidence.length === 1 ? "" : "s"}`)}
           ${renderStudentDetailFact("Program Teacher feedback", summary.revisionRequestedCount ? "Review the item marked Needs Revision." : "You do not have feedback that needs action right now.")}
-          ${archiveFact ? renderStudentDetailFact("May 5 files", archiveFact) : ""}
+          ${archiveFact ? renderStudentDetailFact("Final files due May 5", archiveFact) : ""}
         </div>
       </div>
       <div class="workspace-student-support-box" data-student-support-box="true">
-        <strong>Need help?</strong>
+        <strong>Need help with this?</strong>
         <p>${escapeHtml(studentInstructionCopy(summary.mentor.message || "Ask your mentor or Program Teacher if something looks wrong."))}</p>
         <p class="workspace-muted">${escapeHtml(studentSupportGuidance(summary, dashboard))}</p>
+        ${renderStudentSupportMap(summary, dashboard)}
         ${renderStudentSupportActions(summary, dashboard)}
       </div>
+  `;
+}
+
+function renderStudentSupportMap(summary = {}, dashboard = {}) {
+  const mentorAssigned = Boolean(summary?.mentor?.assigned);
+  const revisionCount = safeNumber(summary?.revisionRequestedCount);
+  const waitingCount = safeNumber(summary?.waitingForReviewCount);
+  const missingCount = safeNumber(summary?.missingRequiredCount);
+  const cards = [
+    {
+      id: "program-teacher",
+      title: "Ask your Program Teacher",
+      detail: revisionCount
+        ? "Use this when feedback asks for changes, a phase is blocked, or you are not sure what to fix first."
+        : missingCount
+          ? "Use this when an assigned item, phase, or deadline seems missing or unclear."
+          : "Use this when My Work does not show the next Senior Project step.",
+      actionHtml: `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-support-action="focus-feedback" data-student-support-filter="${escapeHtml(revisionCount ? "revision_requested" : "all")}">${escapeHtml(revisionCount ? "Review feedback" : "Open feedback")}</button>`,
+      tone: revisionCount ? "warning" : "student",
+    },
+    {
+      id: "mentor",
+      title: mentorAssigned ? "Ask your mentor" : "Ask who can mentor you",
+      detail: mentorAssigned
+        ? "Use mentor help for ideas, practice, and project thinking. Program Teacher approval still controls phase movement."
+        : "Ask your Program Teacher who can help with mentor questions until a mentor is listed here.",
+      actionHtml: `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-support-action="focus-requirements">${escapeHtml(mentorAssigned ? "Open checklist" : "Open required work")}</button>`,
+      tone: mentorAssigned ? "mentor" : "quiet",
+    },
+    {
+      id: "account",
+      title: "Use Account for sign-in only",
+      detail: waitingCount && !revisionCount
+        ? "Do not change proof while work is waiting for review unless your Program Teacher asks."
+        : "Password or sign-in problems belong in Account. Proof, feedback, and deadlines stay in My Work.",
+      actionHtml: `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="security">Open Account</button>`,
+      tone: "quiet",
+    },
+  ];
+  return `
+    <section class="workspace-student-support-map" data-student-support-map="true" aria-label="Who to ask for help">
+      ${cards.map((card) => `
+        <article class="workspace-student-support-map-card ${escapeHtml(card.tone)}" data-student-support-map-card="${escapeHtml(card.id)}">
+          <strong>${escapeHtml(card.title)}</strong>
+          <p>${escapeHtml(card.detail)}</p>
+          <div class="workspace-row-actions">${card.actionHtml}</div>
+        </article>
+      `).join("")}
+    </section>
   `;
 }
 
@@ -7931,6 +11040,7 @@ function renderStudentSubmissionsPanelBody(submissions = [], filteredSubmissions
     <div>
       <p class="workspace-muted">${escapeHtml(submissions.length ? `Showing the latest ${submissions.length} item${submissions.length === 1 ? "" : "s"} you have started or sent.` : "Your sent work will appear here after you start project work.")}</p>
       ${renderStudentSubmissionActionSummary(submissions)}
+      ${renderStudentSubmissionStatusGuide(submissions, activeSubmissionFilter)}
       ${submissions.length > 1 || activeSubmissionFilter !== "all" ? renderStudentSubmissionFilters(submissions, activeSubmissionFilter) : ""}
       <div class="workspace-list">
         ${filteredSubmissions.length
@@ -7941,16 +11051,80 @@ function renderStudentSubmissionsPanelBody(submissions = [], filteredSubmissions
   `;
 }
 
+function renderStudentSubmissionStatusGuide(submissions = [], activeSubmissionFilter = "all") {
+  const rows = Array.isArray(submissions) ? submissions : [];
+  if (!rows.length) return "";
+  const counts = studentSubmissionStatusCounts(rows);
+  const active = studentSubmissionFilterKey(activeSubmissionFilter);
+  const cards = [
+    {
+      id: "draft",
+      title: "Draft",
+      detail: counts.draft
+        ? "Finish the work, attach matching proof, then send it for Program Teacher review."
+        : "No draft work is waiting for you right now.",
+      tone: counts.draft ? "student" : "quiet",
+      count: counts.draft,
+      action: "Show drafts",
+    },
+    {
+      id: "submitted",
+      title: "Waiting for review",
+      detail: counts.waiting
+        ? "Your Program Teacher owns the next decision. Do not send another version unless they ask."
+        : "Nothing is waiting for Program Teacher review right now.",
+      tone: counts.waiting ? "teacher" : "quiet",
+      count: counts.waiting,
+      action: "Show waiting work",
+    },
+    {
+      id: "revision_requested",
+      title: "Needs revision",
+      detail: counts.revision
+        ? "Fix the Program Teacher note, update the matching proof if needed, then send the revision."
+        : "No revision work is waiting for you right now.",
+      tone: counts.revision ? "warning" : "quiet",
+      count: counts.revision,
+      action: "Show revision work",
+    },
+    {
+      id: "approved",
+      title: "Approved",
+      detail: counts.approved
+        ? "This work is complete for now. Use it for the next assigned item, presentation, or final files."
+        : "Approved work appears here after your Program Teacher marks sent work complete.",
+      tone: counts.approved ? "ready" : "quiet",
+      count: counts.approved,
+      action: "Show approved work",
+    },
+  ];
+  return `
+    <section class="workspace-student-submission-status-guide" data-student-submission-status-guide="true" aria-label="What sent-work statuses mean">
+      <div>
+        <strong>What sent-work statuses mean</strong>
+        <p>${escapeHtml("Use these cards to decide whether to keep working, wait, fix a revision, or move on.")}</p>
+      </div>
+      <div class="workspace-student-submission-status-grid">
+        ${cards.map((card) => `
+          <article class="workspace-student-submission-status-card ${escapeHtml(card.tone)}" data-student-submission-status-card="${escapeHtml(card.id)}">
+            <div>
+              <span>${escapeHtml(card.title)}</span>
+              <b>${escapeHtml(card.count)} ${escapeHtml(card.count === 1 ? "item" : "items")}</b>
+              <p>${escapeHtml(card.detail)}</p>
+            </div>
+            <button class="workspace-link-button workspace-link-button-small" type="button" data-student-submission-action="set-filter" data-student-submission-filter="${escapeHtml(card.id)}" aria-pressed="${active === card.id ? "true" : "false"}">
+              ${escapeHtml(active === card.id ? "Viewing" : card.action)}
+            </button>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
 function renderStudentSubmissionActionSummary(submissions = []) {
   const rows = Array.isArray(submissions) ? submissions : [];
-  const counts = rows.reduce((summary, row) => {
-    const status = studentSubmissionFilterKey(row?.status);
-    if (status === "revision_requested") summary.revision += 1;
-    else if (status === "submitted") summary.waiting += 1;
-    else if (status === "approved") summary.approved += 1;
-    else if (status === "draft") summary.draft += 1;
-    return summary;
-  }, { revision: 0, waiting: 0, approved: 0, draft: 0 });
+  const counts = studentSubmissionStatusCounts(rows);
   const guidance = counts.revision
     ? "Do revision items first. Update the matching work, attach corrected proof if needed, then send the revision."
     : counts.waiting
@@ -7958,7 +11132,7 @@ function renderStudentSubmissionActionSummary(submissions = []) {
     : counts.draft
       ? "Finish draft items, add proof, then send them for review."
     : counts.approved
-      ? "Approved work is your archive of completed next-step checkpoints."
+      ? "Approved work shows what is complete and ready to use for next steps."
       : "Started work will appear here after your Program Teacher assigns it.";
   return `
     <section class="workspace-student-submission-summary" data-student-submission-summary="true">
@@ -7972,7 +11146,7 @@ function renderStudentSubmissionActionSummary(submissions = []) {
       ${counts.approved ? `
         <div class="workspace-row-actions">
           <button class="workspace-link-button workspace-link-button-small" type="button" data-student-submission-action="set-filter" data-student-submission-filter="approved">
-            Show approved archive
+            Show approved work
           </button>
         </div>
       ` : ""}
@@ -7980,11 +11154,23 @@ function renderStudentSubmissionActionSummary(submissions = []) {
   `;
 }
 
+function studentSubmissionStatusCounts(rows = []) {
+  return (Array.isArray(rows) ? rows : []).reduce((summary, row) => {
+    const status = studentSubmissionFilterKey(row?.status);
+    if (status === "revision_requested") summary.revision += 1;
+    else if (status === "submitted") summary.waiting += 1;
+    else if (status === "approved") summary.approved += 1;
+    else if (status === "draft") summary.draft += 1;
+    return summary;
+  }, { revision: 0, waiting: 0, approved: 0, draft: 0 });
+}
+
 function renderStudentFilesPanelBody(evidence = []) {
   const rows = Array.isArray(evidence) ? evidence : [];
   const groups = groupStudentEvidenceByRequirement(rows);
   return `
     <div class="workspace-student-files-panel" data-student-files-panel="true">
+      ${renderStudentFilesReviewGuide(rows)}
       ${renderStudentProofReceipt(rows)}
       ${groups.length
         ? groups.map(renderStudentEvidenceGroup).join("")
@@ -7993,29 +11179,163 @@ function renderStudentFilesPanelBody(evidence = []) {
   `;
 }
 
+function renderStudentFilesReviewGuide(evidence = []) {
+  const rows = Array.isArray(evidence) ? evidence : [];
+  if (!rows.length) return "";
+  const waitingCount = rows.filter((row) => !["approved", "complete", "completed", "revision_requested", "needs_revision", "rejected", "blocked"].includes(normalizeStatus(row?.review_status))).length;
+  const approvedCount = rows.filter((row) => ["approved", "complete", "completed"].includes(normalizeStatus(row?.review_status))).length;
+  const needsFixCount = rows.filter((row) => ["revision_requested", "needs_revision", "rejected", "blocked"].includes(normalizeStatus(row?.review_status))).length;
+  const unmatchedCount = rows.filter((row) => !cleanDirectoryFilter(row?.requirementId || "") && !cleanDirectoryFilter(row?.submissionId || "")).length;
+  const firstMatched = rows.find((row) => cleanDirectoryFilter(row?.requirementId || ""));
+  const checklistAction = firstMatched
+    ? renderStudentRequirementOpenButton({
+      requirementId: firstMatched.requirementId,
+      title: firstMatched.requirementTitle || firstMatched.title || "proof item",
+    }, "Open checklist item")
+    : renderStudentDisclosureOpenButton("requirements", "Open checklist");
+  const reviewTitle = needsFixCount
+    ? "Proof needs a correction"
+    : waitingCount
+      ? "Waiting for review"
+      : approvedCount
+        ? "Proof has approval"
+        : "Check review status";
+  const reviewDetail = needsFixCount
+    ? `${needsFixCount} proof ${pluralize(needsFixCount, "item")} needs a Program Teacher correction path.`
+    : waitingCount
+      ? `${waitingCount} proof ${pluralize(waitingCount, "item")} is saved, but still waiting for Program Teacher review.`
+      : approvedCount
+        ? `${approvedCount} proof ${pluralize(approvedCount, "item")} is approved. Keep using the next assigned item.`
+        : "Use the row status below to see what your Program Teacher has reviewed.";
+  const cards = [
+    {
+      id: "match",
+      title: "Match proof to a checklist item",
+      detail: unmatchedCount
+        ? `${unmatchedCount} proof ${pluralize(unmatchedCount, "item")} is not matched to a checklist item yet. Ask your Program Teacher before using it for a phase.`
+        : `All ${rows.length} proof ${pluralize(rows.length, "item")} below is grouped by checklist item.`,
+      actionHtml: checklistAction,
+      tone: unmatchedCount ? "warning" : "ready",
+    },
+    {
+      id: "review",
+      title: reviewTitle,
+      detail: reviewDetail,
+      actionHtml: needsFixCount ? renderStudentDisclosureOpenButton("feedback", "Open feedback") : "",
+      tone: needsFixCount ? "warning" : waitingCount ? "teacher" : "ready",
+    },
+    {
+      id: "correct",
+      title: "Need to change proof?",
+      detail: "Add corrected proof to the right item. Tell your Program Teacher which old proof should be ignored.",
+      actionHtml: renderStudentDisclosureOpenButton("evidence", "Open proof tools"),
+      tone: "student",
+    },
+  ];
+  return `
+    <section class="workspace-student-files-review" data-student-files-review="true" aria-label="How to check saved proof">
+      <div>
+        <strong>Check saved proof</strong>
+        <p>${escapeHtml("Files and links are proof, not approval. Use this screen to confirm proof is attached to the right checklist item before you move on.")}</p>
+      </div>
+      <div class="workspace-student-files-review-grid">
+        ${cards.map((card) => `
+          <article class="workspace-student-files-review-card ${escapeHtml(card.tone)}" data-student-files-review-card="${escapeHtml(card.id)}">
+            <div>
+              <span>${escapeHtml(card.title)}</span>
+              <p>${escapeHtml(card.detail)}</p>
+            </div>
+            ${card.actionHtml ? `<div class="workspace-row-actions">${card.actionHtml}</div>` : ""}
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
 function renderStudentProofReceipt(evidence = []) {
   const receipt = studentProofReceiptState || defaultStudentProofReceiptState();
   if (!receipt.visible) return "";
   const matchedEvidence = studentProofReceiptMatchedEvidence(receipt, evidence);
   const matchedTitle = matchedEvidence?.requirementTitle || receipt.requirementTitle || "selected checklist item";
+  const requirementId = cleanDirectoryFilter(receipt.requirementId || matchedEvidence?.requirementId || "");
   const proofLabel = receipt.proofKind === "link" ? "Proof link" : "Uploaded file";
   const fileLabel = receipt.fileName || receipt.title || "Proof";
   const savedAt = receipt.savedAt ? formatDate(receipt.savedAt) : "just now";
   return `
-    <section class="workspace-student-proof-receipt" data-student-proof-receipt="true" data-student-proof-receipt-kind="${escapeHtml(receipt.proofKind || "proof")}" data-student-proof-receipt-matched="${matchedEvidence ? "true" : "pending"}">
-      <div>
-        <strong>Proof receipt</strong>
-        <p>${escapeHtml(`${proofLabel} saved for ${matchedTitle}.`)}</p>
-        <p class="workspace-muted">${escapeHtml(`${fileLabel} / ${savedAt}`)}</p>
-        <p class="workspace-muted" data-student-proof-receipt-gate="true">Proof is saved, but this item is not approved for next steps until a Program Teacher reviews it.</p>
+    <section class="workspace-student-proof-receipt" data-student-proof-receipt="true" data-student-proof-receipt-kind="${escapeHtml(receipt.proofKind || "proof")}" data-student-proof-receipt-matched="${matchedEvidence ? "true" : "pending"}" data-student-proof-receipt-submission-id="${escapeHtml(receipt.submissionId || "")}" data-student-proof-receipt-requirement-id="${escapeHtml(requirementId)}">
+      <div class="workspace-student-proof-receipt-head">
+        <div>
+          <span>Proof saved</span>
+          <strong>Confirm it is on the right checklist item</strong>
+          <p>${escapeHtml(`${proofLabel} saved for ${matchedTitle}.`)}</p>
+          <p class="workspace-muted">${escapeHtml(`${fileLabel} / ${savedAt}`)}</p>
+        </div>
+        ${statusPill(matchedEvidence ? "ready" : "needs_review")}
       </div>
-      <div class="workspace-student-proof-receipt-checks">
-        <span>1. Confirm this proof is on the right checklist item.</span>
-        <span>2. If it is wrong, add the proof to the correct item.</span>
-        <span>3. Send the item for review when all required proof is attached.</span>
-        <span>4. Wait for Program Teacher approval before moving to the next Senior Project step.</span>
+      <div class="workspace-student-proof-receipt-map" data-student-proof-receipt-map="true">
+        ${renderStudentProofReceiptCard({
+          id: "matching-item",
+          owner: "Student check",
+          title: "Open the matching checklist item",
+          detail: "Confirm this proof appears on the work item you meant to update.",
+          action: "Open checklist item",
+          actionType: requirementId ? "open-checklist" : "open-files",
+          tone: "ready",
+        })}
+        ${renderStudentProofReceiptCard({
+          id: "wrong-item",
+          owner: "Correction path",
+          title: "Wrong item? Add corrected proof",
+          detail: "Leave this proof alone, add the corrected proof to the right item, then tell your Program Teacher which one to ignore.",
+          action: "Open proof tools",
+          actionType: "correct-proof",
+          tone: "warning",
+        })}
+        ${renderStudentProofReceiptCard({
+          id: "send-review",
+          owner: "Next step",
+          title: "Send the work for review",
+          detail: "Use Work You Sent In or the checklist item when all required proof is attached.",
+          action: "Open sent work",
+          actionType: "open-submissions",
+          tone: "student",
+        })}
+        ${renderStudentProofReceiptCard({
+          id: "approval-gate",
+          owner: "Program Teacher",
+          title: "Approval still comes later",
+          detail: "Proof is saved, but next steps wait until a Program Teacher records approval.",
+          action: "Stay in files",
+          actionType: "open-files",
+          tone: "teacher",
+        })}
+      </div>
+      <div class="workspace-student-proof-receipt-footer">
+        <p class="workspace-muted" data-student-proof-receipt-gate="true">Proof is saved, but this item is not approved for next steps until a Program Teacher reviews it.</p>
+        <div class="workspace-student-proof-receipt-checks">
+          <span>1. Confirm this proof is on the right checklist item.</span>
+          <span>2. If it is wrong, add the proof to the correct item.</span>
+          <span>3. Send the item for review when all required proof is attached.</span>
+          <span>4. Wait for Program Teacher approval before moving to the next Senior Project step.</span>
+        </div>
       </div>
     </section>
+  `;
+}
+
+function renderStudentProofReceiptCard(card = {}) {
+  return `
+    <article class="workspace-student-proof-receipt-card ${escapeHtml(card.tone || "quiet")}" data-student-proof-receipt-card="${escapeHtml(card.id || "receipt")}">
+      <div>
+        <span>${escapeHtml(card.owner || "Next")}</span>
+        <strong>${escapeHtml(card.title || "Check proof")}</strong>
+        <p>${escapeHtml(card.detail || "")}</p>
+      </div>
+      <button class="workspace-link-button workspace-link-button-small" type="button" data-student-proof-receipt-action="${escapeHtml(card.actionType || "open-files")}">
+        ${escapeHtml(card.action || "Open")}
+      </button>
+    </article>
   `;
 }
 
@@ -8084,7 +11404,7 @@ function studentSupportGuidance(summary, dashboard) {
     return "Keep using your next steps and checklist while your Program Teacher helps with mentor questions.";
   }
   if (summary?.dueDatesAvailable) {
-    return "Use Upcoming deadlines or Your Required Work when you want a shorter path through the work below.";
+    return "Use Upcoming deadlines or Your Project Checklist when you want a shorter path through the work below.";
   }
   return progress.length || submissions.length || requirements.length
     ? "Use the work list, feedback notes, or checklist below to keep your project moving."
@@ -8114,7 +11434,7 @@ function renderStudentSupportActions(summary, dashboard) {
           : "all";
     buttons.push(`
       <button class="workspace-link-button workspace-link-button-small" type="button" data-student-support-action="focus-submissions" data-student-support-filter="${escapeHtml(submissionFilter)}">
-        ${escapeHtml(summary?.revisionRequestedCount ? "Open submitted work" : summary?.waitingForReviewCount ? "Check submitted work" : "Show submissions")}
+        ${escapeHtml(summary?.revisionRequestedCount ? "Open sent work" : summary?.waitingForReviewCount ? "Check sent work" : "Show sent work")}
       </button>
     `);
   }
@@ -8156,12 +11476,17 @@ function renderStudentDetailFact(label, value) {
   `;
 }
 
-function renderEvidenceForms(submissions) {
-  const options = submissions.map((submission) => `
-    <option value="${escapeHtml(submission.id)}">${escapeHtml(submission.requirement_title || "Senior Project work")} - ${escapeHtml(statusText(submission.status))}</option>
+function renderEvidenceForms(submissions, requirements = []) {
+  const rows = Array.isArray(submissions) ? submissions : [];
+  const archiveBody = unwrap(currentData.archiveReadiness);
+  const linkGuideId = "workspaceProofGuideLink";
+  const fileGuideId = "workspaceProofGuideFile";
+  const options = rows.map((submission) => `
+    <option value="${escapeHtml(studentSubmissionId(submission))}">${escapeHtml(studentSubmissionRequirementTitle(submission))} - ${escapeHtml(statusText(submission.status))}</option>
   `).join("");
 
   return `
+    ${renderStudentStorageFallbackMap(rows, archiveBody)}
     <section class="workspace-student-proof-guide" data-student-proof-guide="true">
       <strong>Add proof in this order</strong>
       <ol>
@@ -8171,7 +11496,7 @@ function renderEvidenceForms(submissions) {
         <li>Open the matching checklist item, press Send for review, then wait for Program Teacher approval.</li>
       </ol>
       <p class="workspace-muted">If you choose the wrong work item, add the corrected proof to the right item and tell your Program Teacher which proof should be ignored.</p>
-      <p class="workspace-muted" data-student-upload-fallback="true">If file storage is unavailable, attach a secure proof link first so your Program Teacher still has something to review.</p>
+      <p class="workspace-muted" data-student-upload-fallback="true">If uploads are not working, attach a secure proof link first so your Program Teacher still has something to review.</p>
     </section>
     <div class="workspace-panel">
       <h3>Attach a link</h3>
@@ -8179,8 +11504,9 @@ function renderEvidenceForms(submissions) {
         <div class="workspace-form-grid">
           <label class="workspace-label">
             Work item
-            <select class="workspace-select" name="submissionId" required>${options}</select>
+            <select class="workspace-select" name="submissionId" data-student-proof-submission-select="true" aria-describedby="${linkGuideId}" required>${options}</select>
           </label>
+          ${renderStudentProofGuideList(rows, requirements, "link", linkGuideId)}
           <label class="workspace-label">
             Work type
             <select class="workspace-select" name="artifactType">
@@ -8208,8 +11534,9 @@ function renderEvidenceForms(submissions) {
         <div class="workspace-form-grid">
           <label class="workspace-label">
             Work item
-            <select class="workspace-select" name="submissionId" required>${options}</select>
+            <select class="workspace-select" name="submissionId" data-student-proof-submission-select="true" aria-describedby="${fileGuideId}" required>${options}</select>
           </label>
+          ${renderStudentProofGuideList(rows, requirements, "file", fileGuideId)}
           <label class="workspace-label">
             Work type
             <select class="workspace-select" name="artifactType">
@@ -8225,13 +11552,254 @@ function renderEvidenceForms(submissions) {
             <input class="workspace-input" name="file" type="file" accept="image/*,.pdf,.txt,.csv,.docx,.pptx,.xlsx,application/pdf,text/plain,text/csv,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" data-upload-action="select-file" aria-describedby="workspaceFileUploadHelp" required>
           </label>
         </div>
-        <p id="workspaceFileUploadHelp" class="workspace-muted">Upload a PDF, image, text file, spreadsheet, presentation, or document up to 20 MB when file storage is available. If storage is not ready, use Attach a link as the fallback proof path.</p>
+        <p id="workspaceFileUploadHelp" class="workspace-muted">Upload a PDF, image, text file, spreadsheet, presentation, or document up to 20 MB when uploads are working. If uploads are not ready, use Attach a link first.</p>
         ${renderUploadStatus()}
         <div class="workspace-form-actions">
           <button class="workspace-button workspace-button-primary" type="submit">Upload file</button>
         </div>
       </form>
     </div>
+  `;
+}
+
+function renderStudentStorageFallbackMap(submissions = [], archiveBody = null) {
+  const rows = Array.isArray(submissions) ? submissions : [];
+  const storageState = studentStorageFallbackState(archiveBody, uploadState);
+  const uploadStatus = uploadState.state || "idle";
+  const uploadProgress = clampUploadProgress(uploadState.progress);
+  const cards = [
+    {
+      id: "select-work",
+      owner: "Student",
+      metric: rows.length ? `${rows.length} item${rows.length === 1 ? "" : "s"}` : "No item",
+      title: "Choose the exact work item",
+      detail: "Proof only helps when it is attached to the matching checklist item.",
+      tone: "student",
+      action: "Show proof guide",
+      focus: "proof-guide",
+    },
+    {
+      id: "link-first",
+      owner: "If uploads are blocked",
+      metric: "Link first",
+      title: "Use a secure proof link first",
+      detail: "If uploads are not working, attach a secure HTTPS link so your Program Teacher can still review.",
+      tone: storageState.status === "ready" ? "link" : "warning",
+      action: "Open link form",
+      focus: "link-form",
+    },
+    {
+      id: "file-upload",
+      owner: "File uploads",
+      metric: storageState.label,
+      title: "Upload only when files are working",
+      detail: storageState.detail,
+      tone: storageState.tone,
+      action: "Open upload form",
+      focus: "file-form",
+    },
+    {
+      id: "upload-status",
+      owner: "Upload status",
+      metric: uploadStatus === "idle" ? "Waiting" : `${uploadLabelForState(uploadStatus)} / ${uploadProgress}%`,
+      title: "Read upload status",
+      detail: "If upload status turns red, add a secure proof link before trying again.",
+      tone: uploadStatus === "failed" ? "danger" : uploadStatus === "complete" ? "ready" : "quiet",
+      action: "Show status",
+      focus: "upload-status",
+    },
+    {
+      id: "program-teacher",
+      owner: "Program Teacher",
+      metric: "Tell staff",
+      title: "Tell your Program Teacher what happened",
+      detail: "If storage blocks the file, share the proof link and explain that the file upload did not finish.",
+      tone: "teacher",
+      action: "Open help",
+      focus: "support",
+    },
+    {
+      id: "final-files",
+      owner: "Staff support",
+      metric: "Final files",
+      title: "Staff handle final-file downloads",
+      detail: "Staff fix download setup problems. Keep finishing checklist proof with links or existing proof.",
+      tone: storageState.status === "provider_unavailable" ? "warning" : "staff",
+      action: "Open final files",
+      section: "archive",
+    },
+  ];
+
+  return `
+    <section class="workspace-student-storage-fallback-map" data-student-storage-fallback-map="true" data-student-storage-state="${escapeHtml(storageState.status)}" aria-labelledby="studentStorageFallbackTitle">
+      <div class="workspace-student-storage-fallback-head">
+        <div>
+          <span>Proof options</span>
+          <h3 id="studentStorageFallbackTitle">Attach proof without getting stuck</h3>
+          <p>${escapeHtml(storageState.summary)}</p>
+        </div>
+        ${statusPill(storageState.status === "provider_unavailable" ? "needs_staff_action" : storageState.status)}
+      </div>
+      <div class="workspace-student-storage-fallback-grid">
+        ${cards.map(renderStudentStorageFallbackCard).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function studentStorageFallbackState(archiveBody = null, upload = uploadState) {
+  const storage = archiveBody?.storage || {};
+  const providerStatus = String(storage.providerStatus || "").trim().toLowerCase();
+  const credentialsMissing = storage.credentialsConfigured === false;
+  const storageUnavailable = credentialsMissing || (providerStatus && providerStatus !== "ready" && providerStatus !== "configured");
+  if (storageUnavailable) {
+    return {
+      status: "provider_unavailable",
+      label: "Staff setup needed",
+      tone: "warning",
+      summary: "Use a proof link first when uploads or final-file downloads are not ready.",
+      detail: "File uploads and final downloads may not be ready here. Use secure proof links for checklist work while staff fixes download setup.",
+    };
+  }
+  if ((upload?.state || "") === "failed") {
+    return {
+      status: "failed",
+      label: "Upload problem",
+      tone: "danger",
+      summary: "The last upload needs attention, so save a reviewable proof link before retrying.",
+      detail: "The last file upload needs attention. Attach a proof link before retrying so review can continue.",
+    };
+  }
+  if (!archiveBody) {
+    return {
+      status: "checking",
+      label: "Checking uploads",
+      tone: "quiet",
+      summary: "Proof links work while this screen checks whether uploads are ready.",
+      detail: "Upload status is still loading. Start with a secure proof link if you need to keep moving.",
+    };
+  }
+  return {
+    status: "ready",
+    label: "Uploads ready",
+    tone: "ready",
+    summary: "Use the link form for web proof and the upload form when a file is the clearest proof.",
+    detail: "File uploads are ready. Use uploads for files, and use secure proof links when the work already lives online.",
+  };
+}
+
+function renderStudentStorageFallbackCard(card = {}) {
+  return `
+    <article class="workspace-student-storage-fallback-card ${escapeHtml(card.tone || "quiet")}" data-student-storage-card="${escapeHtml(card.id || "storage")}">
+      <div>
+        <span>${escapeHtml(card.owner || "Next step")}</span>
+        <strong>${escapeHtml(card.title || "Review proof path")}</strong>
+        <p>${escapeHtml(card.detail || "")}</p>
+      </div>
+      <div class="workspace-student-storage-fallback-card-foot">
+        <b>${escapeHtml(card.metric || "")}</b>
+        ${renderStudentStorageFallbackButton(card)}
+      </div>
+    </article>
+  `;
+}
+
+function renderStudentStorageFallbackButton(card = {}) {
+  if (card.section) {
+    return `
+      <button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(card.section)}">
+        ${escapeHtml(card.action || "Open")}
+      </button>
+    `;
+  }
+  if (card.focus) {
+    return `
+      <button class="workspace-link-button workspace-link-button-small" type="button" data-student-storage-focus="${escapeHtml(card.focus)}">
+        ${escapeHtml(card.action || "Show")}
+      </button>
+    `;
+  }
+  return "";
+}
+
+function studentSubmissionId(submission = {}) {
+  return cleanDirectoryFilter(submission?.id || submission?.submissionId || "");
+}
+
+function studentSubmissionRequirementId(submission = {}) {
+  return cleanDirectoryFilter(submission?.requirement_id || submission?.requirementId || "");
+}
+
+function studentSubmissionRequirementTitle(submission = {}) {
+  const title = String(submission?.requirement_title || submission?.requirementTitle || submission?.title || "").trim();
+  return title || "Senior Project work";
+}
+
+function studentRequirementMatchForSubmission(submission = {}, requirements = []) {
+  const requirementId = studentSubmissionRequirementId(submission);
+  const title = studentSubmissionRequirementTitle(submission).toLowerCase();
+  return (Array.isArray(requirements) ? requirements : []).find((requirement) => {
+    const rowId = cleanDirectoryFilter(requirement?.requirementId || requirement?.requirement_id || requirement?.id || "");
+    const rowSubmissionId = cleanDirectoryFilter(requirement?.submissionId || requirement?.submission_id || "");
+    const rowTitle = String(requirement?.title || requirement?.requirementTitle || requirement?.requirement_title || "").trim().toLowerCase();
+    return (requirementId && rowId === requirementId)
+      || (studentSubmissionId(submission) && rowSubmissionId === studentSubmissionId(submission))
+      || (title && rowTitle === title);
+  }) || null;
+}
+
+function studentProofGuideForSubmission(submission = {}, requirements = []) {
+  const requirement = studentRequirementMatchForSubmission(submission, requirements);
+  const title = studentSubmissionRequirementTitle(submission);
+  const description = String(requirement?.description || submission?.description || "").trim();
+  const qualityPrompt = String(requirement?.qualityPrompt || requirement?.quality_prompt || submission?.qualityPrompt || "").trim();
+  const phase = studentBookletPhaseInfo(requirement?.phase || requirement?.phaseLabel || "", requirement?.phaseLabel || "");
+  const nextAction = studentInstructionCopy(requirement?.nextAction || submission?.nextAction || "Attach proof that clearly matches this work item.");
+  return {
+    title,
+    description: description || `Use proof that clearly shows the work for ${title} is complete or ready for review.`,
+    qualityPrompt,
+    phaseLabel: phase.label || "Current work",
+    phaseGoal: phase.deliverable || "Finish the work your Program Teacher lists for this phase.",
+    phaseDone: phase.done || "Program Teacher marks the listed work approved.",
+    phaseChecklist: Array.isArray(phase.checklist) ? phase.checklist : [],
+    statusLabel: statusText(submission?.status || requirement?.submissionStatus || requirement?.status || "draft"),
+    nextAction,
+  };
+}
+
+function renderStudentProofGuideList(submissions = [], requirements = [], kind = "link", id = "") {
+  const rows = Array.isArray(submissions) ? submissions : [];
+  const selectedSubmissionId = studentSubmissionId(rows[0] || {});
+  if (!rows.length) return "";
+  return `
+    <div id="${escapeHtml(id)}" class="workspace-student-proof-guide-list" data-student-proof-guide-list="${escapeHtml(kind)}" data-selected-submission-id="${escapeHtml(selectedSubmissionId)}" aria-live="polite">
+      ${rows.map((submission) => renderStudentProofGuide(submission, requirements, selectedSubmissionId)).join("")}
+    </div>
+  `;
+}
+
+function renderStudentProofGuide(submission = {}, requirements = [], selectedSubmissionId = "") {
+  const submissionId = studentSubmissionId(submission);
+  const guide = studentProofGuideForSubmission(submission, requirements);
+  const selected = submissionId === selectedSubmissionId;
+  return `
+    <article class="workspace-student-proof-guide" data-student-proof-guide="${escapeHtml(submissionId)}" data-student-proof-guide-selected="${selected ? "true" : "false"}" ${selected ? "" : "hidden"}>
+      <div class="workspace-student-proof-guide-head">
+        <span>What counts as proof</span>
+        <strong>${escapeHtml(`What counts as proof for ${guide.title}`)}</strong>
+      </div>
+      <p class="workspace-student-proof-phase-goal" data-student-proof-phase-goal="true"><strong>This proof should help finish:</strong> ${escapeHtml(guide.phaseGoal)}</p>
+      <p>${escapeHtml(guide.description)}</p>
+      ${guide.phaseChecklist.length ? `<p class="workspace-muted" data-student-proof-phase-include="true"><strong>Include:</strong> ${escapeHtml(guide.phaseChecklist.join("; "))}</p>` : ""}
+      ${guide.qualityPrompt ? `<p class="workspace-muted" data-student-proof-guide-quality="true">Before you attach it: ${escapeHtml(guide.qualityPrompt)}</p>` : ""}
+      <div class="workspace-student-proof-guide-facts">
+        <span><b>Phase</b>${escapeHtml(guide.phaseLabel)}</span>
+        <span><b>Status</b>${escapeHtml(guide.statusLabel)}</span>
+        <span><b>Done when</b>${escapeHtml(guide.phaseDone)}</span>
+        <span><b>Next step</b>${escapeHtml(guide.nextAction)}</span>
+      </div>
+    </article>
   `;
 }
 
@@ -8256,7 +11824,7 @@ function renderUploadStatus() {
     ? `<button class="workspace-button workspace-button-secondary" type="button" data-upload-action="retry">Retry upload</button>`
     : "";
   const linkFallback = state === "failed"
-    ? `<p class="workspace-muted" data-upload-link-fallback="true">Need to keep moving? Attach the proof as a secure link above, then tell your Program Teacher the file upload did not finish.</p>`
+    ? `<p class="workspace-muted" data-upload-link-fallback="true" data-upload-fallback-priority="link-first">Need to keep moving? Attach the proof as a secure link above first, then tell your Program Teacher the file upload did not finish. Retry only if staff says file uploads are ready.</p>`
     : "";
 
   return `
@@ -8289,9 +11857,9 @@ function uploadLabelForState(state) {
 function uploadMessageForState(state) {
   if (state === "selected") return "File selected. Press Upload file when you are ready.";
   if (state === "preparing") return "Preparing your file for upload.";
-  if (state === "uploading") return "Uploading your evidence file.";
+  if (state === "uploading") return "Uploading your proof file.";
   if (state === "verifying") return "Checking that the upload finished safely.";
-  if (state === "complete") return "Your file was received and added to your evidence.";
+  if (state === "complete") return "Your file was received and added to your proof.";
   if (state === "failed") return "The upload did not finish. Review the message and try again if available.";
   return "Choose a file to upload as proof.";
 }
@@ -8356,6 +11924,15 @@ function renderTeacherSection() {
           <p>This view is for review context. Approval, revision request, and comment decisions stay with assigned Program Teachers.</p>
         </section>
       ` : ""}
+      ${renderFirstUseGuide("review-queue", "Review one submitted item at a time", [
+        ["Start with decision order", "Use the queue guide and filters to find proof-ready, missing-proof, or revision work."],
+        ["Select one row", "History, proof counts, and student impact load in the right panel after selection."],
+        ["Check the manual gate", "Approval is for next steps only when proof and history support it."],
+        ["Save exactly one decision", "Approve, request revision, or add comment-only feedback. Read-only viewers stop at context."],
+      ], {
+        detail: "This queue is intentionally one-row-at-a-time so approval, revision, and comments do not blur together.",
+        badge: readOnly ? "Context only" : "Decision path",
+      })}
       <div class="workspace-metric-grid">
         ${renderMetricTile("Submitted", summary.submitted, "Ready for Program Teacher review", "teacher")}
         ${renderMetricTile("Needs Revision", summary.revisionRequested, "Open revision loops", "warning")}
@@ -8365,6 +11942,7 @@ function renderTeacherSection() {
         ${renderMetricTile("Stale Activity", summary.overdueOrStale, "Check-ins may be needed", safeNumber(summary.overdueOrStale) ? "warning" : "admin", "teacher", { label: "Review rows", preset: "stale-review" })}
         ${renderMetricTile("Missing Mentor", summary.noMentor, "Needs mentor coverage", safeNumber(summary.noMentor) ? "warning" : "mentor", "teacher", { label: "Review rows", preset: "missing-mentor-review" })}
       </div>
+      ${renderReviewQueueActionMap(queue, summary, filters, readOnly)}
       ${renderReviewQueueDecisionGuide(queue, summary)}
       ${renderReviewQueueFilters(body)}
       ${renderReviewQueueActiveFilters(filters, body?.filterOptions || {})}
@@ -8415,7 +11993,7 @@ function renderReviewQueueDecisionGuide(queue = [], summary = {}) {
   const revisionRows = rows.filter((row) => normalizeStatus(row.status) === "revision_requested");
   const highRiskRows = rows.filter((row) => safeNumber(row.riskScore) >= 7 || (Array.isArray(row.riskFlags) && row.riskFlags.some((flag) => normalizeStatus(flag) === "high")));
   const nextMove = readyRows.length
-    ? "Start with proof-ready submitted work. Approve only when the evidence and history support next steps."
+    ? "Start with proof-ready submitted work. Approve only when the proof and history support next steps."
     : missingProofRows.length
       ? "Start by confirming missing proof before making approval decisions."
       : revisionRows.length
@@ -8434,6 +12012,101 @@ function renderReviewQueueDecisionGuide(queue = [], summary = {}) {
         <span><b>${escapeHtml(highRiskRows.length || safeNumber(summary.highRisk))}</b> high risk</span>
       </div>
     </section>
+  `;
+}
+
+function renderReviewQueueActionMap(queue = [], summary = {}, filters = {}, readOnly = false) {
+  const rows = Array.isArray(queue) ? queue : [];
+  const submittedRows = rows.filter((row) => normalizeStatus(row.status) === "submitted");
+  const readyRows = submittedRows.filter((row) => safeNumber(row.evidenceCount) > 0);
+  const missingProofRows = submittedRows.filter((row) => safeNumber(row.evidenceCount) <= 0);
+  const revisionRows = rows.filter((row) => normalizeStatus(row.status) === "revision_requested");
+  const highRiskRows = rows.filter((row) => safeNumber(row.riskScore) >= 7 || (Array.isArray(row.riskFlags) && row.riskFlags.some((flag) => normalizeStatus(flag) === "high")));
+  const cards = [
+    {
+      id: "submitted",
+      label: "Submitted decisions",
+      value: `${safeNumber(summary.submitted ?? submittedRows.length)} waiting`,
+      detail: readOnly ? "Open for review context only; assigned Program Teachers save decisions." : "Start here when work is submitted and ready for one Program Teacher decision.",
+      tone: submittedRows.length ? "teacher" : "quiet",
+      preset: "submitted",
+      action: "Show submitted",
+    },
+    {
+      id: "proof-ready",
+      label: "Proof-ready",
+      value: `${safeNumber(summary.readyToReview ?? readyRows.length)} ready`,
+      detail: "Use this lane when active proof is attached and history still needs a decision.",
+      tone: readyRows.length ? "ready" : "quiet",
+      preset: "evidence-attached-review",
+      action: "Show proof-ready",
+    },
+    {
+      id: "missing-proof",
+      label: "Missing proof",
+      value: `${safeNumber(summary.evidenceMissing ?? missingProofRows.length)} hold`,
+      detail: "Use this lane to request exact proof; approval stays locked until proof appears.",
+      tone: safeNumber(summary.evidenceMissing ?? missingProofRows.length) ? "warning" : "quiet",
+      preset: "evidence-missing-review",
+      action: "Show missing proof",
+    },
+    {
+      id: "revision",
+      label: "Revision follow-up",
+      value: `${safeNumber(summary.revisionRequested ?? revisionRows.length)} open`,
+      detail: "Use for history and support context while the student owns the next revision.",
+      tone: revisionRows.length ? "revision" : "quiet",
+      preset: "revision-requested",
+      action: "Show revisions",
+    },
+    {
+      id: "high-risk",
+      label: "High risk",
+      value: `${safeNumber(summary.highRisk ?? highRiskRows.length)} flagged`,
+      detail: "Use when review work has urgency signals before choosing the next row.",
+      tone: highRiskRows.length ? "danger" : "quiet",
+      preset: "high-risk",
+      action: "Show high risk",
+    },
+  ];
+  return `
+    <section class="workspace-review-action-map" data-review-action-map="true" data-review-action-map-active="${escapeHtml(reviewQueueActionMapActiveId(filters))}" aria-labelledby="reviewActionMapTitle">
+      <div class="workspace-review-action-map-head">
+        <div>
+          <p class="workspace-kicker">Where to review next</p>
+          <h2 id="reviewActionMapTitle">Choose one review lane</h2>
+          <p class="workspace-muted">Use this map before scanning rows or changing filters.</p>
+        </div>
+      </div>
+      <div class="workspace-review-action-map-grid">
+        ${cards.map((card) => renderReviewQueueActionMapCard(card, filters)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function reviewQueueActionMapActiveId(filters = {}) {
+  if (filters.risk === "high") return "high-risk";
+  if (filters.evidenceStatus === "missing") return "missing-proof";
+  if (filters.evidenceStatus === "attached") return "proof-ready";
+  if (filters.status === "revision_requested") return "revision";
+  if (filters.status === "submitted") return "submitted";
+  return "all";
+}
+
+function renderReviewQueueActionMapCard(card = {}, filters = {}) {
+  const active = reviewQueueActionMapActiveId(filters) === card.id;
+  return `
+    <article class="workspace-review-action-map-card ${escapeHtml(card.tone || "quiet")}" data-review-action-map-card="${escapeHtml(card.id || "")}" data-current-filter="${active ? "true" : "false"}">
+      <div>
+        <span>${escapeHtml(card.label || "Review lane")}</span>
+        <strong>${escapeHtml(card.value || "")}</strong>
+        <p>${escapeHtml(card.detail || "")}</p>
+      </div>
+      <button class="workspace-link-button workspace-link-button-small" type="button" data-section="teacher" data-section-preset="${escapeHtml(card.preset || "submitted")}" aria-pressed="${active ? "true" : "false"}">
+        ${escapeHtml(active ? "Viewing" : card.action || "Open")}
+      </button>
+    </article>
   `;
 }
 
@@ -8805,6 +12478,7 @@ function renderReviewQueueRow(item, selectedId, permissions = {}) {
   const actionLabel = reviewQueueRowActionLabel(item, permissions);
   const actionHint = reviewQueueRowActionHint(item, permissions);
   const decisionState = reviewQueueRowDecisionState(item, permissions);
+  const ownerAction = reviewQueueRowOwnerAction(item, permissions);
   return `
     <article class="workspace-student-row ${selected ? "is-selected" : ""}" data-review-submission-id="${escapeHtml(item.submissionId || "")}" data-review-row-state="${selected ? "selected" : "available"}" data-review-decision-state="${escapeHtml(decisionState)}">
       <div class="workspace-student-card">
@@ -8824,6 +12498,10 @@ function renderReviewQueueRow(item, selectedId, permissions = {}) {
       </div>
       <div class="workspace-row-actions">
         <p>${escapeHtml(item.nextAction || "Review status and context.")}</p>
+        <div class="workspace-owner-action" data-review-row-owner-action="true" data-review-row-owner="${escapeHtml(ownerAction.owner)}">
+          <span>Owner: ${escapeHtml(ownerAction.owner)}</span>
+          <small>Do next: ${escapeHtml(ownerAction.nextAction)}</small>
+        </div>
         ${renderRiskExplanation(item.riskFlags || [], { includeLow: false })}
         <p class="workspace-review-row-decision" data-review-row-decision-hint="true">${escapeHtml(reviewQueueRowDecisionHint(item, permissions))}</p>
         <p class="workspace-muted">${escapeHtml(selected ? "Selected row. History and available actions are loaded on the right." : actionHint)}</p>
@@ -8833,6 +12511,45 @@ function renderReviewQueueRow(item, selectedId, permissions = {}) {
       </div>
     </article>
   `;
+}
+
+function reviewQueueRowOwnerAction(item = {}, permissions = {}) {
+  const status = normalizeStatus(item.status);
+  const proofCount = safeNumber(item.evidenceCount);
+  if (!permissions.canReview) {
+    return {
+      owner: "Assigned Program Teacher",
+      nextAction: "Use this row for context and route the student to assigned review staff.",
+    };
+  }
+  if (status === "submitted" && proofCount > 0) {
+    return {
+      owner: "Program Teacher",
+      nextAction: "Select the row, check proof and history, then record one decision.",
+    };
+  }
+  if (status === "submitted") {
+    return {
+      owner: "Student",
+      nextAction: "Hold approval and ask for the exact proof before recording a next-step decision.",
+    };
+  }
+  if (status === "revision_requested") {
+    return {
+      owner: "Student",
+      nextAction: "Wait for a submitted revision; use history only for support context.",
+    };
+  }
+  if (status === "approved") {
+    return {
+      owner: "Program Teacher",
+      nextAction: "Use this row as approval history; do not record another decision from this context.",
+    };
+  }
+  return {
+    owner: "Assigned review staff",
+    nextAction: "Open the row and confirm the status before guiding the student.",
+  };
 }
 
 function renderRiskChips(flags = []) {
@@ -8928,8 +12645,10 @@ function renderReviewSubmissionPanel(selected, body) {
           View student detail
         </button>
       </div>
+      ${renderReviewSelectedSummary(selected, canDecide, permissions)}
       ${renderReviewHistorySummary(historyResult, history)}
       ${renderReviewDecisionReadiness(selected, history, canDecide, permissions)}
+      ${renderReviewProofQualityChecklist(selected, history, canDecide, permissions)}
       ${renderReviewDecisionChecklist(selected, history, canDecide, permissions)}
       ${renderReviewMissingProofHold(selected, canDecide)}
       ${renderReviewSubmissionRecovery(selected, history, permissions)}
@@ -8946,6 +12665,70 @@ function renderReviewSubmissionPanel(selected, body) {
           })}
         </section>
       `}
+    </section>
+  `;
+}
+
+function renderReviewSelectedSummary(selected = {}, canDecide = false, permissions = {}) {
+  const availability = reviewQueueDecisionAvailability(selected);
+  const ownerAction = reviewQueueRowOwnerAction(selected, permissions);
+  return `
+    <section class="workspace-review-selected-summary" data-review-selected-summary="true" data-review-selected-summary-state="${escapeHtml(availability.state || "context")}">
+      <div>
+        <p class="workspace-kicker">Selected row</p>
+        <strong>${escapeHtml(selected.requirementTitle || "Senior Project work")}</strong>
+        <span>${escapeHtml(selected.programName || "Unassigned")} / version ${safeNumber(selected.version)} / ${escapeHtml(statusText(selected.status))}</span>
+      </div>
+      <div class="workspace-review-selected-summary-facts">
+        <span><b>${safeNumber(selected.evidenceCount)}</b> proof</span>
+        <span><b>${safeNumber(selected.reviewCount)}</b> reviews</span>
+        <span><b>${safeNumber(selected.commentCount)}</b> comments</span>
+      </div>
+      <p>${escapeHtml(canDecide ? "One saved decision updates the student's next-step signal." : ownerAction.nextAction)}</p>
+    </section>
+  `;
+}
+
+function renderReviewProofQualityChecklist(selected = {}, history = {}, canDecide = false, permissions = {}) {
+  const evidenceCount = safeNumber(selected.evidenceCount);
+  const status = normalizeStatus(selected.status);
+  const approvalAvailable = reviewQueueDecisionAvailable(selected, "approved");
+  const historyCount = Array.isArray(history?.reviews) ? history.reviews.length : 0;
+  const checks = [
+    {
+      label: "Correct work item",
+      detail: `${selected.requirementTitle || "Senior Project work"} is the row being reviewed.`,
+      state: selected.requirementTitle ? "ready" : "context",
+    },
+    {
+      label: "Active proof visible",
+      detail: evidenceCount ? `${evidenceCount} proof ${pluralize(evidenceCount, "item")} ${evidenceCount === 1 ? "is" : "are"} attached to this row.` : "No active proof is attached; approval must stay locked.",
+      state: evidenceCount ? "ready" : "blocked",
+    },
+    {
+      label: "History checked",
+      detail: historyCount ? `${historyCount} prior review ${pluralize(historyCount, "record")} ${historyCount === 1 ? "is" : "are"} available for comparison.` : "No prior review is recorded; write a complete first decision.",
+      state: historyCount ? "context" : "needs_review",
+    },
+    {
+      label: "Decision matches gate",
+      detail: permissions.canReview && canDecide && approvalAvailable
+        ? "Approval, revision, and comment-only are available; choose exactly one."
+        : "Use revision or comment-only context until the row is submitted with proof.",
+      state: permissions.canReview && canDecide && approvalAvailable ? "ready" : "blocked",
+    },
+  ];
+  return `
+    <section class="workspace-review-proof-quality" data-review-proof-quality-checklist="true" data-review-proof-quality-state="${escapeHtml(approvalAvailable ? "ready" : "blocked")}">
+      <strong>Proof quality check before deciding</strong>
+      <div class="workspace-review-proof-quality-grid">
+        ${checks.map((check) => `
+          <article data-review-proof-quality-state="${escapeHtml(check.state)}">
+            <span>${escapeHtml(check.label)}</span>
+            <small>${escapeHtml(check.detail)}</small>
+          </article>
+        `).join("")}
+      </div>
     </section>
   `;
 }
@@ -9309,13 +13092,19 @@ function renderReviewDecisionForm(selected) {
         <textarea name="feedback" rows="5" maxlength="800" aria-describedby="reviewDecisionFeedbackHelp"></textarea>
       </label>
       <p id="reviewDecisionFeedbackHelp" class="workspace-muted">Write the exact approval note or revision step the student should see.</p>
+      ${approvalBlocked ? `
+        <section class="workspace-review-inline-proof-hold" data-review-decision-inline-proof-hold="true">
+          <strong>Approval remains locked here</strong>
+          <p>${escapeHtml(availability.approvalBlockedReason === "missing_evidence" ? "Active proof is missing from this submitted work. Use Request revision or Add comment only until proof appears." : "This row is not ready for approval from the current state.")}</p>
+        </section>
+      ` : ""}
       <div class="workspace-row-actions">
         <button class="workspace-button workspace-button-primary" type="submit" name="decision" value="approved" data-review-decision="approved" ${approvalBlocked ? 'disabled aria-disabled="true" data-review-decision-blocked="missing-proof"' : ""}>${escapeHtml(approvalBlocked ? "Approval locked: proof needed" : "Approve next steps")}</button>
         <button class="workspace-button workspace-button-secondary" type="submit" name="decision" value="revision_requested" data-review-decision="revision_requested" ${revisionBlocked ? 'disabled aria-disabled="true" data-review-decision-blocked="not-available"' : ""}>Request revision</button>
         <button class="workspace-button workspace-button-secondary" type="submit" name="decision" value="comment_only" data-review-decision="comment_only" ${commentBlocked ? 'disabled aria-disabled="true" data-review-decision-blocked="not-available"' : ""}>Add comment only</button>
       </div>
       <p class="workspace-muted">Saved decisions refresh this queue and update the student's approval signal.</p>
-      <p class="workspace-muted" data-review-decision-storage-note="true">Feedback text is saved as review history. Private proof storage identifiers stay hidden.</p>
+      <p class="workspace-muted" data-review-decision-storage-note="true">Feedback text is saved as review history. Private proof file details stay hidden.</p>
       <input type="hidden" name="submissionId" value="${escapeHtml(selected.submissionId || "")}">
     </form>
   `;
@@ -9390,6 +13179,7 @@ function renderAggregateReadinessDashboard(result, report = {}, scopeLabel = "Ag
         <span class="workspace-chip">${escapeHtml(scopeLabel)}</span>
       </div>
       ${renderApiNotice(result)}
+      ${renderAggregateReadinessActionMap(report, { score, totalWork, approved, scopeLabel })}
       ${renderDashboardKpis([
         { label: "Readiness score", value: score === null ? "No data" : `${score}/100`, detail: totalWork ? `${approved} of ${totalWork} reviewed items approved` : "No reviewed work to summarize yet", tone: score !== null && score < 70 ? "warning" : "mentor" },
         { label: "Submitted", value: submitted, detail: "Work waiting for Program Teacher review", tone: "warning" },
@@ -9429,6 +13219,7 @@ function renderSiteReadinessDashboard(operationsBody = {}, readinessResult = nul
         <span class="workspace-chip">${escapeHtml(dashboard.total ? `${dashboard.total} visible records` : "No visible records")}</span>
       </div>
       ${renderApiNotice(readinessResult)}
+      ${renderSiteReadinessActionMap(operationsBody, dashboard, administrationMonitoring)}
       ${renderDashboardKpis([
         { label: "Readiness score", value: dashboard.score === null ? "No data" : `${dashboard.score}/100`, detail: dashboard.scoreDetail, tone: dashboard.score !== null && dashboard.score < 70 ? "warning" : "mentor" },
         { label: "Ready signals", value: metricWithPercent(dashboard.readySignals, dashboard.total), detail: "Best available ready/complete count", tone: "mentor" },
@@ -9448,6 +13239,279 @@ function renderSiteReadinessDashboard(operationsBody = {}, readinessResult = nul
   `;
 }
 
+function renderAggregateReadinessActionMap(report = {}, options = {}) {
+  const submitted = safeNumber(report.submitted);
+  const revisionRequested = safeNumber(report.revisionRequested);
+  const approved = safeNumber(options.approved ?? report.approved);
+  const totalWork = safeNumber(options.totalWork);
+  const score = options.score;
+  const evidence = safeNumber(report.evidence);
+  const exportsQueued = safeNumber(report.exportsQueued);
+  const activeSignals = [submitted, revisionRequested, evidence, exportsQueued].filter((count) => count > 0).length;
+  const cards = [
+    {
+      id: "score",
+      tone: score !== null && score !== undefined && score < 70 ? "warning" : "ready",
+      owner: "Reporting",
+      count: score === null || score === undefined ? "No data" : `${score}/100`,
+      title: "Interpret the score",
+      detail: totalWork ? `${approved} of ${totalWork} reviewed items are approved. Treat this as a trend signal, not a student roster.` : "No reviewed work is visible in this aggregate report yet.",
+      source: options.scopeLabel || "Aggregate report",
+      summaryLabel: "Report signal",
+    },
+    {
+      id: "submitted",
+      tone: submitted ? "warning" : "quiet",
+      owner: "Program Teachers",
+      count: submitted,
+      title: "Watch submitted work",
+      detail: "Submitted counts mean review work exists somewhere in assigned school workspaces.",
+      source: "Aggregate review count",
+      summaryLabel: "Summary only",
+    },
+    {
+      id: "revision",
+      tone: revisionRequested ? "danger" : "quiet",
+      owner: "Students and Program Teachers",
+      count: revisionRequested,
+      title: "Watch revision loops",
+      detail: "Revision counts show follow-up pressure, but this report does not expose individual student records.",
+      source: "Aggregate revision count",
+      summaryLabel: "Summary only",
+    },
+    {
+      id: "proof",
+      tone: evidence ? "proof" : "quiet",
+      owner: "Assigned staff",
+      count: evidence,
+      title: "Confirm proof volume",
+      detail: "Use evidence totals to understand proof activity without opening private files or storage details.",
+      source: "Aggregate proof count",
+      summaryLabel: "Private proof hidden",
+    },
+    {
+      id: "final-files",
+      tone: exportsQueued ? "warning" : "quiet",
+      owner: "Site Admins",
+      count: exportsQueued,
+      title: "Watch final-file queue",
+      detail: "Queued package counts are a closeout workload signal; source work stays in site operations screens.",
+      source: "Aggregate package count",
+      summaryLabel: "Summary only",
+    },
+    {
+      id: "privacy",
+      tone: "privacy",
+      owner: "Access boundary",
+      count: "Aggregate",
+      title: "Keep this report aggregate",
+      detail: "Do not use this screen to infer student proof, account access, mentor coverage, or review decisions.",
+      source: "No individual records",
+      summaryLabel: "Guardrail",
+    },
+  ];
+  return renderReadinessActionMap("aggregate", {
+    title: "Read the report safely",
+    detail: "Use these lanes to interpret aggregate readiness without leaving the privacy boundary.",
+    badge: `${activeSignals} active signal${activeSignals === 1 ? "" : "s"}`,
+    cards,
+  });
+}
+
+function renderSiteReadinessActionMap(operationsBody = {}, dashboard = {}, administrationMonitoring = false) {
+  const summary = operationsBody.summary || {};
+  const presentationSummary = operationsBody.presentation?.summary || {};
+  const archiveSummary = operationsBody.archive?.summary || {};
+  const score = dashboard.score;
+  const finalFileBlockers = safeNumber(summary.archiveFailed) + safeNumber(archiveSummary.providerUnavailable) + safeNumber(summary.archiveExpired);
+  const presentationFollowUp = safeNumber(summary.presentationPending) + safeNumber(summary.outlinePending) + safeNumber(presentationSummary.attentionRequired);
+  const staffActionRows = safeNumber(summary.needsAttention);
+  const missingProof = safeNumber(summary.evidenceMissing);
+  const staleRows = safeNumber(summary.staleActivity);
+  const programBreakdown = Array.isArray(operationsBody.readiness?.filteredProgramBreakdown)
+    ? operationsBody.readiness.filteredProgramBreakdown
+    : Array.isArray(operationsBody.readiness?.programBreakdown)
+      ? operationsBody.readiness.programBreakdown
+      : [];
+  const programRows = programBreakdown.length;
+  const firstProgram = programBreakdown.find((program) => program?.programId) || null;
+  const activeSignals = [staffActionRows, finalFileBlockers, missingProof, presentationFollowUp, staleRows].filter((count) => count > 0).length;
+  const cards = [
+    {
+      id: "score",
+      tone: score !== null && score !== undefined && score < 70 ? "warning" : "ready",
+      owner: administrationMonitoring ? "School Admin" : "Site team",
+      count: score === null || score === undefined ? "No data" : `${score}/100`,
+      title: "Interpret school readiness",
+      detail: dashboard.scoreDetail || "Use this score as a routing signal before opening protected details.",
+      source: "Readiness score",
+      summaryLabel: "Report signal",
+    },
+    {
+      id: "staff-action",
+      tone: staffActionRows ? "danger" : "quiet",
+      owner: "Site Admin",
+      count: staffActionRows,
+      title: "Start with staff-action rows",
+      detail: "Open the highest-priority rows that need staff context before students can move cleanly.",
+      source: "Operations readiness",
+      section: "operations",
+      preset: "needs-attention",
+      actionLabel: "Open rows",
+    },
+    {
+      id: "final-files",
+      tone: finalFileBlockers ? "danger" : "ready",
+      owner: "Site Admin",
+      count: finalFileBlockers,
+      title: "Resolve final-file blockers",
+      detail: "Failed exports, expired windows, or storage setup blockers can stop closeout handoff.",
+      source: "Operations final-file rows",
+      section: "operations",
+      preset: "archive-failed",
+      actionLabel: "Open final files",
+    },
+    {
+      id: "proof",
+      tone: missingProof ? "warning" : "ready",
+      owner: "Students and Program Teachers",
+      count: missingProof,
+      title: "Find missing proof",
+      detail: "Use proof-missing rows to route exact evidence follow-up without exposing private storage.",
+      source: "Operations proof rows",
+      section: "operations",
+      preset: "evidence-missing",
+      actionLabel: "Open proof rows",
+    },
+    {
+      id: "presentation",
+      tone: presentationFollowUp ? "presentation" : "ready",
+      owner: "Program Teacher or site staff",
+      count: presentationFollowUp,
+      title: "Clarify presentation readiness",
+      detail: "Check schedule, outline, and check-in state before day-of readiness is treated as complete.",
+      source: "Operations presentation rows",
+      section: "operations",
+      preset: "presentation-pending",
+      actionLabel: "Open presentations",
+    },
+    {
+      id: "stale",
+      tone: staleRows ? "warning" : "ready",
+      owner: "School support team",
+      count: staleRows,
+      title: "Check stale activity",
+      detail: "Stale work needs current staff context before readiness reports look healthy.",
+      source: "Operations stale rows",
+      section: "operations",
+      preset: "stale-activity",
+      actionLabel: "Open stale rows",
+    },
+    {
+      id: "program-risk",
+      tone: programRows ? "program" : "quiet",
+      owner: "Program leads",
+      count: programRows || "Review",
+      title: "Compare program risk",
+      detail: "Use program risk to decide whether the blocker is isolated or needs a broader staff huddle.",
+      source: "Program risk card",
+      section: "operations",
+      preset: firstProgram?.programId ? "program-breakdown" : "",
+      programId: firstProgram?.programId || "",
+      actionLabel: "Open programs",
+    },
+    {
+      id: "review",
+      tone: "review",
+      owner: "Program Teachers",
+      count: "Review",
+      title: "Route review work",
+      detail: "Submitted and revision decisions still belong in Review Queue, not this report.",
+      source: "Review Queue",
+      section: "teacher",
+      preset: "submitted",
+      actionLabel: "Open reviews",
+    },
+    {
+      id: "mentor",
+      tone: "mentor",
+      owner: "Site Admin or Program Teacher",
+      count: "Coverage",
+      title: "Check mentor coverage",
+      detail: "If readiness is low because students lack support, open the coverage workflow instead of changing report data.",
+      source: "Mentor Assignments",
+      section: "mentorAssignments",
+      preset: "no-mentor",
+      actionLabel: "Open coverage",
+    },
+    {
+      id: "school",
+      tone: "school",
+      owner: "School context",
+      count: operationsBody.scope?.siteName ? "1 school" : "Context",
+      title: "Return to school overview",
+      detail: "Use the Site Dashboard when the report needs first-day setup, access, or whole-school context.",
+      source: operationsBody.scope?.siteName || "Current school",
+      section: "siteDashboard",
+      actionLabel: "Open dashboard",
+    },
+  ];
+  return renderReadinessActionMap("site", {
+    title: administrationMonitoring ? "Choose one monitoring lane" : "Choose one readiness lane",
+    detail: administrationMonitoring
+      ? "Start with the safest monitoring signal, then open only the source screen that owns the next step."
+      : "Start with the highest-impact blocker, then use the source screen that can actually move the work.",
+    badge: `${activeSignals} active blocker${activeSignals === 1 ? "" : "s"}`,
+    cards,
+  });
+}
+
+function renderReadinessActionMap(kind, config = {}) {
+  const cards = Array.isArray(config.cards) ? config.cards : [];
+  if (!cards.length) return "";
+  return `
+    <section class="workspace-readiness-action-map" data-readiness-action-map="${escapeHtml(kind || "readiness")}" aria-label="Readiness action map">
+      <div class="workspace-readiness-action-map-head">
+        <div>
+          <p class="workspace-kicker">Readiness action map</p>
+          <h2>${escapeHtml(config.title || "Choose one readiness lane")}</h2>
+          <p>${escapeHtml(config.detail || "Use the report as a routing surface before opening detailed worklists.")}</p>
+        </div>
+        <span class="workspace-chip">${escapeHtml(config.badge || `${cards.length} lanes`)}</span>
+      </div>
+      <div class="workspace-readiness-action-map-grid">
+        ${cards.map((card) => renderReadinessActionMapCard(card)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderReadinessActionMapCard(card = {}) {
+  return `
+    <article class="workspace-readiness-action-map-card ${escapeHtml(card.tone || "quiet")}" data-readiness-action-map-card="${escapeHtml(card.id || "readiness")}" data-readiness-action-owner="${escapeHtml(card.owner || "Readiness owner")}">
+      <div>
+        <div class="workspace-readiness-action-map-meta">
+          <span>${escapeHtml(card.owner || "Readiness owner")}</span>
+          <b>${escapeHtml(card.count ?? "0")}</b>
+        </div>
+        <strong>${escapeHtml(card.title || "Review readiness")}</strong>
+        <p>${escapeHtml(card.detail || "Use the matching source screen before taking action.")}</p>
+        ${card.source ? `<small>${escapeHtml(card.source)}</small>` : ""}
+      </div>
+      ${renderReadinessActionMapButton(card)}
+    </article>
+  `;
+}
+
+function renderReadinessActionMapButton(card = {}) {
+  if (card.section && availableSectionIds().has(card.section)) {
+    const preset = card.preset ? ` data-section-preset="${escapeHtml(card.preset)}"` : "";
+    const programId = card.programId ? ` data-program-id="${escapeHtml(card.programId)}"` : "";
+    return `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(card.section)}"${preset}${programId}>${escapeHtml(card.actionLabel || "Open")}</button>`;
+  }
+  return `<span class="workspace-summary-badge">${escapeHtml(card.summaryLabel || "Summary only")}</span>`;
+}
+
 function readinessScopeLabel(scope) {
   const normalized = normalizeStatus(scope);
   if (normalized === "aggregate_only") return "Aggregate reporting only";
@@ -9457,20 +13521,27 @@ function readinessScopeLabel(scope) {
 }
 
 function renderSecuritySection() {
-  const globalAdmin = hasGlobalAdminRole(roleIds(currentUser));
+  const roles = roleIds(currentUser);
+  const globalAdmin = hasGlobalAdminRole(roles);
+  const studentView = primaryRoleForUser(currentUser) === "student";
+  const authConfig = authConfigForUi();
   return `
-    <section class="workspace-card">
+    ${renderSecurityActionMap({ roles, globalAdmin, authConfig })}
+    ${studentView ? renderStudentAccountPath(authConfig) : ""}
+    <section class="workspace-card" data-security-password-card="true">
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">${globalAdmin ? "Account security" : "Account settings"}</p>
-          <h2>Password And Sessions</h2>
+          <h2>Password and Sessions</h2>
         </div>
         <span class="workspace-chip">Signed in</span>
       </div>
       <p>${globalAdmin
         ? "Update your password from this workspace when you know the current password."
-        : "Update your own password and close other active sessions without access to admin security tools."}</p>
-      <form id="workspaceChangePasswordForm" class="workspace-form" data-auth-action="change-password" data-auth-endpoint="/api/auth/change-password">
+        : studentView
+          ? "Change your own password here. This does not change your role, class access, project work, or anyone else's account."
+          : "Update your own password and close other active sessions without access to admin security tools."}</p>
+      <form id="workspaceChangePasswordForm" class="workspace-form" data-security-password-form="true" data-auth-action="change-password" data-auth-endpoint="/api/auth/change-password">
         <div class="workspace-form-grid">
           <label class="workspace-label">
             Current password
@@ -9485,13 +13556,324 @@ function renderSecuritySection() {
             <input class="workspace-input" name="confirmPassword" type="password" autocomplete="new-password" required>
           </label>
         </div>
+        ${renderTaskFinishChecklist("password-change", "Before changing your password", [
+          ["Current password ready", "Use the password that works for this signed-in account.", "ready"],
+          ["New password typed twice", "The two new-password fields must match before the change can save.", "needs_review"],
+          ["Other sessions close", "After the change, other active sessions for this account are closed.", "context"],
+        ], {
+          detail: "Use these checks so the password change does not interrupt your work.",
+          badge: "Account checks",
+        })}
         <p class="workspace-muted">After a password change, other active sessions for this account are closed.</p>
         <div class="workspace-form-actions">
           <button class="workspace-button workspace-button-primary" type="submit">Change password</button>
         </div>
       </form>
     </section>
+    ${renderSecuritySignInModePanel(authConfig, { studentView })}
+    ${renderSecuritySessionImpactPanel({ globalAdmin })}
+    ${renderSecuritySupportGuide({ globalAdmin, canManageUsers: canUseUsersAccess(roles), studentView })}
   `;
+}
+
+function renderStudentAccountPath(authConfig = authConfigForUi()) {
+  const email = currentUser?.email || "this signed-in account";
+  const steps = [
+    {
+      id: "confirm",
+      tone: "ready",
+      label: "1",
+      title: "Confirm this is you",
+      detail: `Password changes apply only to ${email}.`,
+      actionHtml: `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="profile">Open profile</button>`,
+    },
+    {
+      id: "change",
+      tone: "warning",
+      label: "2",
+      title: "Change only if you know the current password",
+      detail: authConfig.googleSsoEnabled
+        ? "If you use Google sign-in, ask staff before changing a local password you do not use."
+        : "Use this form only when you know the password that signs you into this workspace.",
+      actionHtml: `<button class="workspace-link-button workspace-link-button-small" type="button" data-security-focus="password-form">Open password form</button>`,
+    },
+    {
+      id: "return",
+      tone: "student",
+      label: "3",
+      title: "Return to project work",
+      detail: "Use My Work for proof, feedback, deadlines, and Senior Project next steps.",
+      actionHtml: `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="student">Open My Work</button>`,
+    },
+  ];
+  return `
+    <section class="workspace-student-account-path" data-student-account-path="true" aria-labelledby="studentAccountPathTitle">
+      <div class="workspace-student-account-path-head">
+        <div>
+          <p class="workspace-kicker">Account path</p>
+          <h2 id="studentAccountPathTitle">Use Account in this order</h2>
+          <p>This screen is for sign-in only. It does not change project work, proof, feedback, roles, or school access.</p>
+        </div>
+      </div>
+      <div class="workspace-student-account-path-grid">
+        ${steps.map((step) => `
+          <article class="workspace-student-account-step ${escapeHtml(step.tone)}" data-student-account-step="${escapeHtml(step.id)}">
+            <span>${escapeHtml(step.label)}</span>
+            <strong>${escapeHtml(step.title)}</strong>
+            <p>${escapeHtml(step.detail)}</p>
+            <div class="workspace-row-actions">${step.actionHtml}</div>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderSecurityActionMap({ roles = roleIds(currentUser), globalAdmin = hasGlobalAdminRole(roles), authConfig = authConfigForUi() } = {}) {
+  const primaryRole = primaryRoleForUser(currentUser);
+  const studentView = primaryRole === "student";
+  const canOpenUsersAccess = canUseUsersAccess(roles) && availableSectionIds().has("adminUsers");
+  const canOpenAudit = globalAdmin && availableSectionIds().has("audit");
+  const signInMode = securitySignInModeLabel(authConfig, { studentView });
+  const email = currentUser?.email || "this signed-in account";
+  const cards = [
+    {
+      id: "identity",
+      tone: "ready",
+      owner: "Signed-in account",
+      count: roleLabel(primaryRole),
+      title: studentView ? "Make sure this is your account" : "Confirm this is your account",
+      detail: studentView ? `Password changes apply only to ${email}.` : `Password changes apply only to ${email}. Use Profile to review your role and scope first.`,
+      source: roleScopeSummary(currentUser),
+      section: "profile",
+      actionLabel: "Open profile",
+    },
+    {
+      id: "password",
+      tone: "password",
+      owner: "You",
+      count: "Current + new",
+      title: studentView ? "Change your password" : "Change password intentionally",
+      detail: studentView ? "Use your current password, then type the new password twice before saving." : "Use the current password, then type the new password twice before saving.",
+      source: "Password form",
+      focus: "password-form",
+      actionLabel: "Open form",
+    },
+    {
+      id: "checklist",
+      tone: "checklist",
+      owner: "Before saving",
+      count: "3 checks",
+      title: studentView ? "Check before saving" : "Run the password checks",
+      detail: "Confirm current password, matching new password fields, and session impact before the save.",
+      source: "Password checklist",
+      focus: "password-checklist",
+      actionLabel: "Open checks",
+    },
+    {
+      id: "sessions",
+      tone: "session",
+      owner: "Session safety",
+      count: "Other sessions",
+      title: "Know what signs out",
+      detail: "Changing your password closes other active sessions for this account after the change succeeds.",
+      source: "Session impact",
+      focus: "session-impact",
+      actionLabel: "Open impact",
+    },
+    {
+      id: "sign-in",
+      tone: authConfig.googleSsoEnabled ? "signin" : "quiet",
+      owner: "Sign-in method",
+      count: signInMode,
+      title: studentView ? "Use your school sign-in path" : "Use the approved sign-in path",
+      detail: authConfig.googleSsoEnabled
+        ? studentView
+          ? "Google sign-in is available; local password changes only affect this app's local password."
+          : "Google Workspace sign-in is available; local password changes only affect local credentials."
+        : "This environment uses local sign-in until the approved Google Workspace provider is ready.",
+      source: "Auth configuration",
+      focus: "sign-in-mode",
+      actionLabel: "Open sign-in note",
+    },
+    {
+      id: "support",
+      tone: "support",
+      owner: "Recovery",
+      count: "Ask staff",
+      title: "Know when to ask for help",
+      detail: studentView ? "If your current password is missing or your account looks wrong, ask staff instead of guessing." : "If the current password is missing, the account is disabled, or SSO is expected, use the support path instead of guessing.",
+      source: "Support guide",
+      focus: "support",
+      actionLabel: "Open support",
+    },
+    {
+      id: "users",
+      tone: canOpenUsersAccess ? "role" : "quiet",
+      owner: "Other accounts",
+      count: canOpenUsersAccess ? "Users & Access" : "Protected",
+      title: "Use Users & Access for other people",
+      detail: "This screen only changes the signed-in account. Role grants, setup passwords, and removals belong in Users & Access.",
+      source: canOpenUsersAccess ? "Account management source" : "No account-management access here",
+      section: canOpenUsersAccess ? "adminUsers" : "",
+      actionLabel: "Open users",
+      summaryLabel: "Not here",
+    },
+    {
+      id: "audit",
+      tone: canOpenAudit ? "history" : "quiet",
+      owner: "Security review",
+      count: canOpenAudit ? "Audit" : "Admin only",
+      title: "Review protected activity elsewhere",
+      detail: "Denied access, role changes, import attempts, and reset activity are reviewed from Audit, not from this account form.",
+      source: canOpenAudit ? "Audit source screen" : "Protected audit screen",
+      section: canOpenAudit ? "audit" : "",
+      actionLabel: "Open audit",
+      summaryLabel: "Admin only",
+    },
+  ];
+  const visibleCards = studentView ? cards.filter((card) => !["users", "audit"].includes(card.id)) : cards;
+
+  return `
+    <section class="workspace-security-action-map" data-security-action-map="true" aria-label="Account security action map">
+      <div class="workspace-security-action-map-head">
+        <div>
+          <p class="workspace-kicker">${globalAdmin ? "Security action map" : "Account action map"}</p>
+          <h2>${escapeHtml(studentView ? "Use this only for your account" : "Keep account changes in the right place")}</h2>
+          <p>${escapeHtml(studentView ? "Change your password here. Ask staff for reset, sign-in, or access problems." : "Confirm the signed-in account, change only your password here, and route other account or audit work to the source screen.")}</p>
+        </div>
+        <span class="workspace-chip">${escapeHtml(signInMode)}</span>
+      </div>
+      <div class="workspace-security-action-map-grid">
+        ${visibleCards.map((card) => renderSecurityActionMapCard(card)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderSecurityActionMapCard(card = {}) {
+  return `
+    <article class="workspace-security-action-map-card ${escapeHtml(card.tone || "quiet")}" data-security-action-map-card="${escapeHtml(card.id || "security")}" data-security-action-owner="${escapeHtml(card.owner || "Account owner")}">
+      <div>
+        <div class="workspace-security-action-map-meta">
+          <span>${escapeHtml(card.owner || "Account owner")}</span>
+          <b>${escapeHtml(card.count || "0")}</b>
+        </div>
+        <strong>${escapeHtml(card.title || "Review account safety")}</strong>
+        <p>${escapeHtml(card.detail || "Use the source screen that owns this account step.")}</p>
+        ${card.source ? `<small>${escapeHtml(card.source)}</small>` : ""}
+      </div>
+      ${renderSecurityActionMapButton(card)}
+    </article>
+  `;
+}
+
+function renderSecurityActionMapButton(card = {}) {
+  if (card.section && availableSectionIds().has(card.section)) {
+    return `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(card.section)}">${escapeHtml(card.actionLabel || "Open")}</button>`;
+  }
+  if (card.focus) {
+    return `<button class="workspace-link-button workspace-link-button-small" type="button" data-security-focus="${escapeHtml(card.focus)}">${escapeHtml(card.actionLabel || "Open")}</button>`;
+  }
+  return `<span class="workspace-summary-badge">${escapeHtml(card.summaryLabel || "Summary only")}</span>`;
+}
+
+function renderSecuritySignInModePanel(authConfig = authConfigForUi(), options = {}) {
+  const studentView = Boolean(options.studentView);
+  return `
+    <section class="workspace-security-signin-mode" data-security-signin-mode="true">
+      <strong>Approved sign-in path</strong>
+      <div class="workspace-security-guide-grid">
+        <article>
+          <span>${escapeHtml(securitySignInModeLabel(authConfig, { studentView }))}</span>
+          <small>${escapeHtml(authConfig.googleSsoEnabled
+            ? studentView
+              ? "Google sign-in is available. A local password change only affects this app's local password."
+              : "Google Workspace sign-in is available. Local password changes only update local credentials for this account."
+            : "Local sign-in is the active path here. Google Workspace sign-in stays disabled until the approved provider is ready.")}</small>
+        </article>
+        <article>
+          <span>Current account only</span>
+          <small>Password updates here do not create users, grant roles, reset other people, or change school access.</small>
+        </article>
+      </div>
+    </section>
+  `;
+}
+
+function renderSecuritySessionImpactPanel({ globalAdmin = false } = {}) {
+  return `
+    <section class="workspace-security-session-impact" data-security-session-impact="true">
+      <strong>Session impact</strong>
+      <div class="workspace-security-guide-grid">
+        <article>
+          <span>Other sessions close</span>
+          <small>After a successful password change, other active sessions for this same account are closed.</small>
+        </article>
+        <article>
+          <span>${escapeHtml(globalAdmin ? "Admin work continues after sign-in" : "Return to your workspace")}</span>
+          <small>${escapeHtml(globalAdmin
+            ? "Sign in again before continuing protected admin, audit, import, or export work."
+            : "Sign in again before continuing submissions, proof, meetings, reviews, or final-file work.")}</small>
+        </article>
+      </div>
+    </section>
+  `;
+}
+
+function renderSecuritySupportGuide({ globalAdmin = false, canManageUsers = false, studentView = false } = {}) {
+  if (studentView) {
+    return `
+      <section class="workspace-security-support-guide" data-security-support-guide="true">
+        <strong>When to ask for help</strong>
+        <div class="workspace-security-guide-grid">
+          <article>
+            <span>Forgot current password</span>
+            <small>Ask the approved account support person for a reset path instead of trying repeated passwords.</small>
+          </article>
+          <article>
+            <span>My Work looks wrong</span>
+            <small>Ask your Program Teacher or school account support if your project, class, role, or school access looks wrong.</small>
+          </article>
+          <article>
+            <span>Proof or feedback issue</span>
+            <small>Use My Work for project proof and Program Teacher feedback. This Account screen only changes sign-in settings.</small>
+          </article>
+        </div>
+      </section>
+    `;
+  }
+  return `
+    <section class="workspace-security-support-guide" data-security-support-guide="true">
+      <strong>When not to use this form</strong>
+      <div class="workspace-security-guide-grid">
+        <article>
+          <span>Forgot current password</span>
+          <small>Ask the approved account support person for a reset path instead of trying repeated passwords.</small>
+        </article>
+        <article>
+          <span>${escapeHtml(canManageUsers ? "Other users need Users & Access" : "Other users need account staff")}</span>
+          <small>${escapeHtml(canManageUsers
+            ? "Use Users & Access for setup passwords, role changes, account removals, or school access."
+            : "Ask authorized account staff for setup passwords, role changes, account removals, or school access.")}</small>
+        </article>
+        <article>
+          <span>${escapeHtml(globalAdmin ? "Audit activity belongs in Audit" : "Security review is admin-only")}</span>
+          <small>${escapeHtml(globalAdmin
+            ? "Use Audit to review denied access, role changes, import attempts, reset activity, and protected-route events."
+            : "This screen does not expose audit history, denied-access rows, or protected security activity.")}</small>
+        </article>
+      </div>
+    </section>
+  `;
+}
+
+function securitySignInModeLabel(authConfig = authConfigForUi(), options = {}) {
+  const studentView = Boolean(options.studentView);
+  if (authConfig.googleSsoEnabled && authConfig.localLoginEnabled) return studentView ? "Google sign-in + local" : "SSO + local";
+  if (authConfig.googleSsoEnabled) return studentView ? "Google sign-in" : "Google SSO";
+  if (authConfig.localLoginEnabled) return "Local only";
+  return "Sign-in configured";
 }
 
 function renderAdminUsersSection() {
@@ -9505,6 +13887,7 @@ function renderAdminUsersSection() {
   const localAccountsOnly = !authConfig.googleSsoEnabled;
 
   return `
+    ${renderUsersAccessActionMap(roleChoices, { canCreateGlobal, localAccountsOnly })}
     <section class="workspace-card" data-admin-section="users">
       <div class="workspace-card-head">
         <div>
@@ -9514,6 +13897,15 @@ function renderAdminUsersSection() {
         </div>
         <span class="workspace-chip">${escapeHtml(canCreateGlobal ? "Global Admin" : canUseStaffAccessManagement(roles) ? "School staff access" : "Student and mentor access")}</span>
       </div>
+      ${renderFirstUseGuide("users-access", "Create access only after school access is clear", [
+        ["Choose the smallest role", "Pick Student, Mentor, Viewer, Program Teacher, or school staff only for the job this person must do."],
+        ["Confirm school, program, or student access", "Do not create broad access when a school, program, or assigned-student list will work."],
+        ["Write the admin note", "Record why the account or access change is needed before saving."],
+        ["Use approved password delivery", "Local setup passwords appear once and must use the school's approved handoff process."],
+      ], {
+        detail: "This path keeps account setup understandable and prevents over-broad access.",
+        badge: "Access path",
+      })}
       ${renderAdminImportPreflight(roleChoices, { canCreateGlobal, localAccountsOnly })}
       <form id="workspaceAdminImportForm" class="workspace-form" data-admin-action="import-users" data-admin-endpoint="/api/admin/users/import" data-admin-cache="no-store-response">
         <div class="workspace-form-section">
@@ -9589,6 +13981,15 @@ function renderAdminUsersSection() {
             <span class="workspace-muted">This note is saved in the audit log and is only visible to admins.</span>
           </label>
         </div>
+        ${renderTaskFinishChecklist("account-create-save", "Before creating this account", [
+          ["Smallest role chosen", "Use the lowest access level that lets the person do the job.", "ready"],
+          ["Scope matches the work", "Confirm site, program, cohort, or student access before saving.", "ready"],
+          ["Setup handoff approved", "Use the school's approved process before creating a local setup password.", "needs_review"],
+          ["Audit note explains why", "Write the reason in plain language so another admin can review it later.", "context"],
+        ], {
+          detail: "Use these checks before creating an account or setup password.",
+          badge: "Access checks",
+        })}
         ${renderDestructiveActionConfirmation({
           id: "admin-import-delivery",
           name: "deliveryConfirmation",
@@ -9606,11 +14007,189 @@ function renderAdminUsersSection() {
   `;
 }
 
+function renderUsersAccessActionMap(roleChoices = [], options = {}) {
+  const accessBody = unwrap(currentData.accessAssignments) || {};
+  const roleAssignmentsBody = unwrap(currentData.roleAssignments) || {};
+  const users = accessBody.users || {};
+  const assignments = accessBody.assignments || {};
+  const permissions = accessBody.permissions || {};
+  const scope = accessBody.scope || currentSiteWorkspaceContext() || {};
+  const accounts = siteAccountRows(users);
+  const activeAssignments = usersAccessActiveAssignmentCount(assignments);
+  const historyCount = Array.isArray(accessBody.history) ? accessBody.history.length : 0;
+  const roleAssignmentCount = Array.isArray(roleAssignmentsBody.assignments) ? roleAssignmentsBody.assignments.length : 0;
+  const assignmentFormCount = usersAccessAssignmentFormCount(permissions);
+  const removableCount = accounts.filter((account) => account.userId !== currentUser?.id && canManageSiteAccountRow(account)).length;
+  const scopeLabelText = `${scope.siteName || "Current school"} / ${scope.schoolYear || "school year"}`;
+  const cards = [
+    {
+      id: "scope",
+      tone: scope.siteName ? "ready" : "warning",
+      owner: "School scope",
+      count: scope.siteName ? "1 school" : "Choose",
+      title: "Confirm the current school",
+      detail: "Create, assign, or remove access only after the school context matches the person.",
+      source: scopeLabelText,
+      section: "siteDashboard",
+      actionLabel: "Review school",
+    },
+    {
+      id: "role",
+      tone: "role",
+      owner: "Smallest role",
+      count: `${safeNumber(roleChoices.length)} ${pluralize(roleChoices.length, "role")}`,
+      title: "Pick the smallest role",
+      detail: "Choose the lowest role that lets the person do the job; avoid broad access when scoped access works.",
+      source: options.canCreateGlobal ? "Global role choices" : "Scoped role choices",
+      focus: "create",
+      actionLabel: "Pick role",
+    },
+    {
+      id: "current-access",
+      tone: activeAssignments ? "ready" : "warning",
+      owner: "Current access",
+      count: activeAssignments ? `${activeAssignments} active` : "None",
+      title: "Check active access first",
+      detail: "Confirm mentor, viewer, Program Teacher, and school admin rows before saving another change.",
+      source: "Current access summary",
+      focus: "current-access",
+      actionLabel: "Review access",
+    },
+    {
+      id: "create",
+      tone: options.localAccountsOnly ? "handoff" : "role",
+      owner: "Account setup",
+      count: options.localAccountsOnly ? "Local" : "Local / SSO",
+      title: "Create with handoff ready",
+      detail: "Use approved setup-password delivery and write the admin note before account creation.",
+      source: "Account creation form",
+      focus: "preflight",
+      actionLabel: "Open preflight",
+    },
+    {
+      id: "assign",
+      tone: assignmentFormCount ? "role" : "quiet",
+      owner: "School grants",
+      count: assignmentFormCount ? `${assignmentFormCount} forms` : "No forms",
+      title: "Assign one scope at a time",
+      detail: "Use the matching assignment form for mentor, viewer, Program Teacher, School Admin, or Site Admin access.",
+      source: "Assignment forms",
+      focus: "assignment-forms",
+      actionLabel: "Open forms",
+    },
+    {
+      id: "remove",
+      tone: removableCount ? "danger" : "quiet",
+      owner: "Removal safety",
+      count: removableCount ? `${removableCount} removable` : "Protected",
+      title: "Read removal impact first",
+      detail: "Removal changes school access only; it does not delete student work, proof, programs, or audit history.",
+      source: "Removal warning",
+      focus: "removal",
+      actionLabel: "Review warning",
+    },
+    {
+      id: "history",
+      tone: historyCount ? "history" : "quiet",
+      owner: "Access history",
+      count: `${historyCount} ${pluralize(historyCount, "change")}`,
+      title: "Review recent changes",
+      detail: "Use recent access changes to avoid repeating or undoing another admin's work.",
+      source: "Recorded changes",
+      disclosureScope: "usersAccess",
+      disclosureId: "history",
+      actionLabel: "Open changes",
+    },
+    {
+      id: "role-history",
+      tone: roleAssignmentCount ? "history" : "quiet",
+      owner: "Role history",
+      count: `${roleAssignmentCount} ${pluralize(roleAssignmentCount, "grant")}`,
+      title: "Review role grants",
+      detail: "Check recent global, school, program, and cohort grants before creating another account.",
+      source: "Recent role assignments",
+      disclosureScope: "usersAccess",
+      disclosureId: "roleAssignments",
+      actionLabel: "Open grants",
+    },
+  ];
+
+  return `
+    <section class="workspace-users-access-action-map" data-users-access-action-map="true" aria-label="Users and access action map">
+      <div class="workspace-users-access-action-map-head">
+        <div>
+          <p class="workspace-kicker">Access action map</p>
+          <h2>Do one safe access step first</h2>
+          <p>Check scope, choose the smallest role, then use the exact source form or history panel.</p>
+        </div>
+        <span class="workspace-chip">${escapeHtml(scopeLabelText)}</span>
+      </div>
+      <div class="workspace-users-access-action-map-grid">
+        ${cards.map((card) => renderUsersAccessActionMapCard(card)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderUsersAccessActionMapCard(card = {}) {
+  return `
+    <article class="workspace-users-access-action-map-card ${escapeHtml(card.tone || "quiet")}" data-users-access-action-map-card="${escapeHtml(card.id || "action")}" data-users-access-action-owner="${escapeHtml(card.owner || "Account staff")}">
+      <div>
+        <div class="workspace-users-access-action-map-meta">
+          <span>${escapeHtml(card.owner || "Account staff")}</span>
+          <b>${escapeHtml(card.count || "0")}</b>
+        </div>
+        <strong>${escapeHtml(card.title || "Review this access step")}</strong>
+        <p>${escapeHtml(card.detail || "Use the matching source section before saving access changes.")}</p>
+        ${card.source ? `<small>${escapeHtml(card.source)}</small>` : ""}
+      </div>
+      ${renderUsersAccessActionMapButton(card)}
+    </article>
+  `;
+}
+
+function renderUsersAccessActionMapButton(card = {}) {
+  if (card.section && availableSectionIds().has(card.section)) {
+    return `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(card.section)}">${escapeHtml(card.actionLabel || "Open")}</button>`;
+  }
+  if (card.focus) {
+    return `<button class="workspace-link-button workspace-link-button-small" type="button" data-users-access-focus="${escapeHtml(card.focus)}">${escapeHtml(card.actionLabel || "Open")}</button>`;
+  }
+  if (card.disclosureScope && card.disclosureId) {
+    return `
+      <button class="workspace-link-button workspace-link-button-small" type="button" data-workspace-disclosure-action="toggle" data-workspace-disclosure-scope="${escapeHtml(card.disclosureScope)}" data-workspace-disclosure-id="${escapeHtml(card.disclosureId)}">
+        ${escapeHtml(card.actionLabel || "Open")}
+      </button>
+    `;
+  }
+  return `<span class="workspace-summary-badge">Summary only</span>`;
+}
+
+function usersAccessActiveAssignmentCount(assignments = {}) {
+  return [
+    assignments.mentorStudent,
+    assignments.viewerStudent,
+    assignments.programTeacherProgram,
+    assignments.administrationSite,
+    assignments.siteAdminSite,
+  ].reduce((total, rows) => total + (Array.isArray(rows) ? rows.length : 0), 0);
+}
+
+function usersAccessAssignmentFormCount(permissions = {}) {
+  return [
+    permissions.canAssignMentors,
+    permissions.canAssignViewers,
+    permissions.canAssignProgramTeachers,
+    permissions.canAssignAdministration,
+    permissions.canAssignSiteAdmins,
+  ].filter(Boolean).length;
+}
+
 function renderAdminImportPreflight(roleChoices = [], options = {}) {
   const roleCount = Array.isArray(roleChoices) ? roleChoices.length : 0;
   const checks = [
-    ["Role scope", `${roleCount} role ${pluralize(roleCount, "option")} available to this account.`],
-    ["Selected site", options.canCreateGlobal ? "Global Admin can create site or global access; use the smallest scope that works." : "This import stays within assigned school or program access."],
+    ["Role choice", `${roleCount} role ${pluralize(roleCount, "option")} available to this account.`],
+    ["School access", options.canCreateGlobal ? "Global Admin can create site or global access; use the smallest access that works." : "This import stays within assigned school or program access."],
     ["Sign-in", options.localAccountsOnly ? "Local accounts only; temporary setup passwords are shown once." : "Use SSO only when the school identity provider is ready."],
     ["Audit note", "Write why this account is needed before creating it."],
   ];
@@ -10562,7 +15141,14 @@ function bindWorkspaceForms() {
   const uploadForm = document.querySelector("#workspaceFileUploadForm");
   uploadForm?.addEventListener("submit", uploadEvidenceFile);
   uploadForm?.querySelector?.('[data-upload-action="select-file"]')?.addEventListener("change", handleUploadFileSelected);
+  bindStudentProofGuideSelects();
   bindUploadRetryButton();
+  document.querySelectorAll("[data-student-storage-focus]").forEach((button) => {
+    button.addEventListener("click", handleStudentStorageFocusAction);
+  });
+  document.querySelectorAll("[data-student-proof-receipt-action]").forEach((button) => {
+    button.addEventListener("click", handleStudentProofReceiptAction);
+  });
   document.querySelectorAll("[data-presentation-action]").forEach((button) => {
     button.addEventListener("click", updatePresentationSlot);
   });
@@ -10622,6 +15208,92 @@ function bindWorkspaceForms() {
 
 function bindUploadRetryButton() {
   document.querySelector('[data-upload-action="retry"]')?.addEventListener("click", retryEvidenceUpload);
+}
+
+function bindStudentProofGuideSelects() {
+  document.querySelectorAll("[data-student-proof-submission-select]").forEach((select) => {
+    select.addEventListener("change", () => updateStudentProofGuideForSelect(select));
+    updateStudentProofGuideForSelect(select);
+  });
+}
+
+function updateStudentProofGuideForSelect(select) {
+  const selectedSubmissionId = cleanDirectoryFilter(select?.value || "");
+  const form = select?.closest?.("form");
+  const guideList = form?.querySelector?.("[data-student-proof-guide-list]");
+  if (!guideList) return;
+  guideList.dataset.selectedSubmissionId = selectedSubmissionId;
+  guideList.querySelectorAll("[data-student-proof-guide]").forEach((guide) => {
+    const isSelected = cleanDirectoryFilter(guide?.dataset?.studentProofGuide || "") === selectedSubmissionId;
+    guide.hidden = !isSelected;
+    guide.setAttribute("data-student-proof-guide-selected", isSelected ? "true" : "false");
+  });
+}
+
+function handleStudentStorageFocusAction(event) {
+  const target = cleanDirectoryFilter(event?.currentTarget?.dataset?.studentStorageFocus || "");
+  const selectors = {
+    "link-form": "#workspaceEvidenceLinkForm",
+    "file-form": "#workspaceFileUploadForm",
+    "upload-status": "#workspaceUploadStatus",
+    "proof-guide": '[data-student-proof-guide="true"]',
+    support: '[data-student-support-box="true"]',
+  };
+  const selector = selectors[target];
+  if (!selector) return;
+  const element = document.querySelector(selector);
+  if (!element) return;
+  if (!element.hasAttribute("tabindex")) {
+    element.setAttribute("tabindex", "-1");
+  }
+  element.scrollIntoView?.({ block: "start", behavior: "smooth" });
+  try {
+    element.focus?.({ preventScroll: true });
+  } catch {
+    element.focus?.();
+  }
+}
+
+function handleStudentProofReceiptAction(event) {
+  const action = cleanDirectoryFilter(event?.currentTarget?.dataset?.studentProofReceiptAction || "");
+  const receipt = studentProofReceiptState || defaultStudentProofReceiptState();
+  const submissionId = cleanDirectoryFilter(receipt.submissionId || "");
+  const requirementId = cleanDirectoryFilter(receipt.requirementId || studentSubmissionForReceipt(submissionId)?.requirement_id || studentSubmissionForReceipt(submissionId)?.requirementId || "");
+  activeSection = "student";
+  if (action === "open-checklist" && requirementId) {
+    studentDisclosureState = {
+      ...studentDisclosureState,
+      requirements: true,
+    };
+    requestStudentRequirementFocus(requirementId);
+    renderAppShell("Opening the checklist item for this proof.", "success");
+    return;
+  }
+  if (action === "correct-proof") {
+    studentDisclosureState = {
+      ...studentDisclosureState,
+      evidence: true,
+    };
+    pendingStudentEvidenceSubmissionId = submissionId;
+    requestStudentSectionFocus("evidence");
+    renderAppShell("Proof tools opened. Add the corrected proof to the right item.", "success");
+    return;
+  }
+  if (action === "open-submissions") {
+    studentDisclosureState = {
+      ...studentDisclosureState,
+      submissions: true,
+    };
+    requestStudentSectionFocus("submissions");
+    renderAppShell("Opening Work You Sent In so you can send or check this item.", "success");
+    return;
+  }
+  studentDisclosureState = {
+    ...studentDisclosureState,
+    files: true,
+  };
+  requestStudentSectionFocus("files");
+  renderAppShell("Staying with Files and Links so you can confirm saved proof.", "success");
 }
 
 async function submitWorkspaceStudentSearch(event) {
@@ -10821,7 +15493,7 @@ function setStudentSubmissionFilter(value) {
   }
   activeSection = "student";
   const message = studentSubmissionFilter === "all"
-    ? "Showing all submitted work."
+    ? "Showing all sent work."
     : `Showing ${studentSubmissionFilterLabel(studentSubmissionFilter)}.`;
   renderAppShell(message, "success");
 }
@@ -10861,14 +15533,14 @@ async function openStudentFeedbackHistory(submissionId, source = "feedback") {
     loading: true,
   };
   activeSection = "student";
-  renderAppShell("Loading work timeline...");
+  renderAppShell("Loading work history...");
   const historyResult = await settleApi(apiJson(`/api/reviews/${encodeURIComponent(selectedSubmissionId)}/history`));
   studentFeedbackHistoryState = {
     ...studentFeedbackHistoryState,
     loading: false,
     result: historyResult,
   };
-  renderAppShell(historyResult.ok ? "Work timeline loaded." : "Work timeline unavailable.", historyResult.ok ? "success" : "error");
+  renderAppShell(historyResult.ok ? "Work history loaded." : "Work history unavailable.", historyResult.ok ? "success" : "error");
 }
 
 async function applySiteStudentFilters(event) {
@@ -11659,42 +16331,139 @@ function renderPresentationSection() {
   const filteredSlots = filterPresentationSlots(slots, activeFilter);
   const roles = roleIds(currentUser);
   const canManage = roles.has("program_teacher") || hasGlobalAdminRole(roles) || roles.has("site_admin");
+  const studentView = primaryRoleForUser(currentUser) === "student";
   const dashboard = presentationDashboardModel(slots);
   return `
     <section class="workspace-command-center workspace-presentation-dashboard" data-presentation-schedule="true" data-presentation-filter="${escapeHtml(activeFilter)}" aria-labelledby="presentationDashboardTitle">
       <div class="workspace-command-hero">
         <div>
-          <p class="workspace-kicker">Presentation readiness</p>
-          <h1 id="presentationDashboardTitle">Presentation</h1>
-          <p>Schedule, outline, check-in, and day-of readiness from scoped presentation records.</p>
+          <p class="workspace-kicker">${escapeHtml(studentView ? "Presentation plan" : "Presentation readiness")}</p>
+          <h1 id="presentationDashboardTitle">${escapeHtml(studentView ? "Your Presentation" : "Presentation")}</h1>
+          <p>${escapeHtml(studentView
+            ? "Check your time, room, outline status, and what still needs attention before presentation day."
+            : "Schedule, outline, check-in, and day-of readiness from scoped presentation records.")}</p>
         </div>
         <span class="workspace-chip">${filteredSlots.length} of ${slots.length} slot${slots.length === 1 ? "" : "s"}</span>
       </div>
       ${renderApiNotice(result)}
       ${renderDashboardKpis([
-        { label: "Presentation readiness", value: metricWithPercent(dashboard.ready, dashboard.total), detail: "Checked in or scheduled with approved outline", tone: "mentor" },
-        { label: "Pending schedule", value: dashboard.pendingSchedule, detail: "No schedule in visible slots", tone: dashboard.pendingSchedule ? "warning" : "mentor" },
-        { label: "Outline pending", value: dashboard.outlinePending, detail: "Pending or revision-needed outlines", tone: dashboard.outlinePending ? "warning" : "mentor" },
-        { label: "Check-in needed", value: dashboard.checkInNeeded, detail: "Checked out without check-in", tone: dashboard.checkInNeeded ? "danger" : "mentor" },
+        { label: studentView ? "Ready to present" : "Presentation readiness", value: metricWithPercent(dashboard.ready, dashboard.total), detail: studentView ? "Scheduled with approved outline, or already checked in" : "Checked in or scheduled with approved outline", tone: "mentor" },
+        { label: studentView ? "No time yet" : "Pending schedule", value: dashboard.pendingSchedule, detail: studentView ? "A presentation time is not listed yet" : "No schedule in visible slots", tone: dashboard.pendingSchedule ? "warning" : "mentor" },
+        { label: studentView ? "Outline needs work" : "Outline pending", value: dashboard.outlinePending, detail: studentView ? "Outline is pending or needs revision" : "Pending or revision-needed outlines", tone: dashboard.outlinePending ? "warning" : "mentor" },
+        { label: "Check-in needed", value: dashboard.checkInNeeded, detail: studentView ? "Presentation was checked out and still needs check-in" : "Checked out without check-in", tone: dashboard.checkInNeeded ? "danger" : "mentor" },
       ], { label: "Presentation top summary", className: "workspace-presentation-kpis" })}
       <div class="workspace-dashboard-grid workspace-dashboard-grid-two workspace-dashboard-support-grid">
-        ${renderReadinessScoreCard(dashboard.score, dashboard.total, "Presentation readiness score", dashboard.total ? `${dashboard.ready} of ${dashboard.total} slots are ready or complete.` : "No presentation slots scheduled yet.")}
-        ${renderDashboardCard("Presentation stage breakdown", "Ready, schedule, outline, check-in, and day-of status", renderStackedDistribution(dashboard.stages, "Presentation stage breakdown"))}
+        ${renderReadinessScoreCard(dashboard.score, dashboard.total, studentView ? "Presentation readiness" : "Presentation readiness score", dashboard.total ? `${dashboard.ready} of ${dashboard.total} presentation ${pluralize(dashboard.total, "row")} ready or complete.` : "No presentation time is listed yet.")}
+        ${renderDashboardCard(studentView ? "What still needs attention" : "Presentation stage breakdown", studentView ? "Time, outline, check-in, and completion status" : "Ready, schedule, outline, check-in, and day-of status", renderStackedDistribution(dashboard.stages, studentView ? "Presentation attention breakdown" : "Presentation stage breakdown"))}
       </div>
+      ${studentView ? renderStudentPresentationGuide(slots, dashboard) : ""}
+      ${studentView ? renderStudentPresentationDayPlan(slots, dashboard) : ""}
       ${renderMentorPresentationPrepChecklist(slots, dashboard, roles)}
-      ${renderPresentationSlotFilters(slots, activeFilter)}
+      ${renderPresentationSlotFilters(slots, activeFilter, { studentView })}
       <section class="workspace-dashboard-card">
         <div class="workspace-card-head">
           <div>
-            <p class="workspace-kicker">Needs action worklist</p>
-            <h2>Schedule And Check-In</h2>
+            <p class="workspace-kicker">${escapeHtml(studentView ? "Your presentation rows" : "Needs action worklist")}</p>
+            <h2>${escapeHtml(studentView ? "Time, Room, and Status" : "Schedule And Check-In")}</h2>
           </div>
         </div>
         <div class="workspace-list workspace-presentation-worklist">
-        ${filteredSlots.length ? filteredSlots.map((slot) => renderPresentationSlotRow(slot, canManage)).join("") : renderPresentationSlotsEmptyState(slots.length, activeFilter)}
+        ${filteredSlots.length ? filteredSlots.map((slot) => renderPresentationSlotRow(slot, canManage, { studentView })).join("") : renderPresentationSlotsEmptyState(slots.length, activeFilter, { studentView })}
         </div>
       </section>
     </section>
+  `;
+}
+
+function renderStudentPresentationDayPlan(slots = [], dashboard = {}) {
+  const rows = Array.isArray(slots) ? slots : [];
+  const focus = rows.find((slot) => slot.scheduledFor) || rows[0] || {};
+  const scheduledCopy = focus.scheduledFor
+    ? `${formatDate(focus.scheduledFor)}${focus.location ? ` in ${focus.location}` : ""}`
+    : "Your time and room are not listed yet.";
+  const outlineStatus = normalizeStatus(focus.outlineStatus || (rows.length ? "pending" : "not_scheduled"));
+  const outlineReady = outlineStatus === "approved";
+  const status = normalizeStatus(focus.status || "");
+  const afterStatus = status === "checked_in" || status === "completed"
+    ? "Presentation is marked complete."
+    : dashboard.checkInNeeded
+      ? "Staff still need to finish check-in for a checked-out presentation row."
+      : "After presenting, check that this screen shows presented or checked in.";
+  const steps = [
+    {
+      id: "before",
+      tone: focus.scheduledFor && outlineReady ? "ready" : "warning",
+      label: "Before",
+      title: focus.scheduledFor ? "Know your time and outline" : "Wait for time, keep practicing",
+      detail: `${scheduledCopy} Outline: ${statusText(outlineStatus)}.`,
+      actionHtml: `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="student">Open My Work</button>`,
+    },
+    {
+      id: "during",
+      tone: "student",
+      label: "During",
+      title: "Show the work you finished",
+      detail: "Use your approved outline and project proof from My Work. Do not use Presentation to replace missing proof.",
+      actionHtml: "",
+    },
+    {
+      id: "after",
+      tone: dashboard.checkInNeeded ? "warning" : "mentor",
+      label: "After",
+      title: dashboard.checkInNeeded ? "Ask staff to finish check-in" : "Confirm it is recorded",
+      detail: afterStatus,
+      actionHtml: `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="archive">Open Final Files</button>`,
+    },
+  ];
+  return `
+    <section class="workspace-student-presentation-plan" data-student-presentation-plan="true" aria-labelledby="studentPresentationDayPlanTitle">
+      <div class="workspace-student-presentation-plan-head">
+        <div>
+          <p class="workspace-kicker">Presentation day plan</p>
+          <h2 id="studentPresentationDayPlanTitle">Before, during, after</h2>
+          <p>Use this order so presentation day does not turn into a guessing game.</p>
+        </div>
+      </div>
+      <div class="workspace-student-presentation-plan-grid">
+        ${steps.map((step) => `
+          <article class="workspace-student-presentation-step ${escapeHtml(step.tone)}" data-student-presentation-step="${escapeHtml(step.id)}">
+            <span>${escapeHtml(step.label)}</span>
+            <strong>${escapeHtml(step.title)}</strong>
+            <p>${escapeHtml(step.detail)}</p>
+            ${step.actionHtml ? `<div class="workspace-row-actions">${step.actionHtml}</div>` : ""}
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderStudentPresentationGuide(slots = [], dashboard = {}) {
+  const rows = Array.isArray(slots) ? slots : [];
+  const focus = rows.find((slot) => slot.scheduledFor) || rows[0] || {};
+  const timeCopy = focus.scheduledFor
+    ? `${formatDate(focus.scheduledFor)}${focus.location ? ` in ${focus.location}` : ""}`
+    : "Your time and room will appear here after staff schedule it.";
+  const outlineStatus = statusText(focus.outlineStatus || (rows.length ? "pending" : "not_scheduled"));
+  return `
+    ${renderStudentPhaseDeliverableSnapshot("phase-3a", {
+      id: "studentPresentationPhaseGoal",
+      kicker: "Phase 3A deliverable",
+      title: "What presentation day finishes",
+      detail: "This screen helps with your presentation. It does not replace missing checklist proof or Program Teacher approval.",
+      currentLabel: "Presentation screen",
+      dataAttrs: 'data-student-presentation-phase-goal="true"',
+    })}
+    ${renderTaskFinishChecklist("student-presentation", "Before presentation day", [
+      ["Know when and where", timeCopy, focus.scheduledFor ? "ready" : "needs_review"],
+      ["Check your outline", `Outline status: ${outlineStatus}. Fix outline feedback before presentation day.`, normalizeStatus(focus.outlineStatus) === "approved" ? "ready" : "needs_review"],
+      ["Bring project proof", "Your approved outline and project proof should match the checklist work in My Work.", "context"],
+      ["After you present", dashboard.checkInNeeded ? "Staff still need to finish check-in for a checked-out presentation row." : "Completion or check-in status appears here after presentation day.", dashboard.checkInNeeded ? "needs_review" : "context"],
+    ], {
+      detail: "Presentation is about showing your work. It does not replace missing checklist proof or Program Teacher approval.",
+      badge: "Presentation checks",
+      state: dashboard.checkInNeeded ? "needs_review" : dashboard.outlinePending || dashboard.pendingSchedule ? "pending" : "ready",
+    })}
   `;
 }
 
@@ -11757,13 +16526,14 @@ function presentationDashboardModel(slots = []) {
   };
 }
 
-function renderPresentationSlotFilters(slots = [], activeFilter = "all") {
+function renderPresentationSlotFilters(slots = [], activeFilter = "all", options = {}) {
+  const studentView = Boolean(options.studentView);
   const filters = [
     ["all", "All", slots.length],
-    ["scheduled", "Ready for check-out", slots.filter(isReadyForPresentationCheckOut).length],
-    ["checked_out", "Checked out", slots.filter((slot) => slot.status === "checked_out").length],
-    ["checked_in", "Checked in", slots.filter((slot) => slot.status === "checked_in" || slot.status === "completed").length],
-    ["outline_follow_up", "Outline follow-up", slots.filter((slot) => ["pending", "revision_needed"].includes(String(slot.outlineStatus || ""))).length],
+    ["scheduled", studentView ? "Ready to present" : "Ready for check-out", slots.filter(isReadyForPresentationCheckOut).length],
+    ["checked_out", studentView ? "Checked out by staff" : "Checked out", slots.filter((slot) => slot.status === "checked_out").length],
+    ["checked_in", studentView ? "Presented / checked in" : "Checked in", slots.filter((slot) => slot.status === "checked_in" || slot.status === "completed").length],
+    ["outline_follow_up", studentView ? "Outline needs work" : "Outline follow-up", slots.filter((slot) => ["pending", "revision_needed"].includes(String(slot.outlineStatus || ""))).length],
   ];
   return `
     <div class="workspace-filter-bar workspace-presentation-filters" data-presentation-filters="true" aria-label="Presentation schedule filters">
@@ -11799,20 +16569,21 @@ function cleanPresentationSlotFilter(value) {
   return ["all", "scheduled", "checked_out", "checked_in", "outline_follow_up"].includes(filter) ? filter : "all";
 }
 
-function renderPresentationSlotsEmptyState(totalSlots, activeFilter) {
+function renderPresentationSlotsEmptyState(totalSlots, activeFilter, options = {}) {
+  const studentView = Boolean(options.studentView);
   if (safeNumber(totalSlots) > 0 && activeFilter !== "all") {
     return `
       <section class="workspace-empty-state-card" data-presentation-state="filter-empty">
         <strong>No presentation slots match this filter.</strong>
-        <p>Clear the filter to review the full presentation schedule for this account.</p>
-        <button class="workspace-link-button workspace-link-button-small" type="button" data-presentation-filter-action="all">Show all slots</button>
+        <p>${escapeHtml(studentView ? "Clear the filter to see every presentation row listed for you." : "Clear the filter to review the full presentation schedule for this account.")}</p>
+        <button class="workspace-link-button workspace-link-button-small" type="button" data-presentation-filter-action="all">${escapeHtml(studentView ? "Show all presentation rows" : "Show all slots")}</button>
       </section>
     `;
   }
   return `
     <section class="workspace-empty-state-card" data-presentation-state="empty">
-      <strong>No presentation slots scheduled yet.</strong>
-      <p>Presentation slots will appear here after authorized staff schedule them for visible students.</p>
+      <strong>${escapeHtml(studentView ? "No presentation time is listed yet." : "No presentation slots scheduled yet.")}</strong>
+      <p>${escapeHtml(studentView ? "Keep working in My Work until your Program Teacher or staff schedule your presentation." : "Presentation slots will appear here after authorized staff schedule them for visible students.")}</p>
     </section>
   `;
 }
@@ -11848,29 +16619,38 @@ function renderArchiveSection() {
         <div>
           <p class="workspace-kicker">Final files</p>
           <h1 id="archiveDashboardTitle">Download and Keep</h1>
-          <p>${escapeHtml(archive.message || "Before May 5, make sure your important Senior Project files can be downloaded and kept in your personal files.")}</p>
+          <p>${escapeHtml(studentFinalFilesCopy(archive.message, "Before May 5, make sure your important Senior Project files can be downloaded and kept in your personal files."))}</p>
         </div>
         ${statusPill(summary.archiveAvailableToRequest ? "ready" : archive.status || "not_requested")}
       </div>
       ${renderDashboardKpis([
         { label: "Files ready", value: metricWithPercent(dashboard.readyChecks, dashboard.totalChecks), detail: "Final checks ready", tone: "mentor" },
         { label: "Needs action", value: metricWithPercent(dashboard.needsAction, dashboard.totalChecks), detail: "Checks still missing or blocked", tone: dashboard.needsAction ? "warning" : "mentor" },
-        { label: "Package status", value: statusText(archive.status || "not_requested"), detail: downloadMessage, tone: archive.status === "failed" ? "danger" : "admin" },
-        { label: "Storage setup", value: storage.credentialsConfigured ? "Configured" : "Setup needed", detail: storage.credentialsConfigured ? "File storage is available" : "Storage must be configured before downloads are ready", tone: storage.credentialsConfigured ? "mentor" : "danger" },
-        { label: "Download window", value: retention.downloadExpiresSoon ? "Expiring soon" : `${retention.downloadWindowDays || 14} days`, detail: retention.policyReviewRequired ? "Policy review needed" : "Current retention window", tone: retention.downloadExpiresSoon ? "warning" : "admin" },
+        { label: "Download status", value: statusText(archive.status || "not_requested"), detail: downloadMessage, tone: archive.status === "failed" ? "danger" : "admin" },
+        { label: "Staff setup", value: storage.credentialsConfigured ? "Ready" : "Setup needed", detail: storage.credentialsConfigured ? "Staff download setup is ready" : "Staff must finish download setup before downloads are ready", tone: storage.credentialsConfigured ? "mentor" : "danger" },
+        { label: "Save-by window", value: retention.downloadExpiresSoon ? "Expiring soon" : `${retention.downloadWindowDays || 14} days`, detail: retention.policyReviewRequired ? "School download rule needs review" : "Time to save a ready download", tone: retention.downloadExpiresSoon ? "warning" : "admin" },
       ], { label: "Final files top summary", className: "workspace-archive-kpis" })}
       <div class="workspace-dashboard-grid workspace-dashboard-grid-two workspace-dashboard-support-grid">
         ${renderReadinessScoreCard(dashboard.score, dashboard.totalChecks, "Final files readiness score", dashboard.totalChecks ? `${dashboard.readyChecks} of ${dashboard.totalChecks} final checks are ready.` : "No final-file checks assigned yet.")}
-        ${renderDashboardCard("Final files distribution", "Checks, package, storage, and download state", renderStackedDistribution(dashboard.distribution, "Final files status distribution"))}
+        ${renderDashboardCard("What affects your download", "Ready checks, missing checks, staff setup, and save-by window", renderStackedDistribution(dashboard.distribution, "Final files status"))}
       </div>
+      ${renderStudentPhaseDeliverableSnapshot("finish", {
+        id: "studentFinalFilesPhaseGoal",
+        kicker: "Finish deliverable",
+        title: "What final files finishes",
+        detail: "This screen helps you save your final Senior Project files somewhere you can keep after school account access changes.",
+        currentLabel: "Final files screen",
+        dataAttrs: 'data-student-final-files-phase-goal="true"',
+      })}
       ${renderStudentArchiveGuidance(body)}
+      ${renderStudentArchiveFinishChecklist(body)}
       <section class="workspace-dashboard-card">
         <div class="workspace-card-head">
           <div>
             <p class="workspace-kicker">Final checklist</p>
-            <h2>What Still Needs Work</h2>
+            <h2>What to Finish Before Download</h2>
           </div>
-          <span class="workspace-chip">${escapeHtml(body.source || "persisted rows")}</span>
+          <span class="workspace-chip">Final-file list</span>
         </div>
         ${renderApiNotice(result)}
         <div class="workspace-list workspace-archive-worklist">
@@ -11880,16 +16660,16 @@ function renderArchiveSection() {
       <section class="workspace-dashboard-card">
         <div class="workspace-card-head">
           <div>
-            <p class="workspace-kicker">Storage</p>
+            <p class="workspace-kicker">Download setup</p>
             <h2>Download</h2>
           </div>
-          ${statusPill(storage.credentialsConfigured ? "configured" : "provider_unavailable")}
+          ${statusPill(storage.credentialsConfigured ? "configured" : "needs_staff_action")}
         </div>
         <div class="workspace-worklist workspace-archive-status-worklist">
           ${renderArchiveStatusRow("Download status", downloadMessage, archive.status || "not_requested", archiveDownloadUrl ? `<a class="workspace-link-button workspace-link-button-small" data-archive-download="manifest" href="${escapeHtml(archiveDownloadUrl)}">Download file list</a>` : "")}
           ${renderArchiveStatusRow("Privacy guard", "Private file details stay hidden from this workspace.", storage.storageIdentifiersRedacted ? "ready" : "needs_review")}
-          ${renderArchiveStatusRow("Final file package", drivePackageStatus === "ready" ? "Final file package is stored for protected download." : "Final file package will appear after staff prepares it and storage is ready.", drivePackageStatus, "", `data-archive-drive-package="${escapeHtml(drivePackageStatus)}"`)}
-          ${renderArchiveStatusRow("Download window", retention.policyReviewRequired ? "School download policy still needs review." : `Downloads stay available for ${retention.downloadWindowDays || 14} days.`, retention.downloadExpiresSoon ? "expiring_soon" : retention.policyStatus || "policy_review_required", "", `data-archive-retention-status="${escapeHtml(retention.policyStatus || "unknown")}"`)}
+          ${renderArchiveStatusRow("Saved download file", drivePackageStatus === "ready" ? "Your final file set is stored for protected download." : "Your final file set appears after staff prepares it and download setup is ready.", drivePackageStatus, "", `data-archive-drive-package="${escapeHtml(drivePackageStatus)}"`)}
+          ${renderArchiveStatusRow("Save-by window", retention.policyReviewRequired ? "School download rules still need review." : `Downloads stay available for ${retention.downloadWindowDays || 14} days.`, retention.downloadExpiresSoon ? "expiring_soon" : retention.policyStatus || "policy_review_required", "", `data-archive-retention-status="${escapeHtml(retention.policyStatus || "unknown")}"`)}
         </div>
       </section>
     </section>
@@ -11919,9 +16699,9 @@ function studentArchiveDashboardModel(body = {}) {
     distribution: [
       { label: "Ready checks", value: readyChecks, tone: "mentor" },
       { label: "Needs action", value: needsAction, tone: "warning" },
-      { label: "Package failed", value: normalizeStatus(archive.status) === "failed" ? 1 : 0, tone: "danger" },
-      { label: "Package in progress", value: ["queued", "running", "in_progress"].includes(normalizeStatus(archive.status)) ? 1 : 0, tone: "admin" },
-      { label: "Storage setup needed", value: storage.credentialsConfigured === false ? 1 : 0, tone: "danger" },
+      { label: "Download prep failed", value: normalizeStatus(archive.status) === "failed" ? 1 : 0, tone: "danger" },
+      { label: "Download prep in progress", value: ["queued", "running", "in_progress"].includes(normalizeStatus(archive.status)) ? 1 : 0, tone: "admin" },
+      { label: "Staff setup needed", value: storage.credentialsConfigured === false ? 1 : 0, tone: "danger" },
       { label: "Expiring soon", value: retention.downloadExpiresSoon ? 1 : 0, tone: "warning" },
     ].filter((item) => safeNumber(item.value) > 0),
   };
@@ -11952,19 +16732,28 @@ function renderArchiveStatusRow(label, detail, status, actionHtml = "", extraAtt
 function studentArchiveDownloadStatusCopy(archive = {}, storage = {}) {
   const archiveStatus = String(archive.status || "not_requested");
   const scopedDownloadReady = Boolean(archive.scopedDownloadReady || archive.signedDownloadReady);
-  if (archive.downloadExpired) return "The previous download window expired. Ask staff to generate a fresh package.";
+  if (archive.downloadExpired) return "The previous download window expired. Ask staff to prepare a fresh download.";
   if (scopedDownloadReady) {
     return archive.downloadExpiresAt
       ? `Your download is ready until ${formatDate(archive.downloadExpiresAt)}.`
       : "Your download is ready.";
   }
   if (archive.downloadExpiresSoon) return "The download window is ending soon, but the download is not available in this view.";
-  if (archiveStatus === "queued" || archiveStatus === "running") return "Staff are preparing your final file package.";
-  if (archiveStatus === "failed") return "Final file package preparation needs staff follow-up.";
+  if (archiveStatus === "queued" || archiveStatus === "running") return "Staff are preparing your final files.";
+  if (archiveStatus === "failed") return "Staff need to fix your final-file download.";
   if (storage.credentialsConfigured === false || (storage.providerStatus && storage.providerStatus !== "ready" && storage.providerStatus !== "configured")) {
-    return "Storage setup is needed before downloads are ready.";
+    return "Staff setup is needed before downloads are ready.";
   }
   return "Your download is not ready yet.";
+}
+
+function studentFinalFilesCopy(value, fallback = "") {
+  return String(value || fallback || "")
+    .replace(/\bfinal file package\b/gi, "final-file download")
+    .replace(/\bfinal-file package\b/gi, "final-file download")
+    .replace(/\bpackage preparation\b/gi, "download setup")
+    .replace(/\bpackage request\b/gi, "download request")
+    .replace(/\bpackage\b/gi, "download");
 }
 
 function renderStudentArchiveGuidance(body) {
@@ -11977,7 +16766,7 @@ function renderStudentArchiveGuidance(body) {
           <h2 id="studentArchiveGuidanceTitle">${escapeHtml(guidance.title)}</h2>
           <p>${escapeHtml(guidance.detail)}</p>
         </div>
-        ${statusPill(guidance.status)}
+        ${statusPill(guidance.status === "provider_unavailable" ? "needs_staff_action" : guidance.status)}
       </div>
       <div class="workspace-student-action-focus">
         <strong>${escapeHtml(guidance.owner)}</strong>
@@ -11985,6 +16774,35 @@ function renderStudentArchiveGuidance(body) {
       </div>
     </section>
   `;
+}
+
+function renderStudentArchiveFinishChecklist(body = {}) {
+  const guidance = studentArchiveGuidance(body);
+  const status = normalizeStatus(guidance.status);
+  const downloadReady = status === "ready" && /download/i.test(guidance.title || "");
+      const failedOrStorage = ["failed", "provider_unavailable", "setup_needed"].includes(status);
+  const items = downloadReady
+    ? [
+        ["Download while the window is open", guidance.when || "Use the available download link before it expires.", "ready"],
+        ["Check the file list", "Make sure the download includes the final files you expected before you leave the screen.", "context"],
+        ["Keep a personal copy", "Save important Senior Project files outside your school account before account access closes.", "needs_review"],
+      ]
+    : failedOrStorage
+      ? [
+          ["Read the staff-support message", guidance.detail || "Staff need to fix your final-file download.", "needs_staff_action"],
+          ["Do not retry from this screen", "This student view does not create a new download request.", "blocked"],
+          ["Use the checklist below", "If a final check asks for proof, use a proof link when uploads are not working.", "context"],
+        ]
+      : [
+          ["Start with the first missing check", "Use What to Finish Before Download before asking for final files.", "ready"],
+          ["Match proof to the check", "Add proof only when the check below says it is missing or needs attention.", "needs_review"],
+          ["Wait for staff to prepare the download", "A download appears only after staff prepares the final files.", "context"],
+        ];
+  return renderTaskFinishChecklist("student-final-files", "Before you save final files", items, {
+    detail: "Use these checks before downloading, asking staff for final files, or adding final-file proof.",
+    badge: "Final-file checks",
+    state: guidance.status,
+  });
 }
 
 function studentArchiveProgressFact(body) {
@@ -12012,7 +16830,7 @@ function studentArchiveGuidance(body) {
     return {
       status: "expired",
       title: "Ask for a fresh download",
-      detail: "The previous download window expired. Ask your Program Teacher or administrator to generate a fresh package.",
+      detail: "The previous download window expired. Ask your Program Teacher or administrator to prepare a fresh download.",
       owner: "Staff support",
       when: "No new proof is needed unless a check below changed.",
     };
@@ -12034,7 +16852,7 @@ function studentArchiveGuidance(body) {
       title: "Staff are preparing your final files",
       detail: `${progressText} No extra file or link is needed right now.`,
       owner: "Staff support",
-      when: "Check back after the package finishes.",
+      when: "Check back after staff finish preparing it.",
     };
   }
 
@@ -12053,7 +16871,7 @@ function studentArchiveGuidance(body) {
     return {
       status: "failed",
       title: "Staff need to review your final files",
-      detail: `${progressText} Final file package preparation did not finish. Your checklist can still be reviewed while staff follow up.`,
+      detail: `${progressText} Your final-file download did not finish. Your checklist can still be reviewed while staff follow up.`,
       owner: "Staff support",
       when: "No retry action is needed from you right now.",
     };
@@ -12072,10 +16890,10 @@ function studentArchiveGuidance(body) {
   if (storage.credentialsConfigured === false || (storage.providerStatus && storage.providerStatus !== "ready" && storage.providerStatus !== "configured")) {
     return {
       status: "provider_unavailable",
-      title: "Staff setup is needed before download",
-      detail: `${progressText} Your checklist can still be reviewed, but downloads are not ready yet.`,
+      title: "Staff need to finish download setup",
+      detail: `${progressText} Downloads are not ready yet, but your checklist can still be reviewed with proof links or existing proof.`,
       owner: "Staff support",
-      when: "Keep finishing the checklist below.",
+      when: "Use proof links for checklist work; staff own download setup.",
     };
   }
 
@@ -12117,33 +16935,34 @@ function renderArchiveCheckRow(check) {
       <div>
         <strong>${escapeHtml(check.label || "Final check")}</strong>
         <p>${escapeHtml(check.message || "Review this final check.")}</p>
-        <p class="workspace-muted">${escapeHtml(check.evidenceCount || 0)} proof item${Number(check.evidenceCount || 0) === 1 ? "" : "s"} matched.</p>
+        <p class="workspace-muted">${escapeHtml(check.evidenceCount || 0)} proof item${Number(check.evidenceCount || 0) === 1 ? "" : "s"} matched to this check.</p>
       </div>
       ${statusPill(check.status)}
     </article>
   `;
 }
 
-function renderPresentationSlotRow(slot, canManage) {
+function renderPresentationSlotRow(slot, canManage, options = {}) {
   const status = String(slot.status || "unknown");
+  const studentView = Boolean(options.studentView);
   return `
     <article class="workspace-worklist-row workspace-presentation-row" data-presentation-state="${escapeHtml(status)}">
       <div>
-        <span class="workspace-worklist-label">Student</span>
+        <span class="workspace-worklist-label">${escapeHtml(studentView ? "Your time" : "Student")}</span>
         <strong>${escapeHtml(slot.studentName || "Your presentation")}</strong>
         <small>${escapeHtml(formatDate(slot.scheduledFor))}</small>
       </div>
       <div>
-        <span class="workspace-worklist-label">Location</span>
+        <span class="workspace-worklist-label">${escapeHtml(studentView ? "Room and length" : "Location")}</span>
         <span>${escapeHtml(slot.durationMinutes || 15)} min / ${escapeHtml(slot.location || "Location pending")}</span>
       </div>
       <div>
-        <span class="workspace-worklist-label">Outline</span>
+        <span class="workspace-worklist-label">Outline status</span>
         <span>${escapeHtml(statusText(slot.outlineStatus || "pending"))}</span>
       </div>
       <div>
-        <span class="workspace-worklist-label">Check-in</span>
-        <span>${escapeHtml(presentationTimestampSummary(slot).replace(/^ \/ /, "") || "No check-in timestamp")}</span>
+        <span class="workspace-worklist-label">${escapeHtml(studentView ? "After presentation" : "Check-in")}</span>
+        <span>${escapeHtml(presentationTimestampSummary(slot).replace(/^ \/ /, "") || (studentView ? "Check-in appears after presentation day" : "No check-in timestamp"))}</span>
       </div>
       <div>
         <span class="workspace-worklist-label">Status</span>
@@ -12466,6 +17285,7 @@ function normalizeStudentProofReceipt(receipt = {}) {
     visible: true,
     proofKind: receipt.proofKind === "link" ? "link" : "file",
     submissionId,
+    requirementId: matchedSubmission?.requirement_id || matchedSubmission?.requirementId || "",
     title: String(receipt.title || "").trim().slice(0, 160),
     fileName: String(receipt.fileName || "").trim().slice(0, 160),
     requirementTitle: matchedSubmission?.requirement_title || matchedSubmission?.requirementTitle || "",
@@ -12806,7 +17626,6 @@ function statusHtml(message, tone = "neutral") {
 function greetingForUser() {
   const roles = roleIds(currentUser);
   if (hasGlobalAdminRole(roles)) return "Global Admin workspace is ready.";
-  if (roles.has("org_admin")) return "Organization workspace is ready.";
   if (roles.has("site_admin")) return "Site Admin workspace is ready.";
   if (roles.has("administration")) return "School Admin workspace is ready.";
   if (roles.has("student")) return "Your senior project is ready.";
@@ -12820,15 +17639,44 @@ function nextStepText() {
   const dashboard = unwrap(currentData.dashboard);
   if (dashboard?.nextAction) return dashboard.nextAction;
   const roles = roleIds(currentUser);
+  if (roles.has("student")) {
+    if (dashboard) return studentSidebarNextStepText(dashboard);
+    return "Open My Work to see your next Senior Project task, proof, feedback, and status.";
+  }
   if (roles.has("site_admin")) return "Review site progress, student readiness, mentor coverage, presentation status, and final-file signals available to this account.";
   if (roles.has("administration")) return "Review assigned school students, readiness, presentation, progress dashboards, and access needs.";
-  if (roles.has("org_admin")) return "Review assigned organization and site summaries available to this account.";
   if (hasGlobalAdminRole(roles)) return "Review platform setup and multisite readiness available to this account.";
   if (roles.has("viewer")) return "Review assigned students in read-only mode.";
   if (roles.has("program_teacher")) return "Review submitted work and follow up where students need feedback.";
   if (roles.has("mentor")) return "Check assigned students before mentor meetings and presentation preparation.";
   if (roles.has("misc_admin")) return "Review aggregate readiness without opening individual student records.";
   return "Ask your instructor to confirm your workspace role.";
+}
+
+function studentSidebarNextStepText(dashboard = {}) {
+  const summary = studentProgressSummary(dashboard);
+  const nextSteps = Array.isArray(dashboard.nextSteps) ? dashboard.nextSteps : [];
+  const archiveNextAction = studentArchivePrimaryNextAction(unwrap(currentData.archiveReadiness));
+  const action = studentPrimaryNextAction(summary, nextSteps, archiveNextAction);
+  const title = studentInstructionCopy(action?.title || "");
+
+  if (summary.revisionRequestedCount) {
+    return title
+      ? `Fix ${title} first, then send it back for Program Teacher review.`
+      : "Fix revision feedback first, then send it back for Program Teacher review.";
+  }
+  if (summary.waitingForReviewCount) {
+    return "Check what you sent, then wait for Program Teacher approval before starting the next phase.";
+  }
+  if (summary.missingRequiredCount) {
+    return title
+      ? `Open My Work and finish ${title}.`
+      : "Open My Work and finish the current phase item.";
+  }
+  if (archiveNextAction?.status) {
+    return "Open Final Files to see what still needs to be saved by May 5.";
+  }
+  return "Open My Work and follow the first action shown at the top.";
 }
 
 function metric(label, value, detail = "") {
@@ -13266,6 +18114,7 @@ function renderMentorStudentCards(rows = []) {
             <div>
               <strong>${escapeHtml(row.studentName || "Student")}</strong>
               <p class="workspace-muted workspace-mentor-priority" data-mentor-dashboard-priority="true"><b>${escapeHtml(priority.label)}</b>: ${escapeHtml(priority.detail)}</p>
+              ${!detailOpen && isMentorDashboardRevisionSinceLastMeeting(row) ? `<p class="workspace-mentor-collapsed-alert" data-mentor-dashboard-collapsed-revision="true">Details include revision changes since the last mentor check-in.</p>` : ""}
               ${priority.key === "steady" ? `<p class="workspace-muted" data-mentor-dashboard-no-action-today="true">No action needed today beyond regular check-ins.</p>` : ""}
               <p class="workspace-muted" data-mentor-dashboard-summary="true">${escapeHtml(mentorDashboardCompactSummary(row, attention))}</p>
               <div class="workspace-chip-row workspace-mentor-compact-chips" data-mentor-dashboard-compact-signals="true">
@@ -13289,6 +18138,106 @@ function renderMentorStudentCards(rows = []) {
         `;
       }).join("")}
     </div>
+  `;
+}
+
+function renderMentorDashboardActionMap(rows = [], filteredRows = [], activeFilter = "all") {
+  const safeRows = Array.isArray(rows) ? rows : [];
+  if (!safeRows.length) return "";
+  const activeRows = Array.isArray(filteredRows) && filteredRows.length ? filteredRows : safeRows;
+  const focus = activeRows[0] || safeRows[0] || {};
+  const attention = Array.isArray(focus.needsAttention) ? focus.needsAttention : [];
+  const revisionRows = safeRows.filter(isMentorDashboardRevisionRow);
+  const revisionSinceMeetingRows = safeRows.filter(isMentorDashboardRevisionSinceLastMeeting);
+  const meetingRows = safeRows.filter(isMentorDashboardMeetingRow);
+  const presentationRows = safeRows.filter(isMentorDashboardPresentationRow);
+  const steadyRows = safeRows.filter((row) => mentorDashboardPriority(row, Array.isArray(row.needsAttention) ? row.needsAttention : []).key === "steady");
+  const cards = [
+    {
+      id: "focus",
+      label: "Next conversation",
+      value: focus.studentName || "Assigned student",
+      detail: `Ask next: ${mentorDashboardSuggestedQuestion(focus, attention)}`,
+      tone: mentorDashboardPriority(focus, attention).key,
+      action: "open-meetings",
+      actionLabel: "Open meeting plan",
+      studentId: focus.studentId,
+    },
+    {
+      id: "revision",
+      label: "Revision follow-up",
+      value: `${revisionRows.length} ${pluralize(revisionRows.length, "student")}`,
+      detail: revisionSinceMeetingRows.length
+        ? "Compare the Program Teacher request with proof added after the last check-in."
+        : "Open when Program Teacher feedback says the student must fix work.",
+      tone: revisionRows.length ? "revision" : "quiet",
+      filter: "revision",
+      actionLabel: "Focus revisions",
+    },
+    {
+      id: "meeting",
+      label: "Meeting follow-up",
+      value: `${meetingRows.length} due`,
+      detail: meetingRows.length ? "Use this when a check-in is missed, make-up, or not recorded." : "No meeting follow-up is flagged right now.",
+      tone: meetingRows.length ? "meeting" : "quiet",
+      filter: "meeting",
+      actionLabel: "Focus meetings",
+    },
+    {
+      id: "presentation",
+      label: "Presentation readiness",
+      value: `${presentationRows.length} risk`,
+      detail: presentationRows.length ? "Open for outline approval, scheduling, or presentation practice risk." : "No presentation risk is flagged right now.",
+      tone: presentationRows.length ? "presentation" : "quiet",
+      filter: "presentation",
+      actionLabel: "Focus presentations",
+    },
+    {
+      id: "steady",
+      label: "Regular support",
+      value: `${steadyRows.length} steady`,
+      detail: steadyRows.length ? "Keep calm check-ins visible without mixing them into urgent work." : "Urgent signals are taking the whole mentor list today.",
+      tone: steadyRows.length ? "steady" : "quiet",
+      filter: "all",
+      actionLabel: "Show all",
+    },
+  ];
+  return `
+    <section class="workspace-mentor-action-map" data-mentor-action-map="true" data-mentor-action-map-active-filter="${escapeHtml(activeFilter)}" aria-labelledby="mentorActionMapTitle">
+      <div class="workspace-mentor-action-map-head">
+        <div>
+          <p class="workspace-kicker">Where to help next</p>
+          <h2 id="mentorActionMapTitle">Choose one mentor action</h2>
+          <p class="workspace-muted">Use this map before scanning every assigned student row.</p>
+        </div>
+      </div>
+      <div class="workspace-mentor-action-map-grid">
+        ${cards.map((card) => renderMentorDashboardActionMapCard(card, activeFilter)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderMentorDashboardActionMapCard(card = {}, activeFilter = "all") {
+  const isActiveFilter = card.filter ? cleanMentorDashboardFilter(activeFilter) === cleanMentorDashboardFilter(card.filter) : false;
+  const actionAttrs = card.action === "open-meetings" && card.studentId
+    ? `data-mentor-dashboard-action="open-meetings" data-mentor-dashboard-student-id="${escapeHtml(card.studentId)}"`
+    : card.filter
+      ? `data-mentor-dashboard-action="filter" data-mentor-dashboard-filter="${escapeHtml(card.filter)}" aria-pressed="${isActiveFilter ? "true" : "false"}"`
+      : "";
+  return `
+    <article class="workspace-mentor-action-map-card ${escapeHtml(card.tone || "quiet")}" data-mentor-action-map-card="${escapeHtml(card.id || "")}" data-current-filter="${isActiveFilter ? "true" : "false"}">
+      <div>
+        <span>${escapeHtml(card.label || "Mentor action")}</span>
+        <strong>${escapeHtml(card.value || "")}</strong>
+        <p>${escapeHtml(card.detail || "")}</p>
+      </div>
+      ${actionAttrs ? `
+        <button class="workspace-link-button workspace-link-button-small" type="button" ${actionAttrs}>
+          ${escapeHtml(isActiveFilter && card.filter ? "Viewing" : card.actionLabel || "Open")}
+        </button>
+      ` : ""}
+    </article>
   `;
 }
 
@@ -13717,13 +18666,13 @@ function renderSubmissionRow(submission, feedback = [], historyState = defaultSt
     <article class="workspace-row workspace-student-submission-row" data-student-submission-row="${escapeHtml(submissionId || "true")}">
       <div>
         <strong>${escapeHtml(submission.requirement_title || "Senior Project work")}</strong>
-        <p>Version ${escapeHtml(submission.version || 1)}. Updated ${escapeHtml(formatDate(submission.updated_at))}.</p>
+        <p>Sent work: Version ${escapeHtml(submission.version || 1)}. Updated ${escapeHtml(formatDate(submission.updated_at))}.</p>
         ${latestFeedback ? `<p class="workspace-muted" data-submission-feedback="true">Latest Program Teacher feedback: ${escapeHtml(latestFeedback.message || "Program Teacher feedback was recorded for this work.")}</p>` : ""}
         <p class="workspace-muted" data-student-submission-next-owner="true">Next move: ${escapeHtml(owner)}</p>
         <p class="workspace-student-submission-gate" data-student-submission-approval-gate="true">${escapeHtml(approvalGate)}</p>
       </div>
       <div class="workspace-row-actions">
-        ${submissionId ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-feedback-action="open-history" data-student-feedback-origin="submissions" data-student-feedback-submission-id="${escapeHtml(submissionId)}">${escapeHtml(isSelected ? "Refresh timeline" : "View timeline")}</button>` : ""}
+        ${submissionId ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-feedback-action="open-history" data-student-feedback-origin="submissions" data-student-feedback-submission-id="${escapeHtml(submissionId)}">${escapeHtml(isSelected ? "Refresh work history" : "View work history")}</button>` : ""}
         ${statusPill(submission.status)}
       </div>
       ${isSelected ? `<div data-student-submission-timeline="true">${renderStudentFeedbackTimeline(historyState)}</div>` : ""}
@@ -13825,15 +18774,15 @@ function renderStudentSubmissionEmptyState(filterKey = "all", totalRows = 0) {
   const copy = {
     draft: {
       title: "No draft work is listed right now.",
-      detail: "Switch filters to review work waiting for feedback, work to fix, or approved work.",
+      detail: "Show waiting work, work to fix, or approved work.",
     },
     submitted: {
       title: "No work is waiting for review right now.",
-      detail: "Switch filters to check drafts, work to fix, or approved work.",
+      detail: "Show drafts, work to fix, or approved work.",
     },
     revision_requested: {
       title: "No work to fix is listed right now.",
-      detail: "Switch filters to review drafts, waiting work, or approved work.",
+      detail: "Show drafts, waiting work, or approved work.",
     },
     approved: {
       title: "No approved work is listed yet.",
@@ -13869,7 +18818,7 @@ function renderEvidenceRow(item) {
       <div>
         <strong>${escapeHtml(item.title || "Proof item")}</strong>
         <p>${escapeHtml(evidenceSourceLabel(item.source_kind))} / ${escapeHtml(statusText(item.artifact_type || "proof"))}</p>
-        ${item.requirementTitle ? `<p class="workspace-muted">For ${escapeHtml(item.requirementTitle)}</p>` : ""}
+        ${item.requirementTitle ? `<p class="workspace-muted">Checklist item: ${escapeHtml(item.requirementTitle)}</p>` : ""}
         <p class="workspace-muted" data-proof-review-status="true">${escapeHtml(reviewCopy)}</p>
       </div>
       <div class="workspace-row-actions">
@@ -14024,7 +18973,6 @@ const ROLE_LABELS = {
   platform_admin: "Global Admin",
   global_admin: "Global Admin",
   admin: "Global Admin",
-  org_admin: "Organization Admin",
   site_admin: "Site Admin",
   administration: "School Admin",
   program_teacher: "Program Teacher",
@@ -14047,26 +18995,64 @@ const ROLE_PROFILE_ALIASES = {
 const ROLE_WORKING_PROFILES = {
   student: {
     title: "Student working profile",
-    job: "Finish your Senior Project one step at a time. Use this app to see your checklist, add proof, read feedback, prepare to present, and save your final files.",
+    job: "Finish your Senior Project one step at a time. Use this app to see the current phase goal, what to turn in, feedback to fix, presentation details, and final files to save.",
+    quickStart: [
+      {
+        id: "next",
+        step: "1",
+        tone: "student",
+        title: "Start with Do this next",
+        detail: "Open My Work and follow the first action shown at the top. That is the safest next move.",
+        section: "student",
+        action: "Open My Work",
+      },
+      {
+        id: "phase",
+        step: "2",
+        tone: "checklist",
+        title: "Finish the current phase deliverable",
+        detail: "Use the phase goal card to see what must be complete before you move on.",
+        section: "student",
+        action: "Open phase goals",
+      },
+      {
+        id: "proof",
+        step: "3",
+        tone: "proof",
+        title: "Attach proof to the exact item",
+        detail: "Use a proof link or file only on the checklist item it belongs to.",
+        section: "student",
+        action: "Open proof tools",
+      },
+      {
+        id: "wait",
+        step: "4",
+        tone: "teacher",
+        title: "Wait after sending work",
+        detail: "Program Teacher approval opens the next step. If revision is requested, fix that item first.",
+        section: "student",
+        action: "Open sent work",
+      },
+    ],
     see: [
-      "Your checklist, due dates, current phase, and next step.",
+      "Your checklist, due dates, current phase goal, and next step.",
       "Your sent work, proof, Program Teacher feedback, mentor information, presentation status, and May 5 file-saving checks.",
       "Only your own Senior Project work.",
     ],
     do: [
-      "Open the Student Workspace to follow the checklist and work on the next item.",
-      "Add proof with an upload or private link when your Program Teacher asks for it.",
-      "Read feedback, fix work, send it again, prepare for presentation, and download final files by May 5.",
+      "Open My Work to follow the current phase goal and work on the next item.",
+      "Add proof with an upload or link when your Program Teacher asks for it.",
+      "Read feedback, fix work, send it again, prepare for presentation, and save final files by May 5.",
     ],
     limits: [
       "You do not review other students.",
       "You do not manage accounts, mentors, schedules for other people, or staff-only reports.",
     ],
     actions: [
-      { section: "student", label: "Open Student Workspace", detail: "Checklist, sent work, feedback, and proof." },
-      { section: "presentation", label: "Open Presentation", detail: "Schedule, outline, check-out, and check-in status." },
-      { section: "archive", label: "Open Final Files", detail: "May 5 download and file-saving checks." },
-      { section: "security", label: "Open Account", detail: "Password and session controls." },
+      { section: "student", label: "Open My Work", detail: "Current phase goal, next item, feedback, and proof." },
+      { section: "presentation", label: "Open Presentation", detail: "Time, room, outline status, and what to bring." },
+      { section: "archive", label: "Open Final Files", detail: "What to finish and what to save by May 5." },
+      { section: "security", label: "Open Account", detail: "Your password and signed-in sessions." },
     ],
   },
   mentor: {
@@ -14116,30 +19102,67 @@ const ROLE_WORKING_PROFILES = {
     ],
   },
   program_teacher: {
-    title: "Program Teacher working profile",
-    job: "Guide students in your assigned program or cohort by reviewing submitted work, requesting revisions, approving ready work, and watching program-level blockers.",
+    title: "Program Teacher first steps",
+    job: "If you teach construction, IT, culinary, or another CTE program, start here: review turned-in work, find students who are stuck, and leave clear next steps.",
+    quickStart: [
+      {
+        id: "review",
+        step: "1",
+        title: "Review work students turned in",
+        detail: "Open this first when students are waiting for approval, revision notes, or comment-only feedback.",
+        section: "teacher",
+        preset: "submitted",
+        action: "Open Review Queue",
+        tone: "primary",
+      },
+      {
+        id: "stuck",
+        step: "2",
+        title: "Find who needs help",
+        detail: "Use this when you want a short list of students missing proof, behind, or waiting on a next move.",
+        section: "programDashboard",
+        action: "Open Program Dashboard",
+        tone: "warning",
+      },
+      {
+        id: "student",
+        step: "3",
+        title: "Look up one student",
+        detail: "Use this when you already know the student's name and want their checklist, proof, or feedback history.",
+        section: "students",
+        action: "Open Students",
+        tone: "student",
+      },
+      {
+        id: "later",
+        step: "Later",
+        title: "Check event or final-file blockers",
+        detail: "Use this after review work if presentations, mentor coverage, or final files need staff follow-up.",
+        section: "operations",
+        action: "Open Operations",
+        tone: "quiet",
+      },
+    ],
     see: [
-      "Students in your assigned program or cohort.",
-      "Review Queue, Program Dashboard, student detail, proof summaries, readiness signals, and presentation status.",
-      "Mentor coverage and operations signals for students in your scope.",
+      "Your assigned students, such as the IT, construction, culinary, or shop class roster.",
+      "Work students turned in for your review.",
+      "Student proof, mentor, presentation, and final-file signals when they affect your students.",
     ],
     do: [
-      "Use Program Dashboard to find the highest-priority students.",
-      "Use Review Queue to approve, request revision, or leave comment-only feedback where allowed.",
-      "Open student detail and operations views to coordinate follow-up with site staff.",
-      "Add or remove student and mentor accounts when your school asks you to keep your program roster current.",
+      "Start with Review Queue when students have turned in work.",
+      "Use Program Dashboard when you want the shortest list of students who need help.",
+      "Open Students when you know the student's name.",
+      "Use Users & Access only when the student or mentor roster is wrong.",
     ],
     limits: [
-      "You do not manage global security or platform setup.",
-      "You do not manage Program Teacher, School Admin, Site Admin, or Global Admin accounts.",
+      "You do not run district, platform, or security setup.",
+      "You do not manage other teacher, School Admin, Site Admin, or Global Admin accounts.",
     ],
     actions: [
-      { section: "programDashboard", label: "Open Program Dashboard", detail: "Program or cohort progress and blockers." },
-      { section: "teacher", label: "Open Review Queue", detail: "Submitted and revision-requested work." },
-      { section: "students", label: "Open Students", detail: "Student detail and scoped filters." },
-      { section: "operations", label: "Open Operations", detail: "Presentation, archive, and readiness blockers." },
-      { section: "adminUsers", label: "Open Users & Access", detail: "Student and mentor accounts." },
-      { section: "presentation", label: "Open Presentation", detail: "Schedule, outline, and day-of status." },
+      { section: "teacher", preset: "submitted", label: "Open Review Queue", detail: "Approve work, request revision, or leave feedback." },
+      { section: "programDashboard", label: "Open Program Dashboard", detail: "Students who need your attention first." },
+      { section: "students", label: "Open Students", detail: "Search one student by name." },
+      { section: "operations", label: "Open Operations", detail: "Presentation, mentor, and final-file blockers." },
     ],
   },
   administration: {
@@ -14192,31 +19215,6 @@ const ROLE_WORKING_PROFILES = {
       { section: "mentorAssignments", label: "Open Mentor Assignments", detail: "Coverage and assignment workflow." },
       { section: "programs", label: "Open Programs", detail: "Programs active at the school." },
       { section: "students", label: "Open Students", detail: "Student detail and filters." },
-      { section: "operations", label: "Open Operations", detail: "Readiness and closeout blockers." },
-    ],
-  },
-  org_admin: {
-    title: "Organization Admin working profile",
-    job: "Monitor assigned organization and school activity across the sites you can access, then route follow-up to the right site staff.",
-    see: [
-      "Assigned organization or site dashboards.",
-      "Student directory, review queue, mentor assignment view, and operations signals for accessible sites.",
-      "Cross-site context without global security control.",
-    ],
-    do: [
-      "Use the site switcher to choose the school you want to review.",
-      "Open dashboards, student lists, review queue, mentor coverage, and operations to compare needs across accessible sites.",
-      "Coordinate follow-up with site admins and program staff.",
-    ],
-    limits: [
-      "You do not manage platform-wide security or every school by default.",
-      "You do not create Global Admin access.",
-    ],
-    actions: [
-      { section: "siteDashboard", label: "Open Site Dashboard", detail: "Selected school progress and needs." },
-      { section: "students", label: "Open Students", detail: "Student directory for the selected site." },
-      { section: "teacher", label: "Open Review Queue", detail: "Review work visible at the selected site." },
-      { section: "mentorAssignments", label: "Open Mentor Assignments", detail: "Coverage and assignment view." },
       { section: "operations", label: "Open Operations", detail: "Readiness and closeout blockers." },
     ],
   },
@@ -14312,6 +19310,7 @@ function renderRoleProfileSection(options = {}) {
         </div>
         <span class="workspace-site-context-badge">${escapeHtml(roleLabel(primaryRole))}</span>
       </div>
+      ${renderRoleProfileQuickStart(profile.quickStart, { studentView: profileKey === "student" })}
       <div class="workspace-role-profile-grid">
         ${renderRoleProfileBlock("What you can see", profile.see)}
         ${renderRoleProfileBlock("What you do here", profile.do)}
@@ -14320,6 +19319,40 @@ function renderRoleProfileSection(options = {}) {
       ${renderRoleProfileActions(profile.actions)}
       ${compact ? "" : renderRoleProfileScopeSummary()}
     </section>
+  `;
+}
+
+function renderRoleProfileQuickStart(steps = [], options = {}) {
+  const sectionIds = availableSectionIds();
+  const visibleSteps = (Array.isArray(steps) ? steps : []).filter((step) => step?.section && sectionIds.has(step.section));
+  if (!visibleSteps.length) return "";
+  const studentView = Boolean(options.studentView);
+  return `
+    <section class="workspace-role-profile-start" data-role-profile-start="true" aria-labelledby="roleProfileStartTitle">
+      <div>
+        <span>Start here today</span>
+        <strong id="roleProfileStartTitle">Most days, use these in order.</strong>
+        <p>${escapeHtml(studentView ? "Do not scan every menu first. Start with Do this next, then check the current phase goal." : "Do not scan every menu first. Start with the card that matches the student problem in front of you.")}</p>
+      </div>
+      <div class="workspace-role-profile-start-grid">
+        ${visibleSteps.map((step) => renderRoleProfileStartCard(step)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderRoleProfileStartCard(step = {}) {
+  return `
+    <article class="workspace-role-profile-start-card ${escapeHtml(step.tone || "quiet")}" data-role-profile-start-card="${escapeHtml(step.id || step.section || "step")}">
+      <div>
+        <span>${escapeHtml(step.step || "Next")}</span>
+        <strong>${escapeHtml(step.title || "Open the next workspace")}</strong>
+        <p>${escapeHtml(step.detail || "")}</p>
+      </div>
+      <button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(step.section)}" ${step.preset ? `data-section-preset="${escapeHtml(step.preset)}"` : ""}>
+        ${escapeHtml(step.action || "Open")}
+      </button>
+    </article>
   `;
 }
 
@@ -14347,7 +19380,7 @@ function renderRoleProfileActions(actions = []) {
   return `
     <div class="workspace-role-profile-actions" data-role-profile-actions="${escapeHtml(String(visibleActions.length))}">
       ${visibleActions.map((action) => `
-        <button class="workspace-quick-action" type="button" data-section="${escapeHtml(action.section)}" data-profile-action-section="${escapeHtml(action.section)}">
+        <button class="workspace-quick-action" type="button" data-section="${escapeHtml(action.section)}" ${action.preset ? `data-section-preset="${escapeHtml(action.preset)}"` : ""} data-profile-action-section="${escapeHtml(action.section)}">
           <strong>${escapeHtml(action.label || "Open section")}</strong>
           <span>${escapeHtml(action.detail || "Open this workspace section.")}</span>
         </button>
@@ -14393,23 +19426,23 @@ function canUseSitePrograms(roles) {
 }
 
 function hasSiteDashboardRole(roles) {
-  return ["platform_admin", "global_admin", "admin", "org_admin", "site_admin", "administration"].some((role) => roles.has(role));
+  return ["platform_admin", "global_admin", "admin", "site_admin", "administration"].some((role) => roles.has(role));
 }
 
 function hasSiteStudentDirectoryRole(roles) {
-  return ["platform_admin", "global_admin", "admin", "org_admin", "site_admin", "administration", "viewer", "program_teacher"].some((role) => roles.has(role));
+  return ["platform_admin", "global_admin", "admin", "site_admin", "administration", "viewer", "program_teacher"].some((role) => roles.has(role));
 }
 
 function hasSiteReviewQueueRole(roles) {
-  return ["platform_admin", "global_admin", "admin", "org_admin", "site_admin", "program_teacher"].some((role) => roles.has(role));
+  return ["platform_admin", "global_admin", "admin", "site_admin", "program_teacher"].some((role) => roles.has(role));
 }
 
 function hasSiteMentorAssignmentRole(roles) {
-  return ["platform_admin", "global_admin", "admin", "org_admin", "site_admin", "administration", "program_teacher"].some((role) => roles.has(role));
+  return ["platform_admin", "global_admin", "admin", "site_admin", "administration", "program_teacher"].some((role) => roles.has(role));
 }
 
 function hasSiteOperationsRole(roles) {
-  return ["platform_admin", "global_admin", "admin", "org_admin", "site_admin", "administration", "program_teacher"].some((role) => roles.has(role));
+  return ["platform_admin", "global_admin", "admin", "site_admin", "administration", "program_teacher"].some((role) => roles.has(role));
 }
 
 function defaultSiteStudentFilters() {
@@ -14535,6 +19568,7 @@ function defaultStudentProofReceiptState() {
     visible: false,
     proofKind: "",
     submissionId: "",
+    requirementId: "",
     title: "",
     fileName: "",
     requirementTitle: "",
@@ -15355,7 +20389,6 @@ function primaryRoleForUser(user) {
     "global_admin",
     "platform_admin",
     "admin",
-    "org_admin",
     "site_admin",
     "administration",
     "program_teacher",
@@ -15384,7 +20417,7 @@ function assignmentScopeLabel(role) {
   const siteName = siteNameForAssignment(role);
   const tenantName = tenantNameForWorkspace();
 
-  if (roleId === "student") return "Own student workspace";
+  if (roleId === "student") return "Your project workspace";
   if (roleId === "mentor") return "Assigned students";
   if (roleId === "viewer") return "Assigned students";
   if (roleId === "misc_admin") return "Legacy readiness reporting";
@@ -15909,7 +20942,7 @@ function messageForStudentSubmissionError(error, status) {
 
 function messageForUploadError(error, status) {
   if (error === "drive_config_missing" || error === "drive_credentials_missing" || status === 503) {
-    return "We could not upload this file yet because file storage is not ready here. Try a proof link or contact your instructor.";
+    return "We could not upload this file yet because file uploads are not ready here. Try a proof link or contact your instructor.";
   }
   if (error === "missing_file") return "Choose a file before uploading.";
   if (error === "empty_file") return "The selected file is empty. Choose a file with content and try again.";
@@ -15917,7 +20950,7 @@ function messageForUploadError(error, status) {
   if (error === "blocked_file_signature") return workspaceUploadBlockedSignatureMessage();
   if (error === "unsupported_file_type") return workspaceUploadTypeMessage();
   if (error === "drive_token_exchange_failed" || error === "drive_provider_error" || error === "drive_upload_failed" || status === 502) {
-    return "The storage provider could not receive the file. Try again or contact your instructor.";
+    return "The upload service could not receive the file. Try again or contact your instructor.";
   }
   if (error === "rate_limited" || status === 429) return "Too many file uploads happened in a short time. Wait a few minutes, then try again or use a proof link.";
   if (status === 403) return "This account cannot upload for that work.";

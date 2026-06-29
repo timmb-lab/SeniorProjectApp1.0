@@ -1,7 +1,7 @@
 import type { Env } from "../../_types";
 import { getCurrentUser } from "../../_lib/auth";
 import { json } from "../../_lib/http";
-import { isAdmin } from "../../_lib/permissions";
+import { canViewAdminDashboard } from "../../_lib/permissions";
 
 interface AuditEventRow {
   id: string;
@@ -17,7 +17,7 @@ interface AuditEventRow {
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const user = await getCurrentUser(request, env);
   if (!user) return json({ error: "unauthorized" }, { status: 401 });
-  if (!await isAdmin(env, user.id)) return json({ error: "forbidden" }, { status: 403 });
+  if (!await canViewAdminDashboard(env, user)) return json({ error: "forbidden" }, { status: 403 });
 
   const url = new URL(request.url);
   const entityType = cleanFilter(url.searchParams.get("entityType"));

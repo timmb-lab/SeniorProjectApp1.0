@@ -35,7 +35,7 @@ assertMatches(
 );
 assertMatches(
   "permissions",
-  /export async function canManageMentorAssignments\([\s\S]*\["org_admin", "site_admin", "administration", "program_teacher"\]/,
+  /export async function canManageMentorAssignments\([\s\S]*\["site_admin", "administration", "program_teacher"\]/,
   "Program Teacher may manage mentor coverage through the scoped mentor-assignment path",
 );
 assertMatches(

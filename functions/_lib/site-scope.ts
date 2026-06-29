@@ -36,7 +36,7 @@ export async function resolveSiteSelection({
   context,
   requestedSiteId,
   canViewSite,
-  defaultSiteRoleIds = ["platform_admin", "global_admin", "admin", "org_admin"],
+  defaultSiteRoleIds = ["platform_admin", "global_admin", "admin"],
 }: {
   env: Env;
   user: UserAccount;
@@ -130,7 +130,6 @@ export function isReadOnlyViewer(roleIds: RoleId[]): boolean {
     roleId === "platform_admin"
     || roleId === "admin"
     || roleId === "global_admin"
-    || roleId === "org_admin"
     || roleId === "site_admin"
     || roleId === "administration"
     || roleId === "program_teacher"

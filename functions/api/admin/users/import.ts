@@ -555,7 +555,7 @@ async function auditRejected(
 function cleanRoleId(value: string): RoleId | null {
   const trimmed = value.trim();
   if (trimmed === "admin" || trimmed === "platform_admin") return "global_admin";
-  if (trimmed === "misc_admin" || trimmed === "org_admin") return null;
+  if (trimmed === "misc_admin") return null;
   return [
     "student",
     "mentor",

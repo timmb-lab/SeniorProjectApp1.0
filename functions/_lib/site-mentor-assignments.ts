@@ -144,7 +144,7 @@ export async function handleSiteMentorAssignmentsGet({
     context,
     requestedSiteId,
     canViewSite: (siteId) => canViewMentorAssignments(env, user, siteId),
-    defaultSiteRoleIds: ["platform_admin", "global_admin", "admin", "org_admin", "administration", "program_teacher"],
+    defaultSiteRoleIds: ["platform_admin", "global_admin", "admin", "administration", "program_teacher"],
   });
 
   if (selection.kind === "denied") {
@@ -256,7 +256,7 @@ export async function handleSiteMentorAssignmentsPost({
     context,
     requestedSiteId,
     canViewSite: (siteId) => canManageMentorAssignments(env, user, siteId),
-    defaultSiteRoleIds: ["platform_admin", "global_admin", "admin", "org_admin", "site_admin", "administration", "program_teacher"],
+    defaultSiteRoleIds: ["platform_admin", "global_admin", "admin", "site_admin", "administration", "program_teacher"],
   });
 
   if (selection.kind === "denied") {
@@ -378,7 +378,6 @@ function canUseMentorAssignmentRole(roleIds: RoleId[]): boolean {
     roleId === "platform_admin"
     || roleId === "admin"
     || roleId === "global_admin"
-    || roleId === "org_admin"
     || roleId === "site_admin"
     || roleId === "administration"
     || roleId === "program_teacher"

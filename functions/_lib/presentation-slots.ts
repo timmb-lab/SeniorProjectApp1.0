@@ -1,7 +1,7 @@
 import type { Env, UserAccount } from "../_types.ts";
 import { getCurrentUser, writeAudit } from "./auth.ts";
 import { json, requirePost } from "./http.ts";
-import { canAccessStudent, hasRole, isAdmin } from "./permissions.ts";
+import { canAccessStudent, hasAnyRole, hasRole, isAdmin } from "./permissions.ts";
 import { workflowError } from "./workflow.ts";
 
 type PresentationSlotTransition = "check_out" | "check_in";
@@ -163,9 +163,14 @@ async function authorizeSlotManager(
   deniedAction: string,
   transition: PresentationSlotTransition,
 ): Promise<Response | null> {
-  const admin = await isAdmin(env, user.id);
-  const teacher = await hasRole(env, user.id, "program_teacher");
-  if (!admin && !teacher) {
+  const legacyAdmin = await isAdmin(env, user.id);
+  const presentationManager = legacyAdmin || await hasAnyRole(env, user.id, [
+    "global_admin",
+    "platform_admin",
+    "site_admin",
+    "program_teacher",
+  ]);
+  if (!presentationManager) {
     await writeAudit(env, {
       actorUserId: user.id,
       action: deniedAction,

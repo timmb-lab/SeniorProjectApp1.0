@@ -16,7 +16,7 @@ import { RemoteWranglerD1Adapter } from "./seed-remote-demo-workspace.mjs";
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(SCRIPT_DIR, "..");
 const REQUIRED_0011_TABLES = Object.freeze(["sites", "site_users", "site_programs"]);
-const REQUIRED_0011_ROLES = Object.freeze(["platform_admin", "org_admin", "site_admin", "viewer"]);
+const REQUIRED_0011_ROLES = Object.freeze(["platform_admin", "site_admin", "viewer"]);
 const BLOCKED_MISSING_0011 = "HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011";
 const BLOCKED_REMOTE_SEED = "HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING";
 const BLOCKED_READ_ACCESS = "HOSTED_PROOF_BLOCKED_REMOTE_D1_READ_ACCESS_REQUIRED";
@@ -257,7 +257,7 @@ async function readRemoteDemoSeedSummary(adapter, schema) {
      FROM user_accounts u
      JOIN user_roles r ON r.user_id = u.id
      WHERE u.email_norm LIKE ${sqlString(`%@${STAFF_DOMAIN}`)}
-       AND r.role_id IN ('admin', 'platform_admin', 'org_admin', 'site_admin', 'viewer', 'program_teacher', 'mentor');`,
+       AND r.role_id IN ('admin', 'platform_admin', 'site_admin', 'viewer', 'program_teacher', 'mentor');`,
     `SELECT COUNT(*) AS count FROM sites WHERE tenant_id = ${sqlString(DEMO_TENANT_ID)} AND status = 'active';`,
     `SELECT COUNT(DISTINCT su.user_id) AS count
      FROM site_users su

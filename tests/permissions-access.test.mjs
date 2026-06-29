@@ -101,7 +101,6 @@ test("role hierarchy helpers expose primary context and protected dashboard acce
   assert.equal(platformContext.isPlatformAdmin, true);
   assert.equal(await canViewAdminDashboard(env, users.platformAdmin), true);
 
-  assert.equal((await getViewerRoleContext(env, users.orgAdmin)).primaryRole, "org_admin");
   assert.equal((await getViewerRoleContext(env, users.siteAdmin)).primaryRole, "site_admin");
   assert.equal((await getViewerRoleContext(env, users.viewer)).primaryRole, "viewer");
 
@@ -142,7 +141,6 @@ function createFixture() {
     { user_id: "student-cohort-only", role_id: "student", scope_type: "global", scope_id: "" },
     { user_id: "platform-admin", role_id: "platform_admin", scope_type: "global", scope_id: "" },
     { user_id: "admin", role_id: "admin", scope_type: "global", scope_id: "" },
-    { user_id: "org-admin", role_id: "org_admin", scope_type: "global", scope_id: "" },
     { user_id: "site-admin", role_id: "site_admin", scope_type: "site", scope_id: "site-a" },
     { user_id: "viewer", role_id: "viewer", scope_type: "global", scope_id: "" },
     { user_id: "misc-admin", role_id: "misc_admin", scope_type: "global", scope_id: "" },
@@ -189,7 +187,6 @@ function createFixture() {
     studentCohortOnly: buildUser("student-cohort-only"),
     platformAdmin: buildUser("platform-admin"),
     admin: buildUser("admin"),
-    orgAdmin: buildUser("org-admin"),
     siteAdmin: buildUser("site-admin"),
     viewer: buildUser("viewer"),
     miscAdmin: buildUser("misc-admin"),

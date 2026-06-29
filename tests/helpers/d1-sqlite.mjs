@@ -21,6 +21,7 @@ export function foundationMigrations() {
     "migrations/0011_multisite_site_role_foundation.sql",
     "migrations/0012_users_access_v5.sql",
     "migrations/0014_local_only_empty_test_schools.sql",
+    "migrations/0015_remove_org_admin_role.sql",
   ];
 }
 

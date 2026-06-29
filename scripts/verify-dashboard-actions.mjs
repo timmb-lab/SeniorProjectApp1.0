@@ -48,6 +48,7 @@ for (const key of ["workspaceHtml", "workspaceJs"]) scanForbiddenText(key);
 const allowedSections = new Set([
   "overview",
   "siteDashboard",
+  "programs",
   "students",
   "student",
   "archive",
@@ -80,6 +81,7 @@ const allowedPresets = new Map([
   ["all-students", "students"],
   ["on-track-students", "students"],
   ["behind-students", "students"],
+  ["mentor-meeting-follow-up-students", "students"],
   ["missing-mentors", "students"],
   ["missing-evidence-students", "students"],
   ["needs-review-students", "students"],
@@ -138,12 +140,96 @@ for (const [preset, section] of allowedPresets) {
   if (!source.workspaceJs.includes(`data-section-preset="${preset}"`) && !source.workspaceJs.includes(`preset: "${preset}"`)) {
     continue;
   }
+  if (section === "archiveExports" || section === "presentation") {
+    continue;
+  }
   assertIncludes(
     "workspaceJs",
     `section === "${section}" && button.dataset.sectionPreset === "${preset}"`,
     `preset "${preset}" must be handled by openWorkspaceSection()`,
   );
 }
+
+assertMatches(
+  "workspaceJs",
+  /function screenOrientationActionsFor\([\s\S]*screenOrientationActionCandidates\([\s\S]*allowedIds\.has\(action\.section\)[\s\S]*slice\(0, 3\)/,
+  "screen orientation suggestions must filter to available workspace sections and stay compact",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderScreenOrientationAction\(action, index\)[\s\S]*data-screen-orientation-action="true"[\s\S]*data-section="\$\{escapeHtml\(action\.section\)\}"/,
+  "screen orientation suggestions must render real workspace section actions",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderScreenLanguageGuide\(sectionId = activeSection[\s\S]*Words on this screen[\s\S]*plain-language terms/,
+  "screen language guide must render plain-language terminology support",
+);
+assertMatches(
+  "workspaceJs",
+  /function screenLanguageTermsFor\(sectionId = "overview"[\s\S]*Proof[\s\S]*Program Teacher approval[\s\S]*Setup password[\s\S]*Protected record/,
+  "screen language terms must cover student proof, review gates, account setup, and protected records",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderScreenActionImpactGuide\(sectionId = activeSection[\s\S]*What clicks do here[\s\S]*click effects/,
+  "screen action-impact guide must render click-effect terminology support",
+);
+assertMatches(
+  "workspaceJs",
+  /function screenActionImpactsFor\(sectionId = "overview"[\s\S]*Proof links or uploads are saved to the selected work item[\s\S]*The decision form records the Program Teacher outcome[\s\S]*Account creation and import forms save users, roles, and school, program, or student access/,
+  "screen action-impact terms must distinguish safe navigation from saved proof, review, and account changes",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderScreenVisibilityGuide\(sectionId = activeSection[\s\S]*Who can see this[\s\S]*visibility notes/,
+  "screen visibility guide must render privacy and audience support",
+);
+assertMatches(
+  "workspaceJs",
+  /function screenVisibilityNotesFor\(sectionId = "overview"[\s\S]*Proof you add is visible to you and staff who are allowed to review or support that work[\s\S]*Temporary setup passwords are sensitive handoffs[\s\S]*Rows hide private student, proof, account, and file details/,
+  "screen visibility terms must cover proof visibility, setup password handoff, and redacted audit rows",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderScreenStartGuide\(sectionId = activeSection[\s\S]*Before you start[\s\S]*start checks/,
+  "screen start guide must render before-you-start support",
+);
+assertMatches(
+  "workspaceJs",
+  /function screenStartRequirementsFor\(sectionId = "overview"[\s\S]*Have the proof link or file ready before adding proof or sending work for review[\s\S]*Have the setup handoff and admin note ready[\s\S]*Set action, person, or record filters before investigating the log/,
+  "screen start requirements must cover student proof readiness, account setup preparation, and audit filters",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderScreenDoneGuide\(sectionId = activeSection[\s\S]*How you know you're done[\s\S]*done signals/,
+  "screen done guide must render completion-signal support",
+);
+assertMatches(
+  "workspaceJs",
+  /function screenDoneSignalsFor\(sectionId = "overview"[\s\S]*The checklist row shows the new proof count, waiting review state, revision message, or approval status[\s\S]*Current access shows the intended person, role, and school, program, cohort, or student[\s\S]*Filters point to the action, person, or record pattern you needed to investigate/,
+  "screen done signals must cover student status, account access rows, and audit investigations",
+);
+assertMatches(
+  "workspaceJs",
+  /siteDashboard: \[[\s\S]*label: "Find missing mentors", section: "students", preset: "missing-mentors"[\s\S]*label: "Review submitted work", section: "teacher", preset: "submitted"[\s\S]*label: "Review final-file failures", section: "operations", preset: "archive-failed"/,
+  "Site Dashboard orientation suggestions must use existing Student Directory, Review Queue, and Operations filters",
+);
+assertMatches(
+  "workspaceJs",
+  /teacher: \[[\s\S]*label: "Needs review", section: "teacher", preset: "submitted"[\s\S]*label: "Revision follow-up", section: "teacher", preset: "revision-requested"[\s\S]*label: "Proof attached", section: "teacher", preset: "evidence-attached-review"/,
+  "Review Queue orientation suggestions must use existing Review Queue filters",
+);
+assertMatches(
+  "workspaceJs",
+  /operations: \[[\s\S]*label: "Presentation follow-up", section: "operations", preset: "presentation-pending"[\s\S]*label: "Final-file failures", section: "operations", preset: "archive-failed"[\s\S]*label: "Missing proof", section: "operations", preset: "evidence-missing"/,
+  "Operations orientation suggestions must use existing Operations filters",
+);
+assertMatches(
+  "workspaceJs",
+  /audit: \[[\s\S]*label: "Student dashboard activity", section: "audit", auditAction: "student_dashboard_viewed", auditEntityType: "student_dashboard"[\s\S]*label: "Review queue activity", section: "audit", auditAction: "review_queue_viewed", auditEntityType: "review_queue"/,
+  "Audit orientation suggestions must use the existing filtered audit route",
+);
 
 assertIncludes("workspaceJs", "function siteStudentQueryString()", "Student Directory query helper must exist");
 assertIncludes("workspaceJs", "function syncSiteStudentUrlState", "Student Directory filtered actions must sync shareable URL state");
@@ -710,7 +796,7 @@ assertMatches(
 );
 
 assertMatches("workspaceJs", /function renderReadOnlyBanner\(\)[\s\S]*Read-only workspace/, "viewer read-only banner must remain visible");
-assertMatches("workspaceJs", /data-review-queue-read-only="true"[\s\S]*No teacher decision available for this row/, "read-only review queue must not expose mutation actions as available");
+assertMatches("workspaceJs", /data-review-queue-read-only="true"[\s\S]*No Program Teacher decision available for this row/, "read-only review queue must not expose mutation actions as available");
 assertMatches("workspaceJs", /data-mentor-assignment-controls-hidden="true"[\s\S]*Assignment changes unavailable/, "read-only mentor coverage must hide assignment controls");
 assertMatches("workspaceJs", /data-operations-read-only="true"[\s\S]*Read-only operations worklists/, "operations read-only state must remain explicit");
 

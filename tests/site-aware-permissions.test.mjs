@@ -35,13 +35,11 @@ import {
   getMentorAssignedStudentIds,
   getRoleScopeSummary,
   getSiteMemberships,
-  getTenantMemberships,
   hasAnyRole,
   isAdmin,
   isLegacyAdmin,
   isMentor,
   isMiscAdmin,
-  isOrgAdmin,
   isPlatformAdmin,
   isProgramTeacher,
   isSiteAdmin,
@@ -75,30 +73,6 @@ test("platform admin and legacy admin remain platform-capable while legacy admin
   assert.deepEqual(await getAccessibleTenantIds(env, users.platformAdmin), ["tenant-a", "tenant-b", "tenant-capstone-sandbox"]);
   assert.equal(await canAccessTenant(env, users.platformAdmin, "missing-tenant"), false);
   assert.equal(await canAccessSite(env, users.platformAdmin, "missing-site"), false);
-});
-
-test("org admin gets assigned tenant and site visibility without platform security powers", async () => {
-  const { env, users } = await createSitePermissionFixture();
-
-  assert.equal(await isOrgAdmin(env, users.orgAdminA.id), true);
-  assert.equal(await isPlatformAdmin(env, users.orgAdminA.id), false);
-  assert.deepEqual((await getTenantMemberships(env, users.orgAdminA.id)).map((row) => ({ ...row })), [
-    { tenant_id: "tenant-a", user_id: users.orgAdminA.id, membership_status: "active" },
-  ]);
-  assert.deepEqual(await getAccessibleTenantIds(env, users.orgAdminA), ["tenant-a"]);
-  assert.deepEqual(await getAccessibleSiteIds(env, users.orgAdminA), ["site-a1", "site-a2"]);
-
-  assert.equal(await canAccessTenant(env, users.orgAdminA, "tenant-a"), true);
-  assert.equal(await canAccessTenant(env, users.orgAdminA, "tenant-b"), false);
-  assert.equal(await canViewOrgDashboard(env, users.orgAdminA, "tenant-a"), true);
-  assert.equal(await canViewSiteDashboard(env, users.orgAdminA, "site-a1"), true);
-  assert.equal(await canViewSiteStudentDetail(env, users.orgAdminA, "student-a1", "site-a1"), true);
-  assert.equal(await canViewSiteStudentDetail(env, users.orgAdminA, "student-b1", "site-b1"), false);
-  assert.equal(await canManageSites(env, users.orgAdminA, "tenant-a"), true);
-  assert.equal(await canManageSites(env, users.orgAdminA, "tenant-b"), false);
-  assert.equal(await canManageSecurity(env, users.orgAdminA), false);
-  assert.equal(await canManageUsers(env, users.orgAdminA), false);
-  assert.equal(await canViewPlatformAdmin(env, users.orgAdminA), false);
 });
 
 test("site admin gets assigned site operations without becoming platform or user security admin", async () => {
@@ -222,7 +196,6 @@ test("misc admin remains narrow and default-deny rules reject bad scopes and unk
   assert.equal(await canViewSiteDashboard(env, users.unknownRole, "site-a1"), false);
   assert.equal(await canAccessTenant(env, users.platformAdmin, ""), false);
   assert.equal(await canAccessSite(env, users.platformAdmin, ""), false);
-  assert.equal(await canAccessTenant(env, users.orgAdminInvalid, "missing-tenant"), false);
   assert.equal(await canViewSiteDashboard(env, users.siteAdminNoSite, "site-a1"), false);
   assert.equal(await canViewStudentDirectory(env, users.teacherEmpty, "site-a1"), false);
 
@@ -278,8 +251,6 @@ async function createSitePermissionFixture() {
 
   await seedUser(db, { id: "platform-admin-user", roleId: "platform_admin" });
   await seedUser(db, { id: "legacy-admin-user", roleId: "admin" });
-  await seedUser(db, { id: "org-admin-a", roleId: "org_admin", scopeType: "tenant", scopeId: "tenant-a" });
-  await seedUser(db, { id: "org-admin-invalid", roleId: "org_admin", scopeType: "tenant", scopeId: "" });
   await seedUser(db, { id: "site-admin-a1", roleId: "site_admin" });
   await seedUser(db, { id: "site-admin-no-site", roleId: "site_admin" });
   await seedUser(db, { id: "viewer-a1", roleId: "viewer" });
@@ -295,7 +266,6 @@ async function createSitePermissionFixture() {
   await db.prepare("INSERT INTO roles (id, label, description) VALUES ('unexpected_role', 'Unexpected Role', 'Unknown role fixture')").run();
   await db.prepare("INSERT INTO user_roles (user_id, role_id, scope_type, scope_id) VALUES ('unknown-role', 'unexpected_role', 'global', '')").run();
 
-  await db.prepare("INSERT INTO tenant_users (tenant_id, user_id) VALUES ('tenant-a', 'org-admin-a')").run();
   await db.prepare(
     `INSERT INTO site_users (site_id, user_id)
      VALUES
@@ -329,8 +299,6 @@ async function createSitePermissionFixture() {
   const users = Object.fromEntries([
     "platformAdmin",
     "legacyAdmin",
-    "orgAdminA",
-    "orgAdminInvalid",
     "siteAdminA1",
     "siteAdminNoSite",
     "viewerA1",
@@ -353,8 +321,6 @@ function idForKey(key) {
     .replace(/^-/, "")
     .replace("platform-admin", "platform-admin-user")
     .replace("legacy-admin", "legacy-admin-user")
-    .replace("org-admin-a", "org-admin-a")
-    .replace("org-admin-invalid", "org-admin-invalid")
     .replace("site-admin-a1", "site-admin-a1")
     .replace("site-admin-no-site", "site-admin-no-site")
     .replace("viewer-a1", "viewer-a1")

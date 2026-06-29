@@ -3,7 +3,7 @@ import { buildStudentArchiveManifest, uploadStudentArchiveDrivePackage, verifyAr
 import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
 import { randomId } from "../../../_lib/crypto.ts";
 import { badRequest, json, readJson, requirePost } from "../../../_lib/http.ts";
-import { isAdmin } from "../../../_lib/permissions.ts";
+import { canViewAdminDashboard } from "../../../_lib/permissions.ts";
 import { cleanWorkflowText, workflowError } from "../../../_lib/workflow.ts";
 
 interface StudentArchiveBody {
@@ -27,7 +27,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     });
     return workflowError("unauthorized", 401);
   }
-  if (!await isAdmin(env, user.id)) {
+  if (!await canViewAdminDashboard(env, user)) {
     await writeAudit(env, {
       actorUserId: user.id,
       action: "student_archive_export_denied",

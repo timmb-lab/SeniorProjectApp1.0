@@ -231,7 +231,6 @@ function canUseSiteDashboardRole(roleIds: RoleId[]): boolean {
     roleId === "platform_admin"
     || roleId === "global_admin"
     || roleId === "admin"
-    || roleId === "org_admin"
     || roleId === "site_admin"
     || roleId === "administration"
   ));

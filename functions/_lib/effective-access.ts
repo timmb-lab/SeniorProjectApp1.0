@@ -25,7 +25,6 @@ export const ROLE_DISPLAY_LABELS: Record<string, string> = {
   global_admin: "Global Admin",
   admin: "Global Admin",
   platform_admin: "Global Admin",
-  org_admin: "Organization Admin",
   misc_admin: "Legacy Reporting Admin",
 };
 
@@ -63,7 +62,6 @@ export function canonicalRoleId(roleId: string): RoleId | null {
     "administration",
     "site_admin",
     "global_admin",
-    "org_admin",
   ].includes(roleId)) {
     return roleId as RoleId;
   }
@@ -238,9 +236,6 @@ async function effectiveSiteIds(
   for (const role of roles) {
     if ((role.role_id === "site_admin" || role.role_id === "administration") && role.scope_type === "site") {
       if (await activeSiteExists(env, role.scope_id)) output.add(role.scope_id);
-    }
-    if (role.role_id === "org_admin" && ["tenant", "org"].includes(role.scope_type)) {
-      for (const siteId of await activeSiteIdsForTenant(env, role.scope_id)) output.add(siteId);
     }
     if (role.role_id === "viewer" && role.scope_type === "site") {
       if (await activeSiteExists(env, role.scope_id)) output.add(role.scope_id);
@@ -431,7 +426,6 @@ function primaryRoleFor(canonicalRoleIds: RoleId[], rawRoleIds: RoleId[]): RoleI
   for (const roleId of V5_ROLE_ORDER) {
     if (canonicalRoleIds.includes(roleId)) return roleId;
   }
-  if (rawRoleIds.includes("org_admin")) return "org_admin";
   return "role_pending";
 }
 

@@ -1,7 +1,7 @@
 import type { Env } from "../../_types.ts";
 import { getCurrentUser, writeAudit } from "../../_lib/auth.ts";
 import { json } from "../../_lib/http.ts";
-import { hasRole, isAdmin } from "../../_lib/permissions.ts";
+import { canViewAggregateReadiness, isAdministration, isGlobalAdmin, isMiscAdmin, isSiteAdmin } from "../../_lib/permissions.ts";
 
 interface CountRow {
   count: number;
@@ -11,9 +11,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const user = await getCurrentUser(request, env);
   if (!user) return json({ error: "unauthorized" }, { status: 401 });
 
-  const admin = await isAdmin(env, user.id);
-  const miscAdmin = await hasRole(env, user.id, "misc_admin");
-  if (!admin && !miscAdmin) return json({ error: "forbidden" }, { status: 403 });
+  if (!await canViewAggregateReadiness(env, user)) return json({ error: "forbidden" }, { status: 403 });
 
   const [submitted, revisionRequested, approved, evidence, exportsQueued] = await Promise.all([
     count(env, "SELECT COUNT(*) AS count FROM submissions WHERE status = 'submitted'"),
@@ -23,13 +21,20 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     count(env, "SELECT COUNT(*) AS count FROM exports WHERE status = 'queued'"),
   ]);
 
+  const [globalAdmin, siteAdmin, administration, miscAdmin] = await Promise.all([
+    isGlobalAdmin(env, user.id),
+    isSiteAdmin(env, user.id),
+    isAdministration(env, user.id),
+    isMiscAdmin(env, user.id),
+  ]);
+
   await writeAudit(env, {
     actorUserId: user.id,
     action: "readiness_report_viewed",
     entityType: "readiness_report",
     entityId: "test-account-mvp",
     request,
-    metadata: { admin, miscAdmin },
+    metadata: { globalAdmin, siteAdmin, administration, miscAdmin },
   });
 
   return json({

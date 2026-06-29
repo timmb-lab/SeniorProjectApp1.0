@@ -637,7 +637,6 @@ function canUseDetailRole(roleIds: RoleId[]): boolean {
     roleId === "platform_admin"
     || roleId === "global_admin"
     || roleId === "admin"
-    || roleId === "org_admin"
     || roleId === "site_admin"
     || roleId === "administration"
     || roleId === "viewer"
@@ -1655,7 +1654,7 @@ async function loadArchiveRows(env: Env, studentId: string, limit: number): Prom
 }
 
 function visibilityPolicyFor(roleIds: RoleId[]): VisibilityPolicy {
-  if (roleIds.includes("mentor") && !roleIds.some((roleId) => ["platform_admin", "admin", "org_admin", "site_admin", "viewer", "program_teacher"].includes(roleId))) {
+  if (roleIds.includes("mentor") && !roleIds.some((roleId) => ["platform_admin", "admin", "site_admin", "viewer", "program_teacher"].includes(roleId))) {
     return {
       mode: "mentor_support",
       includeStaffOnlyComments: false,

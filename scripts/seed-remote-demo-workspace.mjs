@@ -548,9 +548,6 @@ function hostedImportScope(account) {
     const scopeId = String(account.scope || "").replace(/^program:/, "");
     return { scopeType: "program", scopeId };
   }
-  if (account.role === "org_admin" && String(account.scope || "").startsWith("tenant:")) {
-    return { scopeType: "tenant", scopeId: String(account.scope || "").replace(/^tenant:/, "") };
-  }
   if ((account.role === "site_admin" || account.role === "viewer") && String(account.scope || "").startsWith("site:")) {
     return { scopeType: "site", scopeId: String(account.scope || "").replace(/^site:/, "") };
   }

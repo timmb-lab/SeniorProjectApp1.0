@@ -179,6 +179,33 @@ test("presentation slots enforce scoped visibility, conflict checks, and audit e
     assert.equal(fixture.db.data.auditEvents.at(-1).action, "presentation_slot_scheduled");
   }
 
+  // Global admin-family day-of controls match the Presentation screen management UI.
+  {
+    const checkOutResponse = await onPresentationSlotCheckOutPost({
+      request: buildAuthedRequest(`https://example.test/api/presentation-slots/${teacherSlotId}/check-out`, fixture.globalAdminToken, {
+        method: "POST",
+      }),
+      env: fixture.env,
+      params: { id: teacherSlotId },
+    });
+    assert.equal(checkOutResponse.status, 200);
+    const checkOutBody = await checkOutResponse.json();
+    assert.equal(checkOutBody.slot.status, "checked_out");
+    assert.equal(fixture.db.data.auditEvents.at(-1).action, "presentation_slot_checked_out");
+
+    const checkInResponse = await onPresentationSlotCheckInPost({
+      request: buildAuthedRequest(`https://example.test/api/presentation-slots/${teacherSlotId}/check-in`, fixture.globalAdminToken, {
+        method: "POST",
+      }),
+      env: fixture.env,
+      params: { id: teacherSlotId },
+    });
+    assert.equal(checkInResponse.status, 200);
+    const checkInBody = await checkInResponse.json();
+    assert.equal(checkInBody.slot.status, "checked_in");
+    assert.equal(fixture.db.data.auditEvents.at(-1).action, "presentation_slot_checked_in");
+  }
+
   // Check-out requires auth.
   {
     const response = await onPresentationSlotCheckOutPost({
@@ -336,6 +363,7 @@ async function createFixture() {
   };
 
   db.data.userAccounts.push(buildUser("admin-a", "Admin A"));
+  db.data.userAccounts.push(buildUser("global-admin-a", "Global Admin A"));
   db.data.userAccounts.push(buildUser("teacher-a", "Teacher A"));
   db.data.userAccounts.push(buildUser("teacher-empty", "Teacher Empty"));
   db.data.userAccounts.push(buildUser("mentor-a", "Mentor A"));
@@ -344,6 +372,7 @@ async function createFixture() {
   db.data.userAccounts.push(buildUser("student-b", "Student B"));
 
   db.data.userRoles.push({ user_id: "admin-a", role_id: "admin", scope_type: "global", scope_id: "" });
+  db.data.userRoles.push({ user_id: "global-admin-a", role_id: "global_admin", scope_type: "global", scope_id: "" });
   db.data.userRoles.push({ user_id: "teacher-a", role_id: "program_teacher", scope_type: "program", scope_id: "it" });
   db.data.userRoles.push({ user_id: "teacher-empty", role_id: "program_teacher", scope_type: "program", scope_id: "" });
   db.data.userRoles.push({ user_id: "mentor-a", role_id: "mentor", scope_type: "global", scope_id: "" });
@@ -393,6 +422,7 @@ async function createFixture() {
   }));
 
   const adminToken = "token-admin-a";
+  const globalAdminToken = "token-global-admin-a";
   const teacherToken = "token-teacher-a";
   const teacherEmptyToken = "token-teacher-empty";
   const mentorToken = "token-mentor-a";
@@ -402,6 +432,7 @@ async function createFixture() {
 
   for (const [userId, token] of [
     ["admin-a", adminToken],
+    ["global-admin-a", globalAdminToken],
     ["teacher-a", teacherToken],
     ["teacher-empty", teacherEmptyToken],
     ["mentor-a", mentorToken],
@@ -422,6 +453,7 @@ async function createFixture() {
     env,
     db,
     adminToken,
+    globalAdminToken,
     teacherToken,
     teacherEmptyToken,
     mentorToken,

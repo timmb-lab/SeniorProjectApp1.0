@@ -304,8 +304,9 @@ test("site operations readiness route is site-scoped, read-only, bounded, and re
   assert.doesNotMatch(siteOperationsReadinessLib, /CREATE USER|password_credentials|temporaryPassword|setupPassword|drive_file_id|drive_parent_folder_id|storage_key|password_hash|password_salt|token_hash|client_secret|refresh_token|access_token|private_key|content_sha256|body_json/i);
 });
 
-test("admin audit endpoint is admin-only and redacts sensitive metadata", () => {
-  assert.match(auditEventsRoute, /isAdmin/);
+test("admin audit endpoint is global-admin gated and redacts sensitive metadata", () => {
+  assert.match(auditEventsRoute, /canViewAdminDashboard/);
+  assert.doesNotMatch(auditEventsRoute, /isAdmin/);
   assert.match(auditEventsRoute, /FROM audit_events/);
   assert.match(auditEventsRoute, /redactMetadata/);
   assert.match(auditEventsRoute, /\[redacted\]/);
@@ -329,7 +330,8 @@ test("announcement routes and seed creation are removed from active MVP surfaces
 });
 
 test("archive export endpoints generate scoped manifest artifacts and expiry states", () => {
-  assert.match(archiveQueueRoute, /isAdmin/);
+  assert.match(archiveQueueRoute, /canViewAdminDashboard/);
+  assert.doesNotMatch(archiveQueueRoute, /isAdmin/);
   assert.match(archiveQueueRoute, /INSERT INTO exports/);
   assert.match(archiveQueueRoute, /buildStudentArchiveManifest/);
   assert.match(archiveQueueRoute, /INSERT INTO export_artifacts/);
@@ -374,7 +376,11 @@ test("mentor and misc-admin reporting endpoints stay scoped and aggregate-only",
   assert.match(mentorAssignedRoute, /hasRole\(env, user\.id, "mentor"\)/);
   assert.match(mentorAssignedRoute, /mentor_assignments/);
   assert.match(mentorAssignedRoute, /assignedStudents/);
-  assert.match(readinessRoute, /hasRole\(env, user\.id, "misc_admin"\)/);
+  assert.match(readinessRoute, /canViewAggregateReadiness/);
+  assert.match(readinessRoute, /globalAdmin/);
+  assert.match(readinessRoute, /siteAdmin/);
+  assert.match(readinessRoute, /administration/);
+  assert.match(readinessRoute, /miscAdmin/);
   assert.match(readinessRoute, /aggregate_only/);
   assert.match(readinessRoute, /readiness_report_viewed/);
   assert.doesNotMatch(readinessRoute, /student_name|display_name|email/);

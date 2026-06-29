@@ -313,9 +313,11 @@ async function verifyRole(baseUrl, roleId, account, context = {}) {
     expectBody(assignments?.permissions?.canAssignViewers === true, "site admin viewer assignment permission", { roleId, siteId });
     expectBody(assignments?.permissions?.canAssignSiteAdmins === false, "site admin site-admin assignment denial", { roleId, siteId });
     expectBody(assignments?.permissions?.canCreateGlobalAdmin === false, "site admin global-admin creation denial", { roleId, siteId });
-    await expectJson(client, "/api/reports/readiness", 403, "site admin aggregate readiness denial");
+    const readiness = await expectJson(client, "/api/reports/readiness", 200, "site admin aggregate readiness report");
+    expectBody(readiness?.scope === "aggregate_only", "site admin aggregate readiness report", { roleId, siteId });
     await expectJson(client, "/api/presentation-slots", 200, "site admin presentation slots");
     checks.push({ name: "site_admin_site_operations", status: "passed" });
+    checks.push({ name: "site_admin_readiness_dashboard", status: "passed" });
     checks.push({ name: "site_admin_privilege_boundary", status: "passed" });
   }
 
