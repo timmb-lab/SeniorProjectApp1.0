@@ -74,7 +74,8 @@ test("runbook covers required demo flow, claims, caveats, and proof matrix", () 
   }
 
   assert.match(runbook, /Fake-data demo only/);
-  assert.match(runbook, /Hosted fake-data API proof ready|hosted API\/data proof is ready/i);
+  assert.match(runbook, /Hosted fake-account pilot proof ready/i);
+  assert.match(runbook, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING|missing remote demo seed data/i);
   assert.match(runbook, /No announcements\/student messaging/i);
   assert.match(runbook, /Do not show `.secrets`|Do not show During Demo/i);
   assert.match(runbook, /post-demo follow-up/i);
@@ -86,7 +87,8 @@ test("administrator-facing docs include required safe answers and flows", () => 
   assert.match(script, /7-Minute Quick Demo/);
   assert.match(script, /15-Minute Deeper Demo/);
   assert.match(script, /Rich Timeline Demo/);
-  assert.match(script, /Hosted fake-data API proof is ready|Hosted browser proof is pending/i);
+  assert.match(script, /hosted fake-account browser screenshots/i);
+  assert.match(script, /missing remote demo seed data/i);
   assert.match(script, /not a FERPA certification/i);
 
   const faq = docs["docs/sales/admin-faq.md"];
@@ -111,7 +113,8 @@ test("administrator-facing docs include required safe answers and flows", () => 
   }
   assert.match(faq, /No\. Fake-data demo only/);
   assert.match(faq, /not a FERPA certification/i);
-  assert.match(faq, /Hosted fake-data API\/data proof is also ready/i);
+  assert.match(faq, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
+  assert.match(faq, /hosted fake-account browser screenshots/i);
 });
 
 test("technical proof and hosted plan map screens to routes and blockers", () => {
@@ -140,14 +143,15 @@ test("technical proof and hosted plan map screens to routes and blockers", () =>
   }
 
   const hosted = docs["docs/sales/hosted-proof-plan.md"];
-  assert.match(hosted, /Hosted fake-data proof is ready at the data\/API gate/i);
+  assert.match(hosted, /Hosted fake-account pilot proof is green/i);
   assert.match(hosted, /0011_multisite_site_role_foundation\.sql/);
   assert.match(hosted, /sites/);
   assert.match(hosted, /site_users/);
   assert.match(hosted, /site_programs/);
   assert.match(hosted, /HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011/);
-  assert.match(hosted, /HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING/);
-  assert.match(hosted, /HOSTED_BROWSER_PROOF_READY_WITH_CAVEATS/);
+  assert.match(hosted, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
+  assert.match(hosted, /HOSTED_FAKE_ACCOUNT_PILOT_GREEN/);
+  assert.match(hosted, /GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF/);
   assert.match(hosted, /SCREENSHOTS_GENERATED_SAFE/);
   assert.match(hosted, /No additional remote migrations/);
   assert.match(hosted, /No remote seed\/reset writes/);
@@ -157,8 +161,9 @@ test("sales docs avoid overclaims, secret-like values, and screenshot proof clai
   assert.match(combinedSalesDocs, /fake data|fake-data/i);
   assert.match(combinedSalesDocs, /not a FERPA certification|not claiming FERPA/i);
   assert.match(combinedSalesDocs, /not claiming production pilot readiness|not a hosted pilot claim|No-go/i);
-  assert.match(combinedSalesDocs, /HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING|Hosted fake-data API proof ready/i);
-  assert.match(docs["docs/sales/demo-screenshot-checklist.md"], /Phase 14 generated a hosted fake-data screenshot set with caveats/);
+  assert.match(combinedSalesDocs, /GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF|Hosted fake-account pilot proof ready/i);
+  assert.match(combinedSalesDocs, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
+  assert.match(docs["docs/sales/demo-screenshot-checklist.md"], /2026-06-29 pass generated a hosted fake-account screenshot set/);
   assert.match(docs["docs/sales/demo-screenshot-checklist.md"], /hosted-browser-proof-screenshot-index\.md/);
 
   const forbidden = [
@@ -183,6 +188,7 @@ test("sales demo proof scripts and package aliases are present and safe", () => 
   const pkg = JSON.parse(readFileSync("package.json", "utf8"));
   assert.equal(pkg.scripts["prove:sales-demo:local"], "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/prove-sales-demo-local.mjs");
   assert.equal(pkg.scripts["prove:sales-demo:hosted"], "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/prove-sales-demo-hosted.mjs");
+  assert.equal(pkg.scripts["prove:hosted-fake-pilot-browser"], "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/prove-hosted-fake-pilot-browser.mjs");
 
   const localScript = read("scripts/prove-sales-demo-local.mjs");
   assert.match(localScript, /runDemoProof/);

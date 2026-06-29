@@ -1,33 +1,37 @@
 # Hosted Browser Proof Screenshot Index
 
-Date: 2026-05-24
+Date: 2026-06-29
 
 Environment: `https://senior-capstone-app.pages.dev`
 
-Proof status: `HOSTED_BROWSER_PROOF_READY_WITH_CAVEATS`
+Proof status: `GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF`
 
-Credential path: `EXISTING_FAKE_HOSTED_CREDENTIALS_USED_FOR_BROWSER_PROOF`
+Credential path: `HOSTED_FAKE_ACCOUNTS_USED_FOR_BROWSER_PROOF`
+
+Manifest: `docs/progress/runs/2026-06-29-hosted-fake-pilot-browser-proof.json`
 
 Screenshot hygiene: `SCREENSHOTS_GENERATED_SAFE`
 
-No-secret confirmation: screenshots were inspected for visible passwords, `.secrets` content, Cloudflare tokens, OAuth secrets, raw D1 tables, raw Drive IDs/storage IDs, and credential files. None were observed. Some fake `.test` persona identifiers and fake demo student identifiers may be visible.
+No-secret confirmation: the browser proof script checks for visible password values and secret-like rendered text, and the generated screenshots were spot-checked for visible passwords, `.secrets` content, Cloudflare tokens, OAuth secrets, raw D1 tables, raw Drive IDs/storage IDs, and credential files. None were observed. Fake `.test` persona identifiers may be visible.
 
 ## Screenshots
 
-| File | Persona | Screen | Proof status | Caveats |
+| File | Persona | Screen | Proof status | Notes |
 | --- | --- | --- | --- | --- |
-| `docs/sales/screenshots/2026-05-24/01-sign-in-product-shell.png` | Signed-out hosted workspace | Sign-in/product shell | Safe screenshot captured | No password fields contain values. |
-| `docs/sales/screenshots/2026-05-24/02-site-admin-dashboard.png` | Existing fake hosted admin fallback | Site Dashboard / Administration surface | Browser navigation proven with caveats | This is the existing hosted fake admin path, not a generated remote `site_admin` credential. |
-| `docs/sales/screenshots/2026-05-24/03-student-directory.png` | Existing fake hosted admin fallback | Student Directory | Browser navigation proven with caveats | Rich Timeline search was executed; viewport capture emphasizes the loaded directory shell. |
-| `docs/sales/screenshots/2026-05-24/04-student-detail-rich-timeline.png` | Existing fake hosted admin fallback | Student Detail / Timeline | Browser navigation proven with caveats | Browser proof verified the detail drawer and timeline section; viewport capture emphasizes the loaded student section. |
-| `docs/sales/screenshots/2026-05-24/05-review-queue-program-teacher.png` | Existing fake hosted program teacher fallback | Review Queue | Browser navigation proven with caveats | Decision controls were verified in-browser without clicking or saving a decision. |
-| `docs/sales/screenshots/2026-05-24/06-mentor-assignments.png` | Existing fake hosted admin fallback | Mentor Assignments | Browser navigation proven with caveats | Missing Mentor filter was executed; no assignment mutation was submitted. |
-| `docs/sales/screenshots/2026-05-24/07-operations-readiness.png` | Existing fake hosted admin fallback | Operations / Archive Failed | Browser navigation proven with caveats | Archive Failed story filter was verified in-browser. |
-| `docs/sales/screenshots/2026-05-24/08-operations-presentation-pending.png` | Existing fake hosted admin fallback | Operations / Presentation Pending | Browser navigation proven with caveats | Presentation Pending story filter was verified in-browser. |
-| `docs/sales/screenshots/2026-05-24/09-mentor-assigned-students.png` | Existing fake hosted mentor fallback | Assigned Students | Browser login/navigation proven with caveats | Mentor fallback account rendered no-active-assignment state, so assigned-student rows were not proven. |
+| `docs/sales/screenshots/2026-06-29/01-signed-out-home.png` | Signed-out hosted workspace | Workspace sign-in/home route | Safe screenshot captured | Password field is empty; no credential values visible. |
+| `docs/sales/screenshots/2026-06-29/02-student-dashboard.png` | Student fake account | Student workspace / My Work | Browser navigation proven | Student lands on an understandable project dashboard with own-work scope. |
+| `docs/sales/screenshots/2026-06-29/03-program-teacher-dashboard.png` | Program Teacher fake account | Program Dashboard | Browser navigation proven | Program-scoped navigation and review/student entry points are visible. |
+| `docs/sales/screenshots/2026-06-29/04-mentor-dashboard.png` | Mentor fake account | Mentor Dashboard | Browser navigation proven | Mentor lands on assigned-student risk/support surface. |
+| `docs/sales/screenshots/2026-06-29/05-viewer-directory.png` | Viewer fake account | Student Directory / read-only viewer | Browser navigation proven | Viewer lands on the read-only student directory boundary. |
+| `docs/sales/screenshots/2026-06-29/06-site-admin-dashboard.png` | Site Admin fake account | Site Dashboard | Browser navigation proven | Site Admin lands on assigned-school dashboard/program/admin boundary. |
+| `docs/sales/screenshots/2026-06-29/07-admin-command-center.png` | Global Admin fake account | Admin Command Center | Browser navigation proven | Admin lands on platform command-center navigation. |
+| `docs/sales/screenshots/2026-06-29/08-misc-admin-readiness.png` | misc_admin fake account | Readiness / limited legacy reporting | Browser navigation proven | misc_admin is limited to aggregate readiness, matching expected behavior. |
+| `docs/sales/screenshots/2026-06-29/09-student-mobile-dashboard.png` | Student fake account | Mobile student workspace | Mobile browser navigation proven | Narrow viewport is usable for fake-account smoke testing. |
 
-## Not Captured
+## Known Limits
 
-- Viewer read-only screenshot was not generated because the safe existing fake hosted credential file does not include a viewer persona.
-- Generated remote staff credentials were not used for screenshots because hosted login still rejects them as invalid credentials.
-- Bryan SSO, student login, password screens, Cloudflare screens, `.secrets` files, raw D1 views, and Drive provider screens were not captured.
+- This is fake-account hosted pilot proof only. It is not real-student production readiness.
+- The proof covers first-load click-around surfaces and role boundaries; it does not submit destructive or mutation-heavy workflow actions.
+- `student_archive_manifest_download` remains `skipped_not_ready` in the hosted dashboard gate.
+- Generated remote staff credential files are not the walkthrough credential source; the proof uses the approved hosted fake `.test` accounts in ignored local secrets.
+- Real-student onboarding still needs SSO, support, retention, data ownership, and policy approval work.

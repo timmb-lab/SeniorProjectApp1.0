@@ -149,7 +149,7 @@ The legacy seed creates a fake Desert Valley School District with three populate
 
 Details live in `docs/local-demo-data.md`.
 
-The internal sales demo package starts at `docs/sales/demo-runbook.md`. It includes the administrator script, FAQ, one-page leave-behind, technical proof checklist, preflight checklist, data dictionary, screenshot checklist, hosted-proof plan, and hosted browser screenshot index. Remote D1 migration `0011_multisite_site_role_foundation.sql` has been applied, Phase 13C seeded/proved the remote fake-data demo workspace at the hosted API/data gate, and Phase 14 captured hosted browser screenshots with credential-path caveats. Viewer browser proof and generated remote staff credential login remain a follow-up gate.
+The internal sales demo package starts at `docs/sales/demo-runbook.md`. It includes the administrator script, FAQ, one-page leave-behind, technical proof checklist, preflight checklist, data dictionary, screenshot checklist, hosted-proof plan, and hosted browser screenshot index. Remote D1 migration `0011_multisite_site_role_foundation.sql` has been applied. The legacy synthetic sales-demo hosted proof currently reports `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING`, while the 2026-06-29 pass captured hosted fake-account browser screenshots for signed-out, Student, Program Teacher, Mentor, Viewer, Site Admin, Admin, misc_admin, and mobile Student surfaces. This remains fake-account pilot proof only, not real-student production readiness.
 
 ## MVP Backend Foundation
 

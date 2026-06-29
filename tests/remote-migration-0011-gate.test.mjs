@@ -17,12 +17,14 @@ test("remote migration 0011 gate docs distinguish schema and seed blockers", () 
   assert.match(hostedPlan, /0011_multisite_site_role_foundation\.sql/);
   assert.match(hostedPlan, /REMOTE_MIGRATION_0011_APPLIED_REMOTE_DEMO_SEED_NOT_RUN/);
   assert.match(hostedPlan, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
-  assert.match(hostedPlan, /HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING/);
+  assert.match(hostedPlan, /HOSTED_FAKE_ACCOUNT_PILOT_GREEN/);
+  assert.match(hostedPlan, /GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF/);
   assert.match(hostedPlan, /HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011/);
   assert.match(checklist, /remote migration 0011 gate/i);
-  assert.match(checklist, /HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING/);
-  assert.match(remoteDemo, /No remote demo seed was run in Phase 13B/i);
-  assert.match(remoteDemo, /Phase 13C remote seed status/i);
+  assert.match(checklist, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
+  assert.match(checklist, /GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF/);
+  assert.match(remoteDemo, /legacy synthetic remote demo seed is not present/i);
+  assert.match(remoteDemo, /REMOTE_DEMO_SEED_MISSING_FOR_LEGACY_SALES_DEMO/);
 });
 
 test("remote migration 0011 gate manifest is present", () => {

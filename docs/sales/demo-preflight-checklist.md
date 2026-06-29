@@ -28,16 +28,21 @@
 - [ ] Run `npm run prove:remote:migration-0011`.
 - [ ] Run `npm run prove:demo:remote`.
 - [ ] Run `npm run prove:sales-demo:hosted`.
-- [ ] Confirm hosted API/data proof is ready and, after Phase 14, hosted browser status is `HOSTED_BROWSER_PROOF_READY_WITH_CAVEATS`.
+- [ ] Run `npm run prove:hosted-fake-pilot-browser`.
+- [ ] Confirm the legacy synthetic hosted sales-demo proof result. Current expected result is `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING` unless a new approved remote demo seed has run.
+- [ ] Confirm hosted fake-account browser status is `GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF`.
 - [ ] Confirm screenshot index exists at `docs/sales/hosted-browser-proof-screenshot-index.md`.
-- [ ] Confirm generated remote staff credentials are not shown; use only the approved existing fake hosted credential path for browser walkthroughs.
+- [ ] Confirm generated remote staff credentials are not shown; use only the approved hosted fake `.test` accounts for browser walkthroughs.
 
 ## Persona Checks
 
 - [ ] Avery Administration can sign in.
 - [ ] Primary IT Program Teacher can sign in.
-- [ ] Valeria Viewer can sign in. Current Phase 14 status: blocked until a safe viewer credential path exists.
-- [ ] Primary Mentor can sign in. Current Phase 14 status: login works, but assigned-student rows were not proven with the fallback mentor account.
+- [ ] Viewer can sign in and lands on the read-only student directory boundary.
+- [ ] Primary Mentor can sign in and lands on the mentor dashboard.
+- [ ] Student can sign in and lands on My Work.
+- [ ] Site Admin can sign in and lands on the assigned-school dashboard.
+- [ ] misc_admin can sign in and remains limited to aggregate readiness.
 - [ ] Log out between personas.
 - [ ] Do not show password files or credential values.
 
@@ -49,7 +54,8 @@
 - [ ] Review Queue loads for program teacher.
 - [ ] Mentor Assignments loads for Administration.
 - [ ] Operations loads.
-- [ ] Viewer read-only marker appears. Current Phase 14 status: not browser-proven.
+- [ ] Viewer read-only marker appears.
+- [ ] Student mobile workspace is usable enough for smoke testing.
 - [ ] No announcements appear.
 - [ ] No scheduling/archive retry/export controls appear in Operations.
 
@@ -68,5 +74,5 @@
 ## Fallback Ready
 
 - [ ] If local screen fails, use `docs/sales/technical-proof-checklist.md`.
-- [ ] If hosted/prod is asked, say fake-data API proof is ready and browser/screenshot proof is ready with viewer/generated-credential caveats.
+- [ ] If hosted/prod is asked, say fake-account hosted pilot proof is green for fake-account click-around only, not real-student production.
 - [ ] If compliance is asked, say compliance certification is not claimed.

@@ -1,0 +1,273 @@
+{
+  "proof": "hosted_fake_pilot_browser",
+  "verdict": "GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF",
+  "baseUrl": "https://senior-capstone-app.pages.dev",
+  "startedAt": "2026-06-29T20:06:48.712Z",
+  "completedAt": "2026-06-29T20:08:01.522Z",
+  "browser": {
+    "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+    "devtoolsProtocol": "1.3"
+  },
+  "screenshotDir": "docs/sales/screenshots/2026-06-29",
+  "manifestPath": "docs/progress/runs/2026-06-29-hosted-fake-pilot-browser-proof.json",
+  "realStudentProductionStatus": "NOT_CLAIMED_READY",
+  "screenshots": [
+    {
+      "id": "01-signed-out-home",
+      "label": "Signed-out workspace route",
+      "role": "signed_out",
+      "url": "https://senior-capstone-app.pages.dev/workspace",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "screenshot": "docs/sales/screenshots/2026-06-29/01-signed-out-home.png",
+      "login": null,
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": []
+      },
+      "heading": "Capstone Project Workspace",
+      "textSample": "Skip to workspace SC Capstone Project SCHOOL WORKSPACE PROTECTED PROJECT WORKSPACE Capstone Project Workspace The workspace keeps Senior Project work, proof, Program Teacher feedback, mentor help, and presentation preparation organized for students and assigned school staff. What this workspace does Students can see their booklet phases, add proof, send work for review, read feedback, and prepare for presentations. Staff views follow assigned roles, so mentors, Program Teachers, administration, site admins, and global admins only see the tools and student information their access allows. Welco",
+      "activeNav": []
+    },
+    {
+      "id": "02-student-dashboard",
+      "label": "Student dashboard",
+      "role": "student",
+      "url": "https://senior-capstone-app.pages.dev/workspace?section=student",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "screenshot": "docs/sales/screenshots/2026-06-29/02-student-dashboard.png",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": []
+      },
+      "heading": "Your Senior Project",
+      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace Test Student Maya maya.student@senior-capstone.test Refresh Sign out YOUR ACCESS Student Your project workspace Student / Your project workspace Overview Workspace priorities and access Profile Plain-language role guide My Work Next step, phase goals, proof, and feedback Final Files May 5 downloads Presentation Schedule, outline, and day-of status Account Password and sessions NEXT STEP Open Start: Setup and finish Senior Project Workspace. Add the requested proof before sending it for review. Workspace ready. STUDENT HOME Your Senior ",
+      "activeNav": [
+        "My Work\n                My Work\n                Next step, phase goals, proof, and feedback"
+      ]
+    },
+    {
+      "id": "03-program-teacher-dashboard",
+      "label": "Program Teacher dashboard",
+      "role": "program_teacher",
+      "url": "https://senior-capstone-app.pages.dev/workspace?section=programDashboard",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "screenshot": "docs/sales/screenshots/2026-06-29/03-program-teacher-dashboard.png",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": []
+      },
+      "heading": "Capstone Workspace",
+      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Test Teacher Chen chen.teacher@senior-capstone.test Refresh Sign out YOUR ACCESS Program Teacher Assigned program: IT Program Teacher / Assigned program: IT Overview Workspace priorities and access Profile Plain-language role guide Students Search and filter capstone progress Program Dashboard Your students and review needs Review Queue Program Teacher review and submitted work Mentor Assignments Coverage and assignment workflow Operations Presentati",
+      "activeNav": [
+        "Program\n                Program Dashboard\n                Your students and review needs"
+      ]
+    },
+    {
+      "id": "04-mentor-dashboard",
+      "label": "Mentor dashboard",
+      "role": "mentor",
+      "url": "https://senior-capstone-app.pages.dev/workspace?section=mentorDashboard",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "screenshot": "docs/sales/screenshots/2026-06-29/04-mentor-dashboard.png",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": []
+      },
+      "heading": "Capstone Workspace",
+      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace Test Mentor Rivera rivera.mentor@senior-capstone.test Refresh Sign out YOUR ACCESS Mentor Assigned students Mentor / Assigned students Overview Workspace priorities and access Profile Plain-language role guide Mentor Dashboard Assigned student risks Assigned Students Assigned students and proof counts Presentation Schedule, outline, and day-of status Account Password and sessions NEXT STEP Check assigned students before mentor meetings and presentation preparation. Workspace ready. Capstone Workspace Mentor / Assigned students Student ",
+      "activeNav": [
+        "Mentor\n                Mentor Dashboard\n                Assigned student risks"
+      ]
+    },
+    {
+      "id": "05-viewer-directory",
+      "label": "Viewer read-only student directory",
+      "role": "viewer",
+      "url": "https://senior-capstone-app.pages.dev/workspace?section=students",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "screenshot": "docs/sales/screenshots/2026-06-29/05-viewer-directory.png",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": []
+      },
+      "heading": "Capstone Workspace",
+      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Test Viewer Sam sam.viewer@senior-capstone.test Refresh Sign out YOUR ACCESS Viewer Assigned students Viewer / Assigned students Overview Workspace priorities and access Profile Plain-language role guide Students Search and filter capstone progress Account Password and sessions NEXT STEP Review assigned students in read-only mode. Workspace ready. Capstone Workspace Viewer / Test High School Student progress Private proof Mentor coverage Review queue",
+      "activeNav": [
+        "Students\n                Students\n                Search and filter capstone progress"
+      ]
+    },
+    {
+      "id": "06-site-admin-dashboard",
+      "label": "Site Admin dashboard",
+      "role": "site_admin",
+      "url": "https://senior-capstone-app.pages.dev/workspace?section=siteDashboard",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "screenshot": "docs/sales/screenshots/2026-06-29/06-site-admin-dashboard.png",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": []
+      },
+      "heading": "Capstone Workspace",
+      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Current site Test High School Only one site Test Site Admin Parker parker.siteadmin@senior-capstone.test Refresh Sign out YOUR ACCESS Site Admin Assigned school: Test High School Site Admin / Assigned school: Test High School Overview Workspace priorities and access Profile Plain-language role guide Site Dashboard School-wide capstone health Programs Add or remove site programs Students Search and filter capstone progress Review Queue Program Teacher",
+      "activeNav": [
+        "Dash\n                Site Dashboard\n                School-wide capstone health"
+      ]
+    },
+    {
+      "id": "07-admin-command-center",
+      "label": "Admin command center",
+      "role": "admin",
+      "url": "https://senior-capstone-app.pages.dev/workspace?section=adminDashboard",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "screenshot": "docs/sales/screenshots/2026-06-29/07-admin-command-center.png",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": []
+      },
+      "heading": "Capstone Workspace",
+      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Test Admin Lee lee.admin@senior-capstone.test Refresh Sign out YOUR ACCESS Global Admin Entire platform Global Admin / Entire platform Overview Workspace priorities and access Profile Plain-language role guide Site Dashboard School-wide capstone health Programs Add or remove site programs Students Search and filter capstone progress Review Queue Program Teacher review and submitted work Mentor Assignments Coverage and assignment workflow Operations P",
+      "activeNav": [
+        "Admin\n                Admin Command Center\n                Platform operations"
+      ]
+    },
+    {
+      "id": "08-misc-admin-readiness",
+      "label": "Misc Admin readiness",
+      "role": "misc_admin",
+      "url": "https://senior-capstone-app.pages.dev/workspace?section=readiness",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "screenshot": "docs/sales/screenshots/2026-06-29/08-misc-admin-readiness.png",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": []
+      },
+      "heading": "Capstone Workspace",
+      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace Test Reporting Admin reporting.miscadmin@senior-capstone.test Refresh Sign out YOUR ACCESS Legacy Reporting Admin Legacy readiness reporting Legacy Reporting Admin / Legacy readiness reporting Overview Workspace priorities and access Profile Plain-language role guide Readiness Aggregate project readiness Account Password and sessions NEXT STEP Review aggregate readiness without opening individual student records. Workspace ready. Capstone Workspace Legacy Reporting Admin / Legacy readiness reporting Student progress Private proof Mento",
+      "activeNav": [
+        "Ready\n                Readiness\n                Aggregate project readiness"
+      ]
+    },
+    {
+      "id": "09-student-mobile-dashboard",
+      "label": "Student mobile dashboard",
+      "role": "student",
+      "url": "https://senior-capstone-app.pages.dev/workspace?section=student",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 2,
+        "mobile": true
+      },
+      "screenshot": "docs/sales/screenshots/2026-06-29/09-student-mobile-dashboard.png",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": []
+      },
+      "heading": "Your Senior Project",
+      "textSample": "Skip to workspace Open menu SC Capstone Project Workspace Test Student Maya maya.student@senior-capstone.test Refresh Sign out Workspace ready. STUDENT HOME Your Senior Project See what is done, what is missing, and what to do next. GETTING STARTED 0% OVERALL COMPLETE 0 of 17 work items are done. CAPSTONE PATH Where you are See the whole Senior Project path: done, now, needs work, and later. START Now 2 TO FINISH Project folder is ready and your Program Teacher can find it. PHASE 1 Later 4 TO FINISH Wait until this phase is the next approved step. PHASE 2A Later 1 TO FINISH Wait until this pha",
+      "activeNav": [
+        "My Work\n                My Work\n                Next step, phase goals, proof, and feedback"
+      ]
+    }
+  ],
+  "failures": []
+}

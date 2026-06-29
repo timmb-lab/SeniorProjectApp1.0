@@ -14,13 +14,12 @@ const DOC_FILES = [
 
 const combinedDocs = DOC_FILES.map(read).join("\n\n");
 
-test("remote demo docs preserve the Phase 13C seed gate and Phase 14 browser update", () => {
+test("remote demo docs distinguish historical seed gate from current fake-account browser proof", () => {
   assert.match(combinedDocs, /Phase 13C/i);
-  assert.match(combinedDocs, /REMOTE_DEMO_SEED_APPLIED_HOSTED_BROWSER_PROOF_PENDING/);
-  assert.match(combinedDocs, /HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING/);
-  assert.match(combinedDocs, /HOSTED_BROWSER_PROOF_READY_WITH_CAVEATS/);
-  assert.doesNotMatch(combinedDocs, /screenshot proof (is )?complete/i);
-  assert.doesNotMatch(combinedDocs, /browser proof (is )?complete/i);
+  assert.match(combinedDocs, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
+  assert.match(combinedDocs, /HOSTED_FAKE_ACCOUNT_PILOT_GREEN/);
+  assert.match(combinedDocs, /GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF/);
+  assert.doesNotMatch(combinedDocs, /real-student production readiness (is )?(complete|ready|approved)/i);
 
   const phase13Manifest = JSON.parse(read("docs/progress/runs/2026-05-24-remote-demo-seed-gate.json"));
   assert.equal(phase13Manifest.screenshotStatus.screenshotsGenerated, false);
@@ -28,14 +27,13 @@ test("remote demo docs preserve the Phase 13C seed gate and Phase 14 browser upd
   assert.equal(phase13Manifest.nextRecommendedPrompt, "14_hosted_browser_proof_and_screenshot_gate.txt");
 });
 
-test("hosted proof plan distinguishes schema ready, seed applied, and Phase 14 browser caveats", () => {
+test("hosted proof plan distinguishes schema ready, missing legacy seed, and fake-account browser proof", () => {
   const hosted = read("docs/sales/hosted-proof-plan.md");
   assert.match(hosted, /REMOTE_MIGRATION_0011_ALREADY_PRESENT/);
-  assert.match(hosted, /REMOTE_DEMO_SEED_PRESENT/);
   assert.match(hosted, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
-  assert.match(hosted, /HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING/);
-  assert.match(hosted, /HOSTED_BROWSER_PROOF_READY_WITH_CAVEATS/);
-  assert.match(hosted, /14A_hosted_persona_credentials_fix\.txt/);
+  assert.match(hosted, /HOSTED_FAKE_ACCOUNT_PILOT_GREEN/);
+  assert.match(hosted, /GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF/);
+  assert.match(hosted, /student_archive_manifest_download/);
 });
 
 test("remote proof scripts stay away from reset, deploy, and config commands", () => {

@@ -38,6 +38,7 @@ Required result:
 - Alpha/account gating check passes for internal labels, no normal production navigation links, and no public companion proxying.
 - Cloudflare live check passes token verify plus Pages/D1 lookup. Scoped-token `wrangler whoami` warnings are acceptable only when token verify, Pages project lookup, D1 database lookup, and D1 id match all pass.
 - Production cutover aggregate passes only when live-only checks are not blocked and the domain/API/app proof succeeds.
+- Production cutover aggregate runs the hosted workspace evidence gate once; run `check:drive:live` separately when you need the standalone Drive alias proof so the fake student's upload quota is not consumed twice in the same aggregate.
 - Drive live check passes before accepting real student file bytes: runtime credential parts configured, service-account token exchange works, root folder is visible as a folder, index sheet is visible as a Google Sheet, fake `.test` upload succeeds, D1 metadata/audit are verified without selecting raw Drive IDs, and browser/API output stays redacted.
 - Hosted workspace evidence check passes or is explicitly skipped for missing ignored fake `.test` credentials; it must prove canonical `workspace.html` upload/download, including one >5MB resumable upload, before real student evidence is accepted.
 - Hosted workspace permission check passes or is explicitly skipped for missing ignored fake `.test` credentials; it must not use real accounts.

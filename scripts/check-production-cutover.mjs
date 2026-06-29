@@ -16,8 +16,10 @@ const commands = [
   ["check:alpha-account-gating"],
   ["check:workspace:hosted-dashboard"],
   ["check:workspace:hosted-permissions"],
+  // check:workspace:hosted-evidence is the hosted alias for the Drive live proof.
+  // Running check:drive:live immediately after it burns the same fake student's
+  // upload quota without adding coverage to this aggregate.
   ["check:workspace:hosted-evidence"],
-  ["check:drive:live"],
   ["typecheck"],
   ["test"],
   ["check"],

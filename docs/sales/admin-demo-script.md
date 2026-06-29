@@ -15,7 +15,7 @@
 | 3:45-4:45 | Review Queue | Switch to `teacher-it-01@demo-staff.capstone.test`. "Teachers see only their scoped work and can review submitted items." |
 | 4:45-5:45 | Mentor Assignments | Back as Administration. "This shows missing mentor coverage and lets authorized school staff resolve it." |
 | 5:45-6:30 | Operations | Filter `archive_failed` or `presentation_pending`. "This is the closeout list: who is ready, who is blocked, who needs follow-up." |
-| 6:30-7:00 | Close | "Everything shown is fake data. Local proof, hosted API/data proof, and hosted browser screenshots are ready with credential caveats." |
+| 6:30-7:00 | Close | "Everything shown is fake data. Local proof, hosted API/data proof, and hosted fake-account browser screenshots are ready for fake-account click-around only." |
 
 ## 15-Minute Deeper Demo
 
@@ -51,18 +51,18 @@
 - "This uses fake data today."
 - "This is not replacing school messaging or Canvas."
 - "This is designed around private evidence and audit-sensitive operations."
-- "Hosted fake-data API proof is ready after the multisite migration and approved remote seed; hosted browser screenshots are available with viewer/generated-credential caveats."
+- "Hosted fake-account browser screenshots cover the main fake-account click-around roles; the older synthetic hosted sales-demo seed gate is separate and currently reports missing remote demo seed data."
 
 ## Closing Pitch
 
-"The current local MVP shows the shape of a practical capstone operations center: school administration can see the whole selected site, teachers can review scoped work, mentors see assigned students, viewers can inspect read-only, and closeout worklists show presentation/archive readiness. Hosted API/data proof is ready, and hosted browser screenshots are available with credential-path caveats."
+"The current local MVP shows the shape of a practical capstone operations center: school administration can see the whole selected site, teachers can review scoped work, mentors see assigned students, viewers can inspect read-only, and closeout worklists show presentation/archive readiness. Hosted API/data proof is ready, and hosted fake-account browser screenshots cover the main click-around roles."
 
 ## Caveats To Say If Asked
 
 - "No real student data is used today."
 - "We are not claiming FERPA certification."
 - "We are not claiming production pilot readiness."
-- "Hosted browser proof is ready with caveats; viewer browser proof and generated remote staff credential login are still blocked."
+- "Hosted fake-account browser proof is green for fake-account click-around only; real-student production readiness is not claimed."
 - "Archive retry/export and presentation scheduling mutations are future work."
 - "Tenant-owned Drive and data retention policies need a technical/legal decision before real onboarding."
 
@@ -72,6 +72,6 @@ Do not show `.secrets`, passwords, credential JSON files, Cloudflare tokens, OAu
 
 ## Fallback Lines
 
-- If hosted/prod is asked: "Hosted fake-data API proof is ready, and hosted browser screenshots are available with viewer/generated-credential caveats."
+- If hosted/prod is asked: "Hosted fake-account browser screenshots are green for fake-account click-around only; the older synthetic hosted sales-demo API seed gate currently reports missing remote demo seed data."
 - If compliance is asked: "This is privacy-aware design and local proof, not a compliance certification."
 - If a screen fails: "The current local proof covers the route; I will use the proof checklist and follow up with a clean screen capture."

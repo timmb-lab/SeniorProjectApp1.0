@@ -2,23 +2,33 @@
 
 ## Current Hosted Proof Status
 
-Hosted fake-data proof is ready at the data/API gate. Phase 14 added hosted browser proof and screenshots with credential-path caveats.
+Hosted fake-account pilot proof is green for fake-account click-around only. The 2026-06-29 pass added a repeatable hosted browser proof script plus screenshots for signed-out, Student, Program Teacher, Mentor, Viewer, Site Admin, Admin, misc_admin, and mobile Student surfaces.
 
-Do not claim full persona walkthrough readiness, generated remote staff credential readiness, real pilot readiness, FERPA certification, or production readiness.
+Do not claim real-student pilot readiness, FERPA certification, or production readiness.
 
-Phase 13C applied the approved remote fake-data demo seed and proved the seeded shape through remote D1 plus hosted read-only API checks. The current read-only hosted proof status is:
+The current fake-account hosted pilot does not depend on the legacy synthetic sales-demo remote seed. `npm run prove:sales-demo:hosted` currently reports the legacy synthetic sales-demo hosted proof as:
 
 ```text
-HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING
+HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING
+```
+
+The current fake-account hosted proof status is:
+
+```text
+HOSTED_FAKE_ACCOUNT_PILOT_GREEN
 ```
 
 Phase-level status:
 
 ```text
-HOSTED_BROWSER_PROOF_READY_WITH_CAVEATS
+GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF
 ```
 
-Next gate: `14A_hosted_persona_credentials_fix.txt`.
+Current browser proof command:
+
+```powershell
+npm run prove:hosted-fake-pilot-browser
+```
 
 The remote seed blocker status before Phase 13C was:
 
@@ -32,15 +42,16 @@ The schema blocker status before Phase 13B was:
 HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011
 ```
 
-## Remaining Hosted Caveats
+## Remaining Hosted Limits
 
-The local MVP depends on multisite tables, roles, and fake Desert Valley demo rows. Remote D1 now has the migration 0011 schema foundation and the Phase 13C fake-data seed. Phase 14 captured hosted browser screenshots through the existing fake hosted admin and program teacher credential path.
+The local MVP depends on multisite tables, roles, and fake Desert Valley demo rows. Remote D1 has the migration 0011 schema foundation, but the legacy synthetic sales-demo seed is not currently present according to `npm run prove:sales-demo:hosted`. The 2026-06-29 browser pass captured hosted screenshots through the approved fake `.test` account path.
 
-The remaining blockers are credential-path specific:
+Remaining fake-account limits:
 
-- Generated remote staff credentials still fail hosted login and were not repaired in Phase 14.
-- The safe existing fake hosted credential file has no viewer account, so viewer browser proof and viewer screenshot remain blocked.
-- The existing fake hosted mentor account signs in but renders a no-active-assignment state, so assigned-student mentor rows were not browser-proven.
+- `student_archive_manifest_download` remains `skipped_not_ready` in the hosted dashboard gate.
+- The browser proof covers first-load click-around surfaces and role boundaries; destructive or mutation-heavy workflow actions stay covered by API/integration tests.
+- Generated remote staff credential files are not the walkthrough credential source; use only approved fake hosted `.test` accounts for browser proof.
+- Real-student onboarding still needs SSO, support, retention, data ownership, and policy approval work.
 
 ## Remote D1 Migration 0011 Gate
 
@@ -75,12 +86,12 @@ REMOTE_MIGRATION_0011_ALREADY_PRESENT
 REMOTE_DEMO_SEED_NOT_RUN
 ```
 
-Expected status after Phase 13C:
+Current observed hosted status:
 
 ```text
 REMOTE_MIGRATION_0011_ALREADY_PRESENT
-REMOTE_DEMO_SEED_PRESENT
-HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING
+HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING
+HOSTED_FAKE_ACCOUNT_PILOT_GREEN
 ```
 
 If remote read access is unavailable, the script reports a read-access blocker instead of mutating anything.
@@ -99,7 +110,7 @@ No additional remote migrations were run in Phase 13C. Phase 13B ran only migrat
 
 ## Remote Seed 5B Gate
 
-Completed in Phase 13C:
+Historical/approved process for synthetic sales-demo seed refresh:
 
 1. Run `npm run seed:demo:remote:dry-run`.
 2. Review generated fake-data counts and protected real-account preservation.
@@ -108,13 +119,13 @@ Completed in Phase 13C:
 5. Run remote seed write only with explicit approval.
 6. Store generated fake staff credentials only in ignored `.secrets` files.
 
-Phase 13C used the existing `seed:demo:remote` alias, which expands to `--remote --write --confirm SEED_REMOTE_DEMO`. No remote reset, deploy, migration, domain, OAuth, or Cloudflare config command was run.
+The gated seed alias expands to `--remote --write --confirm SEED_REMOTE_DEMO`. No remote reset, deploy, migration, domain, OAuth, or Cloudflare config command should run without a new dedicated approval gate.
 
-The seed wrote 3 fake sites, 370 fake students, 460 fake demo user records, 320 mentor assignments, 345 submissions, 938 example.com evidence metadata rows, 367 comments, 268 reviews, 200 mentor meetings, 67 presentation slots, 29 export rows, and 0 announcements. Student credentials remain 0.
+When present, the synthetic sales-demo seed shape is 3 fake sites, 370 fake students, 460 fake demo user records, 320 mentor assignments, 345 submissions, 938 example.com evidence metadata rows, 367 comments, 268 reviews, 200 mentor meetings, 67 presentation slots, 29 export rows, and 0 announcements. Student credentials remain 0. The current hosted proof reports this synthetic seed is missing remotely.
 
 ## Hosted Smoke Proof Gate
 
-Phase 13C ran:
+Legacy synthetic sales-demo hosted smoke gate:
 
 1. Run `npm run prove:demo:remote`.
 2. Run `npm run prove:sales-demo:hosted`.
@@ -122,21 +133,21 @@ Phase 13C ran:
 4. Verify no announcements.
 5. Verify no raw Drive IDs/storage IDs/secrets.
 
-The hosted API proof used existing fake hosted credentials after the newly generated remote demo staff credentials were rejected by hosted login as invalid credentials. D1 proof still verified the generated fake staff/persona rows and role shape. Do not use the generated remote staff credential file for a browser walkthrough until Phase 14 resolves persona login proof or chooses an approved credential path.
+Current `npm run prove:sales-demo:hosted` result is `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING`. The 2026-06-29 fake-account pilot browser proof uses approved fake hosted credentials and is separate from generated remote staff credential files.
 
 ## Screenshots / Browser Proof Gate
 
 Screenshots were generated in Phase 14 and indexed at `docs/sales/hosted-browser-proof-screenshot-index.md`.
 
-Phase 14 status:
+Current hosted browser status:
 
 ```text
-HOSTED_BROWSER_PROOF_READY_WITH_CAVEATS
+GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF
 SCREENSHOTS_GENERATED_SAFE
-EXISTING_FAKE_HOSTED_CREDENTIALS_USED_FOR_BROWSER_PROOF
+HOSTED_FAKE_ACCOUNTS_USED_FOR_BROWSER_PROOF
 ```
 
-The screenshots prove hosted browser rendering for the sign-in/product shell, administration dashboard surface, student directory, student detail/timeline route, review queue, mentor assignments, operations archive/presentation filters, and the mentor fallback no-active-assignment screen. They do not prove viewer read-only browser login or generated remote staff credential login.
+The screenshots prove hosted browser rendering for the signed-out workspace route, Student workspace, Program Teacher dashboard, Mentor dashboard, Viewer read-only directory, Site Admin dashboard, Admin command center, misc_admin limited readiness surface, and mobile Student workspace. They do not prove real-student production readiness or destructive workflow mutations.
 
 Before using screenshots as proof:
 
