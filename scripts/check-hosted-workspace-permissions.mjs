@@ -5,6 +5,7 @@ import path from "node:path";
 const repoRoot = process.cwd();
 const DEFAULT_BASE_URL = "https://senior-capstone-app.pages.dev";
 const DEFAULT_CREDENTIALS_FILE = ".secrets/test-accounts-2026-05-18.json";
+const DEFAULT_SITE_ID = "site-test-high-school";
 
 class WorkspacePermissionCheckError extends Error {
   constructor(classification, message, details = {}) {
@@ -113,7 +114,9 @@ function credentialsByRole() {
     directCredential("STUDENT", "student"),
     directCredential("PROGRAM_TEACHER", "program_teacher"),
     directCredential("MENTOR", "mentor"),
+    directCredential("VIEWER", "viewer"),
     directCredential("MISC_ADMIN", "misc_admin"),
+    directCredential("SITE_ADMIN", "site_admin"),
     directCredential("ADMIN", "admin"),
     directCredential("RESET_REQUIRED", "reset_required"),
     directCredential("ROLE_PENDING", "role_pending"),
@@ -134,12 +137,14 @@ function credentialsByRole() {
 function normalizeRoleId(account) {
   const value = String(account.roleId || account.role_id || account.key || account.email || "").trim().toLowerCase();
   if (!value) return "";
+  if (value.includes("site_admin") || value.includes("site-admin") || value.includes("site admin") || value.includes("siteadmin")) return "site_admin";
   if (value.includes("misc")) return "misc_admin";
+  if (value.includes("viewer")) return "viewer";
   if (value.includes("program_teacher") || value.includes("teacher")) return "program_teacher";
   if (value.includes("mentor")) return "mentor";
   if (value.includes("admin")) return "admin";
   if (value.includes("student")) return "student";
-  if (["student", "mentor", "program_teacher", "admin", "misc_admin"].includes(value)) return value;
+  if (["student", "mentor", "viewer", "program_teacher", "admin", "misc_admin", "site_admin"].includes(value)) return value;
   return value;
 }
 
@@ -188,6 +193,12 @@ async function expectJson(client, pathname, expectedStatus, label, init = {}) {
   }
   assertNoStorageLeak(result.body, label);
   return result.body;
+}
+
+function expectBody(condition, label, details = {}) {
+  if (!condition) {
+    throw new WorkspacePermissionCheckError("permission_scope", `${label} returned an unexpected body.`, details);
+  }
 }
 
 async function verifyRole(baseUrl, roleId, account, context = {}) {
@@ -245,11 +256,35 @@ async function verifyRole(baseUrl, roleId, account, context = {}) {
     const presentationSlots = await expectJson(client, "/api/presentation-slots", 200, "mentor presentation slots");
     checks.push({ name: "mentor_scope", status: "passed" });
     checks.push({ name: "mentor_presentation_dashboard", status: Array.isArray(presentationSlots.slots) ? "passed" : "unexpected_body" });
+  } else if (roleId === "viewer") {
+    const siteId = context.siteId || DEFAULT_SITE_ID;
+    const students = await expectJson(client, `/api/site/students?siteId=${encodeURIComponent(siteId)}`, 200, "viewer site student directory");
+    expectBody(students?.scope?.readOnly === true, "viewer site student directory", { roleId, siteId, expectedReadOnly: true });
+    expectBody(students?.permissions?.canManageUsers === false, "viewer manage users denial", { roleId, siteId });
+    expectBody(students?.permissions?.canManageSiteUsers === false, "viewer manage site users denial", { roleId, siteId });
+    expectBody(students?.permissions?.canViewReviewQueue === false, "viewer review queue permission denial", { roleId, siteId });
+    await expectJson(client, `/api/site/dashboard?siteId=${encodeURIComponent(siteId)}`, 403, "viewer site dashboard denial");
+    await expectJson(client, `/api/site/review-queue?siteId=${encodeURIComponent(siteId)}`, 403, "viewer review queue denial");
+    await expectJson(client, `/api/site/access-assignments?siteId=${encodeURIComponent(siteId)}`, 403, "viewer access assignment denial");
+    await expectJson(client, "/api/presentation-slots", 403, "viewer presentation denial");
+    checks.push({ name: "viewer_read_only_directory", status: "passed" });
+    checks.push({ name: "viewer_mutation_denials", status: "passed" });
   } else if (roleId === "misc_admin") {
     await expectJson(client, "/api/admin/users/import", 403, "misc admin import denial", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ reason: "Hosted permission proof", users: [] }),
+      body: JSON.stringify({
+        reason: "Hosted permission proof",
+        users: [
+          {
+            email: "hosted-denied-viewer@senior-capstone.test",
+            displayName: "Hosted Denied Viewer",
+            roleId: "viewer",
+            identityType: "local",
+            studentIds: ["test_user_student_maya"],
+          },
+        ],
+      }),
     });
     await expectJson(client, "/api/presentation-slots", 403, "misc admin presentation denial");
     checks.push({ name: "misc_admin_denial", status: "passed" });
@@ -267,6 +302,21 @@ async function verifyRole(baseUrl, roleId, account, context = {}) {
       checks.push({ name: "admin_archive_dashboard", status: "passed" });
     }
     checks.push({ name: "admin_allowed_path", status: "passed" });
+  } else if (roleId === "site_admin") {
+    const siteId = context.siteId || DEFAULT_SITE_ID;
+    const dashboard = await expectJson(client, `/api/site/dashboard?siteId=${encodeURIComponent(siteId)}`, 200, "site admin dashboard");
+    expectBody(dashboard?.scope?.readOnly === false, "site admin dashboard", { roleId, siteId, expectedReadOnly: false });
+    const students = await expectJson(client, `/api/site/students?siteId=${encodeURIComponent(siteId)}`, 200, "site admin student directory");
+    expectBody(students?.permissions?.canManageSiteUsers === true, "site admin site-user permission", { roleId, siteId });
+    expectBody(students?.permissions?.canManageUsers === false, "site admin global-user denial", { roleId, siteId });
+    const assignments = await expectJson(client, `/api/site/access-assignments?siteId=${encodeURIComponent(siteId)}`, 200, "site admin access assignments");
+    expectBody(assignments?.permissions?.canAssignViewers === true, "site admin viewer assignment permission", { roleId, siteId });
+    expectBody(assignments?.permissions?.canAssignSiteAdmins === false, "site admin site-admin assignment denial", { roleId, siteId });
+    expectBody(assignments?.permissions?.canCreateGlobalAdmin === false, "site admin global-admin creation denial", { roleId, siteId });
+    await expectJson(client, "/api/reports/readiness", 403, "site admin aggregate readiness denial");
+    await expectJson(client, "/api/presentation-slots", 200, "site admin presentation slots");
+    checks.push({ name: "site_admin_site_operations", status: "passed" });
+    checks.push({ name: "site_admin_privilege_boundary", status: "passed" });
   }
 
   await client.fetchJson("/api/auth/logout", { method: "POST" });
@@ -324,35 +374,23 @@ async function runHostedWorkspacePermissionCheck() {
   assertNoStorageLeak(me.body, "signed-out /api/auth/me");
   log("PASS signed-out: hosted auth state is safely unauthenticated.");
 
-  const requiredRoles = ["student", "program_teacher", "mentor", "misc_admin", "admin"];
+  const requiredRoles = ["student", "program_teacher", "mentor", "viewer", "misc_admin", "site_admin", "admin"];
   const roleResults = [];
-  const missingRoles = [];
-  const proofContext = {};
+  const missingRoles = requiredRoles.filter((roleId) => !byRole.has(roleId));
+  if (missingRoles.length > 0) {
+    throw new WorkspacePermissionCheckError(
+      "credential_setup",
+      "Hosted workspace permission proof requires fake .test credentials for all required roles.",
+      { missingRoles, credentialFilePresent },
+    );
+  }
+  const proofContext = { siteId: process.env.WORKSPACE_SMOKE_SITE_ID || DEFAULT_SITE_ID };
   for (const roleId of requiredRoles) {
     const account = requireFakeAccount(byRole.get(roleId), roleId);
-    if (!account) {
-      missingRoles.push(roleId);
-      roleResults.push({ roleId, status: "skipped_missing_fake_credential" });
-      continue;
-    }
     const roleResult = await verifyRole(baseUrl, roleId, account, proofContext);
     if (roleId === "student" && roleResult.userId) proofContext.studentId = roleResult.userId;
     roleResults.push(roleResult);
     log(`PASS role: ${roleId} hosted permission check passed.`);
-  }
-
-  if (roleResults.every((result) => result.status.startsWith("skipped"))) {
-    return {
-      ok: true,
-      skipped: true,
-      reason: "missing_fake_test_credentials",
-      message: "Hosted workspace permission proof skipped: fake .test credentials were not available through the ignored smoke credential file or required env vars. No real account was used.",
-      baseUrl: baseUrl.origin,
-      credentialFilePresent,
-      missingRoles,
-      roleResults,
-      logs,
-    };
   }
 
   return {

@@ -20,6 +20,9 @@ interface TestAccountSeed {
   scopeId: string;
 }
 
+const TEST_SITE_ID = "site-test-high-school";
+const TEST_SITE_MEMBER_IDS = ["test_user_student_maya", "test_user_mentor_rivera"];
+
 const TEST_ACCOUNTS: TestAccountSeed[] = [
   {
     key: "student",
@@ -221,6 +224,21 @@ async function seedAlphaAssignments(env: Env): Promise<void> {
   ).run();
 }
 
+async function seedSiteMemberships(env: Env): Promise<void> {
+  const site = await env.DB.prepare(
+    "SELECT id FROM sites WHERE id = ? AND status = 'active' LIMIT 1",
+  ).bind(TEST_SITE_ID).first<{ id: string }>();
+  if (!site) return;
+
+  for (const userId of TEST_SITE_MEMBER_IDS) {
+    await env.DB.prepare(
+      `INSERT INTO site_users (site_id, user_id, membership_status)
+       VALUES (?, ?, 'active')
+       ON CONFLICT(site_id, user_id) DO UPDATE SET membership_status = 'active'`,
+    ).bind(TEST_SITE_ID, userId).run();
+  }
+}
+
 export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
   const methodError = requirePost(request);
   if (methodError) return methodError;
@@ -257,6 +275,7 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
     await upsertTestAccount(env, account, passwords[account.key] || "");
   }
   await seedAlphaAssignments(env);
+  await seedSiteMemberships(env);
 
   await writeAudit(env, {
     actorUserId: user.id,
@@ -272,6 +291,7 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
         scopeType: account.scopeType,
         scopeId: account.scopeId,
       })),
+      siteId: TEST_SITE_ID,
       includesWorkflowFixtures: true,
     },
   });
@@ -291,6 +311,7 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
       cohortId: "alpha-2026",
       groupId: "group-alpha-it-2026",
       studentId: "test_user_student_maya",
+      siteId: TEST_SITE_ID,
       mentorAssignmentId: "mentor-alpha-rivera-maya",
       requirementId: "req-proposal-draft",
       progressRecordId: "progress-alpha-maya-proposal",

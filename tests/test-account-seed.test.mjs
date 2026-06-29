@@ -18,6 +18,8 @@ test("test account seed endpoint covers the alpha roles and fixtures", () => {
   }
   assert.match(source, /lee\.admin@senior-capstone\.test/);
   assert.match(source, /roleId: "admin"/);
+  assert.match(source, /site-test-high-school/);
+  assert.match(source, /site_users/);
   for (const fixture of [
     "alpha-2026",
     "group-alpha-it-2026",

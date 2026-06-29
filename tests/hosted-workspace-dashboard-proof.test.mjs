@@ -8,12 +8,14 @@ const runNpmScript = await readFile("scripts/run-npm-script.ps1", "utf8");
 
 test("hosted workspace dashboard proof stays fake-account-only and redacted", () => {
   assert.match(dashboardProofScript, /Hosted workspace permission proof refused a non-\.test/);
+  assert.match(dashboardProofScript, /requires fake \.test credentials for all required roles/);
   assert.match(dashboardProofScript, /String\(account\.email\)\.endsWith\("\.test"\)/);
   assert.match(dashboardProofScript, /passwords are not printed|password/i);
   assert.match(dashboardProofScript, /assertNoStorageLeak/);
   assert.match(dashboardProofScript, /drive_file_id\|driveFileId\|drive_parent_folder_id\|driveParentFolderId\|access_token\|refresh_token/);
   assert.doesNotMatch(dashboardProofScript, /console\.log\(.*password/i);
   assert.doesNotMatch(dashboardProofScript, /console\.log\(.*cookie/i);
+  assert.doesNotMatch(dashboardProofScript, /skipped_missing_fake_credential/);
 });
 
 test("hosted workspace dashboard proof covers presentation and archive dashboard surfaces", () => {
@@ -30,6 +32,11 @@ test("hosted workspace dashboard proof covers presentation and archive dashboard
   assert.match(dashboardProofScript, /misc_admin_presentation_denial/);
   assert.match(dashboardProofScript, /admin_archive_dashboard/);
   assert.match(dashboardProofScript, /student_archive_manifest_download/);
+  assert.match(dashboardProofScript, /viewer_read_only_directory/);
+  assert.match(dashboardProofScript, /viewer_mutation_denials/);
+  assert.match(dashboardProofScript, /site_admin_site_operations/);
+  assert.match(dashboardProofScript, /site_admin_privilege_boundary/);
+  assert.match(dashboardProofScript, /site-test-high-school/);
 });
 
 test("hosted dashboard proof has an explicit npm alias outside default local check", () => {
