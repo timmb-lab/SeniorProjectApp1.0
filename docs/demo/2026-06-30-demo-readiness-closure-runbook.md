@@ -48,7 +48,8 @@ Closure result on 2026-06-30:
 - Ran `npm run db:migrate:remote` with the configured Cloudflare account id; Wrangler applied `0015` and `0016`.
 - Re-ran `npx wrangler d1 migrations list senior-capstone-db --remote`; result: no migrations to apply.
 - Re-ran remote schema readback; `student_roster_profiles` exists.
-- Existing deployed `/api/health` still omitted `studentRosterProfilesReady` before this code was pushed, so the new health field must be verified after the deploy containing this closure pass goes live.
+- Existing deployed `/api/health` omitted `studentRosterProfilesReady` before this code was pushed.
+- After pushing this closure pass, hosted health flipped to `studentRosterProfilesReady=true` on poll attempt 5.
 
 ## Hosted Proof Status
 
@@ -142,7 +143,8 @@ Current focused validation status:
 - `npm run check`: passed.
 - `npm run prove:demo:local`: passed.
 - Navigation, URL state, dashboard actions, review queue deep links, permission matrix, mutation origin, functionality language, workspace density, mobile, accessibility, workspace errors, route inventory, and production surfaces verifiers listed above: passed.
-- `npm run prove:hosted-fake-pilot-browser`: passed; manifest recorded `studentRosterProfilesReady` as `not_reported_by_deployed_health` because the hosted deployment had not yet included this closure code.
+- `npm run prove:hosted-fake-pilot-browser`: passed before push; the pre-deploy manifest recorded `studentRosterProfilesReady` as `not_reported_by_deployed_health`.
+- `npm run prove:hosted-fake-pilot-browser`: passed again after push/deploy; the manifest recorded `studentRosterProfilesReady=true`.
 - `npm run check:workspace:hosted-evidence`: passed.
 - `npm run check:workspace:hosted-dashboard`: initially failed before remote migration 0016 with a viewer-directory HTTP 500, then passed after remote migrations 0015 and 0016 were applied.
 - `npm run check:workspace:hosted-permissions`: initially failed before remote migration 0016 with the same viewer-directory HTTP 500, then passed after remote migrations 0015 and 0016 were applied.
