@@ -2,7 +2,7 @@
 
 ## Current Hosted Proof Status
 
-Hosted fake-account pilot proof is green for fake-account click-around only. The 2026-06-29 pass added a repeatable hosted browser proof script plus screenshots for signed-out, Student, Program Teacher, Mentor, Viewer, Site Admin, Admin, misc_admin, and mobile Student surfaces.
+Hosted fake-account pilot proof is green for fake-account click-around only. The 2026-06-29 pass added a repeatable hosted browser proof script plus screenshots for signed-out, Student, Program Teacher, Mentor, Viewer, Site Admin, Admin, misc_admin, and mobile Student surfaces. The demo-day operator order lives in `docs/sales/demo-day-operator-script.md`.
 
 Do not claim real-student pilot readiness, FERPA certification, or production readiness.
 
@@ -29,6 +29,15 @@ Current browser proof command:
 ```powershell
 npm run prove:hosted-fake-pilot-browser
 ```
+
+Current hosted health expectation:
+
+```text
+databaseReady=true
+studentRosterProfilesReady=true
+```
+
+If `studentRosterProfilesReady=false`, pause Add Student and CSV roster profile demos until the migration gate is repaired. Do not apply migrations from a live demo unless a separate approved migration plan exists.
 
 The remote seed blocker status before Phase 13C was:
 
@@ -112,13 +121,13 @@ Completed in Phase 13B:
 4. Proved `sites`, `site_users`, `site_programs`, the four new roles, sandbox site, sandbox site-program mappings, and zero foreign-key violations.
 5. Did not seed remote data.
 
-Phase 13B ran only migration 0011. The 2026-06-30 demo-readiness closure requires migration `0016_student_roster_profiles.sql` before demoing student create/import roster profile fields. Apply it through the normal migration command, then verify hosted `/api/health` reports `studentRosterProfilesReady=true`.
+Phase 13B ran only migration 0011. The 2026-06-30 demo-readiness closure applied migration `0016_student_roster_profiles.sql` before demoing student create/import roster profile fields. The current hosted proof expects `/api/health` to report `studentRosterProfilesReady=true`.
 
 ```powershell
 npm run db:migrate:remote
 ```
 
-Do not run remote seed/reset, deploy, domain, OAuth, or credential commands as part of the migration step.
+This command remains the normal migration repair path, not a live-demo step. Do not run remote migration, seed/reset, deploy, domain, OAuth, or credential commands during a live demo without a separate approval gate.
 
 ## Remote Seed 5B Gate
 

@@ -2,13 +2,15 @@
 
 ## Opening
 
-"Thanks for taking a few minutes. This is a fake-data local demo of Capstone Project. It is designed to show how a school administration team could see senior project progress, teacher review work, mentor coverage, and end-of-project readiness in one role-scoped workspace. This is not real student data, not a FERPA certification claim, and not a hosted pilot claim yet."
+"Thanks for taking a few minutes. This is a hosted fake-account demo of Capstone Project. It is designed to show how a school administration team could see senior project progress, teacher review work, mentor coverage, and end-of-project readiness in one role-scoped workspace. This is not real student data, not a FERPA certification claim, and not real-student production pilot readiness."
+
+Use `docs/sales/demo-day-operator-script.md` for the exact hosted role order, account labels, View as Student guardrails, and Add Student / CSV import safety notes.
 
 ## 7-Minute Quick Demo
 
 | Time | Screen | Script |
 | --- | --- | --- |
-| 0:00-0:45 | Sign in | "I am signing in as school Administration for the fake Desert Valley High School." |
+| 0:00-0:45 | Sign in | "I am signing in with a hosted fake `.test` staff account." |
 | 0:45-1:45 | Site Dashboard | "This shows who needs attention across the selected school: submissions, risk, mentor coverage, presentation, and archive readiness." |
 | 1:45-2:45 | Student Directory | Search `Revision Loop Demo`. "Instead of chasing spreadsheets, administration can filter by story, risk, status, or search." |
 | 2:45-3:45 | Student Detail | Open `Rich Timeline Demo`. "This is the student story: evidence, teacher feedback, mentor support, presentation, archive, and timeline." |
@@ -30,7 +32,7 @@
 | 10:00-12:00 | Operations | Show Presentation, Archive, Readiness. "End-of-project worklists show who is ready to present, ready to archive, or blocked." |
 | 12:00-13:00 | Viewer | Viewer persona. "A viewer can inspect the same operational picture without changing records." |
 | 13:00-14:00 | Mentor | Mentor persona. "Mentors see assigned students only." |
-| 14:00-15:00 | Caveats | "A real pilot needs hosted proof, remote migration/seed gates, SSO/data policy, legal/security review, and no real student data until approved." |
+| 14:00-15:00 | Caveats | "A real pilot still needs SSO/data policy, legal/security review, support, onboarding, and no real student data until approved." |
 
 ## Story Students To Search
 
@@ -55,7 +57,7 @@
 
 ## Closing Pitch
 
-"The current local MVP shows the shape of a practical capstone operations center: school administration can see the whole selected site, teachers can review scoped work, mentors see assigned students, viewers can inspect read-only, and closeout worklists show presentation/archive readiness. Hosted API/data proof is ready, and hosted fake-account browser screenshots cover the main click-around roles."
+"The current hosted fake-account demo shows the shape of a practical capstone operations center: school administration can see the selected school, teachers can review scoped work, mentors see assigned students, viewers can inspect read-only, and closeout worklists show presentation/archive readiness. Hosted fake-account browser proof covers the main click-around roles."
 
 ## Caveats To Say If Asked
 

@@ -22,20 +22,31 @@
 - [ ] Close `.secrets`, token, OAuth, and raw database tabs.
 - [ ] Confirm no credential files are visible.
 - [ ] Confirm a fallback copy of `docs/sales/admin-demo-script.md` and `docs/sales/demo-one-page-leavebehind.md` is open or ready.
+- [ ] For a hosted demo, open `docs/sales/demo-day-operator-script.md` and follow its role order.
 
-## Hosted Data/API Proof
+## Hosted Fake-Account Proof
 
-- [ ] Run `npm run prove:remote:migration-0011`.
-- [ ] Run `npm run prove:demo:remote`.
-- [ ] Run `npm run prove:sales-demo:hosted`.
+- [ ] Confirm hosted `/api/health` reports `databaseReady=true`.
+- [ ] Confirm hosted `/api/health` reports `studentRosterProfilesReady=true`.
+- [ ] Run `npm run check:workspace:hosted-permissions`.
+- [ ] Run `npm run check:workspace:hosted-dashboard`.
+- [ ] Run `npm run check:workspace:hosted-evidence`.
 - [ ] Run `npm run prove:hosted-fake-pilot-browser`.
-- [ ] Confirm the legacy synthetic hosted sales-demo proof result. Current expected result is `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING` unless a new approved remote demo seed has run.
 - [ ] Confirm hosted fake-account browser status is `GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF`.
 - [ ] Confirm screenshot index exists at `docs/sales/hosted-browser-proof-screenshot-index.md`.
 - [ ] Confirm generated remote staff credentials are not shown; use only the approved hosted fake `.test` accounts for browser walkthroughs.
 
+## Legacy Hosted Synthetic Seed Gate
+
+- [ ] Run `npm run prove:remote:migration-0011` only when the technical reviewer asks for the migration 0011 read-only proof.
+- [ ] Run `npm run prove:demo:remote` only when the technical reviewer asks for the legacy synthetic hosted API gate.
+- [ ] Run `npm run prove:sales-demo:hosted` only when the technical reviewer asks for the legacy synthetic hosted sales-demo gate.
+- [ ] Confirm the legacy synthetic hosted sales-demo proof result. Current expected result is `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING` unless a new approved remote demo seed has run.
+- [ ] Do not run remote seed writes, remote resets, migrations, deploys, or credential commands during demo preflight without a separate approval gate.
+
 ## Persona Checks
 
+- [ ] Follow `docs/sales/demo-day-operator-script.md` for the hosted role order and account labels.
 - [ ] Avery Administration can sign in.
 - [ ] Primary IT Program Teacher can sign in.
 - [ ] Viewer can sign in and lands on the read-only student directory boundary.
@@ -55,6 +66,10 @@
 - [ ] Mentor Assignments loads for Administration.
 - [ ] Operations loads.
 - [ ] Viewer read-only marker appears.
+- [ ] View as Student appears only for authorized staff contexts and stays read-only.
+- [ ] Students cannot activate View as Student.
+- [ ] Add Student shows site/program/cohort/graduation-year fields only when hosted health reports `studentRosterProfilesReady=true`.
+- [ ] CSV preview blocks unsafe mentor/viewer assignments before final import.
 - [ ] Student mobile workspace is usable enough for smoke testing.
 - [ ] No announcements appear.
 - [ ] No scheduling/archive retry/export controls appear in Operations.

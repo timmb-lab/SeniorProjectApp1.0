@@ -76,6 +76,7 @@ test("hosted proof docs distinguish fake-account pilot readiness from real-stude
     "docs/remote-demo-data.md",
     "docs/sales/admin-demo-script.md",
     "docs/sales/admin-faq.md",
+    "docs/sales/demo-day-operator-script.md",
     "docs/sales/demo-preflight-checklist.md",
     "docs/sales/demo-runbook.md",
     "docs/sales/demo-screenshot-checklist.md",
@@ -87,6 +88,8 @@ test("hosted proof docs distinguish fake-account pilot readiness from real-stude
   assert.match(combined, /GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF/);
   assert.match(combined, /HOSTED_FAKE_ACCOUNT_PILOT_GREEN/);
   assert.match(combined, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
+  assert.match(combined, /demo-day-operator-script\.md/);
+  assert.match(combined, /studentRosterProfilesReady=true/);
   assert.match(combined, /signed-out, Student, Program Teacher, Mentor, Viewer, Site Admin, Admin, misc_admin, and mobile Student/i);
   assert.match(combined, /not real-student production readiness|not real-student production|real-student production is not claimed/i);
   assert.match(combined, /SSO, support, retention, data ownership/i);
@@ -103,6 +106,7 @@ test("hosted browser proof docs and script avoid credential leaks and unsafe wri
     "docs/remote-demo-data.md",
     "docs/sales/admin-demo-script.md",
     "docs/sales/admin-faq.md",
+    "docs/sales/demo-day-operator-script.md",
     "docs/sales/demo-preflight-checklist.md",
     "docs/sales/demo-runbook.md",
     "docs/sales/demo-screenshot-checklist.md",

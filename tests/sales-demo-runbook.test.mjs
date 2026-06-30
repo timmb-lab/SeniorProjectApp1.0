@@ -5,6 +5,7 @@ import test from "node:test";
 const SALES_DOCS = [
   "docs/sales/demo-runbook.md",
   "docs/sales/admin-demo-script.md",
+  "docs/sales/demo-day-operator-script.md",
   "docs/sales/admin-faq.md",
   "docs/sales/demo-one-page-leavebehind.md",
   "docs/sales/technical-proof-checklist.md",
@@ -82,11 +83,50 @@ test("runbook covers required demo flow, claims, caveats, and proof matrix", () 
   assert.match(runbook, /Go \/ No-Go Table/);
 });
 
+test("demo day operator script covers hosted role order and safety guardrails", () => {
+  const operator = docs["docs/sales/demo-day-operator-script.md"];
+  for (const text of [
+    "Demo Day Operator Script",
+    "hosted fake-account click-around proof is green",
+    "databaseReady=true",
+    "studentRosterProfilesReady=true",
+    "HOSTED_FAKE_ACCOUNT_PILOT_GREEN",
+    "GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF",
+    "student_archive_manifest_download",
+    "HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING",
+    "maya.student@senior-capstone.test",
+    "chen.teacher@senior-capstone.test",
+    "rivera.mentor@senior-capstone.test",
+    "sam.viewer@senior-capstone.test",
+    "parker.siteadmin@senior-capstone.test",
+    "lee.admin@senior-capstone.test",
+    "reporting.miscadmin@senior-capstone.test",
+    "Add Student Safe Demo",
+    "CSV Import Safe Demo",
+    "View As Student Safe Demo",
+    "Students cannot activate View as Student",
+    "Staff can only enter for authorized students",
+    "Viewer remains read-only",
+    "first_name,last_name,email,site,program,status,cohort,graduation_year,mentor_email,viewer_email",
+    "Preview first",
+  ]) {
+    assert.match(operator, new RegExp(escapeRegex(text)));
+  }
+
+  assert.match(operator, /unsafe targets are blocked before the account is created/i);
+  assert.match(operator, /out-of-scope sites\/programs/i);
+  assert.match(operator, /student-as-mentor\/student-as-viewer/i);
+  assert.match(operator, /real-student production pilot readiness.*not claimed/i);
+  assert.doesNotMatch(operator, /\bproduction\s+pilot\s+ready\b/i);
+  assert.doesNotMatch(operator, /\breal\s+student\s+data\s+ready\b/i);
+});
+
 test("administrator-facing docs include required safe answers and flows", () => {
   const script = docs["docs/sales/admin-demo-script.md"];
   assert.match(script, /7-Minute Quick Demo/);
   assert.match(script, /15-Minute Deeper Demo/);
   assert.match(script, /Rich Timeline Demo/);
+  assert.match(script, /demo-day-operator-script\.md/);
   assert.match(script, /hosted fake-account browser screenshots/i);
   assert.match(script, /missing remote demo seed data/i);
   assert.match(script, /not a FERPA certification/i);
@@ -161,7 +201,7 @@ test("technical proof and hosted plan map screens to routes and blockers", () =>
 test("sales docs avoid overclaims, secret-like values, and screenshot proof claims", () => {
   assert.match(combinedSalesDocs, /fake data|fake-data/i);
   assert.match(combinedSalesDocs, /not a FERPA certification|not claiming FERPA/i);
-  assert.match(combinedSalesDocs, /not claiming production pilot readiness|not a hosted pilot claim|No-go/i);
+  assert.match(combinedSalesDocs, /not claiming production pilot readiness|real-student production pilot readiness.*not claimed|No-go/i);
   assert.match(combinedSalesDocs, /GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF|Hosted fake-account pilot proof ready/i);
   assert.match(combinedSalesDocs, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
   assert.match(docs["docs/sales/demo-screenshot-checklist.md"], /2026-06-29 pass generated a hosted fake-account screenshot set/);

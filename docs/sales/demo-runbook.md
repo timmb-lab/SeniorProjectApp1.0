@@ -4,6 +4,8 @@
 
 This is an internal Bryan runbook for a fake-data, multisite Capstone Project demo for school and district administrators.
 
+For the hosted live click-around order, use `docs/sales/demo-day-operator-script.md` first. This runbook remains the broader proof and fallback reference.
+
 Use it to show how the current MVP helps school operations teams answer:
 
 - Which students need attention?
@@ -56,6 +58,7 @@ This demo is a fake-data demo only. Hosted fake-account click-around proof is gr
 ## Demo Environment
 
 - Local dev demo: Proven locally.
+- Hosted live walkthrough: use the fake-account sequence in `docs/sales/demo-day-operator-script.md`.
 - Data: fake-data demo only.
 - Organization: Desert Valley School District.
 - Primary site: Desert Valley High School, 250 fake students.
@@ -92,7 +95,7 @@ Expected results:
 
 ## Demo Personas
 
-Use the credential values from the latest ignored `.secrets/demo-staff-logins-*.json` file. Do not show or paste that file.
+For hosted fake-account demos, use `docs/sales/demo-day-operator-script.md` for the current role order and fake `.test` account labels. For local Desert Valley demos, use the credential values from the latest ignored `.secrets/demo-staff-logins-*.json` file. Do not show or paste any credential file.
 
 | Order | Persona | Fake email | Role | Scope | Demo use |
 | ---: | --- | --- | --- | --- | --- |
@@ -374,7 +377,7 @@ Search by these prefixes in the Students section or use them in worklist filters
 
 - Legacy synthetic hosted sales-demo API proof currently reports missing remote demo seed data.
 - Hosted fake-account browser/persona/screenshot proof is green for fake-account click-around only.
-- Migration `0016_student_roster_profiles.sql` must be applied before using student create/import roster profile fields in any environment.
+- Hosted `/api/health` currently needs to report `databaseReady=true` and `studentRosterProfilesReady=true` before demoing Add Student or CSV roster profile fields. If either signal turns false, pause those create/import demos until the migration gate is repaired.
 - `student_archive_manifest_download` remains skipped/not ready.
 - Archive retry/export mutation UI is deferred.
 - Presentation scheduling/check-in/check-out mutation UI is not part of Operations.
@@ -385,16 +388,16 @@ Search by these prefixes in the Students section or use them in worklist filters
 
 ## Before Live Hosted Demo Checklist
 
-1. Confirm remote migration `0011_multisite_site_role_foundation.sql` remains applied.
-2. Apply remote migration `0016_student_roster_profiles.sql` through `npm run db:migrate:remote` before demoing student create/import roster fields.
-3. Verify `/api/health` reports `studentRosterProfilesReady=true` after the deployment containing that health field is live.
-4. Run read-only remote schema proof.
-5. Re-run remote seed dry-run only if a future seed refresh is explicitly approved.
-6. Do not run another remote seed write without a new approval gate.
-7. Run hosted smoke proof using fake `.test` credentials only.
+1. Open `docs/sales/demo-day-operator-script.md` and follow that hosted role order.
+2. Confirm `/api/health` reports `databaseReady=true` and `studentRosterProfilesReady=true`.
+3. Run hosted smoke proof using fake `.test` credentials only.
+4. Run `npm run check:workspace:hosted-permissions`, `npm run check:workspace:hosted-dashboard`, and `npm run check:workspace:hosted-evidence` when the demo needs fresh hosted proof.
+5. Run `npm run prove:hosted-fake-pilot-browser` when screenshots or browser proof need a fresh manifest.
+6. Confirm the legacy synthetic hosted sales-demo proof status if asked. Current expected result remains `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING` unless a new approved remote demo seed has run.
+7. Do not run remote migrations, remote seed writes, remote resets, deploys, OAuth changes, or credential commands during the live demo without a separate approval gate.
 8. Use the hosted screenshot index or capture replacement screenshots only if the credential path is safe and date/environment labels are preserved.
 9. Run final no-secret scan.
-10. Confirm Bryan/admin account still works.
+10. Confirm Bryan/admin account still works if it is part of the technical follow-up.
 11. Confirm OAuth/domain settings are unchanged.
 12. Confirm no remote writes occurred outside the approved gate.
 
@@ -438,6 +441,7 @@ Do not:
 | Local sales demo | Go | Proven locally with fake data. | Run reset/proof before demo. |
 | Hosted sales demo | Go for fake-account click-around | Hosted fake-account browser/screenshots are ready; the legacy synthetic sales-demo API seed gate currently reports missing remote demo seed data. | Keep screenshots current before demos. |
 | Remote D1 migration 0011 | Complete | Migration was applied and remains proven. | No further migration without a dedicated gate. |
+| Remote D1 migration 0016 | Complete for current hosted proof | Hosted health reports `studentRosterProfilesReady=true`. | No-go for Add Student / CSV roster fields if health flips false. |
 | Remote seed 5B | Not current remotely | `npm run prove:sales-demo:hosted` reports `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING`. | No reseed without a new approved gate. |
 | District pilot | No-go | Needs legal/security review, data policy, SSO, onboarding, support, retention, and data ownership approval. | Pilot readiness plan. |
 | Real student data pilot | No-go | No real student data approval. | Legal/security/data governance approval. |
