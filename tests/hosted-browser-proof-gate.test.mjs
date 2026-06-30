@@ -60,6 +60,10 @@ test("screenshot index lists current hosted fake-account screenshot artifacts", 
   assert.match(index, /HOSTED_FAKE_ACCOUNTS_USED_FOR_BROWSER_PROOF/);
   assert.match(index, /SCREENSHOTS_GENERATED_SAFE/);
   assert.match(index, /No-secret confirmation/);
+  assert.match(index, /\| File \| Persona \| Account type \| Screen \| Claim boundary \| Notes \|/);
+  assert.match(index, /Fake `\.test` demo-only account/);
+  assert.match(index, /Fake-account click-around proof only/);
+  assert.match(index, /Safe hosted screenshot, not real-student proof/);
   assert.match(index, /Hosted fake-account click-around demo readiness only/i);
   assert.match(index, /student_archive_manifest_download/);
   assert.match(index, /Future pilot item/i);
@@ -136,6 +140,7 @@ test("hosted browser proof docs and script avoid credential leaks and unsafe wri
   const browserScript = read("scripts/prove-hosted-fake-pilot-browser.mjs");
   assert.match(browserScript, /HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0016/);
   assert.match(browserScript, /studentRosterProfilesReady/);
+  assert.match(browserScript, /approved deployment\/migration gate outside the live demo/);
   assert.doesNotMatch(browserScript, /seed:demo:remote|reset:accounts:remote|db:migrate:remote|deploy:preview|deploy:public-site/);
   assert.doesNotMatch(browserScript, /password_hash\s*=|UPDATE\s+password_credentials|INSERT\s+INTO\s+password_credentials/i);
 });

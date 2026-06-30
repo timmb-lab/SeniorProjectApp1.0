@@ -20,7 +20,8 @@ const REQUIRED_0011_ROLES = Object.freeze(["platform_admin", "site_admin", "view
 const BLOCKED_MISSING_0011 = "HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011";
 const LEGACY_SEED_UNAVAILABLE = "LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING";
 const HISTORICAL_BLOCKED_REMOTE_SEED = "HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING";
-const BLOCKED_REMOTE_SEED = LEGACY_SEED_UNAVAILABLE;
+const LEGACY_COMPATIBILITY_SEED_STATUS = LEGACY_SEED_UNAVAILABLE;
+const BLOCKED_REMOTE_SEED = LEGACY_COMPATIBILITY_SEED_STATUS;
 const BLOCKED_READ_ACCESS = "HOSTED_PROOF_BLOCKED_REMOTE_D1_READ_ACCESS_REQUIRED";
 const READY_FAKE_DATA_BROWSER_PENDING = "HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING";
 const PHASE_14_BROWSER_MANIFEST = "docs/progress/runs/2026-05-24-hosted-browser-proof-screenshot-gate.json";
@@ -94,14 +95,19 @@ async function runHostedSalesDemoProof(args = {}, options = {}) {
         proof: "sales_demo_hosted",
         compatibilityCheckPassed: true,
         hostedProofPassed: true,
-        hostedProofStatus: BLOCKED_REMOTE_SEED,
+        hostedProofStatus: LEGACY_COMPATIBILITY_SEED_STATUS,
+        hostedProofStatusMeaning: "Deprecated synthetic hosted seed is absent; canonical fake-account hosted proof remains the current demo gate.",
         legacySyntheticSeedPresent: false,
-        legacySyntheticSeedStatus: BLOCKED_REMOTE_SEED,
+        legacySyntheticSeedStatus: LEGACY_COMPATIBILITY_SEED_STATUS,
+        legacyCompatibilityCheckStatus: LEGACY_COMPATIBILITY_SEED_STATUS,
         historicalLegacySeedBlockedStatus: HISTORICAL_BLOCKED_REMOTE_SEED,
         hostedFakeAccountDemoBlocked: false,
         currentDemoReadinessImpact: "NON_BLOCKING_CAVEAT",
         canonicalHostedProofCommand: "npm run prove:hosted-fake-pilot-browser",
         canonicalHostedProofStatus: "HOSTED_FAKE_ACCOUNT_PILOT_GREEN",
+        realStudentProductionStatus: "NOT_CLAIMED_READY",
+        migration0016Treatment: "Health signal only; not a live demo migration step.",
+        proofBoundary: "This legacy compatibility check is not a real-student pilot approval and is not the canonical hosted fake-account browser proof.",
         claimStatus: "Legacy synthetic hosted sales-demo seed unavailable; canonical fake-account hosted proof is the current demo gate.",
         repo,
         baseUrl,
@@ -317,6 +323,7 @@ export {
   BLOCKED_REMOTE_SEED,
   BLOCKED_READ_ACCESS,
   HISTORICAL_BLOCKED_REMOTE_SEED,
+  LEGACY_COMPATIBILITY_SEED_STATUS,
   LEGACY_SEED_UNAVAILABLE,
   READY_FAKE_DATA_BROWSER_PENDING,
   readHostedBrowserProofSummary,

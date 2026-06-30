@@ -15,6 +15,42 @@ Use this as the live hosted walkthrough script. It is written for a staff/admin 
 
 Do not run migrations, remote seeds, resets, deploys, or credential commands during the live demo unless a separate approved migration/deployment gate exists. Treat migration `0016_student_roster_profiles.sql` as an already-applied health signal to verify through `/api/health`, not as a live-demo migration step. If `studentRosterProfilesReady=false`, do not demo Add Student or CSV roster profile fields.
 
+## One-Page Claims Boundary
+
+| Claim | Say this | Do not say this |
+| --- | --- | --- |
+| Hosted fake-account demo | "This is demo-ready with fake accounts." | "This proves real-student readiness." |
+| Local/demo proof | "Local fake-data proof gates passed when `npm run prove:demo:local` is green." | "Local fake data proves a real school roster." |
+| Real-student pilot | "Real student pilot requires these approvals/proofs first." | "The app is approved for a real-student production pilot." |
+| Legal/security/privacy/retention/support | "Those approvals are required before real student data is used." | "Legal, security, privacy, retention, or support approval is complete." |
+| Archive manifest download | "`student_archive_manifest_download` is a Future pilot item unless a scoped fake-student manifest proof is green." | "Archive manifest download is finished." |
+| Fake `.test` accounts | "Fake `.test` accounts prove click-around and selected role boundaries only." | "Fake `.test` proof equals real roster proof." |
+
+Use this safe answer if a stakeholder asks whether this can go live with students:
+
+> "This is demo-ready with fake accounts. Real student pilot requires these approvals/proofs first: approved account delivery or SSO, privacy/support/retention signoff, real-roster validation, backup/restore rehearsal, and role-scoped pilot-account proof."
+
+## Preflight Command Path
+
+Run these from `C:\SeniorProjectApp1.0` before using the hosted walkthrough. Keep them separate instead of using a single wrapper because the hosted evidence check performs a planned fake `.test` upload/download proof, the browser proof refreshes screenshots and the manifest, and `prove:sales-demo:hosted` is a legacy compatibility check rather than the current hosted demo gate.
+
+```powershell
+npm run check:pilot-readiness
+npm run prove:demo:local
+npm run check:workspace:hosted-permissions
+npm run check:workspace:hosted-dashboard
+npm run check:workspace:hosted-evidence
+npm run prove:hosted-fake-pilot-browser
+npm run prove:sales-demo:hosted
+```
+
+Expected interpretation:
+
+- `check:pilot-readiness` should finish with real-student pilot `NO-GO` until the manual evidence packet exists.
+- `prove:demo:local` proves local fake-data demo behavior only.
+- The three hosted workspace checks and `prove:hosted-fake-pilot-browser` are the current hosted fake-account proof path.
+- `prove:sales-demo:hosted` may report `LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING`; that is expected for the deprecated synthetic hosted seed and does not block the fake-account click-around demo.
+
 ## Demo Readiness Summary
 
 | Area | Demo-day status | Evidence | Is it a live-demo blocker? | Notes |
@@ -56,35 +92,35 @@ The hosted proof uses the `admin` role as the Global Admin command-center person
    Say: "This is a protected hosted workspace. Today uses fake accounts and fake data only."
 
 2. Student
-   Show: My Work, Upcoming deadlines, proof, feedback, Presentation, Final Files.
+   Show: role context strip, next action guidance, My Work, Upcoming deadlines, proof, feedback, Presentation, Final Files.
    Say: "Students see their own Senior Project path. They do not see staff worklists, admin routes, or other students."
    Do not show: any staff View as Student entry point from a student login.
 
 3. Program Teacher
-   Show: Program Dashboard, Students, Review Queue.
+   Show: role context strip, Program Dashboard, Students, Review Queue, and the first useful action.
    Say: "Program Teachers see their scoped program work. Review actions stay scoped to authorized submitted work."
    View as Student: enter only from an authorized student row, point out the read-only banner, then exit.
 
 4. Mentor
-   Show: Mentor Dashboard and Assigned Students.
+   Show: role context strip, Mentor Dashboard, Assigned Students, and assigned-student support guidance.
    Say: "Mentors see the students assigned to them, not a full school directory."
 
 5. Viewer
-   Show: Students directory and one student detail.
+   Show: role context strip, read-only language, Students directory, and one student detail.
    Say: "Viewer is visibility-only. This role is useful for support staff who need context but should not change records."
    Check: no approve, assign, schedule, account, or import mutation controls are available.
 
 6. Site Admin
-   Show: Site Overview, Students, Programs, People & Access, Mentor Assignments.
+   Show: role context strip, Admin Console safety cards, Site Overview, Students, Programs, People & Access, Mentor Assignments.
    Say: "Site Admin is the safest live persona for school setup and roster coverage because the account is scoped to the assigned school."
    Show coverage: assigned mentor/viewer rows, missing mentor coverage, and read-only access summaries before editing anything.
 
 7. Global Admin
-   Show: Admin Command Center and site switch/scope language if needed.
+   Show: role context strip, Admin Command Center, local-account-only Global Admin concept, and site switch/scope language if needed.
    Say: "This is the broader fake-account admin view. It is not a claim that a real district pilot is approved."
 
 8. Reporting Admin
-   Show: Readiness.
+   Show: role context strip and Readiness.
    Say: "This role can review aggregate readiness without opening individual student operations."
 
 ## Add Student Safe Demo
@@ -141,14 +177,29 @@ Safe preview pattern:
 
 Stop or switch to screenshots/proof docs if any of these are true:
 
+- The hosted app is not reachable.
 - `/api/health` is unreachable.
 - `/api/health` reports `databaseReady=false`.
 - `/api/health` reports `studentRosterProfilesReady=false`.
+- Any canonical fake `.test` role login fails.
+- Any role boundary proof fails.
 - A non-`.test` credential is required.
 - A page shows passwords, tokens, raw Drive IDs, private URLs, or raw database internals.
 - Any role sees broader student data than its scope should allow.
 - Viewer has a mutation control.
 - Student can reach staff-only View as Student or admin actions.
+- Admin Console is exposed to an unauthorized role.
+- View as Student can mutate or bypass authorized-student scope.
+- Migration `0016` health is missing or false for Add Student / CSV roster profile demos.
+- Screenshot or proof manifest artifacts are stale, missing, or no longer match the current UI.
+
+## Recovery / Fallback Notes
+
+- If the hosted app or health endpoint is down, use the screenshot index and proof manifest instead of clicking live pages.
+- If a fake role login fails, skip that persona and mark the live hosted walkthrough as blocked until credentials and role scope are repaired.
+- If a hosted proof command fails on a role boundary, do not replace it with a verbal promise; switch to local fake-data proof and record the hosted blocker.
+- If `studentRosterProfilesReady=false`, keep the workspace walkthrough but skip Add Student and CSV roster profile sections.
+- If someone asks for real-student launch timing, point them to `docs/sales/real-student-pilot-readiness-gap-analysis.md` and keep the answer at NO-GO.
 
 ## Close
 

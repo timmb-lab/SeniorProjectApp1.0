@@ -1,5 +1,13 @@
 # Demo Preflight Checklist
 
+## Claims Boundary
+
+- [ ] Open `docs/sales/demo-day-operator-script.md`; use it as the canonical live hosted walkthrough.
+- [ ] Say only: "This is demo-ready with fake accounts."
+- [ ] Say only: "Real student pilot requires these approvals/proofs first."
+- [ ] Do not claim real-student production pilot approval, legal/security/privacy/retention approval, archive manifest download readiness, or fake `.test` proof as real roster proof.
+- [ ] Run `npm run check:pilot-readiness` and confirm the expected real-student pilot decision remains NO-GO until manual evidence exists.
+
 ## Local Reset And Proof
 
 - [ ] Confirm repo is `C:\SeniorProjectApp1.0` on `main`.
@@ -28,6 +36,7 @@
 
 - [ ] Confirm hosted `/api/health` reports `databaseReady=true`.
 - [ ] Confirm hosted `/api/health` reports `studentRosterProfilesReady=true`.
+- [ ] Run `npm run prove:demo:local` if local fake-data proof has not already been run for the day.
 - [ ] Run `npm run check:workspace:hosted-permissions`.
 - [ ] Run `npm run check:workspace:hosted-dashboard`.
 - [ ] Run `npm run check:workspace:hosted-evidence`.
@@ -44,6 +53,18 @@
 - [ ] Confirm the legacy synthetic hosted sales-demo compatibility result. Current expected missing-seed result is `LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING`; historical reports may show `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING`.
 - [ ] Confirm this Caveat is not treated as a No-go for Hosted fake-account click-around demo readiness.
 - [ ] Do not run remote seed writes, remote resets, migrations, deploys, or credential commands during demo preflight without a separate approval gate.
+
+## No-Go Stop Conditions
+
+- [ ] Stop if the hosted app is unreachable.
+- [ ] Stop if any canonical fake `.test` role login fails.
+- [ ] Stop if any role boundary proof fails.
+- [ ] Stop if Viewer can mutate.
+- [ ] Stop if Student sees admin/staff controls.
+- [ ] Stop if Admin Console is exposed to an unauthorized role.
+- [ ] Stop if View as Student can mutate or bypass authorized-student scope.
+- [ ] Stop Add Student / CSV roster profile demos if the hosted migration health signal is missing or false.
+- [ ] Stop if screenshot or proof manifest artifacts are stale, missing, or no longer match the current UI.
 
 ## Persona Checks
 

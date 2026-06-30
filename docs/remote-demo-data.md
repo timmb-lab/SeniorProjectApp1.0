@@ -12,13 +12,16 @@ npm run prove:demo:remote
 
 The multisite seed requires the remote D1 schema to include migration `0011_multisite_site_role_foundation.sql`. Phase 13B applied that migration gate. The current hosted sales-demo proof script reports the legacy synthetic remote demo seed is not present as a non-blocking compatibility Caveat.
 
-Do not treat the legacy synthetic sales-demo seed as current hosted proof until `npm run prove:sales-demo:hosted` reports it present.
+Do not treat the legacy synthetic sales-demo seed as the current hosted demo-day path. Run `npm run prove:sales-demo:hosted` only when a technical reviewer asks for the deprecated compatibility check; the canonical hosted walkthrough uses fake `.test` accounts and `docs/sales/demo-day-operator-script.md`.
 
 Current hosted fake-account click-around demo readiness is green for fake-account click-around only. The legacy synthetic sales-demo hosted proof is deprecated and does not block the current fake-account demo. Use the read-only/API gates plus the hosted browser proof:
 
 ```powershell
 npm run prove:remote:migration-0011
 npm run prove:sales-demo:hosted
+npm run check:workspace:hosted-permissions
+npm run check:workspace:hosted-dashboard
+npm run check:workspace:hosted-evidence
 npm run prove:hosted-fake-pilot-browser
 ```
 

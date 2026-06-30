@@ -18,17 +18,17 @@ Migration readiness: the browser proof records a redacted `/api/health` summary.
 
 ## Screenshots
 
-| File | Persona | Screen | Proof status | Notes |
-| --- | --- | --- | --- | --- |
-| `docs/sales/screenshots/2026-06-29/01-signed-out-home.png` | Signed-out hosted workspace | Workspace sign-in/home route | Safe screenshot captured | Password field is empty; no credential values visible. |
-| `docs/sales/screenshots/2026-06-29/02-student-dashboard.png` | Student fake account | Student workspace / My Work | Browser navigation proven | Student lands on an understandable project dashboard with own-work scope. |
-| `docs/sales/screenshots/2026-06-29/03-program-teacher-dashboard.png` | Program Teacher fake account | Program Dashboard | Browser navigation proven | Program-scoped navigation and review/student entry points are visible. |
-| `docs/sales/screenshots/2026-06-29/04-mentor-dashboard.png` | Mentor fake account | Mentor Dashboard | Browser navigation proven | Mentor lands on assigned-student risk/support surface. |
-| `docs/sales/screenshots/2026-06-29/05-viewer-directory.png` | Viewer fake account | Student Directory / read-only viewer | Browser navigation proven | Viewer lands on the read-only student directory boundary. |
-| `docs/sales/screenshots/2026-06-29/06-site-admin-dashboard.png` | Site Admin fake account | Site Dashboard | Browser navigation proven | Site Admin lands on assigned-school dashboard/program/admin boundary. |
-| `docs/sales/screenshots/2026-06-29/07-admin-command-center.png` | Global Admin fake account | Admin Command Center | Browser navigation proven | Admin lands on platform command-center navigation. |
-| `docs/sales/screenshots/2026-06-29/08-misc-admin-readiness.png` | misc_admin fake account | Readiness / limited legacy reporting | Browser navigation proven | misc_admin is limited to aggregate readiness, matching expected behavior. |
-| `docs/sales/screenshots/2026-06-29/09-student-mobile-dashboard.png` | Student fake account | Mobile student workspace | Mobile browser navigation proven | Narrow viewport is usable for fake-account smoke testing. |
+| File | Persona | Account type | Screen | Claim boundary | Notes |
+| --- | --- | --- | --- | --- | --- |
+| `docs/sales/screenshots/2026-06-29/01-signed-out-home.png` | Signed-out hosted workspace | No account / demo-only sign-in surface | Workspace sign-in/home route | Safe hosted screenshot, not real-student proof | Password field is empty; no credential values visible. |
+| `docs/sales/screenshots/2026-06-29/02-student-dashboard.png` | Student | Fake `.test` demo-only account | Student workspace / My Work | Fake-account click-around proof only | Student lands on an understandable project dashboard with own-work scope. |
+| `docs/sales/screenshots/2026-06-29/03-program-teacher-dashboard.png` | Program Teacher | Fake `.test` demo-only account | Program Dashboard | Fake-account click-around proof only | Program-scoped navigation and review/student entry points are visible. |
+| `docs/sales/screenshots/2026-06-29/04-mentor-dashboard.png` | Mentor | Fake `.test` demo-only account | Mentor Dashboard | Fake-account click-around proof only | Mentor lands on assigned-student risk/support surface. |
+| `docs/sales/screenshots/2026-06-29/05-viewer-directory.png` | Viewer | Fake `.test` demo-only account | Student Directory / read-only viewer | Fake-account click-around proof only | Viewer lands on the read-only student directory boundary. |
+| `docs/sales/screenshots/2026-06-29/06-site-admin-dashboard.png` | Site Admin | Fake `.test` demo-only account | Site Dashboard | Fake-account click-around proof only | Site Admin lands on assigned-school dashboard/program/admin boundary. |
+| `docs/sales/screenshots/2026-06-29/07-admin-command-center.png` | Global Admin | Fake `.test` demo-only account | Admin Command Center | Fake-account click-around proof only | Admin lands on platform command-center navigation. |
+| `docs/sales/screenshots/2026-06-29/08-misc-admin-readiness.png` | misc_admin | Fake `.test` demo-only account | Readiness / limited legacy reporting | Fake-account click-around proof only | misc_admin is limited to aggregate readiness, matching expected behavior. |
+| `docs/sales/screenshots/2026-06-29/09-student-mobile-dashboard.png` | Student mobile | Fake `.test` demo-only account | Mobile student workspace | Fake-account mobile smoke proof only | Narrow viewport is usable for fake-account smoke testing. |
 
 ## Known Limits
 

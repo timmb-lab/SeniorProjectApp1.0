@@ -202,7 +202,7 @@ async function verifyHostedMigrationReadiness(result) {
         studentRosterProfilesReady: false
       }
     });
-    throw new Error(`${MISSING_0016_STATUS}: apply migrations/0016_student_roster_profiles.sql to the hosted D1 database before running hosted browser proof.`);
+    throw new Error(`${MISSING_0016_STATUS}: hosted health reports studentRosterProfilesReady=false. Repair migration 0016 through an approved deployment/migration gate outside the live demo, then rerun hosted browser proof.`);
   }
 }
 

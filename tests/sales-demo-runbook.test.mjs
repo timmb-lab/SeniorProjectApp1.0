@@ -95,6 +95,17 @@ test("demo day operator script covers hosted role order and safety guardrails", 
     "student_archive_manifest_download",
     "LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING",
     "HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING",
+    "One-Page Claims Boundary",
+    "This is demo-ready with fake accounts.",
+    "Real student pilot requires these approvals/proofs first.",
+    "Preflight Command Path",
+    "npm run check:pilot-readiness",
+    "npm run prove:demo:local",
+    "npm run check:workspace:hosted-permissions",
+    "npm run check:workspace:hosted-dashboard",
+    "npm run check:workspace:hosted-evidence",
+    "npm run prove:hosted-fake-pilot-browser",
+    "npm run prove:sales-demo:hosted",
     "Demo Readiness Summary",
     "Hosted app loads",
     "Login/auth",
@@ -124,8 +135,22 @@ test("demo day operator script covers hosted role order and safety guardrails", 
     "Viewer remains read-only",
     "first_name,last_name,email,site,program,status,cohort,graduation_year,mentor_email,viewer_email",
     "Preview first",
+    "Recovery / Fallback Notes",
   ]) {
     assert.match(operator, new RegExp(escapeRegex(text)));
+  }
+
+  for (const noGo of [
+    "The hosted app is not reachable.",
+    "Any canonical fake `.test` role login fails.",
+    "Any role boundary proof fails.",
+    "Viewer has a mutation control.",
+    "Student can reach staff-only View as Student or admin actions.",
+    "Admin Console is exposed to an unauthorized role.",
+    "View as Student can mutate or bypass authorized-student scope.",
+    "Screenshot or proof manifest artifacts are stale, missing, or no longer match the current UI.",
+  ]) {
+    assert.match(operator, new RegExp(escapeRegex(noGo)));
   }
 
   assert.match(operator, /unsafe targets are blocked before the account is created/i);
@@ -138,6 +163,8 @@ test("demo day operator script covers hosted role order and safety guardrails", 
   assert.match(operator, /Caveat/i);
   assert.match(operator, /Canonical fake `?\.test`? accounts|canonical fake accounts/i);
   assert.match(operator, /not as a live-demo migration step/i);
+  assert.match(operator, /Keep them separate instead of using a single wrapper/i);
+  assert.match(operator, /deprecated synthetic hosted seed and does not block/i);
   assert.doesNotMatch(operator, /\bproduction\s+pilot\s+ready\b/i);
   assert.doesNotMatch(operator, /\breal\s+student\s+data\s+ready\b/i);
 });
@@ -218,6 +245,15 @@ test("technical proof and hosted plan map screens to routes and blockers", () =>
   assert.match(hosted, /0016_student_roster_profiles\.sql/);
   assert.match(hosted, /studentRosterProfilesReady=true/);
   assert.match(hosted, /already-applied Health signal/i);
+  assert.match(hosted, /Demo-Day Preflight Commands/);
+  assert.match(hosted, /npm run check:pilot-readiness/);
+  assert.match(hosted, /npm run check:workspace:hosted-permissions/);
+  assert.match(hosted, /npm run check:workspace:hosted-dashboard/);
+  assert.match(hosted, /npm run check:workspace:hosted-evidence/);
+  assert.match(hosted, /npm run prove:hosted-fake-pilot-browser/);
+  assert.match(hosted, /npm run prove:sales-demo:hosted/);
+  assert.match(hosted, /Stop the live hosted walkthrough/);
+  assert.match(hosted, /Admin Console is exposed to an unauthorized role/);
   assert.match(hosted, /Future Pilot Item: Archive Manifest Download/);
   assert.match(hosted, /Acceptance criteria/);
   assert.match(hosted, /No remote seed\/reset writes/);
@@ -230,6 +266,8 @@ test("sales docs avoid overclaims, secret-like values, and screenshot proof clai
   assert.match(combinedSalesDocs, /GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF|Hosted fake-account pilot proof ready/i);
   assert.match(combinedSalesDocs, /Hosted fake-account click-around demo readiness/);
   assert.match(combinedSalesDocs, /Real-student production pilot readiness/);
+  assert.match(combinedSalesDocs, /This is demo-ready with fake accounts\./);
+  assert.match(combinedSalesDocs, /Real student pilot requires these approvals\/proofs first\./);
   assert.match(combinedSalesDocs, /LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING/);
   assert.match(combinedSalesDocs, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
   assert.doesNotMatch(combinedSalesDocs, /fake-account[^.\n]{0,160}(means|equals|proves)[^.\n]{0,160}real-student production/i);
@@ -260,6 +298,7 @@ test("sales demo proof scripts and package aliases are present and safe", () => 
   assert.equal(pkg.scripts["prove:sales-demo:local"], "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/prove-sales-demo-local.mjs");
   assert.equal(pkg.scripts["prove:sales-demo:hosted"], "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/prove-sales-demo-hosted.mjs");
   assert.equal(pkg.scripts["prove:hosted-fake-pilot-browser"], "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/prove-hosted-fake-pilot-browser.mjs");
+  assert.equal(pkg.scripts["check:pilot-readiness"], "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/check-real-student-pilot-readiness.mjs");
 
   const localScript = read("scripts/prove-sales-demo-local.mjs");
   assert.match(localScript, /runDemoProof/);
@@ -269,6 +308,11 @@ test("sales demo proof scripts and package aliases are present and safe", () => 
   const hostedScript = read("scripts/prove-sales-demo-hosted.mjs");
   assert.match(hostedScript, /HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011/);
   assert.match(hostedScript, /LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING/);
+  assert.match(hostedScript, /LEGACY_COMPATIBILITY_SEED_STATUS/);
+  assert.match(hostedScript, /hostedProofStatusMeaning/);
+  assert.match(hostedScript, /realStudentProductionStatus:\s*"NOT_CLAIMED_READY"/);
+  assert.match(hostedScript, /migration0016Treatment/);
+  assert.match(hostedScript, /proofBoundary/);
   assert.match(hostedScript, /canonicalHostedProofCommand/);
   assert.match(hostedScript, /hostedFakeAccountDemoBlocked:\s*false/);
   assert.match(hostedScript, /currentDemoReadinessImpact:\s*"NON_BLOCKING_CAVEAT"/);

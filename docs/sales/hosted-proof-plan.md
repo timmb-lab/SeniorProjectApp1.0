@@ -41,6 +41,29 @@ studentRosterProfilesReady=true
 
 If `studentRosterProfilesReady=false`, pause Add Student and CSV roster profile demos until the migration gate is repaired. Treat migration `0016_student_roster_profiles.sql` as an already-applied Health signal to verify through `/api/health`, not as a live-demo migration step. Do not apply migrations from a live demo unless a separate approved migration plan exists.
 
+## Demo-Day Preflight Commands
+
+The canonical live operator path is `docs/sales/demo-day-operator-script.md`. Use these commands as separate preflight gates so the operator can see which boundary failed and avoid hiding a hosted/browser/legacy distinction behind one wrapper:
+
+```powershell
+npm run check:pilot-readiness
+npm run prove:demo:local
+npm run check:workspace:hosted-permissions
+npm run check:workspace:hosted-dashboard
+npm run check:workspace:hosted-evidence
+npm run prove:hosted-fake-pilot-browser
+npm run prove:sales-demo:hosted
+```
+
+Preflight interpretation:
+
+- `check:pilot-readiness` is non-mutating and should keep the real-student pilot decision at NO-GO until required manual evidence exists.
+- `prove:demo:local` is fake-data local proof only.
+- `check:workspace:hosted-permissions`, `check:workspace:hosted-dashboard`, `check:workspace:hosted-evidence`, and `prove:hosted-fake-pilot-browser` are the current hosted fake-account demo proof path.
+- `prove:sales-demo:hosted` is a read-only legacy synthetic hosted seed compatibility check. `LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING` is not a blocker for Hosted fake-account click-around demo readiness.
+
+Stop the live hosted walkthrough if the hosted app is unreachable, a fake role login fails, a role boundary proof fails, Viewer can mutate, Student sees staff/admin controls, Admin Console is exposed to an unauthorized role, View as Student can mutate or bypass scope, the hosted health signal is missing for already-applied migration readiness, or proof artifacts are stale/missing.
+
 The legacy remote seed blocker status before Phase 13C was:
 
 ```text

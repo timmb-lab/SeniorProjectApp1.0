@@ -10,6 +10,17 @@ test("demo readiness closure runbook records migration, proof, and role walkthro
 
   for (const marker of [
     "fd5f0f655e45e73fe23fac9ccc1b6bf7687d9a7d",
+    "576600f9a01fa07727f2924342f601ea794faa99",
+    "Final Demo-Day Lock",
+    "docs/sales/demo-day-operator-script.md",
+    "canonical live hosted walkthrough",
+    "npm run check:pilot-readiness",
+    "npm run check:workspace:hosted-permissions",
+    "npm run check:workspace:hosted-dashboard",
+    "npm run check:workspace:hosted-evidence",
+    "npm run prove:sales-demo:hosted",
+    "NO-GO",
+    "stale/missing proof artifacts",
     "0016_student_roster_profiles.sql",
     "npm run db:migrate:remote",
     "studentRosterProfilesReady=true",

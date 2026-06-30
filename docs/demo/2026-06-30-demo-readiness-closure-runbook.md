@@ -8,6 +8,33 @@ Branch: `main`
 
 Starting commit for this closure pass: `fd5f0f655e45e73fe23fac9ccc1b6bf7687d9a7d`
 
+Part 3 lock-pass starting commit: `576600f9a01fa07727f2924342f601ea794faa99`
+
+## Final Demo-Day Lock
+
+Use `docs/sales/demo-day-operator-script.md` as the canonical live hosted walkthrough. This migration closure runbook preserves the 2026-06-30 repair history and proof context; do not start the live demo from this document.
+
+Demo-day proof commands:
+
+```powershell
+npm run check:pilot-readiness
+npm run prove:demo:local
+npm run check:workspace:hosted-permissions
+npm run check:workspace:hosted-dashboard
+npm run check:workspace:hosted-evidence
+npm run prove:hosted-fake-pilot-browser
+npm run prove:sales-demo:hosted
+```
+
+Claims boundary:
+
+- Allowed: Hosted fake-account click-around demo readiness is green when the hosted proof gates pass.
+- Allowed: local/demo proof gates passed when `npm run prove:demo:local` is green.
+- Not allowed: real-student pilot approval, legal/security/privacy/retention approval, archive manifest download readiness, or fake `.test` proof as real roster proof.
+- Expected real-student pilot answer: NO-GO until `docs/sales/real-student-pilot-readiness-gap-analysis.md` and `docs/sales/real-student-pilot-proof-plan.md` evidence requirements are satisfied.
+
+No-go stop conditions live in `docs/sales/demo-day-operator-script.md`: hosted app unreachable, fake role login failure, role boundary proof failure, Viewer mutation, Student staff/admin exposure, unauthorized Admin Console exposure, View as Student mutation or scope bypass, missing migration health signal, or stale/missing proof artifacts.
+
 ## Migration Requirement
 
 Migration `migrations/0016_student_roster_profiles.sql` is required before any environment should create or import students with roster profile fields. For the current hosted demo, treat it as an already-applied Health signal to verify through `/api/health`, not as a live-demo migration step.
@@ -104,16 +131,18 @@ Do not show passwords, `.secrets`, Cloudflare tokens, OAuth secrets, raw D1 tabl
 
 ## Validation Commands
 
-Run from `C:\SeniorProjectApp1.0`.
+Run from `C:\SeniorProjectApp1.0`. The list below is retained as closure-pass proof context; for live operation, use the shorter preflight sequence in `docs/sales/demo-day-operator-script.md`.
 
 ```powershell
 node --check workspace.js
 node --check scripts/prove-hosted-fake-pilot-browser.mjs
 node --test tests/student-roster-profiles-migration.test.mjs tests/site-students.integration.test.mjs tests/site-access-assignments.integration.test.mjs tests/admin-users-import.integration.test.mjs tests/hosted-browser-proof-gate.test.mjs tests/account-and-evidence-access.test.mjs
+npm run check:pilot-readiness
 npm test
 npm run typecheck
 npm run check
 npm run prove:demo:local
+npm run prove:sales-demo:hosted
 npm run verify:workspace-navigation
 npm run verify:workspace-url-state
 npm run verify:dashboard-actions
