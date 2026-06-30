@@ -1227,6 +1227,7 @@ function renderWorkspaceRoleCommandStrip(options = {}) {
     ? `Previewing ${viewAsStudentDisplayName()}`
     : isAdminConsole ? consoleCapabilities.scope.label : roleScopeSummary(currentUser);
   const next = roleCommandNextAction(primaryRole, roles, isAdminConsole, viewingAsStudent, consoleCapabilities);
+  const confidenceItems = roleCommandConfidenceItems(primaryRole, roles, isAdminConsole, viewingAsStudent, consoleCapabilities);
   const items = [
     {
       id: "identity",
@@ -1264,6 +1265,9 @@ function renderWorkspaceRoleCommandStrip(options = {}) {
       <div class="workspace-role-command-grid">
         ${items.map((item) => renderRoleCommandItem(item)).join("")}
       </div>
+      <div class="workspace-role-confidence-row" data-role-confidence-strip="true" aria-label="Demo and access confidence">
+        ${confidenceItems.map((item) => renderRoleConfidenceItem(item)).join("")}
+      </div>
     </section>
   `;
 }
@@ -1296,6 +1300,16 @@ function renderRoleCommandActionButton(action = {}) {
     `;
   }
   return "";
+}
+
+function renderRoleConfidenceItem(item = {}) {
+  return `
+    <article class="workspace-role-confidence-item" data-role-confidence-item="${escapeHtml(item.id || "confidence")}">
+      <span>${escapeHtml(item.label || "Confidence")}</span>
+      <strong>${escapeHtml(item.value || "")}</strong>
+      <p>${escapeHtml(item.detail || "")}</p>
+    </article>
+  `;
 }
 
 function roleCommandSummary(primaryRole, roles = roleIds(currentUser), isAdminConsole = false, viewingAsStudent = false, capabilities = adminConsoleCapabilitiesFor(currentUser)) {
@@ -1406,6 +1420,85 @@ function roleCommandSafetyText(primaryRole, roles = roleIds(currentUser), isAdmi
   if (isAdminConsole && capabilities.readOnly) return "This console is monitoring-only for the records assigned to the account.";
   if (isAdminConsole) return "Changes stay limited to the visible console section, selected school or program, and current role.";
   return "Student records, proof, and staff actions stay limited to the signed-in account's authorized records.";
+}
+
+function roleCommandConfidenceItems(primaryRole, roles = roleIds(currentUser), isAdminConsole = false, viewingAsStudent = false, capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  return [
+    {
+      id: "demo",
+      label: "Demo boundary",
+      value: isTrainingAccount(currentUser) ? "Training account proof" : "Demo rehearsal",
+      detail: isTrainingAccount(currentUser)
+        ? "This signed-in training account supports the demo proof; live student use still needs district policy sign-off."
+        : "Use training accounts and visible role labels for walkthroughs; live student use still needs district policy sign-off.",
+    },
+    {
+      id: "scope",
+      label: "Visible scope",
+      value: roleCommandScopeTitle(primaryRole, roles, isAdminConsole, viewingAsStudent, capabilities),
+      detail: roleCommandScopeDetail(primaryRole, roles, isAdminConsole, viewingAsStudent, capabilities),
+    },
+    {
+      id: "boundary",
+      label: "Cannot do here",
+      value: roleCommandBoundaryTitle(primaryRole, roles, isAdminConsole, viewingAsStudent, capabilities),
+      detail: roleCommandBoundaryText(primaryRole, roles, isAdminConsole, viewingAsStudent, capabilities),
+    },
+  ];
+}
+
+function isTrainingAccount(user = currentUser) {
+  const email = String(user?.email || "").trim().toLowerCase();
+  const id = String(user?.id || "").trim().toLowerCase();
+  return email.endsWith(".test") || email.includes(".capstone.test") || id.startsWith("demo-");
+}
+
+function roleCommandScopeTitle(primaryRole, roles = roleIds(currentUser), isAdminConsole = false, viewingAsStudent = false, capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  if (viewingAsStudent) return "Authorized student";
+  if (isAdminConsole) return capabilities.scope.label || "Role scope";
+  if (primaryRole === "student" || roles.has("student")) return "Own project only";
+  if (roles.has("viewer")) return "Assigned records";
+  if (roles.has("mentor")) return "Assigned students";
+  if (roles.has("program_teacher")) return "Assigned program";
+  if (roles.has("administration")) return "Assigned school";
+  if (roles.has("site_admin")) return "Assigned site";
+  if (hasGlobalAdminRole(roles)) return "Platform scope";
+  if (roles.has("misc_admin")) return "Aggregate only";
+  return "Role pending";
+}
+
+function roleCommandScopeDetail(primaryRole, roles = roleIds(currentUser), isAdminConsole = false, viewingAsStudent = false, capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  if (viewingAsStudent) return `Previewing ${viewAsStudentDisplayName()} from an authorized staff route.`;
+  if (isAdminConsole) return capabilities.scope.detail || "Only records allowed by this role are visible.";
+  if (primaryRole === "student" || roles.has("student")) return "No other student records, staff lists, preview controls, or management tools are visible.";
+  if (roles.has("viewer")) return "Viewer sees assigned student context and read-only history only.";
+  if (roles.has("mentor")) return "Mentor routes stay limited to active assigned students and presentation context.";
+  if (roles.has("program_teacher")) return "Program Teacher routes focus on assigned program students, review, and blockers.";
+  if (roles.has("administration")) return "School Admin routes stay tied to the assigned school and visible students.";
+  if (roles.has("site_admin")) return "Site Admin routes stay tied to the selected or assigned school.";
+  if (hasGlobalAdminRole(roles)) return "Global routes stay in Admin Console when setup, audit, or access work is elevated.";
+  if (roles.has("misc_admin")) return "Reporting routes show summary readiness without individual student records.";
+  return "Ask a coordinator or site administrator to assign the correct role.";
+}
+
+function roleCommandBoundaryTitle(primaryRole, roles = roleIds(currentUser), isAdminConsole = false, viewingAsStudent = false, capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  if (viewingAsStudent) return "Preview cannot save";
+  if (roles.has("viewer")) return "Read-only role";
+  if (primaryRole === "student" || roles.has("student")) return "No staff tools";
+  if (isAdminConsole && capabilities.readOnly) return "Monitor only";
+  if (isAdminConsole && hasGlobalAdminRole(roles)) return "Separated security";
+  if (isAdminConsole) return "Scoped writes";
+  return "No hidden elevation";
+}
+
+function roleCommandBoundaryText(primaryRole, roles = roleIds(currentUser), isAdminConsole = false, viewingAsStudent = false, capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  if (viewingAsStudent) return "No proof, submission, password, review, import, account, or assignment changes can be saved from View as Student.";
+  if (roles.has("viewer")) return "Approve, import, assignment, schedule, review, and account controls stay hidden.";
+  if (primaryRole === "student" || roles.has("student")) return "Students cannot open staff dashboards, staff preview tools, management consoles, or other student records.";
+  if (isAdminConsole && capabilities.readOnly) return "Console rows are for monitoring only; mutation controls remain hidden.";
+  if (isAdminConsole && hasGlobalAdminRole(roles)) return "Local Global Admin security remains separated from school SSO and student workspace activity.";
+  if (isAdminConsole) return "Writable controls stay limited to the selected school or program and this role's allowed section.";
+  return "Workspace support actions remain scoped to assigned students, school, program, or account settings.";
 }
 
 function switchWorkspaceMode(button) {
@@ -1603,6 +1696,11 @@ function renderAdminConsoleSafetyStrip(capabilities = adminConsoleCapabilitiesFo
       detail: hasGlobalAdminRole(roleIds(currentUser))
         ? "Global Admin stays tied to local admin accounts; audit and security tools remain in protected console sections."
         : "Security, audit, global access, and cross-site actions stay hidden unless the signed-in role explicitly allows them.",
+    },
+    {
+      id: "demo",
+      title: "Demo proof guard",
+      detail: "Use training accounts for walkthroughs; live student use still needs district policy sign-off.",
     },
   ];
   return `
@@ -4026,7 +4124,7 @@ function renderReadOnlyBanner() {
     return `
       <section class="workspace-read-only-banner" data-workspace-mode="read-only" aria-label="Viewer read-only mode">
         <span class="workspace-chip workspace-role-chip" data-role-id="viewer">Viewer</span>
-        <p>Read-only workspace. You can open assigned student records for context. Site-wide dashboards, approvals, assignment changes, and account updates stay with authorized staff.</p>
+        <p>Read-only workspace. You can open assigned student records for context, then share concerns with the Program Teacher or site staff. Site-wide dashboards, approvals, assignment changes, schedules, reviews, imports, and account updates stay with authorized staff.</p>
       </section>
       ${renderReadOnlyEscalationGuide("viewer")}
     `;
@@ -19192,6 +19290,8 @@ function viewAsStudentDisplayName() {
 function renderViewAsStudentBanner() {
   if (!isViewAsStudentActive()) return "";
   const source = studentDetailReturnCopy(viewAsStudentState.sourceSection || "students");
+  const staffRole = roleLabel(primaryRoleForUser(currentUser));
+  const staffName = currentUser?.displayName || currentUser?.email || "Signed-in staff";
   const readOnlyCopy = roleIds(currentUser).has("viewer")
     ? "Viewer access stays read-only while previewing the student workspace."
     : "This is a read-only staff preview of the student workspace.";
@@ -19199,10 +19299,12 @@ function renderViewAsStudentBanner() {
     <section class="workspace-view-as-banner" data-view-as-student-banner="true" data-view-as-student-mode="safe-preview" aria-label="View as student mode">
       <div class="workspace-view-as-banner-copy">
         <span>Viewing as: ${escapeHtml(viewAsStudentDisplayName())}</span>
+        <small data-view-as-student-staff-context="true">Signed in as ${escapeHtml(staffName)} (${escapeHtml(staffRole)}). Staff identity and permissions remain active behind this preview.</small>
         <div class="workspace-view-as-banner-chips" aria-label="Preview safeguards">
           <span class="workspace-view-as-chip">Read-only preview</span>
           <span class="workspace-view-as-chip">Authorized student only</span>
           <span class="workspace-view-as-chip">No student changes saved here</span>
+          <span class="workspace-view-as-chip">No proof or account changes</span>
         </div>
         <small>${escapeHtml(readOnlyCopy)} Exit returns to ${escapeHtml(source.label)}.</small>
       </div>
@@ -20690,6 +20792,35 @@ const ROLE_WORKING_PROFILES = {
   mentor: {
     title: "Mentor working profile",
     job: "Support the students assigned to you by checking their progress, meeting status, evidence, feedback needs, and presentation readiness.",
+    quickStart: [
+      {
+        id: "risks",
+        step: "1",
+        tone: "warning",
+        title: "Open students with risks",
+        detail: "Start with revision, meeting, presentation, or stale-progress signals before your next check-in.",
+        section: "mentorDashboard",
+        action: "Open Mentor Dashboard",
+      },
+      {
+        id: "assigned",
+        step: "2",
+        tone: "student",
+        title: "Open one assigned student",
+        detail: "Use Assigned Students when you already know which student needs meeting or proof context.",
+        section: "mentor",
+        action: "Open Assigned Students",
+      },
+      {
+        id: "presentation",
+        step: "3",
+        tone: "quiet",
+        title: "Check presentation context",
+        detail: "Confirm schedule, outline, and day-of status for students you support.",
+        section: "presentation",
+        action: "Open Presentation",
+      },
+    ],
     see: [
       "Only students actively assigned to you.",
       "Progress signals, proof counts, mentor meeting status, presentation status, and student detail context for assigned students.",
@@ -20714,6 +20845,26 @@ const ROLE_WORKING_PROFILES = {
   viewer: {
     title: "Viewer working profile",
     job: "Read assigned student records for context without changing student work, reviews, assignments, accounts, or school operations.",
+    quickStart: [
+      {
+        id: "read-only",
+        step: "1",
+        tone: "quiet",
+        title: "Open assigned students",
+        detail: "Start with the read-only student list and open only records assigned to this account.",
+        section: "students",
+        action: "Open Students",
+      },
+      {
+        id: "share-context",
+        step: "2",
+        tone: "student",
+        title: "Share context with the owner",
+        detail: "When a student seems stuck, tell the Program Teacher or site staff what you saw instead of changing the record.",
+        section: "students",
+        action: "Review context",
+      },
+    ],
     see: [
       "Only the student records assigned to you.",
       "Student detail, progress signals, proof summaries, and status history that your assignment allows.",
@@ -20800,6 +20951,35 @@ const ROLE_WORKING_PROFILES = {
   administration: {
     title: "School Admin working profile",
     job: "Support one or more assigned schools by managing student, mentor, viewer, and Program Teacher access while watching student status, readiness, presentation needs, and closeout blockers.",
+    quickStart: [
+      {
+        id: "school",
+        step: "1",
+        tone: "school",
+        title: "Check school status",
+        detail: "Open Site Dashboard first to see progress, review load, mentor coverage, and student follow-up needs.",
+        section: "siteDashboard",
+        action: "Open Site Dashboard",
+      },
+      {
+        id: "operations",
+        step: "2",
+        tone: "warning",
+        title: "Open blockers",
+        detail: "Use Operations when presentation, final-file, mentor, or readiness work needs staff follow-up.",
+        section: "operations",
+        action: "Open Operations",
+      },
+      {
+        id: "access",
+        step: "3",
+        tone: "primary",
+        title: "Fix roster access in Admin Console",
+        detail: "Use People and Access for student, mentor, viewer, and Program Teacher roster corrections.",
+        section: "adminUsers",
+        action: "Open Users & Access",
+      },
+    ],
     see: [
       "Assigned school dashboard, student directory, mentor coverage, site access records, operations readiness, presentation status, and aggregate readiness.",
       "Student detail context for leadership follow-up.",
@@ -20827,6 +21007,35 @@ const ROLE_WORKING_PROFILES = {
   site_admin: {
     title: "Site Admin working profile",
     job: "Run the assigned school's capstone setup and operations: students, programs, mentor coverage, site access, readiness, presentations, and closeout follow-up.",
+    quickStart: [
+      {
+        id: "site",
+        step: "1",
+        tone: "school",
+        title: "Review the selected school",
+        detail: "Start with Site Dashboard to confirm student progress, review load, and mentor coverage.",
+        section: "siteDashboard",
+        action: "Open Site Dashboard",
+      },
+      {
+        id: "people",
+        step: "2",
+        tone: "primary",
+        title: "Fix People and Access",
+        detail: "Use Admin Console when staff, viewer, mentor, Program Teacher, or student access needs correction.",
+        section: "adminUsers",
+        action: "Open Users & Access",
+      },
+      {
+        id: "programs",
+        step: "3",
+        tone: "checklist",
+        title: "Confirm site programs",
+        detail: "Use Programs only for the selected school before changing roster or review expectations.",
+        section: "programs",
+        action: "Open Programs",
+      },
+    ],
     see: [
       "Assigned school dashboards, student directory, review context, mentor coverage, operations readiness, presentation status, and site access records.",
       "User and assignment tools limited to the assigned school.",
@@ -20853,6 +21062,35 @@ const ROLE_WORKING_PROFILES = {
   global_admin: {
     title: "Global Admin working profile",
     job: "Operate the full platform: all schools, users, site access, audit visibility, final-file export follow-up, readiness, and high-level workflow health.",
+    quickStart: [
+      {
+        id: "command",
+        step: "1",
+        tone: "primary",
+        title: "Open the command center",
+        detail: "Start in Admin Console to see cross-site risk, review load, mentor coverage, and final-file status.",
+        section: "adminDashboard",
+        action: "Open Command Center",
+      },
+      {
+        id: "access",
+        step: "2",
+        tone: "school",
+        title: "Confirm access changes",
+        detail: "Use People and Access for platform, site, staff, viewer, mentor, and student account work.",
+        section: "adminUsers",
+        action: "Open Users & Access",
+      },
+      {
+        id: "audit",
+        step: "3",
+        tone: "quiet",
+        title: "Check protected activity",
+        detail: "Use Audit and Security only when the question needs elevated account or activity context.",
+        section: "audit",
+        action: "Open Audit",
+      },
+    ],
     see: [
       "All platform schools and the global command center.",
       "Student directory, review queue, site dashboards, mentor coverage, operations, readiness, audit activity, and final-file export status.",
@@ -20879,6 +21117,17 @@ const ROLE_WORKING_PROFILES = {
   misc_admin: {
     title: "Legacy Reporting Admin working profile",
     job: "Review aggregate readiness reporting without opening individual student records or changing operational data.",
+    quickStart: [
+      {
+        id: "readiness",
+        step: "1",
+        tone: "quiet",
+        title: "Open aggregate readiness",
+        detail: "Start with the summary report and keep follow-up routed to authorized school staff.",
+        section: "readiness",
+        action: "Open Readiness",
+      },
+    ],
     see: [
       "Aggregate readiness signals available to the legacy reporting role.",
       "Summary counts and high-level readiness status.",
@@ -20955,7 +21204,7 @@ function renderRoleProfileSection(options = {}) {
 }
 
 function renderRoleProfileQuickStart(steps = [], options = {}) {
-  const sectionIds = availableSectionIds();
+  const sectionIds = availableSectionIdsForAnyMode();
   const visibleSteps = (Array.isArray(steps) ? steps : []).filter((step) => step?.section && sectionIds.has(step.section));
   if (!visibleSteps.length) return "";
   const studentView = Boolean(options.studentView);

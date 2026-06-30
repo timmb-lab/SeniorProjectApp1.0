@@ -1005,6 +1005,13 @@
   gap: 0.55rem;
 }
 
+.workspace-role-confidence-row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
 .workspace-role-command-item {
   display: grid;
   align-content: start;
@@ -1016,9 +1023,26 @@
   padding: 0.72rem;
 }
 
+.workspace-role-confidence-item {
+  display: grid;
+  gap: 0.28rem;
+  min-width: 0;
+  border: 1px solid color-mix(in srgb, var(--role-accent) 18%, white);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--role-accent-soft) 46%, white);
+  padding: 0.62rem 0.72rem;
+}
+
 .workspace-role-command-item span {
   color: var(--role-accent-dark);
   font-size: 0.72rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.workspace-role-confidence-item span {
+  color: var(--role-accent-dark);
+  font-size: 0.68rem;
   font-weight: 950;
   text-transform: uppercase;
 }
@@ -1027,6 +1051,19 @@
   color: var(--abc-charcoal);
   font-size: 0.96rem;
   line-height: 1.2;
+}
+
+.workspace-role-confidence-item strong {
+  color: var(--abc-charcoal);
+  font-size: 0.9rem;
+  line-height: 1.2;
+}
+
+.workspace-role-confidence-item p {
+  margin: 0;
+  color: var(--abc-muted);
+  font-size: 0.82rem;
+  line-height: 1.35;
 }
 
 .workspace-role-command-item .workspace-link-button {
@@ -1223,7 +1260,7 @@
 
 .workspace-admin-console-safety-strip {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(13.5rem, 1fr));
   gap: 0.75rem;
 }
 
@@ -2067,6 +2104,11 @@
 
 .workspace-role-profile-start-card.teacher {
   border-left-color: var(--abc-blue);
+}
+
+.workspace-role-profile-start-card.school {
+  border-left-color: var(--abc-teal);
+  background: #f0fbf9;
 }
 
 .workspace-role-profile-start-card.quiet {
@@ -7456,6 +7498,7 @@ button.workspace-metric-tile,
 
   .workspace-role-command-strip,
   .workspace-role-command-grid,
+  .workspace-role-confidence-row,
   .workspace-admin-console-safety-strip {
     grid-template-columns: 1fr;
   }
