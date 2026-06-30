@@ -60,6 +60,10 @@ function workspaceDrawerWidthForViewport(viewportWidth) {
   return Math.min(360, viewportWidth - 32);
 }
 
+function adminReadableWidthForViewport(viewportWidth) {
+  return Math.min(1560, viewportWidth);
+}
+
 function authConfigFixture() {
   return {
     ok: true,
@@ -1214,9 +1218,11 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(siteDashboard, /data-screen-orientation-action="true"[\s\S]*data-section="students" data-section-preset="missing-mentors"[\s\S]*Find missing mentors/);
   assert.match(siteDashboard, /data-section="teacher" data-section-preset="submitted"[\s\S]*Review submitted work/);
   assert.match(siteDashboard, /data-section="operations" data-section-preset="archive-failed"[\s\S]*Review final-file failures/);
-  assert.match(siteDashboard, /Writable where allowed/);
+  assert.match(siteDashboard, /data-admin-console-active-section="siteDashboard"/);
   assert.match(siteDashboard, /Mentor coverage/);
-  assert.match(siteDashboard, /Site Admin \/ Assigned school: Desert Valley High School/);
+  assert.match(siteDashboard, /data-access-summary="compact"/);
+  assert.match(siteDashboard, /data-role-command-item="mode"[\s\S]*Site Admin \/ Admin Console[\s\S]*<p>Site<\/p>/);
+  assert.match(siteDashboard, /data-rail-access-summary="compact"[\s\S]*Site Admin[\s\S]*Site-scoped tools for the assigned school/);
   assert.doesNotMatch(siteDashboard, /site:site-desert-valley-high|Global scope|role scope|total in scope/);
   assert.doesNotMatch(siteDashboard, /Database-backed MVP|Cloudflare target|Audit-sensitive admin|Senior Capstone Product/);
   assert.match(siteDashboard, /workspace-site-context-badge/);
@@ -6847,11 +6853,19 @@ test("workspace half-width drawer and phone drawer stay bounded and keep global 
   assert.match(tablet, /\.workspace-user-text\s*\{[\s\S]*flex:\s*1 1 12rem;[\s\S]*max-width:\s*min\(100%,\s*24rem\);/);
   assert.match(tablet, /\.workspace-main\s*\{[\s\S]*grid-column:\s*1 \/ -1;[\s\S]*max-width:\s*100%;/);
   assert.match(phone, /\.workspace-button,[\s\S]*\.workspace-site-switcher select\s*\{[\s\S]*width:\s*100%;/);
+  assert.match(workspaceCss, /\.workspace-topbar\s*\{[\s\S]*grid-template-columns:\s*minmax\(220px,\s*auto\) minmax\(260px,\s*1fr\) minmax\(0,\s*auto\);/);
+  assert.match(workspaceCss, /\.workspace-topbar-center\s*\{[\s\S]*display:\s*flex;[\s\S]*justify-content:\s*center;/);
+  assert.match(tablet, /\.workspace-topbar-center\s*\{[\s\S]*flex-wrap:\s*wrap;[\s\S]*justify-content:\s*flex-start;/);
+  assert.match(workspaceCss, /\.workspace-admin-console-content\s*\{[\s\S]*grid-template-columns:\s*minmax\(188px,\s*220px\) minmax\(0,\s*1560px\);[\s\S]*justify-content:\s*center;/);
+  assert.match(workspaceCss, /\.workspace-admin-console-main\s*\{[\s\S]*max-width:\s*1560px;/);
+  assert.match(workspaceCss, /\.workspace-admin-operations-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(auto-fit,\s*minmax\(185px,\s*1fr\)\);/);
+  assert.match(workspaceCss, /\.workspace-screen-guide-panel\s*\{[\s\S]*overflow:\s*hidden;/);
   for (const viewportWidth of [800, 820, 390]) {
     const drawerWidth = workspaceDrawerWidthForViewport(viewportWidth);
     assert.ok(drawerWidth < viewportWidth, `drawer ${drawerWidth}px must fit inside ${viewportWidth}px viewport`);
     assert.ok(drawerWidth <= 360, "drawer must keep the 360px desktop cap");
   }
+  assert.equal(adminReadableWidthForViewport(1920), 1560, "wide admin content should cap at readable width");
 
   const tabletContext = await createWorkspaceContextWithFetch(profileRoutesForRole("global_admin"), {
     url: "https://workspace.example/workspace.html?mode=admin&section=adminDashboard",
@@ -6866,6 +6880,9 @@ test("workspace half-width drawer and phone drawer stay bounded and keep global 
   assert.equal(tabletContext.documentElements.get("#workspaceMenuToggle")?.hasEventListener("click"), true);
   assert.equal(tabletContext.documentElements.get("#workspaceRefresh")?.hasEventListener("click"), true);
   assert.equal(tabletContext.documentElements.get("#workspaceLogout")?.hasEventListener("click"), true);
+  assert.match(tabletContext.workspaceRoot.innerHTML, /data-active-role-badge="true"[\s\S]*data-role-identity="global_admin"/);
+  assertMarkupOrder(tabletContext.workspaceRoot.innerHTML, "School-Wide Operations", "Screen guide", "admin console content should appear before helper guide");
+  assertMarkupOrder(tabletContext.workspaceRoot.innerHTML, "School-Wide Operations", "Words on this screen", "admin console content should not be pushed down by language guidance");
   assert.match(
     tabletContext.documentElements.get(".workspace-app")?.style.getPropertyValue("--workspace-drawer-top") || "",
     /calc\(156px \+ env\(safe-area-inset-top\)\)/,
@@ -6884,9 +6901,9 @@ test("workspace half-width drawer and phone drawer stay bounded and keep global 
   tabletContext.documentElements.get("#workspaceRailClose")?.click();
   assert.match(tabletContext.workspaceRoot.innerHTML, /data-nav-state="collapsed"/);
   assert.match(tabletContext.workspaceRoot.innerHTML, /Admin Console/);
-  assert.match(tabletContext.workspaceRoot.innerHTML, /Global Admin admin console/);
+  assert.match(tabletContext.workspaceRoot.innerHTML, /data-access-summary="compact"/);
   assert.match(tabletContext.workspaceRoot.innerHTML, /workspace-command-center/);
-  assert.match(tabletContext.workspaceRoot.innerHTML, /Admin Command Center/);
+  assert.match(tabletContext.workspaceRoot.innerHTML, /School-Wide Operations/);
 
   const phoneContext = await createWorkspaceContextWithFetch(profileRoutesForRole("global_admin"), {
     url: "https://workspace.example/workspace.html?mode=admin&section=adminDashboard",
@@ -6901,7 +6918,44 @@ test("workspace half-width drawer and phone drawer stay bounded and keep global 
   phoneContext.documentElements.get("#workspaceRailClose")?.click();
   assert.match(phoneContext.workspaceRoot.innerHTML, /data-nav-state="collapsed"/);
   assert.match(phoneContext.workspaceRoot.innerHTML, /workspace-command-center/);
-  assert.match(phoneContext.workspaceRoot.innerHTML, /Admin Command Center/);
+  assert.match(phoneContext.workspaceRoot.innerHTML, /School-Wide Operations/);
+});
+
+test("workspace wide admin console keeps operations readable and source actions reachable", async () => {
+  assert.match(workspaceCss, /html,\s*body\s*\{[\s\S]*max-width:\s*100%;[\s\S]*overflow-x:\s*hidden;/);
+  assert.match(workspaceCss, /\.workspace-admin-console-content\s*\{[\s\S]*grid-template-columns:\s*minmax\(188px,\s*220px\) minmax\(0,\s*1560px\);[\s\S]*justify-content:\s*center;/);
+  assert.match(workspaceCss, /\.workspace-admin-command-center\s*\{[\s\S]*max-width:\s*100%;/);
+  assert.match(workspaceCss, /\.workspace-admin-operations-grid \.workspace-metric-tile\s*\{[\s\S]*min-height:\s*132px;/);
+  assert.equal(adminReadableWidthForViewport(1920), 1560);
+
+  const wideContext = await createWorkspaceContextWithFetch(profileRoutesForRole("global_admin"), {
+    url: "https://workspace.example/workspace.html?mode=admin&section=adminDashboard",
+    viewportWidth: 1920,
+    viewportHeight: 1080,
+    topbarBottom: 76,
+  });
+  const markup = wideContext.workspaceRoot.innerHTML;
+  assert.match(markup, /data-app-mode="admin"/);
+  assert.match(markup, /data-nav-state="expanded"/);
+  assert.match(markup, /data-rail-access-summary="compact"[\s\S]*Global Admin[\s\S]*Global view/);
+  assert.match(markup, /data-access-summary="compact"/);
+  assert.match(markup, /data-admin-command-center="true"/);
+  assert.match(markup, /data-admin-operations-grid="true"/);
+  assert.match(markup, /School-Wide Operations/);
+  assert.match(markup, /Needs Attention/);
+  assert.match(markup, /School-Wide Detail Panels/);
+  assert.match(markup, /class="workspace-tab is-active" data-section="adminDashboard"[\s\S]*Global Overview/);
+  assert.match(markup, /id="workspaceRefresh"[\s\S]*Refresh/);
+  assert.match(markup, /id="workspaceLogout"[\s\S]*Sign out/);
+  assert.equal(wideContext.documentElements.get("#workspaceRefresh")?.hasEventListener("click"), true);
+  assert.equal(wideContext.documentElements.get("#workspaceLogout")?.hasEventListener("click"), true);
+  for (const section of ["siteDashboard", "adminUsers", "audit", "archiveExports"]) {
+    assert.match(markup, new RegExp(`data-section="${section}"`), `${section} remains reachable`);
+  }
+  assertMarkupOrder(markup, "School-Wide Operations", "Needs Attention", "operations summary should lead before attention list");
+  assertMarkupOrder(markup, "Needs Attention", "School-Wide Detail Panels", "attention list should lead before detail panels");
+  assertMarkupOrder(markup, "School-Wide Operations", "Screen guide", "screen guide should follow the dashboard content on wide desktop");
+  assertMarkupOrder(markup, "School-Wide Operations", "Words on this screen", "diagnostic language rows should not precede the dashboard");
 });
 
 test("workspace dashboard actions use supported filters and loaders", () => {
