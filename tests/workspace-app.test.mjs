@@ -38,6 +38,28 @@ function escapeRegExp(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+function cssMediaBlock(maxWidth) {
+  const marker = `@media (max-width: ${maxWidth}px)`;
+  const start = workspaceCss.indexOf(marker);
+  if (start === -1) return "";
+  const open = workspaceCss.indexOf("{", start);
+  if (open === -1) return "";
+  let depth = 0;
+  for (let index = open; index < workspaceCss.length; index += 1) {
+    const char = workspaceCss[index];
+    if (char === "{") depth += 1;
+    if (char === "}") {
+      depth -= 1;
+      if (depth === 0) return workspaceCss.slice(open + 1, index);
+    }
+  }
+  return "";
+}
+
+function workspaceDrawerWidthForViewport(viewportWidth) {
+  return Math.min(360, viewportWidth - 32);
+}
+
 function authConfigFixture() {
   return {
     ok: true,
@@ -6789,13 +6811,16 @@ test("workspace exposes a real admin site switcher and collapsible navigation", 
   assert.match(workspaceJs, /let selectedSiteId = ""/);
   assert.match(workspaceJs, /let workspaceNavCollapsed = shouldCollapseWorkspaceNavByDefault\(\)/);
   assert.match(workspaceJs, /function shouldCollapseWorkspaceNavByDefault\(\)/);
-  assert.match(workspaceJs, /window\.matchMedia\("\(max-width: 760px\)"\)\.matches/);
+  assert.match(workspaceJs, /window\.matchMedia\("\(max-width: 900px\)"\)\.matches/);
   assert.match(workspaceJs, /id="workspaceMenuToggle"/);
+  assert.match(workspaceJs, /id="workspaceRailClose"/);
   assert.match(workspaceJs, /aria-label="\$\{workspaceNavCollapsed \? "Open menu" : "Close menu"\}"/);
   assert.match(workspaceJs, /workspace-menu-icon/);
   assert.match(workspaceJs, /workspace-topbar-start/);
   assert.match(workspaceJs, /data-nav-state="\$\{workspaceNavCollapsed \? "collapsed" : "expanded"\}"/);
   assert.match(workspaceJs, /function toggleWorkspaceMenu/);
+  assert.match(workspaceJs, /function closeWorkspaceMenu/);
+  assert.match(workspaceJs, /function syncWorkspaceDrawerOffset/);
   assert.match(workspaceJs, /Menu closed\./);
   assert.match(workspaceJs, /hidden aria-hidden="true"/);
   assert.match(siteSwitcherBlock, /id="workspaceSiteSelect"/);
@@ -6809,6 +6834,74 @@ test("workspace exposes a real admin site switcher and collapsible navigation", 
   assert.match(workspaceCss, /max-width: none/);
   assert.match(workspaceCss, /\.workspace-app\[data-nav-state="collapsed"\] \.workspace-content[\s\S]*grid-template-columns: minmax\(0, 1fr\)/);
   assert.match(workspaceCss, /\.workspace-app\[data-nav-state="collapsed"\] \.workspace-rail[\s\S]*display: none/);
+});
+
+test("workspace half-width drawer and phone drawer stay bounded and keep global admin controls reachable", async () => {
+  const tablet = cssMediaBlock(900);
+  const phone = cssMediaBlock(620);
+  assert.match(workspaceCss, /html,\s*body\s*\{[\s\S]*max-width:\s*100%;[\s\S]*overflow-x:\s*hidden;/);
+  assert.match(workspaceCss, /body\[data-page="workspace"\],[\s\S]*\.workspace-shell,[\s\S]*\.workspace-app\s*\{[\s\S]*max-width:\s*100%;[\s\S]*min-width:\s*0;/);
+  assert.match(tablet, /\.workspace-rail\s*\{[\s\S]*position:\s*fixed;[\s\S]*width:\s*min\(360px,\s*calc\(100vw - 32px\)\);[\s\S]*max-width:\s*calc\(100vw - 32px\);[\s\S]*max-height:\s*calc\(100dvh - var\(--workspace-drawer-top\) - 1rem - env\(safe-area-inset-bottom\)\);[\s\S]*overflow-x:\s*hidden;[\s\S]*overflow-y:\s*auto;/);
+  assert.match(tablet, /\.workspace-rail-drawer-header\s*\{[\s\S]*position:\s*sticky;[\s\S]*top:\s*0;[\s\S]*display:\s*flex;/);
+  assert.match(tablet, /\.workspace-user\s*\{[\s\S]*flex-wrap:\s*wrap;[\s\S]*justify-content:\s*flex-start;/);
+  assert.match(tablet, /\.workspace-user-text\s*\{[\s\S]*flex:\s*1 1 12rem;[\s\S]*max-width:\s*min\(100%,\s*24rem\);/);
+  assert.match(tablet, /\.workspace-main\s*\{[\s\S]*grid-column:\s*1 \/ -1;[\s\S]*max-width:\s*100%;/);
+  assert.match(phone, /\.workspace-button,[\s\S]*\.workspace-site-switcher select\s*\{[\s\S]*width:\s*100%;/);
+  for (const viewportWidth of [800, 820, 390]) {
+    const drawerWidth = workspaceDrawerWidthForViewport(viewportWidth);
+    assert.ok(drawerWidth < viewportWidth, `drawer ${drawerWidth}px must fit inside ${viewportWidth}px viewport`);
+    assert.ok(drawerWidth <= 360, "drawer must keep the 360px desktop cap");
+  }
+
+  const tabletContext = await createWorkspaceContextWithFetch(profileRoutesForRole("global_admin"), {
+    url: "https://workspace.example/workspace.html?mode=admin&section=adminDashboard",
+    viewportWidth: 800,
+    viewportHeight: 1000,
+    topbarBottom: 148,
+  });
+  assert.match(tabletContext.workspaceRoot.innerHTML, /data-nav-state="collapsed"/);
+  assert.match(tabletContext.workspaceRoot.innerHTML, /id="workspaceMenuToggle"[\s\S]*Open menu/);
+  assert.match(tabletContext.workspaceRoot.innerHTML, /id="workspaceRefresh"[\s\S]*Refresh/);
+  assert.match(tabletContext.workspaceRoot.innerHTML, /id="workspaceLogout"[\s\S]*Sign out/);
+  assert.equal(tabletContext.documentElements.get("#workspaceMenuToggle")?.hasEventListener("click"), true);
+  assert.equal(tabletContext.documentElements.get("#workspaceRefresh")?.hasEventListener("click"), true);
+  assert.equal(tabletContext.documentElements.get("#workspaceLogout")?.hasEventListener("click"), true);
+  assert.match(
+    tabletContext.documentElements.get(".workspace-app")?.style.getPropertyValue("--workspace-drawer-top") || "",
+    /calc\(156px \+ env\(safe-area-inset-top\)\)/,
+  );
+
+  tabletContext.documentElements.get("#workspaceMenuToggle")?.click();
+  const drawerOpen = tabletContext.workspaceRoot.innerHTML;
+  assert.match(drawerOpen, /data-nav-state="expanded"/);
+  assert.match(drawerOpen, /id="workspaceNavigationRail"/);
+  assert.match(drawerOpen, /id="workspaceRailClose"[\s\S]*Close menu/);
+  assert.equal(tabletContext.documentElements.get("#workspaceRailClose")?.hasEventListener("click"), true);
+  assert.match(drawerOpen, /data-active-role-badge="true"[\s\S]*data-role-identity="global_admin"/);
+  assert.match(drawerOpen, /id="workspaceRefresh"[\s\S]*Refresh/);
+  assert.match(drawerOpen, /id="workspaceLogout"[\s\S]*Sign out/);
+
+  tabletContext.documentElements.get("#workspaceRailClose")?.click();
+  assert.match(tabletContext.workspaceRoot.innerHTML, /data-nav-state="collapsed"/);
+  assert.match(tabletContext.workspaceRoot.innerHTML, /Admin Console/);
+  assert.match(tabletContext.workspaceRoot.innerHTML, /Global Admin admin console/);
+  assert.match(tabletContext.workspaceRoot.innerHTML, /workspace-command-center/);
+  assert.match(tabletContext.workspaceRoot.innerHTML, /Admin Command Center/);
+
+  const phoneContext = await createWorkspaceContextWithFetch(profileRoutesForRole("global_admin"), {
+    url: "https://workspace.example/workspace.html?mode=admin&section=adminDashboard",
+    viewportWidth: 390,
+    viewportHeight: 844,
+  });
+  assert.match(phoneContext.workspaceRoot.innerHTML, /data-nav-state="collapsed"/);
+  phoneContext.documentElements.get("#workspaceMenuToggle")?.click();
+  assert.match(phoneContext.workspaceRoot.innerHTML, /data-nav-state="expanded"/);
+  assert.match(phoneContext.workspaceRoot.innerHTML, /id="workspaceRailClose"[\s\S]*Close menu/);
+  assert.equal(phoneContext.documentElements.get("#workspaceRailClose")?.hasEventListener("click"), true);
+  phoneContext.documentElements.get("#workspaceRailClose")?.click();
+  assert.match(phoneContext.workspaceRoot.innerHTML, /data-nav-state="collapsed"/);
+  assert.match(phoneContext.workspaceRoot.innerHTML, /workspace-command-center/);
+  assert.match(phoneContext.workspaceRoot.innerHTML, /Admin Command Center/);
 });
 
 test("workspace dashboard actions use supported filters and loaders", () => {
@@ -13037,12 +13130,9 @@ async function createWorkspaceContextWithFetch(routes, options = {}) {
     innerHTML: "",
     querySelectorAll: () => [],
   };
-  const inertElement = {
-    addEventListener: () => {},
-    querySelectorAll: () => [],
-    value: "",
-  };
   const initialUrl = options.url || "https://workspace.example/workspace.html";
+  const viewportWidth = Number(options.viewportWidth || 1024);
+  const viewportHeight = Number(options.viewportHeight || 768);
   let currentHref = initialUrl;
   const listeners = new Map();
   const fetchLog = [];
@@ -13068,17 +13158,83 @@ async function createWorkspaceContextWithFetch(routes, options = {}) {
       locationChanges.push({ method: "replaceState", state, title, href: currentHref });
     },
   };
+  const inertElement = {
+    addEventListener: () => {},
+    hasEventListener: () => false,
+    querySelectorAll: () => [],
+    value: "",
+  };
+  const documentElements = new Map();
+  function createDocumentElement(selector) {
+    const listenersByType = new Map();
+    const styleProperties = new Map();
+    const topbarBottom = Number(options.topbarBottom || options.topbarHeight || 96);
+    return {
+      selector,
+      value: "",
+      offsetHeight: selector === ".workspace-topbar" ? topbarBottom : 0,
+      style: {
+        setProperty(name, value) {
+          styleProperties.set(name, value);
+        },
+        getPropertyValue(name) {
+          return styleProperties.get(name) || "";
+        },
+      },
+      addEventListener(type, handler) {
+        listenersByType.set(type, typeof handler === "function" ? [handler] : []);
+      },
+      hasEventListener(type) {
+        return (listenersByType.get(type) || []).length > 0;
+      },
+      click() {
+        for (const handler of listenersByType.get("click") || []) {
+          handler({ type: "click", currentTarget: this, preventDefault: () => {} });
+        }
+      },
+      getBoundingClientRect() {
+        return selector === ".workspace-topbar" ? { bottom: topbarBottom } : { bottom: 0 };
+      },
+      querySelectorAll: () => [],
+    };
+  }
+  function queryDocumentElement(selector) {
+    if (selector === "#workspaceMain") return workspaceRoot;
+    if (!String(selector || "").startsWith("#") && selector !== ".workspace-app" && selector !== ".workspace-topbar") {
+      return inertElement;
+    }
+    if (!documentElements.has(selector)) documentElements.set(selector, createDocumentElement(selector));
+    return documentElements.get(selector);
+  }
   const window = {
     location,
     history,
+    innerWidth: viewportWidth,
+    innerHeight: viewportHeight,
     addEventListener(type, handler) {
       const rows = listeners.get(type) || [];
       rows.push(handler);
       listeners.set(type, rows);
     },
+    removeEventListener(type, handler) {
+      const rows = listeners.get(type) || [];
+      listeners.set(type, rows.filter((row) => row !== handler));
+    },
     dispatchEvent(event) {
       const rows = listeners.get(event?.type) || [];
       for (const handler of rows) handler(event);
+    },
+    matchMedia(query) {
+      const maxWidth = String(query || "").match(/max-width:\s*(\d+)px/);
+      const minWidth = String(query || "").match(/min-width:\s*(\d+)px/);
+      const matchesMax = maxWidth ? viewportWidth <= Number(maxWidth[1]) : true;
+      const matchesMin = minWidth ? viewportWidth >= Number(minWidth[1]) : true;
+      return {
+        media: String(query || ""),
+        matches: matchesMax && matchesMin,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+      };
     },
   };
   const context = vm.createContext({
@@ -13095,8 +13251,7 @@ async function createWorkspaceContextWithFetch(routes, options = {}) {
     console,
     document: {
       querySelector(selector) {
-        if (selector === "#workspaceMain") return workspaceRoot;
-        return inertElement;
+        return queryDocumentElement(selector);
       },
       querySelectorAll: () => [],
     },
@@ -13138,5 +13293,5 @@ async function createWorkspaceContextWithFetch(routes, options = {}) {
   for (let index = 0; index < 8; index += 1) {
     await new Promise((resolve) => setTimeout(resolve, 0));
   }
-  return { context, workspaceRoot, fetchLog, fetchRequests, locationChanges, window };
+  return { context, workspaceRoot, fetchLog, fetchRequests, locationChanges, window, documentElements };
 }

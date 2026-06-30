@@ -72,6 +72,24 @@
   --workspace-soft: var(--color-primary-soft);
 }
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+body[data-page="workspace"],
+.workspace-shell,
+.workspace-app {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.workspace-shell {
+  overflow-x: hidden;
+}
+
 .workspace-shell {
   min-height: 100vh;
   background:
@@ -808,8 +826,12 @@
 
 .workspace-app {
   display: grid;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   min-height: 100vh;
   grid-template-rows: auto minmax(0, 1fr);
+  --workspace-drawer-top: calc(0.75rem + env(safe-area-inset-top));
 }
 
 .workspace-topbar {
@@ -820,6 +842,9 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.7rem;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
   border-bottom: 1px solid var(--line);
   border-top: 5px solid var(--role-accent);
   background:
@@ -833,6 +858,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
+  max-width: 100%;
   min-width: 0;
 }
 
@@ -910,9 +936,18 @@
   display: inline-flex;
   align-items: center;
   gap: 0.65rem;
+  min-width: 0;
+  max-width: 100%;
   color: var(--ink);
   text-decoration: none;
   font-weight: 950;
+}
+
+.workspace-brand > span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .workspace-brand .workspace-mark {
@@ -926,6 +961,7 @@
   align-items: center;
   justify-content: flex-end;
   gap: 0.6rem;
+  max-width: 100%;
   min-width: 0;
 }
 
@@ -1131,6 +1167,7 @@
   gap: 0.72rem;
   width: 100%;
   max-width: none;
+  min-width: 0;
   margin: 0;
   box-sizing: border-box;
   padding: 0.62rem clamp(0.9rem, 2vw, 1.6rem) 1.35rem;
@@ -1153,6 +1190,17 @@
   display: grid;
   align-content: start;
   gap: 0.85rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.workspace-rail-drawer-header {
+  display: none;
+  min-width: 0;
+}
+
+.workspace-rail-close {
+  white-space: nowrap;
 }
 
 .workspace-admin-console-rail .workspace-rail-card,
@@ -1181,6 +1229,7 @@
   display: grid;
   gap: 0.72rem;
   min-width: 0;
+  max-width: 100%;
 }
 
 .workspace-admin-console-main {
@@ -1204,6 +1253,8 @@
 .workspace-role-panel {
   display: grid;
   gap: 0.75rem;
+  min-width: 0;
+  max-width: 100%;
   padding: 0.85rem;
 }
 
@@ -7484,16 +7535,52 @@ button.workspace-metric-tile,
 
   .workspace-topbar {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
     justify-items: stretch;
+    overflow-x: hidden;
+  }
+
+  .workspace-topbar-start {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    width: 100%;
+  }
+
+  .workspace-brand,
+  .workspace-mode-switch,
+  .workspace-topbar-search,
+  .workspace-user {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 
   .workspace-user {
+    align-items: stretch;
     flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .workspace-user > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .workspace-user-text {
+    flex: 1 1 12rem;
+    max-width: min(100%, 24rem);
+    text-align: left;
+  }
+
+  .workspace-user .workspace-button {
+    flex: 0 0 auto;
   }
 
   .workspace-active-role-badge {
+    flex: 1 1 12rem;
     min-width: 0;
+    max-width: 100%;
   }
 
   .workspace-role-command-strip,
@@ -7522,6 +7609,12 @@ button.workspace-metric-tile,
   }
 
   .workspace-site-switcher {
+    flex: 1 1 14rem;
+    max-width: 100%;
+  }
+
+  .workspace-site-switcher select {
+    min-width: 0;
     max-width: 100%;
   }
 
@@ -7547,18 +7640,50 @@ button.workspace-metric-tile,
 
   .workspace-rail {
     position: fixed;
-    top: 5rem;
+    top: var(--workspace-drawer-top);
     right: auto;
-    bottom: 1rem;
     left: 1rem;
     z-index: 30;
-    width: min(360px, calc(100vw - 2rem));
-    overflow: auto;
+    width: min(360px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 2rem);
+    max-height: calc(100dvh - var(--workspace-drawer-top) - 1rem - env(safe-area-inset-bottom));
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
     border: 1px solid var(--border-soft);
     border-radius: var(--radius-card);
     background: rgba(255, 255, 255, 0.98);
     box-shadow: 0 22px 70px rgba(23, 32, 38, 0.22);
     padding: 0.75rem;
+  }
+
+  .workspace-rail-drawer-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-card);
+    background: rgba(255, 255, 255, 0.98);
+    padding: 0.55rem;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .workspace-rail-drawer-header strong {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .workspace-main {
+    grid-column: 1 / -1;
+    width: 100%;
+    max-width: 100%;
   }
 
   .workspace-grid {

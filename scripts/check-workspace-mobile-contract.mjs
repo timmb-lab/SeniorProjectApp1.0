@@ -37,6 +37,8 @@ const phone = mediaBlock(620);
 requireIncludes("tablet breakpoint exists", workspaceCss, "@media (max-width: 900px)");
 requireIncludes("phone breakpoint exists", workspaceCss, "@media (max-width: 620px)");
 
+requirePattern("workspace page suppresses document horizontal overflow", workspaceCss, /html,\s*body\s*\{[\s\S]*?max-width:\s*100%;[\s\S]*?overflow-x:\s*hidden;/);
+requirePattern("workspace shell caps page width", workspaceCss, /body\[data-page="workspace"\],[\s\S]*?\.workspace-shell,[\s\S]*?\.workspace-app\s*\{[\s\S]*?max-width:\s*100%;[\s\S]*?min-width:\s*0;/);
 requirePattern("tablet app layout collapses to one column", tablet, /\.workspace-content,[\s\S]*?grid-template-columns:\s*1fr;/);
 requirePattern("tablet dashboard grids collapse to one column", tablet, /\.workspace-dashboard-grid,[\s\S]*?\.workspace-student-card\s*\{[\s\S]*?grid-template-columns:\s*1fr;/);
 requirePattern("tablet review layout collapses to one column", tablet, /\.workspace-review-layout,[\s\S]*?\.workspace-student-card\s*\{[\s\S]*?grid-template-columns:\s*1fr;/);
@@ -44,7 +46,11 @@ requirePattern("tablet mentor assignment layout collapses to one column", tablet
 requirePattern("tablet operations layout collapses to one column", tablet, /\.workspace-operations-layout,[\s\S]*?\.workspace-student-card\s*\{[\s\S]*?grid-template-columns:\s*1fr;/);
 requirePattern("tablet worklist heads become labeled stacked rows", tablet, /\.workspace-worklist-head\s*\{[\s\S]*?display:\s*none;[\s\S]*?\.workspace-worklist-label\s*\{[\s\S]*?display:\s*block;/);
 requirePattern("tablet review panel stops sticky positioning", tablet, /\.workspace-review-panel\s*\{[\s\S]*?position:\s*static;/);
-requirePattern("mobile rail fits inside viewport", tablet, /\.workspace-rail\s*\{[\s\S]*?width:\s*min\(360px,\s*calc\(100vw - 2rem\)\);[\s\S]*?overflow:\s*auto;/);
+requirePattern("half-width rail is fixed overlay drawer", tablet, /\.workspace-rail\s*\{[\s\S]*?position:\s*fixed;[\s\S]*?width:\s*min\(360px,\s*calc\(100vw - 32px\)\);[\s\S]*?max-height:\s*calc\(100dvh - var\(--workspace-drawer-top\) - 1rem - env\(safe-area-inset-bottom\)\);[\s\S]*?overflow-x:\s*hidden;[\s\S]*?overflow-y:\s*auto;/);
+requirePattern("half-width drawer has sticky visible close control", tablet, /\.workspace-rail-drawer-header\s*\{[\s\S]*?position:\s*sticky;[\s\S]*?top:\s*0;[\s\S]*?display:\s*flex;/);
+requirePattern("half-width header wraps user controls", tablet, /\.workspace-user\s*\{[\s\S]*?flex-wrap:\s*wrap;[\s\S]*?justify-content:\s*flex-start;/);
+requirePattern("half-width email text cannot stretch layout", tablet, /\.workspace-user-text\s*\{[\s\S]*?flex:\s*1 1 12rem;[\s\S]*?max-width:\s*min\(100%,\s*24rem\);/);
+requirePattern("half-width main content stays in viewport", tablet, /\.workspace-main\s*\{[\s\S]*?grid-column:\s*1 \/ -1;[\s\S]*?max-width:\s*100%;/);
 
 requirePattern("phone controls stretch for tap targets", phone, /\.workspace-button,[\s\S]*?\.workspace-site-switcher select\s*\{[\s\S]*?width:\s*100%;/);
 requirePattern("phone content keeps viewport width", phone, /\.workspace-content\s*\{[\s\S]*?width:\s*100%;[\s\S]*?padding-inline:\s*0\.75rem;/);
@@ -68,6 +74,11 @@ const criticalMobileSurfaces = [
 for (const [label, pattern] of criticalMobileSurfaces) {
   requirePattern(label, workspaceJs, pattern);
 }
+
+requirePattern("workspace drawer close button is rendered", workspaceJs, /id="workspaceRailClose"[\s\S]*Close menu/);
+requirePattern("workspace drawer close handler is bound", workspaceJs, /#workspaceRailClose"\)\?\.addEventListener\("click", closeWorkspaceMenu\)/);
+requirePattern("workspace collapses nav by default at half-width desktop", workspaceJs, /window\.matchMedia\("\(max-width: 900px\)"\)\.matches/);
+requirePattern("workspace syncs drawer below wrapped header", workspaceJs, /function syncWorkspaceDrawerOffset\(\)[\s\S]*--workspace-drawer-top/);
 
 if (failures.length) {
   console.error("Workspace mobile contract failed:");

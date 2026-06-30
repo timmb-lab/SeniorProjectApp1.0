@@ -1074,6 +1074,10 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
       </header>
       <div class="workspace-content ${isAdminConsole ? "workspace-admin-console-content" : ""}">
         <aside class="workspace-rail ${isAdminConsole ? "workspace-admin-console-rail" : ""}" id="workspaceNavigationRail" aria-label="${isAdminConsole ? "Admin Console navigation" : "Workspace navigation"}" ${workspaceNavCollapsed ? 'hidden aria-hidden="true"' : ""}>
+          <div class="workspace-rail-drawer-header" data-workspace-rail-drawer-header="true">
+            <strong>${escapeHtml(isAdminConsole ? "Admin Console menu" : "Workspace menu")}</strong>
+            <button class="workspace-button workspace-button-secondary workspace-button-small workspace-rail-close" id="workspaceRailClose" type="button">Close menu</button>
+          </div>
           <section class="workspace-rail-card">
             <p class="workspace-kicker">${isAdminConsole ? "Console access" : "Your access"}</p>
             <div class="workspace-role-banner">
@@ -1128,8 +1132,12 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   `;
 
   document.querySelector("#workspaceMenuToggle")?.addEventListener("click", toggleWorkspaceMenu);
+  document.querySelector("#workspaceRailClose")?.addEventListener("click", closeWorkspaceMenu);
   document.removeEventListener?.("keydown", handleWorkspaceKeydown);
   document.addEventListener?.("keydown", handleWorkspaceKeydown);
+  window.removeEventListener?.("resize", syncWorkspaceDrawerOffset);
+  window.addEventListener?.("resize", syncWorkspaceDrawerOffset);
+  syncWorkspaceDrawerOffset();
   document.querySelector("#workspaceSiteSelect")?.addEventListener("change", (event) => selectWorkspaceSite(event.currentTarget?.value || ""));
   document.querySelectorAll("[data-site-switch-id]").forEach((button) => {
     button.addEventListener("click", () => selectWorkspaceSite(button.dataset.siteSwitchId || ""));
@@ -2082,7 +2090,7 @@ function handleWorkspaceDisclosureToggle(event) {
 function shouldCollapseWorkspaceNavByDefault() {
   return typeof window !== "undefined"
     && typeof window.matchMedia === "function"
-    && window.matchMedia("(max-width: 760px)").matches;
+    && window.matchMedia("(max-width: 900px)").matches;
 }
 
 function toggleWorkspaceMenu() {
@@ -2090,10 +2098,25 @@ function toggleWorkspaceMenu() {
   renderAppShell(workspaceNavCollapsed ? "Menu closed." : "Menu opened.", "success");
 }
 
-function handleWorkspaceKeydown(event) {
-  if (event?.key !== "Escape" || workspaceNavCollapsed) return;
+function closeWorkspaceMenu() {
+  if (workspaceNavCollapsed) return;
   workspaceNavCollapsed = true;
   renderAppShell("Menu closed.", "success");
+}
+
+function handleWorkspaceKeydown(event) {
+  if (event?.key !== "Escape" || workspaceNavCollapsed) return;
+  closeWorkspaceMenu();
+}
+
+function syncWorkspaceDrawerOffset() {
+  const app = document.querySelector?.(".workspace-app");
+  const topbar = document.querySelector?.(".workspace-topbar");
+  if (!app || !topbar) return;
+  const rect = topbar.getBoundingClientRect?.();
+  const height = Number(rect?.bottom || topbar.offsetHeight || 0);
+  if (!Number.isFinite(height) || height <= 0) return;
+  app.style?.setProperty?.("--workspace-drawer-top", `calc(${Math.ceil(height + 8)}px + env(safe-area-inset-top))`);
 }
 
 function renderScreenGuidance(sectionId = activeSection, primaryRole = primaryRoleForUser(currentUser), roles = roleIds(currentUser), sections = availableSections()) {

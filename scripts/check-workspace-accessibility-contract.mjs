@@ -30,7 +30,7 @@ if (!String(packageJson.scripts?.["check:workspace-accessibility"] || "").includ
 assertMatches("workspaceHtml", /<main[^>]+id="workspaceMain"[^>]*>/, "workspace must keep a main landmark");
 assertMatches("workspaceJs", /aria-label="\$\{workspaceNavCollapsed \? "Open menu" : "Close menu"\}"/, "nav collapse button needs dynamic aria-label");
 assertMatches("workspaceJs", /aria-pressed="\$\{workspaceNavCollapsed \? "true" : "false"\}"/, "nav collapse button needs aria-pressed state");
-assertMatches("workspaceJs", /handleWorkspaceKeydown[\s\S]*Escape[\s\S]*workspaceNavCollapsed = true/, "Escape key should close the workspace rail");
+assertMatches("workspaceJs", /handleWorkspaceKeydown[\s\S]*Escape[\s\S]*closeWorkspaceMenu\(\)/, "Escape key should close the workspace rail");
 assertMatches("workspaceJs", /data-workspace-disclosure-action="toggle"[\s\S]*aria-expanded="\$\{open \? "true" : "false"\}"/, "disclosure toggles must expose aria-expanded");
 assertIncludes("workspaceJs", "aria-live=\"polite\"", "status and preview regions should announce changes politely");
 assertIncludes("workspaceJs", "data-active-role-badge=\"true\"", "active role badge must keep visible role text near user identity");
