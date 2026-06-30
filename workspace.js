@@ -32,6 +32,8 @@ const workspaceModeLastSections = {
 };
 let busy = false;
 let lastAdminImportResult = null;
+let adminPeopleView = "manage-students";
+let adminCsvImportState = defaultAdminCsvImportState();
 let workspaceNavCollapsed = shouldCollapseWorkspaceNavByDefault();
 let selectedSiteId = "";
 let siteStudentFilters = defaultSiteStudentFilters();
@@ -500,6 +502,8 @@ const MENTOR_DASHBOARD_URL_FILTER_PARAMS = ["mentorFocus", "mentorSort"];
 const PRESENTATION_SCHEDULE_URL_FILTER_PARAMS = ["presentationFocus"];
 const ADMIN_AUDIT_URL_FILTER_PARAMS = ["action", "entityType"];
 const ADMIN_ARCHIVE_EXPORT_URL_FILTER_PARAMS = ["adminExportFilter"];
+const ADMIN_PEOPLE_VIEW_VALUES = new Set(["manage-students", "add-student", "manage-staff", "add-staff", "import-students", "import-staff", "assignments"]);
+const ADMIN_PEOPLE_URL_PARAMS = ["peopleView"];
 const SITE_STUDENT_DETAIL_URL_SECTIONS = new Set([
   "adminDashboard",
   "siteDashboard",
@@ -521,6 +525,7 @@ const WORKSPACE_URL_FILTER_PARAMS = Array.from(new Set([
   ...PRESENTATION_SCHEDULE_URL_FILTER_PARAMS,
   ...ADMIN_AUDIT_URL_FILTER_PARAMS,
   ...ADMIN_ARCHIVE_EXPORT_URL_FILTER_PARAMS,
+  ...ADMIN_PEOPLE_URL_PARAMS,
   ...SITE_STUDENT_DETAIL_URL_PARAMS,
   ...VIEW_AS_STUDENT_URL_PARAMS,
 ]));
@@ -1058,6 +1063,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
         ${renderWorkspaceStudentSearchControl(roles)}
         <div class="workspace-user">
           ${renderSiteSwitcherControl()}
+          ${renderActiveRoleBadge(primaryRole)}
           <div class="workspace-user-text">
             <strong>${escapeHtml(currentUser.displayName || "Signed in")}</strong>
             <span>${escapeHtml(currentUser.email || "")}</span>
@@ -1141,6 +1147,9 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   document.querySelectorAll("[data-users-access-focus]").forEach((button) => {
     button.addEventListener("click", () => handleUsersAccessFocusAction(button));
   });
+  document.querySelectorAll("[data-people-view-target]").forEach((button) => {
+    button.addEventListener("click", () => handlePeopleViewAction(button));
+  });
   document.querySelectorAll("[data-security-focus]").forEach((button) => {
     button.addEventListener("click", () => handleSecurityFocusAction(button));
   });
@@ -1166,6 +1175,35 @@ function renderWorkspaceModeSwitch(capabilities = adminConsoleCapabilitiesFor(cu
       `).join("")}
     </nav>
   `;
+}
+
+function renderActiveRoleBadge(primaryRole = primaryRoleForUser(currentUser)) {
+  const identity = roleIdentityFor(primaryRole);
+  return `
+    <span class="workspace-active-role-badge" data-active-role-badge="true" data-role-identity="${escapeHtml(identity.key)}" aria-label="Active role: ${escapeHtml(identity.label)}">
+      <b>${escapeHtml(identity.label)}</b>
+      <small>Active role</small>
+    </span>
+  `;
+}
+
+function roleIdentityFor(roleId) {
+  const normalized = roleId === "admin" || roleId === "platform_admin" ? "global_admin" : String(roleId || "role_pending");
+  const labels = {
+    student: "Student",
+    viewer: "Viewer",
+    mentor: "Mentor",
+    program_teacher: "Program Teacher",
+    administration: "Administration",
+    site_admin: "Site Admin",
+    global_admin: "Global Admin",
+    misc_admin: "Reporting Admin",
+    role_pending: "Role pending",
+  };
+  return {
+    key: labels[normalized] ? normalized : "role_pending",
+    label: labels[normalized] || "Role pending",
+  };
 }
 
 function switchWorkspaceMode(button) {
@@ -1519,6 +1557,20 @@ function handleUsersAccessFocusAction(button) {
   }
   element.scrollIntoView?.({ block: "start", behavior: "smooth" });
   element.focus?.({ preventScroll: true });
+}
+
+function handlePeopleViewAction(button) {
+  const view = cleanAdminPeopleView(button?.dataset?.peopleViewTarget || "");
+  if (!view || !canUsePeopleManagementScreens(roleIds(currentUser))) return;
+  adminPeopleView = view;
+  activeSection = "adminUsers";
+  syncAdminPeopleUrlState();
+  renderAppShell(`${peopleViewLabel(view)} opened.`, "success");
+}
+
+function peopleViewLabel(view) {
+  const match = peopleManagementScreensForRoles(roleIds(currentUser)).find((screen) => screen.id === view);
+  return match?.label || "People";
 }
 
 function handleSecurityFocusAction(button) {
@@ -14398,17 +14450,129 @@ function renderAdminUsersSection() {
   const roleChoices = adminRoleChoicesForRoles(roles);
   const authConfig = authConfigForUi();
   const localAccountsOnly = !authConfig.googleSsoEnabled;
+  const peopleScreensEnabled = canUsePeopleManagementScreens(roles);
 
   return `
     ${renderUsersAccessActionMap(roleChoices, { canCreateGlobal, localAccountsOnly })}
+    ${peopleScreensEnabled
+      ? renderPeopleManagementHub(roleChoices, { canCreateGlobal, localAccountsOnly })
+      : renderScopedAccountCreationForm(roleChoices, { canCreateGlobal, localAccountsOnly })}
+    ${renderAdminImportResult()}
+    ${renderAdminRoleAssignmentsPanel()}
+    ${renderAdminAccessAssignmentPanel()}
+  `;
+}
+
+function canUsePeopleManagementScreens(roles = roleIds(currentUser)) {
+  return hasGlobalAdminRole(roles) || roles.has("site_admin") || roles.has("administration");
+}
+
+function renderPeopleManagementHub(roleChoices = [], options = {}) {
+  const activeView = cleanAdminPeopleView(adminPeopleView) || "manage-students";
+  const screens = peopleManagementScreensForRoles(roleIds(currentUser));
+  const currentScreen = screens.find((screen) => screen.id === activeView) || screens[0];
+  adminPeopleView = currentScreen?.id || "manage-students";
+  return `
+    <section class="workspace-card workspace-people-hub" data-people-management="true" data-people-view="${escapeHtml(adminPeopleView)}">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">People</p>
+          <h2>Students, staff, imports, and assignments</h2>
+          <p class="workspace-muted">Use the focused screen for the job: add one person, import a roster, confirm current access, or manage assignments.</p>
+        </div>
+        <span class="workspace-chip">${escapeHtml(options.canCreateGlobal ? "Global people access" : "School-scoped people access")}</span>
+      </div>
+      ${renderPeopleManagementNav(screens, adminPeopleView)}
+      ${renderPeopleManagementScopeSummary(roleChoices, options)}
+      ${renderPeopleManagementScreen(adminPeopleView, roleChoices, options)}
+    </section>
+  `;
+}
+
+function peopleManagementScreensForRoles(roles = roleIds(currentUser)) {
+  if (!canUsePeopleManagementScreens(roles)) return [];
+  return [
+    { id: "manage-students", group: "Students", label: "Manage Students", detail: "Review current student accounts and open student context." },
+    { id: "add-student", group: "Students", label: "Add Student", detail: "Create one student account in scope." },
+    { id: "manage-staff", group: "Staff", label: "Manage Staff", detail: "Review staff, mentor, viewer, teacher, and admin accounts." },
+    { id: "add-staff", group: "Staff", label: "Add Staff", detail: "Create one staff account with the smallest role." },
+    { id: "import-students", group: "Imports", label: "Import Students", detail: "Preview and validate a student CSV before saving." },
+    { id: "import-staff", group: "Imports", label: "Import Staff", detail: "Preview and validate a staff CSV before saving." },
+    { id: "assignments", group: "Assignments", label: "Assignments", detail: "Use scoped mentor, viewer, Program Teacher, and school-role grants." },
+  ];
+}
+
+function renderPeopleManagementNav(screens = [], activeView = "manage-students") {
+  const grouped = [];
+  for (const screen of screens) {
+    let group = grouped.find((item) => item.group === screen.group);
+    if (!group) {
+      group = { group: screen.group, screens: [] };
+      grouped.push(group);
+    }
+    group.screens.push(screen);
+  }
+  return `
+    <nav class="workspace-people-nav" aria-label="People screens" data-people-nav="true">
+      ${grouped.map((group) => `
+        <div class="workspace-people-nav-group" data-people-nav-group="${escapeHtml(group.group.toLowerCase())}">
+          <span>${escapeHtml(group.group)}</span>
+          <div>
+            ${group.screens.map((screen) => `
+              <button class="workspace-link-button workspace-link-button-small ${screen.id === activeView ? "is-active" : ""}" type="button" data-people-view-target="${escapeHtml(screen.id)}" ${screen.id === activeView ? 'aria-current="page"' : ""}>
+                ${escapeHtml(screen.label)}
+              </button>
+            `).join("")}
+          </div>
+        </div>
+      `).join("")}
+    </nav>
+  `;
+}
+
+function renderPeopleManagementScopeSummary(roleChoices = [], options = {}) {
+  const roles = roleIds(currentUser);
+  const scope = unwrap(currentData.accessAssignments)?.scope || currentSiteWorkspaceContext() || {};
+  const roleSummary = roleChoices.map((choice) => choice.label).join(", ");
+  const rows = [
+    ["Scope", options.canCreateGlobal ? "All schools where the APIs allow access" : scope.siteName || "Selected school only"],
+    ["Allowed roles", roleSummary || "No role choices available"],
+    ["Global Admin", hasGlobalAdminRole(roles) ? "Manual local account only" : "Not available from this account"],
+  ];
+  return `
+    <div class="workspace-people-scope" data-people-scope-summary="true">
+      ${rows.map(([label, detail]) => `
+        <article>
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(detail)}</strong>
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderPeopleManagementScreen(view = "manage-students", roleChoices = [], options = {}) {
+  const screen = cleanAdminPeopleView(view) || "manage-students";
+  if (screen === "add-student") return renderAddStudentScreen(options);
+  if (screen === "add-staff") return renderAddStaffScreen(roleChoices, options);
+  if (screen === "import-students") return renderCsvImportScreen("students", options);
+  if (screen === "import-staff") return renderCsvImportScreen("staff", options);
+  if (screen === "manage-staff") return renderManageStaffScreen();
+  if (screen === "assignments") return renderAssignmentsPeopleScreen();
+  return renderManageStudentsScreen();
+}
+
+function renderScopedAccountCreationForm(roleChoices = [], options = {}) {
+  const roles = roleIds(currentUser);
+  return `
     <section class="workspace-card" data-admin-section="users">
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Users & Access</p>
-          <h2>Add staff, admin, or student account</h2>
-          <p class="workspace-muted">Create local accounts for the roles this workspace is allowed to manage at the selected school.</p>
+          <h2>Add scoped account</h2>
+          <p class="workspace-muted">Create local accounts only for the roles this workspace is already allowed to manage.</p>
         </div>
-        <span class="workspace-chip">${escapeHtml(canCreateGlobal ? "Global Admin" : canUseStaffAccessManagement(roles) ? "School staff access" : "Student and mentor access")}</span>
+        <span class="workspace-chip">${escapeHtml(options.canCreateGlobal ? "Global Admin" : canUseStaffAccessManagement(roles) ? "School staff access" : "Student and mentor access")}</span>
       </div>
       ${renderFirstUseGuide("users-access", "Create access only after school access is clear", [
         ["Choose the smallest role", "Pick Student, Mentor, Viewer, Program Teacher, or school staff only for the job this person must do."],
@@ -14419,7 +14583,7 @@ function renderAdminUsersSection() {
         detail: "This path keeps account setup understandable and prevents over-broad access.",
         badge: "Access path",
       })}
-      ${renderAdminImportPreflight(roleChoices, { canCreateGlobal, localAccountsOnly })}
+      ${renderAdminImportPreflight(roleChoices, options)}
       <form id="workspaceAdminImportForm" class="workspace-form" data-admin-action="import-users" data-admin-endpoint="/api/admin/users/import" data-admin-cache="no-store-response">
         <div class="workspace-form-section">
           <p class="workspace-kicker">User details</p>
@@ -14436,9 +14600,9 @@ function renderAdminUsersSection() {
               Sign-in method
               <select class="workspace-select" name="identityType" required>
                 <option value="local">Local account</option>
-                ${localAccountsOnly ? "" : `<option value="sso">SSO account</option>`}
+                ${options.localAccountsOnly ? "" : `<option value="sso">SSO account</option>`}
               </select>
-              <span class="workspace-muted">${escapeHtml(localAccountsOnly ? "Local accounts only. SSO is disabled for this setup." : "Choose Local account unless your school identity provider is ready.")}</span>
+              <span class="workspace-muted">${escapeHtml(options.localAccountsOnly ? "Local accounts only. SSO is disabled for this setup." : "Choose Local account unless your school identity provider is ready.")}</span>
             </label>
           </div>
         </div>
@@ -14514,10 +14678,422 @@ function renderAdminUsersSection() {
         </div>
       </form>
     </section>
-    ${renderAdminImportResult()}
-    ${renderAdminRoleAssignmentsPanel()}
-    ${renderAdminAccessAssignmentPanel()}
   `;
+}
+
+function renderManageStudentsScreen() {
+  const access = unwrap(currentData.accessAssignments) || {};
+  const users = access.users || {};
+  const students = siteAccountRows({ students: users.students || [] }).filter((row) => row.roleIds.includes("student"));
+  return `
+    <section class="workspace-people-screen" data-people-screen="manage-students">
+      <div class="workspace-people-screen-head">
+        <div>
+          <p class="workspace-kicker">Manage Students</p>
+          <h3>Current student accounts</h3>
+          <p class="workspace-muted">Confirm the student is in scope before opening detail or using View as Student.</p>
+        </div>
+        <button class="workspace-button workspace-button-secondary" type="button" data-people-view-target="add-student">Add Student</button>
+      </div>
+      ${students.length ? `
+        <div class="workspace-list">
+          ${students.map((student) => renderManageStudentRow(student)).join("")}
+        </div>
+      ` : `
+        <article class="workspace-empty-state-card" data-manage-students-empty="true">
+          <strong>No scoped students are loaded for this school yet.</strong>
+          <p>Add a student or choose a site with student access.</p>
+        </article>
+      `}
+    </section>
+  `;
+}
+
+function renderManageStudentRow(student = {}) {
+  return `
+    <article class="workspace-row" data-manage-student-row="${escapeHtml(student.userId || "")}">
+      <div>
+        <strong>${escapeHtml(student.displayName || "Student")}</strong>
+        <p>${escapeHtml(student.email || "")}</p>
+        <p class="workspace-muted">Student account in the current scoped roster.</p>
+      </div>
+      <div class="workspace-row-actions">
+        ${availableSectionIdsForAnyMode().has("students") ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(student.userId || "")}">View student</button>` : ""}
+        ${renderViewAsStudentAction(student.userId, student.displayName, { sourceSection: "adminUsers" })}
+        ${statusPill("active")}
+      </div>
+    </article>
+  `;
+}
+
+function renderManageStaffScreen() {
+  const access = unwrap(currentData.accessAssignments) || {};
+  const users = access.users || {};
+  const accounts = siteAccountRows(users).filter((row) => !row.roleIds.includes("student"));
+  return `
+    <section class="workspace-people-screen" data-people-screen="manage-staff">
+      <div class="workspace-people-screen-head">
+        <div>
+          <p class="workspace-kicker">Manage Staff</p>
+          <h3>Current staff and support accounts</h3>
+          <p class="workspace-muted">Review staff scope before changing assignments or removing school access.</p>
+        </div>
+        <button class="workspace-button workspace-button-secondary" type="button" data-people-view-target="add-staff">Add Staff</button>
+      </div>
+      ${accounts.length ? `
+        <div class="workspace-list">
+          ${accounts.map((account) => `
+            <article class="workspace-row" data-manage-staff-row="${escapeHtml(account.userId || "")}">
+              <div>
+                <strong>${escapeHtml(account.displayName || "Staff account")}</strong>
+                <p>${escapeHtml(account.email || "")}</p>
+                <p class="workspace-muted">${escapeHtml((account.roleLabels || []).join(", ") || "Assigned staff")}</p>
+              </div>
+              <div class="workspace-row-actions">
+                <button class="workspace-link-button workspace-link-button-small" type="button" data-people-view-target="assignments">Manage assignments</button>
+                ${statusPill("active")}
+              </div>
+            </article>
+          `).join("")}
+        </div>
+      ` : `
+        <article class="workspace-empty-state-card" data-manage-staff-empty="true">
+          <strong>No scoped staff accounts are loaded for this school yet.</strong>
+          <p>Add staff or choose a site with staff access.</p>
+        </article>
+      `}
+    </section>
+  `;
+}
+
+function renderAddStudentScreen(options = {}) {
+  return `
+    <section class="workspace-people-screen" data-people-screen="add-student">
+      <div class="workspace-people-screen-head">
+        <div>
+          <p class="workspace-kicker">Add Student</p>
+          <h3>Add one student</h3>
+          <p class="workspace-muted">Create the student only inside a site you are already allowed to manage. Fields marked Required must be filled in before saving.</p>
+        </div>
+        <button class="workspace-link-button workspace-link-button-small" type="button" data-people-view-target="manage-students">Return to Manage Students</button>
+      </div>
+      <form id="workspaceAddStudentForm" class="workspace-form" data-admin-add-person-form="true" data-person-kind="student">
+        <input type="hidden" name="roleId" value="student">
+        <input type="hidden" name="identityType" value="local">
+        ${renderPersonNameEmailFields()}
+        <div class="workspace-form-section">
+          <p class="workspace-kicker">School and program</p>
+          <div class="workspace-form-grid">
+            <label class="workspace-label">
+              Site / school <span class="workspace-required">Required</span>
+              <select class="workspace-select" name="siteIds" required>
+                ${siteOptionsForAdminForm()}
+              </select>
+            </label>
+            <label class="workspace-label">
+              Program <span class="workspace-required">Required</span>
+              <select class="workspace-select" name="programIds" required>
+                ${programOptionsForAdminForm()}
+              </select>
+            </label>
+            <label class="workspace-label">
+              Cohort
+              <input class="workspace-input" name="cohort" autocomplete="off" aria-describedby="student-cohort-example">
+              <span id="student-cohort-example" class="workspace-muted">Example: Class of 2026</span>
+            </label>
+            <label class="workspace-label">
+              Graduation year
+              <input class="workspace-input" name="graduationYear" inputmode="numeric" maxlength="4" aria-describedby="student-graduation-year-example">
+              <span id="student-graduation-year-example" class="workspace-muted">Example: 2026</span>
+            </label>
+            <label class="workspace-label">
+              Status <span class="workspace-required">Required</span>
+              <select class="workspace-select" name="status" required>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </label>
+          </div>
+          <p class="workspace-muted">Program, cohort, and graduation-year values are validated for roster setup; the account save stays inside the existing scoped account API.</p>
+        </div>
+        <div class="workspace-form-section">
+          <p class="workspace-kicker">Optional assignments</p>
+          <div class="workspace-form-grid">
+            <label class="workspace-label">
+              Mentor assignment
+              <select class="workspace-select" name="mentorUserId">
+                ${optionalUserOptions(unwrap(currentData.accessAssignments)?.users?.mentors || [], "No mentor selected")}
+              </select>
+            </label>
+            <label class="workspace-label">
+              Viewer assignment
+              <select class="workspace-select" name="viewerUserId">
+                ${optionalUserOptions(unwrap(currentData.accessAssignments)?.users?.viewers || [], "No viewer selected")}
+              </select>
+            </label>
+          </div>
+          <p class="workspace-muted">After saving, use Assignments if mentor or viewer access needs to be confirmed against the new student record.</p>
+        </div>
+        ${renderAdminPersonSaveFooter("student", options)}
+      </form>
+    </section>
+  `;
+}
+
+function renderAddStaffScreen(roleChoices = [], options = {}) {
+  const staffChoices = roleChoices.filter((role) => role.value !== "student");
+  return `
+    <section class="workspace-people-screen" data-people-screen="add-staff">
+      <div class="workspace-people-screen-head">
+        <div>
+          <p class="workspace-kicker">Add Staff</p>
+          <h3>Add one staff member</h3>
+          <p class="workspace-muted">Choose the smallest role and only the scope this person needs for school operations.</p>
+        </div>
+        <button class="workspace-link-button workspace-link-button-small" type="button" data-people-view-target="manage-staff">Return to Manage Staff</button>
+      </div>
+      <form id="workspaceAddStaffForm" class="workspace-form" data-admin-add-person-form="true" data-person-kind="staff">
+        <input type="hidden" name="identityType" value="local">
+        ${renderPersonNameEmailFields()}
+        <div class="workspace-form-section">
+          <p class="workspace-kicker">Role and scope</p>
+          ${renderAdminRoleQuickPicks(staffChoices, staffChoices[0]?.value || "mentor")}
+          <div class="workspace-form-grid">
+            <label class="workspace-label">
+              Staff role <span class="workspace-required">Required</span>
+              <select class="workspace-select" name="roleId" required>
+                ${adminRoleOptions(staffChoices)}
+              </select>
+              <span class="workspace-muted">Role choices are limited by your current access.</span>
+            </label>
+            <label class="workspace-label">
+              Status <span class="workspace-required">Required</span>
+              <select class="workspace-select" name="status" required>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </label>
+            <div class="workspace-access-preview" data-admin-role-copy aria-live="polite"></div>
+            <label class="workspace-label" data-access-group="site">
+              Site / school
+              <select class="workspace-select" name="siteIds" multiple size="4">
+                ${siteOptionsForAdminForm()}
+              </select>
+            </label>
+            <label class="workspace-label" data-access-group="program">
+              Program
+              <select class="workspace-select" name="programIds" multiple size="4">
+                ${programOptionsForAdminForm()}
+              </select>
+            </label>
+            <label class="workspace-label workspace-label-wide" data-access-group="student">
+              Assigned students
+              <select class="workspace-select" name="studentIds" multiple size="6">
+                ${studentOptionsForAdminForm()}
+              </select>
+            </label>
+          </div>
+        </div>
+        <div class="workspace-form-section">
+          <p class="workspace-kicker">Access preview</p>
+          <div class="workspace-access-preview" data-admin-access-preview aria-live="polite"></div>
+          <label class="workspace-checkbox" data-access-group="global-confirmation">
+            <input type="checkbox" name="globalAdminConfirmation" value="true">
+            <span>I understand this account can manage every site.</span>
+          </label>
+        </div>
+        ${renderAdminPersonSaveFooter("staff", options)}
+      </form>
+    </section>
+  `;
+}
+
+function renderPersonNameEmailFields() {
+  return `
+    <div class="workspace-form-section">
+      <p class="workspace-kicker">Person</p>
+      <div class="workspace-form-grid">
+        <label class="workspace-label">
+          First name <span class="workspace-required">Required</span>
+          <input class="workspace-input" name="firstName" autocomplete="given-name" maxlength="60" required>
+        </label>
+        <label class="workspace-label">
+          Last name <span class="workspace-required">Required</span>
+          <input class="workspace-input" name="lastName" autocomplete="family-name" maxlength="60" required>
+        </label>
+        <label class="workspace-label workspace-label-wide">
+          Email or login identifier <span class="workspace-required">Required</span>
+          <input class="workspace-input" name="email" type="email" autocomplete="off" required>
+          <span class="workspace-muted">Use the school-approved email or username for this account.</span>
+        </label>
+      </div>
+    </div>
+  `;
+}
+
+function renderAdminPersonSaveFooter(kind = "student", options = {}) {
+  return `
+    <div class="workspace-form-grid">
+      <label class="workspace-label workspace-label-wide">
+        Admin note <span class="workspace-required">Required</span>
+        <textarea class="workspace-textarea" name="adminNote" maxlength="500" required></textarea>
+        <span class="workspace-muted">Friendly note for future admins: why this account is being created and who approved it.</span>
+      </label>
+    </div>
+    ${renderDestructiveActionConfirmation({
+      id: `${kind}-create-delivery`,
+      name: "deliveryConfirmation",
+      label: "I reviewed the role, school scope, and setup-password delivery process before creating this account.",
+      detail: "Local setup passwords appear once and must use the school-approved handoff process.",
+    })}
+    <div class="workspace-form-actions">
+      <button class="workspace-button workspace-button-primary" type="submit">${kind === "student" ? "Create student" : "Create staff member"}</button>
+      <button class="workspace-button workspace-button-secondary" type="button" data-people-view-target="${kind === "student" ? "manage-students" : "manage-staff"}">${kind === "student" ? "Return to Manage Students" : "Return to Manage Staff"}</button>
+    </div>
+  `;
+}
+
+function renderAssignmentsPeopleScreen() {
+  return `
+    <section class="workspace-people-screen" data-people-screen="assignments">
+      <div class="workspace-people-screen-head">
+        <div>
+          <p class="workspace-kicker">Assignments</p>
+          <h3>Scoped access assignments</h3>
+          <p class="workspace-muted">Use the assignment forms below for mentor, viewer, Program Teacher, Administration, and Site Admin scope changes that your role is allowed to make.</p>
+        </div>
+        <button class="workspace-link-button workspace-link-button-small" type="button" data-users-access-focus="assignment-forms">Open forms</button>
+      </div>
+    </section>
+  `;
+}
+
+function optionalUserOptions(users = [], emptyLabel = "No selection") {
+  return [`<option value="">${escapeHtml(emptyLabel)}</option>`, userOptions(users)].join("");
+}
+
+function renderCsvImportScreen(kind = "students", options = {}) {
+  const safeKind = kind === "staff" ? "staff" : "students";
+  const title = safeKind === "staff" ? "Import Staff" : "Import Students";
+  const state = adminCsvImportState[safeKind] || defaultAdminCsvImportKindState(safeKind);
+  const template = csvTemplateForKind(safeKind);
+  const templateHref = `data:text/csv;charset=utf-8,${encodeURIComponent(template)}`;
+  return `
+    <section class="workspace-people-screen" data-people-screen="import-${escapeHtml(safeKind)}" data-csv-import-kind="${escapeHtml(safeKind)}">
+      <div class="workspace-people-screen-head">
+        <div>
+          <p class="workspace-kicker">CSV import</p>
+          <h3>${escapeHtml(title)}</h3>
+          <p class="workspace-muted">${escapeHtml(safeKind === "staff"
+            ? "Upload staff rows, preview validation, then import only valid scoped accounts."
+            : "Upload student rows, preview validation, then import only valid scoped student accounts.")}</p>
+        </div>
+        <a class="workspace-button workspace-button-secondary" href="${templateHref}" download="${escapeHtml(safeKind === "staff" ? "capstone-staff-template.csv" : "capstone-students-template.csv")}" data-csv-template-download="${escapeHtml(safeKind)}">Download CSV template</a>
+      </div>
+      ${renderCsvTemplateDocumentation(safeKind)}
+      <form class="workspace-form workspace-csv-import-form" data-csv-import-form="true" data-csv-import-kind="${escapeHtml(safeKind)}">
+        <div class="workspace-form-section">
+          <p class="workspace-kicker">1. Upload CSV</p>
+          <label class="workspace-csv-dropzone">
+            <span>${escapeHtml(state.fileName || "Choose a .csv file")}</span>
+            <input class="workspace-input" type="file" name="csvFile" accept=".csv,text/csv" data-csv-file-input="${escapeHtml(safeKind)}">
+          </label>
+          <label class="workspace-label workspace-label-wide">
+            Paste CSV text for preview
+            <textarea class="workspace-textarea" name="csvText" data-csv-text-input="${escapeHtml(safeKind)}" aria-label="${escapeHtml(`${title} CSV text`)}">${escapeHtml(state.csvText || "")}</textarea>
+          </label>
+        </div>
+        <div class="workspace-form-section">
+          <p class="workspace-kicker">2. Validation note</p>
+          <label class="workspace-label workspace-label-wide">
+            Admin note <span class="workspace-required">Required before final import</span>
+            <textarea class="workspace-textarea" name="adminNote" maxlength="500" required></textarea>
+          </label>
+          <p class="workspace-muted">Bad rows are never imported. Existing emails are shown as skipped before final import.</p>
+        </div>
+        <div class="workspace-form-actions">
+          <button class="workspace-button workspace-button-primary" type="submit" data-csv-preview-action="${escapeHtml(safeKind)}">Preview CSV</button>
+          <button class="workspace-button workspace-button-secondary" type="button" data-admin-csv-confirm="${escapeHtml(safeKind)}" ${state.validRows.length ? "" : "disabled"}>Confirm import</button>
+        </div>
+      </form>
+      ${renderCsvImportPreview(safeKind, state)}
+    </section>
+  `;
+}
+
+function renderCsvTemplateDocumentation(kind = "students") {
+  const columns = kind === "staff"
+    ? ["first_name", "last_name", "email", "role", "site", "program", "assigned_student_emails", "status"]
+    : ["first_name", "last_name", "email", "site", "program", "cohort", "graduation_year", "status", "mentor_email", "viewer_email"];
+  return `
+    <section class="workspace-csv-template-doc" data-csv-template-doc="${escapeHtml(kind)}">
+      <strong>Template columns</strong>
+      <div class="workspace-chip-row">
+        ${columns.map((column) => `<code>${escapeHtml(column)}</code>`).join("")}
+      </div>
+      <p class="workspace-muted">Column names stay stable even when internal field names differ. Site, program, and assigned-student values must match records in your current scope.</p>
+    </section>
+  `;
+}
+
+function renderCsvImportPreview(kind = "students", state = defaultAdminCsvImportKindState(kind)) {
+  if (!state.previewed) {
+    return `
+      <section class="workspace-csv-preview" data-csv-preview="${escapeHtml(kind)}" data-csv-preview-state="waiting">
+        <strong>Preview required before import</strong>
+        <p class="workspace-muted">Upload or paste a CSV, then preview validation before anything is saved.</p>
+      </section>
+    `;
+  }
+  const summary = state.summary || defaultAdminCsvSummary();
+  return `
+    <section class="workspace-csv-preview" data-csv-preview="${escapeHtml(kind)}" data-csv-preview-state="${state.errors.length ? "errors" : "ready"}" aria-live="polite">
+      <div class="workspace-csv-summary-grid">
+        ${renderCsvSummaryMetric("Rows detected", summary.rowsDetected)}
+        ${renderCsvSummaryMetric("Valid rows", summary.validRows)}
+        ${renderCsvSummaryMetric("Rows with errors", summary.rowsWithErrors)}
+        ${renderCsvSummaryMetric("New records", summary.newRecords)}
+        ${renderCsvSummaryMetric("Existing records skipped", summary.existingRecords)}
+      </div>
+      ${state.errors.length ? `
+        <div class="workspace-list" data-csv-row-errors="true">
+          ${state.errors.map((error) => `
+            <article class="workspace-mini-row" data-csv-row-error="${escapeHtml(String(error.rowNumber || ""))}">
+              <span>Row ${escapeHtml(String(error.rowNumber || "?"))}</span>
+              <small>${escapeHtml(error.message || "Fix this row before importing.")}</small>
+            </article>
+          `).join("")}
+        </div>
+      ` : `
+        <article class="workspace-empty-state-card" data-csv-ready="true">
+          <strong>Ready for final confirmation.</strong>
+          <p>Only valid new rows will be sent to the scoped account import API.</p>
+        </article>
+      `}
+    </section>
+  `;
+}
+
+function renderCsvSummaryMetric(label, value) {
+  return `
+    <article>
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(String(safeNumber(value)))}</strong>
+    </article>
+  `;
+}
+
+function csvTemplateForKind(kind = "students") {
+  if (kind === "staff") {
+    return [
+      "first_name,last_name,email,role,site,program,assigned_student_emails,status",
+      "Maya,Rivera,maya.rivera@senior-capstone.test,mentor,Desert Valley High School,,alex.student@senior-capstone.test,active",
+    ].join("\n");
+  }
+  return [
+    "first_name,last_name,email,site,program,cohort,graduation_year,status,mentor_email,viewer_email",
+    "Alex,Student,alex.student@senior-capstone.test,Desert Valley High School,Information Technology,Class of 2026,2026,active,maya.rivera@senior-capstone.test,viewer.one@senior-capstone.test",
+  ].join("\n");
 }
 
 function renderUsersAccessActionMap(roleChoices = [], options = {}) {
@@ -14771,14 +15347,37 @@ function renderAdminImportResult() {
                 <span class="workspace-secret-output" data-admin-import-credential="setup-password">${escapeHtml(user.temporaryPassword || "")}</span>
                 <p class="workspace-muted">This password is shown once. The user will create a new password at first sign-in.</p>
                 <button class="workspace-button workspace-button-secondary" type="button" data-copy-secret="${escapeHtml(user.temporaryPassword || "")}">Copy temporary password</button>
-              ` : `<p class="workspace-muted">SSO account. The user signs in through the approved school identity provider.</p>`}
+              ` : `<p class="workspace-muted">${escapeHtml(user.status === "disabled" ? "Inactive account. Activate it only after the school is ready." : "SSO account. The user signs in through the approved school identity provider.")}</p>`}
               ${Array.isArray(user.nextSteps) && user.nextSteps.length ? `<p class="workspace-muted">${escapeHtml(user.nextSteps.join(" "))}</p>` : ""}
+              ${renderAdminImportNextActions(user)}
             </div>
             ${statusPill(user.status || "pending_reset")}
           </article>
         `).join("")}
       </div>
     </section>
+  `;
+}
+
+function renderAdminImportNextActions(user = {}) {
+  const roleId = user.role?.roleId || "";
+  const isStudent = roleId === "student";
+  const actions = isStudent
+    ? [
+      ["Add another student", "add-student"],
+      ["Return to Manage Students", "manage-students"],
+    ]
+    : [
+      ["Add another staff member", "add-staff"],
+      ["Manage assignments", "assignments"],
+      ["Return to Manage Staff", "manage-staff"],
+    ];
+  return `
+    <div class="workspace-form-actions workspace-import-next-actions" data-admin-import-next-actions="${escapeHtml(isStudent ? "student" : "staff")}">
+      ${actions.map(([label, view]) => `<button class="workspace-link-button workspace-link-button-small" type="button" data-people-view-target="${escapeHtml(view)}">${escapeHtml(label)}</button>`).join("")}
+      ${isStudent && availableSectionIdsForAnyMode().has("students") ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="students">View student</button>` : ""}
+      ${isStudent ? renderViewAsStudentAction(user.id, user.displayName || user.email, { sourceSection: "adminUsers" }) : ""}
+    </div>
   `;
 }
 
@@ -15505,7 +16104,9 @@ function adminRoleChoicesForRoles(roles) {
   if (hasGlobalAdminRole(roles)) return choices;
   const allowed = roles.has("program_teacher")
     ? ["student", "mentor"]
-    : canUseStaffAccessManagement(roles)
+    : roles.has("site_admin")
+      ? ["student", "mentor", "viewer", "program_teacher", "administration"]
+      : canUseStaffAccessManagement(roles)
       ? ["student", "mentor", "viewer", "program_teacher"]
       : [];
   return choices.filter((role) => allowed.includes(role.value));
@@ -15637,7 +16238,27 @@ function bindWorkspaceForms() {
   adminImportForm?.querySelectorAll?.('[name="siteIds"], [name="programIds"], [name="studentIds"]')?.forEach((field) => {
     field.addEventListener("change", () => renderAdminAccessPreview(adminImportForm));
   });
-  updateAdminImportScopeFields();
+  updateAdminImportScopeFields(adminImportForm);
+  document.querySelectorAll("[data-admin-add-person-form]").forEach((form) => {
+    form.addEventListener("submit", submitAdminPersonForm);
+    form.querySelector?.('[name="roleId"]')?.addEventListener("change", () => updateAdminImportScopeFields(form));
+    form.querySelectorAll?.("[data-admin-role-pick]")?.forEach((button) => {
+      button.addEventListener("click", handleAdminRolePick);
+    });
+    form.querySelectorAll?.('[name="siteIds"], [name="programIds"], [name="studentIds"]')?.forEach((field) => {
+      field.addEventListener("change", () => renderAdminAccessPreview(form));
+    });
+    updateAdminImportScopeFields(form);
+  });
+  document.querySelectorAll("[data-csv-import-form]").forEach((form) => {
+    form.addEventListener("submit", submitAdminCsvPreview);
+  });
+  document.querySelectorAll("[data-admin-csv-confirm]").forEach((button) => {
+    button.addEventListener("click", () => confirmAdminCsvImport(button));
+  });
+  document.querySelectorAll("[data-csv-file-input]").forEach((input) => {
+    input.addEventListener("change", handleAdminCsvFileSelected);
+  });
   document.querySelectorAll("[data-site-access-assignment-form]").forEach((form) => {
     form.addEventListener("submit", submitSiteAccessAssignment);
   });
@@ -18205,6 +18826,8 @@ async function signOut() {
     currentUser = null;
     currentData = defaultCurrentData(currentData.authConfig);
     lastAdminImportResult = null;
+    adminPeopleView = "manage-students";
+    adminCsvImportState = defaultAdminCsvImportState();
     studentRequirementDetailState = defaultStudentRequirementDetailState();
     studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
     studentSubmissionFilter = defaultStudentSubmissionFilter();
@@ -20445,6 +21068,37 @@ function defaultUsersAccessDisclosureState() {
   };
 }
 
+function defaultAdminCsvImportState() {
+  return {
+    students: defaultAdminCsvImportKindState("students"),
+    staff: defaultAdminCsvImportKindState("staff"),
+  };
+}
+
+function defaultAdminCsvImportKindState(kind = "students") {
+  return {
+    kind,
+    csvText: "",
+    fileName: "",
+    previewed: false,
+    confirmed: false,
+    rows: [],
+    validRows: [],
+    errors: [],
+    summary: defaultAdminCsvSummary(),
+  };
+}
+
+function defaultAdminCsvSummary() {
+  return {
+    rowsDetected: 0,
+    validRows: 0,
+    rowsWithErrors: 0,
+    newRecords: 0,
+    existingRecords: 0,
+  };
+}
+
 function defaultDashboardDisclosureState() {
   return {
     siteDashboard: false,
@@ -20529,6 +21183,10 @@ async function handleWorkspaceUrlPopState() {
     renderAppShell(adminArchiveExportFilter === "all"
       ? "Final Files link restored."
       : `${adminArchiveExportFilterLabel(adminArchiveExportFilter)} archive filter restored.`, "success");
+    return;
+  }
+  if (state.hasAdminPeopleState && currentUser && availableSectionIdsForAnyMode().has("adminUsers")) {
+    renderAppShell("People link restored.", "success");
     return;
   }
   if (state.hasSiteStudentDetailState && currentUser && shouldRestoreSiteStudentDetailFromUrlState(roles, state.siteStudentDetailState?.sourceSection || state.section)) {
@@ -20619,6 +21277,10 @@ function applyWorkspaceUrlState(state, options = {}) {
     adminArchiveExportFilter = state.adminArchiveExportFilter;
     if (!state.section) activeSection = "archiveExports";
   }
+  if (state.hasAdminPeopleState) {
+    adminPeopleView = state.adminPeopleView || "manage-students";
+    if (!state.section) activeSection = "adminUsers";
+  }
   if (state.hasSiteStudentDetailState) {
     siteStudentDetailState = {
       ...defaultSiteStudentDetailState(),
@@ -20667,6 +21329,7 @@ function workspaceUrlStateFromLocation() {
   const hasPresentationScheduleState = presentationViewRequested || (!requestedSection && !requestedView && hasPresentationScheduleFilterParams(params));
   const hasAdminAuditState = requestedSection === "audit" || (!requestedSection && !requestedView && hasAdminAuditFilterParams(params));
   const hasAdminArchiveExportState = requestedSection === "archiveExports" || (!requestedSection && !requestedView && hasAdminArchiveExportFilterParams(params));
+  const hasAdminPeopleState = requestedSection === "adminUsers" || params.has("peopleView");
   const hasSiteStudentDetailState = hasSiteStudentDetailUrlState(params, resolvedSection);
   const hasViewAsStudentState = hasViewAsStudentUrlState(params);
   return {
@@ -20691,6 +21354,8 @@ function workspaceUrlStateFromLocation() {
     adminAuditFilters: hasAdminAuditState ? adminAuditFiltersFromSearchParams(params) : defaultAdminAuditFilters(),
     hasAdminArchiveExportState,
     adminArchiveExportFilter: hasAdminArchiveExportState ? adminArchiveExportFilterFromSearchParams(params) : "all",
+    hasAdminPeopleState,
+    adminPeopleView: hasAdminPeopleState ? adminPeopleViewFromSearchParams(params) : "manage-students",
     hasSiteStudentDetailState,
     siteStudentDetailState: hasSiteStudentDetailState
       ? siteStudentDetailUrlStateFromSearchParams(params, resolvedSection)
@@ -20875,6 +21540,10 @@ function adminArchiveExportFilterFromSearchParams(params) {
   return cleanAdminArchiveExportFilter(params.get("adminExportFilter") || "all");
 }
 
+function adminPeopleViewFromSearchParams(params) {
+  return cleanAdminPeopleView(params.get("peopleView")) || "manage-students";
+}
+
 function adminAuditQueryString() {
   const filters = adminAuditFilters || defaultAdminAuditFilters();
   const params = new URLSearchParams();
@@ -20961,6 +21630,10 @@ function syncCurrentWorkspaceUrlState(options = {}) {
   }
   if (activeSection === "archiveExports") {
     syncAdminArchiveExportUrlState(options);
+    return;
+  }
+  if (activeSection === "adminUsers") {
+    syncAdminPeopleUrlState(options);
     return;
   }
   syncWorkspaceSectionOnlyUrlState(activeSection, options);
@@ -21079,6 +21752,14 @@ function syncAdminArchiveExportUrlState(options = {}) {
   syncFilteredWorkspaceUrlState("archiveExports", { adminExportFilter: cleanAdminArchiveExportFilter(adminArchiveExportFilter) }, options, (url, filters) => {
     if (filters.adminExportFilter && filters.adminExportFilter !== "all") {
       url.searchParams.set("adminExportFilter", filters.adminExportFilter);
+    }
+  });
+}
+
+function syncAdminPeopleUrlState(options = {}) {
+  syncFilteredWorkspaceUrlState("adminUsers", { peopleView: cleanAdminPeopleView(adminPeopleView) || "manage-students" }, options, (url, filters) => {
+    if (filters.peopleView && filters.peopleView !== "manage-students") {
+      url.searchParams.set("peopleView", filters.peopleView);
     }
   });
 }
@@ -21297,6 +21978,11 @@ function ensureActiveWorkspaceModeAndSection() {
 function cleanWorkspaceMode(value) {
   const mode = cleanDirectoryFilter(value);
   return WORKSPACE_MODES.has(mode) ? mode : "";
+}
+
+function cleanAdminPeopleView(value) {
+  const view = cleanDirectoryFilter(value);
+  return ADMIN_PEOPLE_VIEW_VALUES.has(view) ? view : "";
 }
 
 function canonicalReviewQueueValue(value, allowed, fallback = "") {
@@ -21525,8 +22211,8 @@ function scopeLabel(role) {
   return role.scopeId ? `${role.scopeType || "global"}:${role.scopeId}` : role.scopeType || "global";
 }
 
-function updateAdminImportScopeFields() {
-  const form = document.querySelector("#workspaceAdminImportForm");
+function updateAdminImportScopeFields(targetForm = null) {
+  const form = targetForm?.querySelector ? targetForm : document.querySelector("#workspaceAdminImportForm");
   const roleSelect = form?.querySelector?.('[name="roleId"]');
   const identitySelect = form?.querySelector?.('[name="identityType"]');
   if (!roleSelect || !identitySelect) return;
@@ -21562,7 +22248,7 @@ function handleAdminRolePick(event) {
   const roleSelect = form?.querySelector?.('[name="roleId"]');
   if (!roleId || !roleSelect) return;
   roleSelect.value = roleId;
-  updateAdminImportScopeFields();
+  updateAdminImportScopeFields(form);
 }
 
 function syncAdminRoleQuickPicks(form, roleId) {
@@ -21676,6 +22362,442 @@ function copySecretFromButton(event) {
   }).catch(() => {
     renderAppShell("Copy failed. Select the password text instead.", "error");
   });
+}
+
+async function submitAdminPersonForm(event) {
+  event.preventDefault();
+  if (busy) return;
+  const form = event.currentTarget;
+  const importBody = buildAdminPersonImportBody(form);
+
+  if (!importBody.ok) {
+    lastAdminImportResult = null;
+    activeSection = "adminUsers";
+    renderAppShell(importBody.message, "error");
+    return;
+  }
+
+  busy = true;
+  setFormBusy(form, true);
+  try {
+    const response = await fetch("/api/admin/users/import", {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify(importBody.body),
+    });
+    const body = await safeJson(response);
+    if (!response.ok) {
+      lastAdminImportResult = null;
+      activeSection = "adminUsers";
+      renderAppShell(messageForAdminImportError(body?.error, response.status), "error");
+      return;
+    }
+    lastAdminImportResult = body;
+    activeSection = "adminUsers";
+    await loadWorkspaceData(importBody.successMessage || "Account created.");
+  } catch (error) {
+    lastAdminImportResult = null;
+    activeSection = "adminUsers";
+    renderAppShell(messageForNetworkError(error), "error");
+  } finally {
+    setFormBusy(form, false);
+    busy = false;
+  }
+}
+
+function buildAdminPersonImportBody(form) {
+  const values = Object.fromEntries(new FormData(form).entries());
+  const kind = cleanDirectoryFilter(form?.dataset?.personKind || "");
+  const firstName = String(values.firstName || "").trim();
+  const lastName = String(values.lastName || "").trim();
+  const email = String(values.email || "").trim();
+  const roleId = kind === "student" ? "student" : String(values.roleId || "").trim();
+  const status = cleanAdminImportStatus(values.status || "active");
+  const adminNote = String(values.adminNote || "").trim();
+  const deliveryConfirmation = Boolean(values.deliveryConfirmation);
+  const siteIds = formValues(form, "siteIds");
+  const programIds = formValues(form, "programIds");
+  const studentIds = formValues(form, "studentIds");
+  const globalAdminConfirmation = Boolean(values.globalAdminConfirmation);
+  const allowedRoleIds = new Set(adminRoleChoicesForRoles(roleIds(currentUser)).map((role) => role.value));
+
+  if (!firstName || !lastName) return { ok: false, message: "Add first and last name." };
+  if (!isUsableEmail(email)) return { ok: false, message: "Add a usable email or login identifier." };
+  if (!adminNote) return { ok: false, message: "Add the admin note for this account." };
+  if (!deliveryConfirmation) return { ok: false, message: "Confirm the account scope and setup-password delivery process before creating this account." };
+  if (!status) return { ok: false, message: "Choose active or inactive status." };
+  if (!allowedRoleIds.has(roleId)) return { ok: false, message: "This role cannot create that account type." };
+  if (kind === "student" && !siteIds.length) return { ok: false, message: "Choose the student's site or school." };
+  if (kind === "student" && !programIds.length) return { ok: false, message: "Choose the student's program." };
+  if ((roleId === "administration" || roleId === "site_admin") && !siteIds.length) return { ok: false, message: "Choose at least one site for this role." };
+  if (roleId === "program_teacher" && !programIds.length) return { ok: false, message: "Choose at least one program for this Program Teacher." };
+  if ((roleId === "mentor" || roleId === "viewer") && !siteIds.length && !studentIds.length) {
+    return { ok: false, message: `Choose at least one site or assigned student for this ${roleLabel(roleId)}.` };
+  }
+  if (roleId === "global_admin" && !globalAdminConfirmation) {
+    return { ok: false, message: "Confirm that this Global Admin can manage every site." };
+  }
+
+  return {
+    ok: true,
+    successMessage: kind === "student" ? "Student account created." : "Staff account created.",
+    body: {
+      adminNote,
+      users: [{
+        email,
+        fullName: `${firstName} ${lastName}`.trim(),
+        roleId,
+        status,
+        identityType: "local",
+        siteIds,
+        programIds,
+        studentIds,
+        globalAdminConfirmation,
+      }],
+    },
+  };
+}
+
+function cleanAdminImportStatus(value) {
+  const status = String(value || "active").trim().toLowerCase();
+  if (["active", "inactive"].includes(status)) return status;
+  if (status === "disabled") return "inactive";
+  return "";
+}
+
+function isUsableEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || "").trim());
+}
+
+function submitAdminCsvPreview(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const kind = cleanDirectoryFilter(form?.dataset?.csvImportKind || "") === "staff" ? "staff" : "students";
+  const text = String(new FormData(form).get("csvText") || adminCsvImportState[kind]?.csvText || "").trim();
+  if (!text) {
+    adminCsvImportState[kind] = {
+      ...defaultAdminCsvImportKindState(kind),
+      previewed: true,
+      errors: [{ rowNumber: 1, message: "Choose a CSV file or paste CSV text before preview." }],
+      summary: { ...defaultAdminCsvSummary(), rowsWithErrors: 1 },
+    };
+    activeSection = "adminUsers";
+    renderAppShell("CSV preview needs a file or pasted CSV text.", "error");
+    return;
+  }
+  adminCsvImportState[kind] = validateAdminCsvImport(kind, text, { fileName: adminCsvImportState[kind]?.fileName || "" });
+  activeSection = "adminUsers";
+  renderAppShell(adminCsvImportState[kind].errors.length ? "CSV preview found rows to fix." : "CSV preview is ready for confirmation.", adminCsvImportState[kind].errors.length ? "error" : "success");
+}
+
+function handleAdminCsvFileSelected(event) {
+  const input = event.currentTarget;
+  const kind = cleanDirectoryFilter(input?.dataset?.csvFileInput || "") === "staff" ? "staff" : "students";
+  const file = input?.files?.[0];
+  if (!file) return;
+  if (!String(file.name || "").toLowerCase().endsWith(".csv")) {
+    adminCsvImportState[kind] = {
+      ...defaultAdminCsvImportKindState(kind),
+      previewed: true,
+      fileName: file.name || "",
+      errors: [{ rowNumber: 1, message: "Upload a .csv file." }],
+      summary: { ...defaultAdminCsvSummary(), rowsWithErrors: 1 },
+    };
+    renderAppShell("Upload a .csv file.", "error");
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    adminCsvImportState[kind] = {
+      ...defaultAdminCsvImportKindState(kind),
+      fileName: file.name || "",
+      csvText: String(reader.result || ""),
+    };
+    activeSection = "adminUsers";
+    renderAppShell("CSV loaded. Preview before importing.", "success");
+  };
+  reader.onerror = () => {
+    renderAppShell("Could not read that CSV file.", "error");
+  };
+  reader.readAsText(file);
+}
+
+async function confirmAdminCsvImport(button) {
+  if (busy) return;
+  const kind = cleanDirectoryFilter(button?.dataset?.adminCsvConfirm || "") === "staff" ? "staff" : "students";
+  const state = adminCsvImportState[kind] || defaultAdminCsvImportKindState(kind);
+  const form = document.querySelector(`[data-csv-import-form][data-csv-import-kind="${kind}"]`);
+  const adminNote = form ? String(new FormData(form).get("adminNote") || "").trim() : "";
+  if (!state.previewed || !state.validRows.length) {
+    renderAppShell("Preview a CSV with valid rows before importing.", "error");
+    return;
+  }
+  if (state.errors.length) {
+    renderAppShell("Fix row errors before final import.", "error");
+    return;
+  }
+  if (!adminNote) {
+    renderAppShell("Add the admin note before final import.", "error");
+    return;
+  }
+
+  busy = true;
+  setFormBusy(form, true);
+  try {
+    const response = await fetch("/api/admin/users/import", {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify({ adminNote, users: state.validRows.map((row) => row.user) }),
+    });
+    const body = await safeJson(response);
+    if (!response.ok) {
+      lastAdminImportResult = null;
+      renderAppShell(messageForAdminImportError(body?.error, response.status), "error");
+      return;
+    }
+    lastAdminImportResult = body;
+    adminCsvImportState[kind] = defaultAdminCsvImportKindState(kind);
+    activeSection = "adminUsers";
+    adminPeopleView = kind === "staff" ? "manage-staff" : "manage-students";
+    await loadWorkspaceData(`${kind === "staff" ? "Staff" : "Student"} CSV imported.`);
+  } catch (error) {
+    lastAdminImportResult = null;
+    renderAppShell(messageForNetworkError(error), "error");
+  } finally {
+    setFormBusy(form, false);
+    busy = false;
+  }
+}
+
+function validateAdminCsvImport(kind = "students", text = "", options = {}) {
+  const rows = parseCsv(text);
+  const state = {
+    ...defaultAdminCsvImportKindState(kind),
+    csvText: text,
+    fileName: options.fileName || "",
+    previewed: true,
+  };
+  if (!rows.length) {
+    state.errors.push({ rowNumber: 1, message: "CSV needs a header row and at least one data row." });
+    state.summary = { ...defaultAdminCsvSummary(), rowsWithErrors: 1 };
+    return state;
+  }
+  const [headers, ...dataRows] = rows;
+  const normalizedHeaders = headers.map(normalizeCsvColumn);
+  const rowObjects = dataRows
+    .filter((row) => row.some((cell) => String(cell || "").trim()))
+    .map((row, index) => ({
+      rowNumber: index + 2,
+      values: Object.fromEntries(normalizedHeaders.map((header, cellIndex) => [header, String(row[cellIndex] || "").trim()])),
+    }));
+  const context = adminCsvValidationContext();
+  const seenEmails = new Set();
+  const existingEmails = context.existingEmails;
+  for (const row of rowObjects) {
+    const validation = kind === "staff"
+      ? validateStaffCsvRow(row, context, seenEmails, existingEmails)
+      : validateStudentCsvRow(row, context, seenEmails, existingEmails);
+    state.rows.push(validation);
+    if (validation.ok && validation.user) {
+      if (validation.existing) {
+        state.summary.existingRecords += 1;
+      } else {
+        state.validRows.push(validation);
+        state.summary.newRecords += 1;
+      }
+    } else {
+      state.errors.push({ rowNumber: row.rowNumber, message: validation.message });
+    }
+  }
+  state.summary.rowsDetected = rowObjects.length;
+  state.summary.validRows = state.rows.filter((validatedRow) => validatedRow.ok).length;
+  state.summary.rowsWithErrors = state.errors.length;
+  return state;
+}
+
+function parseCsv(text = "") {
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let quoted = false;
+  const input = String(text || "").replace(/^\uFEFF/, "");
+  for (let index = 0; index < input.length; index += 1) {
+    const char = input[index];
+    const next = input[index + 1];
+    if (char === '"' && quoted && next === '"') {
+      cell += '"';
+      index += 1;
+    } else if (char === '"') {
+      quoted = !quoted;
+    } else if (char === "," && !quoted) {
+      row.push(cell);
+      cell = "";
+    } else if ((char === "\n" || char === "\r") && !quoted) {
+      if (char === "\r" && next === "\n") index += 1;
+      row.push(cell);
+      rows.push(row);
+      row = [];
+      cell = "";
+    } else {
+      cell += char;
+    }
+  }
+  if (cell || row.length) {
+    row.push(cell);
+    rows.push(row);
+  }
+  return rows;
+}
+
+function normalizeCsvColumn(value) {
+  return String(value || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+}
+
+function adminCsvValidationContext() {
+  const access = unwrap(currentData.accessAssignments) || {};
+  const users = access.users || {};
+  const sites = accessibleSitesForWorkspace();
+  const programs = Array.isArray(access.programs) ? access.programs : [];
+  const students = Array.isArray(users.students) ? users.students : [];
+  const allAccounts = siteAccountRows(users);
+  const roleChoices = adminRoleChoicesForRoles(roleIds(currentUser));
+  return {
+    roleIds: new Set(roleChoices.map((role) => role.value)),
+    sitesByKey: lookupMap(sites, (site) => [site.siteId, site.siteName]),
+    programsByKey: lookupMap(programs, (program) => [program.programId, program.programName]),
+    studentsByEmail: lookupMap(students, (student) => [student.email, student.displayName, student.studentName, student.userId, student.studentId]),
+    mentorsByEmail: lookupMap(users.mentors || [], (mentor) => [mentor.email, mentor.displayName, mentor.userId, mentor.id]),
+    viewersByEmail: lookupMap(users.viewers || [], (viewer) => [viewer.email, viewer.displayName, viewer.userId, viewer.id]),
+    existingEmails: new Set(allAccounts.map((account) => String(account.email || "").trim().toLowerCase()).filter(Boolean)),
+  };
+}
+
+function lookupMap(rows = [], keysForRow = () => []) {
+  const map = new Map();
+  for (const row of rows) {
+    for (const key of keysForRow(row)) {
+      const normalized = normalizeLookupKey(key);
+      if (normalized && !map.has(normalized)) map.set(normalized, row);
+    }
+  }
+  return map;
+}
+
+function normalizeLookupKey(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function validateStudentCsvRow(row, context, seenEmails, existingEmails) {
+  const values = row.values || {};
+  const firstName = values.first_name || "";
+  const lastName = values.last_name || "";
+  const email = values.email || "";
+  const site = context.sitesByKey.get(normalizeLookupKey(values.site));
+  const program = context.programsByKey.get(normalizeLookupKey(values.program));
+  const status = cleanAdminImportStatus(values.status || "active");
+  const emailKey = normalizeLookupKey(email);
+  if (!firstName || !lastName || !email || !values.site || !values.program) return csvInvalid(row, "Missing required first_name, last_name, email, site, or program.");
+  if (!isUsableEmail(email)) return csvInvalid(row, "Email/login identifier is not usable.");
+  if (seenEmails.has(emailKey)) return csvInvalid(row, "Duplicate email appears more than once in this CSV.");
+  seenEmails.add(emailKey);
+  if (existingEmails.has(emailKey)) return csvValid(row, null, true);
+  if (!site) return csvInvalid(row, "Site is not in your current scope.");
+  if (!program) return csvInvalid(row, "Program is not in your current scope.");
+  if (!status) return csvInvalid(row, "Status must be active or inactive.");
+  if (values.mentor_email && !context.mentorsByEmail.has(normalizeLookupKey(values.mentor_email))) {
+    return csvInvalid(row, "Mentor email must already exist in the current scoped roster before automatic assignment.");
+  }
+  if (values.viewer_email && !context.viewersByEmail.has(normalizeLookupKey(values.viewer_email))) {
+    return csvInvalid(row, "Viewer email must already exist in the current scoped roster before automatic assignment.");
+  }
+  return csvValid(row, {
+    email,
+    fullName: `${firstName} ${lastName}`.trim(),
+    roleId: "student",
+    identityType: "local",
+    status,
+    siteIds: [site.siteId],
+    programIds: [program.programId],
+    studentIds: [],
+    globalAdminConfirmation: false,
+  });
+}
+
+function validateStaffCsvRow(row, context, seenEmails, existingEmails) {
+  const values = row.values || {};
+  const firstName = values.first_name || "";
+  const lastName = values.last_name || "";
+  const email = values.email || "";
+  const roleId = normalizeStaffCsvRole(values.role);
+  const site = values.site ? context.sitesByKey.get(normalizeLookupKey(values.site)) : null;
+  const program = values.program ? context.programsByKey.get(normalizeLookupKey(values.program)) : null;
+  const status = cleanAdminImportStatus(values.status || "active");
+  const emailKey = normalizeLookupKey(email);
+  if (!firstName || !lastName || !email || !values.role) return csvInvalid(row, "Missing required first_name, last_name, email, or role.");
+  if (!isUsableEmail(email)) return csvInvalid(row, "Email/login identifier is not usable.");
+  if (seenEmails.has(emailKey)) return csvInvalid(row, "Duplicate email appears more than once in this CSV.");
+  seenEmails.add(emailKey);
+  if (existingEmails.has(emailKey)) return csvValid(row, null, true);
+  if (!roleId || roleId === "global_admin") return csvInvalid(row, "CSV import cannot create Global Admin accounts.");
+  if (roleId === "student") return csvInvalid(row, "Use Import Students for student rows.");
+  if (!context.roleIds.has(roleId)) return csvInvalid(row, "This role is not allowed for your current account.");
+  if (!status) return csvInvalid(row, "Status must be active or inactive.");
+  if (values.site && !site) return csvInvalid(row, "Site is not in your current scope.");
+  if (values.program && !program) return csvInvalid(row, "Program is not in your current scope.");
+  const siteIds = site ? [site.siteId] : [];
+  const programIds = program ? [program.programId] : [];
+  const assignedStudentEmails = splitCsvList(values.assigned_student_emails);
+  const studentIds = [];
+  for (const studentEmail of assignedStudentEmails) {
+    const student = context.studentsByEmail.get(normalizeLookupKey(studentEmail));
+    if (!student) return csvInvalid(row, `Assigned student ${studentEmail} is outside your current scope.`);
+    studentIds.push(student.userId || student.studentId || student.id);
+  }
+  if ((roleId === "administration" || roleId === "site_admin") && !siteIds.length) return csvInvalid(row, "Site Admin and Administration rows need a site.");
+  if (roleId === "program_teacher" && !programIds.length) return csvInvalid(row, "Program Teacher rows need a program.");
+  if ((roleId === "mentor" || roleId === "viewer") && !siteIds.length && !studentIds.length) return csvInvalid(row, "Mentor and Viewer rows need a site or assigned students.");
+  return csvValid(row, {
+    email,
+    fullName: `${firstName} ${lastName}`.trim(),
+    roleId,
+    identityType: "local",
+    status,
+    siteIds,
+    programIds,
+    studentIds: Array.from(new Set(studentIds.filter(Boolean))),
+    globalAdminConfirmation: false,
+  });
+}
+
+function normalizeStaffCsvRole(value) {
+  const role = String(value || "").trim().toLowerCase().replace(/[\s-]+/g, "_");
+  const aliases = {
+    school_admin: "administration",
+    admin: "global_admin",
+    global_admin: "global_admin",
+    site_admin: "site_admin",
+    administration: "administration",
+    program_teacher: "program_teacher",
+    mentor: "mentor",
+    viewer: "viewer",
+    student: "student",
+  };
+  return aliases[role] || "";
+}
+
+function splitCsvList(value) {
+  return String(value || "")
+    .split(/[;,|]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function csvInvalid(row, message) {
+  return { ok: false, rowNumber: row.rowNumber, message };
+}
+
+function csvValid(row, user, existing = false) {
+  return { ok: true, rowNumber: row.rowNumber, user, existing };
 }
 
 async function submitSiteAccessAssignment(event) {

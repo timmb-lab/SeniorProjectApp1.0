@@ -210,9 +210,12 @@ export async function canActorCreateRole(env: Env, actor: UserAccount, roleId: R
   if (isGlobalAdminRole(roleId) || roleId === "global_admin") return false;
   if (roleId === "site_admin") return false;
 
-  const siteManager = access.canonicalRoleIds.includes("site_admin") || access.canonicalRoleIds.includes("administration");
+  const siteAdmin = access.canonicalRoleIds.includes("site_admin");
+  const administration = access.canonicalRoleIds.includes("administration");
   const programTeacher = access.canonicalRoleIds.includes("program_teacher");
-  const allowedRoles = siteManager
+  const allowedRoles = siteAdmin
+    ? ["student", "mentor", "viewer", "program_teacher", "administration"]
+    : administration
     ? ["student", "mentor", "viewer", "program_teacher"]
     : programTeacher
       ? ["student", "mentor"]

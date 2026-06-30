@@ -33,6 +33,8 @@ assertMatches("workspaceJs", /aria-pressed="\$\{workspaceNavCollapsed \? "true" 
 assertMatches("workspaceJs", /handleWorkspaceKeydown[\s\S]*Escape[\s\S]*workspaceNavCollapsed = true/, "Escape key should close the workspace rail");
 assertMatches("workspaceJs", /data-workspace-disclosure-action="toggle"[\s\S]*aria-expanded="\$\{open \? "true" : "false"\}"/, "disclosure toggles must expose aria-expanded");
 assertIncludes("workspaceJs", "aria-live=\"polite\"", "status and preview regions should announce changes politely");
+assertIncludes("workspaceJs", "data-active-role-badge=\"true\"", "active role badge must keep visible role text near user identity");
+assertMatches("workspaceJs", /aria-label="Active role:/, "active role badge must expose active role text to assistive tech");
 assertMatches("workspaceJs", /aria-labelledby="siteStudentDetailTitle"/, "student detail drawer must be labelled");
 assertMatches("workspaceJs", /tabindex="-1"/, "student detail drawer must be focusable after open");
 assertMatches("workspaceJs", /panel\.focus\?\.\(\{ preventScroll: true \}\)/, "student detail drawer should receive focus");

@@ -426,6 +426,45 @@ test("School Admin can create mentors and Program Teachers for an assigned schoo
   assert.equal(fixture.db.data.siteUsers.some((row) => row.site_id === "site-a" && row.user_id === teacher.id && row.membership_status === "active"), true);
 });
 
+test("Site Admin can create scoped Administration and inactive accounts stay disabled", async () => {
+  const fixture = await createFixtureWithSession({ userId: "site-admin-a", roleId: "site_admin" });
+  const actorRole = fixture.db.data.userRoles.find((row) => row.user_id === "site-admin-a" && row.role_id === "site_admin");
+  actorRole.scope_type = "site";
+  actorRole.scope_id = "site-a";
+  fixture.db.data.siteUsers.push({ site_id: "site-a", user_id: "site-admin-a", membership_status: "active" });
+
+  const response = await onRequestPost({
+    request: buildJsonRequest(
+      "https://example.test/api/admin/users/import",
+      {
+        adminNote: "Site admin adds scoped school operations staff.",
+        users: [
+          studentInput({
+            email: "administration.site@senior-capstone.test",
+            displayName: "Site Administration",
+            roleId: "administration",
+            siteIds: ["site-a"],
+            status: "inactive",
+          }),
+        ],
+      },
+      { cookie: `sc_session=${fixture.token}` },
+    ),
+    env: fixture.env,
+    params: {},
+  });
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.importedCount, 1);
+  const created = body.users[0];
+  assert.equal(created.role.roleId, "administration");
+  assert.equal(created.status, "disabled");
+  assert.equal(created.temporaryPassword, undefined);
+  assert.equal(fixture.db.data.passwordCredentials.some((row) => row.user_id === created.id), false);
+  assert.equal(fixture.db.data.userRoles.some((row) => row.user_id === created.id && row.role_id === "administration" && row.scope_type === "site" && row.scope_id === "site-a"), true);
+});
+
 test("Program Teacher can create students and mentors but not Program Teachers", async () => {
   const fixture = await createFixtureWithSession({ userId: "program-teacher-a", roleId: "program_teacher" });
   const actorRole = fixture.db.data.userRoles.find((row) => row.user_id === "program-teacher-a" && row.role_id === "program_teacher");

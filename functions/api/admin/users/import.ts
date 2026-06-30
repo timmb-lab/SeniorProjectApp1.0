@@ -25,6 +25,7 @@ interface ImportUserInput {
   studentIds?: unknown;
   identityType?: unknown;
   signInMethod?: unknown;
+  status?: unknown;
   globalAdminConfirmation?: unknown;
 }
 
@@ -45,6 +46,7 @@ interface NormalizedImportUser {
   studentIds: string[];
   legacyScopeType: RoleScopeType;
   legacyScopeId: string;
+  status: "active" | "inactive";
   globalAdminConfirmation: boolean;
 }
 
@@ -106,7 +108,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   }
 
   const realLocalUserCount = normalizedUsers.filter((user) => (
-    user.identityType === "local" && !isFakeTestEmail(user.emailNorm)
+    user.identityType === "local" && user.status !== "inactive" && !isFakeTestEmail(user.emailNorm)
   )).length;
   if (realLocalUserCount > 0 && !isManagedLocalAccountCreationEnabled(env)) {
     await writeAudit(env, {
@@ -146,7 +148,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const imported = [];
   for (const user of normalizedUsers) {
     const userId = randomId("user");
-    const temporaryPassword = user.identityType === "local" ? generateTemporaryPassword(user) : "";
+    const temporaryPassword = user.identityType === "local" && user.status !== "inactive" ? generateTemporaryPassword(user) : "";
+    const accountStatus = user.status === "inactive"
+      ? "disabled"
+      : user.identityType === "local" ? "pending_reset" : "active";
     const credential = temporaryPassword
       ? await hashPassword(temporaryPassword, env.PASSWORD_PEPPER || "")
       : null;
@@ -159,7 +164,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       user.email,
       user.emailNorm,
       user.displayName,
-      user.identityType === "local" ? "pending_reset" : "active",
+      accountStatus,
     ).run();
 
     if (credential) {
@@ -218,7 +223,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       id: userId,
       email: user.email,
       displayName: user.displayName,
-      status: user.identityType === "local" ? "pending_reset" : "active",
+      status: accountStatus,
       role: roleResponse(user),
       access: accessSummary(user),
       identityType: user.identityType,
@@ -277,8 +282,9 @@ function normalizeUserInput(value: unknown): NormalizedImportUser | null {
     legacyScopeType === "program" ? legacyScopeId : "",
   ]);
   const studentIds = uniqueIds(input.studentIds);
+  const status = cleanAccountStatus(input.status);
 
-  if (!isValidEmail(email) || !displayName || !roleId || !identityType) return null;
+  if (!isValidEmail(email) || !displayName || !roleId || !identityType || !status) return null;
 
   return {
     email,
@@ -291,6 +297,7 @@ function normalizeUserInput(value: unknown): NormalizedImportUser | null {
     studentIds,
     legacyScopeType,
     legacyScopeId,
+    status,
     globalAdminConfirmation: input.globalAdminConfirmation === true || input.globalAdminConfirmation === "true",
   };
 }
@@ -338,6 +345,13 @@ async function validateUser(
     }
     for (const siteId of user.siteIds) {
       if (!await activeSiteExists(env, siteId)) return reject(404, "site_not_found", "The selected site was not found.");
+    }
+    if (user.programIds.length) {
+      const programSiteIds = await siteIdsForPrograms(env, user.programIds);
+      if (!programSiteIds.length) return reject(404, "program_not_found", "The selected program was not found for an active site.");
+      if (!programSiteIds.some((siteId) => user.siteIds.includes(siteId))) {
+        return reject(403, "program_assignment_forbidden", "You can only select programs inside this student's site.");
+      }
     }
     return { ok: true };
   }
@@ -471,6 +485,7 @@ function accessSummary(user: NormalizedImportUser): string {
 }
 
 function nextStepsFor(user: NormalizedImportUser): string[] {
+  if (user.status === "inactive") return ["Account is created disabled. Activate it only after the school is ready."];
   if (user.roleId === "student") return ["Link or confirm the student profile."];
   if (user.roleId === "mentor") return user.studentIds.length ? ["Confirm mentor/student assignments."] : ["Assign students to this mentor."];
   if (user.roleId === "viewer") return user.studentIds.length ? ["Confirm read-only viewer/student assignments."] : ["Assign students this viewer can see."];
@@ -577,6 +592,13 @@ function cleanIdentityType(value: unknown): IdentityInput | null {
   const normalized = String(value || "local").trim().toLowerCase();
   if (["local", "local_account", "password"].includes(normalized)) return "local";
   if (["sso", "sso_account", "google", "google_workspace"].includes(normalized)) return "sso";
+  return null;
+}
+
+function cleanAccountStatus(value: unknown): "active" | "inactive" | null {
+  const normalized = String(value || "active").trim().toLowerCase();
+  if (normalized === "active" || normalized === "enabled") return "active";
+  if (normalized === "inactive" || normalized === "disabled") return "inactive";
   return null;
 }
 

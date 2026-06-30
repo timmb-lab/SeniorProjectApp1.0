@@ -9815,10 +9815,9 @@ test("workspace renders admin import controls and one-time setup output", async 
     };
   `);
 
-  assert.match(adminUsers, /data-admin-section="users"/);
-  assert.match(adminUsers, /data-admin-action="import-users"/);
-  assert.match(adminUsers, /data-admin-endpoint="\/api\/admin\/users\/import"/);
-  assert.match(adminUsers, /data-admin-cache="no-store-response"/);
+  assert.match(adminUsers, /data-people-management="true"/);
+  assert.match(adminUsers, /data-people-view="manage-students"/);
+  assert.match(adminUsers, /data-people-nav="true"/);
   assert.match(adminUsers, /data-screen-orientation-section="adminUsers"/);
   assert.match(adminUsers, /Create or change access only after school access is clear/);
   assert.match(adminUsers, /Review current access and preflight checks before saving/);
@@ -9827,10 +9826,6 @@ test("workspace renders admin import controls and one-time setup output", async 
   assert.match(adminUsers, /data-section="siteDashboard"[\s\S]*Review current school/);
   assert.match(adminUsers, /data-section="profile"[\s\S]*Review profile/);
   assert.match(adminUsers, /data-section="security"[\s\S]*Open Security/);
-  assert.match(adminUsers, /data-first-use-guide="users-access"/);
-  assert.match(adminUsers, /Create access only after school access is clear/);
-  assert.match(adminUsers, /Choose the smallest role/);
-  assert.match(adminUsers, /Use approved password delivery/);
   assert.match(adminUsers, /data-users-access-action-map="true"/);
   assert.match(adminUsers, /Do one safe access step first/);
   assert.match(adminUsers, /Desert Valley High School \/ 2025-2026/);
@@ -9842,26 +9837,16 @@ test("workspace renders admin import controls and one-time setup output", async 
   assert.match(adminUsers, /data-users-access-action-map-card="remove"[\s\S]*Removal safety[\s\S]*5 removable[\s\S]*Read removal impact first[\s\S]*data-users-access-focus="removal"[\s\S]*Review warning/);
   assert.match(adminUsers, /data-users-access-action-map-card="history"[\s\S]*Access history[\s\S]*2 changes[\s\S]*Review recent changes[\s\S]*data-workspace-disclosure-scope="usersAccess"[\s\S]*data-workspace-disclosure-id="history"[\s\S]*Open changes/);
   assert.match(adminUsers, /data-users-access-action-map-card="role-history"[\s\S]*Role history[\s\S]*0 grants[\s\S]*Review role grants[\s\S]*data-workspace-disclosure-scope="usersAccess"[\s\S]*data-workspace-disclosure-id="roleAssignments"[\s\S]*Open grants/);
-  assert.match(adminUsers, /data-admin-import-preflight="true"/);
-  assert.match(adminUsers, /data-account-lifecycle-policy="true"/);
-  assert.match(adminUsers, /Invite email[\s\S]*Not sent from this app yet/);
-  assert.match(adminUsers, /Before creating an account/);
-  assert.match(adminUsers, /Add staff, admin, or student account/);
-  assert.match(adminUsers, /data-admin-role-quick-picks="true"/);
-  assert.match(adminUsers, /data-admin-role-pick="program_teacher"/);
-  assert.match(adminUsers, /data-admin-role-pick="administration"/);
-  assert.match(adminUsers, /data-admin-role-pick="site_admin"/);
-  assert.match(adminUsers, /data-admin-role-pick="global_admin"/);
-  assert.match(adminUsers, /Program Teacher/);
-  assert.match(adminUsers, /Full name/);
-  assert.match(adminUsers, /Admin note/);
-  assert.match(adminUsers, /data-task-finish-checklist="account-create-save"/);
-  assert.match(adminUsers, /Before creating this account/);
-  assert.match(adminUsers, /Smallest role chosen/);
-  assert.match(adminUsers, /Setup handoff approved/);
-  assert.match(adminUsers, /Create account/);
-  assert.match(adminUsers, /Local accounts only\. SSO is disabled for this setup\./);
-  assert.doesNotMatch(adminUsers, /<option value="sso">SSO account<\/option>/);
+  assert.match(adminUsers, /Students, staff, imports, and assignments/);
+  assert.match(adminUsers, /data-people-scope-summary="true"/);
+  assert.match(adminUsers, /data-people-nav-group="students"[\s\S]*Manage Students[\s\S]*Add Student/);
+  assert.match(adminUsers, /data-people-nav-group="staff"[\s\S]*Manage Staff[\s\S]*Add Staff/);
+  assert.match(adminUsers, /data-people-nav-group="imports"[\s\S]*Import Students[\s\S]*Import Staff/);
+  assert.match(adminUsers, /data-people-nav-group="assignments"[\s\S]*Assignments/);
+  assert.match(adminUsers, /data-people-screen="manage-students"/);
+  assert.match(adminUsers, /data-manage-student-row="demo-student-101"/);
+  assert.match(adminUsers, /View student/);
+  assert.match(adminUsers, /View as Student/);
   assert.match(adminUsers, /data-site-account-management="true"/);
   assert.match(adminUsers, /data-site-staff-account-management="true"/);
   assert.match(adminUsers, /Staff, admin, Program Teacher, and student accounts/);
@@ -9875,6 +9860,34 @@ test("workspace renders admin import controls and one-time setup output", async 
   assert.match(adminUsers, /N9!aA-setup-zZ/);
   assert.match(adminUsers, /pending reset/i);
   assert.match(adminUsers, /will create a new password at first sign-in/i);
+
+  const adminAddStudent = await renderWorkspaceWithFetch(profileRoutesForRole("global_admin"), "adminUsers", "", {
+    url: "https://workspace.example/workspace.html?mode=admin&section=adminUsers&peopleView=add-student",
+  });
+  assert.match(adminAddStudent, /data-people-view="add-student"/);
+  assert.match(adminAddStudent, /data-admin-add-person-form="true" data-person-kind="student"/);
+  assert.match(adminAddStudent, /First name[\s\S]*Last name[\s\S]*Email or login identifier/);
+  assert.match(adminAddStudent, /Site \/ school[\s\S]*Program[\s\S]*Cohort[\s\S]*Graduation year[\s\S]*Status/);
+  assert.match(adminAddStudent, /Mentor assignment[\s\S]*Viewer assignment/);
+  assert.match(adminAddStudent, /data-destructive-confirmation="student-create-delivery"/);
+  assert.match(adminAddStudent, /Create student/);
+  assert.match(adminAddStudent, /Return to Manage Students/);
+
+  const adminAddStaff = await renderWorkspaceWithFetch(profileRoutesForRole("global_admin"), "adminUsers", "", {
+    url: "https://workspace.example/workspace.html?mode=admin&section=adminUsers&peopleView=add-staff",
+  });
+  assert.match(adminAddStaff, /data-people-view="add-staff"/);
+  assert.match(adminAddStaff, /data-admin-add-person-form="true" data-person-kind="staff"/);
+  assert.match(adminAddStaff, /data-admin-role-quick-picks="true"/);
+  assert.match(adminAddStaff, /data-admin-role-pick="program_teacher"/);
+  assert.match(adminAddStaff, /data-admin-role-pick="administration"/);
+  assert.match(adminAddStaff, /data-admin-role-pick="site_admin"/);
+  assert.match(adminAddStaff, /data-admin-role-pick="global_admin"/);
+  assert.match(adminAddStaff, /Staff role[\s\S]*Status[\s\S]*Site \/ school[\s\S]*Program[\s\S]*Assigned students/);
+  assert.match(adminAddStaff, /Admin note/);
+  assert.match(adminAddStaff, /data-destructive-confirmation="staff-create-delivery"/);
+  assert.match(adminAddStaff, /Create staff member/);
+  assert.doesNotMatch(adminAddStaff, /<option value="sso">SSO account<\/option>/);
 });
 
 test("workspace scopes Users & Access GUI controls for School Admin and Program Teacher", async () => {
@@ -9893,18 +9906,30 @@ test("workspace scopes Users & Access GUI controls for School Admin and Program 
     "/api/site/access-assignments": { status: 200, body: schoolAdminAccess },
     "/api/site/mentor-assignments": { status: 200, body: siteMentorAssignmentsFixture({ role: "administration", readOnly: false, canManage: true }) },
   };
-  const schoolAdmin = await renderWorkspaceWithFetch(schoolAdminRoutes, "adminUsers");
+  const schoolAdmin = await renderWorkspaceWithFetch(schoolAdminRoutes, "adminUsers", "", {
+    url: "https://workspace.example/workspace.html?mode=admin&section=adminUsers&peopleView=add-staff",
+  });
 
-  assert.match(schoolAdmin, /data-admin-role-pick="student"/);
+  assert.match(schoolAdmin, /data-people-management="true"/);
+  assert.match(schoolAdmin, /data-people-view="add-staff"/);
   assert.match(schoolAdmin, /data-admin-role-pick="mentor"/);
   assert.match(schoolAdmin, /data-admin-role-pick="viewer"/);
   assert.match(schoolAdmin, /data-admin-role-pick="program_teacher"/);
-  assert.doesNotMatch(schoolAdmin, /data-admin-role-pick="administration"|data-admin-role-pick="site_admin"|data-admin-role-pick="global_admin"/);
+  assert.doesNotMatch(schoolAdmin, /data-admin-role-pick="student"|data-admin-role-pick="administration"|data-admin-role-pick="site_admin"|data-admin-role-pick="global_admin"/);
+  assert.match(schoolAdmin, /Staff role[\s\S]*Status[\s\S]*Site \/ school[\s\S]*Program[\s\S]*Assigned students/);
   assert.match(schoolAdmin, /data-assignment-type="mentor_student"/);
   assert.match(schoolAdmin, /data-assignment-type="viewer_student"/);
   assert.match(schoolAdmin, /data-assignment-type="program_teacher_program"/);
   assert.doesNotMatch(schoolAdmin, /data-assignment-type="administration_site"|data-assignment-type="site_admin_site"/);
   assert.equal((schoolAdmin.match(/data-admin-account-remove-form="true"/g) || []).length, 4);
+
+  const schoolAdminStudent = await renderWorkspaceWithFetch(schoolAdminRoutes, "adminUsers", "", {
+    url: "https://workspace.example/workspace.html?mode=admin&section=adminUsers&peopleView=add-student",
+  });
+  assert.match(schoolAdminStudent, /data-people-view="add-student"/);
+  assert.match(schoolAdminStudent, /data-admin-add-person-form="true" data-person-kind="student"/);
+  assert.match(schoolAdminStudent, /<input type="hidden" name="roleId" value="student">/);
+  assert.match(schoolAdminStudent, /Site \/ school[\s\S]*Program[\s\S]*Status/);
 
   const programTeacherAccess = siteAccessAssignmentsFixture();
   programTeacherAccess.permissions = {
@@ -9929,6 +9954,136 @@ test("workspace scopes Users & Access GUI controls for School Admin and Program 
   assert.match(programTeacher, /data-assignment-type="mentor_student"/);
   assert.doesNotMatch(programTeacher, /data-assignment-type="viewer_student"|data-assignment-type="program_teacher_program"|data-assignment-type="administration_site"|data-assignment-type="site_admin_site"/);
   assert.equal((programTeacher.match(/data-admin-account-remove-form="true"/g) || []).length, 2);
+});
+
+test("workspace renders visible role identity for every logged-in role", async () => {
+  const roles = [
+    ["student", "Student"],
+    ["viewer", "Viewer"],
+    ["mentor", "Mentor"],
+    ["program_teacher", "Program Teacher"],
+    ["administration", "Administration"],
+    ["site_admin", "Site Admin"],
+    ["global_admin", "Global Admin"],
+  ];
+
+  for (const [roleId, label] of roles) {
+    const markup = await renderWorkspaceWithFetch(profileRoutesForRole(roleId));
+    assert.match(markup, new RegExp(`data-primary-role="${escapeRegExp(roleId)}"`), `${roleId} primary role marker`);
+    assert.match(markup, /data-active-role-badge="true"/, `${roleId} active role badge`);
+    assert.match(markup, new RegExp(`data-role-identity="${escapeRegExp(roleId)}"`), `${roleId} role identity marker`);
+    assert.match(markup, new RegExp(`Active role:\\s*${escapeRegExp(label)}|${escapeRegExp(label)}[\\s\\S]*Active role`), `${roleId} visible role text`);
+  }
+
+  for (const roleId of ["student", "viewer", "mentor", "program_teacher", "administration", "site_admin", "global_admin"]) {
+    assert.match(workspaceCss, new RegExp(`data-primary-role="${escapeRegExp(roleId)}"[\\s\\S]*--role-accent`), `${roleId} role accent CSS`);
+  }
+  assert.match(workspaceCss, /@media \(max-width: 900px\)[\s\S]*\.workspace-active-role-badge/, "role badge must have mobile handling");
+});
+
+test("People management screens stay limited to Global Admin, Site Admin, and Administration", async () => {
+  for (const roleId of ["global_admin", "site_admin", "administration"]) {
+    const markup = await renderWorkspaceWithFetch(profileRoutesForRole(roleId), "adminUsers", "", {
+      url: "https://workspace.example/workspace.html?mode=admin&section=adminUsers",
+    });
+    assert.match(markup, /data-people-management="true"/, `${roleId} sees People management`);
+    assert.match(markup, /data-people-nav="true"/, `${roleId} sees People nav`);
+    assert.match(markup, /Add Student/);
+    assert.match(markup, /Add Staff/);
+    assert.match(markup, /Import Students/);
+    assert.match(markup, /Import Staff/);
+    assert.match(markup, /Manage Students/);
+    assert.match(markup, /Manage Staff/);
+    assert.match(markup, /data-people-screen="manage-students"/);
+    assert.match(markup, /data-manage-student-row="demo-student-101"/);
+    assert.match(markup, /View as Student/);
+  }
+
+  const siteAdminStaff = await renderWorkspaceWithFetch(profileRoutesForRole("site_admin"), "adminUsers", "", {
+    url: "https://workspace.example/workspace.html?mode=admin&section=adminUsers&peopleView=add-staff",
+  });
+  assert.match(siteAdminStaff, /data-people-view="add-staff"/);
+  assert.match(siteAdminStaff, /data-admin-role-pick="administration"/, "site admin can create scoped Administration");
+  assert.doesNotMatch(siteAdminStaff, /data-admin-role-pick="global_admin"/, "site admin cannot create Global Admin");
+
+  const administrationStaff = await renderWorkspaceWithFetch(profileRoutesForRole("administration"), "adminUsers", "", {
+    url: "https://workspace.example/workspace.html?mode=admin&section=adminUsers&peopleView=add-staff",
+  });
+  assert.match(administrationStaff, /data-people-view="add-staff"/);
+  assert.match(administrationStaff, /data-admin-role-pick="mentor"/);
+  assert.match(administrationStaff, /data-admin-role-pick="viewer"/);
+  assert.match(administrationStaff, /data-admin-role-pick="program_teacher"/);
+  assert.doesNotMatch(administrationStaff, /data-admin-role-pick="student"|data-admin-role-pick="administration"|data-admin-role-pick="site_admin"|data-admin-role-pick="global_admin"/);
+
+  const administrationStudent = await renderWorkspaceWithFetch(profileRoutesForRole("administration"), "adminUsers", "", {
+    url: "https://workspace.example/workspace.html?mode=admin&section=adminUsers&peopleView=add-student",
+  });
+  assert.match(administrationStudent, /data-people-view="add-student"/);
+  assert.match(administrationStudent, /<input type="hidden" name="roleId" value="student">/);
+
+  const deniedRoles = ["program_teacher", "mentor", "viewer", "student"];
+  for (const roleId of deniedRoles) {
+    const markup = await renderWorkspaceWithFetch(profileRoutesForRole(roleId), "", "", {
+      url: "https://workspace.example/workspace.html?mode=admin&section=adminUsers&peopleView=import-students",
+    });
+    assert.doesNotMatch(markup, /data-people-management="true"/, `${roleId} must not see broad People management`);
+    assert.doesNotMatch(markup, /data-csv-import-kind="students"|Download CSV template|data-people-screen="add-student"|data-people-screen="add-staff"/, `${roleId} must not reach import/add screens`);
+  }
+});
+
+test("People CSV import screens provide templates and row-level preview validation", async () => {
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch(profileRoutesForRole("site_admin"), {
+    url: "https://workspace.example/workspace.html?mode=admin&section=adminUsers&peopleView=import-students",
+  });
+
+  assert.match(workspaceRoot.innerHTML, /data-people-view="import-students"/);
+  assert.match(workspaceRoot.innerHTML, /data-csv-template-download="students"/);
+  assert.match(workspaceRoot.innerHTML, /first_name[\s\S]*last_name[\s\S]*mentor_email[\s\S]*viewer_email/);
+  assert.match(workspaceRoot.innerHTML, /data-csv-preview="students" data-csv-preview-state="waiting"/);
+
+  vm.runInContext(`
+    adminCsvImportState.students = validateAdminCsvImport("students", ${JSON.stringify([
+      "first_name,last_name,email,site,program,cohort,graduation_year,status,mentor_email,viewer_email",
+      "Ada,Lovelace,ada.student@senior-capstone.test,Desert Valley High School,Information Technology,Class of 2026,2026,active,mentor.one@demo-staff.capstone.test,viewer.one@demo-staff.capstone.test",
+    ].join("\n"))});
+    adminPeopleView = "import-students";
+    activeSection = "adminUsers";
+    renderAppShell();
+  `, context);
+  assert.match(workspaceRoot.innerHTML, /data-csv-preview="students" data-csv-preview-state="ready"/);
+  assert.match(workspaceRoot.innerHTML, /Rows detected[\s\S]*1/);
+  assert.match(workspaceRoot.innerHTML, /Valid rows[\s\S]*1/);
+  assert.match(workspaceRoot.innerHTML, /Rows with errors[\s\S]*0/);
+  assert.match(workspaceRoot.innerHTML, /New records[\s\S]*1/);
+
+  vm.runInContext(`
+    adminCsvImportState.staff = validateAdminCsvImport("staff", ${JSON.stringify([
+      "first_name,last_name,email,role,site,program,assigned_student_emails,status",
+      "Maya,Rivera,maya.staff@senior-capstone.test,mentor,Desert Valley High School,,missing.mentor.001@demo-student.capstone.test,active",
+    ].join("\n"))});
+    adminPeopleView = "import-staff";
+    activeSection = "adminUsers";
+    renderAppShell();
+  `, context);
+  assert.match(workspaceRoot.innerHTML, /data-csv-template-download="staff"/);
+  assert.match(workspaceRoot.innerHTML, /data-csv-preview="staff" data-csv-preview-state="ready"/);
+  assert.match(workspaceRoot.innerHTML, /Valid rows[\s\S]*1/);
+
+  vm.runInContext(`
+    adminCsvImportState.staff = validateAdminCsvImport("staff", ${JSON.stringify([
+      "first_name,last_name,email,role,site,program,assigned_student_emails,status",
+      "Gina,Global,gina.global@senior-capstone.test,global_admin,Desert Valley High School,,,active",
+      "Stu,Dent,student.staff@senior-capstone.test,student,Desert Valley High School,,,active",
+      "Out,Scope,out.scope@senior-capstone.test,mentor,Other School,,missing.mentor.001@demo-student.capstone.test,active",
+    ].join("\n"))});
+    adminPeopleView = "import-staff";
+    activeSection = "adminUsers";
+    renderAppShell();
+  `, context);
+  assert.match(workspaceRoot.innerHTML, /data-csv-preview="staff" data-csv-preview-state="errors"/);
+  assert.match(workspaceRoot.innerHTML, /CSV import cannot create Global Admin accounts/);
+  assert.match(workspaceRoot.innerHTML, /Use Import Students for student rows/);
+  assert.match(workspaceRoot.innerHTML, /Site is not in your current scope|Mentor and Viewer rows need a site or assigned students/);
 });
 
 test("workspace renders recent role assignments for global admins before site access forms", async () => {
@@ -10763,9 +10918,16 @@ test("workspace keeps admin import setup output memory-only and gates non-admin 
     };
     renderAppShell();
   `, context);
-  assert.match(workspaceRoot.innerHTML, /data-destructive-confirmation="admin-import-delivery"/);
-  assert.match(workspaceRoot.innerHTML, /I reviewed the role, site\/program\/student scope, and setup-password delivery process/);
   assert.match(workspaceRoot.innerHTML, /data-admin-import-result="one-time-setup-passwords"/);
+  assert.match(workspaceRoot.innerHTML, /Setup-Display-Only-2026!Aa9/);
+
+  vm.runInContext(`
+    adminPeopleView = "add-student";
+    renderAppShell();
+  `, context);
+  assert.match(workspaceRoot.innerHTML, /data-people-view="add-student"/);
+  assert.match(workspaceRoot.innerHTML, /data-destructive-confirmation="student-create-delivery"/);
+  assert.match(workspaceRoot.innerHTML, /I reviewed the role, school scope, and setup-password delivery process/);
   assert.match(workspaceRoot.innerHTML, /Setup-Display-Only-2026!Aa9/);
 
   vm.runInContext(`
