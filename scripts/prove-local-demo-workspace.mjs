@@ -32,6 +32,7 @@ import {
   canViewSiteStudentDetail,
   getAccessibleSiteIds,
   getAccessibleTenantIds,
+  getProgramTeacherScopedStudentIds,
 } from "../functions/_lib/permissions.ts";
 import { sha256Hex } from "../functions/_lib/crypto.ts";
 import { runLocalAdminLoginProof } from "./prove-local-admin-logins.mjs";
@@ -45,11 +46,7 @@ const EXPECTED_PACKAGE_NAME = "senior-capstone-app";
 const DATABASE_NAME = "senior-capstone-db";
 const WRANGLER_JS = path.join(REPO_ROOT, "node_modules", "wrangler", "bin", "wrangler.js");
 
-const PROGRAM_EXPECTATIONS = Object.freeze({
-  it: 69,
-  culinary: 47,
-  "sports-medicine": 47,
-});
+const DEMO_PROGRAM_TEACHER_PROGRAM_IDS = Object.freeze(["it", "culinary", "sports-medicine"]);
 
 const DEMO_TENANT_ID = "tenant-desert-valley";
 const PRIMARY_SITE_ID = "site-desert-valley-high";
@@ -168,6 +165,166 @@ function readJsonSecret(repoRoot, file) {
   assertInsideSecrets(repoRoot, file);
   assertGitIgnored(repoRoot, path.relative(repoRoot, file));
   return JSON.parse(readFileSync(file, "utf8").replace(/^\uFEFF/, ""));
+}
+
+function extractSourceBlock(source, needle) {
+  const start = source.indexOf(needle);
+  if (start === -1) return "";
+  let openBrace = -1;
+  let parenDepth = 0;
+  for (let index = start; index < source.length; index += 1) {
+    const char = source[index];
+    if (char === "(") parenDepth += 1;
+    if (char === ")") parenDepth = Math.max(0, parenDepth - 1);
+    if (char === "{" && parenDepth === 0) {
+      openBrace = index;
+      break;
+    }
+  }
+  if (openBrace === -1) return "";
+  let depth = 0;
+  for (let index = openBrace; index < source.length; index += 1) {
+    const char = source[index];
+    if (char === "{") depth += 1;
+    if (char === "}") {
+      depth -= 1;
+      if (depth === 0) return source.slice(openBrace + 1, index);
+    }
+  }
+  return "";
+}
+
+function sourceContainsAll(source, values) {
+  return values.every((value) => source.includes(value));
+}
+
+function sourceContainsNone(source, values) {
+  return values.every((value) => !source.includes(value));
+}
+
+function sourceAddsSections(source, sectionIds) {
+  return sectionIds.every((sectionId) => source.includes(`add("${sectionId}"`));
+}
+
+function verifyWorkspaceAdminConsoleArchitectureProof(repoRoot) {
+  const workspaceJs = readFileSync(path.join(repoRoot, "workspace.js"), "utf8");
+  const workspaceCss = readFileSync(path.join(repoRoot, "workspace.css"), "utf8");
+  const capabilitiesBlock = extractSourceBlock(workspaceJs, "function adminConsoleCapabilitiesFor");
+  const scopeBlock = extractSourceBlock(workspaceJs, "function adminConsoleScopeForRoles");
+  const sectionsBlock = extractSourceBlock(workspaceJs, "function adminConsoleSectionsForRoles");
+  const modeSwitchBlock = extractSourceBlock(workspaceJs, "function renderWorkspaceModeSwitch");
+  const urlStateBlock = extractSourceBlock(workspaceJs, "function applyWorkspaceUrlState");
+  const ensureModeBlock = extractSourceBlock(workspaceJs, "function ensureActiveWorkspaceModeAndSection");
+  const viewerBlock = extractSourceBlock(sectionsBlock, 'if (roles.has("viewer"))');
+  const mentorBlock = extractSourceBlock(sectionsBlock, 'if (roles.has("mentor"))');
+  const programTeacherBlock = extractSourceBlock(sectionsBlock, 'if (roles.has("program_teacher"))');
+  const administrationBlock = extractSourceBlock(sectionsBlock, 'if (roles.has("administration"))');
+  const siteAdminBlock = extractSourceBlock(sectionsBlock, 'if (roles.has("site_admin"))');
+  const globalAdminBlock = extractSourceBlock(sectionsBlock, "if (hasGlobalAdminRole(roles))");
+
+  const checks = {
+    centralCapabilityMap: sourceContainsAll(workspaceJs, [
+      "function adminConsoleCapabilitiesFor",
+      "function adminConsoleScopeForRoles",
+      "function adminConsoleSectionsForRoles",
+    ]),
+    modeSwitchGatedByCapability: sourceContainsAll(modeSwitchBlock, [
+      'if (!capabilities.canSee) return "";',
+      'data-workspace-mode-switch="true"',
+      "data-workspace-mode-target",
+      "Admin Console",
+    ]),
+    studentWorkspaceOnly: sourceContainsAll(capabilitiesBlock, [
+      'roles.has("site_admin")',
+      'roles.has("administration")',
+      'roles.has("program_teacher")',
+      'roles.has("mentor")',
+      'roles.has("viewer")',
+    ]) && !capabilitiesBlock.includes('roles.has("student")'),
+    unauthorizedAdminDeepLinksDeniedSafely: sourceContainsAll(urlStateBlock, [
+      'requestedMode === "admin"',
+      "adminConsoleCapabilitiesFor(currentUser).canSee",
+      'activeWorkspaceMode = "workspace"',
+      'blockedWorkspaceMode = "admin"',
+    ]) && sourceContainsAll(workspaceJs, [
+      'data-admin-console-unavailable="true"',
+      "renderAdminConsoleUnavailableNotice",
+    ]),
+    urlModeAndSectionState: sourceContainsAll(workspaceJs, [
+      'url.searchParams.set("mode"',
+      'url.searchParams.set("section"',
+      "workspaceModeLastSections",
+    ]),
+    modeSectionGuard: sourceContainsAll(ensureModeBlock, [
+      'requestedMode === "admin" && !capabilities.canSee',
+      'activeWorkspaceMode = "workspace"',
+      "blockedWorkspaceSection",
+    ]),
+    workspaceAdminClutterMovedToHandoff: sourceContainsAll(workspaceJs, [
+      'data-workspace-admin-console-handoff="true"',
+      'data-workspace-admin-console-preview="true"',
+    ]),
+    viewerReadOnlyAssignedStudentScope: sourceAddsSections(viewerBlock, ["students"])
+      && sourceContainsAll(scopeBlock, ['roles.has("viewer")', 'key: "read_only"', 'label: "Read-only"'])
+      && sourceContainsAll(capabilitiesBlock, [
+        'const readOnly = roles.has("viewer") && !writableStaff;',
+        "writable: false",
+        "!readOnly && canUseUsersAccess(roles)",
+        "!readOnly && canUseSitePrograms(roles)",
+      ]),
+    mentorAssignedStudentMonitoringOnly: sourceAddsSections(mentorBlock, ["mentorDashboard", "mentor"])
+      && sourceContainsNone(mentorBlock, ['add("adminUsers"', 'add("programs"', 'add("security"', 'add("audit"']),
+    programTeacherProgramReviewEvidence: sourceAddsSections(programTeacherBlock, [
+      "programDashboard",
+      "students",
+      "teacher",
+      "mentorAssignments",
+      "operations",
+      "adminUsers",
+    ]) && sourceContainsNone(programTeacherBlock, ['add("programs"', 'add("security"', 'add("audit"', 'add("archiveExports"']),
+    administrationSchoolOversightNoGlobalTools: sourceAddsSections(administrationBlock, [
+      "siteDashboard",
+      "students",
+      "mentorAssignments",
+      "operations",
+      "presentation",
+      "readiness",
+    ]) && sourceContainsNone(administrationBlock, ['add("programs"', 'add("security"', 'add("audit"', 'add("archiveExports"']),
+    siteAdminSiteScopedTools: sourceAddsSections(siteAdminBlock, [
+      "siteDashboard",
+      "students",
+      "teacher",
+      "mentorAssignments",
+      "operations",
+      "adminUsers",
+      "programs",
+      "presentation",
+      "readiness",
+    ]) && sourceContainsNone(siteAdminBlock, ['add("security"', 'add("audit"', 'add("archiveExports"']),
+    globalAdminGlobalSiteSecurityTools: sourceAddsSections(globalAdminBlock, [
+      "adminDashboard",
+      "siteDashboard",
+      "students",
+      "teacher",
+      "mentorAssignments",
+      "operations",
+      "adminUsers",
+      "programs",
+      "presentation",
+      "readiness",
+      "audit",
+      "archiveExports",
+      "security",
+    ]),
+    mobileModeSwitchContract: sourceContainsAll(workspaceCss, [
+      ".workspace-mode-switch",
+      ".workspace-admin-console-content",
+      "@media (max-width: 900px)",
+      "@media (max-width: 620px)",
+    ]),
+  };
+  assertChecks("WORKSPACE_ADMIN_CONSOLE_ARCHITECTURE_PROOF_FAILED", checks);
+  return { ok: true, ...checks };
 }
 
 function jsonRequest(url, data, headers = {}) {
@@ -310,6 +467,7 @@ async function runDemoProof(args = {}, options = {}) {
   const siteOperationsPresentationPending = await routeJson(onSiteOperationsReadiness, env, adminCookie, `https://local.capstone.test/api/site/operations-readiness?siteId=${PRIMARY_SITE_ID}&presentationStatus=pending&limit=100`);
   const siteOperationsHighRisk = await routeJson(onSiteOperationsReadiness, env, adminCookie, `https://local.capstone.test/api/site/operations-readiness?siteId=${PRIMARY_SITE_ID}&story=high_risk&limit=100`);
   const readiness = await routeJson(onReadinessReport, env, adminCookie, "https://local.capstone.test/api/reports/readiness");
+  const workspaceArchitectureProof = verifyWorkspaceAdminConsoleArchitectureProof(repoRoot);
   const multisite = await verifyMultisiteShape(env);
   const siteAwarePermissions = await verifySiteAwarePermissions(env);
   const siteDashboardRoleProof = await verifySiteDashboardRouteProof(env, demoCredentials);
@@ -320,10 +478,16 @@ async function runDemoProof(args = {}, options = {}) {
   const siteMentorAssignmentRoleProof = await verifySiteMentorAssignmentRouteProof(env, demoCredentials);
   const siteOperationsReadinessRoleProof = await verifySiteOperationsReadinessRouteProof(env, demoCredentials);
   const programTeacherDemoPath = await verifyProgramTeacherDemoPath(env, demoCredentials);
+  const expectedGlobalStudentTotal = await env.DB.prepare(
+    `SELECT COUNT(DISTINCT user_accounts.id) AS count
+     FROM user_accounts
+     JOIN user_roles ON user_roles.user_id = user_accounts.id
+      AND user_roles.role_id = 'student'`,
+  ).first();
 
   const adminChecks = {
     authMe: adminMe.authenticated === true,
-    dashboardStudents370: Number(adminDashboard.summary?.studentsTotal || 0) === 370,
+    dashboardStudentsMatchGlobalStudentRoles: Number(adminDashboard.summary?.studentsTotal || 0) === Number(expectedGlobalStudentTotal?.count || 0),
     siteDashboardPrimary250: Number(siteDashboardPrimary.summary?.studentsTotal || 0) === 250,
     siteDashboardSecondary60: Number(siteDashboardSecondary.summary?.studentsTotal || 0) === 60,
     siteStudentDirectoryPrimary250: Number(siteStudentDirectoryPrimary.pagination?.total || 0) === 250
@@ -342,7 +506,7 @@ async function runDemoProof(args = {}, options = {}) {
       && (siteStudentDirectoryRevision.students || []).every((student) => student.storyBucket === "revision_requested")
       && (siteStudentDirectoryArchiveFailed.students || []).every((student) => student.storyBucket === "archive_failed"),
     siteStudentDirectorySearch: Number(siteStudentDirectorySearch.pagination?.filteredTotal || 0) >= 10,
-    siteDashboardNoLeak: Number(siteDashboardPrimary.summary?.studentsTotal || 0) !== 370
+    siteDashboardNoLeak: Number(siteDashboardPrimary.summary?.studentsTotal || 0) !== Number(adminDashboard.summary?.studentsTotal || 0)
       && siteDashboardPrimary.scope?.siteId === PRIMARY_SITE_ID
       && siteDashboardSecondary.scope?.siteId === SECONDARY_SITE_IDS[0],
     primarySiteStudents250: multisite.primarySiteStudents === 250,
@@ -387,12 +551,13 @@ async function runDemoProof(args = {}, options = {}) {
     siteReviewQueueRoleProof: siteReviewQueueRoleProof.ok === true,
     siteMentorAssignmentRoleProof: siteMentorAssignmentRoleProof.ok === true,
     siteOperationsReadinessRoleProof: siteOperationsReadinessRoleProof.ok === true,
+    workspaceArchitectureProof: workspaceArchitectureProof.ok === true,
     programTeacherDemoPath: programTeacherDemoPath.ok === true,
   };
   assertChecks("ADMIN_API_PROOF_FAILED", adminChecks);
 
   const teacherProofs = [];
-  for (const programId of Object.keys(PROGRAM_EXPECTATIONS)) {
+  for (const programId of DEMO_PROGRAM_TEACHER_PROGRAM_IDS) {
     const loginAccount = (demoCredentials.programTeacherLogins || []).find((account) => account.scope === `program:${programId}`);
     if (!loginAccount) {
       throw new DemoProofError("DEMO_TEACHER_LOGIN_MISSING", `Missing demo teacher credential for ${programId}.`);
@@ -402,9 +567,13 @@ async function runDemoProof(args = {}, options = {}) {
     const dashboard = await routeJson(onProgramTeacherDashboard, env, cookie, "https://local.capstone.test/api/program-teacher/dashboard");
     const reviewQueue = await routeJson(onTeacherReviewQueue, env, cookie, "https://local.capstone.test/api/teacher/review-queue");
     const siteReviewQueue = await routeJson(onSiteReviewQueue, env, cookie, `https://local.capstone.test/api/site/review-queue?siteId=${PRIMARY_SITE_ID}&limit=100`);
-    const expectedCount = PROGRAM_EXPECTATIONS[programId];
+    const teacherScope = await getProgramTeacherScopedStudentIds(env, me.user);
+    const expectedCount = teacherScope.studentIds.length;
     const programRow = (dashboard.programBreakdown || []).find((row) => row.programId === programId);
-    const nonEmpty = Number(dashboard.summary?.scopedStudents || 0) === expectedCount
+    const nonEmpty = teacherScope.valid === true
+      && teacherScope.scopeSummary.some((scope) => scope.scopeType === "program" && scope.scopeId === programId)
+      && expectedCount > 0
+      && Number(dashboard.summary?.scopedStudents || 0) === expectedCount
       && Array.isArray(dashboard.students)
       && dashboard.students.length > 0
       && Array.isArray(dashboard.programBreakdown)
@@ -506,6 +675,7 @@ async function runDemoProof(args = {}, options = {}) {
     },
     multisite,
     siteAwarePermissions,
+    workspaceArchitecture: workspaceArchitectureProof,
     siteDashboard: {
       ok: true,
       route: "/api/site/dashboard",
@@ -513,8 +683,8 @@ async function runDemoProof(args = {}, options = {}) {
       primarySiteStudents: Number(siteDashboardPrimary.summary.studentsTotal || 0),
       secondarySiteId: SECONDARY_SITE_IDS[0],
       secondarySiteStudents: Number(siteDashboardSecondary.summary.studentsTotal || 0),
-      administrationReadOnly: siteDashboardRoleProof.administrationReadOnly,
-      administrationMutationPermissionsFalse: siteDashboardRoleProof.administrationMutationPermissionsFalse,
+      administrationSchoolOversight: siteDashboardRoleProof.administrationSchoolOversight,
+      administrationNoSiteGlobalSecurityTools: siteDashboardRoleProof.administrationNoSiteGlobalSecurityTools,
       siteAdminCannotAccessSecondary: siteDashboardRoleProof.siteAdminCannotAccessSecondary,
     },
     sitePrograms: {
@@ -607,7 +777,7 @@ async function runDemoProof(args = {}, options = {}) {
       viewerDenied: siteMentorAssignmentRoleProof.viewerDenied,
       siteAdminCanManage: siteMentorAssignmentRoleProof.siteAdminCanManage,
       siteAdminCannotAccessSecondary: siteMentorAssignmentRoleProof.siteAdminCannotAccessSecondary,
-      programTeacherReadOnlyScoped: siteMentorAssignmentRoleProof.programTeacherReadOnlyScoped,
+      programTeacherScopedManagement: siteMentorAssignmentRoleProof.programTeacherScopedManagement,
       mentorDenied: siteMentorAssignmentRoleProof.mentorDenied,
       studentDenied: siteMentorAssignmentRoleProof.studentDenied,
       noSensitiveAssignmentFields: siteMentorAssignmentRoleProof.noSensitiveAssignmentFields,
@@ -943,12 +1113,14 @@ async function verifySiteDashboardRouteProof(env, demoCredentials) {
 
   const checks = {
     administrationPrimary250: Number(administrationDashboard.summary?.studentsTotal || 0) === 250,
-    administrationReadOnly: administrationDashboard.scope?.readOnly === true,
-    administrationMutationPermissionsFalse: administrationDashboard.permissions?.canManageMentorAssignments === false
-      && administrationDashboard.permissions?.canManagePresentationOperations === false
+    administrationSchoolOversight: administrationDashboard.scope?.role === "administration"
+      && administrationDashboard.scope?.readOnly === false
+      && administrationDashboard.permissions?.canManageMentorAssignments === true,
+    administrationNoSiteGlobalSecurityTools: administrationDashboard.permissions?.canManagePresentationOperations === false
       && administrationDashboard.permissions?.canManageArchiveOperations === false
       && administrationDashboard.permissions?.canManageUsers === false
-      && administrationDashboard.permissions?.canManageSecurity === false,
+      && administrationDashboard.permissions?.canManageSecurity === false
+      && administrationDashboard.permissions?.canViewAuditEvents === false,
     siteAdminPrimary250: Number(siteAdminPrimary.summary?.studentsTotal || 0) === 250,
     siteAdminCannotAccessSecondary: siteAdminSecondary.status === 403,
   };
@@ -1270,6 +1442,11 @@ async function verifySiteStudentDetailRouteProof(env, demoCredentials, adminCook
     "canManageUsers",
     "canManageSecurity",
   ].every((key) => permissions[key] === false);
+  const noSiteGlobalMutationPermissions = (permissions = {}) => [
+    "canManageArchiveOperations",
+    "canManageUsers",
+    "canManageSecurity",
+  ].every((key) => permissions[key] === false);
 
   const checks = {
     modelExcellent: details.modelExcellent.student?.storyBucket === "model_excellent"
@@ -1294,7 +1471,7 @@ async function verifySiteStudentDetailRouteProof(env, demoCredentials, adminCook
     programTeacherScoped: teacherDetail.scope?.role === "program_teacher"
       && teacherDetail.student?.programId === "it"
       && teacherDenied.status === 404
-      && mutationPermissionsFalse(teacherDetail.permissions),
+      && noSiteGlobalMutationPermissions(teacherDetail.permissions),
     mentorAssignedOnly: mentorDetail.scope?.role === "mentor"
       && mentorDenied.status === 404
       && mutationPermissionsFalse(mentorDetail.permissions),
@@ -1432,6 +1609,10 @@ async function verifySiteMentorAssignmentRouteProof(env, demoCredentials) {
     "canManageUsers",
     "canManageSecurity",
   ].every((key) => permissions[key] === false);
+  const noUserSecurityMutationPermissions = (permissions = {}) => [
+    "canManageUsers",
+    "canManageSecurity",
+  ].every((key) => permissions[key] === false);
 
   const checks = {
     viewerDenied: viewerAssignments.status === 403,
@@ -1444,10 +1625,11 @@ async function verifySiteMentorAssignmentRouteProof(env, demoCredentials) {
       && (siteAdminNoMentor.unassignedStudents || []).length > 0
       && (siteAdminNoMentor.unassignedStudents || []).every((student) => (student.riskFlags || []).includes("no_mentor"))
       && (siteAdminNoMentor.assignments || []).length === 0,
-    programTeacherReadOnlyScoped: teacherAssignments.scope?.role === "program_teacher"
-      && teacherAssignments.scope?.readOnly === true
+    programTeacherScopedManagement: teacherAssignments.scope?.role === "program_teacher"
+      && teacherAssignments.scope?.readOnly === false
       && teacherAssignments.scope?.studentScope === "program_teacher"
-      && teacherAssignments.permissions?.canManageMentorAssignments === false
+      && teacherAssignments.permissions?.canManageMentorAssignments === true
+      && noUserSecurityMutationPermissions(teacherAssignments.permissions)
       && Number(teacherAssignments.pagination?.total || 0) > 0
       && Number(teacherAssignments.pagination?.total || 0) < Number(siteAdminAssignments.pagination?.total || 0)
       && [...(teacherAssignments.unassignedStudents || []), ...(teacherAssignments.assignments || [])].every((row) => row.programId === "it"),
