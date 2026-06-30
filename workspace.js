@@ -4926,6 +4926,7 @@ function renderStudentRow(student, readOnly = false, permissions = {}, scope = {
         <strong>${escapeHtml(student.displayName || "Student")}</strong>
         <p>${escapeHtml(student.email || "")}</p>
         <p class="workspace-muted">${escapeHtml(student.programName || "Unassigned")} / ${escapeHtml(student.cohortName || "No cohort")}</p>
+        <p class="workspace-muted">${escapeHtml(studentRosterProfileText(student))}</p>
         <div class="workspace-chip-row">
           ${student.storyBucket ? `<span class="workspace-story-chip">${escapeHtml(storyLabel(student.storyBucket))}</span>` : `<span class="workspace-story-chip">Standard monitoring</span>`}
           ${riskFlags.length
@@ -4936,6 +4937,7 @@ function renderStudentRow(student, readOnly = false, permissions = {}, scope = {
       <div>
         <span class="workspace-muted">Mentor</span>
         <strong>${escapeHtml(student.hasActiveMentor ? (student.mentorName || "Assigned") : "No mentor")}</strong>
+        <p class="workspace-muted">${escapeHtml(student.viewerName ? `Viewer: ${student.viewerName}` : "Viewer: unassigned")}</p>
         <p>${escapeHtml(student.nextAction || "Continue normal capstone monitoring.")}</p>
       </div>
       <div>
@@ -5350,6 +5352,8 @@ function renderSiteStudentDetailSurface(directory) {
           <span class="workspace-site-context-badge">${escapeHtml(scope.siteName || directory.scope?.siteName || "Selected school")}</span>
           <span class="workspace-site-context-badge">${escapeHtml(student.programName || "Unassigned")}</span>
           <span class="workspace-site-context-badge">${escapeHtml(student.cohortName || "No cohort")}</span>
+          <span class="workspace-site-context-badge">${escapeHtml(studentRosterProfileText(student))}</span>
+          ${student.viewerName ? `<span class="workspace-site-context-badge">Viewer: ${escapeHtml(student.viewerName)}</span>` : ""}
           ${scope.readOnly ? `<span class="workspace-chip" data-workspace-mode="read-only">Read-only viewer</span>` : ""}
         </div>
         <div class="workspace-chip-row">
@@ -14710,12 +14714,15 @@ function renderManageStudentsScreen() {
 }
 
 function renderManageStudentRow(student = {}) {
+  const profileText = studentRosterProfileText(student);
+  const assignmentText = studentAssignmentStatusText(student);
   return `
     <article class="workspace-row" data-manage-student-row="${escapeHtml(student.userId || "")}">
       <div>
         <strong>${escapeHtml(student.displayName || "Student")}</strong>
         <p>${escapeHtml(student.email || "")}</p>
-        <p class="workspace-muted">Student account in the current scoped roster.</p>
+        <p class="workspace-muted">${escapeHtml(profileText)}</p>
+        <p class="workspace-muted">${escapeHtml(assignmentText)}</p>
       </div>
       <div class="workspace-row-actions">
         ${availableSectionIdsForAnyMode().has("students") ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(student.userId || "")}">View student</button>` : ""}
@@ -14724,6 +14731,23 @@ function renderManageStudentRow(student = {}) {
       </div>
     </article>
   `;
+}
+
+function studentRosterProfileText(student = {}) {
+  const cohort = String(student.cohort || student.rosterCohort || "").trim();
+  const graduationYear = String(student.graduationYear || student.graduation_year || "").trim();
+  if (cohort && graduationYear) return `${cohort} / Graduation ${graduationYear}`;
+  if (cohort) return cohort;
+  if (graduationYear) return `Graduation ${graduationYear}`;
+  return "Roster profile not set";
+}
+
+function studentAssignmentStatusText(student = {}) {
+  const mentorName = String(student.mentorName || "").trim();
+  const viewerName = String(student.viewerName || "").trim();
+  const mentorText = mentorName ? `Mentor: ${mentorName}` : "Mentor: unassigned";
+  const viewerText = viewerName ? `Viewer: ${viewerName}` : "Viewer: unassigned";
+  return `${mentorText} / ${viewerText}`;
 }
 
 function renderManageStaffScreen() {
@@ -14814,7 +14838,7 @@ function renderAddStudentScreen(options = {}) {
               </select>
             </label>
           </div>
-          <p class="workspace-muted">Program, cohort, and graduation-year values are validated for roster setup; the account save stays inside the existing scoped account API.</p>
+          <p class="workspace-muted">Program stays scoped to this school. Cohort and graduation year save to the student's roster profile.</p>
         </div>
         <div class="workspace-form-section">
           <p class="workspace-kicker">Optional assignments</p>
@@ -14832,7 +14856,7 @@ function renderAddStudentScreen(options = {}) {
               </select>
             </label>
           </div>
-          <p class="workspace-muted">After saving, use Assignments if mentor or viewer access needs to be confirmed against the new student record.</p>
+          <p class="workspace-muted">Selected mentor and viewer access is applied during save when the staff member is already in this school scope.</p>
         </div>
         ${renderAdminPersonSaveFooter("student", options)}
       </form>
@@ -15054,6 +15078,8 @@ function renderCsvImportPreview(kind = "students", state = defaultAdminCsvImport
         ${renderCsvSummaryMetric("Rows with errors", summary.rowsWithErrors)}
         ${renderCsvSummaryMetric("New records", summary.newRecords)}
         ${renderCsvSummaryMetric("Existing records skipped", summary.existingRecords)}
+        ${kind === "students" ? renderCsvSummaryMetric("Mentor assignments", summary.mentorAssignmentsCreated) : ""}
+        ${kind === "students" ? renderCsvSummaryMetric("Viewer assignments", summary.viewerAssignmentsCreated) : ""}
       </div>
       ${state.errors.length ? `
         <div class="workspace-list" data-csv-row-errors="true">
@@ -15067,7 +15093,9 @@ function renderCsvImportPreview(kind = "students", state = defaultAdminCsvImport
       ` : `
         <article class="workspace-empty-state-card" data-csv-ready="true">
           <strong>Ready for final confirmation.</strong>
-          <p>Only valid new rows will be sent to the scoped account import API.</p>
+          <p>${escapeHtml(kind === "students"
+            ? "Only valid new student rows will be sent. Previewed mentor/viewer assignments are created during import."
+            : "Only valid new rows will be sent to the scoped account import API.")}</p>
         </article>
       `}
     </section>
@@ -15336,6 +15364,7 @@ function renderAdminImportResult() {
         </div>
         <span class="workspace-chip">${users.length} account${users.length === 1 ? "" : "s"}</span>
       </div>
+      ${renderAdminImportResultSummary(lastAdminImportResult?.summary)}
       <div class="workspace-list">
         ${users.map((user) => `
           <article class="workspace-row">
@@ -15356,6 +15385,21 @@ function renderAdminImportResult() {
         `).join("")}
       </div>
     </section>
+  `;
+}
+
+function renderAdminImportResultSummary(summary = null) {
+  if (!summary) return "";
+  return `
+    <div class="workspace-csv-summary-grid" data-admin-import-final-summary="true">
+      ${renderCsvSummaryMetric("Students created", summary.studentsCreated)}
+      ${renderCsvSummaryMetric("Students skipped", summary.studentsSkipped)}
+      ${renderCsvSummaryMetric("Invalid rows blocked", summary.invalidRowsBlocked)}
+      ${renderCsvSummaryMetric("Mentor assignments created", summary.mentorAssignmentsCreated)}
+      ${renderCsvSummaryMetric("Mentor assignments skipped", summary.mentorAssignmentsSkipped)}
+      ${renderCsvSummaryMetric("Viewer assignments created", summary.viewerAssignmentsCreated)}
+      ${renderCsvSummaryMetric("Viewer assignments skipped", summary.viewerAssignmentsSkipped)}
+    </div>
   `;
 }
 
@@ -15699,6 +15743,7 @@ function siteAccountRows(users = {}) {
       if (seen.has(userId)) continue;
       seen.add(userId);
       rows.push({
+        ...user,
         userId,
         displayName: user.displayName || user.studentName || user.email || userId,
         email: user.email || "",
@@ -21096,6 +21141,10 @@ function defaultAdminCsvSummary() {
     rowsWithErrors: 0,
     newRecords: 0,
     existingRecords: 0,
+    mentorAssignmentsCreated: 0,
+    mentorAssignmentsSkipped: 0,
+    viewerAssignmentsCreated: 0,
+    viewerAssignmentsSkipped: 0,
   };
 }
 
@@ -22418,6 +22467,10 @@ function buildAdminPersonImportBody(form) {
   const siteIds = formValues(form, "siteIds");
   const programIds = formValues(form, "programIds");
   const studentIds = formValues(form, "studentIds");
+  const cohort = String(values.cohort || "").trim();
+  const graduationYear = String(values.graduationYear || values.graduation_year || "").trim();
+  const mentorUserId = cleanDirectoryFilter(values.mentorUserId || values.mentor_user_id || "");
+  const viewerUserId = cleanDirectoryFilter(values.viewerUserId || values.viewer_user_id || "");
   const globalAdminConfirmation = Boolean(values.globalAdminConfirmation);
   const allowedRoleIds = new Set(adminRoleChoicesForRoles(roleIds(currentUser)).map((role) => role.value));
 
@@ -22429,6 +22482,7 @@ function buildAdminPersonImportBody(form) {
   if (!allowedRoleIds.has(roleId)) return { ok: false, message: "This role cannot create that account type." };
   if (kind === "student" && !siteIds.length) return { ok: false, message: "Choose the student's site or school." };
   if (kind === "student" && !programIds.length) return { ok: false, message: "Choose the student's program." };
+  if (kind === "student" && graduationYear && !/^\d{4}$/.test(graduationYear)) return { ok: false, message: "Use a four-digit graduation year." };
   if ((roleId === "administration" || roleId === "site_admin") && !siteIds.length) return { ok: false, message: "Choose at least one site for this role." };
   if (roleId === "program_teacher" && !programIds.length) return { ok: false, message: "Choose at least one program for this Program Teacher." };
   if ((roleId === "mentor" || roleId === "viewer") && !siteIds.length && !studentIds.length) {
@@ -22438,22 +22492,32 @@ function buildAdminPersonImportBody(form) {
     return { ok: false, message: "Confirm that this Global Admin can manage every site." };
   }
 
+  const user = {
+    email,
+    fullName: `${firstName} ${lastName}`.trim(),
+    roleId,
+    status,
+    identityType: "local",
+    siteIds,
+    programIds,
+    studentIds,
+    globalAdminConfirmation,
+  };
+  if (kind === "student") {
+    user.cohort = cohort;
+    user.graduationYear = graduationYear;
+    user.mentorUserId = mentorUserId;
+    user.viewerUserId = viewerUserId;
+  }
+
   return {
     ok: true,
-    successMessage: kind === "student" ? "Student account created." : "Staff account created.",
+    successMessage: kind === "student"
+      ? (mentorUserId || viewerUserId ? "Student account and assignments saved." : "Student account created.")
+      : "Staff account created.",
     body: {
       adminNote,
-      users: [{
-        email,
-        fullName: `${firstName} ${lastName}`.trim(),
-        roleId,
-        status,
-        identityType: "local",
-        siteIds,
-        programIds,
-        studentIds,
-        globalAdminConfirmation,
-      }],
+      users: [user],
     },
   };
 }
@@ -22555,7 +22619,17 @@ async function confirmAdminCsvImport(button) {
       renderAppShell(messageForAdminImportError(body?.error, response.status), "error");
       return;
     }
-    lastAdminImportResult = body;
+    const previewSummary = state.summary || defaultAdminCsvSummary();
+    lastAdminImportResult = {
+      ...body,
+      summary: {
+        ...defaultAdminCsvSummary(),
+        ...(body?.summary || {}),
+        studentsCreated: body?.summary?.studentsCreated ?? (kind === "students" ? body?.importedCount || 0 : 0),
+        studentsSkipped: previewSummary.existingRecords,
+        invalidRowsBlocked: previewSummary.rowsWithErrors,
+      },
+    };
     adminCsvImportState[kind] = defaultAdminCsvImportKindState(kind);
     activeSection = "adminUsers";
     adminPeopleView = kind === "staff" ? "manage-staff" : "manage-students";
@@ -22604,6 +22678,8 @@ function validateAdminCsvImport(kind = "students", text = "", options = {}) {
       } else {
         state.validRows.push(validation);
         state.summary.newRecords += 1;
+        state.summary.mentorAssignmentsCreated += Number(validation.assignmentPreview?.mentorAssignmentsCreated || 0);
+        state.summary.viewerAssignmentsCreated += Number(validation.assignmentPreview?.viewerAssignmentsCreated || 0);
       }
     } else {
       state.errors.push({ rowNumber: row.rowNumber, message: validation.message });
@@ -22695,6 +22771,11 @@ function validateStudentCsvRow(row, context, seenEmails, existingEmails) {
   const site = context.sitesByKey.get(normalizeLookupKey(values.site));
   const program = context.programsByKey.get(normalizeLookupKey(values.program));
   const status = cleanAdminImportStatus(values.status || "active");
+  const graduationYear = String(values.graduation_year || values.graduationYear || "").trim();
+  const mentorKey = normalizeLookupKey(values.mentor_email);
+  const viewerKey = normalizeLookupKey(values.viewer_email);
+  const mentor = mentorKey ? context.mentorsByEmail.get(mentorKey) : null;
+  const viewer = viewerKey ? context.viewersByEmail.get(viewerKey) : null;
   const emailKey = normalizeLookupKey(email);
   if (!firstName || !lastName || !email || !values.site || !values.program) return csvInvalid(row, "Missing required first_name, last_name, email, site, or program.");
   if (!isUsableEmail(email)) return csvInvalid(row, "Email/login identifier is not usable.");
@@ -22704,10 +22785,13 @@ function validateStudentCsvRow(row, context, seenEmails, existingEmails) {
   if (!site) return csvInvalid(row, "Site is not in your current scope.");
   if (!program) return csvInvalid(row, "Program is not in your current scope.");
   if (!status) return csvInvalid(row, "Status must be active or inactive.");
-  if (values.mentor_email && !context.mentorsByEmail.has(normalizeLookupKey(values.mentor_email))) {
+  if (graduationYear && !/^\d{4}$/.test(graduationYear)) return csvInvalid(row, "graduation_year must be a four-digit year.");
+  if (mentorKey && context.studentsByEmail.has(mentorKey)) return csvInvalid(row, "Student users cannot be assigned as mentors.");
+  if (viewerKey && context.studentsByEmail.has(viewerKey)) return csvInvalid(row, "Student users cannot be assigned as viewers.");
+  if (values.mentor_email && !mentor) {
     return csvInvalid(row, "Mentor email must already exist in the current scoped roster before automatic assignment.");
   }
-  if (values.viewer_email && !context.viewersByEmail.has(normalizeLookupKey(values.viewer_email))) {
+  if (values.viewer_email && !viewer) {
     return csvInvalid(row, "Viewer email must already exist in the current scoped roster before automatic assignment.");
   }
   return csvValid(row, {
@@ -22719,7 +22803,14 @@ function validateStudentCsvRow(row, context, seenEmails, existingEmails) {
     siteIds: [site.siteId],
     programIds: [program.programId],
     studentIds: [],
+    cohort: String(values.cohort || "").trim(),
+    graduationYear,
+    mentorUserId: mentor?.userId || mentor?.id || "",
+    viewerUserId: viewer?.userId || viewer?.id || "",
     globalAdminConfirmation: false,
+  }, false, {
+    mentorAssignmentsCreated: mentor ? 1 : 0,
+    viewerAssignmentsCreated: viewer ? 1 : 0,
   });
 }
 
@@ -22796,8 +22887,8 @@ function csvInvalid(row, message) {
   return { ok: false, rowNumber: row.rowNumber, message };
 }
 
-function csvValid(row, user, existing = false) {
-  return { ok: true, rowNumber: row.rowNumber, user, existing };
+function csvValid(row, user, existing = false, assignmentPreview = {}) {
+  return { ok: true, rowNumber: row.rowNumber, user, existing, assignmentPreview };
 }
 
 async function submitSiteAccessAssignment(event) {

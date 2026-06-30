@@ -36,6 +36,7 @@ const MIGRATIONS = [
   "migrations/0011_multisite_site_role_foundation.sql",
   "migrations/0012_users_access_v5.sql",
   "migrations/0015_remove_org_admin_role.sql",
+  "migrations/0016_student_roster_profiles.sql",
 ];
 
 test("demo seeder refuses remote mode", () => {
@@ -102,8 +103,10 @@ test("demo seed creates deterministic fake workspace rows and preserves admins",
   assert.equal(result.finalVerification.siteAdmins, 3);
   assert.equal(result.finalVerification.viewers, 1);
   assert.equal(result.generatedCounts.programs, DEMO_ADDABLE_PROGRAMS.length);
+  assert.equal(result.generatedCounts.studentRosterProfiles, 370);
   assert.equal(result.finalVerification.primaryAvailablePrograms >= DEMO_ADDABLE_PROGRAMS.length, true);
   assert.equal(result.finalVerification.viewerStudentAssignments, 3);
+  assert.equal(result.finalVerification.studentRosterProfiles, 370);
   assert.equal(result.finalVerification.studentCredentials, 0);
   assert.equal("announcements" in result.generatedCounts, false);
   assert.equal(result.finalVerification.announcements, 0);
@@ -136,6 +139,7 @@ test("demo seed creates deterministic fake workspace rows and preserves admins",
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM user_accounts WHERE email_norm LIKE '%nv.ccsd.net' OR email_norm = 'bryan@thecapstoneapp.com'"), 0);
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM user_accounts WHERE email_norm IN ('bryan@learntechonline.com', 'bryan.timm89@gmail.com')"), 2);
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'student' WHERE u.email_norm LIKE '%@demo-student.capstone.test'"), 370);
+  assert.equal(await count(db, "SELECT COUNT(*) AS count FROM student_roster_profiles profile JOIN user_accounts u ON u.id = profile.student_user_id WHERE u.email_norm LIKE '%@demo-student.capstone.test' AND profile.cohort = 'Class of 2027' AND profile.graduation_year = '2027'"), 370);
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'mentor' WHERE u.email_norm LIKE '%@demo-staff.capstone.test'"), 41);
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM user_accounts u JOIN user_roles r ON r.user_id = u.id AND r.role_id = 'program_teacher' WHERE u.email_norm LIKE '%@demo-staff.capstone.test'"), 22);
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM evidence_artifacts WHERE id LIKE 'demo-%' AND source_kind = 'external_link' AND external_url LIKE 'https://example.com/capstone-demo/%' AND drive_file_id IS NULL AND drive_parent_folder_id IS NULL"), 964);

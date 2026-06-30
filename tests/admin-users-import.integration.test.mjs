@@ -357,6 +357,135 @@ test("admin users import creates pending-reset users, role assignments, credenti
   assert.equal(fixture.db.data.auditEvents[2].metadata.importedCount, 2);
 });
 
+test("admin users import persists student roster profile fields and creates scoped mentor/viewer assignments", async () => {
+  const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+  seedScopedStaff(fixture.db, { userId: "mentor-scope", roleId: "mentor", siteId: "site-a", email: "mentor.scope@senior-capstone.test" });
+  seedScopedStaff(fixture.db, { userId: "viewer-scope", roleId: "viewer", siteId: "site-a", email: "viewer.scope@senior-capstone.test" });
+
+  const response = await onRequestPost({
+    request: buildJsonRequest(
+      "https://example.test/api/admin/users/import",
+      {
+        reason: "Create demo-ready student with roster profile and scoped support.",
+        users: [
+          studentInput({
+            email: "student.profile@senior-capstone.test",
+            displayName: "Student Profile",
+            cohort: "Class of 2026",
+            graduationYear: "2026",
+            mentorUserId: "mentor-scope",
+            viewerUserId: "viewer-scope",
+          }),
+        ],
+      },
+      { cookie: `sc_session=${fixture.token}` },
+    ),
+    env: fixture.env,
+    params: {},
+  });
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.importedCount, 1);
+  assert.equal(body.summary.studentsCreated, 1);
+  assert.equal(body.summary.mentorAssignmentsCreated, 1);
+  assert.equal(body.summary.viewerAssignmentsCreated, 1);
+  const created = body.users[0];
+  assert.equal(created.studentProfile.cohort, "Class of 2026");
+  assert.equal(created.studentProfile.graduationYear, "2026");
+  assert.equal(created.assignmentSummary.mentorAssignmentsCreated, 1);
+  assert.equal(created.assignmentSummary.viewerAssignmentsCreated, 1);
+  assert.deepEqual(
+    fixture.db.data.studentRosterProfiles.find((row) => row.student_user_id === created.id),
+    {
+      student_user_id: created.id,
+      cohort: "Class of 2026",
+      graduation_year: "2026",
+    },
+  );
+  assert.equal(fixture.db.data.mentorAssignments.some((row) => row.mentor_user_id === "mentor-scope" && row.student_user_id === created.id && Number(row.active) === 1), true);
+  assert.equal(fixture.db.data.viewerStudentAssignments.some((row) => row.viewer_user_id === "viewer-scope" && row.student_user_id === created.id && Number(row.active) === 1), true);
+  assert.equal(fixture.db.data.siteUsers.some((row) => row.site_id === "site-a" && row.user_id === "mentor-scope" && row.membership_status === "active"), true);
+  assert.equal(fixture.db.data.siteUsers.some((row) => row.site_id === "site-a" && row.user_id === "viewer-scope" && row.membership_status === "active"), true);
+});
+
+test("admin users import blocks unsafe student mentor/viewer assignment targets", async () => {
+  {
+    const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+    seedScopedStaff(fixture.db, { userId: "student-target", roleId: "student", siteId: "site-a", email: "student.target@senior-capstone.test" });
+
+    const response = await onRequestPost({
+      request: buildJsonRequest(
+        "https://example.test/api/admin/users/import",
+        {
+          reason: "Student target must not become mentor.",
+          users: [studentInput({ email: "student.badmentor@senior-capstone.test", mentorUserId: "student-target" })],
+        },
+        { cookie: `sc_session=${fixture.token}` },
+      ),
+      env: fixture.env,
+      params: {},
+    });
+
+    assert.equal(response.status, 403);
+    const body = await response.json();
+    assert.equal(body.ok, false);
+    assert.equal(body.error, "mentor_assignment_target_forbidden");
+    assert.equal(fixture.db.data.userAccounts.some((row) => row.email_norm === "student.badmentor@senior-capstone.test"), false);
+  }
+
+  {
+    const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+    fixture.db.data.sites.push({ id: "site-b", status: "active" });
+    seedScopedStaff(fixture.db, { userId: "mentor-other-site", roleId: "mentor", siteId: "site-b", email: "mentor.other@senior-capstone.test" });
+
+    const response = await onRequestPost({
+      request: buildJsonRequest(
+        "https://example.test/api/admin/users/import",
+        {
+          reason: "Out-of-scope mentor must be blocked.",
+          users: [studentInput({ email: "student.outscope@senior-capstone.test", mentorUserId: "mentor-other-site" })],
+        },
+        { cookie: `sc_session=${fixture.token}` },
+      ),
+      env: fixture.env,
+      params: {},
+    });
+
+    assert.equal(response.status, 403);
+    const body = await response.json();
+    assert.equal(body.error, "mentor_assignment_target_forbidden");
+    assert.equal(fixture.db.data.userAccounts.some((row) => row.email_norm === "student.outscope@senior-capstone.test"), false);
+  }
+
+  {
+    const fixture = await createFixtureWithSession({ userId: "program-teacher-a", roleId: "program_teacher" });
+    const actorRole = fixture.db.data.userRoles.find((row) => row.user_id === "program-teacher-a" && row.role_id === "program_teacher");
+    actorRole.scope_type = "program";
+    actorRole.scope_id = "it";
+    fixture.db.data.siteUsers.push({ site_id: "site-a", user_id: "program-teacher-a", membership_status: "active" });
+    seedScopedStaff(fixture.db, { userId: "viewer-scope", roleId: "viewer", siteId: "site-a", email: "viewer.scope@senior-capstone.test" });
+
+    const response = await onRequestPost({
+      request: buildJsonRequest(
+        "https://example.test/api/admin/users/import",
+        {
+          reason: "Program Teacher cannot create broad viewer assignment.",
+          users: [studentInput({ email: "student.viewerblocked@senior-capstone.test", viewerUserId: "viewer-scope" })],
+        },
+        { cookie: `sc_session=${fixture.token}` },
+      ),
+      env: fixture.env,
+      params: {},
+    });
+
+    assert.equal(response.status, 403);
+    const body = await response.json();
+    assert.equal(body.error, "viewer_student_forbidden");
+    assert.equal(fixture.db.data.userAccounts.some((row) => row.email_norm === "student.viewerblocked@senior-capstone.test"), false);
+  }
+});
+
 test("admin users import accepts V5 global, site, administration, and viewer roles for fake test users", async () => {
   const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
   fixture.db.data.userAccounts.push(buildUser("student-scope", "student.scope@senior-capstone.test", "Student Scope"));
@@ -671,6 +800,7 @@ function createFixture(options = {}) {
     siteUsers: [],
     mentorAssignments: [],
     viewerStudentAssignments: [],
+    studentRosterProfiles: [],
     authIdentities: [],
     cohorts: [{ id: "cohort-a" }],
     auditEvents: [],
@@ -719,6 +849,12 @@ function buildUser(id, email = `${id}@senior-capstone.test`, displayName = id, s
     display_name: displayName,
     status,
   };
+}
+
+function seedScopedStaff(db, { userId, roleId, siteId, email }) {
+  db.data.userAccounts.push(buildUser(userId, email, userId));
+  db.data.userRoles.push({ user_id: userId, role_id: roleId, scope_type: "global", scope_id: "" });
+  db.data.siteUsers.push({ site_id: siteId, user_id: userId, membership_status: "active" });
 }
 
 function normalizeSql(sql) {
@@ -847,6 +983,29 @@ class MockPreparedStatement {
     if (this.sql.startsWith("select 1 from sites where id = ? and status = 'active' limit 1")) {
       const [siteId] = this.params.map(String);
       return this.data.sites.some((row) => row.id === siteId && row.status === "active") ? { ok: 1 } : null;
+    }
+
+    if (this.sql.startsWith("select user_accounts.id from user_accounts join user_roles target_role")) {
+      const targetRoleId = String(this.params[0]);
+      const targetUserId = String(this.params.at(-1));
+      const siteIds = this.params.slice(1, -1).map(String);
+      const user = this.data.userAccounts.find((row) => row.id === targetUserId && ["active", "pending_reset"].includes(row.status));
+      const hasRole = this.data.userRoles.some((row) => row.user_id === targetUserId && row.role_id === targetRoleId);
+      const inSite = this.data.siteUsers.some((row) => row.user_id === targetUserId && siteIds.includes(row.site_id) && row.membership_status === "active");
+      const elevated = this.data.userRoles.some((row) => row.user_id === targetUserId && ["global_admin", "admin", "platform_admin"].includes(row.role_id));
+      return user && hasRole && inSite && !elevated ? { id: targetUserId } : null;
+    }
+
+    if (this.sql.startsWith("select 1 from mentor_assignments where mentor_user_id = ?")) {
+      const [mentorUserId, studentUserId] = this.params.map(String);
+      const exists = this.data.mentorAssignments.some((row) => row.mentor_user_id === mentorUserId && row.student_user_id === studentUserId && Number(row.active) === 1);
+      return exists ? { ok: 1 } : null;
+    }
+
+    if (this.sql.startsWith("select 1 from viewer_student_assignments where viewer_user_id = ?")) {
+      const [viewerUserId, studentUserId] = this.params.map(String);
+      const exists = this.data.viewerStudentAssignments.some((row) => row.viewer_user_id === viewerUserId && row.student_user_id === studentUserId && Number(row.active) === 1);
+      return exists ? { ok: 1 } : null;
     }
 
     if (this.sql.startsWith("select 1 from user_accounts join user_roles")) {
@@ -1084,6 +1243,22 @@ class MockPreparedStatement {
       return { success: true };
     }
 
+    if (this.sql.startsWith("insert into student_roster_profiles")) {
+      const [studentUserId, cohort, graduationYear] = this.params.map(String);
+      const existing = this.data.studentRosterProfiles.find((row) => row.student_user_id === studentUserId);
+      if (existing) {
+        existing.cohort = cohort;
+        existing.graduation_year = graduationYear;
+      } else {
+        this.data.studentRosterProfiles.push({
+          student_user_id: studentUserId,
+          cohort,
+          graduation_year: graduationYear,
+        });
+      }
+      return { success: true };
+    }
+
     if (this.sql.startsWith("insert or ignore into site_users")) {
       const [siteId, userId] = this.params.map(String);
       if (!this.data.siteUsers.some((row) => row.site_id === siteId && row.user_id === userId)) {
@@ -1094,13 +1269,25 @@ class MockPreparedStatement {
 
     if (this.sql.startsWith("insert into mentor_assignments")) {
       const [id, mentorUserId, studentUserId, assignedBy] = this.params.map(String);
-      this.data.mentorAssignments.push({ id, mentor_user_id: mentorUserId, student_user_id: studentUserId, assigned_by: assignedBy, active: 1 });
+      const existing = this.data.mentorAssignments.find((row) => row.mentor_user_id === mentorUserId && row.student_user_id === studentUserId);
+      if (existing) {
+        existing.assigned_by = assignedBy;
+        existing.active = 1;
+      } else {
+        this.data.mentorAssignments.push({ id, mentor_user_id: mentorUserId, student_user_id: studentUserId, assigned_by: assignedBy, active: 1 });
+      }
       return { success: true };
     }
 
     if (this.sql.startsWith("insert into viewer_student_assignments")) {
       const [id, viewerUserId, studentUserId, assignedBy] = this.params.map(String);
-      this.data.viewerStudentAssignments.push({ id, viewer_user_id: viewerUserId, student_user_id: studentUserId, assigned_by: assignedBy, active: 1 });
+      const existing = this.data.viewerStudentAssignments.find((row) => row.viewer_user_id === viewerUserId && row.student_user_id === studentUserId);
+      if (existing) {
+        existing.assigned_by = assignedBy;
+        existing.active = 1;
+      } else {
+        this.data.viewerStudentAssignments.push({ id, viewer_user_id: viewerUserId, student_user_id: studentUserId, assigned_by: assignedBy, active: 1 });
+      }
       return { success: true };
     }
 

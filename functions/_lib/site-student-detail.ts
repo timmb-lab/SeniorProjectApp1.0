@@ -68,9 +68,13 @@ interface DetailStudentRow {
   program_name: string | null;
   cohort_id: string | null;
   cohort_name: string | null;
+  roster_cohort: string | null;
+  graduation_year: string | null;
   mentor_user_id: string | null;
   mentor_name: string | null;
   mentor_assigned_at: string | null;
+  viewer_user_id: string | null;
+  viewer_name: string | null;
   has_active_mentor: number;
   latest_submission_id: string | null;
   latest_submission_status: string | null;
@@ -781,6 +785,18 @@ async function loadDetailStudent(env: Env, siteId: string, studentId: string): P
          LIMIT 1
        ) AS cohort_name,
        (
+         SELECT student_roster_profiles.cohort
+         FROM student_roster_profiles
+         WHERE student_roster_profiles.student_user_id = scoped_student.student_id
+         LIMIT 1
+       ) AS roster_cohort,
+       (
+         SELECT student_roster_profiles.graduation_year
+         FROM student_roster_profiles
+         WHERE student_roster_profiles.student_user_id = scoped_student.student_id
+         LIMIT 1
+       ) AS graduation_year,
+       (
          SELECT mentor_assignments.mentor_user_id
          FROM mentor_assignments
          WHERE mentor_assignments.student_user_id = scoped_student.student_id
@@ -805,6 +821,23 @@ async function loadDetailStudent(env: Env, siteId: string, studentId: string): P
          ORDER BY mentor_assignments.created_at DESC
          LIMIT 1
        ) AS mentor_assigned_at,
+       (
+         SELECT viewer_student_assignments.viewer_user_id
+         FROM viewer_student_assignments
+         WHERE viewer_student_assignments.student_user_id = scoped_student.student_id
+          AND viewer_student_assignments.active = 1
+         ORDER BY viewer_student_assignments.created_at DESC
+         LIMIT 1
+       ) AS viewer_user_id,
+       (
+         SELECT viewer.display_name
+         FROM viewer_student_assignments
+         JOIN user_accounts viewer ON viewer.id = viewer_student_assignments.viewer_user_id
+         WHERE viewer_student_assignments.student_user_id = scoped_student.student_id
+          AND viewer_student_assignments.active = 1
+         ORDER BY viewer_student_assignments.created_at DESC
+         LIMIT 1
+       ) AS viewer_name,
        CASE WHEN EXISTS (
          SELECT 1 FROM mentor_assignments
          WHERE mentor_assignments.student_user_id = scoped_student.student_id
@@ -986,6 +1019,10 @@ function detailStudentResponse(row: DetailStudentRow) {
     programName: row.program_name || "Unassigned",
     cohortId: row.cohort_id || "",
     cohortName: row.cohort_name || "",
+    cohort: row.roster_cohort || "",
+    graduationYear: row.graduation_year || "",
+    viewerUserId: row.viewer_user_id || "",
+    viewerName: row.viewer_name || "",
     storyBucket,
     riskScore: Number(row.risk_score || 0),
     riskFlags,

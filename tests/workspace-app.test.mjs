@@ -9803,6 +9803,15 @@ test("workspace renders admin import controls and one-time setup output", async 
     },
   }, "adminUsers", `
     lastAdminImportResult = {
+      summary: {
+        studentsCreated: 1,
+        studentsSkipped: 2,
+        invalidRowsBlocked: 0,
+        mentorAssignmentsCreated: 1,
+        mentorAssignmentsSkipped: 0,
+        viewerAssignmentsCreated: 1,
+        viewerAssignmentsSkipped: 0
+      },
       users: [
         {
           email: "new.student@example.edu",
@@ -9845,6 +9854,8 @@ test("workspace renders admin import controls and one-time setup output", async 
   assert.match(adminUsers, /data-people-nav-group="assignments"[\s\S]*Assignments/);
   assert.match(adminUsers, /data-people-screen="manage-students"/);
   assert.match(adminUsers, /data-manage-student-row="demo-student-101"/);
+  assert.match(adminUsers, /Class of 2026 \/ Graduation 2026/);
+  assert.match(adminUsers, /Mentor: Mentor One \/ Viewer: Read-only Viewer/);
   assert.match(adminUsers, /View student/);
   assert.match(adminUsers, /View as Student/);
   assert.match(adminUsers, /data-site-account-management="true"/);
@@ -9857,6 +9868,11 @@ test("workspace renders admin import controls and one-time setup output", async 
   assert.match(adminUsers, /data-site-account-remove-impact="true"/);
   assert.doesNotMatch(adminUsers, /Import Account|Import reason|Misc Admin|misc_admin/);
   assert.match(adminUsers, /data-admin-import-result="one-time-setup-passwords"/);
+  assert.match(adminUsers, /data-admin-import-final-summary="true"/);
+  assert.match(adminUsers, /Students created[\s\S]*1/);
+  assert.match(adminUsers, /Students skipped[\s\S]*2/);
+  assert.match(adminUsers, /Mentor assignments created[\s\S]*1/);
+  assert.match(adminUsers, /Viewer assignments created[\s\S]*1/);
   assert.match(adminUsers, /N9!aA-setup-zZ/);
   assert.match(adminUsers, /pending reset/i);
   assert.match(adminUsers, /will create a new password at first sign-in/i);
@@ -9869,6 +9885,8 @@ test("workspace renders admin import controls and one-time setup output", async 
   assert.match(adminAddStudent, /First name[\s\S]*Last name[\s\S]*Email or login identifier/);
   assert.match(adminAddStudent, /Site \/ school[\s\S]*Program[\s\S]*Cohort[\s\S]*Graduation year[\s\S]*Status/);
   assert.match(adminAddStudent, /Mentor assignment[\s\S]*Viewer assignment/);
+  assert.match(adminAddStudent, /Cohort and graduation year save to the student/);
+  assert.match(adminAddStudent, /Selected mentor and viewer access is applied during save/);
   assert.match(adminAddStudent, /data-destructive-confirmation="student-create-delivery"/);
   assert.match(adminAddStudent, /Create student/);
   assert.match(adminAddStudent, /Return to Manage Students/);
@@ -10055,6 +10073,28 @@ test("People CSV import screens provide templates and row-level preview validati
   assert.match(workspaceRoot.innerHTML, /Valid rows[\s\S]*1/);
   assert.match(workspaceRoot.innerHTML, /Rows with errors[\s\S]*0/);
   assert.match(workspaceRoot.innerHTML, /New records[\s\S]*1/);
+  assert.match(workspaceRoot.innerHTML, /Mentor assignments[\s\S]*1/);
+  assert.match(workspaceRoot.innerHTML, /Viewer assignments[\s\S]*1/);
+  assert.match(workspaceRoot.innerHTML, /Previewed mentor\/viewer assignments are created during import/);
+  const studentCsvUser = vm.runInContext("adminCsvImportState.students.validRows[0].user", context);
+  assert.equal(studentCsvUser.cohort, "Class of 2026");
+  assert.equal(studentCsvUser.graduationYear, "2026");
+  assert.equal(studentCsvUser.mentorUserId, "demo-mentor-001");
+  assert.equal(studentCsvUser.viewerUserId, "demo-viewer-001");
+
+  vm.runInContext(`
+    adminCsvImportState.students = validateAdminCsvImport("students", ${JSON.stringify([
+      "first_name,last_name,email,site,program,cohort,graduation_year,status,mentor_email,viewer_email",
+      "Sam,Student,sam.student@senior-capstone.test,Desert Valley High School,Information Technology,Class of 2026,2026,active,missing.mentor.001@demo-student.capstone.test,viewer.one@demo-staff.capstone.test",
+      "Out,Scope,outside.student@senior-capstone.test,Desert Valley High School,Information Technology,Class of 2026,2026,active,outside.mentor@demo-staff.capstone.test,viewer.one@demo-staff.capstone.test",
+    ].join("\n"))});
+    adminPeopleView = "import-students";
+    activeSection = "adminUsers";
+    renderAppShell();
+  `, context);
+  assert.match(workspaceRoot.innerHTML, /data-csv-preview="students" data-csv-preview-state="errors"/);
+  assert.match(workspaceRoot.innerHTML, /Student users cannot be assigned as mentors/);
+  assert.match(workspaceRoot.innerHTML, /Mentor email must already exist in the current scoped roster before automatic assignment/);
 
   vm.runInContext(`
     adminCsvImportState.staff = validateAdminCsvImport("staff", ${JSON.stringify([
@@ -11801,6 +11841,12 @@ function siteAccessAssignmentsFixture() {
           userId: "demo-student-101",
           displayName: "Missing Mentor Demo 001",
           email: "missing.mentor.001@demo-student.capstone.test",
+          cohort: "Class of 2026",
+          graduationYear: "2026",
+          mentorUserId: "demo-mentor-001",
+          mentorName: "Mentor One",
+          viewerUserId: "demo-viewer-001",
+          viewerName: "Read-only Viewer",
         },
       ],
       mentors: [
@@ -11961,8 +12007,12 @@ function siteStudentsFixture({
       programName: "Information Technology",
       cohortId: "cohort-it-2026",
       cohortName: "IT 2026",
+      cohort: "Class of 2026",
+      graduationYear: "2026",
       mentorUserId: "",
       mentorName: "",
+      viewerUserId: "demo-viewer-001",
+      viewerName: "Read-only Viewer",
       hasActiveMentor: false,
       mentorMeetingStatus: "not_recorded",
       latestSubmissionId: "submission-101",
@@ -11993,8 +12043,12 @@ function siteStudentsFixture({
       programName: "Information Technology",
       cohortId: "cohort-it-2026",
       cohortName: "IT 2026",
+      cohort: "Class of 2026",
+      graduationYear: "2026",
       mentorUserId: "demo-mentor-001",
       mentorName: "Mentor One",
+      viewerUserId: "demo-viewer-001",
+      viewerName: "Read-only Viewer",
       hasActiveMentor: true,
       mentorMeetingStatus: "not_recorded",
       latestSubmissionId: "submission-144",
@@ -12722,6 +12776,10 @@ function siteStudentDetailFixture({ readOnly = false } = {}) {
       programName: "Information Technology",
       cohortId: "cohort-it-2026",
       cohortName: "IT 2026",
+      cohort: "Class of 2026",
+      graduationYear: "2026",
+      viewerUserId: "demo-viewer-001",
+      viewerName: "Read-only Viewer",
       storyBucket: "missing_mentor",
       riskScore: 8,
       riskFlags: ["no_mentor", "high"],

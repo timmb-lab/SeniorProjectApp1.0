@@ -60,8 +60,12 @@ interface DirectoryRow {
   program_name: string | null;
   cohort_id: string | null;
   cohort_name: string | null;
+  roster_cohort: string | null;
+  graduation_year: string | null;
   mentor_user_id: string | null;
   mentor_name: string | null;
+  viewer_user_id: string | null;
+  viewer_name: string | null;
   has_active_mentor: number;
   latest_submission_id: string | null;
   latest_submission_status: string | null;
@@ -370,6 +374,18 @@ function buildDirectoryScopeSql(siteId: string, scopedStudentIds: string[] | nul
             LIMIT 1
           ) AS cohort_name,
           (
+            SELECT student_roster_profiles.cohort
+            FROM student_roster_profiles
+            WHERE student_roster_profiles.student_user_id = scoped_students.student_id
+            LIMIT 1
+          ) AS roster_cohort,
+          (
+            SELECT student_roster_profiles.graduation_year
+            FROM student_roster_profiles
+            WHERE student_roster_profiles.student_user_id = scoped_students.student_id
+            LIMIT 1
+          ) AS graduation_year,
+          (
             SELECT mentor_assignments.mentor_user_id
             FROM mentor_assignments
             WHERE mentor_assignments.student_user_id = scoped_students.student_id
@@ -386,6 +402,23 @@ function buildDirectoryScopeSql(siteId: string, scopedStudentIds: string[] | nul
             ORDER BY mentor_assignments.created_at DESC
             LIMIT 1
           ) AS mentor_name,
+          (
+            SELECT viewer_student_assignments.viewer_user_id
+            FROM viewer_student_assignments
+            WHERE viewer_student_assignments.student_user_id = scoped_students.student_id
+             AND viewer_student_assignments.active = 1
+            ORDER BY viewer_student_assignments.created_at DESC
+            LIMIT 1
+          ) AS viewer_user_id,
+          (
+            SELECT viewer.display_name
+            FROM viewer_student_assignments
+            JOIN user_accounts viewer ON viewer.id = viewer_student_assignments.viewer_user_id
+            WHERE viewer_student_assignments.student_user_id = scoped_students.student_id
+             AND viewer_student_assignments.active = 1
+            ORDER BY viewer_student_assignments.created_at DESC
+            LIMIT 1
+          ) AS viewer_name,
           CASE WHEN EXISTS (
             SELECT 1 FROM mentor_assignments
             WHERE mentor_assignments.student_user_id = scoped_students.student_id
@@ -701,9 +734,11 @@ function buildFilterWhere(filters: DirectoryFilters): FilterWhere {
       lower(display_name) LIKE ? ESCAPE '\\'
       OR lower(email) LIKE ? ESCAPE '\\'
       OR lower(COALESCE(program_name, '')) LIKE ? ESCAPE '\\'
+      OR lower(COALESCE(roster_cohort, '')) LIKE ? ESCAPE '\\'
+      OR lower(COALESCE(graduation_year, '')) LIKE ? ESCAPE '\\'
       OR lower(COALESCE(mentor_name, '')) LIKE ? ESCAPE '\\'
     )`);
-    binds.push(like, like, like, like);
+    binds.push(like, like, like, like, like, like);
   }
   if (filters.programId) {
     clauses.push("program_id = ?");
@@ -804,8 +839,12 @@ function studentResponse(row: DirectoryRow) {
     programName: row.program_name || "Unassigned",
     cohortId: row.cohort_id || "",
     cohortName: row.cohort_name || "",
+    cohort: row.roster_cohort || "",
+    graduationYear: row.graduation_year || "",
     mentorUserId: row.mentor_user_id || "",
     mentorName: row.mentor_name || "",
+    viewerUserId: row.viewer_user_id || "",
+    viewerName: row.viewer_name || "",
     hasActiveMentor: Number(row.has_active_mentor || 0) === 1,
     mentorMeetingStatus: row.mentor_meeting_status || "not_recorded",
     latestSubmissionId: row.latest_submission_id || "",

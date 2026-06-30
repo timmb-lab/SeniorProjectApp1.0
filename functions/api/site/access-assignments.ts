@@ -265,6 +265,72 @@ async function siteContext(env: Env, user: UserAccount): Promise<SiteScopeContex
 }
 
 async function loadSiteUsersByRole(env: Env, siteId: string, roleId: RoleId) {
+  if (roleId === "student") {
+    const rows = await env.DB.prepare(
+      `SELECT DISTINCT
+         user_accounts.id,
+         user_accounts.display_name,
+         user_accounts.email,
+         COALESCE(student_roster_profiles.cohort, '') AS cohort,
+         COALESCE(student_roster_profiles.graduation_year, '') AS graduation_year,
+         (
+           SELECT mentor_assignments.mentor_user_id
+           FROM mentor_assignments
+           WHERE mentor_assignments.student_user_id = user_accounts.id
+            AND mentor_assignments.active = 1
+           ORDER BY mentor_assignments.created_at DESC
+           LIMIT 1
+         ) AS mentor_user_id,
+         (
+           SELECT mentor.display_name
+           FROM mentor_assignments
+           JOIN user_accounts mentor ON mentor.id = mentor_assignments.mentor_user_id
+           WHERE mentor_assignments.student_user_id = user_accounts.id
+            AND mentor_assignments.active = 1
+           ORDER BY mentor_assignments.created_at DESC
+           LIMIT 1
+         ) AS mentor_name,
+         (
+           SELECT viewer_student_assignments.viewer_user_id
+           FROM viewer_student_assignments
+           WHERE viewer_student_assignments.student_user_id = user_accounts.id
+            AND viewer_student_assignments.active = 1
+           ORDER BY viewer_student_assignments.created_at DESC
+           LIMIT 1
+         ) AS viewer_user_id,
+         (
+           SELECT viewer.display_name
+           FROM viewer_student_assignments
+           JOIN user_accounts viewer ON viewer.id = viewer_student_assignments.viewer_user_id
+           WHERE viewer_student_assignments.student_user_id = user_accounts.id
+            AND viewer_student_assignments.active = 1
+           ORDER BY viewer_student_assignments.created_at DESC
+           LIMIT 1
+         ) AS viewer_name
+       FROM site_users
+       JOIN user_accounts ON user_accounts.id = site_users.user_id
+        AND user_accounts.status IN ('active', 'pending_reset')
+       JOIN user_roles ON user_roles.user_id = user_accounts.id
+        AND user_roles.role_id = 'student'
+       LEFT JOIN student_roster_profiles ON student_roster_profiles.student_user_id = user_accounts.id
+       WHERE site_users.site_id = ?
+        AND site_users.membership_status = 'active'
+       ORDER BY user_accounts.display_name ASC
+       LIMIT 200`,
+    ).bind(siteId).all<{
+      id: string;
+      display_name: string;
+      email: string;
+      cohort: string | null;
+      graduation_year: string | null;
+      mentor_user_id: string | null;
+      mentor_name: string | null;
+      viewer_user_id: string | null;
+      viewer_name: string | null;
+    }>();
+    return (rows.results || []).map(studentUserOption);
+  }
+
   const rows = await env.DB.prepare(
     `SELECT DISTINCT user_accounts.id, user_accounts.display_name, user_accounts.email
      FROM site_users
@@ -508,6 +574,30 @@ function userOption(row: { id: string; display_name: string; email: string }) {
     userId: row.id,
     displayName: row.display_name,
     email: row.email,
+  };
+}
+
+function studentUserOption(row: {
+  id: string;
+  display_name: string;
+  email: string;
+  cohort: string | null;
+  graduation_year: string | null;
+  mentor_user_id: string | null;
+  mentor_name: string | null;
+  viewer_user_id: string | null;
+  viewer_name: string | null;
+}) {
+  return {
+    userId: row.id,
+    displayName: row.display_name,
+    email: row.email,
+    cohort: row.cohort || "",
+    graduationYear: row.graduation_year || "",
+    mentorUserId: row.mentor_user_id || "",
+    mentorName: row.mentor_name || "",
+    viewerUserId: row.viewer_user_id || "",
+    viewerName: row.viewer_name || "",
   };
 }
 

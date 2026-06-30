@@ -326,6 +326,7 @@ function emptyRemoteDataset() {
       groupMemberships: [],
       mentorAssignments: [],
       viewerStudentAssignments: [],
+      studentRosterProfiles: [],
       progressRecords: [],
       submissions: [],
       statusHistory: [],
@@ -786,6 +787,12 @@ async function verifyRemoteSeedState(adapter, schema) {
     "SELECT COUNT(*) AS count FROM viewer_student_assignments WHERE id LIKE 'demo-%' AND active = 1;",
     `SELECT COUNT(*) AS count FROM password_credentials WHERE user_id IN (SELECT id FROM user_accounts WHERE email_norm LIKE '%@demo-student.capstone.test');`,
     "SELECT COUNT(*) AS count FROM announcements WHERE id LIKE 'demo-%' OR title LIKE '%DEMO_SEED%' OR body LIKE '%DEMO_SEED%';",
+    `SELECT COUNT(*) AS count
+     FROM student_roster_profiles profile
+     JOIN user_accounts u ON u.id = profile.student_user_id
+     WHERE u.email_norm LIKE '%@demo-student.capstone.test'
+       AND profile.cohort = 'Class of 2027'
+       AND profile.graduation_year = '2027';`,
     "PRAGMA foreign_key_check;",
   ];
   const rows = await adapter.queryBatch(queries);
@@ -816,7 +823,8 @@ async function verifyRemoteSeedState(adapter, schema) {
     viewerStudentAssignments: firstCount(rows[23]),
     studentCredentials: firstCount(rows[24]),
     announcements: firstCount(rows[25]),
-    foreignKeyViolations: rows[26].length,
+    studentRosterProfiles: firstCount(rows[26]),
+    foreignKeyViolations: rows[27].length,
   };
   summary.primaryAvailablePrograms = firstCount(await adapter.query(
     `SELECT COUNT(*) AS count
@@ -860,6 +868,7 @@ async function verifyRemoteSeedState(adapter, schema) {
     || summary.viewers !== 1
     || summary.viewerStudentAssignments !== 3
     || summary.studentCredentials !== 0
+    || summary.studentRosterProfiles !== 370
     || summary.announcements !== 0
     || !storyBucketsOk
     || summary.forbiddenDemoRealDomainRows !== 0

@@ -22,6 +22,7 @@ const MIGRATIONS = [
   "migrations/0011_multisite_site_role_foundation.sql",
   "migrations/0012_users_access_v5.sql",
   "migrations/0015_remove_org_admin_role.sql",
+  "migrations/0016_student_roster_profiles.sql",
 ];
 
 test("remote demo seeder requires remote target and explicit write confirmation", () => {
@@ -51,6 +52,7 @@ test("remote demo dry run builds remote-shaped fake data without writing", async
   assert.equal(result.generatedCounts.sitePrograms, 19);
   assert.equal(result.generatedCounts.userAccounts, 460);
   assert.equal(result.generatedCounts.passwordCredentials, 64);
+  assert.equal(result.generatedCounts.studentRosterProfiles, 370);
   assert.equal(result.generatedCounts.mentorAssignments, 320);
   assert.equal(result.generatedCounts.submissions, 345);
   assert.equal(result.generatedCounts.evidenceArtifacts, 934);
@@ -99,6 +101,7 @@ test("remote demo seed creates requested counts and preserves real accounts/conf
   assert.equal(result.finalVerification.siteAdmins, 3);
   assert.equal(result.finalVerification.viewers, 1);
   assert.equal(result.finalVerification.viewerStudentAssignments, 3);
+  assert.equal(result.finalVerification.studentRosterProfiles, 370);
   assert.equal(result.finalVerification.studentCredentials, 0);
   assert.equal(result.finalVerification.unsafeDemoEvidenceRows, 0);
   assert.equal(result.finalVerification.unsafeDemoExportDriveRows, 0);

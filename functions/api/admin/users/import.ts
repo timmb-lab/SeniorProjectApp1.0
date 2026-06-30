@@ -23,6 +23,13 @@ interface ImportUserInput {
   siteIds?: unknown;
   programIds?: unknown;
   studentIds?: unknown;
+  cohort?: unknown;
+  graduationYear?: unknown;
+  graduation_year?: unknown;
+  mentorUserId?: unknown;
+  mentor_user_id?: unknown;
+  viewerUserId?: unknown;
+  viewer_user_id?: unknown;
   identityType?: unknown;
   signInMethod?: unknown;
   status?: unknown;
@@ -44,6 +51,10 @@ interface NormalizedImportUser {
   siteIds: string[];
   programIds: string[];
   studentIds: string[];
+  cohort: string;
+  graduationYear: string;
+  mentorUserId: string;
+  viewerUserId: string;
   legacyScopeType: RoleScopeType;
   legacyScopeId: string;
   status: "active" | "inactive";
@@ -56,6 +67,13 @@ interface ExistingUserRow {
 
 interface RoleExistsRow {
   id: string;
+}
+
+interface StudentAssignmentSummary {
+  mentorAssignmentsCreated: number;
+  mentorAssignmentsSkipped: number;
+  viewerAssignmentsCreated: number;
+  viewerAssignmentsSkipped: number;
 }
 
 const MAX_IMPORT_USERS = 25;
@@ -181,7 +199,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       ).bind(userId, credential.hash, credential.salt, credential.algorithm, credential.iterations).run();
     }
 
-    await createRoleAndAssignments(env, {
+    const assignmentSummary = await createRoleAndAssignments(env, {
       actorId: caller.id,
       targetUserId: userId,
       user,
@@ -200,6 +218,13 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
         siteIds: user.siteIds,
         programIds: user.programIds,
         studentIds: user.studentIds,
+        studentProfile: user.roleId === "student"
+          ? {
+              cohort: user.cohort,
+              graduationYear: user.graduationYear,
+            }
+          : undefined,
+        assignmentSummary,
         temporaryCredentialReturnedOnce: Boolean(temporaryPassword),
       },
     });
@@ -227,6 +252,13 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       role: roleResponse(user),
       access: accessSummary(user),
       identityType: user.identityType,
+      studentProfile: user.roleId === "student"
+        ? {
+            cohort: user.cohort,
+            graduationYear: user.graduationYear,
+          }
+        : undefined,
+      assignmentSummary,
       temporaryPassword: temporaryPassword || undefined,
       delivery: temporaryPassword ? "one_time_admin_display" : "sso_first_sign_in",
       mustReset: Boolean(temporaryPassword),
@@ -244,6 +276,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       adminNote,
       importedCount: imported.length,
       roleIds: Array.from(new Set(normalizedUsers.map((user) => user.roleId))),
+      assignmentSummary: aggregateStudentAssignmentSummary(imported.map((user) => user.assignmentSummary)),
       temporaryCredentialsReturnedOnce: imported.some((user) => Boolean(user.temporaryPassword)),
     },
   });
@@ -251,6 +284,13 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   return json({
     ok: true,
     importedCount: imported.length,
+    summary: {
+      accountsCreated: imported.length,
+      studentsCreated: imported.filter((user) => user.role?.roleId === "student").length,
+      studentsSkipped: 0,
+      invalidRowsBlocked: 0,
+      ...aggregateStudentAssignmentSummary(imported.map((user) => user.assignmentSummary)),
+    },
     users: imported,
   });
 };
@@ -282,6 +322,9 @@ function normalizeUserInput(value: unknown): NormalizedImportUser | null {
     legacyScopeType === "program" ? legacyScopeId : "",
   ]);
   const studentIds = uniqueIds(input.studentIds);
+  const graduationYearInput = input.graduationYear ?? input.graduation_year;
+  const graduationYear = cleanGraduationYear(graduationYearInput);
+  if (graduationYear === null) return null;
   const status = cleanAccountStatus(input.status);
 
   if (!isValidEmail(email) || !displayName || !roleId || !identityType || !status) return null;
@@ -295,6 +338,10 @@ function normalizeUserInput(value: unknown): NormalizedImportUser | null {
     siteIds,
     programIds,
     studentIds,
+    cohort: cleanRosterText(input.cohort, 80),
+    graduationYear,
+    mentorUserId: cleanId(input.mentorUserId ?? input.mentor_user_id),
+    viewerUserId: cleanId(input.viewerUserId ?? input.viewer_user_id),
     legacyScopeType,
     legacyScopeId,
     status,
@@ -353,6 +400,15 @@ async function validateUser(
         return reject(403, "program_assignment_forbidden", "You can only select programs inside this student's site.");
       }
     }
+    const actorAccess = await loadEffectiveAccess(env, caller);
+    if (user.mentorUserId) {
+      const mentorValidation = await validateNewStudentAssignmentTarget(env, actorAccess, user, "mentor_student", user.mentorUserId, "mentor");
+      if (!mentorValidation.ok) return mentorValidation;
+    }
+    if (user.viewerUserId) {
+      const viewerValidation = await validateNewStudentAssignmentTarget(env, actorAccess, user, "viewer_student", user.viewerUserId, "viewer");
+      if (!viewerValidation.ok) return viewerValidation;
+    }
     return { ok: true };
   }
 
@@ -388,14 +444,14 @@ async function createRoleAndAssignments(
     targetUserId: string;
     user: NormalizedImportUser;
   },
-): Promise<void> {
+): Promise<StudentAssignmentSummary> {
   const { actorId, targetUserId, user } = input;
   if (user.roleId === "site_admin" || user.roleId === "administration") {
     for (const siteId of user.siteIds) {
       await insertRole(env, targetUserId, user.roleId, "site", siteId, actorId);
       await insertSiteMembership(env, siteId, targetUserId);
     }
-    return;
+    return emptyStudentAssignmentSummary();
   }
 
   if (user.roleId === "program_teacher") {
@@ -405,11 +461,20 @@ async function createRoleAndAssignments(
     for (const siteId of await siteIdsForPrograms(env, user.programIds)) {
       await insertSiteMembership(env, siteId, targetUserId);
     }
-    return;
+    return emptyStudentAssignmentSummary();
   }
 
   await insertRole(env, targetUserId, user.roleId, "global", "", actorId);
   for (const siteId of user.siteIds) await insertSiteMembership(env, siteId, targetUserId);
+
+  if (user.roleId === "student") {
+    await upsertStudentRosterProfile(env, targetUserId, user);
+    return createNewStudentSideAssignments(env, {
+      actorId,
+      studentUserId: targetUserId,
+      user,
+    });
+  }
 
   if (user.roleId === "mentor") {
     for (const studentId of user.studentIds) {
@@ -432,6 +497,163 @@ async function createRoleAndAssignments(
       for (const siteId of await siteIdsForStudents(env, [studentId])) await insertSiteMembership(env, siteId, targetUserId);
     }
   }
+
+  return emptyStudentAssignmentSummary();
+}
+
+async function validateNewStudentAssignmentTarget(
+  env: Env,
+  actorAccess: Awaited<ReturnType<typeof loadEffectiveAccess>>,
+  user: NormalizedImportUser,
+  assignmentType: "mentor_student" | "viewer_student",
+  targetUserId: string,
+  targetRoleId: RoleId,
+): Promise<{ ok: true } | { ok: false; status: number; error: string; message: string }> {
+  if (!canActorCreateStudentAssignment(actorAccess, assignmentType)) {
+    return reject(403, `${assignmentType}_forbidden`, "This account cannot create that student assignment.");
+  }
+  if (!await activeScopedAssignmentTarget(env, targetUserId, targetRoleId, user.siteIds)) {
+    return reject(
+      403,
+      `${targetRoleId}_assignment_target_forbidden`,
+      `Choose an existing ${targetRoleId === "mentor" ? "Mentor" : "Viewer"} inside the student's school scope.`,
+    );
+  }
+  return { ok: true };
+}
+
+function canActorCreateStudentAssignment(
+  actorAccess: Awaited<ReturnType<typeof loadEffectiveAccess>>,
+  assignmentType: "mentor_student" | "viewer_student",
+): boolean {
+  if (actorAccess.isGlobalAdmin) return true;
+  if (assignmentType === "mentor_student") {
+    return actorAccess.canonicalRoleIds.includes("site_admin")
+      || actorAccess.canonicalRoleIds.includes("administration")
+      || actorAccess.canonicalRoleIds.includes("program_teacher");
+  }
+  return actorAccess.canonicalRoleIds.includes("site_admin")
+    || actorAccess.canonicalRoleIds.includes("administration");
+}
+
+async function activeScopedAssignmentTarget(
+  env: Env,
+  targetUserId: string,
+  targetRoleId: RoleId,
+  siteIds: string[],
+): Promise<boolean> {
+  if (!targetUserId || !siteIds.length) return false;
+  const placeholders = siteIds.map(() => "?").join(", ");
+  const row = await env.DB.prepare(
+    `SELECT user_accounts.id
+     FROM user_accounts
+     JOIN user_roles target_role ON target_role.user_id = user_accounts.id
+      AND target_role.role_id = ?
+     JOIN site_users ON site_users.user_id = user_accounts.id
+      AND site_users.membership_status = 'active'
+      AND site_users.site_id IN (${placeholders})
+     WHERE user_accounts.id = ?
+      AND user_accounts.status IN ('active', 'pending_reset')
+      AND NOT EXISTS (
+        SELECT 1
+        FROM user_roles elevated_role
+        WHERE elevated_role.user_id = user_accounts.id
+         AND elevated_role.role_id IN ('global_admin', 'admin', 'platform_admin')
+      )
+     LIMIT 1`,
+  ).bind(targetRoleId, ...siteIds, targetUserId).first<{ id: string }>();
+  return Boolean(row);
+}
+
+async function upsertStudentRosterProfile(env: Env, studentUserId: string, user: NormalizedImportUser): Promise<void> {
+  await env.DB.prepare(
+    `INSERT INTO student_roster_profiles (student_user_id, cohort, graduation_year)
+     VALUES (?, ?, ?)
+     ON CONFLICT(student_user_id) DO UPDATE SET
+       cohort = excluded.cohort,
+       graduation_year = excluded.graduation_year,
+       updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`,
+  ).bind(studentUserId, user.cohort, user.graduationYear).run();
+}
+
+async function createNewStudentSideAssignments(
+  env: Env,
+  input: {
+    actorId: string;
+    studentUserId: string;
+    user: NormalizedImportUser;
+  },
+): Promise<StudentAssignmentSummary> {
+  const summary = emptyStudentAssignmentSummary();
+  const { actorId, studentUserId, user } = input;
+
+  if (user.mentorUserId) {
+    const existing = await activeMentorAssignmentExists(env, user.mentorUserId, studentUserId);
+    await env.DB.prepare(
+      `INSERT INTO mentor_assignments (id, mentor_user_id, student_user_id, assigned_by, active)
+       VALUES (?, ?, ?, ?, 1)
+       ON CONFLICT(mentor_user_id, student_user_id) DO UPDATE SET active = 1, assigned_by = excluded.assigned_by`,
+    ).bind(randomId("mentor_student_assignment"), user.mentorUserId, studentUserId, actorId).run();
+    if (existing) summary.mentorAssignmentsSkipped += 1;
+    else summary.mentorAssignmentsCreated += 1;
+    for (const siteId of user.siteIds) await insertSiteMembership(env, siteId, user.mentorUserId);
+  }
+
+  if (user.viewerUserId) {
+    const existing = await activeViewerAssignmentExists(env, user.viewerUserId, studentUserId);
+    await env.DB.prepare(
+      `INSERT INTO viewer_student_assignments (id, viewer_user_id, student_user_id, assigned_by, active)
+       VALUES (?, ?, ?, ?, 1)
+       ON CONFLICT(viewer_user_id, student_user_id) DO UPDATE SET active = 1, assigned_by = excluded.assigned_by, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`,
+    ).bind(randomId("viewer_student_assignment"), user.viewerUserId, studentUserId, actorId).run();
+    if (existing) summary.viewerAssignmentsSkipped += 1;
+    else summary.viewerAssignmentsCreated += 1;
+    for (const siteId of user.siteIds) await insertSiteMembership(env, siteId, user.viewerUserId);
+  }
+
+  return summary;
+}
+
+async function activeMentorAssignmentExists(env: Env, mentorUserId: string, studentUserId: string): Promise<boolean> {
+  const row = await env.DB.prepare(
+    `SELECT 1
+     FROM mentor_assignments
+     WHERE mentor_user_id = ?
+      AND student_user_id = ?
+      AND active = 1
+     LIMIT 1`,
+  ).bind(mentorUserId, studentUserId).first();
+  return Boolean(row);
+}
+
+async function activeViewerAssignmentExists(env: Env, viewerUserId: string, studentUserId: string): Promise<boolean> {
+  const row = await env.DB.prepare(
+    `SELECT 1
+     FROM viewer_student_assignments
+     WHERE viewer_user_id = ?
+      AND student_user_id = ?
+      AND active = 1
+     LIMIT 1`,
+  ).bind(viewerUserId, studentUserId).first();
+  return Boolean(row);
+}
+
+function emptyStudentAssignmentSummary(): StudentAssignmentSummary {
+  return {
+    mentorAssignmentsCreated: 0,
+    mentorAssignmentsSkipped: 0,
+    viewerAssignmentsCreated: 0,
+    viewerAssignmentsSkipped: 0,
+  };
+}
+
+function aggregateStudentAssignmentSummary(summaries: Array<StudentAssignmentSummary | undefined>): StudentAssignmentSummary {
+  return summaries.reduce<StudentAssignmentSummary>((total, summary) => ({
+    mentorAssignmentsCreated: total.mentorAssignmentsCreated + Number(summary?.mentorAssignmentsCreated || 0),
+    mentorAssignmentsSkipped: total.mentorAssignmentsSkipped + Number(summary?.mentorAssignmentsSkipped || 0),
+    viewerAssignmentsCreated: total.viewerAssignmentsCreated + Number(summary?.viewerAssignmentsCreated || 0),
+    viewerAssignmentsSkipped: total.viewerAssignmentsSkipped + Number(summary?.viewerAssignmentsSkipped || 0),
+  }), emptyStudentAssignmentSummary());
 }
 
 async function insertRole(
@@ -486,7 +708,11 @@ function accessSummary(user: NormalizedImportUser): string {
 
 function nextStepsFor(user: NormalizedImportUser): string[] {
   if (user.status === "inactive") return ["Account is created disabled. Activate it only after the school is ready."];
-  if (user.roleId === "student") return ["Link or confirm the student profile."];
+  if (user.roleId === "student") {
+    const steps = ["Confirm the student profile."];
+    if (user.mentorUserId || user.viewerUserId) steps.push("Selected mentor/viewer access was applied during account creation.");
+    return steps;
+  }
   if (user.roleId === "mentor") return user.studentIds.length ? ["Confirm mentor/student assignments."] : ["Assign students to this mentor."];
   if (user.roleId === "viewer") return user.studentIds.length ? ["Confirm read-only viewer/student assignments."] : ["Assign students this viewer can see."];
   if (user.roleId === "program_teacher") return ["Confirm program assignment."];
@@ -600,6 +826,16 @@ function cleanAccountStatus(value: unknown): "active" | "inactive" | null {
   if (normalized === "active" || normalized === "enabled") return "active";
   if (normalized === "inactive" || normalized === "disabled") return "inactive";
   return null;
+}
+
+function cleanRosterText(value: unknown, maxLength: number): string {
+  return cleanWorkflowText(value, "", maxLength).replace(/\s+/g, " ").trim();
+}
+
+function cleanGraduationYear(value: unknown): string | null {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  return /^\d{4}$/.test(raw) ? raw : null;
 }
 
 function idsFrom(value: unknown): string[] {

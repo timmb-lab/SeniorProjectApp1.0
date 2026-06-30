@@ -1967,6 +1967,16 @@ class LocalSqliteD1 {
     this.file = file;
     this.sqlite = new DatabaseSync(file);
     this.sqlite.exec("PRAGMA foreign_keys = ON;");
+    this.ensureStudentRosterProfileSchema();
+  }
+
+  ensureStudentRosterProfileSchema() {
+    const found = this.sqlite
+      .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'student_roster_profiles'")
+      .get();
+    if (found) return;
+    const migrationPath = path.join(REPO_ROOT, "migrations", "0016_student_roster_profiles.sql");
+    this.sqlite.exec(readFileSync(migrationPath, "utf8"));
   }
 
   prepare(sql) {

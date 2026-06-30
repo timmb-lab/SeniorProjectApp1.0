@@ -337,6 +337,7 @@ const REQUIRED_TABLE_COLUMNS = Object.freeze({
   group_memberships: ["group_id", "user_id", "membership_role"],
   mentor_assignments: ["id", "mentor_user_id", "student_user_id", "active"],
   viewer_student_assignments: ["id", "viewer_user_id", "student_user_id", "active"],
+  student_roster_profiles: ["student_user_id", "cohort", "graduation_year"],
   requirements: ["id", "phase", "title"],
   progress_records: ["id", "student_id", "requirement_id", "phase", "status", "updated_by"],
   status_history: ["id", "student_id", "entity_type", "entity_id", "from_status", "to_status", "changed_by", "reason"],
@@ -764,6 +765,7 @@ function deleteSpecs(schema) {
     ["submissions", "id LIKE 'demo-%' OR student_id IN (__DEMO_USERS__)"],
     ["mentor_assignments", "id LIKE 'demo-%' OR mentor_user_id IN (__DEMO_USERS__) OR student_user_id IN (__DEMO_USERS__) OR assigned_by IN (__DEMO_USERS__)"],
     ["viewer_student_assignments", "id LIKE 'demo-%' OR viewer_user_id IN (__DEMO_USERS__) OR student_user_id IN (__DEMO_USERS__) OR assigned_by IN (__DEMO_USERS__)"],
+    ["student_roster_profiles", "student_user_id IN (__DEMO_USERS__)"],
     ["group_memberships", "group_id LIKE 'demo-%' OR user_id IN (__DEMO_USERS__)"],
     ["announcements", "id LIKE 'demo-%' OR title LIKE '%DEMO_SEED%' OR body LIKE '%DEMO_SEED%' OR created_by IN (__DEMO_USERS__)"],
     ["audit_events", "id LIKE 'demo-%' OR actor_user_id IN (__DEMO_USERS__) OR entity_id LIKE 'demo-%' OR metadata_json LIKE '%DEMO_SEED%'"],
@@ -1192,6 +1194,13 @@ async function buildDemoDataset({
         display_name: displayName,
         status: "active",
       });
+      rows.studentRosterProfiles.push({
+        student_user_id: id,
+        cohort: "Class of 2027",
+        graduation_year: "2027",
+        created_at: dateForStudent(studentNumber, -90),
+        updated_at: dateForStudent(studentNumber, -14),
+      });
       rows.userRoles.push({
         user_id: id,
         role_id: "student",
@@ -1247,6 +1256,13 @@ async function buildDemoDataset({
         email_norm: normalizeEmail(email),
         display_name: displayName,
         status: "active",
+      });
+      rows.studentRosterProfiles.push({
+        student_user_id: id,
+        cohort: "Class of 2027",
+        graduation_year: "2027",
+        created_at: dateForStudent(studentNumber, -90),
+        updated_at: dateForStudent(studentNumber, -14),
       });
       rows.userRoles.push({
         user_id: id,
@@ -1651,6 +1667,7 @@ function emptyRows() {
     groupMemberships: [],
     mentorAssignments: [],
     viewerStudentAssignments: [],
+    studentRosterProfiles: [],
     progressRecords: [],
     submissions: [],
     statusHistory: [],
@@ -1811,6 +1828,7 @@ function buildSeedSql(dataset, schema, { includeDeletes = true, includeTransacti
   pushRows(statements, "cohorts", rows.cohorts);
   pushRows(statements, "groups", rows.groups);
   pushRows(statements, "user_accounts", rows.userAccounts);
+  if (schema.tableNames.has("student_roster_profiles")) pushRows(statements, "student_roster_profiles", rows.studentRosterProfiles || []);
   pushRows(statements, "password_credentials", rows.passwordCredentials);
   pushRows(statements, "user_roles", rows.userRoles);
   pushRows(statements, "tenant_users", rows.tenantUsers);
@@ -1879,6 +1897,12 @@ async function verifySeedState(adapter, schema) {
     "SELECT COUNT(*) AS count FROM viewer_student_assignments WHERE id LIKE 'demo-%' AND active = 1;",
     `SELECT COUNT(*) AS count FROM password_credentials WHERE user_id IN (SELECT id FROM user_accounts WHERE email_norm LIKE '%@demo-student.capstone.test');`,
     "SELECT COUNT(*) AS count FROM announcements WHERE id LIKE 'demo-%' OR title LIKE '%DEMO_SEED%' OR body LIKE '%DEMO_SEED%';",
+    `SELECT COUNT(*) AS count
+     FROM student_roster_profiles profile
+     JOIN user_accounts u ON u.id = profile.student_user_id
+     WHERE u.email_norm LIKE '%@demo-student.capstone.test'
+       AND profile.cohort = 'Class of 2027'
+       AND profile.graduation_year = '2027';`,
     "PRAGMA foreign_key_check;",
   ];
   const rows = await adapter.queryBatch(queries);
@@ -1906,7 +1930,8 @@ async function verifySeedState(adapter, schema) {
     viewerStudentAssignments: firstCount(rows[20]),
     studentCredentials: firstCount(rows[21]),
     announcements: firstCount(rows[22]),
-    foreignKeyViolations: rows[23].length,
+    studentRosterProfiles: firstCount(rows[23]),
+    foreignKeyViolations: rows[24].length,
   };
   summary.primaryAvailablePrograms = firstCount(await adapter.query(
     `SELECT COUNT(*) AS count
@@ -1946,6 +1971,7 @@ async function verifySeedState(adapter, schema) {
     || summary.viewers !== 1
     || summary.viewerStudentAssignments !== 3
     || summary.studentCredentials !== 0
+    || summary.studentRosterProfiles !== 370
     || summary.announcements !== 0
     || !storyBucketsOk
     || summary.forbiddenRealDomainRows !== 0
