@@ -1102,6 +1102,13 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
         <div class="workspace-main ${isAdminConsole ? "workspace-admin-console-main" : ""}">
           ${renderViewAsStudentBanner()}
           ${statusMessage ? statusHtml(statusMessage, tone) : ""}
+          ${renderWorkspaceRoleCommandStrip({
+            primaryRole,
+            roles,
+            isAdminConsole,
+            viewingAsStudent,
+            consoleCapabilities,
+          })}
           ${isAdminConsole ? renderAdminConsoleHeader(consoleCapabilities, sections) : primaryRole === "student" || viewingAsStudent ? "" : renderProductHeader({
             eyebrow: "",
             title: headerTitle,
@@ -1204,6 +1211,201 @@ function roleIdentityFor(roleId) {
     key: labels[normalized] ? normalized : "role_pending",
     label: labels[normalized] || "Role pending",
   };
+}
+
+function renderWorkspaceRoleCommandStrip(options = {}) {
+  const primaryRole = options.primaryRole || primaryRoleForUser(currentUser);
+  const roles = options.roles || roleIds(currentUser);
+  const isAdminConsole = Boolean(options.isAdminConsole);
+  const viewingAsStudent = Boolean(options.viewingAsStudent);
+  const consoleCapabilities = options.consoleCapabilities || adminConsoleCapabilitiesFor(currentUser);
+  const identity = roleIdentityFor(primaryRole);
+  const mode = viewingAsStudent ? "student-preview" : isAdminConsole ? "admin" : "workspace";
+  const modeLabel = viewingAsStudent ? "Student preview" : isAdminConsole ? "Admin Console" : "Workspace";
+  const readOnly = viewingAsStudent || roles.has("viewer") || Boolean(isAdminConsole && consoleCapabilities.readOnly);
+  const scopeText = viewingAsStudent
+    ? `Previewing ${viewAsStudentDisplayName()}`
+    : isAdminConsole ? consoleCapabilities.scope.label : roleScopeSummary(currentUser);
+  const next = roleCommandNextAction(primaryRole, roles, isAdminConsole, viewingAsStudent, consoleCapabilities);
+  const items = [
+    {
+      id: "identity",
+      label: "Signed in as",
+      value: currentUser.displayName || currentUser.email || "Signed in",
+      detail: currentUser.email || roleLabel(primaryRole),
+    },
+    {
+      id: "mode",
+      label: "Role and mode",
+      value: `${identity.label} / ${modeLabel}`,
+      detail: scopeText,
+    },
+    {
+      id: "next",
+      label: "Do next",
+      value: next.title,
+      detail: next.detail,
+      action: next,
+    },
+    {
+      id: "safety",
+      label: "Safety",
+      value: readOnly ? "Read-only visible" : "Role-scoped actions",
+      detail: roleCommandSafetyText(primaryRole, roles, isAdminConsole, viewingAsStudent, consoleCapabilities),
+    },
+  ];
+  return `
+    <section class="workspace-role-command-strip" data-role-command-strip="true" data-role-command-role="${escapeHtml(identity.key)}" data-role-command-mode="${escapeHtml(mode)}" data-role-command-read-only="${readOnly ? "true" : "false"}" aria-labelledby="roleCommandStripTitle">
+      <div class="workspace-role-command-intro">
+        <p class="workspace-kicker">Role context</p>
+        <h2 id="roleCommandStripTitle">${escapeHtml(identity.label)} ${viewingAsStudent ? "student preview" : isAdminConsole ? "admin console" : "workspace"}</h2>
+        <p>${escapeHtml(roleCommandSummary(primaryRole, roles, isAdminConsole, viewingAsStudent, consoleCapabilities))}</p>
+      </div>
+      <div class="workspace-role-command-grid">
+        ${items.map((item) => renderRoleCommandItem(item)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderRoleCommandItem(item = {}) {
+  return `
+    <article class="workspace-role-command-item" data-role-command-item="${escapeHtml(item.id || "item")}">
+      <span>${escapeHtml(item.label || "Context")}</span>
+      <strong>${escapeHtml(item.value || "")}</strong>
+      <p>${escapeHtml(item.detail || "")}</p>
+      ${item.id === "next" ? renderRoleCommandActionButton(item.action) : ""}
+    </article>
+  `;
+}
+
+function renderRoleCommandActionButton(action = {}) {
+  if (!action || !action.label) return "";
+  if (action.mode) {
+    return `
+      <button class="workspace-link-button workspace-link-button-small" type="button" data-workspace-mode-target="${escapeHtml(action.mode)}" data-role-command-primary-action="true">
+        ${escapeHtml(action.label)}
+      </button>
+    `;
+  }
+  if (action.section) {
+    return `
+      <button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(action.section)}" ${action.preset ? `data-section-preset="${escapeHtml(action.preset)}"` : ""} data-role-command-primary-action="true">
+        ${escapeHtml(action.label)}
+      </button>
+    `;
+  }
+  return "";
+}
+
+function roleCommandSummary(primaryRole, roles = roleIds(currentUser), isAdminConsole = false, viewingAsStudent = false, capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  if (viewingAsStudent) return "You are looking at an authorized student workspace for context only. Exit returns to the staff worklist.";
+  if (isAdminConsole && capabilities.readOnly) return "Admin Console is open for read-only monitoring. Edit, review, assignment, and setup controls stay hidden.";
+  if (isAdminConsole) return "Admin Console is open for protected staff work. Normal Workspace stays focused on day-to-day student support.";
+  if (primaryRole === "student" || roles.has("student")) return "Student Workspace shows your own next step, phase goal, proof, feedback, presentation, and final files.";
+  if (roles.has("viewer")) return "Viewer Workspace shows assigned student context without change controls.";
+  return "Workspace keeps the first staff move clear while management tools stay in Admin Console.";
+}
+
+function roleCommandNextAction(primaryRole, roles = roleIds(currentUser), isAdminConsole = false, viewingAsStudent = false, capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  if (viewingAsStudent) {
+    return {
+      title: "Check the student next step",
+      detail: "Use this view for context only, then exit back to the staff workflow.",
+      section: "student",
+      label: "Open student view",
+    };
+  }
+  if (isAdminConsole) {
+    const studentSection = consoleStudentSectionId(capabilities);
+    if (capabilities.readOnly) {
+      return {
+        title: "Monitor assigned records",
+        detail: "Open the scoped student list; mutation controls remain hidden.",
+        section: studentSection || "overview",
+        label: studentSection ? "Open students" : "Open overview",
+      };
+    }
+    if (capabilities.sectionIds.has("adminUsers")) {
+      return {
+        title: "Open People and Access",
+        detail: "Add Staff, Add Student, CSV Import, and assignments live here when the role allows them.",
+        section: "adminUsers",
+        label: "Open access",
+      };
+    }
+    if (capabilities.sectionIds.has("programs")) {
+      return {
+        title: "Open Programs",
+        detail: "Add, remove, or restore programs only inside the selected site scope.",
+        section: "programs",
+        label: "Open programs",
+      };
+    }
+    return {
+      title: "Open scoped students",
+      detail: "Use the visible console sections for records this role can access.",
+      section: studentSection || "overview",
+      label: studentSection ? "Open students" : "Open overview",
+    };
+  }
+  if (primaryRole === "student" || roles.has("student")) {
+    return {
+      title: "Open My Work",
+      detail: "Start with Do this next, then check the current phase goal.",
+      section: "student",
+      label: "Open My Work",
+    };
+  }
+  if (roles.has("program_teacher")) {
+    return {
+      title: "Review submitted work",
+      detail: "Open the Review Queue first when students are waiting on feedback.",
+      section: "teacher",
+      preset: "submitted",
+      label: "Open Review Queue",
+    };
+  }
+  if (roles.has("mentor")) {
+    return {
+      title: "Open assigned students",
+      detail: "Start with assigned-student risks before meetings or presentation prep.",
+      section: "mentorDashboard",
+      label: "Open Mentor Dashboard",
+    };
+  }
+  if (roles.has("viewer")) {
+    return {
+      title: "Open assigned students",
+      detail: "Read scoped student context without changing records.",
+      section: "students",
+      label: "Open students",
+    };
+  }
+  if (hasGlobalAdminRole(roles) || roles.has("site_admin") || roles.has("administration")) {
+    return {
+      title: "Use Admin Console for setup",
+      detail: "Keep user, access, program, and elevated tools out of the regular Workspace.",
+      mode: "admin",
+      label: "Open Admin Console",
+    };
+  }
+  return {
+    title: "Open your role profile",
+    detail: "Use the profile guide to confirm what this account can see and do.",
+    section: "profile",
+    label: "Open profile",
+  };
+}
+
+function roleCommandSafetyText(primaryRole, roles = roleIds(currentUser), isAdminConsole = false, viewingAsStudent = false, capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  if (viewingAsStudent) return "Preview cannot submit, upload, review, assign, import, or change account records.";
+  if (roles.has("viewer")) return "Viewer remains read-only; edit and decision controls stay hidden.";
+  if (primaryRole === "student" || roles.has("student")) return "Students see only their own workspace and never see staff preview or staff management tools.";
+  if (isAdminConsole && hasGlobalAdminRole(roles)) return "Global Admin is local-account-only; audit and security tools stay separated from student work.";
+  if (isAdminConsole && capabilities.readOnly) return "This console is monitoring-only for the records assigned to the account.";
+  if (isAdminConsole) return "Changes stay limited to the visible console section, selected school or program, and current role.";
+  return "Student records, proof, and staff actions stay limited to the signed-in account's authorized records.";
 }
 
 function switchWorkspaceMode(button) {
@@ -1349,6 +1551,7 @@ function renderAdminConsoleOverviewSection(capabilities = adminConsoleCapabiliti
       <div class="workspace-admin-console-metrics">
         ${renderAdminConsoleMetrics(capabilities)}
       </div>
+      ${renderAdminConsoleSafetyStrip(capabilities)}
       <div class="workspace-admin-console-grid">
         ${renderAdminConsoleActionCards(capabilities)}
       </div>
@@ -1380,6 +1583,40 @@ function renderAdminConsoleMetrics(capabilities = adminConsoleCapabilitiesFor(cu
   ].join("");
 }
 
+function renderAdminConsoleSafetyStrip(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  const cards = [
+    {
+      id: "scope",
+      title: capabilities.scope.label,
+      detail: capabilities.scope.detail || "Only records in this role's allowed scope are visible.",
+    },
+    {
+      id: "actions",
+      title: capabilities.readOnly ? "Monitoring only" : "Allowed changes only",
+      detail: capabilities.readOnly
+        ? "Viewer and read-only console access hide edit, decision, assignment, import, and setup controls."
+        : "Add Staff, Add Student, CSV Import, assignments, review decisions, and program changes appear only when this role can use them.",
+    },
+    {
+      id: "elevated",
+      title: hasGlobalAdminRole(roleIds(currentUser)) ? "Global admin separated" : "Elevated tools separated",
+      detail: hasGlobalAdminRole(roleIds(currentUser))
+        ? "Global Admin stays tied to local admin accounts; audit and security tools remain in protected console sections."
+        : "Security, audit, global access, and cross-site actions stay hidden unless the signed-in role explicitly allows them.",
+    },
+  ];
+  return `
+    <section class="workspace-admin-console-safety-strip" data-admin-console-safety-strip="true" aria-label="Admin Console safety summary">
+      ${cards.map((card) => `
+        <article class="workspace-admin-console-safety-card" data-admin-console-safety="${escapeHtml(card.id)}">
+          <span>${escapeHtml(card.title)}</span>
+          <p>${escapeHtml(card.detail)}</p>
+        </article>
+      `).join("")}
+    </section>
+  `;
+}
+
 function renderAdminConsoleActionCards(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
   const cards = [];
   const sectionIds = capabilities.sectionIds;
@@ -1388,8 +1625,8 @@ function renderAdminConsoleActionCards(capabilities = adminConsoleCapabilitiesFo
     cards.push({
       title: "Students",
       detail: capabilities.scope.key === "assigned_students"
-        ? "Monitor assigned students and mentoring signals."
-        : "Search, filter, and open only the student records this role can see.",
+        ? "Monitor assigned students, open authorized detail, and keep mentoring signals read-only when required."
+        : "Search, filter, and open only the student records this role can see. Unauthorized records still fail safely.",
       section: studentSection,
       action: "Open students",
       badge: capabilities.readOnly ? "Read-only" : capabilities.scope.label,
@@ -1410,7 +1647,7 @@ function renderAdminConsoleActionCards(capabilities = adminConsoleCapabilitiesFo
   if (sectionIds.has("adminUsers")) {
     cards.push({
       title: "People & Access",
-      detail: "Manage only the user, assignment, and access actions allowed by the current API scope.",
+      detail: "Use Add Staff, Add Student, CSV Import, and mentor/viewer assignments only inside the current role and site scope.",
       section: "adminUsers",
       action: "Open access",
       badge: capabilities.actions.peopleAccess.writable ? "Writable" : "Read-only",
@@ -1419,7 +1656,7 @@ function renderAdminConsoleActionCards(capabilities = adminConsoleCapabilitiesFo
   if (sectionIds.has("programs")) {
     cards.push({
       title: "Programs",
-      detail: "Use existing site program add, remove, restore, and management workflows.",
+      detail: "Add, remove, restore, and review programs for the selected school without opening cross-site controls.",
       section: "programs",
       action: "Open programs",
       badge: capabilities.actions.programs.writable ? "Writable" : "Scoped",
@@ -18959,9 +19196,14 @@ function renderViewAsStudentBanner() {
     ? "Viewer access stays read-only while previewing the student workspace."
     : "This is a read-only staff preview of the student workspace.";
   return `
-    <section class="workspace-view-as-banner" data-view-as-student-banner="true" aria-label="View as student mode">
-      <div>
+    <section class="workspace-view-as-banner" data-view-as-student-banner="true" data-view-as-student-mode="safe-preview" aria-label="View as student mode">
+      <div class="workspace-view-as-banner-copy">
         <span>Viewing as: ${escapeHtml(viewAsStudentDisplayName())}</span>
+        <div class="workspace-view-as-banner-chips" aria-label="Preview safeguards">
+          <span class="workspace-view-as-chip">Read-only preview</span>
+          <span class="workspace-view-as-chip">Authorized student only</span>
+          <span class="workspace-view-as-chip">No student changes saved here</span>
+        </div>
         <small>${escapeHtml(readOnlyCopy)} Exit returns to ${escapeHtml(source.label)}.</small>
       </div>
       <button class="workspace-button workspace-button-secondary" type="button" data-view-as-student-action="exit">
@@ -18977,16 +19219,19 @@ function renderViewAsStudentAction(studentId, studentName = "", options = {}) {
   const sourceSection = cleanWorkspaceSection(options.sourceSection || activeSection) || "students";
   const label = options.label || "View as Student";
   const name = String(studentName || "").trim().slice(0, 160);
+  const accessibleName = name ? `View ${name} as a read-only student preview` : "View as a read-only student preview";
   return `
     <button
-      class="workspace-link-button workspace-link-button-small"
+      class="workspace-link-button workspace-link-button-small workspace-view-as-action"
       type="button"
       data-view-as-student-action="enter"
       data-view-as-student-id="${escapeHtml(normalizedStudentId)}"
       data-view-as-student-name="${escapeHtml(name)}"
       data-view-as-student-source-section="${escapeHtml(sourceSection)}"
+      aria-label="${escapeHtml(accessibleName)}"
     >
-      ${escapeHtml(label)}
+      <span>${escapeHtml(label)}</span>
+      <small>Read-only preview</small>
     </button>
   `;
 }

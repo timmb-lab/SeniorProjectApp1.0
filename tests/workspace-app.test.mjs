@@ -575,6 +575,10 @@ test("workspace renders simplified working profiles for every role", async () =>
 
 test("workspace separates Admin Console mode by role and URL state", async () => {
   const studentWorkspace = await renderWorkspaceWithFetch(profileRoutesForRole("student"));
+  assert.match(studentWorkspace, /data-role-command-strip="true"/);
+  assert.match(studentWorkspace, /data-role-command-role="student"/);
+  assert.match(studentWorkspace, /Students see only their own workspace/);
+  assert.doesNotMatch(studentWorkspace, /data-role-command-mode="admin"/);
   assert.doesNotMatch(studentWorkspace, /data-workspace-mode-switch="true"/);
   assert.doesNotMatch(studentWorkspace, /Admin Console/);
 
@@ -634,7 +638,12 @@ test("workspace separates Admin Console mode by role and URL state", async () =>
     assert.match(markup, /data-workspace-mode-switch="true"/, `${row.roleId} mode switch`);
     assert.match(markup, /data-workspace-mode-target="workspace"[\s\S]*Workspace/, `${row.roleId} workspace switch`);
     assert.match(markup, /data-workspace-mode-target="admin"[\s\S]*Admin Console/, `${row.roleId} admin switch`);
+    assert.match(markup, /data-role-command-strip="true"[\s\S]*data-role-command-mode="admin"/, `${row.roleId} admin role command strip`);
     assert.match(markup, /data-admin-console-overview="true"/, `${row.roleId} overview`);
+    assert.match(markup, /data-admin-console-safety-strip="true"/, `${row.roleId} safety strip`);
+    assert.match(markup, /data-admin-console-safety="scope"/, `${row.roleId} scope safety`);
+    assert.match(markup, /data-admin-console-safety="actions"/, `${row.roleId} actions safety`);
+    assert.match(markup, /data-admin-console-safety="elevated"/, `${row.roleId} elevated safety`);
     assert.match(markup, new RegExp(escapeRegExp(row.scope)), `${row.roleId} scope`);
     for (const section of row.present) {
       assert.match(markup, new RegExp(`data-admin-console-section="${escapeRegExp(section)}"`), `${row.roleId} should show ${section}`);
@@ -645,6 +654,7 @@ test("workspace separates Admin Console mode by role and URL state", async () =>
     if (row.readOnly) {
       assert.match(markup, /data-admin-console-read-only="true"/);
       assert.match(markup, /Read-only/);
+      assert.match(markup, /Monitoring only/);
       assert.doesNotMatch(markup, /data-admin-action="import-users"|data-mentor-assignment-form="true"|data-site-program-action/);
     }
   }
@@ -3726,6 +3736,7 @@ test("staff roles can enter and exit read-only View as Student from authorized c
       /data-view-as-student-action="enter"[\s\S]*data-view-as-student-id="demo-student-101"[\s\S]*View as Student/,
       `${roleCase.roleId} should see a View as Student action in an authorized staff context`,
     );
+    assert.match(workspaceRoot.innerHTML, /workspace-view-as-action[\s\S]*Read-only preview/);
 
     await enterViewAsStudentFromDataset(context, {
       studentId: "demo-student-101",
@@ -3734,6 +3745,10 @@ test("staff roles can enter and exit read-only View as Student from authorized c
     });
 
     assertStaffPreviewActive(workspaceRoot.innerHTML, roleCase.studentName);
+    assert.match(workspaceRoot.innerHTML, /data-view-as-student-banner="true" data-view-as-student-mode="safe-preview"/);
+    assert.match(workspaceRoot.innerHTML, /Read-only preview[\s\S]*Authorized student only[\s\S]*No student changes saved here/);
+    assert.match(workspaceRoot.innerHTML, /data-role-command-mode="student-preview"/);
+    assert.match(workspaceRoot.innerHTML, /Preview cannot submit, upload, review, assign, import, or change account records/);
     assert.equal(vm.runInContext("activeSection", context), "student");
     assert.ok(fetchLog.includes("/api/student/dashboard?studentId=demo-student-101"));
     assert.ok(fetchLog.includes("/api/student/archive/readiness?studentId=demo-student-101"));
@@ -9991,12 +10006,19 @@ test("workspace renders visible role identity for every logged-in role", async (
     assert.match(markup, /data-active-role-badge="true"/, `${roleId} active role badge`);
     assert.match(markup, new RegExp(`data-role-identity="${escapeRegExp(roleId)}"`), `${roleId} role identity marker`);
     assert.match(markup, new RegExp(`Active role:\\s*${escapeRegExp(label)}|${escapeRegExp(label)}[\\s\\S]*Active role`), `${roleId} visible role text`);
+    assert.match(markup, /data-role-command-strip="true"/, `${roleId} role command strip`);
+    assert.match(markup, new RegExp(`data-role-command-role="${escapeRegExp(roleId)}"`), `${roleId} role command marker`);
+    assert.match(markup, /data-role-command-item="identity"[\s\S]*Signed in as/, `${roleId} signed-in context`);
+    assert.match(markup, /data-role-command-item="next"[\s\S]*Do next/, `${roleId} next action context`);
+    assert.match(markup, /data-role-command-item="safety"[\s\S]*Safety/, `${roleId} safety context`);
   }
 
   for (const roleId of ["student", "viewer", "mentor", "program_teacher", "administration", "site_admin", "global_admin"]) {
     assert.match(workspaceCss, new RegExp(`data-primary-role="${escapeRegExp(roleId)}"[\\s\\S]*--role-accent`), `${roleId} role accent CSS`);
   }
+  assert.match(workspaceCss, /\.workspace-role-command-strip/);
   assert.match(workspaceCss, /@media \(max-width: 900px\)[\s\S]*\.workspace-active-role-badge/, "role badge must have mobile handling");
+  assert.match(workspaceCss, /@media \(max-width: 900px\)[\s\S]*\.workspace-role-command-strip/, "role command strip must have mobile handling");
 });
 
 test("People management screens stay limited to Global Admin, Site Admin, and Administration", async () => {
