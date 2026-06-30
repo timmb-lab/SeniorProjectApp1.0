@@ -3,8 +3,8 @@
   "verdict": "GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF",
   "baseUrl": "https://senior-capstone-app.pages.dev",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-06-30T16:13:08.407Z",
-  "completedAt": "2026-06-30T16:14:26.935Z",
+  "startedAt": "2026-06-30T18:12:47.475Z",
+  "completedAt": "2026-06-30T18:14:08.245Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
@@ -66,8 +66,8 @@
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "Your Senior Project",
-      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace Student ACTIVE ROLE Test Student Maya maya.student@senior-capstone.test Refresh Sign out YOUR ACCESS Student Your project workspace Student / Your project workspace Overview Daily priorities and access Profile Plain-language role guide My Work Next step, phase goals, proof, and feedback Presentation Schedule, outline, and day-of status Final Files May 5 downloads Account Password and sessions NEXT STEP Open Start: Setup and finish Senior Project Workspace. Add the requested proof before sending it for review. Workspace ready. STUDENT H",
+      "heading": "Student workspace",
+      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace Student ACTIVE ROLE Test Student Maya maya.student@senior-capstone.test Refresh Sign out YOUR ACCESS Student Your project workspace Student / Your project workspace Overview Daily priorities and access Profile Plain-language role guide My Work Next step, phase goals, proof, and feedback Presentation Schedule, outline, and day-of status Final Files May 5 downloads Account Password and sessions NEXT STEP Open Start: Setup and finish Senior Project Workspace. Add the requested proof before sending it for review. Workspace ready. ROLE CONT",
       "activeNav": [
         "My Work\n                My Work\n                Next step, phase goals, proof, and feedback"
       ]
@@ -95,7 +95,7 @@
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "Capstone Workspace",
+      "heading": "Program Teacher workspace",
       "textSample": "Skip to workspace Close menu SC Capstone Project Workspace Workspace Admin Console FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Program Teacher ACTIVE ROLE Test Teacher Chen chen.teacher@senior-capstone.test Refresh Sign out YOUR ACCESS Program Teacher Assigned program: IT Program Teacher / Assigned program: IT Overview Daily priorities and access Profile Plain-language role guide Program Dashboard Your students and review needs Students Search and filter capstone progress Review Queue Program Teacher review and submitted work Operations Presentation, ",
       "activeNav": [
         "Workspace",
@@ -125,8 +125,8 @@
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "Capstone Workspace",
-      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace Workspace Admin Console Mentor ACTIVE ROLE Test Mentor Rivera rivera.mentor@senior-capstone.test Refresh Sign out YOUR ACCESS Mentor Assigned students Mentor / Assigned students Overview Daily priorities and access Profile Plain-language role guide Mentor Dashboard Assigned student risks Assigned Students Assigned students and proof counts Presentation Schedule, outline, and day-of status Account Password and sessions NEXT STEP Check assigned students before mentor meetings and presentation preparation. Workspace ready. Capstone Worksp",
+      "heading": "Mentor workspace",
+      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace Workspace Admin Console Mentor ACTIVE ROLE Test Mentor Rivera rivera.mentor@senior-capstone.test Refresh Sign out YOUR ACCESS Mentor Assigned students Mentor / Assigned students Overview Daily priorities and access Profile Plain-language role guide Mentor Dashboard Assigned student risks Assigned Students Assigned students and proof counts Presentation Schedule, outline, and day-of status Account Password and sessions NEXT STEP Check assigned students before mentor meetings and presentation preparation. Workspace ready. ROLE CONTEXT Me",
       "activeNav": [
         "Workspace",
         "Mentor\n                Mentor Dashboard\n                Assigned student risks"
@@ -155,8 +155,8 @@
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "Capstone Workspace",
-      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace Workspace Admin Console FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Viewer ACTIVE ROLE Test Viewer Sam sam.viewer@senior-capstone.test Refresh Sign out YOUR ACCESS Viewer Assigned students Viewer / Assigned students Overview Daily priorities and access Profile Plain-language role guide Students Search and filter capstone progress Account Password and sessions NEXT STEP Review assigned students in read-only mode. Workspace ready. Capstone Workspace Viewer / Test High School Student progress Pri",
+      "heading": "Viewer workspace",
+      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace Workspace Admin Console FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Viewer ACTIVE ROLE Test Viewer Sam sam.viewer@senior-capstone.test Refresh Sign out YOUR ACCESS Viewer Assigned students Viewer / Assigned students Overview Daily priorities and access Profile Plain-language role guide Students Search and filter capstone progress Account Password and sessions NEXT STEP Review assigned students in read-only mode. Workspace ready. ROLE CONTEXT Viewer workspace Viewer Workspace shows assigned stu",
       "activeNav": [
         "Workspace",
         "Students\n                Students\n                Search and filter capstone progress"
@@ -185,7 +185,7 @@
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "Admin Console",
+      "heading": "Site Admin admin console",
       "textSample": "Skip to workspace Close menu SC Capstone Project Workspace Workspace Admin Console FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Current site Test High School Only one site Site Admin ACTIVE ROLE Test Site Admin Parker parker.siteadmin@senior-capstone.test Refresh Sign out CONSOLE ACCESS Site Admin Assigned site only. Site Admin / Assigned school: Test High School Site Overview Console scope, counts, and next admin actions Site Overview Site-wide student and program health Students Site-scoped student directory Review / Evidence Submitted work and proof",
       "activeNav": [
         "Admin Console",
@@ -215,7 +215,7 @@
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "Admin Console",
+      "heading": "Global Admin admin console",
       "textSample": "Skip to workspace Close menu SC Capstone Project Workspace Workspace Admin Console FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Global Admin ACTIVE ROLE Test Admin Lee lee.admin@senior-capstone.test Refresh Sign out CONSOLE ACCESS Global Admin All schools where the current APIs allow access. Global Admin / Entire platform Global Overview Console scope, counts, and next admin actions Global Overview Cross-site command center Site Overview Current-site health Students Cross-site student directory when allowed Review / Evidence Submitted work and proof st",
       "activeNav": [
         "Admin Console",
@@ -245,8 +245,8 @@
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "Capstone Workspace",
-      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace Reporting Admin ACTIVE ROLE Test Reporting Admin reporting.miscadmin@senior-capstone.test Refresh Sign out YOUR ACCESS Legacy Reporting Admin Legacy readiness reporting Legacy Reporting Admin / Legacy readiness reporting Overview Daily priorities and access Profile Plain-language role guide Readiness Aggregate project readiness Account Password and sessions NEXT STEP Review aggregate readiness without opening individual student records. Workspace ready. Capstone Workspace Legacy Reporting Admin / Legacy readiness reporting Student prog",
+      "heading": "Reporting Admin workspace",
+      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace Reporting Admin ACTIVE ROLE Test Reporting Admin reporting.miscadmin@senior-capstone.test Refresh Sign out YOUR ACCESS Legacy Reporting Admin Legacy readiness reporting Legacy Reporting Admin / Legacy readiness reporting Overview Daily priorities and access Profile Plain-language role guide Readiness Aggregate project readiness Account Password and sessions NEXT STEP Review aggregate readiness without opening individual student records. Workspace ready. ROLE CONTEXT Reporting Admin workspace Workspace keeps the first staff move clear w",
       "activeNav": [
         "Ready\n                Readiness\n                Aggregate project readiness"
       ]
@@ -274,8 +274,8 @@
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "Your Senior Project",
-      "textSample": "Skip to workspace Open menu SC Capstone Project Workspace Student ACTIVE ROLE Test Student Maya maya.student@senior-capstone.test Refresh Sign out Workspace ready. STUDENT HOME Your Senior Project See what is done, what is missing, and what to do next. GETTING STARTED 0% OVERALL COMPLETE 0 of 17 work items are done. CAPSTONE PATH Where you are See the whole Senior Project path: done, now, needs work, and later. START Now 2 TO FINISH Project folder is ready and your Program Teacher can find it. PHASE 1 Later 4 TO FINISH Wait until this phase is the next approved step. PHASE 2A Later 1 TO FINISH",
+      "heading": "Student workspace",
+      "textSample": "Skip to workspace Open menu SC Capstone Project Workspace Student ACTIVE ROLE Test Student Maya maya.student@senior-capstone.test Refresh Sign out Workspace ready. ROLE CONTEXT Student workspace Student Workspace shows your own next step, phase goal, proof, feedback, presentation, and final files. SIGNED IN AS Test Student Maya maya.student@senior-capstone.test ROLE AND MODE Student / Workspace Your project workspace DO NEXT Open My Work Start with Do this next, then check the current phase goal. Open My Work SAFETY Role-scoped actions Students see only their own workspace and never see staff ",
       "activeNav": [
         "My Work\n                My Work\n                Next step, phase goals, proof, and feedback"
       ]

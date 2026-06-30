@@ -30,6 +30,7 @@
     "check:workspace:hosted-evidence": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 check:workspace:hosted-evidence",
     "check:workspace:hosted-dashboard": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 check:workspace:hosted-dashboard",
     "check:workspace:hosted-permissions": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 check:workspace:hosted-permissions",
+    "check:pilot-readiness": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/check-real-student-pilot-readiness.mjs",
     "ensure:owner-admin:local": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/ensure-owner-admin-account.mjs --local",
     "ensure:owner-admin:remote": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/ensure-owner-admin-account.mjs --remote",
     "reset:accounts:local:dry-run": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/reset-accounts-and-create-local-admins.mjs --local --dry-run",

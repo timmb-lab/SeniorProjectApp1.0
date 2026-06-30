@@ -158,6 +158,7 @@ function Invoke-KnownProjectScript {
             Invoke-Node "scripts\check-cloudflare.mjs"
             Invoke-Node "scripts\check-custom-domain-cutover.mjs"
             Invoke-Node "scripts\check-alpha-account-gating.mjs"
+            Invoke-Node "scripts\check-real-student-pilot-readiness.mjs"
 
             $testFiles = @(Get-ChildItem -LiteralPath (Join-Path $RepoRoot "tests") -Filter "*.test.mjs" -File | ForEach-Object { $_.FullName })
             if ($testFiles.Count -eq 0) {
@@ -308,6 +309,11 @@ function Invoke-KnownProjectScript {
         "check:workspace:hosted-dashboard" {
             $script:KnownProjectScriptHandled = $true
             Invoke-Node "scripts\check-hosted-workspace-permissions.mjs" @ScriptArgs
+            return
+        }
+        "check:pilot-readiness" {
+            $script:KnownProjectScriptHandled = $true
+            Invoke-Node "scripts\check-real-student-pilot-readiness.mjs" @ScriptArgs
             return
         }
         "prove:pilot:local" {
