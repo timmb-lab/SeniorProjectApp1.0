@@ -153,7 +153,8 @@ test("technical proof and hosted plan map screens to routes and blockers", () =>
   assert.match(hosted, /HOSTED_FAKE_ACCOUNT_PILOT_GREEN/);
   assert.match(hosted, /GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF/);
   assert.match(hosted, /SCREENSHOTS_GENERATED_SAFE/);
-  assert.match(hosted, /No additional remote migrations/);
+  assert.match(hosted, /0016_student_roster_profiles\.sql/);
+  assert.match(hosted, /studentRosterProfilesReady=true/);
   assert.match(hosted, /No remote seed\/reset writes/);
 });
 

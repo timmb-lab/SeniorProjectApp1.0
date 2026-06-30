@@ -374,6 +374,7 @@ Search by these prefixes in the Students section or use them in worklist filters
 
 - Legacy synthetic hosted sales-demo API proof currently reports missing remote demo seed data.
 - Hosted fake-account browser/persona/screenshot proof is green for fake-account click-around only.
+- Migration `0016_student_roster_profiles.sql` must be applied before using student create/import roster profile fields in any environment.
 - `student_archive_manifest_download` remains skipped/not ready.
 - Archive retry/export mutation UI is deferred.
 - Presentation scheduling/check-in/check-out mutation UI is not part of Operations.
@@ -384,16 +385,18 @@ Search by these prefixes in the Students section or use them in worklist filters
 
 ## Before Live Hosted Demo Checklist
 
-1. Apply remote migration `0011_multisite_site_role_foundation.sql` in a dedicated approved phase.
-2. Run read-only remote schema proof.
-3. Re-run remote seed dry-run only if a future seed refresh is explicitly approved.
-4. Do not run another remote seed write without a new approval gate.
-5. Run hosted smoke proof using fake `.test` credentials only.
-6. Use the hosted screenshot index or capture replacement screenshots only if the credential path is safe and date/environment labels are preserved.
-7. Run final no-secret scan.
-8. Confirm Bryan/admin account still works.
-9. Confirm OAuth/domain settings are unchanged.
-10. Confirm no remote writes occurred outside the approved gate.
+1. Confirm remote migration `0011_multisite_site_role_foundation.sql` remains applied.
+2. Apply remote migration `0016_student_roster_profiles.sql` through `npm run db:migrate:remote` before demoing student create/import roster fields.
+3. Verify `/api/health` reports `studentRosterProfilesReady=true` after the deployment containing that health field is live.
+4. Run read-only remote schema proof.
+5. Re-run remote seed dry-run only if a future seed refresh is explicitly approved.
+6. Do not run another remote seed write without a new approval gate.
+7. Run hosted smoke proof using fake `.test` credentials only.
+8. Use the hosted screenshot index or capture replacement screenshots only if the credential path is safe and date/environment labels are preserved.
+9. Run final no-secret scan.
+10. Confirm Bryan/admin account still works.
+11. Confirm OAuth/domain settings are unchanged.
+12. Confirm no remote writes occurred outside the approved gate.
 
 ## Sales Demo Do / Do Not
 

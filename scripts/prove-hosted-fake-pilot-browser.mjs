@@ -14,6 +14,7 @@ const SCREENSHOT_DIR = process.env.HOSTED_BROWSER_SCREENSHOT_DIR || path.join('d
 const MANIFEST_PATH =
   process.env.HOSTED_BROWSER_MANIFEST_PATH ||
   path.join('docs', 'progress', 'runs', '2026-06-29-hosted-fake-pilot-browser-proof.json');
+const MISSING_0016_STATUS = 'HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0016';
 
 const EDGE_CANDIDATES = [
   process.env.EDGE_PATH,
@@ -177,6 +178,32 @@ async function fetchJson(url, options = {}) {
   const response = await fetch(url, options);
   if (!response.ok) throw new Error(`HTTP ${response.status} from ${url}`);
   return response.json();
+}
+
+async function verifyHostedMigrationReadiness(result) {
+  const health = await fetchJson(`${BASE_URL}/api/health`);
+  const reportsRosterProfileReadiness = Object.hasOwn(health, 'studentRosterProfilesReady');
+  result.health = {
+    databaseReady: health.databaseReady === true,
+    studentRosterProfilesReady: reportsRosterProfileReadiness
+      ? health.studentRosterProfilesReady === true
+      : 'not_reported_by_deployed_health',
+    authMode: health.authMode || null,
+    evidenceStorageProvider: health.evidenceStorageProvider || null
+  };
+  if (reportsRosterProfileReadiness && health.studentRosterProfilesReady !== true) {
+    result.failures.push({
+      id: 'migration-0016',
+      role: 'system',
+      status: MISSING_0016_STATUS,
+      checks: {
+        healthEndpointReachable: true,
+        databaseReady: health.databaseReady === true,
+        studentRosterProfilesReady: false
+      }
+    });
+    throw new Error(`${MISSING_0016_STATUS}: apply migrations/0016_student_roster_profiles.sql to the hosted D1 database before running hosted browser proof.`);
+  }
 }
 
 async function waitForDevtools(port, timeoutMs = 10_000) {
@@ -435,11 +462,13 @@ async function run() {
     screenshotDir: SCREENSHOT_DIR.replaceAll('\\', '/'),
     manifestPath: MANIFEST_PATH.replaceAll('\\', '/'),
     realStudentProductionStatus: 'NOT_CLAIMED_READY',
+    health: null,
     screenshots: [],
     failures: []
   };
 
   try {
+    await verifyHostedMigrationReadiness(result);
     const version = await waitForDevtools(port);
     result.browser.devtoolsProtocol = version['Protocol-Version'] || null;
     const webSocketUrl = await getPageWebSocketUrl(port);

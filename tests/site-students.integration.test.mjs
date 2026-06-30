@@ -25,6 +25,9 @@ const MIGRATIONS = [
   "migrations/0015_remove_org_admin_role.sql",
   "migrations/0016_student_roster_profiles.sql",
 ];
+const MIGRATIONS_WITHOUT_0016 = MIGRATIONS.filter(
+  (migration) => !migration.includes("0016_student_roster_profiles.sql"),
+);
 
 const PRIMARY_SITE_ID = "site-desert-valley-high";
 const CANYON_SITE_ID = "site-canyon-ridge-career";
@@ -193,6 +196,19 @@ test("site student directory is site-scoped, paginated, filterable, role-gated, 
   assert.doesNotMatch(JSON.stringify(audits), /Revision Loop Demo|NoSuchDemoStudentForDirectory/);
 });
 
+test("site student directory renders legacy students safely before roster profile migration", async () => {
+  const { env, token } = await createLegacyRosterFixture();
+
+  const directory = await expectDirectory(env, token, "?siteId=site-legacy-roster");
+
+  assert.equal(directory.pagination.total, 1);
+  assert.equal(directory.students.length, 1);
+  assert.equal(directory.students[0].studentId, "legacy-roster-student");
+  assert.equal(directory.students[0].cohort, "");
+  assert.equal(directory.students[0].graduationYear, "");
+  assert.equal(directory.emptyState, null);
+});
+
 async function createSeededDemoFixture() {
   const db = createSqliteD1({ migrations: MIGRATIONS });
   const env = {
@@ -256,6 +272,43 @@ async function createSeededDemoFixture() {
   };
 
   return { db, env, tokens };
+}
+
+async function createLegacyRosterFixture() {
+  const db = createSqliteD1({ migrations: MIGRATIONS_WITHOUT_0016 });
+  const env = {
+    DB: db,
+    SESSION_COOKIE_NAME: "sc_session",
+    SESSION_PEPPER: "",
+    AUTH_MODE: "hardened_username_password",
+  };
+
+  await db.prepare(
+    `INSERT INTO tenants (id, name, slug, status, subscription_status, storage_mode)
+     VALUES ('tenant-legacy-roster', 'Legacy Roster District', 'legacy-roster', 'active', 'trial', 'app_managed_google_drive')`,
+  ).run();
+  await db.prepare(
+    `INSERT INTO sites (id, tenant_id, name, slug, school_year, status)
+     VALUES ('site-legacy-roster', 'tenant-legacy-roster', 'Legacy Roster High', 'legacy-roster-high', '2026-2027', 'active')`,
+  ).run();
+  await seedUser(db, {
+    id: "legacy-roster-admin",
+    displayName: "Legacy Roster Admin",
+    roleId: "global_admin",
+  });
+  await seedUser(db, {
+    id: "legacy-roster-student",
+    displayName: "Legacy Roster Student",
+    email: "legacy.roster.student@senior-capstone.test",
+    roleId: "student",
+  });
+  await db.prepare(
+    `INSERT INTO site_users (site_id, user_id, membership_status)
+     VALUES ('site-legacy-roster', 'legacy-roster-student', 'active')`,
+  ).run();
+
+  const token = await seedSession(db, env, "legacy-roster-admin", "legacy-roster-admin-token");
+  return { db, env, token };
 }
 
 async function expectDirectory(env, token, query) {

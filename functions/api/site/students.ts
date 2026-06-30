@@ -20,6 +20,7 @@ import {
   getViewerRoleContext,
 } from "../../_lib/permissions.ts";
 import { getViewerAssignedStudentIds } from "../../_lib/effective-access.ts";
+import { studentRosterProfilesTableExists } from "../../_lib/student-roster-profiles.ts";
 
 const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 100;
@@ -175,7 +176,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
 
   const scopedStudentIds = teacherScope ? teacherScope.studentIds : viewerAssignedStudentIds;
   const readOnly = isReadOnlyViewer(context.roleIds);
-  const scopeSql = buildDirectoryScopeSql(site.id, scopedStudentIds);
+  const rosterProfilesReady = await studentRosterProfilesTableExists(env);
+  const scopeSql = buildDirectoryScopeSql(site.id, scopedStudentIds, { rosterProfilesReady });
   const filterWhere = buildFilterWhere(filters);
   const total = await countDirectory(env, scopeSql, emptyFilterWhere());
   const filteredTotal = await countDirectory(env, scopeSql, filterWhere);
@@ -296,7 +298,11 @@ async function loadPermissions(env: Env, user: UserAccount, siteId: string, read
   };
 }
 
-function buildDirectoryScopeSql(siteId: string, scopedStudentIds: string[] | null) {
+function buildDirectoryScopeSql(
+  siteId: string,
+  scopedStudentIds: string[] | null,
+  options: { rosterProfilesReady: boolean },
+) {
   const studentScopeClause = scopedStudentIds
     ? scopedStudentIds.length
       ? `AND student.id IN (${scopedStudentIds.map(() => "?").join(", ")})`
@@ -373,18 +379,18 @@ function buildDirectoryScopeSql(siteId: string, scopedStudentIds: string[] | nul
             ORDER BY cohorts.label ASC
             LIMIT 1
           ) AS cohort_name,
-          (
+          ${options.rosterProfilesReady ? `(
             SELECT student_roster_profiles.cohort
             FROM student_roster_profiles
             WHERE student_roster_profiles.student_user_id = scoped_students.student_id
             LIMIT 1
-          ) AS roster_cohort,
-          (
+          )` : "''"} AS roster_cohort,
+          ${options.rosterProfilesReady ? `(
             SELECT student_roster_profiles.graduation_year
             FROM student_roster_profiles
             WHERE student_roster_profiles.student_user_id = scoped_students.student_id
             LIMIT 1
-          ) AS graduation_year,
+          )` : "''"} AS graduation_year,
           (
             SELECT mentor_assignments.mentor_user_id
             FROM mentor_assignments

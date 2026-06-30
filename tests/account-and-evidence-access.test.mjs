@@ -231,6 +231,8 @@ test("health route reports readiness without exposing sensitive operational deta
   assert.match(envTypes, /GOOGLE_DRIVE_PRIVATE_KEY/);
   assert.match(healthRoute, /SELECT 1 AS ready/);
   assert.match(healthRoute, /databaseReady/);
+  assert.match(healthRoute, /studentRosterProfilesTableExists/);
+  assert.match(healthRoute, /studentRosterProfilesReady/);
   assert.match(healthRoute, /googleDriveCredentialsConfigured/);
   assert.match(healthRoute, /isConfiguredSecret/);
   assert.doesNotMatch(healthRoute, /GOOGLE_DRIVE_PRIVATE_KEY\s*[,}]/);

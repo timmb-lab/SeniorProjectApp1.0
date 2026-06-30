@@ -7,6 +7,7 @@ import {
   loadEffectiveAccess,
 } from "../../../_lib/effective-access.ts";
 import { badRequest, json, readJson, requirePost } from "../../../_lib/http.ts";
+import { studentRosterProfilesTableExists } from "../../../_lib/student-roster-profiles.ts";
 import { cleanWorkflowText, workflowError } from "../../../_lib/workflow.ts";
 
 type RoleScopeType = "global" | "site" | "program" | "cohort";
@@ -386,6 +387,13 @@ async function validateUser(
   }
 
   if (roleId === "student") {
+    if (!await studentRosterProfilesTableExists(env)) {
+      return reject(
+        503,
+        "student_roster_profiles_migration_required",
+        "Student roster profile storage is not available yet. Apply migration 0016_student_roster_profiles.sql before creating or importing students.",
+      );
+    }
     if (!user.siteIds.length) return reject(400, "student_requires_site_assignment", "Choose at least one site for this student.");
     if (!await canActorCreateRole(env, caller, roleId, user.siteIds)) {
       return reject(403, "student_site_assignment_forbidden", "You can only create students inside sites you manage.");

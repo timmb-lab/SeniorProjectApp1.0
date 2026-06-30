@@ -14,6 +14,8 @@ Screenshot hygiene: `SCREENSHOTS_GENERATED_SAFE`
 
 No-secret confirmation: the browser proof script checks for visible password values and secret-like rendered text, and the generated screenshots were spot-checked for visible passwords, `.secrets` content, Cloudflare tokens, OAuth secrets, raw D1 tables, raw Drive IDs/storage IDs, and credential files. None were observed. Fake `.test` persona identifiers may be visible.
 
+Migration readiness: the browser proof records a redacted `/api/health` summary. After this closure pass deploys, hosted health should report `studentRosterProfilesReady=true`; `studentRosterProfilesReady=false` blocks hosted browser proof as `HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0016`.
+
 ## Screenshots
 
 | File | Persona | Screen | Proof status | Notes |

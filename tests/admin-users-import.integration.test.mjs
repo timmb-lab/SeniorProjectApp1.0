@@ -409,6 +409,39 @@ test("admin users import persists student roster profile fields and creates scop
   assert.equal(fixture.db.data.siteUsers.some((row) => row.site_id === "site-a" && row.user_id === "viewer-scope" && row.membership_status === "active"), true);
 });
 
+test("admin users import blocks student creation until roster profile migration is applied", async () => {
+  const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+  fixture.db.data.studentRosterProfilesTableExists = false;
+
+  const response = await onRequestPost({
+    request: buildJsonRequest(
+      "https://example.test/api/admin/users/import",
+      {
+        reason: "Create demo-ready student with roster profile.",
+        users: [
+          studentInput({
+            email: "student.needs-migration@senior-capstone.test",
+            displayName: "Student Needs Migration",
+            cohort: "Class of 2026",
+            graduationYear: "2026",
+          }),
+        ],
+      },
+      { cookie: `sc_session=${fixture.token}` },
+    ),
+    env: fixture.env,
+    params: {},
+  });
+
+  assert.equal(response.status, 503);
+  const body = await response.json();
+  assert.equal(body.ok, false);
+  assert.equal(body.error, "student_roster_profiles_migration_required");
+  assert.match(body.message, /0016_student_roster_profiles\.sql/);
+  assert.equal(fixture.db.data.userAccounts.some((row) => row.email_norm === "student.needs-migration@senior-capstone.test"), false);
+  assert.equal(fixture.db.data.studentRosterProfiles.length, 0);
+});
+
 test("admin users import blocks unsafe student mentor/viewer assignment targets", async () => {
   {
     const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
@@ -801,6 +834,7 @@ function createFixture(options = {}) {
     mentorAssignments: [],
     viewerStudentAssignments: [],
     studentRosterProfiles: [],
+    studentRosterProfilesTableExists: true,
     authIdentities: [],
     cohorts: [{ id: "cohort-a" }],
     auditEvents: [],
@@ -888,6 +922,10 @@ class MockPreparedStatement {
   }
 
   async first() {
+    if (this.sql.startsWith("select name from sqlite_master where type = 'table' and name = 'student_roster_profiles'")) {
+      return this.data.studentRosterProfilesTableExists ? { name: "student_roster_profiles" } : null;
+    }
+
     if (this.sql.startsWith("select 1 from password_credentials where user_id = ? limit 1")) {
       const [userId] = this.params.map(String);
       return this.data.passwordCredentials.some((row) => row.user_id === userId) ? { ok: 1 } : null;

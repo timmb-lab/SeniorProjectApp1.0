@@ -23,6 +23,14 @@ test("hosted fake pilot browser manifest records green role coverage", () => {
   assert.equal(manifest.verdict, "GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF");
   assert.equal(manifest.realStudentProductionStatus, "NOT_CLAIMED_READY");
   assert.deepEqual(manifest.failures, []);
+  if (manifest.health) {
+    assert.equal(manifest.health.databaseReady, true);
+    assert.equal(
+      manifest.health.studentRosterProfilesReady === true
+        || manifest.health.studentRosterProfilesReady === "not_reported_by_deployed_health",
+      true,
+    );
+  }
 
   const roles = manifest.screenshots.map((screenshot) => screenshot.role);
   assert.deepEqual(roles, [
@@ -115,6 +123,8 @@ test("hosted browser proof docs and script avoid credential leaks and unsafe wri
   assert.doesNotMatch(combined, /\bFERPA\s+certified\b/i);
 
   const browserScript = read("scripts/prove-hosted-fake-pilot-browser.mjs");
+  assert.match(browserScript, /HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0016/);
+  assert.match(browserScript, /studentRosterProfilesReady/);
   assert.doesNotMatch(browserScript, /seed:demo:remote|reset:accounts:remote|db:migrate:remote|deploy:preview|deploy:public-site/);
   assert.doesNotMatch(browserScript, /password_hash\s*=|UPDATE\s+password_credentials|INSERT\s+INTO\s+password_credentials/i);
 });

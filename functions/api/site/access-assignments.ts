@@ -12,6 +12,7 @@ import {
   resolveSiteSelection,
   type SiteScopeContext,
 } from "../../_lib/site-scope.ts";
+import { studentRosterProfilesTableExists } from "../../_lib/student-roster-profiles.ts";
 
 type AssignmentType =
   | "mentor_student"
@@ -266,13 +267,14 @@ async function siteContext(env: Env, user: UserAccount): Promise<SiteScopeContex
 
 async function loadSiteUsersByRole(env: Env, siteId: string, roleId: RoleId) {
   if (roleId === "student") {
+    const rosterProfilesReady = await studentRosterProfilesTableExists(env);
     const rows = await env.DB.prepare(
       `SELECT DISTINCT
          user_accounts.id,
          user_accounts.display_name,
          user_accounts.email,
-         COALESCE(student_roster_profiles.cohort, '') AS cohort,
-         COALESCE(student_roster_profiles.graduation_year, '') AS graduation_year,
+         ${rosterProfilesReady ? "COALESCE(student_roster_profiles.cohort, '')" : "''"} AS cohort,
+         ${rosterProfilesReady ? "COALESCE(student_roster_profiles.graduation_year, '')" : "''"} AS graduation_year,
          (
            SELECT mentor_assignments.mentor_user_id
            FROM mentor_assignments
@@ -312,7 +314,7 @@ async function loadSiteUsersByRole(env: Env, siteId: string, roleId: RoleId) {
         AND user_accounts.status IN ('active', 'pending_reset')
        JOIN user_roles ON user_roles.user_id = user_accounts.id
         AND user_roles.role_id = 'student'
-       LEFT JOIN student_roster_profiles ON student_roster_profiles.student_user_id = user_accounts.id
+       ${rosterProfilesReady ? "LEFT JOIN student_roster_profiles ON student_roster_profiles.student_user_id = user_accounts.id" : ""}
        WHERE site_users.site_id = ?
         AND site_users.membership_status = 'active'
        ORDER BY user_accounts.display_name ASC

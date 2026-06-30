@@ -3,8 +3,8 @@
   "verdict": "GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF",
   "baseUrl": "https://senior-capstone-app.pages.dev",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-06-30T13:01:35.821Z",
-  "completedAt": "2026-06-30T13:02:44.756Z",
+  "startedAt": "2026-06-30T13:50:35.847Z",
+  "completedAt": "2026-06-30T13:51:42.276Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
@@ -12,6 +12,12 @@
   "screenshotDir": "docs/sales/screenshots/2026-06-29",
   "manifestPath": "docs/progress/runs/2026-06-29-hosted-fake-pilot-browser-proof.json",
   "realStudentProductionStatus": "NOT_CLAIMED_READY",
+  "health": {
+    "databaseReady": true,
+    "studentRosterProfilesReady": "not_reported_by_deployed_health",
+    "authMode": "hardened_username_password",
+    "evidenceStorageProvider": "google_drive"
+  },
   "screenshots": [
     {
       "id": "01-signed-out-home",
@@ -150,7 +156,7 @@
         "secretPatternMatches": []
       },
       "heading": "Capstone Workspace",
-      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace Workspace Admin Console FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Viewer ACTIVE ROLE Test Viewer Sam sam.viewer@senior-capstone.test Refresh Sign out YOUR ACCESS Viewer Assigned students Viewer / Assigned students Overview Daily priorities and access Profile Plain-language role guide Students Search and filter capstone progress Account Password and sessions NEXT STEP Review assigned students in read-only mode. Workspace ready. Capstone Workspace Viewer / Test High School Student progress Pri",
+      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace Workspace Admin Console FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Viewer ACTIVE ROLE Test Viewer Sam sam.viewer@senior-capstone.test Refresh Sign out YOUR ACCESS Viewer Assigned students Viewer / Assigned students Overview Daily priorities and access Profile Plain-language role guide Students Search and filter capstone progress Account Password and sessions NEXT STEP Review assigned students in read-only mode. Workspace ready. Capstone Workspace Viewer / Assigned students Student progress Pr",
       "activeNav": [
         "Workspace",
         "Students\n                Students\n                Search and filter capstone progress"

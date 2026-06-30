@@ -28,6 +28,9 @@ const MIGRATIONS = [
   "migrations/0015_remove_org_admin_role.sql",
   "migrations/0016_student_roster_profiles.sql",
 ];
+const MIGRATIONS_WITHOUT_0016 = MIGRATIONS.filter(
+  (migration) => !migration.includes("0016_student_roster_profiles.sql"),
+);
 
 const PRIMARY_SITE_ID = "site-desert-valley-high";
 const CANYON_SITE_ID = "site-canyon-ridge-career";
@@ -125,6 +128,18 @@ test("site access assignments route returns scoped recent access history without
   );
 });
 
+test("site access assignments renders student options safely before roster profile migration", async () => {
+  const { env, token } = await createLegacyRosterFixture();
+
+  const body = await expectAccessAssignments(env, token, "?siteId=site-legacy-roster");
+
+  assert.equal(body.users.students.length, 1);
+  assert.equal(body.users.students[0].userId, "legacy-roster-student");
+  assert.equal(body.users.students[0].cohort, "");
+  assert.equal(body.users.students[0].graduationYear, "");
+  assert.equal(body.permissions.canAssignMentors, true);
+});
+
 async function createSeededDemoFixture() {
   const db = createSqliteD1({ migrations: MIGRATIONS });
   const env = {
@@ -167,6 +182,44 @@ async function createSeededDemoFixture() {
   };
 
   return { db, env, tokens };
+}
+
+async function createLegacyRosterFixture() {
+  const db = createSqliteD1({ migrations: MIGRATIONS_WITHOUT_0016 });
+  const env = {
+    DB: db,
+    SESSION_COOKIE_NAME: "sc_session",
+    SESSION_PEPPER: "",
+    AUTH_MODE: "hardened_username_password",
+  };
+
+  await db.prepare(
+    `INSERT INTO tenants (id, name, slug, status, subscription_status, storage_mode)
+     VALUES ('tenant-legacy-roster', 'Legacy Roster District', 'legacy-roster', 'active', 'trial', 'app_managed_google_drive')`,
+  ).run();
+  await db.prepare(
+    `INSERT INTO sites (id, tenant_id, name, slug, school_year, status)
+     VALUES ('site-legacy-roster', 'tenant-legacy-roster', 'Legacy Roster High', 'legacy-roster-high', '2026-2027', 'active')`,
+  ).run();
+  await db.prepare(
+    `INSERT INTO user_accounts (id, email, email_norm, display_name, status)
+     VALUES
+       ('legacy-roster-admin', 'legacy.roster.admin@senior-capstone.test', 'legacy.roster.admin@senior-capstone.test', 'Legacy Roster Admin', 'active'),
+       ('legacy-roster-student', 'legacy.roster.student@senior-capstone.test', 'legacy.roster.student@senior-capstone.test', 'Legacy Roster Student', 'active')`,
+  ).run();
+  await db.prepare(
+    `INSERT INTO user_roles (user_id, role_id, scope_type, scope_id)
+     VALUES
+       ('legacy-roster-admin', 'global_admin', 'global', ''),
+       ('legacy-roster-student', 'student', 'global', '')`,
+  ).run();
+  await db.prepare(
+    `INSERT INTO site_users (site_id, user_id, membership_status)
+     VALUES ('site-legacy-roster', 'legacy-roster-student', 'active')`,
+  ).run();
+
+  const token = await seedSession(db, env, "legacy-roster-admin", "legacy-roster-admin-token");
+  return { db, env, token };
 }
 
 async function seedAccessHistoryAuditRows(db) {

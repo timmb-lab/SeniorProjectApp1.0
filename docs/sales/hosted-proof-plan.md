@@ -42,6 +42,12 @@ The schema blocker status before Phase 13B was:
 HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011
 ```
 
+The roster profile schema blocker introduced for the 2026-06-30 closure pass is:
+
+```text
+HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0016
+```
+
 ## Remaining Hosted Limits
 
 The local MVP depends on multisite tables, roles, and fake Desert Valley demo rows. Remote D1 has the migration 0011 schema foundation, but the legacy synthetic sales-demo seed is not currently present according to `npm run prove:sales-demo:hosted`. The 2026-06-29 browser pass captured hosted screenshots through the approved fake `.test` account path.
@@ -106,7 +112,13 @@ Completed in Phase 13B:
 4. Proved `sites`, `site_users`, `site_programs`, the four new roles, sandbox site, sandbox site-program mappings, and zero foreign-key violations.
 5. Did not seed remote data.
 
-No additional remote migrations were run in Phase 13C. Phase 13B ran only migration 0011. No further remote migration should run before a new dedicated gate.
+Phase 13B ran only migration 0011. The 2026-06-30 demo-readiness closure requires migration `0016_student_roster_profiles.sql` before demoing student create/import roster profile fields. Apply it through the normal migration command, then verify hosted `/api/health` reports `studentRosterProfilesReady=true`.
+
+```powershell
+npm run db:migrate:remote
+```
+
+Do not run remote seed/reset, deploy, domain, OAuth, or credential commands as part of the migration step.
 
 ## Remote Seed 5B Gate
 
