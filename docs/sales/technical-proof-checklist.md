@@ -11,6 +11,7 @@ npm run prove:sales-demo:local
 npm run test
 npm run typecheck
 npm run check
+npm run check:pilot-readiness
 npm run check:production-surfaces
 ```
 
@@ -25,6 +26,31 @@ Expected pass conditions:
 - Viewer read-only proof passes.
 - Program teacher scoping proof passes.
 - Redaction checks pass for Drive IDs, storage IDs, token/password/setup fields, and unsafe audit metadata.
+
+## Real-Student Pilot Preflight
+
+The real-student pilot packet starts at `docs/sales/real-student-pilot-readiness-gap-analysis.md` and `docs/sales/real-student-pilot-proof-plan.md`.
+
+Run:
+
+```powershell
+npm run check:pilot-readiness
+```
+
+Expected status today:
+
+- Script integrity can pass.
+- Hosted fake-account click-around demo proof can remain green.
+- Real-student pilot remains **NO-GO** while required manual evidence is missing.
+
+Required missing/manual evidence categories include:
+
+- Role-scoped pilot account proof.
+- Backup/restore rehearsal evidence.
+- Real-roster validation evidence.
+- Privacy/support/retention approval.
+- SSO or approved managed-local credential delivery approval.
+- Archive/download proof only if archive is included in pilot scope.
 
 ## Route / Screen Matrix
 

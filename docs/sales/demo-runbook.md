@@ -385,6 +385,7 @@ Search by these prefixes in the Students section or use them in worklist filters
 - Real onboarding policy, SSO policy, legal/security review, data ownership, retention, and district approval are needed before real data.
 - FERPA/legal/security certification is not claimed.
 - Tenant-owned Drive storage/data export policy is future work unless separately proven.
+- Real-student pilot gap closure lives in `docs/sales/real-student-pilot-readiness-gap-analysis.md`; the proof-plan checklist lives in `docs/sales/real-student-pilot-proof-plan.md`; run `npm run check:pilot-readiness` to confirm fake demo proof stays separate from the current real-pilot NO-GO.
 
 ## Before Live Hosted Demo Checklist
 
@@ -443,7 +444,7 @@ Do not:
 | Remote D1 migration 0011 | Complete | Migration was applied and remains proven. | No further migration without a dedicated gate. |
 | Remote D1 migration 0016 | Complete for current hosted proof | Hosted health reports `studentRosterProfilesReady=true`. | No-go for Add Student / CSV roster fields if health flips false. |
 | Remote seed 5B | Not current remotely | `npm run prove:sales-demo:hosted` reports `LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING` when the deprecated seed is absent. | No reseed without a new approved gate. |
-| District pilot | No-go | Needs legal/security review, data policy, SSO, onboarding, support, retention, and data ownership approval. | Pilot readiness plan. |
+| District pilot | No-go | Needs legal/security review, data policy, SSO, onboarding, support, retention, data ownership approval, roster validation, backup/restore rehearsal, and role-scoped pilot-account proof. | `docs/sales/real-student-pilot-readiness-gap-analysis.md`; `npm run check:pilot-readiness`. |
 | Real student data pilot | No-go | No real student data approval. | Legal/security/data governance approval. |
 | FERPA/legal review | Required | Not claimed as complete. | District/legal review. |
 | Tenant-owned Drive storage | Future/planned | Current demo uses redacted metadata and example links. | Storage ownership decision and proof. |

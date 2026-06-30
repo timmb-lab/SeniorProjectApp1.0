@@ -1,13 +1,24 @@
+#!/usr/bin/env node
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 const repoRoot = path.resolve(".");
 
+const STATUS = Object.freeze({
+  PASS: "PASS",
+  BLOCKED: "BLOCKED",
+  NON_BLOCKING_DEMO_ONLY: "NON_BLOCKING_DEMO_ONLY",
+  FUTURE_PILOT_ITEM: "FUTURE_PILOT_ITEM",
+  MANUAL_PROOF_REQUIRED: "MANUAL_PROOF_REQUIRED",
+});
+
 const paths = {
   doc: "docs/sales/real-student-pilot-readiness-gap-analysis.md",
+  proofPlan: "docs/sales/real-student-pilot-proof-plan.md",
   hostedPlan: "docs/sales/hosted-proof-plan.md",
   operatorScript: "docs/sales/demo-day-operator-script.md",
   screenshotIndex: "docs/sales/hosted-browser-proof-screenshot-index.md",
+  technicalProof: "docs/sales/technical-proof-checklist.md",
   hostedManifest: "docs/progress/runs/2026-06-29-hosted-fake-pilot-browser-proof.json",
   hostedPermissions: "scripts/check-hosted-workspace-permissions.mjs",
   hostedBrowserProof: "scripts/prove-hosted-fake-pilot-browser.mjs",
@@ -16,15 +27,72 @@ const paths = {
   importRoute: "functions/api/admin/users/import.ts",
   importTests: "tests/admin-users-import.integration.test.mjs",
   workspaceTests: "tests/workspace-app.test.mjs",
+  permissionMatrix: "scripts/verify-permission-role-matrix.mjs",
+  mutationOrigin: "scripts/verify-mutation-origin-coverage.mjs",
   packageJson: "package.json",
   runner: "scripts/run-npm-script.ps1",
 };
 
+const expectedEvidence = [
+  {
+    id: "role_scoped_pilot_account_proof",
+    statusWhenMissing: STATUS.MANUAL_PROOF_REQUIRED,
+    requiredForPilot: true,
+    path: "docs/progress/runs/real-student-pilot-role-scope-proof.json",
+    message: "Role-scoped pilot-account proof has not been captured with approved pilot-shaped accounts.",
+    proof: "Manual hosted/API proof after approved pilot accounts exist; then save the redacted manifest at this path.",
+  },
+  {
+    id: "backup_restore_rehearsal_evidence",
+    statusWhenMissing: STATUS.MANUAL_PROOF_REQUIRED,
+    requiredForPilot: true,
+    path: "docs/progress/runs/real-student-pilot-backup-restore-rehearsal-evidence.json",
+    message: "Backup/restore rehearsal evidence is missing. Do not infer D1 restore readiness from migrations or fake demo proof.",
+    proof: "Manual D1 export/restore rehearsal against non-real data with rollback owner and restore-success evidence.",
+  },
+  {
+    id: "real_roster_validation_evidence",
+    statusWhenMissing: STATUS.MANUAL_PROOF_REQUIRED,
+    requiredForPilot: true,
+    path: "docs/progress/runs/real-student-pilot-roster-validation-evidence.json",
+    message: "Real-roster validation evidence is missing. Only fake/synthetic row rehearsals are allowed until approval.",
+    proof: "Manual roster-owner signoff plus sanitized dry-run/preview evidence before any real import.",
+  },
+  {
+    id: "privacy_support_retention_approval",
+    statusWhenMissing: STATUS.MANUAL_PROOF_REQUIRED,
+    requiredForPilot: true,
+    path: "docs/progress/runs/real-student-pilot-privacy-support-retention-approval.json",
+    message: "Privacy, support, retention, and data ownership approval evidence is missing.",
+    proof: "School/district approval packet; do not store student data until approved.",
+  },
+  {
+    id: "sso_or_managed_local_credential_delivery",
+    statusWhenMissing: STATUS.MANUAL_PROOF_REQUIRED,
+    requiredForPilot: true,
+    path: "docs/progress/runs/real-student-pilot-credential-delivery-approval.json",
+    message: "SSO or approved managed-local credential delivery evidence is missing.",
+    proof: "Approved live-domain SSO proof or managed-local credential delivery approval; Global Admin remains local-account-only.",
+  },
+  {
+    id: "archive_manifest_download_acceptance",
+    statusWhenMissing: STATUS.FUTURE_PILOT_ITEM,
+    requiredForPilot: false,
+    path: "docs/progress/runs/real-student-pilot-archive-download-evidence.json",
+    message: "Archive manifest download remains future/pilot-scope-dependent unless the first pilot includes archive handoff.",
+    proof: "`student_archive_manifest_download` must pass hosted dashboard proof before archive download is claimed.",
+  },
+];
+
 const requiredMatrixRows = [
   "Hosted app availability",
+  "Local/demo readiness",
+  "Hosted fake-account demo readiness",
+  "Real-student pilot decision",
+  "Full production readiness",
   "Database health",
   "Migration health, including 0016",
-  "Google SSO",
+  "Google SSO or approved managed-local credential delivery",
   "Local Global Admin account model",
   "Test/fake accounts",
   "Real staff account onboarding",
@@ -44,22 +112,24 @@ const requiredMatrixRows = [
   "Student dashboard",
   "Student detail",
   "Program management",
-  "Audit/logging, if present",
+  "Audit/logging",
   "Error handling",
   "Data export/archive/download",
-  "Backups/rollback",
+  "Backup/restore rehearsal",
+  "Real roster validation",
   "Privacy/data separation",
   "Tenant/school separation",
   "Hosted proof screenshots",
-  "No-go checks",
   "Known skipped items, including `student_archive_manifest_download`",
   "Legacy synthetic hosted sales-demo seed",
-  "Real production pilot acceptance criteria",
 ];
 
 const requiredDocPhrases = [
   "NO-GO for real-student production pilot readiness",
   "Hosted fake-account click-around demo readiness is green",
+  "Local/demo readiness",
+  "Real-student pilot readiness",
+  "Full production readiness",
   "HOSTED_FAKE_ACCOUNT_PILOT_GREEN",
   "GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF",
   "NOT_CLAIMED_READY",
@@ -72,14 +142,40 @@ const requiredDocPhrases = [
   "student_roster_profiles_migration_required",
   "credential_delivery_policy_required",
   "viewer_student_forbidden",
-  "Global Admin",
-  "local",
-  "View as Student",
-  "read-only",
-  "Backup/restore",
-  "privacy",
-  "support",
-  "SSO",
+  "SSO or approved managed-local credential delivery",
+  "privacy, support, retention, and data ownership",
+  "real roster validation",
+  "backup/restore rehearsal",
+  "role-scoped pilot-account proof",
+  "fake `.test` proof limitations",
+];
+
+const requiredProofPlanPhrases = [
+  "Role-Scoped Pilot Account Proof Plan",
+  "Student cannot access admin/staff surfaces",
+  "Mentor cannot access unassigned students",
+  "Program Teacher cannot cross program/site scope",
+  "Viewer cannot mutate",
+  "SSO cannot create or use Global Admin",
+  "View as Student cannot mutate",
+  "Global Admin local account",
+  "Backup/Restore Rehearsal Checklist",
+  "D1 export",
+  "restore rehearsal",
+  "non-real data",
+  "Real-Roster Validation Checklist",
+  "approved source of truth",
+  "required fields",
+  "cohort",
+  "graduation year",
+  "program/site mapping",
+  "mentor/viewer assignment",
+  "duplicate handling",
+  "deactivation/archive handling",
+  "fake/synthetic rows only",
+  "Archive/Download Acceptance Criteria",
+  "no raw Drive IDs",
+  "audit/logging",
 ];
 
 const requiredSourcePhrases = {
@@ -104,6 +200,11 @@ const requiredSourcePhrases = {
     "HOSTED_FAKE_ACCOUNTS_USED_FOR_BROWSER_PROOF",
     "student_archive_manifest_download",
     "Future pilot item",
+  ],
+  [paths.technicalProof]: [
+    "check:pilot-readiness",
+    "real-student-pilot-proof-plan.md",
+    "Backup/restore rehearsal evidence",
   ],
   [paths.hostedPermissions]: [
     'name: "student_archive_manifest_download"',
@@ -142,6 +243,19 @@ const requiredSourcePhrases = {
     "Viewer",
     "read-only",
   ],
+  [paths.permissionMatrix]: [
+    "Program Teacher",
+    "Mentor",
+    "Viewer",
+    "global-admin only",
+    "assigned-student-only",
+  ],
+  [paths.mutationOrigin]: [
+    "requirePost",
+    "requireDelete",
+    "hasAllowedMutationOrigin",
+    "cross_origin_post_denied",
+  ],
   [paths.runner]: [
     '"check:pilot-readiness"',
     "scripts\\check-real-student-pilot-readiness.mjs",
@@ -166,44 +280,59 @@ const forbiddenExecutionApis = [
   /\bXMLHttpRequest\b/,
 ];
 
-const failures = [];
+const integrityFailures = [];
 const warnings = [];
+const checks = [];
+
+function absolute(relativePath) {
+  return path.join(repoRoot, relativePath);
+}
 
 function read(relativePath) {
-  const absolutePath = path.join(repoRoot, relativePath);
-  if (!existsSync(absolutePath)) {
-    failures.push(`Missing required file: ${relativePath}`);
+  const filePath = absolute(relativePath);
+  if (!existsSync(filePath)) {
+    integrityFailures.push(`Missing required file: ${relativePath}`);
     return "";
   }
-
-  return readFileSync(absolutePath, "utf8").replace(/^\uFEFF/, "");
+  return readFileSync(filePath, "utf8").replace(/^\uFEFF/, "");
 }
 
 function readJson(relativePath) {
   try {
     return JSON.parse(read(relativePath));
   } catch (error) {
-    failures.push(`Could not parse ${relativePath}: ${error.message}`);
+    integrityFailures.push(`Could not parse ${relativePath}: ${error.message}`);
     return {};
   }
 }
 
+function check(condition, message) {
+  if (!condition) integrityFailures.push(message);
+}
+
 function requireIncludes(label, content, phrase) {
-  if (!content.includes(phrase)) {
-    failures.push(`${label} is missing required phrase: ${phrase}`);
-  }
+  check(content.includes(phrase), `${label} is missing required phrase: ${phrase}`);
 }
 
 function requireMatch(label, content, pattern, description) {
-  if (!pattern.test(content)) {
-    failures.push(`${label} is missing required pattern: ${description}`);
-  }
+  check(pattern.test(content), `${label} is missing required pattern: ${description}`);
 }
 
 function forbidMatch(label, content, pattern, description) {
-  if (pattern.test(content)) {
-    failures.push(`${label} contains forbidden pattern: ${description}`);
-  }
+  check(!pattern.test(content), `${label} contains forbidden pattern: ${description}`);
+}
+
+function recordCheck(input) {
+  checks.push({
+    id: input.id,
+    area: input.area,
+    status: input.status,
+    requiredForRealStudentPilot: input.requiredForRealStudentPilot === true,
+    evidence: input.evidence,
+    proofCommandOrManualProofNeeded: input.proofCommandOrManualProofNeeded,
+    ownerOrDependency: input.ownerOrDependency || "TBD",
+    message: input.message,
+  });
 }
 
 const contents = Object.fromEntries(
@@ -211,10 +340,12 @@ const contents = Object.fromEntries(
 );
 
 const doc = contents.doc;
+const proofPlan = contents.proofPlan;
+
 requireIncludes(
   paths.doc,
   doc,
-  "| Capability | Current status | Evidence | Demo-only/fake-only dependency? | Real-student pilot risk | Required before pilot? | Recommended next action | Validation command/proof |",
+  "| Area | Current state | Evidence | Real-student blocker? | Acceptance criteria | Proof command or manual proof needed | Owner/dependency if known |",
 );
 for (const row of requiredMatrixRows) {
   requireIncludes(paths.doc, doc, `| ${row} |`);
@@ -225,11 +356,19 @@ for (const phrase of requiredDocPhrases) {
 for (let item = 1; item <= 15; item += 1) {
   requireMatch(paths.doc, doc, new RegExp(`^${item}\\. `, "m"), `acceptance criterion ${item}`);
 }
+requireMatch(paths.doc, doc, /^## Readiness Tiers$/m, "Readiness Tiers section");
 requireMatch(paths.doc, doc, /^## Pilot No-Go Checks$/m, "Pilot No-Go Checks section");
-requireMatch(paths.doc, doc, /^## Low-Risk Improvements Added With This Pass$/m, "Low-Risk Improvements section");
+
+for (const phrase of requiredProofPlanPhrases) {
+  requireIncludes(paths.proofPlan, proofPlan, phrase);
+}
+for (const item of expectedEvidence) {
+  requireIncludes(paths.proofPlan, proofPlan, item.path);
+}
 
 for (const pattern of forbiddenClaimPatterns) {
   forbidMatch(paths.doc, doc, pattern, pattern.toString());
+  forbidMatch(paths.proofPlan, proofPlan, pattern, pattern.toString());
 }
 
 for (const [relativePath, phrases] of Object.entries(requiredSourcePhrases)) {
@@ -240,32 +379,19 @@ for (const [relativePath, phrases] of Object.entries(requiredSourcePhrases)) {
 }
 
 const manifest = readJson(paths.hostedManifest);
-if (manifest.proof !== "hosted_fake_pilot_browser") {
-  failures.push(`${paths.hostedManifest} proof should be hosted_fake_pilot_browser`);
-}
-if (manifest.verdict !== "GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF") {
-  failures.push(`${paths.hostedManifest} verdict should remain GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF`);
-}
-if (manifest.realStudentProductionStatus !== "NOT_CLAIMED_READY") {
-  failures.push(`${paths.hostedManifest} realStudentProductionStatus should remain NOT_CLAIMED_READY`);
-}
-if (manifest.health?.databaseReady !== true) {
-  failures.push(`${paths.hostedManifest} should record databaseReady=true`);
-}
-if (manifest.health?.studentRosterProfilesReady !== true) {
-  failures.push(`${paths.hostedManifest} should record studentRosterProfilesReady=true`);
-}
-if (!Array.isArray(manifest.screenshots) || manifest.screenshots.length < 8) {
-  failures.push(`${paths.hostedManifest} should include hosted screenshot coverage`);
-}
+check(manifest.proof === "hosted_fake_pilot_browser", `${paths.hostedManifest} proof should be hosted_fake_pilot_browser`);
+check(manifest.verdict === "GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF", `${paths.hostedManifest} verdict should remain GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF`);
+check(manifest.realStudentProductionStatus === "NOT_CLAIMED_READY", `${paths.hostedManifest} realStudentProductionStatus should remain NOT_CLAIMED_READY`);
+check(manifest.health?.databaseReady === true, `${paths.hostedManifest} should record databaseReady=true`);
+check(manifest.health?.studentRosterProfilesReady === true, `${paths.hostedManifest} should record studentRosterProfilesReady=true`);
+check(Array.isArray(manifest.screenshots) && manifest.screenshots.length >= 8, `${paths.hostedManifest} should include hosted screenshot coverage`);
 
 const packageJson = readJson(paths.packageJson);
-if (
+check(
   packageJson.scripts?.["check:pilot-readiness"]
-    !== "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/check-real-student-pilot-readiness.mjs"
-) {
-  failures.push(`${paths.packageJson} is missing the check:pilot-readiness alias`);
-}
+    === "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/check-real-student-pilot-readiness.mjs",
+  `${paths.packageJson} is missing the check:pilot-readiness alias`,
+);
 
 const thisScript = read("scripts/check-real-student-pilot-readiness.mjs");
 for (const pattern of forbiddenExecutionApis) {
@@ -274,6 +400,7 @@ for (const pattern of forbiddenExecutionApis) {
 
 const combinedClaims = [
   doc,
+  proofPlan,
   contents.hostedPlan,
   contents.operatorScript,
   contents.screenshotIndex,
@@ -284,29 +411,148 @@ for (const pattern of forbiddenClaimPatterns) {
 }
 
 if (!doc.includes("NO-GO") && !doc.includes("No-go")) {
-  failures.push(`${paths.doc} must keep an explicit no-go decision`);
+  integrityFailures.push(`${paths.doc} must keep an explicit no-go decision`);
 }
-
 if (!doc.includes("fake `.test`") && !doc.includes("fake .test")) {
   warnings.push("Pilot readiness doc should keep fake .test account language visible.");
 }
 
+recordCheck({
+  id: "hosted_fake_account_browser_proof",
+  area: "Hosted fake-account demo readiness",
+  status: STATUS.NON_BLOCKING_DEMO_ONLY,
+  requiredForRealStudentPilot: false,
+  evidence: paths.hostedManifest,
+  proofCommandOrManualProofNeeded: "npm run prove:hosted-fake-pilot-browser",
+  ownerOrDependency: "Demo operator",
+  message: "Fake `.test` hosted browser proof is green for click-around demo only; it does not satisfy real-student pilot approval.",
+});
+
+recordCheck({
+  id: "pilot_gap_matrix_static_integrity",
+  area: "Readiness documentation",
+  status: integrityFailures.length ? STATUS.BLOCKED : STATUS.PASS,
+  requiredForRealStudentPilot: true,
+  evidence: paths.doc,
+  proofCommandOrManualProofNeeded: "npm run check:pilot-readiness",
+  ownerOrDependency: "Technical owner",
+  message: integrityFailures.length
+    ? "Readiness documentation or source guardrail checks failed."
+    : "Readiness tiers, matrix, caveats, no-go checks, and source cross-links are present.",
+});
+
+recordCheck({
+  id: "role_scope_guardrails_source",
+  area: "Role-scoped source guardrails",
+  status: STATUS.PASS,
+  requiredForRealStudentPilot: true,
+  evidence: `${paths.importRoute}; ${paths.workspaceTests}; ${paths.permissionMatrix}; ${paths.mutationOrigin}`,
+  proofCommandOrManualProofNeeded: "npm test; npm run verify:permission-matrix; npm run verify:mutation-origin",
+  ownerOrDependency: "Technical owner",
+  message: "Source/test surfaces still include role, mutation-origin, View as Student, Viewer, and import assignment guardrails.",
+});
+
+recordCheck({
+  id: "migration_0016_health_signal",
+  area: "Migration 0016 health treatment",
+  status: STATUS.PASS,
+  requiredForRealStudentPilot: true,
+  evidence: `${paths.migration0016}; ${paths.healthRoute}; ${paths.hostedBrowserProof}`,
+  proofCommandOrManualProofNeeded: "/api/health; npm run prove:hosted-fake-pilot-browser",
+  ownerOrDependency: "Technical owner",
+  message: "Migration 0016 is treated as an already-applied health signal, not as a live-demo migration step.",
+});
+
+recordCheck({
+  id: "legacy_synthetic_seed_status",
+  area: "Legacy synthetic hosted seed",
+  status: STATUS.NON_BLOCKING_DEMO_ONLY,
+  requiredForRealStudentPilot: false,
+  evidence: `${paths.hostedPlan}; ${paths.operatorScript}`,
+  proofCommandOrManualProofNeeded: "npm run prove:sales-demo:hosted only if a technical reviewer asks about the legacy gate",
+  ownerOrDependency: "Demo operator",
+  message: "Legacy synthetic hosted sales-demo seed absence remains non-blocking for the canonical fake-account hosted demo.",
+});
+
+recordCheck({
+  id: "student_archive_manifest_download",
+  area: "Archive/download",
+  status: STATUS.FUTURE_PILOT_ITEM,
+  requiredForRealStudentPilot: false,
+  evidence: `${paths.hostedPermissions}; ${paths.hostedPlan}`,
+  proofCommandOrManualProofNeeded: "npm run check:workspace:hosted-dashboard; archive scope signoff if included in pilot",
+  ownerOrDependency: "Technical owner plus privacy/retention owner",
+  message: "`student_archive_manifest_download` remains skipped/not-ready unless hosted dashboard proof marks it passed and archive is in pilot scope.",
+});
+
+for (const item of expectedEvidence) {
+  const present = existsSync(absolute(item.path));
+  recordCheck({
+    id: item.id,
+    area: item.id.replaceAll("_", " "),
+    status: present ? STATUS.PASS : item.statusWhenMissing,
+    requiredForRealStudentPilot: item.requiredForPilot,
+    evidence: item.path,
+    proofCommandOrManualProofNeeded: item.proof,
+    ownerOrDependency: "Pilot owner / school dependency",
+    message: present ? "Evidence manifest exists; inspect contents before using it for pilot approval." : item.message,
+  });
+}
+
+const requiredManualItems = checks.filter(
+  (item) => item.requiredForRealStudentPilot && item.status === STATUS.MANUAL_PROOF_REQUIRED,
+);
+
+recordCheck({
+  id: "real_student_pilot_final_decision",
+  area: "Real-student pilot final decision",
+  status: requiredManualItems.length || integrityFailures.length ? STATUS.BLOCKED : STATUS.PASS,
+  requiredForRealStudentPilot: true,
+  evidence: `${paths.doc}; ${paths.proofPlan}`,
+  proofCommandOrManualProofNeeded: "All required manual proof manifests plus full validation stack",
+  ownerOrDependency: "Pilot owner; technical owner; privacy/support owner; school roster owner",
+  message: requiredManualItems.length || integrityFailures.length
+    ? "Real-student pilot remains NO-GO. Fake-account demo proof is green, but required pilot evidence is missing or blocked."
+    : "All required static and manual evidence is present; human approval still must inspect the proof packet before changing any claim.",
+});
+
+const statusCounts = Object.values(STATUS).reduce((counts, status) => {
+  counts[status] = checks.filter((item) => item.status === status).length;
+  return counts;
+}, {});
+
 const summary = {
-  status: failures.length ? "FAIL" : "PILOT_READINESS_PREFLIGHT_PASS",
-  realStudentPilotDecision: "NO_GO_NOT_CLAIMED",
-  hostedFakeAccountProof: manifest.verdict ?? "missing",
-  realStudentProductionStatus: manifest.realStudentProductionStatus ?? "missing",
-  matrixRowsChecked: requiredMatrixRows.length,
-  archiveManifestDownload: "student_archive_manifest_download",
+  scriptStatus: integrityFailures.length ? "FAIL" : "PASS",
+  finalDecision: {
+    status: checks.find((item) => item.id === "real_student_pilot_final_decision")?.status || STATUS.BLOCKED,
+    decision: requiredManualItems.length || integrityFailures.length
+      ? "NO_GO_REAL_STUDENT_PILOT"
+      : "STATIC_PREFLIGHT_COMPLETE_REQUIRES_HUMAN_APPROVAL",
+    hostedFakeAccountDemo: manifest.verdict ?? "missing",
+    realStudentProductionStatus: manifest.realStudentProductionStatus ?? "missing",
+    fakeAccountProofLimit: "Hosted fake-account click-around demo readiness is green only for fake `.test` accounts and fake data.",
+  },
+  statusCounts,
+  missingRequiredManualProofIds: requiredManualItems.map((item) => item.id),
+  expectedEvidenceManifests: expectedEvidence.map((item) => ({
+    id: item.id,
+    path: item.path,
+    present: existsSync(absolute(item.path)),
+    statusWhenMissing: item.statusWhenMissing,
+    requiredForRealStudentPilot: item.requiredForPilot,
+  })),
   nonMutating: true,
+  checkedAt: new Date().toISOString(),
+  checks,
   warnings,
-  failures,
+  integrityFailures,
 };
 
-if (failures.length > 0) {
+if (integrityFailures.length > 0) {
+  console.error("PILOT_READINESS_PREFLIGHT_FAILED");
   console.error(JSON.stringify(summary, null, 2));
   process.exit(1);
 }
 
-console.log("PILOT_READINESS_PREFLIGHT_PASS");
+console.log("PILOT_READINESS_PREFLIGHT_COMPLETE_NO_GO");
 console.log(JSON.stringify(summary, null, 2));

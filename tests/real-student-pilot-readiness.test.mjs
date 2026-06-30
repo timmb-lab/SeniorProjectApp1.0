@@ -4,6 +4,7 @@ import { spawnSync } from "node:child_process";
 import test from "node:test";
 
 const docPath = "docs/sales/real-student-pilot-readiness-gap-analysis.md";
+const proofPlanPath = "docs/sales/real-student-pilot-proof-plan.md";
 const preflightPath = "scripts/check-real-student-pilot-readiness.mjs";
 const manifestPath = "docs/progress/runs/2026-06-29-hosted-fake-pilot-browser-proof.json";
 
@@ -15,12 +16,23 @@ function escapeRegex(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-test("real-student pilot readiness matrix exists and preserves the no-go boundary", () => {
+function parseSummary(stdout) {
+  const markerIndex = stdout.indexOf("{");
+  assert.notEqual(markerIndex, -1, stdout);
+  return JSON.parse(stdout.slice(markerIndex));
+}
+
+test("real-student pilot readiness matrix preserves no-go and exact proof categories", () => {
   assert.equal(existsSync(docPath), true);
+  assert.equal(existsSync(proofPlanPath), true);
   const doc = read(docPath);
+  const proofPlan = read(proofPlanPath);
 
   assert.match(doc, /NO-GO for real-student production pilot readiness/);
   assert.match(doc, /Hosted fake-account click-around demo readiness is green/);
+  assert.match(doc, /Local\/demo readiness/);
+  assert.match(doc, /Real-student pilot readiness/);
+  assert.match(doc, /Full production readiness/);
   assert.match(doc, /GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF/);
   assert.match(doc, /HOSTED_FAKE_ACCOUNT_PILOT_GREEN/);
   assert.match(doc, /NOT_CLAIMED_READY/);
@@ -32,20 +44,27 @@ test("real-student pilot readiness matrix exists and preserves the no-go boundar
   assert.match(doc, /student_roster_profiles_migration_required/);
   assert.match(doc, /credential_delivery_policy_required/);
   assert.match(doc, /viewer_student_forbidden/);
-  assert.match(doc, /View as Student/);
-  assert.match(doc, /Viewer remains read-only|Viewer read-only/i);
-  assert.match(doc, /Backup\/restore/);
+  assert.match(doc, /SSO or approved managed-local credential delivery/);
+  assert.match(doc, /privacy, support, retention, and data ownership/);
+  assert.match(doc, /real roster validation/);
+  assert.match(doc, /backup\/restore rehearsal/);
+  assert.match(doc, /role-scoped pilot-account proof/);
+  assert.match(doc, /fake `\.test` proof limitations/);
 
   assert.match(
     doc,
-    /\| Capability \| Current status \| Evidence \| Demo-only\/fake-only dependency\? \| Real-student pilot risk \| Required before pilot\? \| Recommended next action \| Validation command\/proof \|/,
+    /\| Area \| Current state \| Evidence \| Real-student blocker\? \| Acceptance criteria \| Proof command or manual proof needed \| Owner\/dependency if known \|/,
   );
 
   for (const row of [
     "Hosted app availability",
+    "Local/demo readiness",
+    "Hosted fake-account demo readiness",
+    "Real-student pilot decision",
+    "Full production readiness",
     "Database health",
     "Migration health, including 0016",
-    "Google SSO",
+    "Google SSO or approved managed-local credential delivery",
     "Local Global Admin account model",
     "Test/fake accounts",
     "Real staff account onboarding",
@@ -65,17 +84,16 @@ test("real-student pilot readiness matrix exists and preserves the no-go boundar
     "Student dashboard",
     "Student detail",
     "Program management",
-    "Audit/logging, if present",
+    "Audit/logging",
     "Error handling",
     "Data export/archive/download",
-    "Backups/rollback",
+    "Backup/restore rehearsal",
+    "Real roster validation",
     "Privacy/data separation",
     "Tenant/school separation",
     "Hosted proof screenshots",
-    "No-go checks",
     "Known skipped items, including `student_archive_manifest_download`",
     "Legacy synthetic hosted sales-demo seed",
-    "Real production pilot acceptance criteria",
   ]) {
     assert.match(doc, new RegExp(`\\| ${escapeRegex(row)} \\|`));
   }
@@ -84,13 +102,43 @@ test("real-student pilot readiness matrix exists and preserves the no-go boundar
     assert.match(doc, new RegExp(`^${item}\\. `, "m"), `acceptance criterion ${item}`);
   }
 
+  for (const phrase of [
+    "Role-Scoped Pilot Account Proof Plan",
+    "Student cannot access admin/staff surfaces",
+    "Mentor cannot access unassigned students",
+    "Program Teacher cannot cross program/site scope",
+    "Viewer cannot mutate",
+    "SSO cannot create or use Global Admin",
+    "View as Student cannot mutate",
+    "Global Admin local account",
+    "Backup/Restore Rehearsal Checklist",
+    "D1 export",
+    "restore rehearsal",
+    "non-real data",
+    "Real-Roster Validation Checklist",
+    "approved source of truth",
+    "required fields",
+    "cohort",
+    "graduation year",
+    "program/site mapping",
+    "mentor/viewer assignment",
+    "duplicate handling",
+    "deactivation/archive handling",
+    "fake/synthetic rows only",
+    "Archive/Download Acceptance Criteria",
+    "no raw Drive IDs",
+    "audit/logging",
+  ]) {
+    assert.match(proofPlan, new RegExp(escapeRegex(phrase)));
+  }
+
   assert.doesNotMatch(doc, /\bproduction\s+pilot\s+ready\b/i);
   assert.doesNotMatch(doc, /\breal\s+student\s+data\s+ready\b/i);
   assert.doesNotMatch(doc, /fake-account[^.\n]{0,160}(means|equals|proves)[^.\n]{0,160}real-student production/i);
   assert.doesNotMatch(doc, /real-student production pilot readiness (is )?(complete|ready|approved)/i);
 });
 
-test("pilot readiness preflight is exposed, non-mutating, and passes", () => {
+test("pilot readiness preflight is exposed, non-mutating, and reports all status categories", () => {
   assert.equal(existsSync(preflightPath), true);
   const pkg = JSON.parse(read("package.json"));
   assert.equal(
@@ -115,14 +163,61 @@ test("pilot readiness preflight is exposed, non-mutating, and passes", () => {
     assert.doesNotMatch(preflight, forbidden);
   }
 
+  for (const status of [
+    "PASS",
+    "BLOCKED",
+    "NON_BLOCKING_DEMO_ONLY",
+    "FUTURE_PILOT_ITEM",
+    "MANUAL_PROOF_REQUIRED",
+  ]) {
+    assert.match(preflight, new RegExp(escapeRegex(status)));
+  }
+
   const result = spawnSync(process.execPath, [preflightPath], {
     cwd: process.cwd(),
     encoding: "utf8",
   });
   assert.equal(result.status, 0, result.stderr || result.stdout);
-  assert.match(result.stdout, /PILOT_READINESS_PREFLIGHT_PASS/);
-  assert.match(result.stdout, /NO_GO_NOT_CLAIMED/);
-  assert.match(result.stdout, /student_archive_manifest_download/);
+  assert.match(result.stdout, /PILOT_READINESS_PREFLIGHT_COMPLETE_NO_GO/);
+  const summary = parseSummary(result.stdout);
+
+  assert.equal(summary.scriptStatus, "PASS");
+  assert.equal(summary.finalDecision.status, "BLOCKED");
+  assert.equal(summary.finalDecision.decision, "NO_GO_REAL_STUDENT_PILOT");
+  assert.equal(summary.finalDecision.hostedFakeAccountDemo, "GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF");
+  assert.equal(summary.finalDecision.realStudentProductionStatus, "NOT_CLAIMED_READY");
+  assert.equal(summary.nonMutating, true);
+  assert.equal(summary.statusCounts.PASS > 0, true);
+  assert.equal(summary.statusCounts.BLOCKED > 0, true);
+  assert.equal(summary.statusCounts.NON_BLOCKING_DEMO_ONLY > 0, true);
+  assert.equal(summary.statusCounts.FUTURE_PILOT_ITEM > 0, true);
+  assert.equal(summary.statusCounts.MANUAL_PROOF_REQUIRED > 0, true);
+  assert.deepEqual(
+    summary.missingRequiredManualProofIds,
+    [
+      "role_scoped_pilot_account_proof",
+      "backup_restore_rehearsal_evidence",
+      "real_roster_validation_evidence",
+      "privacy_support_retention_approval",
+      "sso_or_managed_local_credential_delivery",
+    ],
+  );
+  assert.equal(
+    summary.expectedEvidenceManifests.some((item) =>
+      item.id === "backup_restore_rehearsal_evidence"
+        && item.present === false
+        && item.statusWhenMissing === "MANUAL_PROOF_REQUIRED"
+    ),
+    true,
+  );
+  assert.equal(
+    summary.checks.some((item) =>
+      item.id === "student_archive_manifest_download"
+        && item.status === "FUTURE_PILOT_ITEM"
+        && item.requiredForRealStudentPilot === false
+    ),
+    true,
+  );
 });
 
 test("current hosted proof remains fake-account evidence only", () => {
