@@ -16,9 +16,11 @@ const combinedDocs = DOC_FILES.map(read).join("\n\n");
 
 test("remote demo docs distinguish historical seed gate from current fake-account browser proof", () => {
   assert.match(combinedDocs, /Phase 13C/i);
+  assert.match(combinedDocs, /LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING/);
   assert.match(combinedDocs, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
   assert.match(combinedDocs, /HOSTED_FAKE_ACCOUNT_PILOT_GREEN/);
   assert.match(combinedDocs, /GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF/);
+  assert.match(combinedDocs, /non-blocking compatibility Caveat/i);
   assert.doesNotMatch(combinedDocs, /real-student production readiness (is )?(complete|ready|approved)/i);
 
   const phase13Manifest = JSON.parse(read("docs/progress/runs/2026-05-24-remote-demo-seed-gate.json"));
@@ -30,10 +32,13 @@ test("remote demo docs distinguish historical seed gate from current fake-accoun
 test("hosted proof plan distinguishes schema ready, missing legacy seed, and fake-account browser proof", () => {
   const hosted = read("docs/sales/hosted-proof-plan.md");
   assert.match(hosted, /REMOTE_MIGRATION_0011_ALREADY_PRESENT/);
+  assert.match(hosted, /LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING/);
   assert.match(hosted, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
   assert.match(hosted, /HOSTED_FAKE_ACCOUNT_PILOT_GREEN/);
   assert.match(hosted, /GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF/);
   assert.match(hosted, /student_archive_manifest_download/);
+  assert.match(hosted, /Future Pilot Item: Archive Manifest Download/);
+  assert.match(hosted, /already-applied Health signal/i);
 });
 
 test("remote proof scripts stay away from reset, deploy, and config commands", () => {

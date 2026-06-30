@@ -38,11 +38,11 @@ Planned / future. Archive readiness and export metadata are visible in the fake-
 
 ## What is needed before a real pilot?
 
-Hosted proof, remote migration 0011, remote fake-data seed/proof, SSO policy, legal/security review, data ownership decisions, district approval, support process, and a no-secret/no-real-data readiness check.
+Hosted fake-account proof is green for click-around only. A real pilot still needs SSO policy, legal/security review, data ownership decisions, district approval, support process, retention/offboarding policy, and a no-secret/no-real-data readiness check.
 
 ## What is currently local-only versus hosted?
 
-Proven locally: the multisite demo routes and workspace screens. The legacy synthetic hosted sales-demo API/data gate currently reports `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING`. The 2026-06-29 pass separately added hosted fake-account browser screenshots for signed-out, Student, Program Teacher, Mentor, Viewer, Site Admin, Admin, misc_admin, and mobile Student click-around surfaces.
+Proven locally: the multisite demo routes and workspace screens. Hosted fake-account click-around demo readiness is green through the canonical fake `.test` accounts. The legacy synthetic hosted sales-demo API/data gate is deprecated/non-blocking and reports `LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING` when the old seed is absent. The 2026-06-29 pass separately added hosted fake-account browser screenshots for signed-out, Student, Program Teacher, Mentor, Viewer, Site Admin, Admin, misc_admin, and mobile Student click-around surfaces.
 
 ## What happens if a school stops using it?
 

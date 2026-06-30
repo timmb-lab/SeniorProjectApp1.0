@@ -53,7 +53,7 @@ Use `docs/sales/demo-day-operator-script.md` for the exact hosted role order, ac
 - "This uses fake data today."
 - "This is not replacing school messaging or Canvas."
 - "This is designed around private evidence and audit-sensitive operations."
-- "Hosted fake-account browser screenshots cover the main fake-account click-around roles; the older synthetic hosted sales-demo seed gate is separate and currently reports missing remote demo seed data."
+- "Hosted fake-account browser screenshots cover the main fake-account click-around roles; the older synthetic hosted sales-demo seed gate is deprecated/non-blocking and reports `LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING` when the old seed is absent."
 
 ## Closing Pitch
 
@@ -64,7 +64,7 @@ Use `docs/sales/demo-day-operator-script.md` for the exact hosted role order, ac
 - "No real student data is used today."
 - "We are not claiming FERPA certification."
 - "We are not claiming production pilot readiness."
-- "Hosted fake-account browser proof is green for fake-account click-around only; real-student production readiness is not claimed."
+- "Hosted fake-account browser proof is green for fake-account click-around only; Real-student production pilot readiness is not claimed."
 - "Archive retry/export and presentation scheduling mutations are future work."
 - "Tenant-owned Drive and data retention policies need a technical/legal decision before real onboarding."
 
@@ -74,6 +74,6 @@ Do not show `.secrets`, passwords, credential JSON files, Cloudflare tokens, OAu
 
 ## Fallback Lines
 
-- If hosted/prod is asked: "Hosted fake-account browser screenshots are green for fake-account click-around only; the older synthetic hosted sales-demo API seed gate currently reports missing remote demo seed data."
+- If hosted/prod is asked: "Hosted fake-account browser screenshots are green for fake-account click-around only; the older synthetic hosted sales-demo API seed gate is a non-blocking compatibility check and not the current demo gate."
 - If compliance is asked: "This is privacy-aware design and local proof, not a compliance certification."
 - If a screen fails: "The current local proof covers the route; I will use the proof checklist and follow up with a clean screen capture."

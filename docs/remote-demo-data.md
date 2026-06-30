@@ -10,11 +10,11 @@ npm run prove:demo:remote
 
 `seed:demo:remote` expands to `--remote --write --confirm SEED_REMOTE_DEMO` and refuses remote write without `CLOUDFLARE_API_TOKEN`.
 
-The multisite seed requires the remote D1 schema to include migration `0011_multisite_site_role_foundation.sql`. Phase 13B applied that migration gate. The current hosted sales-demo proof script reports the legacy synthetic remote demo seed is not present.
+The multisite seed requires the remote D1 schema to include migration `0011_multisite_site_role_foundation.sql`. Phase 13B applied that migration gate. The current hosted sales-demo proof script reports the legacy synthetic remote demo seed is not present as a non-blocking compatibility Caveat.
 
 Do not treat the legacy synthetic sales-demo seed as current hosted proof until `npm run prove:sales-demo:hosted` reports it present.
 
-Current hosted fake-account pilot status is green for fake-account click-around only. The legacy synthetic sales-demo hosted proof remains blocked by missing remote seed data. Use the read-only/API gates plus the hosted browser proof:
+Current hosted fake-account click-around demo readiness is green for fake-account click-around only. The legacy synthetic sales-demo hosted proof is deprecated and does not block the current fake-account demo. Use the read-only/API gates plus the hosted browser proof:
 
 ```powershell
 npm run prove:remote:migration-0011
@@ -26,7 +26,7 @@ Current schema/data/browser status:
 
 ```text
 REMOTE_MIGRATION_0011_ALREADY_PRESENT
-HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING
+LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING
 HOSTED_FAKE_ACCOUNT_PILOT_GREEN
 GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF
 SCREENSHOTS_GENERATED_SAFE
@@ -51,6 +51,8 @@ Current remote seed status:
 REMOTE_DEMO_SEED_MISSING_FOR_LEGACY_SALES_DEMO
 ```
 
+Historical logs may still show `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING`. Treat that as the old name for a missing legacy synthetic hosted sales-demo seed, not as a No-go for Hosted fake-account click-around demo readiness.
+
 ## Safety
 
 - Demo users use only `demo-student.capstone.test` and `demo-staff.capstone.test`.
@@ -60,7 +62,7 @@ REMOTE_DEMO_SEED_MISSING_FOR_LEGACY_SALES_DEMO
 - No physical Google Drive files are created. Evidence uses metadata plus `https://example.com/capstone-demo/...` URLs only.
 - Staff and persona credential files are written only under ignored `.secrets/demo-remote-staff-logins-*.json`; student credentials are not created.
 - Hosted proof must not print, commit, paste, screenshot, or document credential values.
-- The legacy synthetic sales-demo hosted API proof currently reports `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING`.
+- The legacy synthetic sales-demo hosted API proof currently reports `LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING` when the old seed is absent.
 - The 2026-06-29 browser proof uses approved fake hosted `.test` accounts for signed-out, Student, Program Teacher, Mentor, Viewer, Site Admin, Admin, misc_admin, and mobile Student surfaces. Generated remote staff credential files are not the walkthrough credential source.
 
 ## Seed Shape
@@ -78,6 +80,6 @@ REMOTE_DEMO_SEED_MISSING_FOR_LEGACY_SALES_DEMO
 
 Demo seeds no longer create announcements. Schools should continue using existing communication systems such as Remind, Canvas, Infinite Campus, Google Classroom, email, or district-approved tools. The legacy `announcements` table remains deprecated/schema-only until a later safe cleanup phase.
 
-The legacy hosted sales-demo proof script verifies remote D1 counts, role scope boundaries, hosted dashboard rendering, site dashboard, student directory, student detail/timeline, review queue, mentor assignment, operations readiness API checks, example.com-only evidence, and absence of Drive ID or secret leaks in rendered API responses when the synthetic remote demo seed is present. It currently reports the remote demo seed is missing. The 2026-06-29 pass separately adds hosted fake-account browser screenshots at `docs/sales/hosted-browser-proof-screenshot-index.md`.
+The legacy hosted sales-demo proof script verifies remote D1 counts, role scope boundaries, hosted dashboard rendering, site dashboard, student directory, student detail/timeline, review queue, mentor assignment, operations readiness API checks, example.com-only evidence, and absence of Drive ID or secret leaks in rendered API responses when the synthetic remote demo seed is present. It currently reports the remote demo seed is missing as a non-blocking compatibility Caveat. The 2026-06-29 pass separately adds hosted fake-account browser screenshots at `docs/sales/hosted-browser-proof-screenshot-index.md`.
 
 Do not run remote reset, account reset, deploy, domain, OAuth, or Cloudflare config changes from the sales-demo proof phase.

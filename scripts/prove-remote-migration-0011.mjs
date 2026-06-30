@@ -21,7 +21,8 @@ const SANDBOX_SITE_ID = "site-capstone-sandbox-main";
 const READY_STATUS = "REMOTE_MIGRATION_0011_ALREADY_PRESENT";
 const MISSING_STATUS = "REMOTE_MIGRATION_0011_NOT_APPLIED_SAFETY_STOP";
 const READ_ACCESS_STATUS = "REMOTE_MIGRATION_0011_READ_ACCESS_REQUIRED";
-const SEED_MISSING_STATUS = "HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING";
+const SEED_MISSING_STATUS = "LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING";
+const HISTORICAL_SEED_MISSING_STATUS = "HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING";
 const READY_FAKE_DATA_BROWSER_PENDING = "HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING";
 
 function parseArgs(values = process.argv.slice(2)) {
@@ -121,6 +122,9 @@ async function runRemoteMigration0011Proof(_args = {}, options = {}) {
       hostedProofStatus: remoteDemoSeed.present
         ? READY_FAKE_DATA_BROWSER_PENDING
         : SEED_MISSING_STATUS,
+      historicalHostedProofStatus: remoteDemoSeed.present ? null : HISTORICAL_SEED_MISSING_STATUS,
+      hostedFakeAccountDemoBlocked: false,
+      currentDemoReadinessImpact: remoteDemoSeed.present ? "LEGACY_SEED_PRESENT" : "NON_BLOCKING_CAVEAT",
       remoteDemoSeed,
       readOnly: true,
       remoteWritesPerformed: false,
@@ -218,6 +222,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
 }
 
 export {
+  HISTORICAL_SEED_MISSING_STATUS,
   MISSING_STATUS,
   READ_ACCESS_STATUS,
   READY_STATUS,

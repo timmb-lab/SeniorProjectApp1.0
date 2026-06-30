@@ -6,14 +6,32 @@ Use this as the live hosted walkthrough script. It is written for a staff/admin 
 
 ## Current Status
 
-- Demo claim: hosted fake-account click-around proof is green.
+- Demo claim: Hosted fake-account click-around demo readiness is green.
 - Health signal to confirm before the demo: `/api/health` reports `databaseReady=true` and `studentRosterProfilesReady=true`.
 - Proof status to cite: `HOSTED_FAKE_ACCOUNT_PILOT_GREEN` and `GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF`.
-- Real-student production pilot readiness: not claimed.
-- `student_archive_manifest_download`: intentionally skipped/not ready. Do not demo it as a completed workflow.
-- Legacy synthetic hosted sales-demo seed: still separate and may report `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING`.
+- Real-student production pilot readiness: No-go / not claimed.
+- `student_archive_manifest_download`: Future pilot item; intentionally `skipped_not_ready`. Do not demo it as a completed workflow.
+- Legacy synthetic hosted sales-demo seed: deprecated compatibility check only. Current missing-seed status is `LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING`; the historical label `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING` means the old synthetic seed was absent, not that the current hosted fake-account demo is blocked.
 
-Do not run migrations, remote seeds, resets, deploys, or credential commands during the live demo unless a separate approved migration/deployment gate exists. If `studentRosterProfilesReady=false`, do not demo Add Student or CSV roster profile fields.
+Do not run migrations, remote seeds, resets, deploys, or credential commands during the live demo unless a separate approved migration/deployment gate exists. Treat migration `0016_student_roster_profiles.sql` as an already-applied health signal to verify through `/api/health`, not as a live-demo migration step. If `studentRosterProfilesReady=false`, do not demo Add Student or CSV roster profile fields.
+
+## Demo Readiness Summary
+
+| Area | Demo-day status | Evidence | Is it a live-demo blocker? | Notes |
+| --- | --- | --- | --- | --- |
+| Hosted app loads | Go | Hosted workspace route and screenshot manifest show `GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF`; `/api/health` must be reachable. | No-go if unreachable | Switch to screenshots/proof docs if the hosted app or health endpoint is down. |
+| Login/auth | Go with canonical fake `.test` accounts | Hosted browser proof logs in the role accounts from the ignored credential source. | No-go if a non-`.test` account or visible password file is needed | Never show credentials, tokens, or password material. |
+| Student roster profile health | Go when health is green | `/api/health` reports `databaseReady=true` and `studentRosterProfilesReady=true`. | No-go for Add Student / CSV roster profile demos if false | Health signal only; do not run migration `0016_student_roster_profiles.sql` during the demo. |
+| Fake `.test` role accounts | Go | Canonical fake `.test` accounts cover Student, Program Teacher, Mentor, Viewer, Site Admin, Admin, and misc_admin. | No-go if canonical fake accounts cannot sign in | These are the walkthrough accounts; generated legacy staff credentials are not the source. |
+| View as Student | Go for authorized staff only | Operator script and workspace tests cover staff-only, read-only preview behavior. | No-go if students can enter it or staff can open unauthorized students | Always exit the preview before switching personas. |
+| Add Student | Caveat | Form and validation are safe to show when roster profile health is green. | No-go for live create/import if `studentRosterProfilesReady=false` or real/non-`.test` data is required | Prefer showing validation; create only fake `.test` accounts when explicitly planned. |
+| CSV Student Import | Caveat | Preview blocks duplicates, unsafe scopes, invalid years, and student-as-mentor/viewer assignments. | No-go for final import if health is false or the CSV includes real students | Use preview as the main demo. |
+| Viewer read-only | Go | Hosted screenshot and permission checks show read-only viewer boundaries. | No-go if Viewer has mutation controls | Viewer may inspect assigned student context only. |
+| Program Teacher scope | Go | Hosted Program Teacher screenshot plus review-queue integration tests. | No-go if Program Teacher sees broad school/global data | Review mutation remains scoped to authorized submitted work. |
+| Mentor scope | Go | Hosted Mentor screenshot plus mentor API/integration proof. | No-go if Mentor sees unassigned students | Mentors stay assigned-student only. |
+| Site Admin/Admin/Global Admin boundaries | Go with caveat | Hosted Site Admin and Admin screenshots plus permission tests. | No-go if a role sees broader student data than its scope allows | Global Admin is a fake-account command-center view, not real pilot approval. |
+| Archive manifest download | Future pilot item | Hosted dashboard gate records `student_archive_manifest_download` as `skipped_not_ready` unless a scoped student manifest URL exists. | No, unless someone claims archive download is finished | Owner-style acceptance: fake student archive export produces a scoped app download, no storage IDs leak, hosted dashboard proof marks it `passed`, screenshot/docs are updated, and pilot retention policy is approved. |
+| Legacy synthetic hosted sales-demo seed | Caveat | `prove:sales-demo:hosted` is a deprecated read-only compatibility check; missing seed reports `LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING`. | No | Do not reseed during demo day. Historical `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING` is not the current fake-account demo gate. |
 
 ## Account Source
 

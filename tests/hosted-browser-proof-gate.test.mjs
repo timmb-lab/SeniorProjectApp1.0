@@ -60,8 +60,9 @@ test("screenshot index lists current hosted fake-account screenshot artifacts", 
   assert.match(index, /HOSTED_FAKE_ACCOUNTS_USED_FOR_BROWSER_PROOF/);
   assert.match(index, /SCREENSHOTS_GENERATED_SAFE/);
   assert.match(index, /No-secret confirmation/);
-  assert.match(index, /fake-account hosted pilot proof only/i);
+  assert.match(index, /Hosted fake-account click-around demo readiness only/i);
   assert.match(index, /student_archive_manifest_download/);
+  assert.match(index, /Future pilot item/i);
   assert.doesNotMatch(index, /Viewer read-only screenshot was not generated/);
   assert.doesNotMatch(index, /viewer browser proof.*blocked/i);
 
@@ -87,17 +88,23 @@ test("hosted proof docs distinguish fake-account pilot readiness from real-stude
   const combined = files.map((file) => read(file)).join("\n");
   assert.match(combined, /GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF/);
   assert.match(combined, /HOSTED_FAKE_ACCOUNT_PILOT_GREEN/);
+  assert.match(combined, /Hosted fake-account click-around demo readiness/);
+  assert.match(combined, /Real-student production pilot readiness/);
+  assert.match(combined, /LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING/);
   assert.match(combined, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
   assert.match(combined, /demo-day-operator-script\.md/);
   assert.match(combined, /studentRosterProfilesReady=true/);
   assert.match(combined, /signed-out, Student, Program Teacher, Mentor, Viewer, Site Admin, Admin, misc_admin, and mobile Student/i);
-  assert.match(combined, /not real-student production readiness|not real-student production|real-student production is not claimed/i);
+  assert.match(combined, /not Real-student production pilot readiness|not real-student production readiness|real-student production is not claimed|Real-student production pilot readiness:\s*No-go/i);
   assert.match(combined, /SSO, support, retention, data ownership/i);
   assert.match(combined, /student_archive_manifest_download/);
+  assert.match(combined, /already-applied Health signal/i);
   assert.doesNotMatch(combined, /viewer browser proof.*blocked/i);
   assert.doesNotMatch(combined, /safe existing fake hosted credential file has no viewer account/i);
   assert.doesNotMatch(combined, /\bproduction\s+pilot\s+ready\b/i);
   assert.doesNotMatch(combined, /\breal\s+student\s+data\s+ready\b/i);
+  assert.doesNotMatch(combined, /fake-account[^.\n]{0,160}(means|equals|proves)[^.\n]{0,160}real-student production/i);
+  assert.doesNotMatch(combined, /real-student production pilot readiness (is )?(complete|ready|approved)/i);
 });
 
 test("hosted browser proof docs and script avoid credential leaks and unsafe write aliases", () => {

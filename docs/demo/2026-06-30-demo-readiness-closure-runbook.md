@@ -10,7 +10,7 @@ Starting commit for this closure pass: `fd5f0f655e45e73fe23fac9ccc1b6bf7687d9a7d
 
 ## Migration Requirement
 
-Migration `migrations/0016_student_roster_profiles.sql` is required before any environment should create or import students with roster profile fields.
+Migration `migrations/0016_student_roster_profiles.sql` is required before any environment should create or import students with roster profile fields. For the current hosted demo, treat it as an already-applied Health signal to verify through `/api/health`, not as a live-demo migration step.
 
 The migration creates:
 
@@ -21,11 +21,13 @@ The migration creates:
 - `student_roster_profiles.updated_at`
 - index `idx_student_roster_profiles_graduation_year`
 
-Apply through the normal D1 migration flow:
+Historical repair path used during the closure pass:
 
 ```powershell
 npm run db:migrate:remote
 ```
+
+Do not run this during demo day unless a separate approved migration/deployment gate exists.
 
 Use the health endpoint after deploy/migration:
 
@@ -59,7 +61,7 @@ Hosted fake-account browser proof command:
 npm run prove:hosted-fake-pilot-browser
 ```
 
-The proof remains fake-account hosted click-through proof only. It is not a real-student production pilot claim.
+The proof remains Hosted fake-account click-around demo readiness only. It is not a Real-student production pilot readiness claim.
 
 The browser proof now records a redacted `/api/health` summary in its manifest. If hosted health explicitly reports `studentRosterProfilesReady=false`, the proof status is `HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0016`.
 

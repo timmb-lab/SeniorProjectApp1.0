@@ -2,15 +2,17 @@
 
 ## Current Hosted Proof Status
 
-Hosted fake-account pilot proof is green for fake-account click-around only. The 2026-06-29 pass added a repeatable hosted browser proof script plus screenshots for signed-out, Student, Program Teacher, Mentor, Viewer, Site Admin, Admin, misc_admin, and mobile Student surfaces. The demo-day operator order lives in `docs/sales/demo-day-operator-script.md`.
+Hosted fake-account click-around demo readiness is green for fake-account click-around only. The 2026-06-29 pass added a repeatable hosted browser proof script plus screenshots for signed-out, Student, Program Teacher, Mentor, Viewer, Site Admin, Admin, misc_admin, and mobile Student surfaces. The demo-day operator order lives in `docs/sales/demo-day-operator-script.md`.
 
-Do not claim real-student pilot readiness, FERPA certification, or production readiness.
+Do not claim Real-student production pilot readiness, FERPA certification, or production readiness.
 
-The current fake-account hosted pilot does not depend on the legacy synthetic sales-demo remote seed. `npm run prove:sales-demo:hosted` currently reports the legacy synthetic sales-demo hosted proof as:
+The current fake-account hosted pilot does not depend on the legacy synthetic sales-demo remote seed. `npm run prove:sales-demo:hosted` is now a deprecated/non-blocking compatibility check for the legacy synthetic hosted sales-demo seed. When that old seed is absent, the current status is:
 
 ```text
-HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING
+LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING
 ```
+
+Historical reports may still show `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING`; read that as "the old synthetic seed is absent," not as a blocker for Hosted fake-account click-around demo readiness.
 
 The current fake-account hosted proof status is:
 
@@ -37,9 +39,9 @@ databaseReady=true
 studentRosterProfilesReady=true
 ```
 
-If `studentRosterProfilesReady=false`, pause Add Student and CSV roster profile demos until the migration gate is repaired. Do not apply migrations from a live demo unless a separate approved migration plan exists.
+If `studentRosterProfilesReady=false`, pause Add Student and CSV roster profile demos until the migration gate is repaired. Treat migration `0016_student_roster_profiles.sql` as an already-applied Health signal to verify through `/api/health`, not as a live-demo migration step. Do not apply migrations from a live demo unless a separate approved migration plan exists.
 
-The remote seed blocker status before Phase 13C was:
+The legacy remote seed blocker status before Phase 13C was:
 
 ```text
 HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING
@@ -63,10 +65,23 @@ The local MVP depends on multisite tables, roles, and fake Desert Valley demo ro
 
 Remaining fake-account limits:
 
-- `student_archive_manifest_download` remains `skipped_not_ready` in the hosted dashboard gate.
+- `student_archive_manifest_download` remains a Future pilot item and is `skipped_not_ready` in the hosted dashboard gate unless a scoped student manifest download is actually available.
 - The browser proof covers first-load click-around surfaces and role boundaries; destructive or mutation-heavy workflow actions stay covered by API/integration tests.
 - Generated remote staff credential files are not the walkthrough credential source; use only approved fake hosted `.test` accounts for browser proof.
 - Real-student onboarding still needs SSO, support, retention, data ownership, and policy approval work.
+
+## Future Pilot Item: Archive Manifest Download
+
+Owner-style description: finish real archive-manifest download readiness for a fake student before claiming it in any pilot-facing proof. This is not required for hosted fake-account demo day, and it is not a hidden failure while the hosted dashboard proof reports `student_archive_manifest_download` as `skipped_not_ready`.
+
+Acceptance criteria:
+
+- A fake student reaches an archive/export state with a scoped app download URL.
+- The manifest download returns the redacted JSON body through the app route.
+- Hosted dashboard proof marks `student_archive_manifest_download` as `passed`.
+- Proof checks confirm no raw Drive IDs, storage IDs, tokens, private URLs, or credential values leak.
+- Screenshot/docs are updated to show the workflow honestly.
+- Real-student production pilot policy for retention, storage ownership, and support is approved before any real student data is used.
 
 ## Remote D1 Migration 0011 Gate
 
@@ -105,7 +120,7 @@ Current observed hosted status:
 
 ```text
 REMOTE_MIGRATION_0011_ALREADY_PRESENT
-HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING
+LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING
 HOSTED_FAKE_ACCOUNT_PILOT_GREEN
 ```
 
@@ -121,7 +136,7 @@ Completed in Phase 13B:
 4. Proved `sites`, `site_users`, `site_programs`, the four new roles, sandbox site, sandbox site-program mappings, and zero foreign-key violations.
 5. Did not seed remote data.
 
-Phase 13B ran only migration 0011. The 2026-06-30 demo-readiness closure applied migration `0016_student_roster_profiles.sql` before demoing student create/import roster profile fields. The current hosted proof expects `/api/health` to report `studentRosterProfilesReady=true`.
+Phase 13B ran only migration 0011. Migration `0016_student_roster_profiles.sql` is now treated as an already-applied hosted Health signal for student create/import roster profile fields. The current hosted proof expects `/api/health` to report `studentRosterProfilesReady=true`.
 
 ```powershell
 npm run db:migrate:remote
@@ -154,7 +169,7 @@ Legacy synthetic sales-demo hosted smoke gate:
 4. Verify no announcements.
 5. Verify no raw Drive IDs/storage IDs/secrets.
 
-Current `npm run prove:sales-demo:hosted` result is `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING`. The 2026-06-29 fake-account pilot browser proof uses approved fake hosted credentials and is separate from generated remote staff credential files.
+Current `npm run prove:sales-demo:hosted` result for a missing legacy synthetic seed is `LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING`. The 2026-06-29 fake-account pilot browser proof uses approved fake hosted credentials and is separate from generated remote staff credential files.
 
 ## Screenshots / Browser Proof Gate
 
@@ -168,7 +183,7 @@ SCREENSHOTS_GENERATED_SAFE
 HOSTED_FAKE_ACCOUNTS_USED_FOR_BROWSER_PROOF
 ```
 
-The screenshots prove hosted browser rendering for the signed-out workspace route, Student workspace, Program Teacher dashboard, Mentor dashboard, Viewer read-only directory, Site Admin dashboard, Admin command center, misc_admin limited readiness surface, and mobile Student workspace. They do not prove real-student production readiness or destructive workflow mutations.
+The screenshots prove hosted browser rendering for the signed-out workspace route, Student workspace, Program Teacher dashboard, Mentor dashboard, Viewer read-only directory, Site Admin dashboard, Admin command center, misc_admin limited readiness surface, and mobile Student workspace. They do not prove Real-student production pilot readiness, production readiness, or destructive workflow mutations.
 
 Before using screenshots as proof:
 

@@ -40,8 +40,9 @@
 
 - [ ] Run `npm run prove:remote:migration-0011` only when the technical reviewer asks for the migration 0011 read-only proof.
 - [ ] Run `npm run prove:demo:remote` only when the technical reviewer asks for the legacy synthetic hosted API gate.
-- [ ] Run `npm run prove:sales-demo:hosted` only when the technical reviewer asks for the legacy synthetic hosted sales-demo gate.
-- [ ] Confirm the legacy synthetic hosted sales-demo proof result. Current expected result is `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING` unless a new approved remote demo seed has run.
+- [ ] Run `npm run prove:sales-demo:hosted` only when the technical reviewer asks for the deprecated legacy synthetic hosted sales-demo compatibility gate.
+- [ ] Confirm the legacy synthetic hosted sales-demo compatibility result. Current expected missing-seed result is `LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING`; historical reports may show `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING`.
+- [ ] Confirm this Caveat is not treated as a No-go for Hosted fake-account click-around demo readiness.
 - [ ] Do not run remote seed writes, remote resets, migrations, deploys, or credential commands during demo preflight without a separate approval gate.
 
 ## Persona Checks

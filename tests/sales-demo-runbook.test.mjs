@@ -76,7 +76,7 @@ test("runbook covers required demo flow, claims, caveats, and proof matrix", () 
 
   assert.match(runbook, /Fake-data demo only/);
   assert.match(runbook, /Hosted fake-account pilot proof ready/i);
-  assert.match(runbook, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING|missing remote demo seed data/i);
+  assert.match(runbook, /LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING/);
   assert.match(runbook, /No announcements\/student messaging/i);
   assert.match(runbook, /Do not show `.secrets`|Do not show During Demo/i);
   assert.match(runbook, /post-demo follow-up/i);
@@ -87,13 +87,28 @@ test("demo day operator script covers hosted role order and safety guardrails", 
   const operator = docs["docs/sales/demo-day-operator-script.md"];
   for (const text of [
     "Demo Day Operator Script",
-    "hosted fake-account click-around proof is green",
+    "Hosted fake-account click-around demo readiness is green",
     "databaseReady=true",
     "studentRosterProfilesReady=true",
     "HOSTED_FAKE_ACCOUNT_PILOT_GREEN",
     "GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF",
     "student_archive_manifest_download",
+    "LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING",
     "HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING",
+    "Demo Readiness Summary",
+    "Hosted app loads",
+    "Login/auth",
+    "Student roster profile health",
+    "Fake `.test` role accounts",
+    "View as Student",
+    "Add Student",
+    "CSV Student Import",
+    "Viewer read-only",
+    "Program Teacher scope",
+    "Mentor scope",
+    "Site Admin/Admin/Global Admin boundaries",
+    "Archive manifest download",
+    "Legacy synthetic hosted sales-demo seed",
     "maya.student@senior-capstone.test",
     "chen.teacher@senior-capstone.test",
     "rivera.mentor@senior-capstone.test",
@@ -116,7 +131,13 @@ test("demo day operator script covers hosted role order and safety guardrails", 
   assert.match(operator, /unsafe targets are blocked before the account is created/i);
   assert.match(operator, /out-of-scope sites\/programs/i);
   assert.match(operator, /student-as-mentor\/student-as-viewer/i);
-  assert.match(operator, /real-student production pilot readiness.*not claimed/i);
+  assert.match(operator, /Real-student production pilot readiness:\s*No-go \/ not claimed/i);
+  assert.match(operator, /Health signal/i);
+  assert.match(operator, /Future pilot item/i);
+  assert.match(operator, /No-go/i);
+  assert.match(operator, /Caveat/i);
+  assert.match(operator, /Canonical fake `?\.test`? accounts|canonical fake accounts/i);
+  assert.match(operator, /not as a live-demo migration step/i);
   assert.doesNotMatch(operator, /\bproduction\s+pilot\s+ready\b/i);
   assert.doesNotMatch(operator, /\breal\s+student\s+data\s+ready\b/i);
 });
@@ -128,7 +149,7 @@ test("administrator-facing docs include required safe answers and flows", () => 
   assert.match(script, /Rich Timeline Demo/);
   assert.match(script, /demo-day-operator-script\.md/);
   assert.match(script, /hosted fake-account browser screenshots/i);
-  assert.match(script, /missing remote demo seed data/i);
+  assert.match(script, /LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING/);
   assert.match(script, /not a FERPA certification/i);
 
   const faq = docs["docs/sales/admin-faq.md"];
@@ -153,7 +174,7 @@ test("administrator-facing docs include required safe answers and flows", () => 
   }
   assert.match(faq, /No\. Fake-data demo only/);
   assert.match(faq, /not a FERPA certification/i);
-  assert.match(faq, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
+  assert.match(faq, /LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING/);
   assert.match(faq, /hosted fake-account browser screenshots/i);
 });
 
@@ -183,18 +204,22 @@ test("technical proof and hosted plan map screens to routes and blockers", () =>
   }
 
   const hosted = docs["docs/sales/hosted-proof-plan.md"];
-  assert.match(hosted, /Hosted fake-account pilot proof is green/i);
+  assert.match(hosted, /Hosted fake-account click-around demo readiness is green/i);
   assert.match(hosted, /0011_multisite_site_role_foundation\.sql/);
   assert.match(hosted, /sites/);
   assert.match(hosted, /site_users/);
   assert.match(hosted, /site_programs/);
   assert.match(hosted, /HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011/);
+  assert.match(hosted, /LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING/);
   assert.match(hosted, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
   assert.match(hosted, /HOSTED_FAKE_ACCOUNT_PILOT_GREEN/);
   assert.match(hosted, /GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF/);
   assert.match(hosted, /SCREENSHOTS_GENERATED_SAFE/);
   assert.match(hosted, /0016_student_roster_profiles\.sql/);
   assert.match(hosted, /studentRosterProfilesReady=true/);
+  assert.match(hosted, /already-applied Health signal/i);
+  assert.match(hosted, /Future Pilot Item: Archive Manifest Download/);
+  assert.match(hosted, /Acceptance criteria/);
   assert.match(hosted, /No remote seed\/reset writes/);
 });
 
@@ -203,7 +228,12 @@ test("sales docs avoid overclaims, secret-like values, and screenshot proof clai
   assert.match(combinedSalesDocs, /not a FERPA certification|not claiming FERPA/i);
   assert.match(combinedSalesDocs, /not claiming production pilot readiness|real-student production pilot readiness.*not claimed|No-go/i);
   assert.match(combinedSalesDocs, /GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF|Hosted fake-account pilot proof ready/i);
+  assert.match(combinedSalesDocs, /Hosted fake-account click-around demo readiness/);
+  assert.match(combinedSalesDocs, /Real-student production pilot readiness/);
+  assert.match(combinedSalesDocs, /LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING/);
   assert.match(combinedSalesDocs, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
+  assert.doesNotMatch(combinedSalesDocs, /fake-account[^.\n]{0,160}(means|equals|proves)[^.\n]{0,160}real-student production/i);
+  assert.doesNotMatch(combinedSalesDocs, /real-student production pilot readiness (is )?(complete|ready|approved)/i);
   assert.match(docs["docs/sales/demo-screenshot-checklist.md"], /2026-06-29 pass generated a hosted fake-account screenshot set/);
   assert.match(docs["docs/sales/demo-screenshot-checklist.md"], /hosted-browser-proof-screenshot-index\.md/);
 
@@ -238,6 +268,10 @@ test("sales demo proof scripts and package aliases are present and safe", () => 
 
   const hostedScript = read("scripts/prove-sales-demo-hosted.mjs");
   assert.match(hostedScript, /HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011/);
+  assert.match(hostedScript, /LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING/);
+  assert.match(hostedScript, /canonicalHostedProofCommand/);
+  assert.match(hostedScript, /hostedFakeAccountDemoBlocked:\s*false/);
+  assert.match(hostedScript, /currentDemoReadinessImpact:\s*"NON_BLOCKING_CAVEAT"/);
   assert.match(hostedScript, /remoteWritesPerformed:\s*false/);
   assert.match(hostedScript, /remoteSeedPerformed:\s*false/);
   assert.match(hostedScript, /deployPerformed:\s*false/);

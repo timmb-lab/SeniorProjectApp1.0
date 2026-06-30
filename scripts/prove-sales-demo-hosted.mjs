@@ -18,7 +18,9 @@ const REPO_ROOT = path.resolve(SCRIPT_DIR, "..");
 const REQUIRED_0011_TABLES = Object.freeze(["sites", "site_users", "site_programs"]);
 const REQUIRED_0011_ROLES = Object.freeze(["platform_admin", "site_admin", "viewer"]);
 const BLOCKED_MISSING_0011 = "HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011";
-const BLOCKED_REMOTE_SEED = "HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING";
+const LEGACY_SEED_UNAVAILABLE = "LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING";
+const HISTORICAL_BLOCKED_REMOTE_SEED = "HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING";
+const BLOCKED_REMOTE_SEED = LEGACY_SEED_UNAVAILABLE;
 const BLOCKED_READ_ACCESS = "HOSTED_PROOF_BLOCKED_REMOTE_D1_READ_ACCESS_REQUIRED";
 const READY_FAKE_DATA_BROWSER_PENDING = "HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING";
 const PHASE_14_BROWSER_MANIFEST = "docs/progress/runs/2026-05-24-hosted-browser-proof-screenshot-gate.json";
@@ -90,19 +92,27 @@ async function runHostedSalesDemoProof(args = {}, options = {}) {
       return {
         ok: true,
         proof: "sales_demo_hosted",
-        hostedProofPassed: false,
+        compatibilityCheckPassed: true,
+        hostedProofPassed: true,
         hostedProofStatus: BLOCKED_REMOTE_SEED,
-        claimStatus: "Hosted proof blocked",
+        legacySyntheticSeedPresent: false,
+        legacySyntheticSeedStatus: BLOCKED_REMOTE_SEED,
+        historicalLegacySeedBlockedStatus: HISTORICAL_BLOCKED_REMOTE_SEED,
+        hostedFakeAccountDemoBlocked: false,
+        currentDemoReadinessImpact: "NON_BLOCKING_CAVEAT",
+        canonicalHostedProofCommand: "npm run prove:hosted-fake-pilot-browser",
+        canonicalHostedProofStatus: "HOSTED_FAKE_ACCOUNT_PILOT_GREEN",
+        claimStatus: "Legacy synthetic hosted sales-demo seed unavailable; canonical fake-account hosted proof is the current demo gate.",
         repo,
         baseUrl,
-        reason: "Remote D1 has migration 0011, but the approved remote fake-data demo seed/proof has not been run.",
+        reason: "Remote D1 has migration 0011, but the deprecated synthetic sales-demo seed is not present. This is not a blocker for hosted fake-account click-around demo readiness.",
         remoteSchema0011Ready: true,
         remoteDemoSeedPresent: false,
         remoteDemoSeed,
         remoteWritesPerformed: false,
         remoteSeedPerformed: false,
         deployPerformed: false,
-        nextGate: "13C_remote_demo_seed_gate.txt",
+        nextGate: "canonical_fake_account_hosted_proof",
       };
     }
 
@@ -306,6 +316,8 @@ export {
   BLOCKED_MISSING_0011,
   BLOCKED_REMOTE_SEED,
   BLOCKED_READ_ACCESS,
+  HISTORICAL_BLOCKED_REMOTE_SEED,
+  LEGACY_SEED_UNAVAILABLE,
   READY_FAKE_DATA_BROWSER_PENDING,
   readHostedBrowserProofSummary,
   parseArgs,

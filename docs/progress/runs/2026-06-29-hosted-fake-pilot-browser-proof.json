@@ -3,8 +3,8 @@
   "verdict": "GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF",
   "baseUrl": "https://senior-capstone-app.pages.dev",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-06-30T14:47:14.661Z",
-  "completedAt": "2026-06-30T14:48:27.981Z",
+  "startedAt": "2026-06-30T15:55:57.118Z",
+  "completedAt": "2026-06-30T15:57:11.110Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"

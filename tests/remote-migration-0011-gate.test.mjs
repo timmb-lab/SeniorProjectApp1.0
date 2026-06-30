@@ -9,21 +9,22 @@ const DOC_FILES = [
   "docs/progress/run-log.md",
 ];
 
-test("remote migration 0011 gate docs distinguish schema and seed blockers", () => {
+test("remote migration 0011 gate docs distinguish schema gates and legacy seed compatibility", () => {
   const hostedPlan = read("docs/sales/hosted-proof-plan.md");
   const checklist = read("docs/sales/technical-proof-checklist.md");
   const remoteDemo = read("docs/remote-demo-data.md");
 
   assert.match(hostedPlan, /0011_multisite_site_role_foundation\.sql/);
   assert.match(hostedPlan, /REMOTE_MIGRATION_0011_APPLIED_REMOTE_DEMO_SEED_NOT_RUN/);
+  assert.match(hostedPlan, /LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING/);
   assert.match(hostedPlan, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
   assert.match(hostedPlan, /HOSTED_FAKE_ACCOUNT_PILOT_GREEN/);
   assert.match(hostedPlan, /GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF/);
   assert.match(hostedPlan, /HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011/);
   assert.match(checklist, /remote migration 0011 gate/i);
-  assert.match(checklist, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
+  assert.match(checklist, /LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING/);
   assert.match(checklist, /GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF/);
-  assert.match(remoteDemo, /legacy synthetic remote demo seed is not present/i);
+  assert.match(remoteDemo, /legacy synthetic remote demo seed is not present as a non-blocking compatibility Caveat/i);
   assert.match(remoteDemo, /REMOTE_DEMO_SEED_MISSING_FOR_LEGACY_SALES_DEMO/);
 });
 
@@ -46,7 +47,10 @@ test("remote migration 0011 proof script and package alias are read-only", () =>
 
   const script = read("scripts/prove-remote-migration-0011.mjs");
   assert.match(script, /REMOTE_MIGRATION_0011_ALREADY_PRESENT/);
+  assert.match(script, /LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING/);
   assert.match(script, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
+  assert.match(script, /hostedFakeAccountDemoBlocked:\s*false/);
+  assert.match(script, /currentDemoReadinessImpact/);
   assert.match(script, /remoteWritesPerformed:\s*false/);
   assert.match(script, /remoteSeedPerformed:\s*false/);
   assert.match(script, /deployPerformed:\s*false/);
@@ -56,13 +60,16 @@ test("remote migration 0011 proof script and package alias are read-only", () =>
   assert.doesNotMatch(script, /d1[^"\n]+execute[^"\n]+--file/i);
 });
 
-test("hosted proof script reports the post-schema remote seed blocker", () => {
+test("hosted proof script reports the post-schema legacy seed compatibility status", () => {
   const script = read("scripts/prove-sales-demo-hosted.mjs");
   assert.match(script, /HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0011/);
+  assert.match(script, /LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING/);
   assert.match(script, /HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING/);
   assert.match(script, /HOSTED_PROOF_READY_FAKE_DATA_BROWSER_PROOF_PENDING/);
-  assert.match(script, /13C_remote_demo_seed_gate\.txt/);
+  assert.match(script, /canonical_fake_account_hosted_proof/);
   assert.match(script, /14_hosted_browser_proof_and_screenshot_gate\.txt/);
+  assert.match(script, /hostedFakeAccountDemoBlocked:\s*false/);
+  assert.match(script, /canonicalHostedProofCommand/);
   assert.match(script, /remoteWritesPerformed:\s*false/);
   assert.match(script, /remoteSeedPerformed:\s*false/);
   assert.match(script, /deployPerformed:\s*false/);

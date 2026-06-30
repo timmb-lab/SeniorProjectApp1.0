@@ -76,6 +76,17 @@ function assertNoStorageLeak(value, label) {
   }
 }
 
+function archiveManifestDownloadCheck(status, reason) {
+  return {
+    name: "student_archive_manifest_download",
+    status,
+    readinessCategory: "future_pilot_item",
+    requiredForHostedFakeAccountDemoDay: false,
+    liveDemoBlocker: false,
+    reason,
+  };
+}
+
 function assertHostedWorkspaceSafe(text, label) {
   for (const [name, pattern] of [
     ["alpha route link", /\bhref=["'][^"']*alpha\.html\b/i],
@@ -239,12 +250,21 @@ async function verifyRole(baseUrl, roleId, account, context = {}) {
       if (archiveDownload.status === 200 && contentType.includes("application/json")) {
         const manifest = await archiveDownload.json().catch(() => null);
         assertNoStorageLeak(manifest, "student archive manifest download");
-        checks.push({ name: "student_archive_manifest_download", status: "passed" });
+        checks.push(archiveManifestDownloadCheck(
+          "passed",
+          "Scoped app archive manifest download returned redacted JSON without storage leaks.",
+        ));
       } else {
-        checks.push({ name: "student_archive_manifest_download", status: "skipped_not_ready" });
+        checks.push(archiveManifestDownloadCheck(
+          "skipped_not_ready",
+          "Future pilot item: no scoped student archive manifest download is available for this fake account yet.",
+        ));
       }
     } else {
-      checks.push({ name: "student_archive_manifest_download", status: "skipped_not_ready" });
+      checks.push(archiveManifestDownloadCheck(
+        "skipped_not_ready",
+        "Future pilot item: student archive readiness did not expose a scoped manifest download URL.",
+      ));
     }
   } else if (roleId === "program_teacher") {
     await expectJson(client, "/api/teacher/review-queue", 200, "program teacher review queue");

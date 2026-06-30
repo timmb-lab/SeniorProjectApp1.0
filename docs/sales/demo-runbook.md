@@ -14,13 +14,13 @@ Use it to show how the current MVP helps school operations teams answer:
 - Which students are ready for presentation or archive closeout?
 - Which roles can see which information?
 
-This demo is a fake-data demo only. Hosted fake-account click-around proof is green, but it is not a real student-data pilot, FERPA certification claim, billing claim, or final production-readiness claim.
+This demo is a fake-data demo only. Hosted fake-account click-around demo readiness is green, but it is not a real student-data pilot, FERPA certification claim, billing claim, or Real-student production pilot readiness claim.
 
 ## Claims Legend
 
 - Proven locally: automated local seed/proof/tests currently verify this behavior.
 - Fake-data demo only: the demo uses synthetic `.test` users and seeded records.
-- Hosted fake-account pilot proof ready: the 2026-06-29 pass added hosted fake-account browser/screenshot proof for the main click-around roles. The older synthetic hosted sales-demo seed gate is separate and currently reports missing remote demo seed data.
+- Hosted fake-account pilot proof ready: the 2026-06-29 pass added hosted fake-account browser/screenshot proof for the main click-around roles. The older synthetic hosted sales-demo seed gate is separate and now reports the non-blocking compatibility status `LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING` when old seed data is absent.
 - Planned / future: a useful next capability, but not built or proven in this phase.
 - Not claimed: do not state or imply this in sales conversations.
 
@@ -49,7 +49,7 @@ This demo is a fake-data demo only. Hosted fake-account click-around proof is gr
 | Billing/subscription readiness | Not claimed | "Billing is outside this MVP demo." |
 | Tenant-owned Drive migration | Planned / future | "Current proof avoids raw storage IDs; tenant-owned storage policy is future work unless separately proven." |
 | Real school onboarding | Planned / future | "A pilot would need legal, security, SSO, data ownership, and onboarding approval." |
-| Remote seed write | Not current for hosted sales demo | "The legacy synthetic hosted sales-demo gate currently reports missing remote demo seed data; the fake-account click-around proof is separate." |
+| Remote seed write | Not current for hosted sales demo | "The legacy synthetic hosted sales-demo gate is deprecated/non-blocking and reports `LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING` when old seed data is absent; the fake-account click-around proof is separate." |
 | FERPA/compliance certification | Not claimed | "This demo is designed around privacy-aware roles and redaction, but it is not a compliance certification." |
 | Archive retry/export mutation UI | Planned / future | "Archive retry/export controls are not built in this phase." |
 | Presentation scheduling mutation UI | Planned / future | "Presentation scheduling/check-in workflows remain separate from the Phase 12 worklists." |
@@ -341,7 +341,7 @@ Search by these prefixes in the Students section or use them in worklist filters
 - Local dev server fails: restart with `npm run dev`; use the runbook, one-page leave-behind, and technical proof checklist while it starts.
 - Section loads slowly: pause on the current screen and explain the route/proof mapping; refresh once.
 - Browser state looks wrong: use a new private window and avoid showing credential files.
-- Hosted question comes up: say, "Hosted fake-account browser proof is green for fake-account click-around only; the older synthetic hosted sales-demo API seed gate currently reports missing remote demo seed data."
+- Hosted question comes up: say, "Hosted fake-account browser proof is green for fake-account click-around only; the older synthetic hosted sales-demo API seed gate is deprecated/non-blocking and not the current demo gate."
 
 ## Technical Proof Matrix
 
@@ -375,10 +375,10 @@ Search by these prefixes in the Students section or use them in worklist filters
 
 ## Known Caveats
 
-- Legacy synthetic hosted sales-demo API proof currently reports missing remote demo seed data.
+- Legacy synthetic hosted sales-demo API proof reports `LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING` when the old seed is absent.
 - Hosted fake-account browser/persona/screenshot proof is green for fake-account click-around only.
-- Hosted `/api/health` currently needs to report `databaseReady=true` and `studentRosterProfilesReady=true` before demoing Add Student or CSV roster profile fields. If either signal turns false, pause those create/import demos until the migration gate is repaired.
-- `student_archive_manifest_download` remains skipped/not ready.
+- Hosted `/api/health` currently needs to report `databaseReady=true` and `studentRosterProfilesReady=true` before demoing Add Student or CSV roster profile fields. Treat `0016_student_roster_profiles.sql` as an already-applied Health signal to verify, not as a live-demo migration step. If either signal turns false, pause those create/import demos until the migration gate is repaired.
+- `student_archive_manifest_download` remains a Future pilot item and is intentionally `skipped_not_ready`; it is not required for hosted fake-account demo day and is not a hidden failure.
 - Archive retry/export mutation UI is deferred.
 - Presentation scheduling/check-in/check-out mutation UI is not part of Operations.
 - Mentor reassign/deactivate is deferred.
@@ -393,7 +393,7 @@ Search by these prefixes in the Students section or use them in worklist filters
 3. Run hosted smoke proof using fake `.test` credentials only.
 4. Run `npm run check:workspace:hosted-permissions`, `npm run check:workspace:hosted-dashboard`, and `npm run check:workspace:hosted-evidence` when the demo needs fresh hosted proof.
 5. Run `npm run prove:hosted-fake-pilot-browser` when screenshots or browser proof need a fresh manifest.
-6. Confirm the legacy synthetic hosted sales-demo proof status if asked. Current expected result remains `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING` unless a new approved remote demo seed has run.
+6. Confirm the legacy synthetic hosted sales-demo compatibility status only if asked by a technical reviewer. Current expected missing-seed result is `LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING`; historical logs may say `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING`.
 7. Do not run remote migrations, remote seed writes, remote resets, deploys, OAuth changes, or credential commands during the live demo without a separate approval gate.
 8. Use the hosted screenshot index or capture replacement screenshots only if the credential path is safe and date/environment labels are preserved.
 9. Run final no-secret scan.
@@ -439,10 +439,10 @@ Do not:
 | Area | Current decision | Reason | Next gate |
 | --- | --- | --- | --- |
 | Local sales demo | Go | Proven locally with fake data. | Run reset/proof before demo. |
-| Hosted sales demo | Go for fake-account click-around | Hosted fake-account browser/screenshots are ready; the legacy synthetic sales-demo API seed gate currently reports missing remote demo seed data. | Keep screenshots current before demos. |
+| Hosted sales demo | Go for fake-account click-around | Hosted fake-account browser/screenshots are ready; the legacy synthetic sales-demo API seed gate is deprecated/non-blocking and separate. | Keep screenshots current before demos. |
 | Remote D1 migration 0011 | Complete | Migration was applied and remains proven. | No further migration without a dedicated gate. |
 | Remote D1 migration 0016 | Complete for current hosted proof | Hosted health reports `studentRosterProfilesReady=true`. | No-go for Add Student / CSV roster fields if health flips false. |
-| Remote seed 5B | Not current remotely | `npm run prove:sales-demo:hosted` reports `HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING`. | No reseed without a new approved gate. |
+| Remote seed 5B | Not current remotely | `npm run prove:sales-demo:hosted` reports `LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING` when the deprecated seed is absent. | No reseed without a new approved gate. |
 | District pilot | No-go | Needs legal/security review, data policy, SSO, onboarding, support, retention, and data ownership approval. | Pilot readiness plan. |
 | Real student data pilot | No-go | No real student data approval. | Legal/security/data governance approval. |
 | FERPA/legal review | Required | Not claimed as complete. | District/legal review. |

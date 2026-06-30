@@ -32,8 +32,8 @@ Migration readiness: the browser proof records a redacted `/api/health` summary.
 
 ## Known Limits
 
-- This is fake-account hosted pilot proof only. It is not real-student production readiness.
+- This is Hosted fake-account click-around demo readiness only. It is not Real-student production pilot readiness.
 - The proof covers first-load click-around surfaces and role boundaries; it does not submit destructive or mutation-heavy workflow actions.
-- `student_archive_manifest_download` remains `skipped_not_ready` in the hosted dashboard gate.
+- `student_archive_manifest_download` remains a Future pilot item and is `skipped_not_ready` in the hosted dashboard gate unless a scoped student manifest download is actually available.
 - Generated remote staff credential files are not the walkthrough credential source; the proof uses the approved hosted fake `.test` accounts in ignored local secrets.
 - Real-student onboarding still needs SSO, support, retention, data ownership, and policy approval work.

@@ -41,8 +41,8 @@ Expected pass conditions:
 | Viewer read-only | Multiple site routes | `tests/site-aware-permissions.test.mjs`, `tests/workspace-app.test.mjs` | `npm run prove:demo:local` | DATA PROVEN; FAKE-ACCOUNT BROWSER PROVEN | Hosted viewer login and read-only directory screenshot are captured in the 2026-06-29 hosted browser proof. |
 | No announcements | Workspace/source/seed checks | `tests/production-workflow-source.test.mjs`, `tests/workspace-app.test.mjs`, seed tests | `npm run prove:demo:local` | REMOTE PROVEN | Remote D1 proof reports 0 demo announcements. |
 | Redaction | All demo routes | Integration/source tests | `npm run prove:sales-demo:local` | REMOTE API PROVEN; FAKE-ACCOUNT BROWSER PROVEN | Hosted API proof found no raw Drive IDs/storage IDs/secrets; browser proof checks visible password values and secret-like rendered text. |
-| Remote migration 0011 gate | Remote D1 schema | `tests/remote-migration-0011-gate.test.mjs` | `npm run prove:remote:migration-0011` | SCHEMA READY; legacy seed missing | Proves `sites`, `site_users`, `site_programs`, new roles, sandbox site, sandbox site-program mappings, and no FK violations; `npm run prove:sales-demo:hosted` currently reports the legacy synthetic remote seed is missing. |
-| Roster profile migration 0016 gate | Remote D1 schema and health | `tests/student-roster-profiles-migration.test.mjs` | `npm run db:migrate:remote`; `/api/health` | REQUIRED FOR STUDENT CREATE/IMPORT | `0016_student_roster_profiles.sql` creates roster profile storage. Hosted browser proof blocks as `HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0016` if health explicitly reports `studentRosterProfilesReady=false`. |
+| Remote migration 0011 gate | Remote D1 schema | `tests/remote-migration-0011-gate.test.mjs` | `npm run prove:remote:migration-0011` | SCHEMA READY; legacy seed unavailable/non-blocking | Proves `sites`, `site_users`, `site_programs`, new roles, sandbox site, sandbox site-program mappings, and no FK violations; `npm run prove:sales-demo:hosted` reports `LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING` when the deprecated seed is absent. |
+| Roster profile migration 0016 gate | Remote D1 schema and health | `tests/student-roster-profiles-migration.test.mjs` | `/api/health` | REQUIRED HEALTH SIGNAL FOR STUDENT CREATE/IMPORT | `0016_student_roster_profiles.sql` creates roster profile storage. Treat it as an already-applied Health signal to verify, not as a live-demo migration step. Hosted browser proof blocks as `HOSTED_PROOF_BLOCKED_REMOTE_D1_MISSING_0016` if health explicitly reports `studentRosterProfilesReady=false`. |
 | Route inventory | `docs/generated/production-route-inventory.md` | `tests/production-workflow-source.test.mjs` | `npm run check:route-inventory` | NO ROUTE CHANGES | Current API surface documented; Phase 13C did not add/remove product routes. |
 
 ## Roles Proven Locally
@@ -68,7 +68,7 @@ Current hosted fake-account status:
 
 ```text
 REMOTE_MIGRATION_0011_ALREADY_PRESENT
-HOSTED_PROOF_BLOCKED_REMOTE_DEMO_SEED_MISSING
+LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING
 HOSTED_FAKE_ACCOUNT_PILOT_GREEN
 GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF
 ```
@@ -90,7 +90,7 @@ HOSTED_FAKE_ACCOUNTS_USED_FOR_BROWSER_PROOF
 
 Fake-account hosted pilot limits:
 
-1. `student_archive_manifest_download` remains `skipped_not_ready`.
+1. `student_archive_manifest_download` remains a Future pilot item and is intentionally `skipped_not_ready`.
 2. Destructive or mutation-heavy workflow actions stay integration/API-proven, not browser-clicked.
 3. Generated remote staff credential files are not the walkthrough credential source.
 4. Real-student production still needs SSO, support, retention, data ownership, and policy approval work.

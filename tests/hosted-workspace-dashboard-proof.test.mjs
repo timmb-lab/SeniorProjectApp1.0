@@ -32,6 +32,9 @@ test("hosted workspace dashboard proof covers presentation and archive dashboard
   assert.match(dashboardProofScript, /misc_admin_presentation_denial/);
   assert.match(dashboardProofScript, /admin_archive_dashboard/);
   assert.match(dashboardProofScript, /student_archive_manifest_download/);
+  assert.match(dashboardProofScript, /future_pilot_item/);
+  assert.match(dashboardProofScript, /requiredForHostedFakeAccountDemoDay:\s*false/);
+  assert.match(dashboardProofScript, /liveDemoBlocker:\s*false/);
   assert.match(dashboardProofScript, /viewer_read_only_directory/);
   assert.match(dashboardProofScript, /viewer_mutation_denials/);
   assert.match(dashboardProofScript, /site_admin_site_operations/);

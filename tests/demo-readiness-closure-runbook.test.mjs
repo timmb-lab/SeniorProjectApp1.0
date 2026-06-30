@@ -31,7 +31,9 @@ test("demo readiness closure runbook records migration, proof, and role walkthro
     assert.match(text, new RegExp(escapeRegex(marker)));
   }
 
-  assert.match(text, /fake-account hosted click-through proof only/i);
+  assert.match(text, /Hosted fake-account click-around demo readiness only/i);
+  assert.match(text, /already-applied Health signal/i);
+  assert.match(text, /not as a live-demo migration step/i);
   assert.match(text, /no migrations to apply/i);
   assert.match(text, /student_roster_profiles.*exists/i);
   assert.doesNotMatch(text, /real-student production pilot ready/i);
