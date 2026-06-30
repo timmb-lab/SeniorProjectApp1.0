@@ -36,6 +36,12 @@ interface EvidenceSummaryRow {
   created_at: string;
 }
 
+interface StudentAccountRow {
+  id: string;
+  display_name: string | null;
+  email: string | null;
+}
+
 interface EvidenceSummary {
   id: string;
   submissionId: string | null;
@@ -226,6 +232,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     return json({ error: "forbidden" }, { status: 403 });
   }
 
+  const student = await loadStudentAccountSummary(env, studentId);
   const isStudentSelf = user.id === studentId && await hasRole(env, user.id, "student");
   const progress = await env.DB.prepare(
     `SELECT
@@ -295,6 +302,11 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   return json({
     ok: true,
     studentId,
+    student: {
+      studentId,
+      displayName: safeStudentText(student?.display_name, "Selected student", 160),
+      email: safeStudentText(student?.email, "", 240) || null,
+    },
     viewer: {
       id: user.id,
       email: user.email,
@@ -310,6 +322,12 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     feedback,
   });
 };
+
+function loadStudentAccountSummary(env: Env, studentId: string) {
+  return env.DB.prepare(
+    "SELECT id, display_name, email FROM user_accounts WHERE id = ? LIMIT 1",
+  ).bind(studentId).first<StudentAccountRow>();
+}
 
 function loadRequiredRequirements(env: Env, studentId: string) {
   return env.DB.prepare(

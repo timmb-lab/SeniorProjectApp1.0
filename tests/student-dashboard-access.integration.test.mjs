@@ -385,14 +385,105 @@ test("student dashboard allows admin inspection and denies misc admin broad acce
   ]);
 });
 
+test("student dashboard preserves view-as staff scopes for global, site, administration, and viewer roles", async () => {
+  const global = await createFixtureWithSession({ userId: "global-a", roleId: "global_admin" });
+  seedStudentRecord(global.db, "student-any", { siteId: "site-canyon-ridge-career" });
+
+  const globalResponse = await onRequestGet({
+    request: buildRequest("https://example.test/api/student/dashboard?studentId=student-any", global.token),
+    env: global.env,
+  });
+
+  assert.equal(globalResponse.status, 200);
+  assert.equal(global.db.data.auditEvents[0].action, "student_dashboard_viewed");
+
+  const siteAdmin = await createFixtureWithSession({
+    userId: "site-admin-a",
+    roleId: "site_admin",
+    scopeType: "site",
+    scopeId: "site-desert-valley-high",
+  });
+  seedStudentRecord(siteAdmin.db, "student-in-site", { siteId: "site-desert-valley-high" });
+  seedStudentRecord(siteAdmin.db, "student-outside-site", { siteId: "site-canyon-ridge-career" });
+
+  const siteAllowed = await onRequestGet({
+    request: buildRequest("https://example.test/api/student/dashboard?studentId=student-in-site", siteAdmin.token),
+    env: siteAdmin.env,
+  });
+  const siteDenied = await onRequestGet({
+    request: buildRequest("https://example.test/api/student/dashboard?studentId=student-outside-site", siteAdmin.token),
+    env: siteAdmin.env,
+  });
+
+  assert.equal(siteAllowed.status, 200);
+  assert.equal(siteDenied.status, 403);
+  assert.deepEqual(siteAdmin.db.data.auditEvents.at(-1).metadata.actorRoleScopes, [
+    { roleId: "site_admin", scopeType: "site", scopeId: "site-desert-valley-high" },
+  ]);
+
+  const administration = await createFixtureWithSession({
+    userId: "administration-a",
+    roleId: "administration",
+    scopeType: "site",
+    scopeId: "site-desert-valley-high",
+  });
+  seedStudentRecord(administration.db, "student-in-admin-site", { siteId: "site-desert-valley-high" });
+  seedStudentRecord(administration.db, "student-outside-admin-site", { siteId: "site-canyon-ridge-career" });
+
+  const adminAllowed = await onRequestGet({
+    request: buildRequest("https://example.test/api/student/dashboard?studentId=student-in-admin-site", administration.token),
+    env: administration.env,
+  });
+  const adminDenied = await onRequestGet({
+    request: buildRequest("https://example.test/api/student/dashboard?studentId=student-outside-admin-site", administration.token),
+    env: administration.env,
+  });
+
+  assert.equal(adminAllowed.status, 200);
+  assert.equal(adminDenied.status, 403);
+  assert.deepEqual(administration.db.data.auditEvents.at(-1).metadata.actorRoleScopes, [
+    { roleId: "administration", scopeType: "site", scopeId: "site-desert-valley-high" },
+  ]);
+
+  const viewer = await createFixtureWithSession({ userId: "viewer-a", roleId: "viewer" });
+  seedStudentRecord(viewer.db, "student-assigned", { siteId: "site-desert-valley-high" });
+  seedStudentRecord(viewer.db, "student-unassigned", { siteId: "site-desert-valley-high" });
+  viewer.db.data.viewerStudentAssignments.push({
+    viewer_user_id: "viewer-a",
+    student_user_id: "student-assigned",
+    active: 1,
+  });
+
+  const viewerAllowed = await onRequestGet({
+    request: buildRequest("https://example.test/api/student/dashboard?studentId=student-assigned", viewer.token),
+    env: viewer.env,
+  });
+  const viewerDenied = await onRequestGet({
+    request: buildRequest("https://example.test/api/student/dashboard?studentId=student-unassigned", viewer.token),
+    env: viewer.env,
+  });
+
+  assert.equal(viewerAllowed.status, 200);
+  assert.equal(viewerDenied.status, 403);
+  assert.deepEqual(viewer.db.data.auditEvents.at(-1).metadata.actorRoleScopes, [
+    { roleId: "viewer", scopeType: "global", scopeId: "" },
+  ]);
+});
+
 function createFixture() {
   const db = new MockD1Database({
     userAccounts: [],
     sessions: [],
     userRoles: [],
     mentorAssignments: [],
+    viewerStudentAssignments: [],
     groupMemberships: [],
     groups: [],
+    sites: [
+      { id: "site-desert-valley-high", tenant_id: "tenant-desert-valley", status: "active" },
+      { id: "site-canyon-ridge-career", tenant_id: "tenant-desert-valley", status: "active" },
+    ],
+    siteUsers: [],
     requirements: [
       { id: "req-proposal-draft", program_id: null, phase: "proposal", title: "Core Concept Proposal", required: 1, sort_order: 1 },
     ],
@@ -454,7 +545,7 @@ async function createFixtureWithSession({ userId, roleId, scopeType = "global", 
   return { ...base, token };
 }
 
-function seedStudentRecord(db, studentId, { programId = "it", cohortId = "cohort-a" } = {}) {
+function seedStudentRecord(db, studentId, { programId = "it", cohortId = "cohort-a", siteId = "site-desert-valley-high" } = {}) {
   db.data.userAccounts.push(buildUser(studentId));
   if (!db.data.userRoles.some((row) => row.user_id === studentId && row.role_id === "student")) {
     db.data.userRoles.push({
@@ -472,6 +563,11 @@ function seedStudentRecord(db, studentId, { programId = "it", cohortId = "cohort
   db.data.groupMemberships.push({
     user_id: studentId,
     group_id: `group-${studentId}`,
+  });
+  db.data.siteUsers.push({
+    site_id: siteId,
+    user_id: studentId,
+    membership_status: "active",
   });
   db.data.progressRecords.push({
     id: `progress-${studentId}`,
@@ -563,9 +659,25 @@ class MockPreparedStatement {
       return this.data.userAccounts.find((row) => row.id === userId && row.status === "active") ?? null;
     }
 
+    if (this.sql.startsWith("select id, display_name, email from user_accounts where id = ? limit 1")) {
+      const [userId] = this.params;
+      const user = this.data.userAccounts.find((row) => row.id === userId) ?? null;
+      return user ? {
+        id: user.id,
+        display_name: user.display_name,
+        email: user.email,
+      } : null;
+    }
+
     if (this.sql.startsWith("select 1 from user_roles where user_id = ? and role_id = ?")) {
       const [userId, roleId] = this.params;
       const exists = this.data.userRoles.some((row) => row.user_id === userId && row.role_id === roleId);
+      return exists ? { ok: 1 } : null;
+    }
+
+    if (this.sql.startsWith("select 1 from sites where id = ? and status = 'active' limit 1")) {
+      const [siteId] = this.params;
+      const exists = this.data.sites.some((row) => row.id === siteId && row.status === "active");
       return exists ? { ok: 1 } : null;
     }
 
@@ -621,6 +733,43 @@ class MockPreparedStatement {
             scope_type: row.scope_type,
             scope_id: row.scope_id,
           })),
+      };
+    }
+
+    if (this.sql.startsWith("select site_users.site_id, site_users.user_id, site_users.membership_status from site_users")) {
+      const [userId] = this.params;
+      return {
+        results: this.data.siteUsers
+          .filter((row) => row.user_id === userId && row.membership_status === "active")
+          .filter((row) => this.data.sites.some((site) => site.id === row.site_id && site.status === "active"))
+          .map((row) => ({
+            site_id: row.site_id,
+            user_id: row.user_id,
+            membership_status: row.membership_status,
+          })),
+      };
+    }
+
+    if (this.sql.startsWith("select site_users.site_id as id from site_users")) {
+      const [userId] = this.params;
+      return {
+        results: this.data.siteUsers
+          .filter((row) => row.user_id === userId && row.membership_status === "active")
+          .filter((row) => this.data.sites.some((site) => site.id === row.site_id && site.status === "active"))
+          .sort((left, right) => String(left.site_id).localeCompare(String(right.site_id)))
+          .map((row) => ({ id: row.site_id })),
+      };
+    }
+
+    if (this.sql.startsWith("select distinct viewer_student_assignments.student_user_id as id from viewer_student_assignments")) {
+      const [viewerId] = this.params;
+      return {
+        results: this.data.viewerStudentAssignments
+          .filter((row) => row.viewer_user_id === viewerId && Number(row.active) === 1)
+          .filter((row) => this.data.userAccounts.some((user) => user.id === row.student_user_id && user.status === "active"))
+          .filter((row) => this.data.userRoles.some((role) => role.user_id === row.student_user_id && role.role_id === "student"))
+          .sort((left, right) => String(left.student_user_id).localeCompare(String(right.student_user_id)))
+          .map((row) => ({ id: row.student_user_id })),
       };
     }
 

@@ -36,6 +36,7 @@ let workspaceNavCollapsed = shouldCollapseWorkspaceNavByDefault();
 let selectedSiteId = "";
 let siteStudentFilters = defaultSiteStudentFilters();
 let siteStudentDetailState = defaultSiteStudentDetailState();
+let viewAsStudentState = defaultViewAsStudentState();
 let pendingSiteStudentDetailFocus = false;
 let pendingStudentRequirementFocusId = "";
 let pendingStudentSectionFocus = "";
@@ -510,6 +511,7 @@ const SITE_STUDENT_DETAIL_URL_SECTIONS = new Set([
   "operations",
 ]);
 const SITE_STUDENT_DETAIL_URL_PARAMS = ["detailStudentId", "detailTab", "detailTimelineType"];
+const VIEW_AS_STUDENT_URL_PARAMS = ["viewAsStudentId", "viewAsReturnSection", "viewAsReturnMode"];
 const WORKSPACE_URL_FILTER_PARAMS = Array.from(new Set([
   ...REVIEW_QUEUE_URL_FILTER_PARAMS,
   ...SITE_STUDENT_URL_FILTER_PARAMS,
@@ -520,6 +522,7 @@ const WORKSPACE_URL_FILTER_PARAMS = Array.from(new Set([
   ...ADMIN_AUDIT_URL_FILTER_PARAMS,
   ...ADMIN_ARCHIVE_EXPORT_URL_FILTER_PARAMS,
   ...SITE_STUDENT_DETAIL_URL_PARAMS,
+  ...VIEW_AS_STUDENT_URL_PARAMS,
 ]));
 let uploadState = {
   state: "idle",
@@ -559,6 +562,7 @@ async function loadSession() {
       presentationSlotFilter = "all";
       adminArchiveExportFilter = "all";
       adminAuditFilters = defaultAdminAuditFilters();
+      viewAsStudentState = defaultViewAsStudentState();
       renderSignIn(
         messageForSessionStateError(data?.error, response.status),
         data?.error ? "error" : "neutral",
@@ -577,6 +581,7 @@ async function loadSession() {
       presentationSlotFilter = "all";
       adminArchiveExportFilter = "all";
       adminAuditFilters = defaultAdminAuditFilters();
+      viewAsStudentState = defaultViewAsStudentState();
     }
     currentUser = data.user;
     applyWorkspaceUrlState(workspaceUrlStateFromLocation(), { initial: true });
@@ -594,6 +599,7 @@ async function loadSession() {
     presentationSlotFilter = "all";
     adminArchiveExportFilter = "all";
     adminAuditFilters = defaultAdminAuditFilters();
+    viewAsStudentState = defaultViewAsStudentState();
     renderSignIn(messageForNetworkError(error), "error");
   }
 }
@@ -671,8 +677,21 @@ async function loadWorkspaceData(statusMessage = "") {
   if (!availableSections().some((section) => section.id === activeSection)) {
     activeSection = firstAvailable;
   }
+  const currentUrl = currentWorkspaceUrl();
+  if (currentUrl && hasViewAsStudentUrlState(currentUrl.searchParams) && !canUseViewAsStudent(roles)) {
+    viewAsStudentState = defaultViewAsStudentState();
+    syncCurrentWorkspaceUrlState({ replace: true });
+  }
   if (activeSection === "teacher") {
     await restoreReviewQueueSelectionFromCurrentRows({ renderLoading: false });
+  }
+  if (shouldRestoreViewAsStudentFromUrlState(roles)) {
+    await restoreViewAsStudentFromUrlState({
+      renderLoading: false,
+      syncUrl: false,
+      message: statusMessage || "Student view restored.",
+    });
+    return;
   }
   if (shouldRestoreSiteStudentDetailFromUrlState(roles)) {
     await restoreSiteStudentDetailFromUrlState({
@@ -994,10 +1013,13 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   const sections = availableSections({ mode: activeWorkspaceMode });
   const primaryRole = primaryRoleForUser(currentUser);
   const roles = roleIds(currentUser);
+  const viewingAsStudent = isViewAsStudentActive();
+  const guidancePrimaryRole = viewingAsStudent ? "student" : primaryRole;
+  const guidanceRoles = viewingAsStudent ? new Set(["student"]) : roles;
   const siteContext = currentSiteWorkspaceContext();
   const headerTitle = isAdminConsole
     ? "Admin Console"
-    : primaryRole === "student" ? "Capstone Project Workspace" : "Capstone Workspace";
+    : primaryRole === "student" || viewingAsStudent ? "Capstone Project Workspace" : "Capstone Workspace";
   const headerSubtitle = isAdminConsole
     ? adminConsoleSubtitle(consoleCapabilities)
     : workspaceHeaderSubtitle(primaryRole, siteContext);
@@ -1005,7 +1027,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     ? adminConsoleHeaderContext(consoleCapabilities)
     : workspaceHeaderContext(primaryRole, siteContext);
   const roleFirstOverview = !isAdminConsole && primaryRole === "program_teacher" && activeSection === "overview";
-  const studentFirstWorkspace = !isAdminConsole && primaryRole === "student" && activeSection === "student";
+  const studentFirstWorkspace = !isAdminConsole && (primaryRole === "student" || viewingAsStudent) && activeSection === "student";
   const activeSectionFirst = roleFirstOverview || studentFirstWorkspace;
   const modeUnavailableNotice = blockedWorkspaceMode === "admin" && !isAdminConsole
     ? renderAdminConsoleUnavailableNotice()
@@ -1014,12 +1036,12 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     ? renderWorkspaceSectionUnavailableNotice(blockedWorkspaceSection)
     : "";
   const renderBlockedSectionOnly = Boolean(sectionUnavailableNotice);
-  const screenGuidance = renderBlockedSectionOnly ? "" : renderScreenGuidance(activeSection, primaryRole, roles, sections);
+  const screenGuidance = renderBlockedSectionOnly ? "" : renderScreenGuidance(activeSection, guidancePrimaryRole, guidanceRoles, sections);
   const activeSectionMarkup = renderBlockedSectionOnly
     ? ""
     : isAdminConsole ? renderAdminConsoleActiveSection() : renderActiveSection();
   workspaceMain.innerHTML = `
-    <section class="workspace-app" data-primary-role="${escapeHtml(primaryRole)}" data-app-mode="${escapeHtml(activeWorkspaceMode)}" data-nav-state="${workspaceNavCollapsed ? "collapsed" : "expanded"}">
+    <section class="workspace-app" data-primary-role="${escapeHtml(primaryRole)}" data-app-mode="${escapeHtml(activeWorkspaceMode)}" data-nav-state="${workspaceNavCollapsed ? "collapsed" : "expanded"}" data-view-as-student="${viewingAsStudent ? "active" : "inactive"}">
       <header class="workspace-topbar">
         <div class="workspace-topbar-start">
           <button class="workspace-menu-toggle" id="workspaceMenuToggle" type="button" aria-controls="workspaceNavigationRail" aria-expanded="${workspaceNavCollapsed ? "false" : "true"}" aria-pressed="${workspaceNavCollapsed ? "true" : "false"}" aria-label="${workspaceNavCollapsed ? "Open menu" : "Close menu"}">
@@ -1072,8 +1094,9 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
           </section>
         </aside>
         <div class="workspace-main ${isAdminConsole ? "workspace-admin-console-main" : ""}">
+          ${renderViewAsStudentBanner()}
           ${statusMessage ? statusHtml(statusMessage, tone) : ""}
-          ${isAdminConsole ? renderAdminConsoleHeader(consoleCapabilities, sections) : primaryRole === "student" ? "" : renderProductHeader({
+          ${isAdminConsole ? renderAdminConsoleHeader(consoleCapabilities, sections) : primaryRole === "student" || viewingAsStudent ? "" : renderProductHeader({
             eyebrow: "",
             title: headerTitle,
             subtitle: headerSubtitle,
@@ -3484,6 +3507,9 @@ function availableWorkspaceSections(user = currentUser) {
     if (!sections.some((section) => section.id === id)) sections.push({ id, label, detail });
   };
 
+  if (isViewAsStudentActive()) {
+    add("student", "Student Preview", "Read-only student workspace preview");
+  }
   if (roles.has("student")) {
     add("student", "My Work", "Next step, phase goals, proof, and feedback");
     add("presentation", "Presentation", "Schedule, outline, and day-of status");
@@ -4883,6 +4909,7 @@ function renderStudentRow(student, readOnly = false, permissions = {}, scope = {
         <button class="workspace-link-button workspace-link-button-small" type="button" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(student.studentId || "")}">
           View detail
         </button>
+        ${renderViewAsStudentAction(student.studentId, student.displayName, { sourceSection: "students" })}
         ${readOnly ? `<span class="workspace-chip" data-workspace-mode="read-only">Read-only</span>` : ""}
       </div>
       ${canRemoveStudent ? `
@@ -5262,7 +5289,10 @@ function renderSiteStudentDetailSurface(directory) {
             <p class="workspace-muted">${escapeHtml(student.email || "")}</p>
             <p class="workspace-muted" data-student-detail-return-context="${escapeHtml(returnCopy.sectionId)}">${escapeHtml(returnCopy.hint)}</p>
           </div>
-          <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="close">${escapeHtml(returnCopy.buttonLabel)}</button>
+          <div class="workspace-row-actions">
+            ${renderViewAsStudentAction(student.studentId || state.studentId, student.displayName || title, { sourceSection: state.sourceSection || "students" })}
+            <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="close">${escapeHtml(returnCopy.buttonLabel)}</button>
+          </div>
         </div>
         <div class="workspace-chip-row">
           <span class="workspace-site-context-badge">${escapeHtml(scope.siteName || directory.scope?.siteName || "Selected school")}</span>
@@ -6098,6 +6128,7 @@ function renderSiteTopRiskStudents(rows = []) {
                 <button class="workspace-link-button workspace-link-button-small" type="button" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(row.studentId)}">
                   View detail
                 </button>
+                ${renderViewAsStudentAction(row.studentId, row.studentName, { sourceSection: "siteDashboard" })}
               ` : ""}
             </div>
           </article>
@@ -6847,6 +6878,7 @@ function renderMentorUnassignedStudents(students = [], permissions = {}) {
               <button class="workspace-link-button workspace-link-button-small" type="button" data-mentor-assignment-action="open-student" data-mentor-student-id="${escapeHtml(student.studentId || "")}">
                 View student detail
               </button>
+              ${renderViewAsStudentAction(student.studentId, student.displayName, { sourceSection: "mentorAssignments" })}
             ` : ""}
           </div>
         </article>
@@ -6991,6 +7023,7 @@ function renderMentorActiveAssignments(assignments = [], permissions = {}) {
               <button class="workspace-link-button workspace-link-button-small" type="button" data-mentor-assignment-action="open-student" data-mentor-student-id="${escapeHtml(assignment.studentId || "")}">
                 View student detail
               </button>
+              ${renderViewAsStudentAction(assignment.studentId, assignment.studentName, { sourceSection: "mentorAssignments" })}
             ` : ""}
             ${assignment.mentorUserId ? `
               <button class="workspace-link-button workspace-link-button-small" type="button" data-mentor-assignment-action="filter-mentor" data-mentor-id="${escapeHtml(assignment.mentorUserId || "")}">
@@ -8165,6 +8198,7 @@ function operationsDetailButton(studentId, permissions = {}) {
     <button class="workspace-link-button workspace-link-button-small" type="button" data-operations-action="open-student" data-operations-student-id="${escapeHtml(studentId || "")}">
       View student detail
     </button>
+    ${renderViewAsStudentAction(studentId, "", { sourceSection: "operations" })}
   ` : "";
 }
 
@@ -8869,8 +8903,9 @@ function renderStudentSection() {
   const archiveNextAction = studentArchivePrimaryNextAction(unwrap(currentData.archiveReadiness));
   const activeSubmissionFilter = studentSubmissionFilterKey(studentSubmissionFilter);
   const filteredSubmissions = filterStudentSubmissionRows(submissions, activeSubmissionFilter);
+  const previewingStudent = isViewAsStudentActive();
   return `
-    <section class="workspace-card workspace-hero-card workspace-student-progress-hero" aria-labelledby="studentProgressTitle">
+    <section class="workspace-card workspace-hero-card workspace-student-progress-hero" aria-labelledby="studentProgressTitle" data-student-view-mode="${previewingStudent ? "staff-preview" : "self"}">
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Student home</p>
@@ -8899,6 +8934,7 @@ function renderStudentSection() {
         ${renderStudentSummaryTile("Mentor Help", summary.mentor.assigned ? `Mentor: ${summary.mentor.name}` : "No mentor assigned yet", summary.mentor.assigned ? "Ask your mentor or Program Teacher if something looks wrong." : "Ask your Program Teacher who can help with mentor questions.", summary.mentor.assigned ? "mentor" : "warning")}
       </div>
     </section>
+    ${previewingStudent ? renderViewAsStudentReadOnlyNotice() : ""}
     ${renderStudentSetupGuide(summary, requirements)}
     ${renderStudentMissionBoard(summary, nextSteps, submissions, evidence, feedback, requirements, archiveNextAction)}
     ${renderFirstUseGuide("student", "Use My Work in order", [
@@ -10841,6 +10877,9 @@ function renderStudentRequirementEvidenceRow(item) {
 function renderStudentSubmissionActionButton(item) {
   const actionState = studentSubmissionActionState(item);
   if (!actionState.visible) return "";
+  if (isViewAsStudentActive()) {
+    return `<span class="workspace-summary-badge" data-view-as-student-submit-disabled="true">Preview only</span>`;
+  }
   if (!actionState.canSubmit) {
     return `<button class="workspace-button workspace-button-small workspace-button-secondary" type="button" data-student-submission-action="focus-evidence" data-student-submission-id="${escapeHtml(actionState.submissionId)}">${escapeHtml(actionState.label)}</button>`;
   }
@@ -11924,6 +11963,9 @@ function renderStudentDetailFact(label, value) {
 function renderEvidenceForms(submissions, requirements = []) {
   const rows = Array.isArray(submissions) ? submissions : [];
   const archiveBody = unwrap(currentData.archiveReadiness);
+  if (isViewAsStudentActive()) {
+    return renderViewAsStudentProofPreview(rows, requirements, archiveBody);
+  }
   const linkGuideId = "workspaceProofGuideLink";
   const fileGuideId = "workspaceProofGuideFile";
   const options = rows.map((submission) => `
@@ -12004,6 +12046,29 @@ function renderEvidenceForms(submissions, requirements = []) {
         </div>
       </form>
     </div>
+  `;
+}
+
+function renderViewAsStudentProofPreview(submissions = [], requirements = []) {
+  const rows = Array.isArray(submissions) ? submissions : [];
+  return `
+    <section class="workspace-view-as-proof-preview" data-view-as-student-proof-preview="true">
+      <strong>Proof tools hidden in preview</strong>
+      <p>Students see proof upload and link tools here. Staff preview keeps those controls hidden so no proof, submission, or file state can change.</p>
+      ${rows.length ? `
+        <div class="workspace-list">
+          ${rows.slice(0, 5).map((submission) => {
+            const guide = studentProofGuideForSubmission(submission, requirements);
+            return `
+              <article class="workspace-mini-row">
+                <span>${escapeHtml(guide.title)}</span>
+                <small>${escapeHtml(guide.statusLabel)} / ${escapeHtml(guide.nextAction)}</small>
+              </article>
+            `;
+          }).join("")}
+        </div>
+      ` : `<div class="workspace-empty">No student proof tools are available because no started work is visible.</div>`}
+    </section>
   `;
 }
 
@@ -12954,6 +13019,7 @@ function renderReviewQueueRow(item, selectedId, permissions = {}) {
         <button class="workspace-link-button workspace-link-button-small" type="button" data-review-queue-action="select" data-review-submission-id="${escapeHtml(item.submissionId || "")}" data-review-row-action-label="${escapeHtml(actionLabel.toLowerCase().replace(/\s+/g, "-"))}">
           ${escapeHtml(selected ? "Selected row" : actionLabel)}
         </button>
+        ${renderViewAsStudentAction(item.studentId, item.studentName, { sourceSection: "teacher" })}
       </div>
     </article>
   `;
@@ -13090,6 +13156,7 @@ function renderReviewSubmissionPanel(selected, body) {
         <button class="workspace-link-button workspace-link-button-small" type="button" data-review-queue-action="open-student" data-review-student-id="${escapeHtml(selected.studentId || "")}">
           View student detail
         </button>
+        ${renderViewAsStudentAction(selected.studentId, selected.studentName, { sourceSection: "teacher" })}
       </div>
       ${renderReviewSelectedSummary(selected, canDecide, permissions)}
       ${renderReviewHistorySummary(historyResult, history)}
@@ -15620,6 +15687,9 @@ function bindWorkspaceForms() {
   document.querySelectorAll("[data-site-student-action]").forEach((button) => {
     button.addEventListener("click", handleSiteStudentAction);
   });
+  document.querySelectorAll("[data-view-as-student-action]").forEach((button) => {
+    button.addEventListener("click", handleViewAsStudentAction);
+  });
   document.querySelectorAll("[data-student-detail-tab]").forEach((button) => {
     button.addEventListener("click", selectSiteStudentDetailTab);
   });
@@ -15908,6 +15978,10 @@ async function handleStudentSubmissionAction(event) {
     focusEvidenceFormsForSubmission(submissionId);
     return;
   }
+  if (isViewAsStudentActive()) {
+    renderAppShell("Student preview is read-only. Exit student view to return to staff workflows.", "error");
+    return;
+  }
   if (action !== "submit" || busy) return;
   busy = true;
   button.disabled = true;
@@ -16078,6 +16152,109 @@ async function applyOperationsReadinessFilters(event) {
   activeSection = "operations";
   syncOperationsReadinessUrlState();
   await loadOperationsReadinessResult("Operations filters applied.");
+}
+
+async function handleViewAsStudentAction(event) {
+  const button = event?.currentTarget;
+  const action = button?.dataset?.viewAsStudentAction || "";
+  if (action === "exit") {
+    exitViewAsStudent("Exited student view.");
+    return;
+  }
+  if (action !== "enter") return;
+  await enterViewAsStudent(button?.dataset?.viewAsStudentId || "", {
+    studentName: button?.dataset?.viewAsStudentName || "",
+    sourceSection: button?.dataset?.viewAsStudentSourceSection || activeSection,
+  });
+}
+
+async function enterViewAsStudent(studentId, options = {}) {
+  const selectedStudentId = cleanDirectoryFilter(studentId || "");
+  if (!selectedStudentId) return;
+  if (!canUseViewAsStudent(roleIds(currentUser))) {
+    renderAppShell("Student preview is not available for this account.", "error");
+    return;
+  }
+  const sourceSection = cleanWorkspaceSection(options.sourceSection || activeSection) || "students";
+  const sourceMode = cleanWorkspaceMode(activeWorkspaceMode) || "workspace";
+  const studentName = String(options.studentName || "").trim().slice(0, 160);
+  viewAsStudentState = {
+    ...defaultViewAsStudentState(),
+    studentId: selectedStudentId,
+    studentName,
+    sourceSection,
+    sourceMode,
+    loading: true,
+  };
+  activeWorkspaceMode = "workspace";
+  activeSection = "student";
+  currentData.dashboard = null;
+  currentData.archiveReadiness = null;
+  syncViewAsStudentUrlState();
+  renderAppShell("Loading student view...");
+  await loadViewAsStudentPreview("Student view loaded.");
+}
+
+async function restoreViewAsStudentFromUrlState(options = {}) {
+  if (!shouldRestoreViewAsStudentFromUrlState(roleIds(currentUser))) return false;
+  activeWorkspaceMode = "workspace";
+  activeSection = "student";
+  viewAsStudentState = {
+    ...viewAsStudentState,
+    loading: true,
+  };
+  currentData.dashboard = null;
+  currentData.archiveReadiness = null;
+  if (options.renderLoading !== false) renderAppShell("Loading student view...");
+  return loadViewAsStudentPreview(options.message || "Student view restored.", {
+    errorMessage: options.errorMessage,
+    syncUrl: options.syncUrl,
+  });
+}
+
+async function loadViewAsStudentPreview(message = "Student view loaded.", options = {}) {
+  const studentId = cleanDirectoryFilter(viewAsStudentState.studentId || "");
+  if (!studentId || !canUseViewAsStudent(roleIds(currentUser))) {
+    exitViewAsStudent(options.errorMessage || "Student preview is not available for this account.", "error", { replaceUrl: true });
+    return false;
+  }
+  const dashboardResult = await settleApi(apiJson(`/api/student/dashboard?studentId=${encodeURIComponent(studentId)}`));
+  if (!dashboardResult.ok) {
+    const reason = dashboardResult.status === 403
+      ? "Student view is outside this account's authorized scope."
+      : "Student view unavailable.";
+    exitViewAsStudent(options.errorMessage || reason, "error", { replaceUrl: true });
+    return false;
+  }
+  const archiveResult = await settleApi(apiJson(`/api/student/archive/readiness?studentId=${encodeURIComponent(studentId)}`));
+  const dashboard = unwrap(dashboardResult) || {};
+  viewAsStudentState = {
+    ...viewAsStudentState,
+    loading: false,
+    result: dashboardResult,
+    archiveResult,
+    studentName: String(dashboard.student?.displayName || dashboard.studentName || viewAsStudentState.studentName || "").trim().slice(0, 160),
+  };
+  currentData.dashboard = dashboardResult;
+  currentData.archiveReadiness = archiveResult;
+  activeWorkspaceMode = "workspace";
+  activeSection = "student";
+  if (options.syncUrl !== false) syncViewAsStudentUrlState({ replace: Boolean(options.replaceUrl) });
+  renderAppShell(message, "success");
+  return true;
+}
+
+function exitViewAsStudent(message = "Exited student view.", tone = "success", options = {}) {
+  const sourceSection = cleanWorkspaceSection(viewAsStudentState.sourceSection) || "students";
+  const sourceMode = cleanWorkspaceMode(viewAsStudentState.sourceMode) || "workspace";
+  viewAsStudentState = defaultViewAsStudentState();
+  currentData.dashboard = null;
+  currentData.archiveReadiness = null;
+  activeWorkspaceMode = sourceMode;
+  const allowedIds = availableSectionIds(activeWorkspaceMode);
+  activeSection = allowedIds.has(sourceSection) ? sourceSection : defaultSectionForMode(activeWorkspaceMode);
+  syncCurrentWorkspaceUrlState({ replace: options.replaceUrl !== false });
+  renderAppShell(message, tone);
 }
 
 async function handleOperationsReadinessAction(event) {
@@ -17469,6 +17646,10 @@ function renderPermissionDeniedSection(title, detail) {
 
 async function attachEvidenceLink(event) {
   event.preventDefault();
+  if (isViewAsStudentActive()) {
+    renderAppShell("Student preview is read-only. Proof links cannot be attached from this mode.", "error");
+    return;
+  }
   if (busy) return;
   const form = event.currentTarget;
   const values = Object.fromEntries(new FormData(form).entries());
@@ -17561,6 +17742,10 @@ function workspaceProofLinkLooksUnsafe(url) {
 
 async function uploadEvidenceFile(event) {
   event.preventDefault();
+  if (isViewAsStudentActive()) {
+    renderAppShell("Student preview is read-only. Files cannot be uploaded from this mode.", "error");
+    return;
+  }
   if (busy) return;
   const form = event.currentTarget;
   const attempt = buildUploadAttemptFromForm(form);
@@ -17618,6 +17803,10 @@ async function handleUploadFileSelected(event) {
 }
 
 async function retryEvidenceUpload() {
+  if (isViewAsStudentActive()) {
+    renderAppShell("Student preview is read-only. Files cannot be uploaded from this mode.", "error");
+    return;
+  }
   if (busy) return;
   if (!lastUploadAttempt?.file) {
     updateUploadState({
@@ -18019,6 +18208,7 @@ async function signOut() {
     studentRequirementDetailState = defaultStudentRequirementDetailState();
     studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
     studentSubmissionFilter = defaultStudentSubmissionFilter();
+    viewAsStudentState = defaultViewAsStudentState();
     presentationSlotFilter = "all";
     adminArchiveExportFilter = "all";
     renderSignIn("You have signed out.", "success");
@@ -18067,6 +18257,83 @@ function renderApiNotice(result) {
 
 function statusHtml(message, tone = "neutral") {
   return `<div class="workspace-status ${tone === "success" || tone === "error" ? tone : ""}">${escapeHtml(message)}</div>`;
+}
+
+function canUseViewAsStudent(roles = roleIds(currentUser)) {
+  if (!roles?.size || roles.has("student")) return false;
+  return hasGlobalAdminRole(roles)
+    || roles.has("site_admin")
+    || roles.has("administration")
+    || roles.has("program_teacher")
+    || roles.has("mentor")
+    || roles.has("viewer");
+}
+
+function isViewAsStudentActive() {
+  return Boolean(cleanDirectoryFilter(viewAsStudentState.studentId) && canUseViewAsStudent(roleIds(currentUser)));
+}
+
+function viewAsStudentDisplayName() {
+  const dashboard = unwrap(currentData.dashboard);
+  const name = String(
+    viewAsStudentState.studentName
+      || dashboard?.student?.displayName
+      || dashboard?.studentName
+      || "",
+  ).trim();
+  return name || "Selected student";
+}
+
+function renderViewAsStudentBanner() {
+  if (!isViewAsStudentActive()) return "";
+  const source = studentDetailReturnCopy(viewAsStudentState.sourceSection || "students");
+  const readOnlyCopy = roleIds(currentUser).has("viewer")
+    ? "Viewer access stays read-only while previewing the student workspace."
+    : "This is a read-only staff preview of the student workspace.";
+  return `
+    <section class="workspace-view-as-banner" data-view-as-student-banner="true" aria-label="View as student mode">
+      <div>
+        <span>Viewing as: ${escapeHtml(viewAsStudentDisplayName())}</span>
+        <small>${escapeHtml(readOnlyCopy)} Exit returns to ${escapeHtml(source.label)}.</small>
+      </div>
+      <button class="workspace-button workspace-button-secondary" type="button" data-view-as-student-action="exit">
+        Exit student view
+      </button>
+    </section>
+  `;
+}
+
+function renderViewAsStudentAction(studentId, studentName = "", options = {}) {
+  const normalizedStudentId = cleanDirectoryFilter(studentId || "");
+  if (!normalizedStudentId || !canUseViewAsStudent(roleIds(currentUser))) return "";
+  const sourceSection = cleanWorkspaceSection(options.sourceSection || activeSection) || "students";
+  const label = options.label || "View as Student";
+  const name = String(studentName || "").trim().slice(0, 160);
+  return `
+    <button
+      class="workspace-link-button workspace-link-button-small"
+      type="button"
+      data-view-as-student-action="enter"
+      data-view-as-student-id="${escapeHtml(normalizedStudentId)}"
+      data-view-as-student-name="${escapeHtml(name)}"
+      data-view-as-student-source-section="${escapeHtml(sourceSection)}"
+    >
+      ${escapeHtml(label)}
+    </button>
+  `;
+}
+
+function renderViewAsStudentReadOnlyNotice() {
+  const roles = roleIds(currentUser);
+  const detail = roles.has("viewer")
+    ? "Viewer role remains read-only. Student proof, submissions, passwords, and review decisions cannot be changed from this preview."
+    : "Staff preview is read-only by default. Use the normal staff workspace when a proven staff workflow owns a change.";
+  return `
+    <section class="workspace-view-as-readonly" data-view-as-student-readonly="true">
+      <strong>Safe preview only</strong>
+      <p>${escapeHtml(detail)}</p>
+    </section>
+  `;
 }
 
 function greetingForUser() {
@@ -18309,6 +18576,7 @@ function renderRecentProgramActivity(rows = []) {
               <button class="workspace-link-button workspace-link-button-small" type="button" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(row.studentId)}">
                 View detail
               </button>
+              ${renderViewAsStudentAction(row.studentId, row.studentName, { sourceSection: activeSection || "students" })}
             ` : ""}
           </div>
         </article>
@@ -18361,13 +18629,17 @@ function renderReviewQueueSummary(rows = [], options = {}) {
     <div class="workspace-list">
       ${rows.slice(0, 8).map((item) => {
         const studentId = item.studentId || item.student_id || "";
+        const studentName = item.studentName || item.student_name || "Student";
         const detailAction = allowStudentDetail && studentId
-          ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(studentId)}">View student detail</button>`
+          ? `
+            <button class="workspace-link-button workspace-link-button-small" type="button" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(studentId)}">View student detail</button>
+            ${renderViewAsStudentAction(studentId, studentName, { sourceSection: "adminDashboard" })}
+          `
           : "";
         return `
           <article class="workspace-row">
             <div>
-              <strong>${escapeHtml(item.studentName || item.student_name || "Student")}</strong>
+              <strong>${escapeHtml(studentName)}</strong>
               <p>${escapeHtml(item.requirementTitle || item.requirement_title || "Senior Project work")} / ${safeNumber(item.evidenceCount ?? item.evidence_count)} proof item${safeNumber(item.evidenceCount ?? item.evidence_count) === 1 ? "" : "s"}</p>
             </div>
             <div class="workspace-row-actions">
@@ -18574,6 +18846,7 @@ function renderMentorStudentCards(rows = []) {
                 <button class="workspace-button workspace-button-small workspace-button-primary" type="button" data-mentor-dashboard-action="open-student" data-mentor-dashboard-student-id="${escapeHtml(row.studentId)}">
                   View detail
                 </button>
+                ${renderViewAsStudentAction(row.studentId, row.studentName, { sourceSection: "mentorDashboard" })}
                 <button class="workspace-link-button workspace-link-button-small" type="button" data-workspace-disclosure-action="toggle" data-workspace-disclosure-scope="mentorRow" data-workspace-disclosure-id="${escapeHtml(studentId)}" aria-expanded="${detailOpen ? "true" : "false"}" aria-controls="${escapeHtml(detailDomId)}">
                   ${detailOpen ? "Hide details" : "Details"}
                 </button>
@@ -20105,6 +20378,18 @@ function defaultSiteStudentDetailState() {
   };
 }
 
+function defaultViewAsStudentState() {
+  return {
+    studentId: "",
+    studentName: "",
+    sourceSection: "students",
+    sourceMode: "workspace",
+    loading: false,
+    result: null,
+    archiveResult: null,
+  };
+}
+
 function defaultStudentRequirementDetailState() {
   return {
     selectedRequirementId: "",
@@ -20193,6 +20478,15 @@ async function handleWorkspaceUrlPopState() {
   const state = workspaceUrlStateFromLocation();
   applyWorkspaceUrlState(state);
   const roles = roleIds(currentUser);
+  if (state.hasViewAsStudentState && currentUser && canUseViewAsStudent(roles)) {
+    await restoreViewAsStudentFromUrlState({
+      renderLoading: false,
+      syncUrl: false,
+      message: "Student view link restored.",
+      errorMessage: "Student view is outside this account's authorized scope.",
+    });
+    return;
+  }
   if (state.hasReviewQueueState && currentUser && hasSiteReviewQueueRole(roles)) {
     await loadReviewQueueResult(state.hasSiteStudentDetailState ? "Student detail link restored." : "Review queue link restored.", { syncUrl: false });
     return;
@@ -20251,6 +20545,20 @@ async function handleWorkspaceUrlPopState() {
 function applyWorkspaceUrlState(state, options = {}) {
   if (!state) return;
   if (state.siteId) selectedSiteId = state.siteId;
+  const roles = roleIds(currentUser);
+  const canRestoreViewAs = state.hasViewAsStudentState && canUseViewAsStudent(roles);
+  if (canRestoreViewAs) {
+    viewAsStudentState = {
+      ...defaultViewAsStudentState(),
+      ...state.viewAsStudentState,
+    };
+    activeWorkspaceMode = "workspace";
+    blockedWorkspaceMode = "";
+  } else if (!state.hasViewAsStudentState) {
+    viewAsStudentState = defaultViewAsStudentState();
+  } else if (currentUser) {
+    viewAsStudentState = defaultViewAsStudentState();
+  }
   const requestedMode = cleanWorkspaceMode(state.mode);
   if (requestedMode === "admin") {
     if (adminConsoleCapabilitiesFor(currentUser).canSee) {
@@ -20360,9 +20668,10 @@ function workspaceUrlStateFromLocation() {
   const hasAdminAuditState = requestedSection === "audit" || (!requestedSection && !requestedView && hasAdminAuditFilterParams(params));
   const hasAdminArchiveExportState = requestedSection === "archiveExports" || (!requestedSection && !requestedView && hasAdminArchiveExportFilterParams(params));
   const hasSiteStudentDetailState = hasSiteStudentDetailUrlState(params, resolvedSection);
+  const hasViewAsStudentState = hasViewAsStudentUrlState(params);
   return {
     mode: requestedMode,
-    section: resolvedSection,
+    section: hasViewAsStudentState ? "student" : resolvedSection,
     siteId: cleanDirectoryFilter(params.get("siteId")),
     hasReviewQueueState,
     reviewQueueFilters: hasReviewQueueState ? reviewQueueFiltersFromSearchParams(params) : defaultReviewQueueFilters(),
@@ -20386,6 +20695,10 @@ function workspaceUrlStateFromLocation() {
     siteStudentDetailState: hasSiteStudentDetailState
       ? siteStudentDetailUrlStateFromSearchParams(params, resolvedSection)
       : defaultSiteStudentDetailState(),
+    hasViewAsStudentState,
+    viewAsStudentState: hasViewAsStudentState
+      ? viewAsStudentUrlStateFromSearchParams(params)
+      : defaultViewAsStudentState(),
   };
 }
 
@@ -20437,6 +20750,19 @@ function hasSiteStudentDetailUrlState(params, section) {
   const studentId = cleanDirectoryFilter(params.get("detailStudentId"));
   const sourceSection = cleanWorkspaceSection(section) || "students";
   return Boolean(studentId && SITE_STUDENT_DETAIL_URL_SECTIONS.has(sourceSection));
+}
+
+function hasViewAsStudentUrlState(params) {
+  return Boolean(cleanDirectoryFilter(params.get("viewAsStudentId")));
+}
+
+function viewAsStudentUrlStateFromSearchParams(params) {
+  return {
+    ...defaultViewAsStudentState(),
+    studentId: cleanDirectoryFilter(params.get("viewAsStudentId")),
+    sourceSection: cleanWorkspaceSection(params.get("viewAsReturnSection")) || "students",
+    sourceMode: cleanWorkspaceMode(params.get("viewAsReturnMode")) || "workspace",
+  };
 }
 
 function siteStudentDetailUrlStateFromSearchParams(params, section) {
@@ -20601,6 +20927,10 @@ function syncReviewQueueUrlState(options = {}) {
 }
 
 function syncCurrentWorkspaceUrlState(options = {}) {
+  if (isViewAsStudentActive()) {
+    syncViewAsStudentUrlState(options);
+    return;
+  }
   if (activeSection === "teacher") {
     syncReviewQueueUrlState(options);
     return;
@@ -20634,6 +20964,37 @@ function syncCurrentWorkspaceUrlState(options = {}) {
     return;
   }
   syncWorkspaceSectionOnlyUrlState(activeSection, options);
+}
+
+function syncViewAsStudentUrlState(options = {}) {
+  const url = currentWorkspaceUrl();
+  if (!url || typeof window === "undefined" || !window.history) return;
+  const studentId = cleanDirectoryFilter(viewAsStudentState.studentId || "");
+  if (!studentId || !canUseViewAsStudent(roleIds(currentUser))) return;
+  for (const param of WORKSPACE_URL_FILTER_PARAMS) {
+    url.searchParams.delete(param);
+  }
+  url.searchParams.delete("view");
+  url.searchParams.set("mode", "workspace");
+  url.searchParams.set("section", "student");
+  const siteId = selectedSiteQueryValue()
+    || unwrap(currentData.siteStudents)?.scope?.siteId
+    || unwrap(currentData.siteDashboard)?.scope?.siteId
+    || unwrap(currentData.reviewQueue)?.scope?.siteId
+    || unwrap(currentData.mentorAssignments)?.scope?.siteId
+    || unwrap(currentData.operationsReadiness)?.scope?.siteId
+    || "";
+  if (siteId) url.searchParams.set("siteId", siteId);
+  url.searchParams.set("viewAsStudentId", studentId);
+  const sourceSection = cleanWorkspaceSection(viewAsStudentState.sourceSection) || "students";
+  const sourceMode = cleanWorkspaceMode(viewAsStudentState.sourceMode) || "workspace";
+  url.searchParams.set("viewAsReturnSection", sourceSection);
+  if (sourceMode !== "workspace") url.searchParams.set("viewAsReturnMode", sourceMode);
+  const nextUrl = `${url.pathname}${url.search}${url.hash}`;
+  const currentPath = `${window.location.pathname || url.pathname}${window.location.search || ""}${window.location.hash || ""}`;
+  if (nextUrl === currentPath) return;
+  const method = options.replace ? "replaceState" : "pushState";
+  window.history[method]?.({ section: "student", viewAsStudentId: studentId }, "", nextUrl);
 }
 
 function syncSiteStudentUrlState(options = {}) {
@@ -20787,6 +21148,10 @@ function canUseSiteStudentDetailUrlState(section, roles = roleIds(currentUser)) 
   if (sourceSection === "programDashboard") return roles.has("program_teacher");
   if (sourceSection === "operations") return hasSiteOperationsRole(roles);
   return false;
+}
+
+function shouldRestoreViewAsStudentFromUrlState(roles = roleIds(currentUser)) {
+  return Boolean(cleanDirectoryFilter(viewAsStudentState.studentId || "") && canUseViewAsStudent(roles));
 }
 
 function shouldRestoreSiteStudentDetailFromUrlState(roles = roleIds(currentUser), section = activeSection) {

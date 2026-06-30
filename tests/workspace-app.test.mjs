@@ -49,6 +49,98 @@ function authConfigFixture() {
   };
 }
 
+function studentPreviewDashboardFixture({ studentId = "demo-student-101", displayName = "Missing Mentor Demo 001" } = {}) {
+  return {
+    ok: true,
+    studentId,
+    student: {
+      studentId,
+      displayName,
+      email: `${studentId}@demo-student.capstone.test`,
+    },
+    viewer: { id: "staff-preview", self: false },
+    nextAction: "Fix the proposal revision and send it back for review.",
+    summary: {
+      requirementsTotal: 1,
+      requirementsComplete: 0,
+      phasesTotal: 1,
+      phasesComplete: 0,
+      completionPercent: 20,
+      currentStatus: "revision_requested",
+      submittedRequiredCount: 0,
+      missingRequiredCount: 1,
+      revisionRequestedCount: 1,
+      waitingForReviewCount: 0,
+      mentor: { assigned: true, name: "Mentor One" },
+    },
+    nextSteps: [
+      {
+        title: "Project proposal",
+        detail: "Fix the measurable success criteria.",
+        requirementId: "req-proposal",
+        status: "revision_requested",
+        submissionId: "submission-preview-001",
+        submissionStatus: "revision_requested",
+        evidenceCount: 1,
+      },
+    ],
+    requirements: [
+      {
+        requirementId: "req-proposal",
+        title: "Project proposal",
+        description: "Revise the project proposal.",
+        phase: "phase-1",
+        phaseLabel: "Phase 1",
+        status: "revision_requested",
+        submissionId: "submission-preview-001",
+        submissionStatus: "revision_requested",
+        version: 2,
+        evidenceCount: 1,
+        nextAction: "Fix the note and send it back.",
+      },
+    ],
+    submissions: [
+      {
+        id: "submission-preview-001",
+        requirement_id: "req-proposal",
+        requirement_title: "Project proposal",
+        status: "revision_requested",
+        version: 2,
+        updated_at: "2026-05-20T12:00:00.000Z",
+        evidence_count: 1,
+      },
+    ],
+    evidence: [
+      {
+        id: "evidence-preview-001",
+        submissionId: "submission-preview-001",
+        requirementId: "req-proposal",
+        requirementTitle: "Project proposal",
+        title: "Proposal draft",
+        artifact_type: "proposal",
+        source_kind: "external_link",
+        externalUrl: "https://example.com/proposal",
+        review_status: "pending_review",
+        created_at: "2026-05-19T12:00:00.000Z",
+      },
+    ],
+    feedback: [
+      {
+        id: "feedback-preview-001",
+        kind: "review",
+        submissionId: "submission-preview-001",
+        requirementTitle: "Project proposal",
+        submissionStatus: "revision_requested",
+        submissionVersion: 2,
+        status: "revision_requested",
+        message: "Add one measurable success criteria.",
+        authorName: "Program Teacher",
+        createdAt: "2026-05-20T12:00:00.000Z",
+      },
+    ],
+  };
+}
+
 function userForRoleProfile(roleId) {
   if (roleId === "role_pending") {
     return {
@@ -145,6 +237,97 @@ function profileRoutesForRole(roleId) {
     "/api/presentation-slots": { status: 200, body: { ok: true, slots: [], summary: {} } },
     "/api/reports/readiness": { status: 200, body: { ok: true, scope: "aggregate_only", metrics: {} } },
   };
+}
+
+function viewAsStudentRoutesForRole(roleId) {
+  const routes = { ...profileRoutesForRole(roleId) };
+  const allowedName = viewAsStudentAllowedName(roleId);
+  routes["/api/student/dashboard"] = ({ url }) => {
+    const parsed = new URL(url, "https://workspace.example");
+    const studentId = parsed.searchParams.get("studentId") || "demo-student-101";
+    if (studentId !== "demo-student-101") {
+      return { status: 403, body: { error: "forbidden" } };
+    }
+    return {
+      status: 200,
+      body: studentPreviewDashboardFixture({ studentId, displayName: allowedName }),
+    };
+  };
+  routes["/api/student/archive/readiness"] = ({ url }) => {
+    const parsed = new URL(url, "https://workspace.example");
+    const studentId = parsed.searchParams.get("studentId") || "demo-student-101";
+    if (studentId !== "demo-student-101") {
+      return { status: 403, body: { error: "forbidden" } };
+    }
+    return {
+      status: 200,
+      body: {
+        ok: true,
+        source: "staff_preview",
+        summary: { readyChecks: 0, missingChecks: 1, totalChecks: 1, archiveAvailableToRequest: false },
+        checks: [],
+        archive: { status: "not_requested", downloadUrl: null },
+        storage: { storageIdentifiersRedacted: true },
+        retention: { policyStatus: "policy_review_required" },
+      },
+    };
+  };
+  if (roleId === "mentor") {
+    routes["/api/mentor/dashboard"] = {
+      status: 200,
+      body: {
+        ok: true,
+        scope: "mentor_assigned",
+        summary: { assignedCount: 1, needsRevision: 1, missingMeeting: 1, presentationPending: 1 },
+        assignedStudents: [
+          {
+            studentId: "demo-student-101",
+            studentName: "Zoe Needs Help",
+            submissionStatus: "revision_requested",
+            latestSubmissionUpdatedAt: "2026-05-28T18:00:00.000Z",
+            evidenceCount: 3,
+            mentorMeetingStatus: "makeup_required",
+            latestMentorMeetingAt: "2026-05-27T15:30:00.000Z",
+            presentationStatus: "not_scheduled",
+            outlineStatus: "pending",
+            latestPresentationScheduledFor: "2026-05-29T18:15:00.000Z",
+            needsAttention: ["mentor_meeting", "presentation"],
+          },
+        ],
+      },
+    };
+  }
+  return routes;
+}
+
+function viewAsStudentAllowedName(roleId) {
+  if (roleId === "program_teacher") return "Revision Loop Demo 001";
+  if (roleId === "mentor") return "Zoe Needs Help";
+  return "Missing Mentor Demo 001";
+}
+
+async function enterViewAsStudentFromDataset(context, { studentId, studentName, sourceSection }) {
+  await vm.runInContext(`
+    handleViewAsStudentAction({
+      currentTarget: {
+        dataset: {
+          viewAsStudentAction: "enter",
+          viewAsStudentId: ${JSON.stringify(studentId)},
+          viewAsStudentName: ${JSON.stringify(studentName)},
+          viewAsStudentSourceSection: ${JSON.stringify(sourceSection)}
+        }
+      }
+    });
+  `, context);
+}
+
+function assertStaffPreviewActive(markup, studentName) {
+  assert.match(markup, /data-view-as-student="active"/);
+  assert.match(markup, new RegExp(`Viewing as:\\s*${escapeRegExp(studentName)}`));
+  assert.match(markup, /Exit student view/);
+  assert.match(markup, /data-student-view-mode="staff-preview"/);
+  assert.match(markup, /data-view-as-student-readonly="true"/);
+  assert.match(markup, /Staff preview is read-only|Viewer role remains read-only/);
 }
 
 function openWorkspaceDisclosure(context, scope, id) {
@@ -731,7 +914,7 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
   assert.doesNotMatch(signInBlock, /renderProductHeader\(/);
   assert.doesNotMatch(signInBlock, /Student progress|Private proof|Mentor coverage|Review queue|Presentation readiness/);
   assert.match(appShellBlock, /renderProductHeader\(\{[\s\S]*context: headerContext,[\s\S]*readOnly: roles\.has\("viewer"\)/);
-  assert.match(appShellBlock, /renderScreenGuidance\(activeSection, primaryRole, roles, sections\)/);
+  assert.match(appShellBlock, /renderScreenGuidance\(activeSection, guidancePrimaryRole, guidanceRoles, sections\)/);
   assert.match(screenGuidanceBlock, /renderScreenOrientation\(sectionId, primaryRole, roles, sections\)/);
   assert.match(screenGuidanceBlock, /renderScreenLanguageGuide\(sectionId, primaryRole, roles, sections\)/);
   assert.match(screenGuidanceBlock, /renderScreenActionImpactGuide\(sectionId, primaryRole, roles, sections\)/);
@@ -3523,6 +3706,102 @@ test("workspace opens real student detail, loads timeline, and preserves directo
   await vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "presentation" } } })', context);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-section="presentation"/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-detail-action="open-operations"|Open operations for this student/);
+});
+
+test("staff roles can enter and exit read-only View as Student from authorized contexts", async () => {
+  const roleCases = [
+    { roleId: "global_admin", section: "students", studentName: "Missing Mentor Demo 001" },
+    { roleId: "site_admin", section: "students", studentName: "Missing Mentor Demo 001" },
+    { roleId: "administration", section: "students", studentName: "Missing Mentor Demo 001" },
+    { roleId: "program_teacher", section: "teacher", studentName: "Revision Loop Demo 001" },
+    { roleId: "mentor", section: "mentorDashboard", studentName: "Zoe Needs Help" },
+    { roleId: "viewer", section: "students", studentName: "Missing Mentor Demo 001" },
+  ];
+
+  for (const roleCase of roleCases) {
+    const { context, workspaceRoot, fetchLog, window } = await createWorkspaceContextWithFetch(viewAsStudentRoutesForRole(roleCase.roleId));
+    vm.runInContext(`activeSection = ${JSON.stringify(roleCase.section)}; renderAppShell();`, context);
+    assert.match(
+      workspaceRoot.innerHTML,
+      /data-view-as-student-action="enter"[\s\S]*data-view-as-student-id="demo-student-101"[\s\S]*View as Student/,
+      `${roleCase.roleId} should see a View as Student action in an authorized staff context`,
+    );
+
+    await enterViewAsStudentFromDataset(context, {
+      studentId: "demo-student-101",
+      studentName: roleCase.studentName,
+      sourceSection: roleCase.section,
+    });
+
+    assertStaffPreviewActive(workspaceRoot.innerHTML, roleCase.studentName);
+    assert.equal(vm.runInContext("activeSection", context), "student");
+    assert.ok(fetchLog.includes("/api/student/dashboard?studentId=demo-student-101"));
+    assert.ok(fetchLog.includes("/api/student/archive/readiness?studentId=demo-student-101"));
+    const enteredUrl = new URL(window.location.href);
+    assert.equal(enteredUrl.searchParams.get("section"), "student");
+    assert.equal(enteredUrl.searchParams.get("viewAsStudentId"), "demo-student-101");
+    assert.equal(enteredUrl.searchParams.get("viewAsReturnSection"), roleCase.section);
+    openWorkspaceDisclosure(context, "student", "evidence");
+    assert.match(workspaceRoot.innerHTML, /data-view-as-student-proof-preview="true"/);
+    assert.doesNotMatch(workspaceRoot.innerHTML, /id="workspaceEvidenceLinkForm"|id="workspaceFileUploadForm"|data-student-storage-focus/);
+    openWorkspaceDisclosure(context, "student", "requirements");
+    assert.match(workspaceRoot.innerHTML, /data-view-as-student-submit-disabled="true"[\s\S]*Preview only/);
+    if (roleCase.roleId === "viewer") {
+      assert.match(workspaceRoot.innerHTML, /data-workspace-mode="read-only"/);
+      assert.match(workspaceRoot.innerHTML, /Read-only workspace/);
+    }
+
+    await vm.runInContext("exitViewAsStudent()", context);
+    assert.equal(vm.runInContext("activeSection", context), roleCase.section);
+    const exitedUrl = new URL(window.location.href);
+    assert.equal(exitedUrl.searchParams.get("section"), roleCase.section);
+    assert.equal(exitedUrl.searchParams.get("viewAsStudentId"), null);
+    assert.doesNotMatch(workspaceRoot.innerHTML, /Viewing as:/);
+  }
+});
+
+test("View as Student refresh and deep links restore allowed students and reject unauthorized students", async () => {
+  const allowed = await createWorkspaceContextWithFetch(viewAsStudentRoutesForRole("site_admin"), {
+    url: "https://workspace.example/workspace.html?section=student&siteId=site-desert-valley-high&viewAsStudentId=demo-student-101&viewAsReturnSection=students&unknown=keep",
+  });
+  assertStaffPreviewActive(allowed.workspaceRoot.innerHTML, "Missing Mentor Demo 001");
+  assert.equal(vm.runInContext("activeSection", allowed.context), "student");
+  assert.ok(allowed.fetchLog.includes("/api/student/dashboard?studentId=demo-student-101"));
+  const allowedUrl = new URL(allowed.window.location.href);
+  assert.equal(allowedUrl.searchParams.get("viewAsStudentId"), "demo-student-101");
+  assert.equal(allowedUrl.searchParams.get("unknown"), "keep");
+
+  const denied = await createWorkspaceContextWithFetch(viewAsStudentRoutesForRole("site_admin"), {
+    url: "https://workspace.example/workspace.html?section=student&siteId=site-desert-valley-high&viewAsStudentId=outside-student&viewAsReturnSection=students&unknown=keep",
+  });
+  assert.ok(denied.fetchLog.includes("/api/student/dashboard?studentId=outside-student"));
+  const deniedSection = vm.runInContext("activeSection", denied.context);
+  assert.notEqual(deniedSection, "student");
+  assert.equal(vm.runInContext("availableSectionIds(activeWorkspaceMode).has(activeSection)", denied.context), true);
+  assert.doesNotMatch(denied.workspaceRoot.innerHTML, /Viewing as:|data-view-as-student="active"/);
+  const deniedUrl = new URL(denied.window.location.href);
+  assert.equal(deniedUrl.searchParams.get("section"), deniedSection);
+  assert.equal(deniedUrl.searchParams.get("viewAsStudentId"), null);
+  assert.equal(deniedUrl.searchParams.get("unknown"), "keep");
+});
+
+test("student accounts do not see or activate View as Student", async () => {
+  const student = await createWorkspaceContextWithFetch(profileRoutesForRole("student"), {
+    url: "https://workspace.example/workspace.html?section=student&viewAsStudentId=demo-student-101&viewAsReturnSection=students&unknown=keep",
+  });
+
+  assert.equal(vm.runInContext("activeSection", student.context), "student");
+  assert.doesNotMatch(student.workspaceRoot.innerHTML, /data-view-as-student-action="enter"|Viewing as:/);
+  assert.match(student.workspaceRoot.innerHTML, /data-view-as-student="inactive"/);
+  assert.equal(new URL(student.window.location.href).searchParams.get("viewAsStudentId"), null);
+
+  await enterViewAsStudentFromDataset(student.context, {
+    studentId: "demo-student-101",
+    studentName: "Missing Mentor Demo 001",
+    sourceSection: "students",
+  });
+  assert.equal(vm.runInContext("activeSection", student.context), "student");
+  assert.doesNotMatch(student.workspaceRoot.innerHTML, /data-view-as-student="active"|Viewing as:/);
 });
 
 test("student detail reviews explain note visibility for scoped and admin readers", async () => {

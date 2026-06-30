@@ -123,6 +123,53 @@
   --workspace-soft: var(--abc-soft-purple);
 }
 
+.workspace-view-as-banner,
+.workspace-view-as-readonly,
+.workspace-view-as-proof-preview {
+  border: 1px solid rgba(20, 83, 45, 0.22);
+  border-radius: 8px;
+  background: #f0fdf4;
+  color: #14532d;
+  padding: 0.9rem 1rem;
+}
+
+.workspace-view-as-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.workspace-view-as-banner span,
+.workspace-view-as-readonly strong,
+.workspace-view-as-proof-preview strong {
+  display: block;
+  font-weight: 800;
+}
+
+.workspace-view-as-banner small,
+.workspace-view-as-readonly p,
+.workspace-view-as-proof-preview p {
+  color: #166534;
+}
+
+.workspace-view-as-readonly,
+.workspace-view-as-proof-preview {
+  margin-bottom: 1rem;
+}
+
+.workspace-view-as-proof-preview .workspace-list {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 760px) {
+  .workspace-view-as-banner {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
 .workspace-app[data-app-mode="admin"] {
   --workspace-primary: #22303a;
   --workspace-primary-dark: #172026;
