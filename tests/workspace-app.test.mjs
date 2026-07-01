@@ -603,7 +603,8 @@ test("workspace renders simplified working profiles for every role", async () =>
   const viewerOverview = await renderWorkspaceWithFetch(profileRoutesForRole("viewer"));
   assert.match(viewerOverview, /data-role-profile-start-card="read-only"[\s\S]*Open assigned students/);
   assert.match(viewerOverview, /data-role-profile-start-card="share-context"[\s\S]*Share context with the owner/);
-  assert.match(viewerOverview, /Read-only workspace[\s\S]*reviews, imports, and account updates stay with authorized staff/);
+  assert.match(viewerOverview, /Read-only workspace[\s\S]*You can[\s\S]*Open assigned student records/);
+  assert.match(viewerOverview, /You cannot[\s\S]*Edit records[\s\S]*change access/);
 });
 
 test("workspace separates Admin Console mode by role and URL state", async () => {
@@ -857,6 +858,9 @@ test("workspace exposes Figma-aligned design tokens and future site patterns", (
     ".workspace-problem-state-item",
     ".workspace-problem-state-label",
     ".workspace-problem-state-value",
+    ".workspace-read-only-boundary-list",
+    ".workspace-intentional-empty-state",
+    ".workspace-csv-import-stepper",
     ".workspace-site-switcher",
     ".workspace-tab-short",
     ".workspace-site-context-badge",
@@ -1085,6 +1089,13 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
   assert.match(workspaceJs, /Reason/);
   assert.match(workspaceJs, /Owner/);
   assert.match(workspaceJs, /Next action/);
+  assert.match(workspaceJs, /function renderIntentionalEmptyState/);
+  assert.match(workspaceJs, /data-intentional-empty-state/);
+  assert.match(workspaceJs, /id: "needs-attention-clear"[\s\S]*Nothing urgent matches this view/);
+  assert.match(workspaceJs, /id: "recent-program-activity-empty"[\s\S]*No recent program activity is visible yet/);
+  assert.match(workspaceJs, /id: "recent-school-activity-empty"[\s\S]*No recent school activity is visible yet/);
+  assert.match(workspaceJs, /filter\(\(action\) => !action\.section \|\| allowedSections\.has\(action\.section\)\)/);
+  assert.match(workspaceCss, /\.workspace-intentional-empty-state/);
   assert.match(workspaceJs, /function renderProblemStateActions\(actions = problemStateDefaultActions\(\)\)/);
   assert.match(workspaceJs, /data-problem-state-actions="true"/);
   assert.match(workspaceJs, /problemAction: "refresh"/);
@@ -3346,6 +3357,9 @@ test("workspace renders route-connected student directory with filters and real 
   }, "students");
   assert.match(viewer, /data-workspace-mode="read-only"/);
   assert.match(viewer, /Read-only workspace/);
+  assert.match(viewer, /data-read-only-boundary-list="viewer"/);
+  assert.match(viewer, /You can[\s\S]*Open assigned student records/);
+  assert.match(viewer, /You cannot[\s\S]*Edit records/);
   assert.match(viewer, /Read-only/);
   assert.doesNotMatch(viewer, /Assign mentor|Archive retry|Review action/);
 
@@ -3797,6 +3811,7 @@ test("staff roles can enter and exit read-only View as Student from authorized c
     assert.match(workspaceRoot.innerHTML, /Read-only preview[\s\S]*Authorized student only[\s\S]*No student changes saved here/);
     assert.match(workspaceRoot.innerHTML, /No proof or account changes/);
     assert.match(workspaceRoot.innerHTML, /data-role-command-mode="student-preview"/);
+    assert.match(workspaceRoot.innerHTML, /data-role-action-exit-preview="true"[\s\S]*Exit student view/);
     assert.match(workspaceRoot.innerHTML, /Preview cannot submit, upload, review, assign, import, or change account records/);
     assert.equal(vm.runInContext("activeSection", context), "student");
     assert.ok(fetchLog.includes("/api/student/dashboard?studentId=demo-student-101"));
@@ -10278,6 +10293,9 @@ test("People CSV import screens provide templates and row-level preview validati
 
   assert.match(workspaceRoot.innerHTML, /data-people-view="import-students"/);
   assert.match(workspaceRoot.innerHTML, /data-csv-template-download="students"/);
+  assert.match(workspaceRoot.innerHTML, /data-csv-import-stepper="students"/);
+  assert.match(workspaceRoot.innerHTML, /Before you import[\s\S]*Download the template[\s\S]*Preview validation[\s\S]*Confirm only valid rows/);
+  assert.match(workspaceRoot.innerHTML, /Mentor and Viewer emails must already exist in the current roster/);
   assert.match(workspaceRoot.innerHTML, /first_name[\s\S]*last_name[\s\S]*mentor_email[\s\S]*viewer_email/);
   assert.match(workspaceRoot.innerHTML, /data-csv-preview="students" data-csv-preview-state="waiting"/);
 
@@ -10316,7 +10334,7 @@ test("People CSV import screens provide templates and row-level preview validati
   `, context);
   assert.match(workspaceRoot.innerHTML, /data-csv-preview="students" data-csv-preview-state="errors"/);
   assert.match(workspaceRoot.innerHTML, /Student users cannot be assigned as mentors/);
-  assert.match(workspaceRoot.innerHTML, /Mentor email must already exist in the current scoped roster before automatic assignment/);
+  assert.match(workspaceRoot.innerHTML, /Mentor email must already exist in the current roster before automatic assignment/);
 
   vm.runInContext(`
     adminCsvImportState.staff = validateAdminCsvImport("staff", ${JSON.stringify([
@@ -10328,6 +10346,8 @@ test("People CSV import screens provide templates and row-level preview validati
     renderAppShell();
   `, context);
   assert.match(workspaceRoot.innerHTML, /data-csv-template-download="staff"/);
+  assert.match(workspaceRoot.innerHTML, /data-csv-import-stepper="staff"/);
+  assert.match(workspaceRoot.innerHTML, /Staff assignments must match an existing school, program, or assigned student/);
   assert.match(workspaceRoot.innerHTML, /data-csv-preview="staff" data-csv-preview-state="ready"/);
   assert.match(workspaceRoot.innerHTML, /Valid rows[\s\S]*1/);
 

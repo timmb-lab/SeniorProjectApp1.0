@@ -52,8 +52,6 @@ test("workspace UI polish manifest records durable local fake-account screenshot
   assert.equal(manifest.manifestPath, manifestPath);
   assert.deepEqual(manifest.failures, []);
   assert.equal(Array.isArray(manifest.screenshots), true);
-  assert.equal(manifest.screenshots.length, 12);
-
   const requiredIds = [
     "01-admin-console-global-admin-desktop",
     "02-workspace-site-admin-desktop",
@@ -67,7 +65,19 @@ test("workspace UI polish manifest records durable local fake-account screenshot
     "10-workspace-half-screen",
     "11-drawer-open-phone",
     "12-drawer-open-half-screen",
+    "13-site-admin-student-detail-click",
+    "14-viewer-read-only-detail-click",
+    "15-view-as-student-entered-desktop",
+    "16-view-as-student-exited-return",
+    "17-people-access-landing",
+    "18-add-student-flow",
+    "19-csv-import-template",
+    "20-student-admin-route-blocked",
+    "21-empty-student-search",
+    "22-student-final-files-state",
+    "23-student-detail-phone",
   ];
+  assert.equal(manifest.screenshots.length, requiredIds.length);
   assert.deepEqual(manifest.screenshots.map((screenshot) => screenshot.id), requiredIds);
 
   for (const screenshot of manifest.screenshots) {
@@ -79,14 +89,26 @@ test("workspace UI polish manifest records durable local fake-account screenshot
     assert.equal(typeof screenshot.viewport?.height, "number", `${screenshot.id} viewport height`);
     assert.match(screenshot.caveat, /not real-student production pilot proof/i, `${screenshot.id} caveat`);
     assert.equal(screenshot.checks.expectedTextPresent, true, `${screenshot.id} expected text`);
+    assert.equal(screenshot.checks.noUnexpectedText, true, `${screenshot.id} unexpected text`);
     assert.equal(screenshot.checks.noVisiblePasswordValues, true, `${screenshot.id} password values`);
     assert.equal(screenshot.checks.noSecretLikeText, true, `${screenshot.id} secret-like text`);
     assert.equal(screenshot.checks.noHorizontalOverflow, true, `${screenshot.id} horizontal overflow`);
     assert.equal(screenshot.checks.drawerOpenWhenRequested, true, `${screenshot.id} drawer check`);
+    assert.equal(typeof screenshot.markers, "object", `${screenshot.id} markers`);
     const absoluteScreenshot = path.join(repoRoot, screenshot.screenshot);
     assert.equal(existsSync(absoluteScreenshot), true, `${screenshot.screenshot} exists`);
     assert.ok(statSync(absoluteScreenshot).size > 10_000, `${screenshot.screenshot} is not blank`);
   }
+  const byId = new Map(manifest.screenshots.map((screenshot) => [screenshot.id, screenshot]));
+  assert.equal(byId.get("13-site-admin-student-detail-click").markers.studentDetailPanel, true);
+  assert.equal(byId.get("14-viewer-read-only-detail-click").markers.readOnlyBoundary, true);
+  assert.equal(byId.get("15-view-as-student-entered-desktop").markers.viewAsBanner, true);
+  assert.equal(byId.get("16-view-as-student-exited-return").markers.viewAsBanner, false);
+  assert.equal(byId.get("17-people-access-landing").markers.peopleManagement, true);
+  assert.equal(byId.get("19-csv-import-template").markers.csvImportStepper, true);
+  assert.equal(byId.get("20-student-admin-route-blocked").markers.problemState, true);
+  assert.equal(byId.get("21-empty-student-search").markers.intentionalEmptyState, true);
+  assert.equal(byId.get("22-student-final-files-state").markers.finalFiles, true);
 });
 
 test("workspace UI polish screenshot index preserves fake-account and no-go caveats", () => {

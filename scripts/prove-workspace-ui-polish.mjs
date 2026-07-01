@@ -172,6 +172,136 @@ const SCREENSHOT_PLAN = [
     action: "openDrawer",
     proves: "Half-screen drawer opens without covering the role context or causing overflow.",
   },
+  {
+    id: "13-site-admin-student-detail-click",
+    label: "Student detail opened from staff list",
+    persona: "Site Admin student detail",
+    authRole: "site_admin",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?mode=admin&section=students&siteId=site-desert-valley-high"),
+    viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Student detail", "Back to Students", "View as Student"],
+    action: "clickFirstStudentDetail",
+    proves: "Staff can click from the scoped student list into a protected detail drawer.",
+  },
+  {
+    id: "14-viewer-read-only-detail-click",
+    label: "Viewer read-only student detail",
+    persona: "Viewer read-only detail",
+    authRole: "viewer",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?section=students&siteId=site-desert-valley-high"),
+    viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Student detail", "Read-only viewer", "Back to Students"],
+    action: "clickFirstStudentDetail",
+    proves: "Viewer can open assigned detail context without mutation controls.",
+  },
+  {
+    id: "15-view-as-student-entered-desktop",
+    label: "View as Student entered",
+    persona: "Site Admin preview entered",
+    authRole: "site_admin",
+    accountType: "Fake .test demo staff account using read-only preview",
+    url: workspaceUrl("?mode=admin&section=students&siteId=site-desert-valley-high"),
+    viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Viewing as:", "Read-only preview", "Exit student view"],
+    actions: ["clickFirstViewAsStudent", "scrollTop"],
+    proves: "Authorized staff can enter View as Student and see the read-only preview boundary.",
+  },
+  {
+    id: "16-view-as-student-exited-return",
+    label: "View as Student exit return",
+    persona: "Site Admin preview exited",
+    authRole: "site_admin",
+    accountType: "Fake .test demo staff account using read-only preview",
+    url: workspaceUrl("?mode=admin&section=students&siteId=site-desert-valley-high"),
+    viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Student Directory", "View as Student"],
+    absent: ["Viewing as:"],
+    actions: ["clickFirstViewAsStudent", "clickExitViewAsStudent", "scrollTop"],
+    proves: "Exit returns staff to the scoped student list without leaving preview mode active.",
+  },
+  {
+    id: "17-people-access-landing",
+    label: "People & Access landing",
+    persona: "Site Admin People & Access",
+    authRole: "site_admin",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?mode=admin&section=adminUsers&siteId=site-desert-valley-high"),
+    viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["People & Access", "Do one safe access step first", "Add Student"],
+    proves: "People & Access opens with scope-first action guidance before forms.",
+  },
+  {
+    id: "18-add-student-flow",
+    label: "Add Student flow",
+    persona: "Site Admin Add Student",
+    authRole: "site_admin",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?mode=admin&section=adminUsers&peopleView=add-student&siteId=site-desert-valley-high"),
+    viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Add Student", "First name", "Create student"],
+    action: "scrollToPeopleScreen",
+    proves: "Single Add Student form is visibly separate from CSV import and scoped account setup.",
+  },
+  {
+    id: "19-csv-import-template",
+    label: "CSV import template",
+    persona: "Site Admin Import Students",
+    authRole: "site_admin",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?mode=admin&section=adminUsers&peopleView=import-students&siteId=site-desert-valley-high"),
+    viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Import Students", "Preview protects the roster", "Download CSV template", "Preview required before import"],
+    action: "scrollToCsvImport",
+    proves: "CSV import shows template, preview, and confirmation order before any save action.",
+  },
+  {
+    id: "20-student-admin-route-blocked",
+    label: "Student admin route blocked",
+    persona: "Student blocked from Admin Console",
+    authRole: "student",
+    accountType: "Fake .test demo student account",
+    url: workspaceUrl("?mode=admin&section=adminUsers"),
+    viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Admin Console is not available for this role", "Open My Work"],
+    proves: "Student deep link to Admin Console fails safely and keeps recovery visible.",
+  },
+  {
+    id: "21-empty-student-search",
+    label: "Empty student search",
+    persona: "Site Admin empty search",
+    authRole: "site_admin",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?mode=admin&section=students&siteId=site-desert-valley-high&search=zzzz-no-demo-match"),
+    viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["No matching student search results", "Clear filters"],
+    action: "scrollToStudentDirectoryEmpty",
+    proves: "Student list empty search state explains what happened and how to recover.",
+  },
+  {
+    id: "22-student-final-files-state",
+    label: "Student Final Files",
+    persona: "Student Final Files",
+    authRole: "student",
+    accountType: "Fake .test demo student account",
+    url: workspaceUrl("?section=archive"),
+    viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Final Files", "What final files finishes", "Before you save final files"],
+    proves: "Student Final Files state separates checklist readiness from future download readiness.",
+  },
+  {
+    id: "23-student-detail-phone",
+    label: "Student detail phone",
+    persona: "Site Admin phone detail",
+    authRole: "site_admin",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?mode=admin&section=students&siteId=site-desert-valley-high"),
+    viewport: { width: 390, height: 844, deviceScaleFactor: 2, mobile: true },
+    expected: ["Student detail", "Back to Students"],
+    action: "clickFirstStudentDetail",
+    proves: "Scoped student detail remains usable and bounded on phone width.",
+  },
 ];
 
 function normalizeWorkspaceEntryPath(value) {
@@ -470,21 +600,104 @@ async function logout(client) {
   ).catch(() => {});
 }
 
-async function performPlanAction(client, action) {
-  if (action !== "openDrawer") return;
-  await client.evaluate(`(() => {
-    const toggle = document.querySelector("#workspaceMenuToggle");
-    const rail = document.querySelector("#workspaceNavigationRail");
-    if (toggle && (rail?.hidden || toggle.getAttribute("aria-expanded") === "false")) {
-      toggle.click();
-    }
-    return {
-      toggle: Boolean(toggle),
-      railHidden: rail ? rail.hidden : null,
-      expanded: toggle ? toggle.getAttribute("aria-expanded") : null
-    };
+async function waitForSelectorState(client, selector, { present = true, timeoutMs = 15_000 } = {}) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const matches = await client.evaluate(`(() => Boolean(document.querySelector(${JSON.stringify(selector)})))()`);
+    if (present ? matches : !matches) return true;
+    await sleep(250);
+  }
+  throw new Error(`Timed out waiting for selector ${selector} to be ${present ? "present" : "absent"}.`);
+}
+
+async function clickSelector(client, selector, label) {
+  await waitForSelectorState(client, selector);
+  const clicked = await client.evaluate(`(() => {
+    const target = document.querySelector(${JSON.stringify(selector)});
+    if (!target) return false;
+    target.scrollIntoView({ block: "center", inline: "nearest" });
+    target.click();
+    return true;
   })()`);
+  if (!clicked) throw new Error(`Could not click ${label || selector}; selector not found: ${selector}`);
   await sleep(500);
+}
+
+async function scrollToSelector(client, selector, label) {
+  await waitForSelectorState(client, selector);
+  const scrolled = await client.evaluate(`(() => {
+    const target = document.querySelector(${JSON.stringify(selector)});
+    if (!target) return false;
+    target.scrollIntoView({ block: "start", inline: "nearest" });
+    return true;
+  })()`);
+  if (!scrolled) throw new Error(`Could not scroll to ${label || selector}; selector not found: ${selector}`);
+  await sleep(700);
+}
+
+async function performSinglePlanAction(client, action) {
+  if (action === "scrollTop") {
+    await client.evaluate(`(() => { window.scrollTo(0, 0); return true; })()`);
+    await sleep(500);
+    return;
+  }
+  if (action === "scrollToPeopleScreen") {
+    await scrollToSelector(client, "[data-people-screen]", "People screen");
+    return;
+  }
+  if (action === "scrollToCsvImport") {
+    await scrollToSelector(client, "[data-csv-import-stepper]", "CSV import stepper");
+    return;
+  }
+  if (action === "scrollToStudentDirectoryEmpty") {
+    await scrollToSelector(client, "[data-student-directory-empty='true']", "student directory empty state");
+    return;
+  }
+  if (action === "openDrawer") {
+    await client.evaluate(`(() => {
+      const toggle = document.querySelector("#workspaceMenuToggle");
+      const rail = document.querySelector("#workspaceNavigationRail");
+      if (toggle && (rail?.hidden || toggle.getAttribute("aria-expanded") === "false")) {
+        toggle.click();
+      }
+      return {
+        toggle: Boolean(toggle),
+        railHidden: rail ? rail.hidden : null,
+        expanded: toggle ? toggle.getAttribute("aria-expanded") : null
+      };
+    })()`);
+    await sleep(500);
+    return;
+  }
+  if (action === "clickFirstStudentDetail") {
+    await clickSelector(client, "[data-site-student-action='view-detail'][data-student-detail-id]", "first student detail action");
+    await waitForSelectorState(client, "[data-student-detail-panel='true']");
+    await sleep(700);
+    return;
+  }
+  if (action === "clickFirstViewAsStudent") {
+    await clickSelector(client, "[data-view-as-student-action='enter'][data-view-as-student-id]", "first View as Student action");
+    await waitForSelectorState(client, "[data-view-as-student-banner='true']");
+    await sleep(700);
+    return;
+  }
+  if (action === "clickExitViewAsStudent") {
+    await clickSelector(client, "[data-view-as-student-action='exit']", "Exit student view");
+    await waitForSelectorState(client, "[data-view-as-student-banner='true']", { present: false });
+    await sleep(700);
+    return;
+  }
+  if (action) throw new Error(`Unsupported proof action: ${action}`);
+}
+
+async function performPlanAction(client, planItem) {
+  const actions = [
+    ...(Array.isArray(planItem.actions) ? planItem.actions : []),
+    ...(planItem.action ? [planItem.action] : []),
+  ];
+  for (const action of actions) {
+    await performSinglePlanAction(client, action);
+  }
 }
 
 async function collectPageState(client) {
@@ -520,6 +733,16 @@ async function collectPageState(client) {
         railPresent: Boolean(rail),
         hidden: rail ? rail.hidden : null,
         expanded: toggle ? toggle.getAttribute("aria-expanded") : null
+      },
+      markers: {
+        studentDetailPanel: Boolean(document.querySelector("[data-student-detail-panel='true']")),
+        viewAsBanner: Boolean(document.querySelector("[data-view-as-student-banner='true']")),
+        peopleManagement: Boolean(document.querySelector("[data-people-management='true']")),
+        csvImportStepper: Boolean(document.querySelector("[data-csv-import-stepper]")),
+        readOnlyBoundary: Boolean(document.querySelector("[data-read-only-boundary-list]")),
+        problemState: Boolean(document.querySelector("[data-workspace-state='permission-denied'], .workspace-problem-state")),
+        intentionalEmptyState: Boolean(document.querySelector("[data-intentional-empty-state], [data-student-directory-empty='true']")),
+        finalFiles: Boolean(document.querySelector("[data-archive-dashboard], .workspace-archive-dashboard"))
       }
     };
   })()`);
@@ -528,13 +751,20 @@ async function collectPageState(client) {
 function checkPage(planItem, pageState) {
   const text = `${pageState.heading || ""}\n${pageState.text || ""}`;
   const missingExpectedText = planItem.expected.filter((marker) => !text.includes(marker));
+  const unexpectedText = (planItem.absent || []).filter((marker) => text.includes(marker));
   const secretMatches = SECRET_PATTERNS.filter((pattern) => pattern.test(text)).map((pattern) => pattern.source);
-  const drawerOpenWhenRequested = planItem.action === "openDrawer"
+  const requestedActions = [
+    ...(Array.isArray(planItem.actions) ? planItem.actions : []),
+    ...(planItem.action ? [planItem.action] : []),
+  ];
+  const drawerOpenWhenRequested = requestedActions.includes("openDrawer")
     ? pageState.drawer.railPresent && pageState.drawer.hidden === false && pageState.drawer.expanded === "true"
     : true;
   return {
     expectedTextPresent: missingExpectedText.length === 0,
     missingExpectedText,
+    noUnexpectedText: unexpectedText.length === 0,
+    unexpectedText,
     noVisiblePasswordValues: pageState.visiblePasswordValueCount === 0,
     noSecretLikeText: secretMatches.length === 0,
     secretPatternMatches: secretMatches,
@@ -559,6 +789,7 @@ async function writeManifest(result) {
 
 function passedChecks(checks) {
   return checks.expectedTextPresent
+    && checks.noUnexpectedText
     && checks.noVisiblePasswordValues
     && checks.noSecretLikeText
     && checks.noHorizontalOverflow
@@ -635,7 +866,7 @@ async function run() {
       await logout(client);
       const loginResult = await login(client, accountsByRole.get(normalizeAccountRole(planItem.authRole)));
       await navigate(client, `${localApp.baseUrl}${planItem.url}`);
-      await performPlanAction(client, planItem.action);
+      await performPlanAction(client, planItem);
       const pageState = await collectPageState(client);
       const checks = checkPage(planItem, pageState);
       const relativePath = path.join(SCREENSHOT_DIR, `${planItem.id}.png`).replaceAll("\\", "/");
@@ -662,6 +893,7 @@ async function run() {
         caveat: "Fake/demo account UI screenshot only; not real-student production pilot proof.",
         login: loginResult,
         checks,
+        markers: pageState.markers,
         heading: String(pageState.heading || "").trim(),
         textSample: pageState.textSample,
         activeNav: pageState.activeNav,

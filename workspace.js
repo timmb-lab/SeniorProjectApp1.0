@@ -797,6 +797,7 @@ function renderProblemStateAction(action, index) {
   ];
   if (action.problemAction) attrs.push(`data-problem-action="${escapeHtml(action.problemAction)}"`);
   if (action.section) attrs.push(`data-section="${escapeHtml(action.section)}"`);
+  if (action.mode) attrs.push(`data-workspace-mode-target="${escapeHtml(action.mode)}"`);
   if (action.preset) attrs.push(`data-section-preset="${escapeHtml(action.preset)}"`);
   if (action.auditAction) attrs.push(`data-audit-action="${escapeHtml(action.auditAction)}"`);
   if (action.auditEntityType) attrs.push(`data-audit-entity-type="${escapeHtml(action.auditEntityType)}"`);
@@ -809,7 +810,7 @@ function renderProblemStateAction(action, index) {
 
 function renderProblemStateActions(actions = problemStateDefaultActions()) {
   const usableActions = (Array.isArray(actions) ? actions : [])
-    .filter((action) => action?.label && (action.problemAction || action.section))
+    .filter((action) => action?.label && (action.problemAction || action.section || action.mode))
     .slice(0, 3);
   if (!usableActions.length) return "";
   return `
@@ -1392,6 +1393,13 @@ function renderRoleCommandItem(item = {}) {
 
 function renderRoleCommandActionButton(action = {}) {
   if (!action || !action.label) return "";
+  if (action.viewAsAction) {
+    return `
+      <button class="workspace-link-button workspace-link-button-small" type="button" data-view-as-student-action="${escapeHtml(action.viewAsAction)}" data-role-command-primary-action="true" data-role-action-exit-preview="true">
+        ${escapeHtml(action.label)}
+      </button>
+    `;
+  }
   if (action.mode) {
     return `
       <button class="workspace-link-button workspace-link-button-small" type="button" data-workspace-mode-target="${escapeHtml(action.mode)}" data-role-command-primary-action="true">
@@ -1437,6 +1445,7 @@ function renderRoleActionTrailItem(item = {}, index = 0) {
         section: item.section,
         mode: item.mode,
         preset: item.preset,
+        viewAsAction: item.viewAsAction,
       })
     : "";
   return `
@@ -1457,7 +1466,7 @@ function roleCommandTrailItems(primaryRole, roles = roleIds(currentUser), isAdmi
     return [
       { step: "1", title: "Confirm the banner", detail: "Make sure Viewing as names the authorized student and this preview stays read-only.", section: "student", actionLabel: "Open student view", tone: "student" },
       { step: "2", title: "Read the next step", detail: "Use the student's Do this next card for context only.", section: "student", actionLabel: "Check My Work", tone: "ready" },
-      { step: "3", title: "Return to staff work", detail: "Exit before switching personas, opening staff tools, or changing records.", tone: "warning" },
+      { step: "3", title: "Return to staff work", detail: "Exit before switching personas, opening staff tools, or changing records.", viewAsAction: "exit", actionLabel: "Exit student view", tone: "warning" },
     ];
   }
   if (isAdminConsole) {
@@ -4470,7 +4479,19 @@ function renderReadOnlyBanner() {
     return `
       <section class="workspace-read-only-banner" data-workspace-mode="read-only" aria-label="Viewer read-only mode">
         <span class="workspace-chip workspace-role-chip" data-role-id="viewer">Viewer</span>
-        <p>Read-only workspace. You can open assigned student records for context, then share concerns with the Program Teacher or site staff. Site-wide dashboards, approvals, assignment changes, schedules, reviews, imports, and account updates stay with authorized staff.</p>
+        <div>
+          <p>Read-only workspace. You can open assigned student records for context, then share concerns with the Program Teacher or site staff.</p>
+          <dl class="workspace-read-only-boundary-list" data-read-only-boundary-list="viewer">
+            <div>
+              <dt>You can</dt>
+              <dd>Open assigned student records and read status, proof, presentation, and final-file context.</dd>
+            </div>
+            <div>
+              <dt>You cannot</dt>
+              <dd>Edit records, approve work, assign mentors, import accounts, schedule presentations, or change access.</dd>
+            </div>
+          </dl>
+        </div>
       </section>
       ${renderReadOnlyEscalationGuide("viewer")}
     `;
@@ -15794,6 +15815,7 @@ function renderCsvImportScreen(kind = "students", options = {}) {
         </div>
         <a class="workspace-button workspace-button-secondary" href="${templateHref}" download="${escapeHtml(safeKind === "staff" ? "capstone-staff-template.csv" : "capstone-students-template.csv")}" data-csv-template-download="${escapeHtml(safeKind)}">Download CSV template</a>
       </div>
+      ${renderCsvImportStepper(safeKind)}
       ${renderCsvTemplateDocumentation(safeKind)}
       <form class="workspace-form workspace-csv-import-form" data-csv-import-form="true" data-csv-import-kind="${escapeHtml(safeKind)}">
         <div class="workspace-form-section">
@@ -15821,6 +15843,44 @@ function renderCsvImportScreen(kind = "students", options = {}) {
         </div>
       </form>
       ${renderCsvImportPreview(safeKind, state)}
+    </section>
+  `;
+}
+
+function renderCsvImportStepper(kind = "students") {
+  const people = kind === "staff" ? "staff accounts" : "student accounts";
+  const assignmentNote = kind === "staff"
+    ? "Staff assignments must match an existing school, program, or assigned student in this view."
+    : "Mentor and Viewer emails must already exist in the current roster before automatic assignment.";
+  return `
+    <section class="workspace-csv-import-stepper" data-csv-import-stepper="${escapeHtml(kind)}" aria-label="${escapeHtml(`Before you import ${kind}`)}">
+      <div>
+        <p class="workspace-kicker">Before you import</p>
+        <strong>Preview protects the roster before anything is saved.</strong>
+      </div>
+      <ol>
+        <li>
+          <span>1</span>
+          <div>
+            <strong>Download the template</strong>
+            <p>Use the required columns for ${escapeHtml(people)}.</p>
+          </div>
+        </li>
+        <li>
+          <span>2</span>
+          <div>
+            <strong>Preview validation</strong>
+            <p>Fix errors, skipped rows, and scope mismatches before final import.</p>
+          </div>
+        </li>
+        <li>
+          <span>3</span>
+          <div>
+            <strong>Confirm only valid rows</strong>
+            <p>${escapeHtml(assignmentNote)}</p>
+          </div>
+        </li>
+      </ol>
     </section>
   `;
 }
@@ -19990,9 +20050,32 @@ function renderQuickActions(actions) {
   `;
 }
 
+function renderIntentionalEmptyState({ id = "empty", kicker = "Nothing needs attention", title = "Nothing needs attention right now", detail = "", reason = "", owner = "", nextAction = "", actions = [] } = {}) {
+  const allowedSections = availableSectionIdsForAnyMode();
+  const safeActions = (Array.isArray(actions) ? actions : [])
+    .filter((action) => !action.section || allowedSections.has(action.section))
+    .filter((action) => !action.mode || action.mode !== "admin" || adminConsoleCapabilitiesFor(currentUser).canSee)
+    .slice(0, 3);
+  return `
+    <section class="workspace-empty-state-card workspace-intentional-empty-state" data-intentional-empty-state="${escapeHtml(id)}">
+      <p class="workspace-kicker">${escapeHtml(kicker)}</p>
+      <strong>${escapeHtml(title)}</strong>
+      ${detail ? `<p>${escapeHtml(detail)}</p>` : ""}
+      ${reason || owner || nextAction ? renderProblemState({ reason, owner, nextAction, actions: safeActions }) : ""}
+    </section>
+  `;
+}
+
 function renderNeedsAttention(items = []) {
   if (!items.length) {
-    return `<div class="workspace-empty">No urgent records match this view right now. Assigned staff can continue normal project follow-up.</div>`;
+    return renderIntentionalEmptyState({
+      id: "needs-attention-clear",
+      title: "Nothing urgent matches this view",
+      detail: "Assigned staff can continue normal project follow-up without opening an unneeded task.",
+      reason: "No visible student, proof, review, presentation, or final-file signal is flagged by this view.",
+      owner: "Assigned staff",
+      nextAction: "Use another filter or return to the dashboard when a new signal appears.",
+    });
   }
   return `
     <div class="workspace-attention-list">
@@ -20020,7 +20103,18 @@ function renderNeedsAttention(items = []) {
 }
 
 function renderRecentProgramActivity(rows = []) {
-  if (!rows.length) return `<div class="workspace-empty">No recent program activity is visible yet. New submissions, evidence, and Program Teacher feedback will appear here.</div>`;
+  if (!rows.length) {
+    return renderIntentionalEmptyState({
+      id: "recent-program-activity-empty",
+      kicker: "No recent activity",
+      title: "No recent program activity is visible yet",
+      detail: "New submissions, proof, and Program Teacher feedback will appear here when they exist in this account's scope.",
+      reason: "No recent program rows are available for the visible school or program.",
+      owner: "Program Teacher or site staff",
+      nextAction: "Continue normal follow-up or open Students to inspect a specific record.",
+      actions: [{ label: "Open students", section: "students" }],
+    });
+  }
   return `
     <div class="workspace-list">
       ${rows.slice(0, 8).map((row) => `
@@ -20047,7 +20141,19 @@ function renderRecentProgramActivity(rows = []) {
 
 function renderSiteRecentActivity(rows = []) {
   if (!rows.length) {
-    return `<div class="workspace-empty">No recent school activity is visible yet. New submissions, evidence, and Program Teacher feedback will appear here.</div>`;
+    return renderIntentionalEmptyState({
+      id: "recent-school-activity-empty",
+      kicker: "No recent activity",
+      title: "No recent school activity is visible yet",
+      detail: "New submissions, proof, and Program Teacher feedback will appear here without exposing private details.",
+      reason: "No recent activity rows are available for the selected school.",
+      owner: "Assigned school staff",
+      nextAction: "Use Students, Review Queue, or Operations when you need to inspect a specific workflow.",
+      actions: [
+        { label: "Open students", section: "students" },
+        { label: "Open review", section: "teacher", preset: "submitted" },
+      ],
+    });
   }
   return `
     <div>
@@ -20058,7 +20164,18 @@ function renderSiteRecentActivity(rows = []) {
 }
 
 function renderProgramBreakdown(rows = []) {
-  if (!rows.length) return `<div class="workspace-empty">No program records are available for this school view.</div>`;
+  if (!rows.length) {
+    return renderIntentionalEmptyState({
+      id: "program-breakdown-empty",
+      kicker: "Programs",
+      title: "No program records are visible for this school",
+      detail: "Program counts appear after the school has active program mappings and visible students.",
+      reason: "The selected school does not currently return program summary rows for this account.",
+      owner: "Site Admin or Global Admin",
+      nextAction: "Open Programs in Admin Console if the school should have program mappings.",
+      actions: [{ label: "Open Programs", mode: "admin", section: "programs" }],
+    });
+  }
   return `
     <div class="workspace-program-breakdown">
       ${rows.map((row) => `
@@ -23728,10 +23845,10 @@ function validateStudentCsvRow(row, context, seenEmails, existingEmails) {
   if (mentorKey && context.studentsByEmail.has(mentorKey)) return csvInvalid(row, "Student users cannot be assigned as mentors.");
   if (viewerKey && context.studentsByEmail.has(viewerKey)) return csvInvalid(row, "Student users cannot be assigned as viewers.");
   if (values.mentor_email && !mentor) {
-    return csvInvalid(row, "Mentor email must already exist in the current scoped roster before automatic assignment.");
+    return csvInvalid(row, "Mentor email must already exist in the current roster before automatic assignment.");
   }
   if (values.viewer_email && !viewer) {
-    return csvInvalid(row, "Viewer email must already exist in the current scoped roster before automatic assignment.");
+    return csvInvalid(row, "Viewer email must already exist in the current roster before automatic assignment.");
   }
   return csvValid(row, {
     email,

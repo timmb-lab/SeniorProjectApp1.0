@@ -723,6 +723,17 @@ body[data-page="workspace"],
   font-size: 0.86rem;
 }
 
+.workspace-link-button.workspace-view-as-action {
+  display: inline-grid;
+  justify-items: center;
+  gap: 0.12rem;
+  line-height: 1.1;
+}
+
+.workspace-link-button.workspace-view-as-action small {
+  display: block;
+}
+
 .workspace-status {
   border: 1px solid #c9d5d5;
   border-left: 5px solid var(--teal);
@@ -3981,6 +3992,86 @@ body[data-page="workspace"],
   border-radius: var(--radius-card);
   background: color-mix(in srgb, var(--abc-soft-teal) 48%, white);
   padding: 0.78rem;
+}
+
+.workspace-csv-import-stepper {
+  display: grid;
+  grid-template-columns: minmax(12rem, 0.7fr) minmax(0, 1.8fr);
+  gap: 0.75rem;
+  align-items: stretch;
+  border: 1px solid color-mix(in srgb, var(--role-accent) 20%, white);
+  border-radius: var(--radius-card);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--role-accent-soft) 58%, white), #fff 74%),
+    #fff;
+  padding: 0.78rem;
+}
+
+.workspace-csv-import-stepper > div,
+.workspace-csv-import-stepper li {
+  min-width: 0;
+}
+
+.workspace-csv-import-stepper > div {
+  display: grid;
+  align-content: start;
+  gap: 0.16rem;
+}
+
+.workspace-csv-import-stepper > div p,
+.workspace-csv-import-stepper > div strong,
+.workspace-csv-import-stepper li p,
+.workspace-csv-import-stepper li strong {
+  margin: 0;
+}
+
+.workspace-csv-import-stepper > div strong {
+  color: var(--role-accent-dark);
+  line-height: 1.25;
+}
+
+.workspace-csv-import-stepper ol {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.workspace-csv-import-stepper li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.45rem;
+  align-items: start;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-control);
+  background: rgba(255, 255, 255, 0.82);
+  padding: 0.55rem;
+}
+
+.workspace-csv-import-stepper li > span {
+  display: inline-grid;
+  place-items: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 999px;
+  background: var(--role-accent);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 950;
+}
+
+.workspace-csv-import-stepper li strong {
+  display: block;
+  color: var(--abc-ink);
+  font-size: 0.88rem;
+}
+
+.workspace-csv-import-stepper li p {
+  color: var(--abc-muted);
+  font-size: 0.8rem;
+  line-height: 1.32;
 }
 
 .workspace-csv-template-doc {
@@ -7430,6 +7521,38 @@ body[data-page="workspace"],
   font-weight: 850;
 }
 
+.workspace-read-only-boundary-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin: 0.6rem 0 0;
+}
+
+.workspace-read-only-boundary-list div {
+  display: grid;
+  gap: 0.18rem;
+  min-width: 0;
+  border: 1px solid rgba(71, 85, 105, 0.2);
+  border-radius: var(--radius-control);
+  background: rgba(255, 255, 255, 0.72);
+  padding: 0.55rem;
+}
+
+.workspace-read-only-boundary-list dt {
+  color: #334155;
+  font-size: 0.72rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.workspace-read-only-boundary-list dd {
+  margin: 0;
+  color: #1f2937;
+  font-size: 0.84rem;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
 .workspace-admin-audit-action-map {
   display: grid;
   gap: 0.65rem;
@@ -8182,6 +8305,13 @@ button.workspace-metric-tile,
   padding: var(--space-card);
 }
 
+.workspace-intentional-empty-state {
+  border-style: solid;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--workspace-soft) 72%, white), #fff 78%),
+    #fff;
+}
+
 @media (max-width: 900px) {
   .workspace-auth,
   .workspace-content,
@@ -8619,6 +8749,15 @@ button.workspace-metric-tile,
   .workspace-dashboard-summary-badges,
   .workspace-posture-chips {
     justify-content: flex-start;
+  }
+
+  .workspace-read-only-boundary-list {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-csv-import-stepper,
+  .workspace-csv-import-stepper ol {
+    grid-template-columns: 1fr;
   }
 
   .workspace-content {
