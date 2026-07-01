@@ -3019,7 +3019,7 @@ test("program teacher dashboard rows open existing student detail", async () => 
   assert.match(programTeacher, /Revision loop active[\s\S]*data-section="teacher" data-section-preset="revision-requested"/);
   assert.match(programTeacher, /Presentation readiness pending[\s\S]*data-section="operations" data-section-preset="presentation-pending"/);
   assert.match(programTeacher, /Mentor meeting follow-up[\s\S]*data-section="students" data-section-preset="mentor-meeting-follow-up-students"/);
-  assert.match(programTeacher, /Program Teacher \/ Assigned program: IT/);
+  assert.match(programTeacher, /data-rail-access-summary="full"[\s\S]*Program Teacher[\s\S]*Assigned program: IT[\s\S]*Review work and student support stay inside your assigned program/);
   assert.match(programTeacher, /data-workspace-disclosure-panel="dashboard:programDashboard"/);
   assert.match(programTeacher, /aria-expanded="false"/);
   assert.doesNotMatch(programTeacher, /Students by program|Assigned student list|Recent Activity|Core Concept Proposal \/ 2 proof items/);
@@ -6820,9 +6820,13 @@ test("workspace exposes a real admin site switcher and collapsible navigation", 
   assert.match(workspaceJs, /window\.matchMedia\("\(max-width: 900px\)"\)\.matches/);
   assert.match(workspaceJs, /id="workspaceMenuToggle"/);
   assert.match(workspaceJs, /id="workspaceRailClose"/);
+  assert.match(workspaceJs, /function renderWorkspaceNavigation/);
+  assert.match(workspaceJs, /data-workspace-nav-group/);
+  assert.match(workspaceCss, /\.workspace-tab-group-label/);
   assert.match(workspaceJs, /aria-label="\$\{workspaceNavCollapsed \? "Open menu" : "Close menu"\}"/);
   assert.match(workspaceJs, /workspace-menu-icon/);
   assert.match(workspaceJs, /workspace-topbar-start/);
+  assert.match(workspaceJs, /workspace-topbar-actions/);
   assert.match(workspaceJs, /data-nav-state="\$\{workspaceNavCollapsed \? "collapsed" : "expanded"\}"/);
   assert.match(workspaceJs, /function toggleWorkspaceMenu/);
   assert.match(workspaceJs, /function closeWorkspaceMenu/);
@@ -6853,12 +6857,15 @@ test("workspace half-width drawer and phone drawer stay bounded and keep global 
   assert.match(tablet, /\.workspace-user-text\s*\{[\s\S]*flex:\s*1 1 12rem;[\s\S]*max-width:\s*min\(100%,\s*24rem\);/);
   assert.match(tablet, /\.workspace-main\s*\{[\s\S]*grid-column:\s*1 \/ -1;[\s\S]*max-width:\s*100%;/);
   assert.match(phone, /\.workspace-button,[\s\S]*\.workspace-site-switcher select\s*\{[\s\S]*width:\s*100%;/);
-  assert.match(workspaceCss, /\.workspace-topbar\s*\{[\s\S]*grid-template-columns:\s*minmax\(220px,\s*auto\) minmax\(260px,\s*1fr\) minmax\(0,\s*auto\);/);
+  assert.match(workspaceCss, /\.workspace-topbar\s*\{[\s\S]*grid-template-columns:\s*minmax\(16rem,\s*0\.82fr\) minmax\(18rem,\s*1\.18fr\) minmax\(18rem,\s*auto\);/);
   assert.match(workspaceCss, /\.workspace-topbar-center\s*\{[\s\S]*display:\s*flex;[\s\S]*justify-content:\s*center;/);
+  assert.match(workspaceCss, /\.workspace-topbar-actions\s*\{[\s\S]*display:\s*inline-flex;/);
   assert.match(tablet, /\.workspace-topbar-center\s*\{[\s\S]*flex-wrap:\s*wrap;[\s\S]*justify-content:\s*flex-start;/);
+  assert.match(tablet, /\.workspace-topbar-actions\s*\{[\s\S]*flex:\s*1 1 100%;[\s\S]*flex-wrap:\s*wrap;/);
   assert.match(workspaceCss, /\.workspace-admin-console-content\s*\{[\s\S]*grid-template-columns:\s*minmax\(188px,\s*220px\) minmax\(0,\s*1560px\);[\s\S]*justify-content:\s*center;/);
   assert.match(workspaceCss, /\.workspace-admin-console-main\s*\{[\s\S]*max-width:\s*1560px;/);
   assert.match(workspaceCss, /\.workspace-admin-operations-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(auto-fit,\s*minmax\(185px,\s*1fr\)\);/);
+  assert.match(workspaceCss, /\.workspace-admin-flow\s*\{[\s\S]*grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\);/);
   assert.match(workspaceCss, /\.workspace-screen-guide-panel\s*\{[\s\S]*overflow:\s*hidden;/);
   for (const viewportWidth of [800, 820, 390]) {
     const drawerWidth = workspaceDrawerWidthForViewport(viewportWidth);
@@ -6877,6 +6884,7 @@ test("workspace half-width drawer and phone drawer stay bounded and keep global 
   assert.match(tabletContext.workspaceRoot.innerHTML, /id="workspaceMenuToggle"[\s\S]*Open menu/);
   assert.match(tabletContext.workspaceRoot.innerHTML, /id="workspaceRefresh"[\s\S]*Refresh/);
   assert.match(tabletContext.workspaceRoot.innerHTML, /id="workspaceLogout"[\s\S]*Sign out/);
+  assert.match(tabletContext.workspaceRoot.innerHTML, /workspace-topbar-actions/);
   assert.equal(tabletContext.documentElements.get("#workspaceMenuToggle")?.hasEventListener("click"), true);
   assert.equal(tabletContext.documentElements.get("#workspaceRefresh")?.hasEventListener("click"), true);
   assert.equal(tabletContext.documentElements.get("#workspaceLogout")?.hasEventListener("click"), true);
@@ -6893,6 +6901,8 @@ test("workspace half-width drawer and phone drawer stay bounded and keep global 
   assert.match(drawerOpen, /data-nav-state="expanded"/);
   assert.match(drawerOpen, /id="workspaceNavigationRail"/);
   assert.match(drawerOpen, /id="workspaceRailClose"[\s\S]*Close menu/);
+  assert.match(drawerOpen, /data-workspace-nav-group="Operations"/);
+  assert.match(drawerOpen, /data-workspace-nav-group="People &amp; Access"|data-workspace-nav-group="People & Access"/);
   assert.equal(tabletContext.documentElements.get("#workspaceRailClose")?.hasEventListener("click"), true);
   assert.match(drawerOpen, /data-active-role-badge="true"[\s\S]*data-role-identity="global_admin"/);
   assert.match(drawerOpen, /id="workspaceRefresh"[\s\S]*Refresh/);
@@ -6940,6 +6950,8 @@ test("workspace wide admin console keeps operations readable and source actions 
   assert.match(markup, /data-rail-access-summary="compact"[\s\S]*Global Admin[\s\S]*Global view/);
   assert.match(markup, /data-access-summary="compact"/);
   assert.match(markup, /data-admin-command-center="true"/);
+  assert.match(markup, /data-admin-operations-flow="true"/);
+  assert.match(markup, /data-admin-flow-step="students"[\s\S]*Students[\s\S]*Active/);
   assert.match(markup, /data-admin-operations-grid="true"/);
   assert.match(markup, /School-Wide Operations/);
   assert.match(markup, /Needs Attention/);

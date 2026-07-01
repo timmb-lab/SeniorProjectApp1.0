@@ -839,7 +839,7 @@ body[data-page="workspace"],
   top: 0;
   z-index: 10;
   display: grid;
-  grid-template-columns: minmax(220px, auto) minmax(260px, 1fr) minmax(0, auto);
+  grid-template-columns: minmax(16rem, 0.82fr) minmax(18rem, 1.18fr) minmax(18rem, auto);
   align-items: center;
   gap: 0.7rem;
   min-width: 0;
@@ -978,6 +978,14 @@ body[data-page="workspace"],
   justify-self: end;
   max-width: 100%;
   min-width: 0;
+}
+
+.workspace-topbar-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  min-width: max-content;
 }
 
 .workspace-active-role-badge {
@@ -1215,6 +1223,7 @@ body[data-page="workspace"],
 .workspace-user-text {
   display: grid;
   min-width: 0;
+  max-width: min(22rem, 34vw);
   text-align: right;
 }
 
@@ -1329,6 +1338,12 @@ body[data-page="workspace"],
   line-height: 1.3;
 }
 
+.workspace-rail-access-summary small {
+  color: var(--abc-muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
 .workspace-app[data-nav-state="collapsed"] .workspace-rail-card {
   display: none;
 }
@@ -1430,7 +1445,8 @@ body[data-page="workspace"],
 
 .workspace-admin-console-safety-card {
   display: grid;
-  gap: 0.35rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.18rem 0.55rem;
   min-height: 108px;
   border: 1px solid rgba(34, 48, 58, 0.16);
   border-left: 5px solid var(--abc-teal);
@@ -1438,6 +1454,19 @@ body[data-page="workspace"],
   background: #f9fbfa;
   padding: 0.78rem;
   box-shadow: var(--shadow-soft);
+}
+
+.workspace-admin-console-safety-step {
+  grid-row: 1 / span 2;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-control);
+  background: var(--abc-teal);
+  color: #fff;
+  font-size: 0.84rem;
+  font-weight: 950;
 }
 
 .workspace-admin-console-safety-card span {
@@ -1479,6 +1508,66 @@ body[data-page="workspace"],
 .workspace-admin-console-card {
   align-content: space-between;
   min-height: 170px;
+  position: relative;
+  overflow: hidden;
+}
+
+.workspace-admin-console-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: var(--abc-teal);
+}
+
+.workspace-admin-console-card-visual {
+  display: inline-grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  margin-bottom: 0.48rem;
+  border: 1px solid rgba(34, 48, 58, 0.12);
+  border-radius: var(--radius-control);
+  background: #f1fbf9;
+  color: var(--abc-teal);
+  font-size: 0.78rem;
+  font-weight: 950;
+}
+
+.workspace-admin-console-card-students::before,
+.workspace-admin-console-card-students .workspace-admin-console-card-visual {
+  --console-card-accent: var(--abc-blue);
+}
+
+.workspace-admin-console-card-review::before,
+.workspace-admin-console-card-review .workspace-admin-console-card-visual {
+  --console-card-accent: var(--abc-purple);
+}
+
+.workspace-admin-console-card-access::before,
+.workspace-admin-console-card-access .workspace-admin-console-card-visual {
+  --console-card-accent: var(--abc-teal);
+}
+
+.workspace-admin-console-card-programs::before,
+.workspace-admin-console-card-programs .workspace-admin-console-card-visual {
+  --console-card-accent: var(--abc-green);
+}
+
+.workspace-admin-console-card-audit::before,
+.workspace-admin-console-card-audit .workspace-admin-console-card-visual,
+.workspace-admin-console-card-files::before,
+.workspace-admin-console-card-files .workspace-admin-console-card-visual {
+  --console-card-accent: var(--abc-charcoal);
+}
+
+.workspace-admin-console-card::before {
+  background: var(--console-card-accent, var(--abc-teal));
+}
+
+.workspace-admin-console-card .workspace-admin-console-card-visual {
+  background: color-mix(in srgb, var(--console-card-accent, var(--abc-teal)) 10%, white);
+  color: var(--console-card-accent, var(--abc-teal));
 }
 
 .workspace-admin-console-card h3,
@@ -2291,12 +2380,14 @@ body[data-page="workspace"],
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(13.5rem, 1fr));
   gap: 0.55rem;
+  counter-reset: role-start-step;
 }
 
 .workspace-role-profile-start-card {
   display: grid;
   align-content: space-between;
   gap: 0.55rem;
+  position: relative;
   min-width: 0;
   min-height: 10.2rem;
   border: 1px solid var(--border-soft);
@@ -2304,12 +2395,32 @@ body[data-page="workspace"],
   border-radius: var(--radius-card);
   background: #fff;
   padding: 0.66rem;
+  counter-increment: role-start-step;
+  overflow: hidden;
+}
+
+.workspace-role-profile-start-card::before {
+  content: counter(role-start-step);
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  display: grid;
+  place-items: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  border: 1px solid color-mix(in srgb, var(--workspace-primary) 22%, white);
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--workspace-soft) 58%, white);
+  color: var(--workspace-primary-dark);
+  font-size: 0.78rem;
+  font-weight: 950;
 }
 
 .workspace-role-profile-start-card > div {
   display: grid;
   gap: 0.24rem;
   min-width: 0;
+  padding-right: 2.1rem;
 }
 
 .workspace-role-profile-start-card strong {
@@ -4759,7 +4870,15 @@ body[data-page="workspace"],
 
 .workspace-tabs {
   display: grid;
-  gap: 0.5rem;
+  gap: 0.42rem;
+}
+
+.workspace-tab-group-label {
+  margin: 0.28rem 0 0.05rem;
+  color: var(--abc-muted);
+  font-size: 0.68rem;
+  font-weight: 950;
+  text-transform: uppercase;
 }
 
 .workspace-tab {
@@ -4771,7 +4890,7 @@ body[data-page="workspace"],
   border-radius: var(--radius-card);
   background: #fff;
   color: var(--ink);
-  padding: 0.72rem;
+  padding: 0.62rem 0.68rem;
   text-align: left;
   cursor: pointer;
 }
@@ -5187,9 +5306,56 @@ body[data-page="workspace"],
 }
 
 .workspace-admin-command-hero {
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(22rem, 0.56fr);
+  align-items: stretch;
   box-shadow: var(--shadow-soft);
   padding: 0.72rem 0.86rem;
+}
+
+.workspace-admin-flow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.38rem;
+  align-self: stretch;
+  min-width: 0;
+}
+
+.workspace-admin-flow-step {
+  display: grid;
+  align-content: center;
+  gap: 0.14rem;
+  min-width: 0;
+  border: 1px solid rgba(4, 123, 131, 0.22);
+  border-top: 4px solid var(--abc-teal);
+  border-radius: var(--radius-card);
+  background: rgba(255, 255, 255, 0.8);
+  padding: 0.48rem;
+}
+
+.workspace-admin-flow-step span,
+.workspace-admin-flow-step small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-admin-flow-step span {
+  color: var(--abc-muted);
+  font-size: 0.68rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.workspace-admin-flow-step strong {
+  color: var(--abc-charcoal);
+  font-size: 1.18rem;
+  line-height: 1;
+}
+
+.workspace-admin-flow-step small {
+  color: var(--abc-muted);
+  font-size: 0.72rem;
 }
 
 .workspace-command-hero h1 {
@@ -7821,6 +7987,13 @@ button.workspace-metric-tile,
     flex: 0 0 auto;
   }
 
+  .workspace-topbar-actions {
+    flex: 1 1 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
   .workspace-active-role-badge {
     flex: 1 1 12rem;
     min-width: 0;
@@ -7830,6 +8003,8 @@ button.workspace-metric-tile,
   .workspace-role-command-strip,
   .workspace-role-command-grid,
   .workspace-role-confidence-row,
+  .workspace-admin-command-hero,
+  .workspace-admin-flow,
   .workspace-admin-console-safety-strip {
     grid-template-columns: 1fr;
   }
@@ -8217,5 +8392,15 @@ button.workspace-metric-tile,
 
   .workspace-command-hero-grid {
     justify-content: flex-start;
+  }
+
+  .workspace-topbar-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .workspace-admin-flow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
