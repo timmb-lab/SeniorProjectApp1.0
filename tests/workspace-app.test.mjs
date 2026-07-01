@@ -678,6 +678,16 @@ test("workspace separates Admin Console mode by role and URL state", async () =>
     assert.match(markup, /data-admin-console-safety="actions"/, `${row.roleId} actions safety`);
     assert.match(markup, /data-admin-console-safety="elevated"/, `${row.roleId} elevated safety`);
     assert.match(markup, /data-admin-console-safety="demo"[\s\S]*Demo proof guard/, `${row.roleId} demo proof guard`);
+    assert.match(markup, /data-admin-console-operating-order="true"/, `${row.roleId} operating order`);
+    assert.match(markup, /What to do first/, `${row.roleId} operating order heading`);
+    assert.match(markup, /data-admin-console-operating-step="scope"/, `${row.roleId} scope operating step`);
+    assert.match(markup, /data-admin-console-operating-step="safety"/, `${row.roleId} safety operating step`);
+    if (row.present.includes("adminUsers")) {
+      assert.match(markup, /data-admin-console-operating-step="people"[\s\S]*People and Access/, `${row.roleId} people operating step`);
+    }
+    if (row.present.some((section) => ["students", "teacher", "mentor"].includes(section))) {
+      assert.match(markup, /data-admin-console-operating-step="student-work"/, `${row.roleId} student work operating step`);
+    }
     assert.match(markup, /live student use still needs district policy sign-off/, `${row.roleId} live-use caveat`);
     assert.match(markup, new RegExp(escapeRegExp(row.scope)), `${row.roleId} scope`);
     for (const section of row.present) {
@@ -7663,6 +7673,12 @@ test("workspace renders a progress-first student homepage with safe language", a
     'data-screen-orientation-section="student"',
     "student should see the My Work dashboard before the generic screen guide",
   );
+  assertMarkupOrder(
+    student,
+    "Your Senior Project",
+    'data-role-command-strip="true"',
+    "student should see the project dashboard before role context cards",
+  );
   assert.match(student, /See what is done, what is missing, and what to do next/);
   assert.match(student, /role="progressbar"/);
   assert.match(student, /aria-valuenow="50"/);
@@ -7681,6 +7697,11 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.match(student, /1 needs revision/);
   assert.match(student, /Fix these items, then wait for Program Teacher approval/);
   assert.match(student, /Mentor: Ms\. Garcia/);
+  assert.match(student, /data-student-completion-lanes="true"/);
+  assert.match(student, /data-student-completion-lane="do-now"[\s\S]*1 to fix/);
+  assert.match(student, /data-student-completion-lane="waiting"[\s\S]*1 in review/);
+  assert.match(student, /data-student-completion-lane="done"[\s\S]*3 of 6/);
+  assert.match(student, /data-student-completion-lane="final-files"[\s\S]*Final files/);
   assert.match(student, /data-student-mission-board="true"/);
   assert.match(student, /Today at a glance/);
   assert.match(student, /Use these four cards to decide what to open first/);
@@ -10181,6 +10202,9 @@ test("workspace renders visible role identity for every logged-in role", async (
     assert.match(markup, /data-role-command-item="identity"[\s\S]*Signed in as/, `${roleId} signed-in context`);
     assert.match(markup, /data-role-command-item="next"[\s\S]*Do next/, `${roleId} next action context`);
     assert.match(markup, /data-role-command-item="safety"[\s\S]*Safety/, `${roleId} safety context`);
+    assert.match(markup, /data-role-action-trail="true"/, `${roleId} role action trail`);
+    assert.match(markup, /data-role-action-step="1"/, `${roleId} first action step`);
+    assert.match(markup, /Daily path|Console path|Preview path/, `${roleId} action trail label`);
     assert.match(markup, /data-role-confidence-strip="true"/, `${roleId} confidence strip`);
     assert.match(markup, /data-role-confidence-item="demo"[\s\S]*Demo boundary/, `${roleId} demo boundary`);
     assert.match(markup, /data-role-confidence-item="scope"[\s\S]*Visible scope/, `${roleId} visible scope`);

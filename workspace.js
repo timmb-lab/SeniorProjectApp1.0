@@ -1046,6 +1046,14 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     ? ""
     : isAdminConsole ? renderAdminConsoleActiveSection() : renderActiveSection();
   const activeSectionBeforeGuidance = activeSectionFirst || isAdminConsole;
+  const roleCommandStripMarkup = renderWorkspaceRoleCommandStrip({
+    primaryRole,
+    roles,
+    isAdminConsole,
+    viewingAsStudent,
+    consoleCapabilities,
+  });
+  const showRoleCommandBeforeSection = !studentFirstWorkspace;
   workspaceMain.innerHTML = `
     <section class="workspace-app" data-primary-role="${escapeHtml(primaryRole)}" data-app-mode="${escapeHtml(activeWorkspaceMode)}" data-nav-state="${workspaceNavCollapsed ? "collapsed" : "expanded"}" data-view-as-student="${viewingAsStudent ? "active" : "inactive"}">
       <header class="workspace-topbar">
@@ -1095,13 +1103,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
         <div class="workspace-main ${isAdminConsole ? "workspace-admin-console-main" : ""}">
           ${renderViewAsStudentBanner()}
           ${statusMessage ? statusHtml(statusMessage, tone) : ""}
-          ${renderWorkspaceRoleCommandStrip({
-            primaryRole,
-            roles,
-            isAdminConsole,
-            viewingAsStudent,
-            consoleCapabilities,
-          })}
+          ${showRoleCommandBeforeSection ? roleCommandStripMarkup : ""}
           ${isAdminConsole ? renderAdminConsoleHeader(consoleCapabilities, sections) : primaryRole === "student" || viewingAsStudent ? "" : renderProductHeader({
             eyebrow: "",
             title: headerTitle,
@@ -1112,6 +1114,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
           ${modeUnavailableNotice}
           ${sectionUnavailableNotice}
           ${activeSectionBeforeGuidance ? activeSectionMarkup : ""}
+          ${showRoleCommandBeforeSection ? "" : roleCommandStripMarkup}
           ${activeSectionBeforeGuidance ? "" : screenGuidance}
           ${renderReadOnlyBanner()}
           ${activeSectionBeforeGuidance ? screenGuidance : activeSectionMarkup}
@@ -1319,7 +1322,7 @@ function renderWorkspaceRoleCommandStrip(options = {}) {
     {
       id: "safety",
       label: "Safety",
-      value: readOnly ? "Read-only visible" : "Role-scoped actions",
+      value: readOnly ? "Read-only visible" : "Allowed for your role",
       detail: roleCommandSafetyText(primaryRole, roles, isAdminConsole, viewingAsStudent, consoleCapabilities),
     },
   ];
@@ -1344,6 +1347,7 @@ function renderWorkspaceRoleCommandStrip(options = {}) {
       <div class="workspace-role-command-grid">
         ${items.map((item) => renderRoleCommandItem(item)).join("")}
       </div>
+      ${renderRoleActionTrail(primaryRole, roles, isAdminConsole, viewingAsStudent, consoleCapabilities)}
       <div class="workspace-role-confidence-row" data-role-confidence-strip="true" aria-label="Demo and access confidence">
         ${confidenceItems.map((item) => renderRoleConfidenceItem(item)).join("")}
       </div>
@@ -1366,6 +1370,7 @@ function renderCompactAccessSummary({ identity, mode, readOnly = false, scopeTex
         <div class="workspace-role-command-grid">
           ${items.map((item) => renderRoleCommandItem(item)).join("")}
         </div>
+        ${renderRoleActionTrail(key, roleIds(currentUser), mode === "admin", isViewAsStudentActive(), adminConsoleCapabilitiesFor(currentUser))}
         <div class="workspace-role-confidence-row" data-role-confidence-strip="true" aria-label="Demo and access confidence">
           ${confidenceItems.map((item) => renderRoleConfidenceItem(item)).join("")}
         </div>
@@ -1402,6 +1407,113 @@ function renderRoleCommandActionButton(action = {}) {
     `;
   }
   return "";
+}
+
+function renderRoleActionTrail(primaryRole, roles = roleIds(currentUser), isAdminConsole = false, viewingAsStudent = false, capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  const allowedSections = availableSectionIdsForAnyMode();
+  const items = roleCommandTrailItems(primaryRole, roles, isAdminConsole, viewingAsStudent, capabilities)
+    .filter((item) => !item.section || allowedSections.has(item.section) || item.section === "overview")
+    .filter((item) => !item.mode || (item.mode === "admin" ? capabilities.canSee : true))
+    .slice(0, 4);
+  if (!items.length) return "";
+  return `
+    <section class="workspace-role-action-trail" data-role-action-trail="true" aria-label="Role action path">
+      <div class="workspace-role-action-trail-head">
+        <strong>${escapeHtml(isAdminConsole ? "Console path" : viewingAsStudent ? "Preview path" : "Daily path")}</strong>
+        <span>${escapeHtml(isAdminConsole ? "Open the source screen before changing records." : "Start with one clear move, then confirm the result.")}</span>
+      </div>
+      <ol class="workspace-role-action-trail-list">
+        ${items.map((item, index) => renderRoleActionTrailItem(item, index)).join("")}
+      </ol>
+    </section>
+  `;
+}
+
+function renderRoleActionTrailItem(item = {}, index = 0) {
+  const step = item.step || String(index + 1);
+  const action = item.actionLabel
+    ? renderRoleCommandActionButton({
+        label: item.actionLabel,
+        section: item.section,
+        mode: item.mode,
+        preset: item.preset,
+      })
+    : "";
+  return `
+    <li class="workspace-role-action-trail-item ${escapeHtml(item.tone || "quiet")}" data-role-action-step="${escapeHtml(step)}">
+      <span>${escapeHtml(step)}</span>
+      <div>
+        <strong>${escapeHtml(item.title || "Open the next screen")}</strong>
+        <p>${escapeHtml(item.detail || "")}</p>
+        ${action}
+      </div>
+    </li>
+  `;
+}
+
+function roleCommandTrailItems(primaryRole, roles = roleIds(currentUser), isAdminConsole = false, viewingAsStudent = false, capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  const studentSection = consoleStudentSectionId(capabilities) || "students";
+  if (viewingAsStudent) {
+    return [
+      { step: "1", title: "Confirm the banner", detail: "Make sure Viewing as names the authorized student and this preview stays read-only.", section: "student", actionLabel: "Open student view", tone: "student" },
+      { step: "2", title: "Read the next step", detail: "Use the student's Do this next card for context only.", section: "student", actionLabel: "Check My Work", tone: "ready" },
+      { step: "3", title: "Return to staff work", detail: "Exit before switching personas, opening staff tools, or changing records.", tone: "warning" },
+    ];
+  }
+  if (isAdminConsole) {
+    const items = [
+      { step: "1", title: "Start with scope", detail: "Confirm the current role, school, and visible records before using a console section.", section: "overview", actionLabel: "Open overview", tone: "ready" },
+    ];
+    if (capabilities.sectionIds.has("adminUsers")) {
+      items.push({ step: "2", title: "Fix people or access", detail: "Use People & Access for Add Student, Add Staff, CSV preview, and scoped assignments.", section: "adminUsers", actionLabel: "Open access", tone: "student" });
+    }
+    if (studentSection) {
+      items.push({ step: "3", title: "Open student work", detail: "Use the scoped student list or review queue before acting on one record.", section: capabilities.sectionIds.has("teacher") ? "teacher" : studentSection, preset: capabilities.sectionIds.has("teacher") ? "submitted" : "", actionLabel: capabilities.sectionIds.has("teacher") ? "Open review" : "Open students", tone: "teacher" });
+    }
+    if (capabilities.sectionIds.has("audit") || capabilities.sectionIds.has("security")) {
+      items.push({ step: "4", title: "Check safety last", detail: "Use Audit or Security only when the question needs elevated context.", section: capabilities.sectionIds.has("audit") ? "audit" : "security", actionLabel: capabilities.sectionIds.has("audit") ? "Open audit" : "Open security", tone: "quiet" });
+    }
+    return items;
+  }
+  if (primaryRole === "student" || roles.has("student")) {
+    return [
+      { step: "1", title: "Read Do this next", detail: "Start with the top card before opening every panel.", section: "student", actionLabel: "Open My Work", tone: "student" },
+      { step: "2", title: "Open the named item", detail: "Use the current checklist, proof, feedback, or sent-work item.", section: "student", actionLabel: "Open item", tone: "ready" },
+      { step: "3", title: "Stop at approval", detail: "Wait when Program Teacher review owns the next decision.", section: "student", actionLabel: "Check review", tone: "teacher" },
+    ];
+  }
+  if (roles.has("viewer")) {
+    return [
+      { step: "1", title: "Open assigned students", detail: "Start from records this account is assigned to monitor.", section: "students", actionLabel: "Open students", tone: "student" },
+      { step: "2", title: "Read detail only", detail: "Use detail and history for context without changing records.", section: "students", actionLabel: "View details", tone: "ready" },
+      { step: "3", title: "Share with staff", detail: "Send concerns to the Program Teacher or site team outside this read-only role.", tone: "quiet" },
+    ];
+  }
+  if (roles.has("mentor")) {
+    return [
+      { step: "1", title: "Open assigned students", detail: "Start with students already assigned to this mentor.", section: "mentorDashboard", actionLabel: "Open dashboard", tone: "mentor" },
+      { step: "2", title: "Check meeting needs", detail: "Open one assigned student before planning or recording support.", section: "mentor", actionLabel: "Open assigned", tone: "student" },
+      { step: "3", title: "Watch presentation prep", detail: "Use presentation signals for students you support.", section: "presentation", actionLabel: "Open presentation", tone: "teacher" },
+    ];
+  }
+  if (roles.has("program_teacher")) {
+    return [
+      { step: "1", title: "Review turned-in work", detail: "Open submitted or revision work before browsing lower-priority summaries.", section: "teacher", preset: "submitted", actionLabel: "Open review", tone: "teacher" },
+      { step: "2", title: "Find stuck students", detail: "Use Program Dashboard to locate proof, mentor, revision, or readiness blockers.", section: "programDashboard", actionLabel: "Open program", tone: "warning" },
+      { step: "3", title: "Fix roster gaps only when needed", detail: "Use Admin Console People & Access when the student or mentor roster is wrong.", mode: "admin", actionLabel: "Open console", tone: "quiet" },
+    ];
+  }
+  if (roles.has("administration") || roles.has("site_admin") || hasGlobalAdminRole(roles)) {
+    const globalAdmin = hasGlobalAdminRole(roles);
+    return [
+      { step: "1", title: globalAdmin ? "Check platform status" : "Check school status", detail: "Start with the dashboard before opening setup tools.", section: globalAdmin ? "" : "siteDashboard", mode: globalAdmin ? "admin" : "", actionLabel: globalAdmin ? "Open console" : "Open dashboard", tone: "ready" },
+      { step: "2", title: "Open the source list", detail: "Use Students, Review, or Operations for the exact records that need follow-up.", section: "students", actionLabel: "Open students", tone: "student" },
+      { step: "3", title: "Move setup to Admin Console", detail: "Keep people, access, program, audit, and security work in the protected console.", mode: "admin", actionLabel: "Open console", tone: "quiet" },
+    ];
+  }
+  return [
+    { step: "1", title: "Review your profile", detail: "Confirm what this account can see before asking for access changes.", section: "profile", actionLabel: "Open profile", tone: "quiet" },
+  ];
 }
 
 function renderRoleConfidenceItem(item = {}) {
@@ -1747,6 +1859,7 @@ function renderAdminConsoleOverviewSection(capabilities = adminConsoleCapabiliti
         ${renderAdminConsoleMetrics(capabilities)}
       </div>
       ${renderAdminConsoleSafetyStrip(capabilities)}
+      ${renderAdminConsoleOperatingOrder(capabilities)}
       <div class="workspace-admin-console-grid">
         ${renderAdminConsoleActionCards(capabilities)}
       </div>
@@ -1822,6 +1935,80 @@ function renderAdminConsoleSafetyStrip(capabilities = adminConsoleCapabilitiesFo
   `;
 }
 
+function renderAdminConsoleOperatingOrder(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  const studentSection = consoleStudentSectionId(capabilities);
+  const items = [
+    {
+      id: "scope",
+      step: "1",
+      title: "Confirm scope",
+      detail: `You are in ${capabilities.scope.label || "role-scoped"} console mode. Confirm the school, program, or assigned-student scope before acting.`,
+      section: "overview",
+      action: "Stay on overview",
+      tone: "ready",
+    },
+    capabilities.sectionIds.has("adminUsers") ? {
+      id: "people",
+      step: "2",
+      title: "People and Access",
+      detail: "Use Add Student, Add Staff, CSV preview, and assignments only when the current role and scope allow them.",
+      section: "adminUsers",
+      action: "Open access",
+      tone: "student",
+    } : null,
+    studentSection ? {
+      id: "student-work",
+      step: "3",
+      title: "Student work",
+      detail: capabilities.sectionIds.has("teacher")
+        ? "Open submitted work or scoped students before recording one Program Teacher decision."
+        : "Open assigned students for monitoring without adding edit controls.",
+      section: capabilities.sectionIds.has("teacher") ? "teacher" : studentSection,
+      preset: capabilities.sectionIds.has("teacher") ? "submitted" : "",
+      action: capabilities.sectionIds.has("teacher") ? "Open review" : "Open students",
+      tone: "teacher",
+    } : null,
+    {
+      id: "safety",
+      step: "4",
+      title: "Audit and safety",
+      detail: capabilities.sectionIds.has("audit")
+        ? "Use the audit log for protected activity questions; keep secrets and raw storage values out of the walkthrough."
+        : "Safety language stays visible even when audit tools are not available to this role.",
+      section: capabilities.sectionIds.has("audit") ? "audit" : "overview",
+      action: capabilities.sectionIds.has("audit") ? "Open audit" : "Review scope",
+      tone: "quiet",
+    },
+  ].filter(Boolean);
+
+  return `
+    <section class="workspace-admin-console-operating-order" data-admin-console-operating-order="true" aria-label="Admin Console operating order">
+      <div class="workspace-admin-console-operating-head">
+        <div>
+          <p class="workspace-kicker">Operating order</p>
+          <h3>What to do first</h3>
+          <p>Use this path before opening forms, imports, assignments, or elevated tools.</p>
+        </div>
+        <span class="workspace-summary-badge">${escapeHtml(capabilities.readOnly ? "Monitor only" : "Scoped changes")}</span>
+      </div>
+      <ol class="workspace-admin-console-operating-list">
+        ${items.map((item) => `
+          <li class="workspace-admin-console-operating-item ${escapeHtml(item.tone || "quiet")}" data-admin-console-operating-step="${escapeHtml(item.id)}">
+            <span>${escapeHtml(item.step)}</span>
+            <div>
+              <strong>${escapeHtml(item.title)}</strong>
+              <p>${escapeHtml(item.detail)}</p>
+              <button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(item.section || "overview")}" ${item.preset ? `data-section-preset="${escapeHtml(item.preset)}"` : ""}>
+                ${escapeHtml(item.action || "Open")}
+              </button>
+            </div>
+          </li>
+        `).join("")}
+      </ol>
+    </section>
+  `;
+}
+
 function renderAdminConsoleActionCards(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
   const cards = [];
   const sectionIds = capabilities.sectionIds;
@@ -1875,7 +2062,7 @@ function renderAdminConsoleActionCards(capabilities = adminConsoleCapabilitiesFo
     cards.push({
       tone: "audit",
       title: "Audit",
-      detail: "Review protected-record activity without exposing secret or private storage values.",
+      detail: "Review the audit log without exposing secret or private storage values.",
       section: "audit",
       action: "Open audit",
       badge: "Global",
@@ -9521,6 +9708,7 @@ function renderStudentSection() {
         ${renderStudentSummaryTile("Program Teacher Review", reviewMetric(summary), reviewExplanation(summary), summary.revisionRequestedCount ? "danger" : summary.waitingForReviewCount ? "warning" : "student")}
         ${renderStudentSummaryTile("Mentor Help", summary.mentor.assigned ? `Mentor: ${summary.mentor.name}` : "No mentor assigned yet", summary.mentor.assigned ? "Ask your mentor or Program Teacher if something looks wrong." : "Ask your Program Teacher who can help with mentor questions.", summary.mentor.assigned ? "mentor" : "warning")}
       </div>
+      ${renderStudentCompletionLanes(summary, archiveNextAction)}
     </section>
     ${previewingStudent ? renderViewAsStudentReadOnlyNotice() : ""}
     ${renderStudentSetupGuide(summary, requirements)}
@@ -9707,6 +9895,66 @@ function renderStudentMissionBoard(summary = {}, nextSteps = [], submissions = [
         ${renderStudentMissionCard(proof)}
         ${renderStudentMissionCard(recent)}
       </div>
+    </section>
+  `;
+}
+
+function renderStudentCompletionLanes(summary = {}, archiveNextAction = null) {
+  const revisionCount = safeNumber(summary.revisionRequestedCount);
+  const waitingCount = safeNumber(summary.waitingForReviewCount);
+  const missingCount = safeNumber(summary.missingRequiredCount);
+  const doneCount = safeNumber(summary.requirementsComplete);
+  const totalCount = safeNumber(summary.requirementsTotal);
+  const archiveStatus = normalizeStatus(archiveNextAction?.status || "");
+  const archiveNeedsStaff = ["failed", "provider_unavailable", "setup_needed", "attention_required"].includes(archiveStatus);
+  const lanes = [
+    {
+      id: "do-now",
+      label: "Do now",
+      value: revisionCount ? `${revisionCount} to fix` : missingCount ? `${missingCount} to finish` : "Keep going",
+      detail: revisionCount
+        ? "Fix Program Teacher revision notes before new phase work."
+        : missingCount
+          ? "Open the current checklist item and add matching proof when needed."
+          : "No urgent student action is listed right now.",
+      status: revisionCount ? "needs_revision" : missingCount ? "pending" : "ready",
+    },
+    {
+      id: "waiting",
+      label: "Waiting",
+      value: waitingCount ? `${waitingCount} in review` : "Nothing waiting",
+      detail: waitingCount
+        ? "Your Program Teacher owns the next decision for sent work."
+        : "Sent work that needs a Program Teacher decision will appear here.",
+      status: waitingCount ? "under_review" : "ready",
+    },
+    {
+      id: "done",
+      label: "Ready / done",
+      value: totalCount ? `${doneCount} of ${totalCount}` : "Not assigned",
+      detail: totalCount
+        ? "Approved or complete work supports the next Senior Project step."
+        : "Your Program Teacher adds assigned work before this lane fills in.",
+      status: totalCount && doneCount >= totalCount ? "complete" : "configured",
+    },
+    {
+      id: "final-files",
+      label: "Final files",
+      value: archiveNextAction?.title || "Check later",
+      detail: archiveNextAction?.when || "Final-file status appears when closeout checks exist.",
+      status: archiveNeedsStaff ? "needs_staff_action" : archiveStatus || "pending",
+    },
+  ];
+  return `
+    <section class="workspace-student-completion-lanes" data-student-completion-lanes="true" aria-label="Student completion lanes">
+      ${lanes.map((lane) => `
+        <article class="workspace-student-completion-lane" data-student-completion-lane="${escapeHtml(lane.id)}" data-student-completion-state="${escapeHtml(normalizeStatus(lane.status))}">
+          <span>${escapeHtml(lane.label)}</span>
+          <strong>${escapeHtml(lane.value)}</strong>
+          <p>${escapeHtml(lane.detail)}</p>
+          ${statusPill(lane.status)}
+        </article>
+      `).join("")}
     </section>
   `;
 }
@@ -21636,7 +21884,7 @@ function adminConsoleSectionsForRoles(roles) {
     add("readiness", "Readiness", "Aggregate site readiness");
   }
   if (hasGlobalAdminRole(roles)) {
-    add("adminDashboard", "Global Overview", "Cross-site command center");
+    add("adminDashboard", "Global Overview", "All schools overview");
     add("siteDashboard", "Site Overview", "Current-site health");
     add("students", "Students", "Cross-site student directory when allowed");
     add("teacher", "Review / Evidence", "Submitted work and proof status");

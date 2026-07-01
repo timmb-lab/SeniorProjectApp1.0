@@ -1,0 +1,698 @@
+import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
+import fs from "node:fs/promises";
+import net from "node:net";
+import os from "node:os";
+import path from "node:path";
+import { setTimeout as sleep } from "node:timers/promises";
+
+const ROOT = process.cwd();
+const BASE_URL_FROM_ENV = (process.env.WORKSPACE_UI_POLISH_BASE_URL || "").replace(/\/$/, "");
+const WORKSPACE_ENTRY_PATH = normalizeWorkspaceEntryPath(process.env.WORKSPACE_UI_POLISH_ENTRY_PATH || "/workspace.html");
+const CREDENTIALS_PATH = process.env.WORKSPACE_UI_POLISH_CREDENTIALS_PATH
+  || path.join(".secrets", "admin-console-local-browser-accounts.json");
+const SCREENSHOT_DIR = process.env.WORKSPACE_UI_POLISH_SCREENSHOT_DIR
+  || path.join("docs", "sales", "screenshots", "2026-06-30-ui-polish");
+const MANIFEST_PATH = process.env.WORKSPACE_UI_POLISH_MANIFEST_PATH
+  || path.join("docs", "progress", "runs", "2026-06-30-workspace-ui-polish-browser-proof.json");
+const WRANGLER_JS = path.join(ROOT, "node_modules", "wrangler", "bin", "wrangler.js");
+
+const EDGE_CANDIDATES = [
+  process.env.EDGE_PATH,
+  "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+  "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
+].filter(Boolean);
+
+const SECRET_PATTERNS = [
+  /access[_-]?token/i,
+  /refresh[_-]?token/i,
+  /api[_-]?key/i,
+  /client[_-]?secret/i,
+  /BEGIN PRIVATE KEY/,
+  /\.secrets/i,
+  /drive_file_id/i,
+  /driveFileId/i,
+  /password_hash/i,
+  /password_salt/i,
+  /CLOUDFLARE_API_TOKEN/i,
+];
+
+const SCREENSHOT_PLAN = [
+  {
+    id: "01-admin-console-global-admin-desktop",
+    label: "Admin Console desktop",
+    persona: "Global Admin",
+    authRole: "admin",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?mode=admin&section=overview"),
+    viewport: { width: 1920, height: 1080, deviceScaleFactor: 1, mobile: false },
+    expected: ["Admin Console", "What to do first", "People & Access"],
+    proves: "Global Admin sees the calmer console operating order before setup tools.",
+  },
+  {
+    id: "02-workspace-site-admin-desktop",
+    label: "Workspace desktop",
+    persona: "Site Admin",
+    authRole: "site_admin",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?mode=workspace&section=siteDashboard"),
+    viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Site Dashboard", "Daily path"],
+    proves: "Site Admin daily workspace stays separate from protected console setup.",
+  },
+  {
+    id: "03-program-teacher-workspace",
+    label: "Program Teacher workspace",
+    persona: "Program Teacher",
+    authRole: "program_teacher",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?section=programDashboard"),
+    viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Program Dashboard", "Review turned-in work"],
+    proves: "Program Teacher sees program-scoped review-first daily work.",
+  },
+  {
+    id: "04-mentor-workspace",
+    label: "Mentor workspace",
+    persona: "Mentor",
+    authRole: "mentor",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?section=mentorDashboard"),
+    viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Mentor Dashboard", "Open assigned students"],
+    proves: "Mentor starts from assigned-student support, not broad admin tools.",
+  },
+  {
+    id: "05-viewer-read-only-workspace",
+    label: "Viewer read-only workspace",
+    persona: "Viewer",
+    authRole: "viewer",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?section=students"),
+    viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Student Directory", "Read-only"],
+    proves: "Viewer read-only cue stays visible on the student directory.",
+  },
+  {
+    id: "06-student-workspace-desktop",
+    label: "Student workspace desktop",
+    persona: "Student",
+    authRole: "student",
+    accountType: "Fake .test demo student account",
+    url: workspaceUrl("?section=student"),
+    viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Your Senior Project", "DO NOW", "Final files"],
+    proves: "Student lands on plain-language next action and completion lanes.",
+  },
+  {
+    id: "07-student-phone",
+    label: "Student phone",
+    persona: "Student mobile",
+    authRole: "student",
+    accountType: "Fake .test demo student account",
+    url: workspaceUrl("?section=student"),
+    viewport: { width: 390, height: 844, deviceScaleFactor: 2, mobile: true },
+    expected: ["Your Senior Project", "DO NOW"],
+    proves: "Student first screen remains usable at phone width.",
+  },
+  {
+    id: "08-staff-view-as-student-phone",
+    label: "Staff View as Student phone",
+    persona: "Site Admin previewing student",
+    authRole: "site_admin",
+    accountType: "Fake .test demo staff account using read-only preview",
+    url: workspaceUrl("?section=student&siteId=site-desert-valley-high&viewAsStudentId=demo-student-101&viewAsReturnSection=students"),
+    viewport: { width: 390, height: 844, deviceScaleFactor: 2, mobile: true },
+    expected: ["Viewing as:", "read-only"],
+    proves: "Staff preview keeps the read-only View as Student boundary visible on phone.",
+  },
+  {
+    id: "09-admin-console-half-screen",
+    label: "Admin Console half-screen",
+    persona: "Global Admin half-screen",
+    authRole: "admin",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?mode=admin&section=overview"),
+    viewport: { width: 820, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Admin Console", "What to do first"],
+    proves: "Admin Console operating order stacks without horizontal overflow at half width.",
+  },
+  {
+    id: "10-workspace-half-screen",
+    label: "Workspace half-screen",
+    persona: "Site Admin half-screen",
+    authRole: "site_admin",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?mode=workspace&section=siteDashboard"),
+    viewport: { width: 820, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Site Dashboard", "Daily path"],
+    proves: "Workspace role path and dashboard remain readable at half width.",
+  },
+  {
+    id: "11-drawer-open-phone",
+    label: "Drawer open on phone",
+    persona: "Student mobile drawer",
+    authRole: "student",
+    accountType: "Fake .test demo student account",
+    url: workspaceUrl("?section=student"),
+    viewport: { width: 390, height: 844, deviceScaleFactor: 2, mobile: true },
+    expected: ["Workspace menu", "My Work"],
+    action: "openDrawer",
+    proves: "Phone drawer opens with a named workspace menu and student routes.",
+  },
+  {
+    id: "12-drawer-open-half-screen",
+    label: "Drawer open half-screen",
+    persona: "Site Admin half-screen drawer",
+    authRole: "site_admin",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?mode=workspace&section=siteDashboard"),
+    viewport: { width: 820, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Workspace menu", "Site Dashboard"],
+    action: "openDrawer",
+    proves: "Half-screen drawer opens without covering the role context or causing overflow.",
+  },
+];
+
+function normalizeWorkspaceEntryPath(value) {
+  const trimmed = String(value || "").trim() || "/workspace.html";
+  return trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+}
+
+function workspaceUrl(search = "") {
+  return `${WORKSPACE_ENTRY_PATH}${search}`;
+}
+
+function absoluteRepoPath(repoRelativePath) {
+  return path.resolve(ROOT, repoRelativePath);
+}
+
+function normalizeAccountRole(role) {
+  const normalized = String(role || "").trim().toLowerCase();
+  if (normalized === "global_admin" || normalized === "platform_admin") return "admin";
+  if (normalized === "administration") return "misc_admin";
+  return normalized;
+}
+
+async function readAccounts() {
+  const absolutePath = absoluteRepoPath(CREDENTIALS_PATH);
+  const raw = await fs.readFile(absolutePath, "utf8");
+  const parsed = JSON.parse(raw);
+  const accounts = Array.isArray(parsed) ? parsed : parsed.accounts || [];
+  const byRole = new Map();
+  for (const account of accounts) {
+    const role = normalizeAccountRole(account.role || account.key || account.roleId);
+    if (!role || byRole.has(role)) continue;
+    const email = account.email || account.username;
+    const password = account.password;
+    if (email && password) byRole.set(role, { email, password });
+  }
+  const requiredRoles = [...new Set(SCREENSHOT_PLAN.map((item) => normalizeAccountRole(item.authRole)).filter(Boolean))];
+  const missing = requiredRoles.filter((role) => !byRole.has(role));
+  if (missing.length) {
+    throw new Error(`Missing local fake-account credentials for roles: ${missing.join(", ")}`);
+  }
+  return byRole;
+}
+
+function findEdgePath() {
+  const edgePath = EDGE_CANDIDATES.find((candidate) => existsSync(candidate));
+  if (!edgePath) {
+    throw new Error(`Microsoft Edge was not found. Set EDGE_PATH. Checked: ${EDGE_CANDIDATES.join(", ")}`);
+  }
+  return edgePath;
+}
+
+async function getFreePort() {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer();
+    server.unref();
+    server.on("error", reject);
+    server.listen(0, "127.0.0.1", () => {
+      const address = server.address();
+      server.close(() => resolve(address.port));
+    });
+  });
+}
+
+async function fetchText(url, options = {}) {
+  const response = await fetch(url, options);
+  return { status: response.status, ok: response.ok, text: await response.text().catch(() => "") };
+}
+
+async function fetchJson(url, options = {}) {
+  const response = await fetch(url, options);
+  if (!response.ok) throw new Error(`HTTP ${response.status} from ${url}`);
+  return response.json();
+}
+
+async function waitForHttpOk(url, timeoutMs = 45_000) {
+  const deadline = Date.now() + timeoutMs;
+  let lastStatus = "not reached";
+  while (Date.now() < deadline) {
+    try {
+      const result = await fetchText(url);
+      lastStatus = String(result.status);
+      if (result.status >= 200 && result.status < 500) return result;
+    } catch (error) {
+      lastStatus = error.message;
+    }
+    await sleep(500);
+  }
+  throw new Error(`Timed out waiting for local app at ${url}; last status: ${lastStatus}`);
+}
+
+async function startLocalAppIfNeeded(result) {
+  if (BASE_URL_FROM_ENV) {
+    result.server = {
+      startedByScript: false,
+      baseUrl: BASE_URL_FROM_ENV,
+      note: "Using WORKSPACE_UI_POLISH_BASE_URL; script did not start local Pages.",
+    };
+    await waitForHttpOk(`${BASE_URL_FROM_ENV}${WORKSPACE_ENTRY_PATH}`);
+    return { baseUrl: BASE_URL_FROM_ENV, app: null, stdout: [], stderr: [] };
+  }
+  if (!existsSync(WRANGLER_JS)) {
+    throw new Error(`Wrangler CLI not found at ${WRANGLER_JS}. Run npm install before browser proof.`);
+  }
+  const port = await getFreePort();
+  const baseUrl = `http://127.0.0.1:${port}`;
+  const stdout = [];
+  const stderr = [];
+  const app = spawn(process.execPath, [
+    WRANGLER_JS,
+    "pages",
+    "dev",
+    ".",
+    "--compatibility-date=2026-05-18",
+    "--port",
+    String(port),
+    "--ip",
+    "127.0.0.1",
+  ], {
+    cwd: ROOT,
+    env: { ...process.env, NO_COLOR: "1" },
+    stdio: ["ignore", "pipe", "pipe"],
+    windowsHide: true,
+  });
+  app.stdout.on("data", (chunk) => stdout.push(chunk.toString()));
+  app.stderr.on("data", (chunk) => stderr.push(chunk.toString()));
+  await waitForHttpOk(`${baseUrl}${WORKSPACE_ENTRY_PATH}`);
+  result.server = {
+    startedByScript: true,
+    baseUrl,
+    command: "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18",
+  };
+  return { baseUrl, app, stdout, stderr };
+}
+
+async function waitForDevtools(port, timeoutMs = 10_000) {
+  const deadline = Date.now() + timeoutMs;
+  let lastError;
+  while (Date.now() < deadline) {
+    try {
+      return await fetchJson(`http://127.0.0.1:${port}/json/version`);
+    } catch (error) {
+      lastError = error;
+      await sleep(250);
+    }
+  }
+  throw new Error(`Timed out waiting for Edge DevTools endpoint: ${lastError?.message || "unknown error"}`);
+}
+
+async function getPageWebSocketUrl(port) {
+  const pages = await fetchJson(`http://127.0.0.1:${port}/json/list`);
+  const page = pages.find((entry) => entry.type === "page" && entry.webSocketDebuggerUrl);
+  if (!page) throw new Error("No debuggable Edge page target was found.");
+  return page.webSocketDebuggerUrl;
+}
+
+class CdpClient {
+  constructor(socket) {
+    this.socket = socket;
+    this.nextId = 1;
+    this.pending = new Map();
+    this.waitingEvents = new Map();
+    socket.addEventListener("message", (event) => this.handleMessage(event));
+    socket.addEventListener("close", () => {
+      for (const { reject } of this.pending.values()) reject(new Error("CDP socket closed"));
+      this.pending.clear();
+    });
+  }
+
+  handleMessage(event) {
+    const message = JSON.parse(event.data);
+    if (message.id && this.pending.has(message.id)) {
+      const { resolve, reject } = this.pending.get(message.id);
+      this.pending.delete(message.id);
+      if (message.error) reject(new Error(`${message.error.message}${message.error.data ? `: ${message.error.data}` : ""}`));
+      else resolve(message.result);
+      return;
+    }
+
+    if (message.method && this.waitingEvents.has(message.method)) {
+      const waiters = this.waitingEvents.get(message.method);
+      for (const waiter of waiters.splice(0)) waiter.resolve(message.params || {});
+    }
+  }
+
+  send(method, params = {}) {
+    const id = this.nextId++;
+    const payload = JSON.stringify({ id, method, params });
+    return new Promise((resolve, reject) => {
+      this.pending.set(id, { resolve, reject });
+      this.socket.send(payload);
+    });
+  }
+
+  waitForEvent(method, timeoutMs = 20_000) {
+    return new Promise((resolve, reject) => {
+      const waiter = { resolve, reject };
+      if (!this.waitingEvents.has(method)) this.waitingEvents.set(method, []);
+      this.waitingEvents.get(method).push(waiter);
+      setTimeout(() => {
+        const waiters = this.waitingEvents.get(method) || [];
+        const index = waiters.indexOf(waiter);
+        if (index >= 0) waiters.splice(index, 1);
+        reject(new Error(`Timed out waiting for ${method}`));
+      }, timeoutMs).unref();
+    });
+  }
+
+  async evaluate(expression, { awaitPromise = false } = {}) {
+    const result = await this.send("Runtime.evaluate", {
+      expression,
+      awaitPromise,
+      returnByValue: true,
+    });
+    if (result.exceptionDetails) {
+      throw new Error(result.exceptionDetails.text || "Runtime evaluation failed");
+    }
+    return result.result?.value;
+  }
+}
+
+async function connectToCdp(webSocketUrl) {
+  const socket = new WebSocket(webSocketUrl);
+  await new Promise((resolve, reject) => {
+    socket.addEventListener("open", resolve, { once: true });
+    socket.addEventListener("error", () => reject(new Error("Unable to connect to Edge CDP WebSocket")), { once: true });
+  });
+  return new CdpClient(socket);
+}
+
+async function setViewport(client, viewport) {
+  await client.send("Emulation.setDeviceMetricsOverride", {
+    width: viewport.width,
+    height: viewport.height,
+    deviceScaleFactor: viewport.deviceScaleFactor,
+    mobile: viewport.mobile,
+    screenWidth: viewport.width,
+    screenHeight: viewport.height,
+  });
+  await client.send("Emulation.setVisibleSize", { width: viewport.width, height: viewport.height }).catch(() => {});
+}
+
+async function navigate(client, targetUrl) {
+  const loaded = client.waitForEvent("Page.loadEventFired", 25_000).catch(() => null);
+  await client.send("Page.navigate", { url: targetUrl });
+  await loaded;
+  await waitForStableWorkspace(client);
+}
+
+async function waitForStableWorkspace(client) {
+  const deadline = Date.now() + 25_000;
+  while (Date.now() < deadline) {
+    const state = await client.evaluate(`(() => ({
+      readyState: document.readyState,
+      bodyText: document.body ? document.body.innerText.slice(0, 1200) : "",
+      workspaceRoot: Boolean(document.querySelector("#workspaceRoot, [data-workspace-app]"))
+    }))()`);
+    const loading = /Loading (your )?workspace|Checking your session|Signing in/i.test(state.bodyText || "");
+    if (state.readyState === "complete" && !loading) {
+      await sleep(700);
+      return;
+    }
+    await sleep(300);
+  }
+  throw new Error("Timed out waiting for workspace UI to settle.");
+}
+
+async function login(client, account) {
+  const result = await client.evaluate(
+    `(async () => {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: ${JSON.stringify(account.email)}, password: ${JSON.stringify(account.password)} })
+      });
+      const body = await response.json().catch(() => ({}));
+      return { status: response.status, ok: body && body.ok === true, error: body && body.error ? body.error : null };
+    })()`,
+    { awaitPromise: true },
+  );
+  if (result?.status !== 200 || result?.ok !== true) {
+    throw new Error(`Login failed with HTTP ${result?.status || "unknown"}${result?.error ? ` (${result.error})` : ""}`);
+  }
+  return { status: result.status, ok: result.ok };
+}
+
+async function logout(client) {
+  await client.evaluate(
+    `(async () => {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "include" }).catch(() => null);
+      localStorage.clear();
+      sessionStorage.clear();
+      return true;
+    })()`,
+    { awaitPromise: true },
+  ).catch(() => {});
+}
+
+async function performPlanAction(client, action) {
+  if (action !== "openDrawer") return;
+  await client.evaluate(`(() => {
+    const toggle = document.querySelector("#workspaceMenuToggle");
+    const rail = document.querySelector("#workspaceNavigationRail");
+    if (toggle && (rail?.hidden || toggle.getAttribute("aria-expanded") === "false")) {
+      toggle.click();
+    }
+    return {
+      toggle: Boolean(toggle),
+      railHidden: rail ? rail.hidden : null,
+      expanded: toggle ? toggle.getAttribute("aria-expanded") : null
+    };
+  })()`);
+  await sleep(500);
+}
+
+async function collectPageState(client) {
+  return client.evaluate(`(() => {
+    const text = document.body ? document.body.innerText : "";
+    const visiblePasswordValues = Array.from(document.querySelectorAll("input[type='password']"))
+      .map((input) => input.value || "")
+      .filter(Boolean);
+    const activeNav = Array.from(document.querySelectorAll("[aria-current='page'], .active, .is-active"))
+      .map((node) => node.textContent.trim())
+      .filter(Boolean)
+      .slice(0, 10);
+    const rail = document.querySelector("#workspaceNavigationRail");
+    const toggle = document.querySelector("#workspaceMenuToggle");
+    return {
+      title: document.title,
+      url: location.href,
+      text,
+      textSample: text.replace(/\\s+/g, " ").trim().slice(0, 700),
+      visiblePasswordValueCount: visiblePasswordValues.length,
+      heading: (document.querySelector("h1, h2") || {}).textContent || "",
+      activeNav,
+      layout: {
+        viewportWidth: window.innerWidth,
+        viewportHeight: window.innerHeight,
+        documentClientWidth: document.documentElement.clientWidth,
+        documentScrollWidth: document.documentElement.scrollWidth,
+        bodyScrollWidth: document.body ? document.body.scrollWidth : 0,
+        horizontalOverflow: document.documentElement.scrollWidth > window.innerWidth + 1
+      },
+      drawer: {
+        togglePresent: Boolean(toggle),
+        railPresent: Boolean(rail),
+        hidden: rail ? rail.hidden : null,
+        expanded: toggle ? toggle.getAttribute("aria-expanded") : null
+      }
+    };
+  })()`);
+}
+
+function checkPage(planItem, pageState) {
+  const text = `${pageState.heading || ""}\n${pageState.text || ""}`;
+  const missingExpectedText = planItem.expected.filter((marker) => !text.includes(marker));
+  const secretMatches = SECRET_PATTERNS.filter((pattern) => pattern.test(text)).map((pattern) => pattern.source);
+  const drawerOpenWhenRequested = planItem.action === "openDrawer"
+    ? pageState.drawer.railPresent && pageState.drawer.hidden === false && pageState.drawer.expanded === "true"
+    : true;
+  return {
+    expectedTextPresent: missingExpectedText.length === 0,
+    missingExpectedText,
+    noVisiblePasswordValues: pageState.visiblePasswordValueCount === 0,
+    noSecretLikeText: secretMatches.length === 0,
+    secretPatternMatches: secretMatches,
+    noHorizontalOverflow: pageState.layout.horizontalOverflow === false,
+    drawerOpenWhenRequested,
+  };
+}
+
+async function captureScreenshot(client, outputPath) {
+  const result = await client.send("Page.captureScreenshot", {
+    format: "png",
+    fromSurface: true,
+    captureBeyondViewport: false,
+  });
+  await fs.writeFile(outputPath, Buffer.from(result.data, "base64"));
+}
+
+async function writeManifest(result) {
+  await fs.mkdir(path.dirname(absoluteRepoPath(MANIFEST_PATH)), { recursive: true });
+  await fs.writeFile(absoluteRepoPath(MANIFEST_PATH), `${JSON.stringify(result, null, 2)}\n`);
+}
+
+function passedChecks(checks) {
+  return checks.expectedTextPresent
+    && checks.noVisiblePasswordValues
+    && checks.noSecretLikeText
+    && checks.noHorizontalOverflow
+    && checks.drawerOpenWhenRequested;
+}
+
+function tailLines(chunks) {
+  return chunks.join("").split(/\r?\n/).filter(Boolean).slice(-25);
+}
+
+async function run() {
+  const startedAt = new Date().toISOString();
+  const accountsByRole = await readAccounts();
+  const edgePath = findEdgePath();
+  const screenshotsAbsoluteDir = absoluteRepoPath(SCREENSHOT_DIR);
+  await fs.mkdir(screenshotsAbsoluteDir, { recursive: true });
+
+  const result = {
+    proof: "workspace_ui_polish_local_browser",
+    verdict: "PENDING",
+    baseUrl: null,
+    workspaceEntryPath: WORKSPACE_ENTRY_PATH,
+    startedAt,
+    completedAt: null,
+    browser: {
+      executable: edgePath,
+      devtoolsProtocol: null,
+    },
+    server: null,
+    screenshotDir: SCREENSHOT_DIR.replaceAll("\\", "/"),
+    manifestPath: MANIFEST_PATH.replaceAll("\\", "/"),
+    fakeDataOnly: true,
+    realStudentProductionStatus: "NOT_CLAIMED_READY",
+    claimBoundary: "Local fake-account browser UI proof only. Does not prove real-student pilot readiness.",
+    screenshots: [],
+    failures: [],
+  };
+
+  const localApp = await startLocalAppIfNeeded(result);
+  result.baseUrl = localApp.baseUrl;
+
+  const cdpPort = await getFreePort();
+  const userDataDir = await fs.mkdtemp(path.join(os.tmpdir(), "senior-capstone-ui-polish-browser-"));
+  const edgeStderr = [];
+  const edge = spawn(edgePath, [
+    "--headless=new",
+    "--disable-gpu",
+    "--no-first-run",
+    "--no-default-browser-check",
+    "--disable-extensions",
+    "--disable-background-networking",
+    `--remote-debugging-port=${cdpPort}`,
+    `--user-data-dir=${userDataDir}`,
+    "about:blank",
+  ], {
+    stdio: ["ignore", "ignore", "pipe"],
+    windowsHide: true,
+  });
+  edge.stderr.on("data", (chunk) => edgeStderr.push(chunk.toString()));
+
+  let client;
+  try {
+    const version = await waitForDevtools(cdpPort);
+    result.browser.devtoolsProtocol = version["Protocol-Version"] || null;
+    const webSocketUrl = await getPageWebSocketUrl(cdpPort);
+    client = await connectToCdp(webSocketUrl);
+    await client.send("Page.enable");
+    await client.send("Runtime.enable");
+    await client.send("Network.enable");
+
+    for (const planItem of SCREENSHOT_PLAN) {
+      await setViewport(client, planItem.viewport);
+      await navigate(client, `${localApp.baseUrl}${WORKSPACE_ENTRY_PATH}`);
+      await logout(client);
+      const loginResult = await login(client, accountsByRole.get(normalizeAccountRole(planItem.authRole)));
+      await navigate(client, `${localApp.baseUrl}${planItem.url}`);
+      await performPlanAction(client, planItem.action);
+      const pageState = await collectPageState(client);
+      const checks = checkPage(planItem, pageState);
+      const relativePath = path.join(SCREENSHOT_DIR, `${planItem.id}.png`).replaceAll("\\", "/");
+      await captureScreenshot(client, absoluteRepoPath(relativePath));
+      const passed = passedChecks(checks);
+      if (!passed) {
+        result.failures.push({
+          id: planItem.id,
+          role: planItem.authRole,
+          checks,
+        });
+      }
+      result.screenshots.push({
+        id: planItem.id,
+        label: planItem.label,
+        persona: planItem.persona,
+        role: planItem.authRole,
+        accountType: planItem.accountType,
+        viewport: planItem.viewport,
+        route: planItem.url,
+        screenshot: relativePath,
+        expected: planItem.expected,
+        proves: planItem.proves,
+        caveat: "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+        login: loginResult,
+        checks,
+        heading: String(pageState.heading || "").trim(),
+        textSample: pageState.textSample,
+        activeNav: pageState.activeNav,
+      });
+      console.log(`${passed ? "PASS" : "FAIL"} ${planItem.id} ${planItem.label} -> ${relativePath}`);
+    }
+
+    result.completedAt = new Date().toISOString();
+    result.verdict = result.failures.length ? "NOT_GREEN" : "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF";
+    await writeManifest(result);
+    if (result.failures.length) {
+      throw new Error(`Workspace UI polish proof failed for ${result.failures.length} screenshot(s).`);
+    }
+  } catch (error) {
+    result.completedAt = new Date().toISOString();
+    result.verdict = "NOT_GREEN";
+    result.error = error.message;
+    result.edgeStderrTail = tailLines(edgeStderr);
+    result.appStdoutTail = tailLines(localApp.stdout || []);
+    result.appStderrTail = tailLines(localApp.stderr || []);
+    await writeManifest(result).catch(() => {});
+    throw error;
+  } finally {
+    if (client) client.socket.close();
+    if (!edge.killed) edge.kill();
+    if (localApp.app && !localApp.app.killed) localApp.app.kill();
+    await fs.rm(userDataDir, { recursive: true, force: true }).catch(() => {});
+  }
+}
+
+run().catch((error) => {
+  console.error(error.message);
+  process.exitCode = 1;
+});

@@ -1,0 +1,504 @@
+{
+  "proof": "workspace_ui_polish_local_browser",
+  "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
+  "baseUrl": "http://127.0.0.1:54923",
+  "workspaceEntryPath": "/workspace.html",
+  "startedAt": "2026-07-01T03:30:33.773Z",
+  "completedAt": "2026-07-01T03:31:28.052Z",
+  "browser": {
+    "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+    "devtoolsProtocol": "1.3"
+  },
+  "server": {
+    "startedByScript": true,
+    "baseUrl": "http://127.0.0.1:54923",
+    "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
+  },
+  "screenshotDir": "docs/sales/screenshots/2026-06-30-ui-polish",
+  "manifestPath": "docs/progress/runs/2026-06-30-workspace-ui-polish-browser-proof.json",
+  "fakeDataOnly": true,
+  "realStudentProductionStatus": "NOT_CLAIMED_READY",
+  "claimBoundary": "Local fake-account browser UI proof only. Does not prove real-student pilot readiness.",
+  "screenshots": [
+    {
+      "id": "01-admin-console-global-admin-desktop",
+      "label": "Admin Console desktop",
+      "persona": "Global Admin",
+      "role": "admin",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace.html?mode=admin&section=overview",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/01-admin-console-global-admin-desktop.png",
+      "expected": [
+        "Admin Console",
+        "What to do first",
+        "People & Access"
+      ],
+      "proves": "Global Admin sees the calmer console operating order before setup tools.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "heading": "Admin Console",
+      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace Current site Choose site Canyon Ridge Career Academy Desert Valley High School East Career & Technical Academy North Valley Technical High School Test High School FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Global Admin ACTIVE ROLE Priya Global platform.admin@demo-staff.capstone.test Refresh Sign out ACCESS Global Admin Entire platform Global view. Use site selection when a section needs a school. DAILY WORK Overview Console scope, counts, and next admin actions OPERATIONS Global Overview All schools overview Site Overview Current-site health STUDENTS Students Cross-s",
+      "activeNav": [
+        "Admin Console",
+        "Home\n        Overview\n        Console scope, counts, and next admin actions"
+      ]
+    },
+    {
+      "id": "02-workspace-site-admin-desktop",
+      "label": "Workspace desktop",
+      "persona": "Site Admin",
+      "role": "site_admin",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace.html?mode=workspace&section=siteDashboard",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/02-workspace-site-admin-desktop.png",
+      "expected": [
+        "Site Dashboard",
+        "Daily path"
+      ],
+      "proves": "Site Admin daily workspace stays separate from protected console setup.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "heading": "Site Admin workspace",
+      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace Current site Desert Valley High School Only one site Workspace Admin Console Site Admin ACTIVE ROLE Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test Refresh Sign out YOUR ACCESS Site Admin Assigned school: Desert Valley High School Site tools stay tied to the selected or assigned school. DAILY WORK Overview Daily priorities and access Profile Plain-language role guide REVIEW / PROOF Presentation Schedule, outline, and day-of status DASHBOARDS Readiness Aggregate project readiness SETTINGS / SECURITY Account Password and sessions NEXT STEP Review site progress, student readiness, mentor coverage, presentation status, a",
+      "activeNav": [
+        "Workspace",
+        "Home\n        Overview\n        Daily priorities and access"
+      ]
+    },
+    {
+      "id": "03-program-teacher-workspace",
+      "label": "Program Teacher workspace",
+      "persona": "Program Teacher",
+      "role": "program_teacher",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace.html?section=programDashboard",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/03-program-teacher-workspace.png",
+      "expected": [
+        "Program Dashboard",
+        "Review turned-in work"
+      ],
+      "proves": "Program Teacher sees program-scoped review-first daily work.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "heading": "Program Teacher workspace",
+      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Program Teacher ACTIVE ROLE Gray Quinn teacher-it-01@demo-staff.capstone.test Refresh Sign out YOUR ACCESS Program Teacher Assigned program: IT Review work and student support stay inside your assigned program. DAILY WORK Overview Daily priorities and access Profile Plain-language role guide DASHBOARDS Program Dashboard Your students and review needs STUDENTS Students Search and filter capstone progress REVIEW / PROOF Review Queue Program Teacher review and submitted work Operations Presentation, mentor, and final-file block",
+      "activeNav": [
+        "Workspace",
+        "Program\n        Program Dashboard\n        Your students and review needs"
+      ]
+    },
+    {
+      "id": "04-mentor-workspace",
+      "label": "Mentor workspace",
+      "persona": "Mentor",
+      "role": "mentor",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace.html?section=mentorDashboard",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/04-mentor-workspace.png",
+      "expected": [
+        "Mentor Dashboard",
+        "Open assigned students"
+      ],
+      "proves": "Mentor starts from assigned-student support, not broad admin tools.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "heading": "Mentor workspace",
+      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace Workspace Admin Console Mentor ACTIVE ROLE Ari Field mentor001@demo-staff.capstone.test Refresh Sign out YOUR ACCESS Mentor Assigned students Start with assigned students, meetings, and presentation prep. DAILY WORK Overview Daily priorities and access Profile Plain-language role guide DASHBOARDS Mentor Dashboard Assigned student risks STUDENTS Assigned Students Assigned students and proof counts REVIEW / PROOF Presentation Schedule, outline, and day-of status SETTINGS / SECURITY Account Password and sessions NEXT STEP Check assigned students before mentor meetings and presentation preparation. Workspace ready. ROLE CONTEXT Mentor wo",
+      "activeNav": [
+        "Workspace",
+        "Mentor\n        Mentor Dashboard\n        Assigned student risks"
+      ]
+    },
+    {
+      "id": "05-viewer-read-only-workspace",
+      "label": "Viewer read-only workspace",
+      "persona": "Viewer",
+      "role": "viewer",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace.html?section=students",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/05-viewer-read-only-workspace.png",
+      "expected": [
+        "Student Directory",
+        "Read-only"
+      ],
+      "proves": "Viewer read-only cue stays visible on the student directory.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "heading": "Viewer workspace",
+      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Viewer ACTIVE ROLE Valeria Viewer viewer.desert-valley-high@demo-staff.capstone.test Refresh Sign out YOUR ACCESS Viewer Assigned students Assigned student records only. Change controls stay hidden. DAILY WORK Overview Daily priorities and access Profile Plain-language role guide STUDENTS Students Search and filter capstone progress SETTINGS / SECURITY Account Password and sessions NEXT STEP Review assigned students in read-only mode. Workspace ready. ROLE CONTEXT Viewer workspace Viewer Workspace shows assigned student cont",
+      "activeNav": [
+        "Workspace",
+        "Students\n        Students\n        Search and filter capstone progress"
+      ]
+    },
+    {
+      "id": "06-student-workspace-desktop",
+      "label": "Student workspace desktop",
+      "persona": "Student",
+      "role": "student",
+      "accountType": "Fake .test demo student account",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace.html?section=student",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/06-student-workspace-desktop.png",
+      "expected": [
+        "Your Senior Project",
+        "DO NOW",
+        "Final files"
+      ],
+      "proves": "Student lands on plain-language next action and completion lanes.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "heading": "Your Senior Project",
+      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace Student ACTIVE ROLE Test Student Maya maya.student@senior-capstone.test Refresh Sign out YOUR ACCESS Student Your project workspace Only your own project work and feedback are visible here. DAILY WORK Overview Daily priorities and access Profile Plain-language role guide My Work Next step, phase goals, proof, and feedback REVIEW / PROOF Presentation Schedule, outline, and day-of status Final Files May 5 downloads SETTINGS / SECURITY Account Password and sessions NEXT STEP Open Start: Setup and finish Senior Project Workspace. Add the requested proof before sending it for review. Workspace ready. STUDENT HOME Your Senior Project See w",
+      "activeNav": [
+        "My Work\n        My Work\n        Next step, phase goals, proof, and feedback"
+      ]
+    },
+    {
+      "id": "07-student-phone",
+      "label": "Student phone",
+      "persona": "Student mobile",
+      "role": "student",
+      "accountType": "Fake .test demo student account",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 2,
+        "mobile": true
+      },
+      "route": "/workspace.html?section=student",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/07-student-phone.png",
+      "expected": [
+        "Your Senior Project",
+        "DO NOW"
+      ],
+      "proves": "Student first screen remains usable at phone width.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "heading": "Your Senior Project",
+      "textSample": "Skip to workspace Open menu SC Capstone Project Workspace Student ACTIVE ROLE Test Student Maya maya.student@senior-capstone.test Refresh Sign out Workspace ready. STUDENT HOME Your Senior Project See what is done, what is missing, and what to do next. WAITING FOR REVIEW 0% OVERALL COMPLETE 0 of 16 work items are done. CAPSTONE PATH Where you are See the whole Senior Project path: done, now, needs work, and later. START Now 2 TO FINISH Project folder is ready and your Program Teacher can find it. PHASE 1 Later 3 TO FINISH Wait until this phase is the next approved step. PHASE 2A Later 1 TO FINISH Wait until this phase is the next approved step. PHASE 2B Later 1 TO FINISH Wait until this phas",
+      "activeNav": [
+        "My Work\n        My Work\n        Next step, phase goals, proof, and feedback"
+      ]
+    },
+    {
+      "id": "08-staff-view-as-student-phone",
+      "label": "Staff View as Student phone",
+      "persona": "Site Admin previewing student",
+      "role": "site_admin",
+      "accountType": "Fake .test demo staff account using read-only preview",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 2,
+        "mobile": true
+      },
+      "route": "/workspace.html?section=student&siteId=site-desert-valley-high&viewAsStudentId=demo-student-101&viewAsReturnSection=students",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/08-staff-view-as-student-phone.png",
+      "expected": [
+        "Viewing as:",
+        "read-only"
+      ],
+      "proves": "Staff preview keeps the read-only View as Student boundary visible on phone.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "heading": "Your Senior Project",
+      "textSample": "Skip to workspace Open menu SC Capstone Project Workspace Current site Desert Valley High School Only one site Workspace Admin Console Site Admin ACTIVE ROLE Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test Refresh Sign out Viewing as: Aven Ashford Signed in as Sam Site Admin (Site Admin). Staff identity and permissions remain active behind this preview. Read-only preview Authorized student only No student changes saved here No proof or account changes This is a read-only staff preview of the student workspace. Exit returns to Students. Exit student view Student view restored. STUDENT HOME Your Senior Project See what is done, what is missing, and what to do next. IN PROGRESS",
+      "activeNav": [
+        "Workspace",
+        "My Work\n        Student Preview\n        Read-only student workspace preview"
+      ]
+    },
+    {
+      "id": "09-admin-console-half-screen",
+      "label": "Admin Console half-screen",
+      "persona": "Global Admin half-screen",
+      "role": "admin",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 820,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace.html?mode=admin&section=overview",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/09-admin-console-half-screen.png",
+      "expected": [
+        "Admin Console",
+        "What to do first"
+      ],
+      "proves": "Admin Console operating order stacks without horizontal overflow at half width.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "heading": "Admin Console",
+      "textSample": "Skip to workspace Open menu SC Capstone Project Workspace Current site Choose site Canyon Ridge Career Academy Desert Valley High School East Career & Technical Academy North Valley Technical High School Test High School FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Global Admin ACTIVE ROLE Priya Global platform.admin@demo-staff.capstone.test Refresh Sign out Workspace ready. ACCESS SUMMARY Global Admin Entire platform Open People and Access PROTECTED STAFF MODE Admin Console Manage, monitor, review, and configure only the records allowed by this account's role and scope. CONSOLE OVERVIEW What this role can manage or monitor Al",
+      "activeNav": [
+        "Admin Console",
+        "Home\n        Overview\n        Console scope, counts, and next admin actions"
+      ]
+    },
+    {
+      "id": "10-workspace-half-screen",
+      "label": "Workspace half-screen",
+      "persona": "Site Admin half-screen",
+      "role": "site_admin",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 820,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace.html?mode=workspace&section=siteDashboard",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/10-workspace-half-screen.png",
+      "expected": [
+        "Site Dashboard",
+        "Daily path"
+      ],
+      "proves": "Workspace role path and dashboard remain readable at half width.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "heading": "Site Admin workspace",
+      "textSample": "Skip to workspace Open menu SC Capstone Project Workspace Current site Desert Valley High School Only one site Workspace Admin Console Site Admin ACTIVE ROLE Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test Refresh Sign out Workspace ready. ROLE CONTEXT Site Admin workspace Workspace keeps the first staff move clear while management tools stay in Admin Console. SIGNED IN AS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ROLE AND MODE Site Admin / Workspace Assigned school: Desert Valley High School DO NEXT Use Admin Console for setup Keep user, access, program, and elevated tools out of the regular Workspace. Open Admin Console SAFETY Allowed for your role S",
+      "activeNav": [
+        "Workspace",
+        "Home\n        Overview\n        Daily priorities and access"
+      ]
+    },
+    {
+      "id": "11-drawer-open-phone",
+      "label": "Drawer open on phone",
+      "persona": "Student mobile drawer",
+      "role": "student",
+      "accountType": "Fake .test demo student account",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 2,
+        "mobile": true
+      },
+      "route": "/workspace.html?section=student",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/11-drawer-open-phone.png",
+      "expected": [
+        "Workspace menu",
+        "My Work"
+      ],
+      "proves": "Phone drawer opens with a named workspace menu and student routes.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "heading": "Your Senior Project",
+      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace Student ACTIVE ROLE Test Student Maya maya.student@senior-capstone.test Refresh Sign out Workspace menu Close menu YOUR ACCESS Student Your project workspace Only your own project work and feedback are visible here. DAILY WORK Overview Daily priorities and access Profile Plain-language role guide My Work Next step, phase goals, proof, and feedback REVIEW / PROOF Presentation Schedule, outline, and day-of status Final Files May 5 downloads SETTINGS / SECURITY Account Password and sessions NEXT STEP Open Start: Setup and finish Senior Project Workspace. Add the requested proof before sending it for review. Menu opened. STUDENT HOME You",
+      "activeNav": [
+        "My Work\n        My Work\n        Next step, phase goals, proof, and feedback"
+      ]
+    },
+    {
+      "id": "12-drawer-open-half-screen",
+      "label": "Drawer open half-screen",
+      "persona": "Site Admin half-screen drawer",
+      "role": "site_admin",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 820,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace.html?mode=workspace&section=siteDashboard",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/12-drawer-open-half-screen.png",
+      "expected": [
+        "Workspace menu",
+        "Site Dashboard"
+      ],
+      "proves": "Half-screen drawer opens without covering the role context or causing overflow.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "heading": "Site Admin workspace",
+      "textSample": "Skip to workspace Close menu SC Capstone Project Workspace Current site Desert Valley High School Only one site Workspace Admin Console Site Admin ACTIVE ROLE Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test Refresh Sign out Workspace menu Close menu YOUR ACCESS Site Admin Assigned school: Desert Valley High School Site tools stay tied to the selected or assigned school. DAILY WORK Overview Daily priorities and access Profile Plain-language role guide REVIEW / PROOF Presentation Schedule, outline, and day-of status DASHBOARDS Readiness Aggregate project readiness SETTINGS / SECURITY Account Password and sessions NEXT STEP Review site progress, student readiness, mentor covera",
+      "activeNav": [
+        "Workspace",
+        "Home\n        Overview\n        Daily priorities and access"
+      ]
+    }
+  ],
+  "failures": []
+}
