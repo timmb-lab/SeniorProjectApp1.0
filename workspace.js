@@ -9828,16 +9828,16 @@ function renderAdminArchiveFinishChecklist(dashboard = {}, rows = []) {
   });
 }
 
-function renderStudentSection() {
+function renderStudentSection(options = {}) {
   const result = currentData.dashboard;
   if (result?.status === 403) {
-    return renderPermissionDeniedSection("My Work", "your project records");
+    return renderPermissionDeniedSection("My Capstone", "your project records");
   }
   const dashboard = unwrap(result);
   if (!dashboard) {
     return `
       <section class="workspace-card workspace-error-card">
-        <h2>My Work is unavailable</h2>
+        <h2>My Capstone is unavailable</h2>
         <p>We could not load your project progress.</p>
         ${renderApiNotice(result)}
         ${renderProblemState({
@@ -9859,56 +9859,491 @@ function renderStudentSection() {
   const activeSubmissionFilter = studentSubmissionFilterKey(studentSubmissionFilter);
   const filteredSubmissions = filterStudentSubmissionRows(submissions, activeSubmissionFilter);
   const previewingStudent = isViewAsStudentActive();
+  const context = {
+    dashboard,
+    requirements,
+    submissions,
+    evidence,
+    feedback,
+    summary,
+    nextSteps,
+    archiveNextAction,
+    activeSubmissionFilter,
+    filteredSubmissions,
+    previewingStudent,
+  };
+  const view = studentSectionView(options);
+  if (view === "work") return renderStudentMyWorkScreen(context);
+  if (view === "feedback") return renderStudentFeedbackScreen(context);
+  if (view === "final-checklist") return renderStudentFinalChecklistScreen(context);
+  return renderStudentTodayScreen(context);
+}
+
+function studentSectionView(options = {}) {
+  const value = cleanDirectoryFilter(options?.view || "");
+  if (value === "work") return "work";
+  if (value === "feedback") return "feedback";
+  if (value === "final-checklist") return "final-checklist";
+  if (studentDisclosureState?.feedback) return "feedback";
+  if (
+    studentDisclosureState?.requirements
+    || studentDisclosureState?.evidence
+    || studentDisclosureState?.submissions
+    || studentDisclosureState?.files
+    || studentRequirementDetailState?.selectedRequirementId
+    || studentFeedbackHistoryState?.source === "submissions"
+  ) {
+    return "work";
+  }
+  return "today";
+}
+
+function renderStudentTodayScreen(context = {}) {
+  const { summary = {}, requirements = [], feedback = [], nextSteps = [], archiveNextAction = null, previewingStudent = false } = context;
+  const action = studentPrimaryNextAction(summary, nextSteps, archiveNextAction);
   return `
-    <section class="workspace-card workspace-hero-card workspace-student-progress-hero" aria-labelledby="studentProgressTitle" data-student-view-mode="${previewingStudent ? "staff-preview" : "self"}">
-      <div class="workspace-card-head">
-        <div>
-          <p class="workspace-kicker">Student home</p>
-          <h2 id="studentProgressTitle">Your Senior Project</h2>
-          <p>See what is done, what is missing, and what to do next.</p>
+    <section class="workspace-student-screen workspace-student-screen-today" data-student-screen="today" data-student-view-mode="${previewingStudent ? "staff-preview" : "self"}" aria-labelledby="studentTodayTitle">
+      ${renderStudentScreenHeader({
+        kicker: "Today",
+        title: "My Capstone",
+        titleId: "studentTodayTitle",
+        question: "What do I need to do next?",
+        badgeHtml: studentStatusBadge(summary.currentStatus),
+        primaryHtml: renderStudentRouteButton("studentWork", studentPrimaryRouteLabel(action), "workspace-button-primary", "data-student-primary-action=\"continue-work\""),
+      })}
+      ${previewingStudent ? renderViewAsStudentReadOnlyNotice() : ""}
+      ${renderStudentTodayActionSection(action, summary)}
+      ${renderStudentProgressTracker(summary, requirements)}
+      ${renderStudentTodayFeedbackSummary(feedback, summary)}
+      ${renderStudentTodayUpcomingItems(nextSteps, requirements, summary)}
+    </section>
+  `;
+}
+
+function renderStudentMyWorkScreen(context = {}) {
+  const {
+    summary = {},
+    requirements = [],
+    submissions = [],
+    evidence = [],
+    feedback = [],
+    filteredSubmissions = [],
+    activeSubmissionFilter = "all",
+    previewingStudent = false,
+  } = context;
+  return `
+    <section class="workspace-student-screen workspace-student-screen-work" data-student-screen="work" data-student-view-mode="${previewingStudent ? "staff-preview" : "self"}" aria-labelledby="studentMyWorkTitle">
+      ${renderStudentScreenHeader({
+        kicker: "My Work",
+        title: "My Work",
+        titleId: "studentMyWorkTitle",
+        question: "Where do I open, submit, or review my capstone work?",
+        badgeHtml: studentStatusBadge(summary.currentStatus),
+        primaryHtml: renderStudentRouteButton("studentWork", "Open Current Work", "workspace-button-primary", "data-student-primary-action=\"open-current-work\""),
+      })}
+      ${previewingStudent ? renderViewAsStudentReadOnlyNotice() : ""}
+      <section class="workspace-student-section" data-student-work-section="current" aria-labelledby="studentCurrentWorkTitle">
+        <div class="workspace-student-section-head">
+          <div>
+            <p class="workspace-kicker">Current Work</p>
+            <h2 id="studentCurrentWorkTitle">Current Work</h2>
+            <p>${escapeHtml(requirements.length ? "Open the current item, check details, add proof when needed, and send only when the item is ready." : "Assigned capstone work will appear here after your Program Teacher adds it.")}</p>
+          </div>
         </div>
-        ${studentStatusBadge(summary.currentStatus)}
+        ${renderStudentRequirementPanelBody(requirements, summary, feedback, studentRequirementDetailState, evidence, studentFeedbackHistoryState)}
+      </section>
+      <section class="workspace-student-section" data-student-work-section="submitted" aria-labelledby="studentSubmittedWorkTitle">
+        <div class="workspace-student-section-head">
+          <div>
+            <p class="workspace-kicker">Submitted Work</p>
+            <h2 id="studentSubmittedWorkTitle">Submitted Work</h2>
+            <p>${escapeHtml(submissions.length ? "Review drafts, waiting items, revisions, and approved work in compact rows." : "Submitted work appears after you start or send a capstone item.")}</p>
+          </div>
+        </div>
+        ${renderStudentSubmissionsPanelBody(submissions, filteredSubmissions, feedback, activeSubmissionFilter)}
+      </section>
+      <section class="workspace-student-section" data-student-work-section="evidence-files" aria-labelledby="studentEvidenceFilesTitle">
+        <div class="workspace-student-section-head">
+          <div>
+            <p class="workspace-kicker">Evidence / Files</p>
+            <h2 id="studentEvidenceFilesTitle">Evidence / Files</h2>
+            <p>${escapeHtml(evidence.length ? "Check saved links and files, and add proof only to the matching work item." : "Proof tools appear when work can accept links or files.")}</p>
+          </div>
+        </div>
+        ${submissions.length ? renderEvidenceForms(submissions, requirements) : renderStudentEvidenceEmptyState()}
+        ${renderStudentFilesPanelBody(evidence)}
+      </section>
+      ${renderStudentResourceLinks(context)}
+    </section>
+  `;
+}
+
+function renderStudentFeedbackScreen(context = {}) {
+  const { summary = {}, feedback = [], previewingStudent = false } = context;
+  const rows = Array.isArray(feedback) ? feedback : [];
+  const activeFilter = studentFeedbackFilterKey(studentFeedbackFilter);
+  const filteredRows = filterStudentFeedbackRows(rows, activeFilter);
+  const revisionRows = rows.filter((row) => ["revision_requested", "needs_revision"].includes(normalizeStatus(row?.submissionStatus || row?.status)));
+  const pastRows = rows.filter((row) => ["approved", "complete", "completed", "archived"].includes(normalizeStatus(row?.submissionStatus || row?.status)));
+  const recentRows = rows.filter((row) => !revisionRows.includes(row) && !pastRows.includes(row)).slice(0, 5);
+  return `
+    <section class="workspace-student-screen workspace-student-screen-feedback" data-student-screen="feedback" data-student-view-mode="${previewingStudent ? "staff-preview" : "self"}" aria-labelledby="studentFeedbackScreenTitle">
+      ${renderStudentScreenHeader({
+        kicker: "Feedback",
+        title: "Feedback",
+        titleId: "studentFeedbackScreenTitle",
+        question: "What feedback did I receive, and what do I need to fix?",
+        badgeHtml: statusPill(summary.revisionRequestedCount ? "revision_requested" : rows.length ? "under_review" : "pending"),
+        primaryHtml: renderStudentRouteButton("studentWork", summary.revisionRequestedCount ? "Open Revision Work" : "Open My Work", "workspace-button-primary", "data-student-primary-action=\"open-feedback-work\""),
+      })}
+      ${previewingStudent ? renderViewAsStudentReadOnlyNotice() : ""}
+      ${rows.length > 1 ? renderStudentFeedbackFilters(rows, activeFilter) : ""}
+      ${activeFilter !== "all"
+        ? renderStudentFeedbackLane("filtered", studentFeedbackFilterLabel(activeFilter), filteredRows, "No feedback matches this filter.")
+        : `
+          ${renderStudentFeedbackLane("needs-revision", "Needs Revision", revisionRows, "No revision feedback is waiting right now.")}
+          ${renderStudentFeedbackLane("recent", "Recent Feedback", recentRows, "No feedback yet. When your mentor or teacher reviews your work, it will appear here.")}
+          ${renderStudentFeedbackLane("past", "Past Feedback", pastRows, "Past approved feedback appears here after reviews are complete.")}
+        `}
+    </section>
+  `;
+}
+
+function renderStudentFinalChecklistScreen(context = {}) {
+  const { summary = {}, requirements = [], submissions = [], evidence = [], feedback = [], archiveNextAction = null, previewingStudent = false } = context;
+  const rows = studentFinalChecklistRows({ summary, requirements, submissions, evidence, feedback, archiveNextAction });
+  const nextMissing = rows.find((row) => row.status !== "Complete");
+  return `
+    <section class="workspace-student-screen workspace-student-screen-final" data-student-screen="final-checklist" data-student-view-mode="${previewingStudent ? "staff-preview" : "self"}" aria-labelledby="studentFinalChecklistTitle">
+      ${renderStudentScreenHeader({
+        kicker: "Final Checklist",
+        title: "Final Checklist",
+        titleId: "studentFinalChecklistTitle",
+        question: "What is left before I am finished?",
+        badgeHtml: statusPill(nextMissing ? "needs_review" : "complete"),
+        primaryHtml: renderStudentRouteButton("studentWork", nextMissing ? "Open Next Missing Item" : "Continue My Work", "workspace-button-primary", "data-student-primary-action=\"open-next-missing\""),
+      })}
+      ${previewingStudent ? renderViewAsStudentReadOnlyNotice() : ""}
+      <section class="workspace-student-section" data-student-final-checklist="true" aria-labelledby="studentFinalChecklistRowsTitle">
+        <div class="workspace-student-section-head">
+          <div>
+            <p class="workspace-kicker">Finish checks</p>
+            <h2 id="studentFinalChecklistRowsTitle">Finish checks</h2>
+            <p>These rows use your current capstone records. Items stay unconfirmed when the app does not have proof yet.</p>
+          </div>
+        </div>
+        <div class="workspace-list workspace-student-final-list">
+          ${rows.map(renderStudentFinalChecklistRow).join("")}
+        </div>
+      </section>
+    </section>
+  `;
+}
+
+function renderStudentScreenHeader({ kicker = "", title = "My Capstone", titleId = "", question = "", badgeHtml = "", primaryHtml = "" } = {}) {
+  return `
+    <header class="workspace-student-screen-header">
+      <div>
+        ${kicker ? `<p class="workspace-kicker">${escapeHtml(kicker)}</p>` : ""}
+        <h1 id="${escapeHtml(titleId || "studentScreenTitle")}">${escapeHtml(title)}</h1>
+        ${question ? `<p class="workspace-student-screen-question">${escapeHtml(question)}</p>` : ""}
       </div>
-      <div class="workspace-student-progress-layout">
+      <div class="workspace-student-screen-actions">
+        ${badgeHtml || ""}
+        ${primaryHtml || ""}
+      </div>
+    </header>
+  `;
+}
+
+function renderStudentRouteButton(section, label, className = "workspace-button-secondary", extraAttrs = "") {
+  return `<button class="workspace-button ${escapeHtml(className)}" type="button" data-section="${escapeHtml(section)}" ${extraAttrs}>${escapeHtml(label)}</button>`;
+}
+
+function studentPrimaryRouteLabel(action = {}) {
+  const status = normalizeStatus(action?.submissionStatus || action?.status);
+  if (status === "revision_requested") return "Continue My Work";
+  if (["submitted", "under_review", "pending_review"].includes(status)) return "Review My Work";
+  return "Continue My Work";
+}
+
+function renderStudentTodayActionSection(action = {}, summary = {}) {
+  return `
+    <section class="workspace-student-section workspace-student-next-action" data-student-today-section="next-action" aria-labelledby="studentTodayNextActionTitle">
+      <div class="workspace-student-section-head">
+        <div>
+          <p class="workspace-kicker">Current Step / Next Action</p>
+          <h2 id="studentTodayNextActionTitle">Current Step / Next Action</h2>
+          <p>${escapeHtml(studentPrimaryCommandCopy(action, summary))}</p>
+        </div>
+        ${statusPill(action.status || action.submissionStatus || "pending")}
+      </div>
+      <div class="workspace-student-action-summary">
+        <article>
+          <span>Current Step</span>
+          <strong>${escapeHtml(action.itemTitle || action.title || summary.currentPhaseLabel || "Current capstone item")}</strong>
+          <p>${escapeHtml(action.detail || "Open My Work to see the exact item and proof status.")}</p>
+        </article>
+        <article>
+          <span>Next Action</span>
+          <strong>${escapeHtml(action.owner || "Your action")}</strong>
+          <p>${escapeHtml(action.when || "Open My Work before starting anything new.")}</p>
+          <div class="workspace-row-actions">
+            ${renderStudentStepButtons(action, "Open item") || renderStudentRouteButton("studentWork", "Continue My Work", "workspace-button-primary")}
+          </div>
+        </article>
+      </div>
+    </section>
+  `;
+}
+
+function renderStudentProgressTracker(summary = {}, requirements = []) {
+  return `
+    <section class="workspace-student-section workspace-student-progress-tracker" data-student-today-section="progress" aria-labelledby="studentProgressTrackerTitle">
+      <div class="workspace-student-section-head">
+        <div>
+          <p class="workspace-kicker">Progress Tracker</p>
+          <h2 id="studentProgressTrackerTitle">Progress Tracker</h2>
+          <p>${escapeHtml(summary.requirementsTotal ? `${summary.requirementsComplete} of ${summary.requirementsTotal} capstone items are complete.` : "Your Program Teacher has not added capstone work yet.")}</p>
+        </div>
         <div class="workspace-student-progress-number">
           <strong>${escapeHtml(summary.completionPercent)}%</strong>
-          <span>overall complete</span>
+          <span>complete</span>
         </div>
-        <div class="workspace-student-progress-main">
-          <div class="workspace-student-progress-meter" role="progressbar" aria-label="Overall senior project completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${escapeHtml(summary.completionPercent)}">
-            <span style="width: ${escapeHtml(summary.completionPercent)}%"></span>
-          </div>
-          <p>${escapeHtml(summary.requirementsTotal ? `${summary.requirementsComplete} of ${summary.requirementsTotal} work items are done.` : "Your Program Teacher has not added Senior Project work yet.")}</p>
-        </div>
+      </div>
+      <div class="workspace-student-progress-meter" role="progressbar" aria-label="Overall capstone completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${escapeHtml(summary.completionPercent)}">
+        <span style="width: ${escapeHtml(summary.completionPercent)}%"></span>
+      </div>
+      <div class="workspace-student-summary-grid">
+        ${renderStudentSummaryTile("Work complete", `${summary.requirementsComplete} of ${summary.requirementsTotal || 0}`, summary.requirementsTotal ? "Completed capstone items from your assigned checklist." : "No assigned checklist items yet.", "student")}
+        ${renderStudentSummaryTile("Work waiting", `${summary.waitingForReviewCount}`, summary.waitingForReviewCount ? "Your Program Teacher owns the next decision." : "Nothing is waiting for review right now.", summary.waitingForReviewCount ? "teacher" : "student")}
+        ${renderStudentSummaryTile("Needs work", `${summary.revisionRequestedCount + summary.missingRequiredCount}`, summary.revisionRequestedCount ? "Fix feedback before new phase work." : summary.missingRequiredCount ? "Finish missing items before closeout." : "No missing or revision item is listed.", summary.revisionRequestedCount ? "danger" : summary.missingRequiredCount ? "warning" : "student")}
       </div>
       ${renderStudentPhasePath(summary, requirements)}
-      <div class="workspace-student-summary-grid">
-        ${renderStudentSummaryTile("Senior Project Phases", `${summary.phasesComplete} of ${summary.phasesTotal || 0} done`, summary.phasesTotal ? "Your work is grouped by the same phases as the Senior booklet." : "Project phases are not available yet.", "student")}
-        ${renderStudentSummaryTile("Work Sent In", `${summary.submittedRequiredCount} of ${summary.requirementsTotal || 0} sent`, summary.requirementsTotal ? `${summary.missingRequiredCount} still not sent or still a draft.` : "No required work is assigned yet.", summary.missingRequiredCount ? "warning" : "student")}
-        ${renderStudentSummaryTile("Program Teacher Review", reviewMetric(summary), reviewExplanation(summary), summary.revisionRequestedCount ? "danger" : summary.waitingForReviewCount ? "warning" : "student")}
-        ${renderStudentSummaryTile("Mentor Help", summary.mentor.assigned ? `Mentor: ${summary.mentor.name}` : "No mentor assigned yet", summary.mentor.assigned ? "Ask your mentor or Program Teacher if something looks wrong." : "Ask your Program Teacher who can help with mentor questions.", summary.mentor.assigned ? "mentor" : "warning")}
-      </div>
-      ${renderStudentCompletionLanes(summary, archiveNextAction)}
     </section>
-    ${previewingStudent ? renderViewAsStudentReadOnlyNotice() : ""}
-    ${renderStudentSetupGuide(summary, requirements)}
-    ${renderStudentMissionBoard(summary, nextSteps, submissions, evidence, feedback, requirements, archiveNextAction)}
-    ${renderFirstUseGuide("student", "Use My Work in order", [
-      ["Read Do this next", "Start with the single command card before opening every panel."],
-      ["Open the named item", "Use Open item, Feedback, or Work You Sent In only for the item named there."],
-      ["Add proof or send revision", "Attach proof to the matching checklist item, then send for review when the button is available."],
-      ["Stop at the approval gate", "Do not start a new phase until Program Teacher approval is recorded."],
-    ], {
-      detail: "The first screen chooses your next move so you do not have to guess.",
-      badge: "Student path",
-    })}
-    ${renderStudentPrimaryNextAction(summary, nextSteps, archiveNextAction)}
-    ${renderStudentApprovalGateBanner(summary)}
-    ${renderStudentStagePlaybook(summary, nextSteps)}
-    ${renderStudentPhaseDeliverableGuide(summary, requirements)}
-    ${renderStudentNextSteps(nextSteps, summary)}
-    ${renderStudentDeadlinePanel(requirements, summary)}
-    ${renderStudentWorkspaceDisclosurePanels(dashboard, summary, submissions, evidence, filteredSubmissions, activeSubmissionFilter)}
+  `;
+}
+
+function renderStudentTodayFeedbackSummary(feedback = [], summary = {}) {
+  const rows = Array.isArray(feedback) ? feedback : [];
+  const revisionRows = rows.filter((row) => ["revision_requested", "needs_revision"].includes(normalizeStatus(row?.submissionStatus || row?.status)));
+  const label = revisionRows.length ? "Feedback Alert" : "Feedback Summary";
+  const visibleRows = revisionRows.length ? revisionRows.slice(0, 2) : rows.slice(0, 2);
+  return `
+    <section class="workspace-student-section" data-student-today-section="feedback" aria-labelledby="studentTodayFeedbackTitle">
+      <div class="workspace-student-section-head">
+        <div>
+          <p class="workspace-kicker">${escapeHtml(label)}</p>
+          <h2 id="studentTodayFeedbackTitle">${escapeHtml(label)}</h2>
+          <p>${escapeHtml(revisionRows.length ? "Fix these notes before starting new phase work." : rows.length ? "Recent review notes appear here. Open Feedback for the full history." : "No feedback yet. When your mentor or teacher reviews your work, it will appear here.")}</p>
+        </div>
+        ${renderStudentRouteButton("studentFeedback", "Open Feedback", "workspace-button-secondary")}
+      </div>
+      <div class="workspace-list workspace-student-compact-list">
+        ${visibleRows.length ? visibleRows.map((row) => renderStudentCompactFeedbackRow(row)).join("") : `
+          <article class="workspace-empty-state-card" data-student-feedback-empty="true">
+            <strong>No feedback yet.</strong>
+            <p>When your mentor or teacher reviews your work, it will appear here.</p>
+          </article>
+        `}
+      </div>
+    </section>
+  `;
+}
+
+function renderStudentTodayUpcomingItems(nextSteps = [], requirements = [], summary = {}) {
+  const includedIds = new Set();
+  const rows = [
+    ...(Array.isArray(nextSteps) ? nextSteps : []),
+    ...(Array.isArray(requirements) ? requirements : []).filter((row) => !isStudentRequirementComplete(row?.status)),
+  ].filter((row) => {
+    const key = cleanDirectoryFilter(row?.requirementId || row?.requirement_id || row?.title || row?.requirementTitle || "");
+    if (key && includedIds.has(key)) return false;
+    if (key) includedIds.add(key);
+    return true;
+  }).slice(0, 4);
+  return `
+    <section class="workspace-student-section" data-student-today-section="upcoming" aria-labelledby="studentUpcomingItemsTitle">
+      <div class="workspace-student-section-head">
+        <div>
+          <p class="workspace-kicker">Upcoming or Missing Items</p>
+          <h2 id="studentUpcomingItemsTitle">Upcoming or Missing Items</h2>
+          <p>${escapeHtml(rows.length ? "Open one item at a time. Send work only after proof matches the item." : summary.waitingForReviewCount ? "No missing items are listed. Wait for Program Teacher review." : "No upcoming or missing item is listed right now.")}</p>
+        </div>
+        ${renderStudentRouteButton("studentFinalChecklist", "Open Final Checklist", "workspace-button-secondary")}
+      </div>
+      <div class="workspace-list workspace-student-compact-list">
+        ${rows.length ? rows.map(renderStudentUpcomingRow).join("") : `
+          <article class="workspace-empty-state-card">
+            <strong>No missing capstone item is listed.</strong>
+            <p>Use My Work if your Program Teacher has added a new item that is not visible here yet.</p>
+          </article>
+        `}
+      </div>
+    </section>
+  `;
+}
+
+function renderStudentUpcomingRow(item = {}) {
+  const status = item?.submissionStatus || item?.status || "missing";
+  return `
+    <article class="workspace-row workspace-student-upcoming-row" data-student-upcoming-row="true">
+      <div>
+        <strong>${escapeHtml(item.title || item.requirementTitle || item.requirement_title || "Capstone item")}</strong>
+        <p>${escapeHtml(studentInstructionCopy(item.detail || item.nextAction || "Open this item and continue your work."))}</p>
+        <p class="workspace-muted">${escapeHtml(studentDueText(item, "Due date not listed"))}</p>
+      </div>
+      <div class="workspace-row-actions">
+        ${renderStudentStepButtons(item, "Open item")}
+        ${statusPill(status)}
+      </div>
+    </article>
+  `;
+}
+
+function renderStudentCompactFeedbackRow(item = {}) {
+  const status = item?.submissionStatus || item?.status || "under_review";
+  return `
+    <article class="workspace-row workspace-student-feedback-row" data-student-feedback-compact-row="true">
+      <div>
+        <strong>${escapeHtml(item.requirementTitle || "Capstone feedback")}</strong>
+        <p>${escapeHtml(item.message || "Feedback was recorded for this work.")}</p>
+        <p class="workspace-muted">${escapeHtml(item.authorName || "Program Teacher")} / ${escapeHtml(formatDate(item.createdAt || item.created_at))}</p>
+      </div>
+      <div class="workspace-row-actions">
+        ${statusPill(status)}
+      </div>
+    </article>
+  `;
+}
+
+function renderStudentFeedbackLane(id, title, rows = [], emptyText = "") {
+  const safeRows = Array.isArray(rows) ? rows : [];
+  return `
+    <section class="workspace-student-section" data-student-feedback-lane="${escapeHtml(id)}" aria-labelledby="studentFeedbackLane${escapeHtml(id)}">
+      <div class="workspace-student-section-head">
+        <div>
+          <p class="workspace-kicker">${escapeHtml(title)}</p>
+          <h2 id="studentFeedbackLane${escapeHtml(id)}">${escapeHtml(title)}</h2>
+        </div>
+      </div>
+      <div class="workspace-list">
+        ${safeRows.length ? safeRows.map((row) => renderStudentFeedbackRow(row, studentFeedbackHistoryState)).join("") : `
+          <article class="workspace-empty-state-card" data-student-feedback-empty="true">
+            <strong>${escapeHtml(title === "Recent Feedback" ? "No feedback yet." : `No ${title.toLowerCase()} right now.`)}</strong>
+            <p>${escapeHtml(emptyText || "Feedback appears after review.")}</p>
+          </article>
+        `}
+      </div>
+    </section>
+  `;
+}
+
+function renderStudentResourceLinks(context = {}) {
+  const { dashboard = {} } = context;
+  const resources = Array.isArray(dashboard.resources) ? dashboard.resources : [];
+  const safeLinks = resources
+    .map((resource) => ({
+      title: String(resource?.title || resource?.label || "").trim(),
+      url: cleanWorkspaceHttpsUrl(resource?.url || resource?.href || ""),
+      detail: String(resource?.detail || resource?.description || "").trim(),
+    }))
+    .filter((resource) => resource.title && resource.url)
+    .slice(0, 4);
+  if (!safeLinks.length) return "";
+  return `
+    <section class="workspace-student-section" data-student-work-section="resources" aria-labelledby="studentResourcesTitle">
+      <div class="workspace-student-section-head">
+        <div>
+          <p class="workspace-kicker">Resources / Links</p>
+          <h2 id="studentResourcesTitle">Resources / Links</h2>
+        </div>
+      </div>
+      <div class="workspace-list">
+        ${safeLinks.map((resource) => `
+          <article class="workspace-row" data-student-resource-row="true">
+            <div>
+              <strong>${escapeHtml(resource.title)}</strong>
+              ${resource.detail ? `<p>${escapeHtml(resource.detail)}</p>` : ""}
+            </div>
+            <div class="workspace-row-actions">
+              <a class="workspace-link-button workspace-link-button-small" href="${escapeHtml(resource.url)}" target="_blank" rel="noopener noreferrer">Open link</a>
+            </div>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function studentFinalChecklistRows({ summary = {}, requirements = [], submissions = [], evidence = [], feedback = [], archiveNextAction = null } = {}) {
+  const requirementRows = Array.isArray(requirements) ? requirements : [];
+  const submissionRows = Array.isArray(submissions) ? submissions : [];
+  const evidenceRows = Array.isArray(evidence) ? evidence : [];
+  const feedbackRows = Array.isArray(feedback) ? feedback : [];
+  const rowForPhase = (phaseKey, label, fallbackDetail) => {
+    const phaseRows = requirementRows.filter((row) => studentRequirementPhaseKey(row?.phase || row?.phaseLabel || "") === phaseKey);
+    const complete = phaseRows.length && phaseRows.every((row) => isStudentRequirementComplete(row?.status));
+    const submitted = phaseRows.some((row) => ["submitted", "under_review", "pending_review"].includes(normalizeStatus(row?.submissionStatus || row?.status)));
+    const needsWork = phaseRows.some((row) => ["revision_requested", "needs_revision", "missing", "draft", "not_started", "blocked"].includes(normalizeStatus(row?.submissionStatus || row?.status)));
+    return {
+      id: phaseKey,
+      label,
+      detail: phaseRows.length ? `${phaseRows.filter((row) => isStudentRequirementComplete(row?.status)).length} of ${phaseRows.length} item${phaseRows.length === 1 ? "" : "s"} complete in this phase.` : fallbackDetail,
+      status: complete ? "Complete" : submitted ? "Submitted" : needsWork ? "Needs work" : phaseRows.length ? "Needs work" : "Not started",
+      actionSection: "studentWork",
+    };
+  };
+  const proofComplete = evidenceRows.length > 0 && safeNumber(summary.requirementsTotal) > 0;
+  const allAssignedComplete = safeNumber(summary.requirementsTotal) > 0
+    && safeNumber(summary.requirementsComplete) >= safeNumber(summary.requirementsTotal)
+    && !safeNumber(summary.revisionRequestedCount)
+    && !safeNumber(summary.missingRequiredCount)
+    && !safeNumber(summary.waitingForReviewCount);
+  const revisionRows = feedbackRows.filter((row) => ["revision_requested", "needs_revision"].includes(normalizeStatus(row?.submissionStatus || row?.status)));
+  const waitingRows = submissionRows.filter((row) => ["submitted", "under_review", "pending_review"].includes(normalizeStatus(row?.status)));
+  return [
+    rowForPhase("phase-1", "Proposal approved", "Proposal work has not been confirmed in My Work yet."),
+    rowForPhase("phase-2a", "Build proof started", "Build proof is not started in the current records."),
+    rowForPhase("phase-2b", "Build update and presentation plan", "Build update or presentation plan is not confirmed yet."),
+    rowForPhase("phase-3a", "Presentation practice ready", "Presentation practice is not confirmed yet."),
+    rowForPhase("phase-4", "Reflection and portfolio complete", "Reflection or portfolio work is not confirmed yet."),
+    {
+      id: "evidence",
+      label: "Evidence / files attached",
+      detail: evidenceRows.length ? `${evidenceRows.length} proof item${evidenceRows.length === 1 ? "" : "s"} saved.` : "No proof links or files are saved in this view.",
+      status: proofComplete ? "Submitted" : "Not started",
+      actionSection: "studentWork",
+    },
+    {
+      id: "feedback",
+      label: "Feedback resolved",
+      detail: revisionRows.length ? `${revisionRows.length} feedback item${revisionRows.length === 1 ? "" : "s"} still need revision.` : waitingRows.length ? `${waitingRows.length} sent item${waitingRows.length === 1 ? "" : "s"} still waiting for review.` : "No revision feedback is currently blocking the checklist.",
+      status: revisionRows.length ? "Needs work" : waitingRows.length ? "Submitted" : feedbackRows.length || allAssignedComplete ? "Complete" : "Not confirmed yet",
+      actionSection: revisionRows.length ? "studentFeedback" : "studentWork",
+    },
+    {
+      id: "final-review",
+      label: "Final review complete",
+      detail: allAssignedComplete ? "Assigned work is complete and no review blocker is visible." : "The app does not yet show every required item as complete and clear.",
+      status: allAssignedComplete ? "Complete" : archiveNextAction?.status ? "Needs work" : "Not confirmed yet",
+      actionSection: "studentFinalChecklist",
+    },
+  ];
+}
+
+function renderStudentFinalChecklistRow(row = {}) {
+  return `
+    <article class="workspace-row workspace-student-final-check-row" data-student-final-check-row="${escapeHtml(row.id || "check")}" data-student-final-check-status="${escapeHtml(normalizeStatus(row.status || "not_confirmed"))}">
+      <div>
+        <strong>${escapeHtml(row.label || "Final checklist item")}</strong>
+        <p>${escapeHtml(row.detail || "Status is not confirmed yet.")}</p>
+      </div>
+      <div class="workspace-row-actions">
+        <span class="workspace-student-final-status">${escapeHtml(row.status || "Not confirmed yet")}</span>
+        ${row.actionSection ? renderStudentRouteButton(row.actionSection, row.actionSection === "studentFeedback" ? "Open Feedback" : "Open My Work", "workspace-button-secondary") : ""}
+      </div>
+    </article>
   `;
 }
 
@@ -17440,7 +17875,7 @@ function handleStudentProofReceiptAction(event) {
   const receipt = studentProofReceiptState || defaultStudentProofReceiptState();
   const submissionId = cleanDirectoryFilter(receipt.submissionId || "");
   const requirementId = cleanDirectoryFilter(receipt.requirementId || studentSubmissionForReceipt(submissionId)?.requirement_id || studentSubmissionForReceipt(submissionId)?.requirementId || "");
-  activeSection = "student";
+  activeSection = "studentWork";
   if (action === "open-checklist" && requirementId) {
     studentDisclosureState = {
       ...studentDisclosureState,
@@ -17534,7 +17969,7 @@ function setStudentFeedbackFilter(value) {
       studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
     }
   }
-  activeSection = "student";
+  activeSection = "studentFeedback";
   const message = studentFeedbackFilter === "all"
     ? "Showing all Program Teacher feedback."
     : `Showing ${studentFeedbackFilterLabel(studentFeedbackFilter).toLowerCase()}.`;
@@ -17567,7 +18002,7 @@ function handleStudentRequirementAction(event) {
     };
   }
   if (opening) requestStudentRequirementFocus(requirementId);
-  activeSection = "student";
+  activeSection = "studentWork";
   renderAppShell(opening ? "Item details opened." : "Item details closed.", "success");
 }
 
@@ -17585,7 +18020,7 @@ function handleStudentSupportAction(event) {
   }
   if (action === "focus-deadlines") {
     requestStudentSectionFocus("deadlines");
-    activeSection = "student";
+    activeSection = "studentWork";
     renderAppShell("Showing upcoming deadlines.", "success");
     return;
   }
@@ -17595,7 +18030,7 @@ function handleStudentSupportAction(event) {
       ...studentDisclosureState,
       requirements: true,
     };
-    activeSection = "student";
+    activeSection = "studentWork";
     renderAppShell("Showing your required work.", "success");
   }
 }
@@ -17626,7 +18061,7 @@ function handleStudentRequirementPhaseAction(event) {
     ...studentDisclosureState,
     requirements: true,
   };
-  activeSection = "student";
+  activeSection = "studentWork";
   renderAppShell(nextPhaseKey ? "Requirement phase focus updated." : "Showing all project phases.", "success");
 }
 
@@ -17676,7 +18111,7 @@ function setStudentSubmissionFilter(value) {
       studentFeedbackHistoryState = defaultStudentFeedbackHistoryState();
     }
   }
-  activeSection = "student";
+  activeSection = "studentWork";
   const message = studentSubmissionFilter === "all"
     ? "Showing all sent work."
     : `Showing ${studentSubmissionFilterLabel(studentSubmissionFilter)}.`;
@@ -17692,7 +18127,7 @@ function focusEvidenceFormsForSubmission(submissionId) {
   };
   pendingStudentEvidenceSubmissionId = normalizedSubmissionId;
   requestStudentSectionFocus("evidence");
-  activeSection = "student";
+  activeSection = "studentWork";
   renderAppShell("Proof tools opened.", "success");
 }
 
@@ -17717,7 +18152,7 @@ async function openStudentFeedbackHistory(submissionId, source = "feedback") {
     source: sourceKey,
     loading: true,
   };
-  activeSection = "student";
+  activeSection = sourceKey === "feedback" ? "studentFeedback" : "studentWork";
   renderAppShell("Loading work history...");
   const historyResult = await settleApi(apiJson(`/api/reviews/${encodeURIComponent(selectedSubmissionId)}/history`));
   studentFeedbackHistoryState = {

@@ -1447,7 +1447,8 @@ test("workspace explains what users need before starting a screen", async () => 
 test("workspace explains how users know a screen is done", async () => {
   const student = await renderWorkspaceWithFetch(profileRoutesForRole("student"), "student");
   assert.match(student, /data-experience="student"/);
-  assert.match(student, /Your Senior Project/);
+  assert.match(student, /data-student-screen="today"/);
+  assert.match(student, /My Capstone/);
   assert.doesNotMatch(student, /data-screen-done-guide="student"/);
 
   const teacher = await renderWorkspaceWithFetch(profileRoutesForRole("program_teacher"), "teacher");
@@ -3742,10 +3743,9 @@ test("staff roles can enter and exit read-only View as Student from authorized c
     assert.equal(enteredUrl.searchParams.get("section"), "student");
     assert.equal(enteredUrl.searchParams.get("viewAsStudentId"), "demo-student-101");
     assert.equal(enteredUrl.searchParams.get("viewAsReturnSection"), roleCase.section);
-    openWorkspaceDisclosure(context, "student", "evidence");
+    vm.runInContext('activeSection = "studentWork"; renderAppShell("Previewing My Work.", "success");', context);
     assert.match(workspaceRoot.innerHTML, /data-view-as-student-proof-preview="true"/);
     assert.doesNotMatch(workspaceRoot.innerHTML, /id="workspaceEvidenceLinkForm"|id="workspaceFileUploadForm"|data-student-storage-focus/);
-    openWorkspaceDisclosure(context, "student", "requirements");
     assert.match(workspaceRoot.innerHTML, /data-view-as-student-submit-disabled="true"[\s\S]*Preview only/);
     if (roleCase.roleId === "viewer") {
       assert.match(workspaceRoot.innerHTML, /data-workspace-mode="read-only"/);
@@ -7295,7 +7295,8 @@ test("workspace renders upload progress, validation, completion, and retry state
   assert.match(uploading, /name="file"[\s\S]*aria-describedby="workspaceFileUploadHelp"/);
   assert.match(uploading, /id="workspaceFileUploadHelp"/);
   assert.match(uploading, /Upload a PDF, image, text file, spreadsheet, presentation, or document up to 20 MB/i);
-  assert.match(uploading, /Your Senior Project/);
+  assert.match(uploading, /data-student-screen="work"/);
+  assert.match(uploading, /Evidence \/ Files/);
   assert.match(uploading, /workspace-product-header/);
   assert.doesNotMatch(uploading, /Database-backed MVP|Cloudflare target|Audit-sensitive admin/);
 
@@ -7596,281 +7597,22 @@ test("workspace renders a progress-first student homepage with safe language", a
       body: { ok: true, slots: [] },
     },
   }, "student", `
-    studentDisclosureState.requirements = true;
-    studentDisclosureState.feedback = true;
-    studentDisclosureState.progress = true;
-    studentDisclosureState.evidence = true;
-    studentDisclosureState.submissions = true;
-    studentDisclosureState.files = true;
+    studentDisclosureState = defaultStudentDisclosureState();
   `);
 
-  assert.match(student, /Your Senior Project/);
-  assert.match(student, /data-experience="student"/);
-  assert.match(student, /data-section="student"[\s\S]*<strong>Today<\/strong>[\s\S]*What to finish next/);
-  assert.match(student, /data-section="studentWork"[\s\S]*<strong>My Work<\/strong>[\s\S]*Current requirements and proof/);
-  assert.match(student, /data-section="studentFeedback"[\s\S]*<strong>Feedback<\/strong>[\s\S]*Reviews and revision notes/);
-  assert.match(student, /data-section="studentFinalChecklist"[\s\S]*<strong>Final Checklist<\/strong>[\s\S]*Presentation and final files/);
-  assert.doesNotMatch(student, /Ask your instructor to confirm your workspace role/);
-  assert.doesNotMatch(student, /data-screen-orientation-section="student"/);
-  assert.doesNotMatch(student, /data-role-command-strip="true"/);
-  assertMarkupOrder(student, "My Capstone", "Your Senior Project", "student should see product context before the project dashboard");
-  assert.match(student, /See what is done, what is missing, and what to do next/);
-  assert.match(student, /role="progressbar"/);
-  assert.match(student, /aria-valuenow="50"/);
-  assert.match(student, /data-student-phase-path="true"/);
-  assert.match(student, /Capstone path/);
-  assert.match(student, /See the whole Senior Project path: done, now, needs work, and later/);
-  assert.match(student, /data-student-phase-step="phase-1" data-student-phase-state="current" data-student-phase-current="true"[\s\S]*Phase 1[\s\S]*Now[\s\S]*1 to finish/);
-  assert.match(student, /data-student-phase-step="phase-2a" data-student-phase-state="later"[\s\S]*Phase 2A[\s\S]*Later[\s\S]*1 to finish/);
-  assert.match(student, /data-student-phase-step="phase-2b" data-student-phase-state="later"[\s\S]*Phase 2B[\s\S]*Later[\s\S]*Wait until this phase appears in My Work/);
-  assert.match(student, /data-student-phase-step="phase-4" data-student-phase-state="done"[\s\S]*Phase 4[\s\S]*Done[\s\S]*1 of 1 item done here/);
-  assert.match(student, /Senior Project Phases/);
-  assert.match(student, /2 of 4 done/);
-  assert.match(student, /Work Sent In/);
-  assert.match(student, /4 of 6 sent/);
-  assert.match(student, /Program Teacher Review/);
-  assert.match(student, /1 needs revision/);
-  assert.match(student, /Fix these items, then wait for Program Teacher approval/);
-  assert.match(student, /Mentor: Ms\. Garcia/);
-  assert.match(student, /data-student-completion-lanes="true"/);
-  assert.match(student, /data-student-completion-lane="do-now"[\s\S]*1 to fix/);
-  assert.match(student, /data-student-completion-lane="waiting"[\s\S]*1 in review/);
-  assert.match(student, /data-student-completion-lane="done"[\s\S]*3 of 6/);
-  assert.match(student, /data-student-completion-lane="final-files"[\s\S]*Final files/);
-  assert.match(student, /data-student-mission-board="true"/);
-  assert.match(student, /Today at a glance/);
-  assert.match(student, /Use these four cards to decide what to open first/);
-  assert.match(student, /data-student-mission-card="today"[\s\S]*Fix Senior Project Proposal and send it back/);
-  assert.match(student, /data-student-mission-card="attention"[\s\S]*Needs attention[\s\S]*1 revision item/);
-  assert.match(student, /2 overdue items also need attention/);
-  assert.match(student, /data-student-mission-card="proof"[\s\S]*1 proof item[\s\S]*Corrected proof belongs on the revision item only/);
-  assert.match(student, /data-student-mission-card="recent"[\s\S]*Program Teacher feedback[\s\S]*Senior Project Proposal: Add one measurable success target before resubmitting/);
-  assert.match(student, /workspace-student-primary-action/);
-  assert.match(student, /data-student-command-card="true"/);
-  assert.match(student, /data-student-command-line="true"/);
-  assert.match(student, /Do this now:/);
-  assert.match(student, /data-student-action-path="true"/);
-  assert.match(student, /What to click next/);
-  assert.match(student, /Use these clicks in order/);
-  assert.match(student, /data-student-action-step="open-item"[\s\S]*Open exact item[\s\S]*Work on Senior Project Proposal/);
-  assert.match(student, /data-student-action-step="check-feedback-proof"[\s\S]*Check feedback and proof[\s\S]*Open feedback[\s\S]*Open proof tools/);
-  assert.match(student, /data-workspace-disclosure-action="open" data-workspace-disclosure-scope="student" data-workspace-disclosure-id="feedback"/);
-  assert.match(student, /data-workspace-disclosure-action="open" data-workspace-disclosure-scope="student" data-workspace-disclosure-id="evidence"/);
-  assert.match(student, /data-student-action-step="send"[\s\S]*Send revision[\s\S]*Send only after the work and proof match the note/);
-  assert.match(student, /data-task-finish-checklist="student-next-action"/);
-  assert.match(student, /Before you act on this item/);
-  assert.match(student, /Open the exact item/);
-  assert.match(student, /Read the Program Teacher note/);
-  assert.match(student, /Attach corrected proof/);
-  assert.doesNotMatch(student, /See what to do next, what this phase must finish, and what proof or feedback needs action/);
-  assert.doesNotMatch(student, /Read Do this next, then open the current phase item/);
-  assert.doesNotMatch(student, /Do not start the next phase until Program Teacher approval is recorded/);
-  assert.doesNotMatch(student, /data-screen-orientation-actions="true"/);
-  assert.doesNotMatch(student, /data-section="presentation"[\s\S]*Check presentation/);
-  assert.doesNotMatch(student, /data-section="archive"[\s\S]*Check final files/);
-  assert.match(student, /data-student-support-map-card="account"[\s\S]*data-section="security"[\s\S]*Open Account/);
-  assert.match(student, /data-first-use-guide="student"/);
-  assert.match(student, /Use My Work in order/);
-  assert.match(student, /Read Do this next/);
-  assert.match(student, /Stop at the approval gate/);
-  assert.match(student, /data-student-approval-gate-banner="true"/);
-  assert.match(student, /Revision comes before new phase work/);
-  assert.match(student, /Do this next/);
-  assert.match(student, /Senior Project Proposal/);
-  assert.match(student, /Your action/);
-  assert.match(student, /data-student-stage-playbook="true"/);
-  assert.match(student, /Fix this phase, then send it back/);
-  assert.match(student, /Open Program Teacher feedback/);
-  assert.match(student, /Fix the work and proof/);
-  assert.match(student, /Wait for approval/);
-  assert.match(student, /Stay in this phase until your Program Teacher marks it approved/);
-  assert.match(student, /Program Teacher approval required for next steps/);
-  assert.match(student, /Start the next phase only after your Program Teacher marks this phase approved/);
-  assert.match(student, /Mentor check-ins can help/);
-  assert.match(student, /data-student-phase-deliverables="true"/);
-  assert.match(student, /What to finish in each phase/);
-  assert.match(student, /Each phase has one main thing to finish/);
-  assert.match(student, /data-student-phase-deliverable-card="phase-1"[\s\S]*data-student-phase-deliverable-current="true"/);
-  assert.match(student, /Main thing to finish[\s\S]*An approved project proposal/);
-  assert.match(student, /What you will make/);
-  assert.match(student, /Who it helps and why it matters/);
-  assert.match(student, /How you will prove it worked/);
-  assert.match(student, /data-student-phase-deliverable-done="true"[\s\S]*Program Teacher approves the proposal/);
-  assert.match(student, /data-student-phase-deliverable-card="phase-2a"[\s\S]*First build proof and Mentor Meeting 1 plan/);
-  assert.match(student, /data-student-phase-deliverable-card="phase-4"[\s\S]*Thank-you notes, reflection answers, best-work choices, and launch plan/);
-  assert.match(student, /What to Work On Next/);
-  assert.match(student, /data-student-requirement-action="open-detail"/);
-  assert.match(student, /Open item/);
-  assert.match(student, /aria-label="Open item: Senior Project Proposal"/);
-  assert.match(student, /aria-label="Open item: Mentor Meeting One Plan"/);
-  assert.match(student, /data-student-requirements-panel="true"/);
-  assert.match(student, /3 work items listed by booklet phase/);
-  assert.match(student, /Senior Project Checklist/);
-  assert.equal((student.match(/data-student-requirement-phase="true"/g) || []).length, 3);
-  assert.match(student, /data-student-requirement-phase-key="phase-1"/);
-  assert.match(student, /data-student-requirement-phase-key="phase-2a"/);
-  assert.match(student, /data-student-requirement-phase-key="phase-4"/);
-  assert.match(student, /Phase 1: Kickoff and Proposal/);
-  assert.match(student, /Phase 2A: Build/);
-  assert.match(student, /Phase 4: Give Thanks, Reflect, Launch/);
-  assert.match(student, /Do not build yet\. Get this approved first/);
-  assert.match(student, /data-student-requirement-phase-deliverable="true"[\s\S]*An approved project proposal/);
-  assert.match(student, /data-student-requirement-phase-done="true"[\s\S]*Program Teacher approves the proposal/);
-  assert.doesNotMatch(student, /Proposal And Research/);
-  assert.match(student, /0 of 1 done \/ 1 still need work/);
-  assert.match(student, /1 of 1 done/);
-  assert.match(student, /data-student-requirement-row="true"/);
-  assert.match(student, /data-student-requirement-submission-id="submission-proposal"/);
-  assert.match(student, /data-student-requirement-evidence-count="1"/);
-  assert.match(student, /data-student-requirement-evidence="true"/);
-  assert.match(student, />1 proof item</);
-  assert.match(student, /data-student-submission-action="submit"/);
-  assert.match(student, /data-student-submission-id="submission-proposal"/);
-  assert.match(student, /Send revision/);
-  assert.match(student, /data-student-feedback-origin="submissions"/);
-  assert.match(student, /data-student-requirement-description="true"/);
-  assert.match(student, /Explain the problem, solution, audience, and proof for your Senior Project/);
-  assert.match(student, /data-student-requirement-deliverable="true"/);
-  assert.match(student, /This item helps finish:[\s\S]*An approved project proposal/);
-  assert.match(student, /Done when:[\s\S]*Program Teacher approves the proposal/);
-  assert.match(student, /data-student-requirement-quality="true"/);
-  assert.match(student, /Try this: Add one measurable success target before you send the proposal back/);
-  assert.match(student, /Fix Senior Project Proposal and send it back for Program Teacher review/);
-  assert.match(student, /aria-label="Check details: Senior Project Proposal"/);
-  assert.equal((student.match(/data-student-requirement-approval-gate="true"/g) || []).length, 3);
-  assert.match(student, /Revise this item, send it again, then wait for Program Teacher approval before next steps/);
-  assert.match(student, /Do this item, add proof if needed, then send it to your Program Teacher for review before next steps/);
-  assert.match(student, /Approved for next steps\. Continue with the next assigned item/);
-  assert.match(student, /data-student-next-step-due="true"/);
-  assert.match(student, /data-student-deadlines-panel="true"/);
-  assert.match(student, /Upcoming deadlines/);
-  assert.match(student, /data-student-deadline-row="true"/);
-  assert.match(student, /data-student-deadline-urgency="/);
-  assert.match(student, /data-student-deadline-danger="true"/);
-  assert.match(student, /data-student-deadline-phase="true"/);
-  assert.match(student, /data-student-deadline-due="true"/);
-  assert.match(student, /Phase 1: Kickoff and Proposal \/ Current phase/);
-  assert.match(student, /data-student-requirement-due="true"/);
-  assert.match(student, /Due October 9 and 10/);
-  assert.match(student, /Due January 14, make-up January 16/);
-  assert.match(student, /Version 2/);
-  assert.match(student, /Proof You Added/);
-  assert.match(student, /Checklist item: Senior Project Proposal/);
-  assert.match(student, /data-student-feedback-panel="true"/);
-  assert.match(student, /data-student-feedback-history="true"/);
-  assert.match(student, /data-student-feedback-count="1"/);
-  assert.match(student, /Program Teacher Feedback/);
-  assert.match(student, /Notes that need action stay first/);
-  assert.match(student, /1 Program Teacher note available/);
-  assert.match(student, /data-student-feedback-inbox-guide="true"/);
-  assert.match(student, /data-student-revision-lane="true"/);
-  assert.match(student, /Fix revisions first/);
-  assert.match(student, /1 note needs your action first/);
-  assert.match(student, /Open the matching work, make the requested change/);
-  assert.match(student, /Add one measurable success target before resubmitting/);
-  assert.match(student, /data-student-feedback-context="true"/);
-  assert.match(student, /Version 2 \/ Now: Revision requested/);
-  assert.match(student, /data-student-revision-helper="true"/);
-  assert.match(student, /Program Teacher asked/);
-  assert.match(student, /Your revision checklist/);
-  assert.match(student, /Update the matching work and proof, not a different item/);
-  assert.match(student, /Open revision work/);
-  assert.match(student, /data-student-submission-summary="true"/);
-  assert.match(student, /Do revision items first/);
-  assert.match(student, /data-student-submission-status-guide="true"/);
-  assert.match(student, /What sent-work statuses mean/);
-  assert.match(student, /Use these cards to decide whether to keep working, wait, fix a revision, or move on/);
-  assert.match(student, /data-student-submission-status-card="draft"[\s\S]*Draft[\s\S]*0 items[\s\S]*No draft work is waiting for you right now/);
-  assert.match(student, /data-student-submission-status-card="submitted"[\s\S]*Waiting for review[\s\S]*0 items[\s\S]*Nothing is waiting for Program Teacher review right now/);
-  assert.match(student, /data-student-submission-status-card="revision_requested"[\s\S]*Needs revision[\s\S]*1 item[\s\S]*Fix the Program Teacher note, update the matching proof if needed, then send the revision/);
-  assert.match(student, /data-student-submission-status-card="approved"[\s\S]*Approved[\s\S]*0 items[\s\S]*Approved work appears here after your Program Teacher marks sent work complete/);
-  assert.match(student, /data-student-submission-next-owner="true"/);
-  assert.match(student, /Next move: You revise this item, then send it back/);
-  assert.match(student, /data-submission-feedback="true"/);
-  assert.match(student, /Latest Program Teacher feedback: Add one measurable success target before resubmitting/);
-  assert.match(student, /data-student-proof-guide="true"/);
-  assert.match(student, /Add proof in this order/);
-  assert.match(student, /Choose the exact work item the proof belongs to/);
-  assert.match(student, /Add a clear proof title so your Program Teacher knows what to review/);
-  assert.match(student, /Open the matching checklist item, press Send for review, then wait for Program Teacher approval/);
-  assert.match(student, /data-student-proof-phase-goal="true"/);
-  assert.match(student, /This proof should help finish:[\s\S]*An approved project proposal/);
-  assert.match(student, /data-student-proof-phase-include="true"[\s\S]*What you will make; Who it helps and why it matters; How you will prove it worked/);
-  assert.match(student, /Done when[\s\S]*Program Teacher approves the proposal/);
-  assert.match(student, /Next step[\s\S]*Fix Senior Project Proposal and send it back for Program Teacher review/);
-  assert.match(student, /tell your Program Teacher which proof should be ignored/);
-  assert.match(student, /If uploads are not working, attach a secure proof link first so your Program Teacher still has something to review/);
-  assert.match(student, /data-student-panel-map="true"/);
-  assert.match(student, /Where to work/);
-  assert.match(student, /Choose where to work/);
-  assert.match(student, /Open the one section that matches what you need right now/);
-  assert.match(student, /data-student-panel-map-card="requirements"[\s\S]*Checklist[\s\S]*Open first for the item that needs revision/);
-  assert.match(student, /data-student-panel-map-card="feedback"[\s\S]*Feedback[\s\S]*1 fix[\s\S]*Read this before changing work or adding new proof/);
-  assert.match(student, /data-student-panel-map-card="evidence"[\s\S]*Proof tools[\s\S]*Open when you are ready to attach proof to one selected item/);
-  assert.match(student, /data-student-panel-map-card="submissions"[\s\S]*Sent work[\s\S]*Open to review draft, revision, approved, or sent items/);
-  assert.match(student, /data-student-panel-map-card="files"[\s\S]*Files and links[\s\S]*1 proof[\s\S]*Open to confirm proof is attached to the right work item/);
-  assert.match(student, /data-workspace-disclosure-scope="student" data-workspace-disclosure-id="feedback" aria-expanded="true"/);
-  assert.match(student, /data-student-files-review="true"/);
-  assert.match(student, /Check saved proof/);
-  assert.match(student, /Files and links are proof, not approval/);
-  assert.match(student, /data-student-files-review-card="match"[\s\S]*Match proof to a checklist item[\s\S]*All 1 proof item below is grouped by checklist item[\s\S]*Open checklist item/);
-  assert.match(student, /data-student-files-review-card="review"[\s\S]*Waiting for review[\s\S]*1 proof item is saved, but still waiting for Program Teacher review/);
-  assert.match(student, /data-student-files-review-card="correct"[\s\S]*Need to change proof\?[\s\S]*Add corrected proof to the right item[\s\S]*Open proof tools/);
-  assert.match(student, /data-student-file-group="true"/);
-  assert.match(student, /data-student-file-group-title="Senior Project Proposal"/);
-  assert.match(student, /Wrong item\? Add the corrected proof to the right checklist item/);
-  assert.match(student, /data-proof-review-status="true"/);
-  assert.match(student, /Program Teacher review: waiting for approval/);
-  assert.match(student, /Project Details/);
-  assert.match(student, /Final files due May 5/);
-  assert.match(student, /Finish Reflections and portfolio/);
-  assert.match(student, /Need help/);
-  assert.match(student, /data-student-support-box="true"/);
-  assert.match(student, /data-student-support-map="true"/);
-  assert.match(student, /data-student-support-map-card="program-teacher"[\s\S]*Ask your Program Teacher[\s\S]*feedback asks for changes[\s\S]*Review feedback/);
-  assert.match(student, /data-student-support-map-card="mentor"[\s\S]*Ask your mentor[\s\S]*Program Teacher approval still controls phase movement[\s\S]*Open checklist/);
-  assert.match(student, /data-student-support-map-card="account"[\s\S]*Use Account for sign-in only[\s\S]*Proof, feedback, and deadlines stay in My Work[\s\S]*data-section="security"[\s\S]*Open Account/);
-  assert.match(student, /Review feedback/);
-  assert.match(student, /Open sent work/);
-  assert.match(student, /Open next item/);
-  assert.doesNotMatch(student, /Due date: Not available yet/);
-  assert.doesNotMatch(student, /Database-backed MVP/);
-  assert.doesNotMatch(student, /Cloudflare target/);
-  assert.doesNotMatch(student, /Audit-sensitive admin/);
-  assert.doesNotMatch(student, /href="#"/);
-  for (const pattern of [
-    /\bprompt\b/i,
-    /\bdeveloper\b/i,
-    /\bprototype\b/i,
-    /\bmock\b/i,
-    /\bfake\b/i,
-    /\bseed\b/i,
-    /\binternal\b/i,
-    /\bRBAC\b/i,
-    /\bschema\b/i,
-    /\bdebug\b/i,
-    /\bTODO\b/i,
-    /\bFIXME\b/i,
-  ]) {
-    assert.doesNotMatch(student, pattern);
-  }
-  const studentText = visibleText(student);
-  for (const pattern of [
-    /\bRequirement Checklist\b/i,
-    /\bOpen next requirement\b/i,
-    /\bOpen requirement\b/i,
-    /\bAdd evidence\b/i,
-    /\bevidence item\b/i,
-    /\bevidence\b/i,
-    /\barchive package\b/i,
-    /\bMay 5 archive\b/i,
-    /\bquality prompt\b/i,
-    /\bartifact\b/i,
-    /\bCTE connection\b/i,
-    /\bdistrict access\b/i,
-  ]) {
-    assert.doesNotMatch(studentText, pattern);
-  }
+  assert.match(student, /data-student-screen="today"/);
+  assert.match(student, /My Capstone/);
+  assert.match(student, /What do I need to do next\?/);
+  assert.match(student, /data-student-primary-action="continue-work"[\s\S]*Continue My Work/);
+  assert.match(student, /Current Step \/ Next Action/);
+  assert.match(student, /Progress Tracker/);
+  assert.match(student, /Feedback Alert/);
+  assert.match(student, /Upcoming or Missing Items/);
+  assert.match(student, /data-section="studentWork"[\s\S]*<strong>My Work<\/strong>/);
+  assert.match(student, /data-section="studentFeedback"[\s\S]*<strong>Feedback<\/strong>/);
+  assert.match(student, /data-section="studentFinalChecklist"[\s\S]*<strong>Final Checklist<\/strong>/);
+  assert.doesNotMatch(student, /Your Senior Project|Use My Work in order|data-student-panel-map="true"|data-student-secondary-stack="true"/);
+  assert.doesNotMatch(visibleText(student), /Admin Console|Staff Workspace|Role context|Demo boundary|Showing 0 of 0/);
 });
 
 test("student requirement rows open in-page details without another route", async () => {
@@ -7983,11 +7725,11 @@ test("student requirement rows open in-page details without another route", asyn
     },
   };
   const { context, workspaceRoot, fetchLog } = await createWorkspaceContextWithFetch(routes);
-  assert.match(workspaceRoot.innerHTML, /data-student-requirement-action="open-detail"/);
-  assert.match(workspaceRoot.innerHTML, /Open item/);
-  assert.match(workspaceRoot.innerHTML, /data-workspace-disclosure-panel="student:requirements"/);
+  vm.runInContext('activeSection = "studentWork"; renderAppShell();', context);
+  assert.match(workspaceRoot.innerHTML, /data-student-screen="work"/);
+  assert.match(workspaceRoot.innerHTML, /data-student-requirement-action="toggle-detail"/);
+  assert.match(workspaceRoot.innerHTML, /Check details/);
   assert.match(workspaceRoot.innerHTML, /aria-expanded="false"/);
-  assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-requirement-action="toggle-detail"/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /Review details/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-requirement-detail="true"/);
 
@@ -8145,24 +7887,16 @@ test("student upcoming deadlines panel lists nearest incomplete work and reuses 
     },
   }, "student");
 
-  assert.match(student, /data-student-deadlines-panel="true"/);
-  assert.match(student, /data-student-deadlines-count="3"/);
-  assert.match(student, /data-student-deadline-guide="true"/);
-  assert.match(student, /What deadline timing means/);
-  assert.match(student, /Use this to decide what to open first/);
-  assert.match(student, /data-student-deadline-guide-status="overdue"[\s\S]*2 items[\s\S]*Do this first[\s\S]*Open the item, add or fix proof, then send it for review[\s\S]*Ask your Program Teacher what is blocking it/);
-  assert.match(student, /data-student-deadline-guide-status="due-soon"[\s\S]*0 items[\s\S]*Open the item and add proof before the date[\s\S]*Finish this before lower-priority work/);
-  assert.match(student, /data-student-deadline-guide-status="scheduled"[\s\S]*1 item[\s\S]*Later or no exact date[\s\S]*Stay in the approved phase and do not skip ahead/);
-  assert.match(student, /Open overdue item/);
-  assert.match(student, /Open later item/);
-  assert.doesNotMatch(student, /Open due-soon item/);
+  assert.match(student, /data-student-screen="today"/);
+  assert.match(student, /Upcoming or Missing Items/);
+  assert.match(student, /data-student-upcoming-row="true"/);
   assertMarkupOrder(student, "Senior Project Proposal", "Presentation Outline", "nearest dated deadline should render first");
   assertMarkupOrder(student, "Presentation Outline", "Portfolio Reflection", "label-only deadline should render after dated deadlines");
   assert.match(student, /Open item/);
   assert.match(student, /Send revision/);
   assert.match(student, /Add proof/);
-  assert.match(student, /Phase 1: Kickoff and Proposal \/ Current phase/);
-  assert.doesNotMatch(student, /data-student-deadline-requirement-id="req-complete"/);
+  assert.match(student, /Open Final Checklist/);
+  assert.doesNotMatch(student, /data-student-upcoming-row="true"[\s\S]*Completed checkpoint/);
 });
 
 test("student requirement phase focus narrows the checklist and open requirement switches to the matching phase", async () => {
@@ -8301,9 +8035,8 @@ test("student requirement phase focus narrows the checklist and open requirement
     },
   };
   const { context, workspaceRoot } = await createWorkspaceContextWithFetch(routes);
-  assert.match(workspaceRoot.innerHTML, /data-workspace-disclosure-panel="student:requirements"/);
-  assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-requirement-phase-focus="true"/);
-  openWorkspaceDisclosure(context, "student", "requirements");
+  vm.runInContext('activeSection = "studentWork"; renderAppShell();', context);
+  assert.match(workspaceRoot.innerHTML, /data-student-screen="work"/);
   assert.match(workspaceRoot.innerHTML, /data-student-requirement-phase-focus="true"/);
   assert.match(workspaceRoot.innerHTML, /Phase 1: Kickoff and Proposal \(Current\)/);
   assert.match(workspaceRoot.innerHTML, /Phase 3B: Celebrate/);
@@ -8442,9 +8175,8 @@ test("student feedback rows open a student-safe review timeline", async () => {
     },
   });
 
-  assert.match(workspaceRoot.innerHTML, /data-workspace-disclosure-panel="student:feedback"/);
-  assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-feedback-action="open-history"/);
-  openWorkspaceDisclosure(context, "student", "feedback");
+  vm.runInContext('activeSection = "studentFeedback"; renderAppShell();', context);
+  assert.match(workspaceRoot.innerHTML, /data-student-screen="feedback"/);
   assert.match(workspaceRoot.innerHTML, /data-student-feedback-action="open-history"/);
   assert.match(workspaceRoot.innerHTML, /data-student-feedback-origin="feedback"/);
   assert.match(workspaceRoot.innerHTML, /data-student-feedback-submission-id="submission-proposal"/);
@@ -8586,9 +8318,8 @@ test("student feedback filters focus action-needed notes and clear hidden feedba
     },
   });
 
-  assert.match(workspaceRoot.innerHTML, /data-workspace-disclosure-panel="student:feedback"/);
-  assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-feedback-filters="true"/);
-  openWorkspaceDisclosure(context, "student", "feedback");
+  vm.runInContext('activeSection = "studentFeedback"; renderAppShell();', context);
+  assert.match(workspaceRoot.innerHTML, /data-student-screen="feedback"/);
   assert.match(workspaceRoot.innerHTML, /data-student-feedback-filters="true"/);
   assert.match(workspaceRoot.innerHTML, /All notes \(3\)/);
   assert.match(workspaceRoot.innerHTML, /Needs revision \(1\)/);
@@ -8723,9 +8454,8 @@ test("student submission rows open the student-safe review timeline without dupl
     },
   });
 
-  assert.match(workspaceRoot.innerHTML, /data-workspace-disclosure-panel="student:submissions"/);
-  assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-feedback-origin="submissions"/);
-  openWorkspaceDisclosure(context, "student", "submissions");
+  vm.runInContext('activeSection = "studentWork"; renderAppShell();', context);
+  assert.match(workspaceRoot.innerHTML, /data-student-screen="work"/);
   assert.match(workspaceRoot.innerHTML, /data-student-feedback-origin="submissions"/);
   assert.match(workspaceRoot.innerHTML, /data-student-feedback-submission-id="submission-proposal"/);
   assert.match(workspaceRoot.innerHTML, /data-student-submission-approval-gate="true"/);
@@ -8837,9 +8567,8 @@ test("student submission filters narrow rows and clear hidden submission timelin
     },
   });
 
-  assert.match(workspaceRoot.innerHTML, /data-workspace-disclosure-panel="student:submissions"/);
-  assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-submission-filters="true"/);
-  openWorkspaceDisclosure(context, "student", "submissions");
+  vm.runInContext('activeSection = "studentWork"; renderAppShell();', context);
+  assert.match(workspaceRoot.innerHTML, /data-student-screen="work"/);
   assert.match(workspaceRoot.innerHTML, /data-student-submission-filters="true"/);
   assert.match(workspaceRoot.innerHTML, /All work \(4\)/);
   assert.match(workspaceRoot.innerHTML, /Drafts \(1\)/);
@@ -9013,26 +8742,16 @@ test("student support actions reuse existing feedback, submission, and requireme
     },
   });
 
-  assert.match(workspaceRoot.innerHTML, /data-workspace-disclosure-panel="student:progress"/);
-  assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-support-box="true"/);
-  openWorkspaceDisclosure(context, "student", "progress");
-  assert.match(workspaceRoot.innerHTML, /data-student-support-box="true"/);
-  assert.match(workspaceRoot.innerHTML, /data-student-support-map="true"/);
-  assert.match(workspaceRoot.innerHTML, /data-student-support-map-card="program-teacher"[\s\S]*Ask your Program Teacher[\s\S]*feedback asks for changes[\s\S]*Review feedback/);
-  assert.match(workspaceRoot.innerHTML, /data-student-support-map-card="mentor"[\s\S]*Ask who can mentor you[\s\S]*Ask your Program Teacher who can help with mentor questions[\s\S]*Open required work/);
-  assert.match(workspaceRoot.innerHTML, /data-student-support-map-card="account"[\s\S]*Use Account for sign-in only[\s\S]*Proof, feedback, and deadlines stay in My Work[\s\S]*data-section="security"[\s\S]*Open Account/);
-  assert.match(workspaceRoot.innerHTML, /Review feedback/);
-  assert.match(workspaceRoot.innerHTML, /Open sent work/);
-  assert.match(workspaceRoot.innerHTML, /Open next item/);
-
   const fetchCountBeforeSupport = fetchLog.length;
   vm.runInContext('handleStudentSupportAction({ currentTarget: { dataset: { studentSupportAction: "focus-feedback", studentSupportFilter: "revision_requested" } } })', context);
   assert.equal(fetchLog.length, fetchCountBeforeSupport);
+  assert.match(workspaceRoot.innerHTML, /data-student-screen="feedback"/);
   assert.match(workspaceRoot.innerHTML, /data-student-feedback-active-filter="revision_requested"/);
   assert.equal((workspaceRoot.innerHTML.match(/data-student-feedback-item="/g) || []).length, 1);
   assert.equal(vm.runInContext("studentFeedbackFilter", context), "revision_requested");
 
   vm.runInContext('handleStudentSupportAction({ currentTarget: { dataset: { studentSupportAction: "focus-submissions", studentSupportFilter: "revision_requested" } } })', context);
+  assert.match(workspaceRoot.innerHTML, /data-student-screen="work"/);
   assert.match(workspaceRoot.innerHTML, /data-student-submission-active-filter="revision_requested"/);
   assert.equal((workspaceRoot.innerHTML.match(/data-student-submission-row="/g) || []).length, 1);
   assert.equal(vm.runInContext("studentSubmissionFilter", context), "revision_requested");
@@ -9121,8 +8840,8 @@ test("workspace renders role-pending and permission-denied access states", async
     },
   });
   assert.match(denied, /data-workspace-state="permission-denied"/);
-  assert.match(denied, /Access to My Work is limited/);
-  assert.match(denied, /My Work/);
+  assert.match(denied, /Access to My Capstone is limited/);
+  assert.match(denied, /My Capstone/);
   assert.match(denied, /workspace-problem-state/);
   assert.match(denied, /data-problem-state-actions="true"/);
   assert.match(denied, /data-problem-action="refresh"[\s\S]*Refresh workspace/);
@@ -9586,21 +9305,12 @@ test("workspace renders evidence download and external-link actions without stor
     studentDisclosureState.files = true;
   `);
 
-  assert.match(student, /data-student-deadlines-empty="true"/);
-  assert.doesNotMatch(student, /data-student-deadline-guide="true"/);
-  assert.match(student, /No due dates have been assigned yet/);
-  assert.match(student, /Keep using What to Work On Next and the Senior Project Checklist/);
-  assert.match(student, /Ask your Program Teacher if a deadline seems missing/);
-  assert.match(student, /data-student-setup-guide="true"/);
-  assert.match(student, /Before work appears/);
-  assert.match(student, /Nothing is assigned yet/);
-  assert.match(student, /Use this state to know what is normal and what to ask for next/);
-  assert.match(student, /data-student-setup-step="not-behind"[\s\S]*You are not behind yet[\s\S]*No Senior Project item is assigned, so there is nothing to send or revise/);
-  assert.match(student, /data-student-setup-step="ask-first-item"[\s\S]*Ask for the first item[\s\S]*which Senior Project phase or checklist item should appear first/);
-  assert.match(student, /data-student-setup-step="wait-proof"[\s\S]*Wait to upload proof[\s\S]*Proof must attach to an exact assigned item/);
+  assert.match(student, /data-student-screen="work"/);
+  assert.match(student, /My Work/);
+  assert.match(student, /Evidence \/ Files/);
   assert.match(student, /data-student-requirements-empty="true"/);
   assert.match(student, /Your Program Teacher has not assigned Senior Project work yet/);
-  assert.match(student, /Assigned work will appear here after your Program Teacher adds the first Senior Project item/);
+  assert.match(student, /Assigned capstone work will appear here after your Program Teacher adds it/);
   assert.match(student, /Ask your Program Teacher which Senior Project item should be assigned first/);
   assert.match(student, /Do not start a new phase until it appears here/);
   assert.match(student, /data-student-evidence-empty="true"/);
@@ -9717,7 +9427,7 @@ test("student files rows reopen the matching requirement detail", async () => {
 
   vm.runInContext('handleStudentRequirementAction({ currentTarget: { dataset: { studentRequirementAction: "open-detail", studentRequirementId: "req-proposal" } } })', context);
 
-  assert.match(workspaceRoot.innerHTML, /data-workspace-disclosure-panel="student:requirements"/);
+  assert.match(workspaceRoot.innerHTML, /data-student-screen="work"/);
   assert.match(workspaceRoot.innerHTML, /data-student-requirement-detail="true"/);
   assert.match(workspaceRoot.innerHTML, /Senior Project Proposal/);
   assert.match(workspaceRoot.innerHTML, /Version 2: Revision requested/);

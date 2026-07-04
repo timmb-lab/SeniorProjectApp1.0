@@ -58,8 +58,8 @@ test("workspace UI polish manifest records durable local fake-account screenshot
     "03-program-teacher-workspace",
     "04-mentor-workspace",
     "05-viewer-read-only-workspace",
-    "06-student-workspace-desktop",
-    "07-student-phone",
+    "06-student-today-desktop",
+    "07-student-today-phone",
     "08-staff-view-as-student-phone",
     "09-admin-console-half-screen",
     "10-workspace-half-screen",
@@ -75,6 +75,8 @@ test("workspace UI polish manifest records durable local fake-account screenshot
     "20-student-admin-route-blocked",
     "21-empty-student-search",
     "22-student-final-files-state",
+    "24-student-my-work-desktop",
+    "25-student-feedback-desktop",
     "23-student-detail-phone",
   ];
   assert.equal(manifest.screenshots.length, requiredIds.length);
