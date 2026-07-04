@@ -87,7 +87,7 @@ test("url-state and accessibility contracts cover major usability proof surfaces
   assert.match(mobileContract, /student first next action/);
   assert.match(mobileContract, /mentor queue guide/);
   assert.match(mobileContract, /program teacher review queue/);
-  assert.match(mobileContract, /viewer monitoring overview/);
+  assert.match(mobileContract, /staff attention queues/);
   assert.match(mobileContract, /users and access import preflight/);
 });
 

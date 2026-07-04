@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:63053",
+  "baseUrl": "http://127.0.0.1:62917",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-04T18:46:02.413Z",
-  "completedAt": "2026-07-04T18:49:12.426Z",
+  "startedAt": "2026-07-04T19:29:18.105Z",
+  "completedAt": "2026-07-04T19:32:00.067Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:63053",
+    "baseUrl": "http://127.0.0.1:62917",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-06-30-ui-polish",
@@ -62,6 +62,10 @@
         "peopleManagement": false,
         "csvImportStepper": false,
         "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -89,8 +93,10 @@
       "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/02-workspace-site-admin-desktop.png",
       "expected": [
         "Staff Workspace",
-        "Which students need attention today?",
-        "Need setup or access work?"
+        "Site Admin Workspace",
+        "Who needs attention today?",
+        "Needs Review",
+        "Open Student"
       ],
       "proves": "Site Admin lands on student-centered Staff Workspace Today before console setup.",
       "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
@@ -115,6 +121,10 @@
         "peopleManagement": false,
         "csvImportStepper": false,
         "readOnlyBoundary": false,
+        "staffAttentionModel": true,
+        "staffAttentionQueue": true,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -142,8 +152,9 @@
       "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/03-program-teacher-workspace.png",
       "expected": [
         "Staff Workspace",
-        "Program Teacher Dashboard",
-        "Review Queue"
+        "Program Teacher Workspace",
+        "Who needs attention today?",
+        "Needs Review"
       ],
       "proves": "Program Teacher sees program-scoped review-first daily work.",
       "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
@@ -168,6 +179,10 @@
         "peopleManagement": false,
         "csvImportStepper": false,
         "readOnlyBoundary": false,
+        "staffAttentionModel": true,
+        "staffAttentionQueue": true,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -195,8 +210,9 @@
       "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/04-mentor-workspace.png",
       "expected": [
         "Staff Workspace",
-        "MENTOR DASHBOARD",
-        "Assigned Student Focus"
+        "Mentor Workspace",
+        "Who needs attention today?",
+        "Needs Help"
       ],
       "proves": "Mentor starts from assigned-student support, not broad admin tools.",
       "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
@@ -221,12 +237,16 @@
         "peopleManagement": false,
         "csvImportStepper": false,
         "readOnlyBoundary": false,
+        "staffAttentionModel": true,
+        "staffAttentionQueue": true,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Close menu SC Capstone App Mentor ACTIVE ROLE Ari Field mentor001@demo-staff.capstone.test Refresh Sign out YOUR ACCESS Mentor Assigned students Start with assigned students, meetings, and presentation prep. Today Students needing attention STUDENTS Students Assigned student rows Reports Progress and setup summary NEXT STEP Check assigned students before mentor meetings and presentation preparation. Staff Workspace ready. Staff Workspace Mentor / Assigned students Student progress Private proof Mentor coverage Review queue Presentation readiness Assigned students MENTOR DASHBOARD Assigned Student Focus Only actively assigned students appear here, with evidence, meeting, and",
+      "textSample": "Skip to workspace Close menu SC Capstone App Mentor ACTIVE ROLE Ari Field mentor001@demo-staff.capstone.test Refresh Sign out YOUR ACCESS Mentor Assigned students Start with assigned students, meetings, and presentation prep. Today Students needing attention STUDENTS Students Assigned student rows Reports Progress and setup summary NEXT STEP Check assigned students before mentor meetings and presentation preparation. Staff Workspace ready. Staff Workspace Mentor / Assigned students Student progress Private proof Mentor coverage Review queue Presentation readiness Assigned students STAFF WORKSPACE Mentor Workspace Who needs attention today? Open Student Needs Review 1 Waiting for feedback Nee",
       "activeNav": [
         "Home\n        Today\n        Students needing attention"
       ]
@@ -247,8 +267,9 @@
       "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/05-viewer-read-only-workspace.png",
       "expected": [
         "Staff Workspace",
+        "Viewer Workspace / Read-only",
         "Read-only",
-        "Student Directory"
+        "Who needs attention today?"
       ],
       "proves": "Viewer opens in read-only Staff Workspace without Admin Console.",
       "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
@@ -273,6 +294,10 @@
         "peopleManagement": false,
         "csvImportStepper": false,
         "readOnlyBoundary": true,
+        "staffAttentionModel": true,
+        "staffAttentionQueue": true,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -326,6 +351,10 @@
         "peopleManagement": false,
         "csvImportStepper": false,
         "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -378,6 +407,10 @@
         "peopleManagement": false,
         "csvImportStepper": false,
         "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -429,6 +462,10 @@
         "peopleManagement": false,
         "csvImportStepper": false,
         "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -482,6 +519,10 @@
         "peopleManagement": false,
         "csvImportStepper": false,
         "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -509,7 +550,8 @@
       "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/10-workspace-half-screen.png",
       "expected": [
         "Staff Workspace",
-        "Which students need attention today?"
+        "Who needs attention today?",
+        "Needs Review"
       ],
       "proves": "Staff Workspace Today remains readable at half width.",
       "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
@@ -534,12 +576,16 @@
         "peopleManagement": false,
         "csvImportStepper": false,
         "readOnlyBoundary": false,
+        "staffAttentionModel": true,
+        "staffAttentionQueue": true,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Open menu SC Capstone App Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Site Admin ACTIVE ROLE Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test Refresh Sign out Staff Workspace ready. Staff Workspace Site Admin / Desert Valley High School Student progress Private proof Mentor coverage Review queue Presentation readiness Desert Valley School District 2026-2027 STAFF WORKSPACE Site Today Which students need attention today? Open Admin Console STUDENTS 250 Visible in this scope Open Students NEEDS REVIEW 52 Waiting on feedback Open Reviews NEEDS",
+      "textSample": "Skip to workspace Open menu SC Capstone App Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Site Admin ACTIVE ROLE Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test Refresh Sign out Staff Workspace ready. Staff Workspace Site Admin / Desert Valley High School Student progress Private proof Mentor coverage Review queue Presentation readiness Desert Valley School District 2026-2027 STAFF WORKSPACE Site Admin Workspace Who needs attention today? Open Student Open Admin Console Needs Review 52 Waiting for feedback Needs Help 50 Revision, risk, or readiness Missing Se",
       "activeNav": [
         "Workspace",
         "Home\n        Today\n        Students needing attention"
@@ -586,6 +632,10 @@
         "peopleManagement": false,
         "csvImportStepper": false,
         "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -637,6 +687,10 @@
         "peopleManagement": false,
         "csvImportStepper": false,
         "readOnlyBoundary": false,
+        "staffAttentionModel": true,
+        "staffAttentionQueue": true,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -690,6 +744,10 @@
         "peopleManagement": false,
         "csvImportStepper": false,
         "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -698,7 +756,7 @@
       "textSample": "Skip to workspace Close menu SC Capstone App Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Site Admin ACTIVE ROLE Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test Refresh Sign out ACCESS Site Admin Site Site-scoped tools for the assigned school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management Imports CSV templates and preview Reports Roster and operational health MODE Site-scoped tools for the assigned school. Studen",
       "activeNav": [
         "Admin Console",
-        "Summary"
+        "Overview"
       ]
     },
     {
@@ -743,6 +801,10 @@
         "peopleManagement": false,
         "csvImportStepper": false,
         "readOnlyBoundary": true,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -751,7 +813,7 @@
       "textSample": "Skip to workspace Close menu SC Capstone App FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Viewer ACTIVE ROLE Valeria Viewer viewer.desert-valley-high@demo-staff.capstone.test Refresh Sign out YOUR ACCESS Viewer Assigned students Assigned student records only. Change controls stay hidden. Today Students needing attention Students Assigned read-only student records Reports Progress and setup summary NEXT STEP Review assigned students in read-only mode. Student detail loaded. Staff Workspace Viewer / Desert Valley High School Student progress Private proof Mentor coverage Review queue Presentation readiness Desert Valley School District 2026-2027 Read-o",
       "activeNav": [
         "Students\n        Students\n        Assigned read-only student records",
-        "Summary"
+        "Overview"
       ]
     },
     {
@@ -796,6 +858,10 @@
         "peopleManagement": false,
         "csvImportStepper": false,
         "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -822,7 +888,7 @@
       "route": "/workspace.html?mode=admin&section=students&siteId=site-desert-valley-high",
       "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/16-view-as-student-exited-return.png",
       "expected": [
-        "Student Directory",
+        "Students",
         "View as Student"
       ],
       "proves": "Exit returns staff to the scoped student list without leaving preview mode active.",
@@ -848,6 +914,10 @@
         "peopleManagement": false,
         "csvImportStepper": false,
         "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -900,6 +970,10 @@
         "peopleManagement": true,
         "csvImportStepper": false,
         "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -954,6 +1028,10 @@
         "peopleManagement": true,
         "csvImportStepper": false,
         "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1008,6 +1086,10 @@
         "peopleManagement": true,
         "csvImportStepper": true,
         "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1061,6 +1143,10 @@
         "peopleManagement": false,
         "csvImportStepper": false,
         "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": true,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1112,6 +1198,10 @@
         "peopleManagement": false,
         "csvImportStepper": false,
         "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": true,
         "intentionalEmptyState": true,
         "finalFiles": false
@@ -1164,6 +1254,10 @@
         "peopleManagement": false,
         "csvImportStepper": false,
         "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": true
@@ -1218,6 +1312,10 @@
         "peopleManagement": false,
         "csvImportStepper": false,
         "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1273,6 +1371,10 @@
         "peopleManagement": false,
         "csvImportStepper": false,
         "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1281,6 +1383,352 @@
       "textSample": "Skip to workspace Close menu SC My Capstone Student ACTIVE ROLE Test Student Maya maya.student@senior-capstone.test Refresh Sign out YOUR ACCESS Student Your project Only your own project work and feedback are visible here. Today What to finish next My Work Current requirements and proof Feedback Reviews and revision notes Final Checklist Presentation and final files TODAY Start with the next capstone action. My Capstone ready. MY CAPSTONE My Capstone What do I need to do next? Today My Work Feedback Final Checklist Your project FEEDBACK Feedback What feedback did I receive, and what do I need to fix? Pending Open My Work NEEDS REVISION Needs Revision No needs revision right now. No revision",
       "activeNav": [
         "Feedback\n        Feedback\n        Reviews and revision notes"
+      ]
+    },
+    {
+      "id": "26-administration-workspace-today",
+      "label": "Administration Today",
+      "persona": "Administration",
+      "role": "misc_admin",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace.html?mode=workspace&section=overview",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/26-administration-workspace-today.png",
+      "expected": [
+        "Staff Workspace",
+        "Administration Workspace",
+        "Who needs attention today?",
+        "Needs Review"
+      ],
+      "proves": "Administration lands on the student attention queues instead of the old dashboard handoff.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": true,
+        "staffAttentionQueue": true,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false
+      },
+      "heading": "Staff Workspace",
+      "textSample": "Skip to workspace Close menu SC Capstone App Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Administration ACTIVE ROLE Avery School Admin administration.desert-valley-high@demo-staff.capstone.test Refresh Sign out YOUR ACCESS School Admin Assigned school: Desert Valley High School School monitoring only. Elevated account and security work stays scoped. Today Students needing attention Students School student rows Reports Progress and setup summary NEXT STEP Review assigned school students, readiness, presentation, progress dashboards, and access needs. Staff Workspace ready. S",
+      "activeNav": [
+        "Workspace",
+        "Home\n        Today\n        Students needing attention"
+      ]
+    },
+    {
+      "id": "27-global-admin-workspace-today",
+      "label": "Global Admin Today",
+      "persona": "Global Admin",
+      "role": "admin",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace.html?mode=workspace&section=overview",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/27-global-admin-workspace-today.png",
+      "expected": [
+        "Staff Workspace",
+        "Global Admin Workspace",
+        "Who needs attention today?",
+        "Open Admin Console"
+      ],
+      "proves": "Global Admin workspace defaults to queues while preserving the explicit Admin Console switch.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": true,
+        "staffAttentionQueue": true,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false
+      },
+      "heading": "Staff Workspace",
+      "textSample": "Skip to workspace Close menu SC Capstone App Current site Choose site Canyon Ridge Career Academy Desert Valley High School East Career & Technical Academy North Valley Technical High School Test High School FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Global Admin ACTIVE ROLE Priya Global platform.admin@demo-staff.capstone.test Refresh Sign out YOUR ACCESS Global Admin Entire platform Platform tools live in Admin Console; daily Workspace stays calm. Today Students needing attention Students Site student rows Reviews Submitted work and follow-up Reports Progress and setup summary NEXT STEP Review platform setup and multisite r",
+      "activeNav": [
+        "Workspace",
+        "Home\n        Today\n        Students needing attention"
+      ]
+    },
+    {
+      "id": "28-student-detail-evidence",
+      "label": "Student detail Evidence tab",
+      "persona": "Site Admin evidence detail",
+      "role": "site_admin",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace.html?mode=workspace&section=students&siteId=site-desert-valley-high",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/28-student-detail-evidence.png",
+      "expected": [
+        "STUDENT DETAIL",
+        "Evidence",
+        "EVIDENCE RECORDS"
+      ],
+      "proves": "Student Detail exposes the Prompt 3 Evidence tab through the protected detail drawer.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "markers": {
+        "studentDetailPanel": true,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": true,
+        "staffReports": false,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false
+      },
+      "heading": "Staff Workspace",
+      "textSample": "Skip to workspace Close menu SC Capstone App Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Site Admin ACTIVE ROLE Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test Refresh Sign out YOUR ACCESS Site Admin Assigned school: Desert Valley High School Site tools stay tied to the selected or assigned school. Today Students needing attention Students Site student rows Reviews Submitted work and follow-up Reports Progress and setup summary NEXT STEP Review site progress, student readiness, mentor coverage, presentation status, and final-file signals available to this a",
+      "activeNav": [
+        "Workspace",
+        "Students\n        Students\n        Site student rows",
+        "Evidence"
+      ]
+    },
+    {
+      "id": "29-workspace-reports",
+      "label": "Workspace Reports",
+      "persona": "Site Admin reports",
+      "role": "site_admin",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace.html?mode=workspace&section=staffReports&siteId=site-desert-valley-high",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/29-workspace-reports.png",
+      "expected": [
+        "Reports",
+        "Student Progress Reports",
+        "VISIBLE STUDENTS"
+      ],
+      "proves": "Workspace Reports remain available as a progress summary outside Admin Console.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": true,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false
+      },
+      "heading": "Staff Workspace",
+      "textSample": "Skip to workspace Close menu SC Capstone App Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Site Admin ACTIVE ROLE Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test Refresh Sign out YOUR ACCESS Site Admin Assigned school: Desert Valley High School Site tools stay tied to the selected or assigned school. Today Students needing attention Students Site student rows Reviews Submitted work and follow-up Reports Progress and setup summary NEXT STEP Review site progress, student readiness, mentor coverage, presentation status, and final-file signals available to this a",
+      "activeNav": [
+        "Workspace",
+        "Reports\n        Reports\n        Progress and setup summary"
+      ]
+    },
+    {
+      "id": "30-mobile-mentor-today",
+      "label": "Mobile Mentor Today",
+      "persona": "Mentor mobile Today",
+      "role": "mentor",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 2,
+        "mobile": true
+      },
+      "route": "/workspace.html?section=overview",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/30-mobile-mentor-today.png",
+      "expected": [
+        "Staff Workspace",
+        "Mentor Workspace",
+        "Who needs attention today?"
+      ],
+      "proves": "Mentor Today queues remain readable on phone width.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": true,
+        "staffAttentionQueue": true,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false
+      },
+      "heading": "Staff Workspace",
+      "textSample": "Skip to workspace Open menu SC Capstone App Mentor ACTIVE ROLE Ari Field mentor001@demo-staff.capstone.test Refresh Sign out Staff Workspace ready. Staff Workspace Mentor / Assigned students Student progress Private proof Mentor coverage Review queue Presentation readiness Assigned students STAFF WORKSPACE Mentor Workspace Who needs attention today? Open Student Needs Review 1 Waiting for feedback Needs Help 5 Revision, risk, or readiness Missing Setup 0 Mentor, evidence, or closeout Recently Updated 0 Latest activity in scope Visible Students 9 Assigned mentor students Needs Review Open submitted work and feedback decisions first. 1 Willa Frostvale Assigned mentor students Check outline and",
+      "activeNav": [
+        "Home\n        Today\n        Students needing attention"
+      ]
+    },
+    {
+      "id": "31-mobile-student-detail",
+      "label": "Mobile Student Detail",
+      "persona": "Site Admin mobile detail",
+      "role": "site_admin",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 2,
+        "mobile": true
+      },
+      "route": "/workspace.html?mode=workspace&section=students&siteId=site-desert-valley-high",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/31-mobile-student-detail.png",
+      "expected": [
+        "Student detail",
+        "Overview",
+        "Work",
+        "Back to Students"
+      ],
+      "proves": "Student Detail remains usable on phone width with the new five-tab shell.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "markers": {
+        "studentDetailPanel": true,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false
+      },
+      "heading": "Staff Workspace",
+      "textSample": "Skip to workspace Open menu SC Capstone App Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Site Admin ACTIVE ROLE Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test Refresh Sign out Student detail loaded. Staff Workspace Site Admin / Desert Valley High School Student progress Private proof Mentor coverage Review queue Presentation readiness Desert Valley School District 2026-2027 SCREEN GUIDE Students Terms, click effects, visibility, start checks, and done signals CURRENT SITE Desert Valley High School / 2026-2027 Approved Desert Valley School District Site Admi",
+      "activeNav": [
+        "Workspace",
+        "Students\n        Students\n        Site student rows",
+        "Overview"
       ]
     },
     {
@@ -1324,6 +1772,10 @@
         "peopleManagement": false,
         "csvImportStepper": false,
         "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1332,7 +1784,7 @@
       "textSample": "Skip to workspace Open menu SC Capstone App Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Site Admin ACTIVE ROLE Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test Refresh Sign out Student detail loaded. PROTECTED STAFF MODE Admin Console Manage, monitor, review, and configure only the records allowed by this account's role and scope. CURRENT SITE Desert Valley High School / 2026-2027 Approved Desert Valley School District Site Admin School access No student messaging This selected school carries across Dashboard, Students, Review Queue, Mentor Assignments, Oper",
       "activeNav": [
         "Admin Console",
-        "Summary"
+        "Overview"
       ]
     }
   ],

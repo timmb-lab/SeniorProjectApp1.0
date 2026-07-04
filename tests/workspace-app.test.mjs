@@ -667,8 +667,11 @@ test("workspace keeps staff admin tools out of the regular Workspace shell and s
   assert.match(siteAdminWorkspace, /data-app-mode="workspace"/);
   assert.match(siteAdminWorkspace, /data-experience="staff-workspace"/);
   assert.match(siteAdminWorkspace, /data-staff-workspace-today="true"/);
-  assert.match(siteAdminWorkspace, /data-workspace-admin-console-handoff="true"/);
-  assert.match(siteAdminWorkspace, /Need setup or access work\?/);
+  assert.match(siteAdminWorkspace, /data-staff-attention-model="true"/);
+  assert.match(siteAdminWorkspace, /data-staff-attention-queue="needs-review"/);
+  assert.match(siteAdminWorkspace, /Who needs attention today\?/);
+  assert.match(siteAdminWorkspace, /Open Student/);
+  assert.doesNotMatch(siteAdminWorkspace, /data-workspace-admin-console-handoff="true"|Need setup or access work\?/);
   assert.doesNotMatch(visibleText(siteAdminWorkspace), /Management lives in Admin Console|working profile|Role context|Demo boundary/);
   assert.doesNotMatch(siteAdminWorkspace, /workspace-admin-console-content|data-admin-section="users"|data-site-programs-section="true"/);
 
@@ -677,12 +680,15 @@ test("workspace keeps staff admin tools out of the regular Workspace shell and s
   });
   assert.match(globalAdminWorkspace, /data-app-mode="workspace"/);
   assert.match(globalAdminWorkspace, /data-staff-workspace-today="true"/);
-  assert.match(globalAdminWorkspace, /data-workspace-admin-console-handoff="true"/);
+  assert.match(globalAdminWorkspace, /data-staff-attention-model="true"/);
+  assert.doesNotMatch(globalAdminWorkspace, /data-workspace-admin-console-handoff="true"/);
   assert.doesNotMatch(globalAdminWorkspace, /workspace-admin-console-content|adminDashboardTitle|data-admin-section="users"|data-site-programs-section="true"/);
 
   assert.match(workspaceCss, /\.workspace-mode-switch/);
   assert.match(workspaceCss, /\.workspace-admin-console-content/);
+  assert.match(workspaceCss, /\.workspace-staff-attention-layout/);
   assert.match(workspaceCss, /@media \(max-width: 900px\)[\s\S]*\.workspace-mode-switch/);
+  assert.match(cssMediaBlock(900), /\.workspace-staff-attention-layout[\s\S]*grid-template-columns: 1fr/);
   assert.match(workspaceCss, /@media \(max-width: 620px\)[\s\S]*\.workspace-mode-switch/);
 });
 
@@ -3207,7 +3213,7 @@ test("workspace renders route-connected student directory with filters and real 
   assert.match(siteAdmin, /workspace-student-directory/);
   assert.match(siteAdmin, /workspace-filter-bar/);
   assert.match(siteAdmin, /workspace-directory-summary/);
-  assert.match(siteAdmin, /Showing 2 of 250/);
+  assert.match(siteAdmin, /2 of 250 students shown/);
   assert.match(siteAdmin, /250 total available/);
   assert.match(siteAdmin, /data-section="students" data-section-preset="missing-mentors">View students/);
   assert.match(siteAdmin, /data-section="students" data-section-preset="submitted-students">View students/);
@@ -3220,14 +3226,14 @@ test("workspace renders route-connected student directory with filters and real 
   assert.match(siteAdmin, /Jump directly to the roster slice that matches the next staff move/);
   assert.match(siteAdmin, /data-student-directory-action-card="all"[\s\S]*aria-pressed="true"[\s\S]*Viewing lane/);
   assert.match(siteAdmin, /data-student-directory-action-card="missing-mentor"[\s\S]*Owner: Site Admin or Program Teacher/);
-  assert.match(siteAdmin, /data-student-directory-action-card="missing-proof"[\s\S]*Owner: Student and Program Teacher/);
+  assert.match(siteAdmin, /data-student-directory-action-card="missing-evidence"[\s\S]*Owner: Student and Program Teacher/);
   assert.match(siteAdmin, /data-student-directory-action-card="review-needed"[\s\S]*data-section="students" data-section-preset="needs-review-students"/);
   assert.match(siteAdmin, /data-student-directory-action-card="high-risk"[\s\S]*Owner: School team/);
   assert.match(siteAdmin, /data-student-directory-action-card="mentor-meeting"[\s\S]*data-section="students" data-section-preset="mentor-meeting-follow-up-students"/);
   assert.match(siteAdmin, /data-student-directory-action-card="final-files-blocked"[\s\S]*Resolve export or storage blockers/);
   assert.match(siteAdmin, /data-student-directory-saved-filters="true"/);
   assert.match(siteAdmin, /data-section="students" data-section-preset="submitted-students"[\s\S]*Needs approval/);
-  assert.match(siteAdmin, /data-section="students" data-section-preset="missing-evidence-students"[\s\S]*Proof missing/);
+  assert.match(siteAdmin, /data-section="students" data-section-preset="missing-evidence-students"[\s\S]*Evidence missing/);
   assert.match(siteAdmin, /data-section="students" data-section-preset="mentor-meeting-follow-up-students"[\s\S]*Mentor meeting/);
   assert.match(siteAdmin, /data-section="students" data-section-preset="archive-failed-students"[\s\S]*Final files blocked/);
   assert.match(siteAdmin, /workspace-student-row/);
@@ -3243,12 +3249,9 @@ test("workspace renders route-connected student directory with filters and real 
   assert.match(siteAdmin, /Owner: Site Admin/);
   assert.match(siteAdmin, /Open Operations final-file rows and resolve the export or storage blocker/);
   assert.match(siteAdmin, /workspace-status-pill revision_requested/);
-  assert.match(siteAdmin, /Private proof/);
   assert.match(siteAdmin, /Assigned records only/);
-  assert.match(siteAdmin, /Protected access/);
-  assert.match(siteAdmin, /Program Teacher follow-up/);
-  assert.match(siteAdmin, /No student messaging/);
-  assert.match(siteAdmin, /View detail/);
+  assert.doesNotMatch(siteAdmin, /<strong>Private proof<\/strong>|Protected access/);
+  assert.match(siteAdmin, /Open Student/);
   assert.match(siteAdmin, /data-site-student-action="view-detail"/);
   assert.match(siteAdmin, /data-student-detail-id="demo-student-101"/);
   assert.match(siteAdmin, /Remove student/);
@@ -3646,11 +3649,12 @@ test("workspace opens real student detail, loads timeline, and preserves directo
   assert.match(workspaceRoot.innerHTML, /workspace-story-chip/);
   assert.match(workspaceRoot.innerHTML, /workspace-risk-chip/);
   assert.match(workspaceRoot.innerHTML, /Read-only viewer/);
-  assert.match(workspaceRoot.innerHTML, /Summary/);
-  assert.match(workspaceRoot.innerHTML, /Progress/);
+  assert.match(workspaceRoot.innerHTML, /Overview/);
+  assert.match(workspaceRoot.innerHTML, /Work/);
+  assert.match(workspaceRoot.innerHTML, /Feedback/);
   assert.match(workspaceRoot.innerHTML, /Evidence/);
-  assert.match(workspaceRoot.innerHTML, /Reviews &amp; Comments/);
   assert.match(workspaceRoot.innerHTML, /Timeline/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /Reviews &amp; Comments|data-student-detail-tab="summary"|data-student-detail-tab="progress"/);
   assert.match(workspaceRoot.innerHTML, /Latest Feedback/);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-feedback="latest"/);
   assert.match(workspaceRoot.innerHTML, /Student-visible note/);
@@ -3663,6 +3667,7 @@ test("workspace opens real student detail, loads timeline, and preserves directo
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-review-decision|data-mentor-assignment|data-archive-retry|Request revision|Assign mentor|Archive retry|Download file|Download archive/);
 
   await vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "mentor" } } })', context);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-section="work"/);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-section="mentor"/);
   assert.match(workspaceRoot.innerHTML, /Mentor Coverage History/);
   assert.match(workspaceRoot.innerHTML, /Assignment timeline/);
@@ -3699,6 +3704,7 @@ test("workspace opens real student detail, loads timeline, and preserves directo
 
   await vm.runInContext('openSiteStudentDetail("demo-student-101")', context);
   await vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "presentation" } } })', context);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-section="work"/);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-section="presentation"/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-detail-action="open-operations"|Open operations for this student/);
 });
@@ -5124,7 +5130,7 @@ test("mentor dashboard focus URLs restore and sync without refetching assigned-s
   assert.equal(detailUrl.searchParams.get("section"), "mentorDashboard");
   assert.equal(detailUrl.searchParams.get("mentorFocus"), null);
   assert.equal(detailUrl.searchParams.get("detailStudentId"), "demo-student-101");
-  assert.equal(detailUrl.searchParams.get("detailTab"), "mentor");
+  assert.equal(detailUrl.searchParams.get("detailTab"), "work");
 
   const dashboardFetchCountBeforeDetailPop = fetchLog.filter((entry) => entry === "/api/mentor/dashboard").length;
   window.history.pushState({}, "", "/workspace.html?section=mentorDashboard&siteId=site-desert-valley-high&mentorFocus=meeting&detailStudentId=demo-student-101&detailTab=mentor&unknown=keep");
@@ -6614,7 +6620,7 @@ test("mentor dashboard assigned students open detail and meeting history without
   assert.match(workspaceRoot.innerHTML, /Assigned Students/);
   assert.deepEqual(
     JSON.parse(vm.runInContext('JSON.stringify({ activeSection, sourceSection: siteStudentDetailState.sourceSection, activeTab: siteStudentDetailState.activeTab })', context)),
-    { activeSection: "mentorDashboard", sourceSection: "mentorDashboard", activeTab: "mentor" },
+    { activeSection: "mentorDashboard", sourceSection: "mentorDashboard", activeTab: "work" },
   );
 
   await vm.runInContext(`
@@ -8896,13 +8902,14 @@ test("workspace renders role-pending and permission-denied access states", async
   assert.match(viewer, /data-workspace-mode="read-only"/);
   assert.match(viewer, /Read-only workspace/);
   assert.match(viewer, /Read-only viewer/);
-  assert.match(viewer, /data-viewer-monitoring-overview="true"/);
-  assert.match(viewer, /Read-only monitoring queue/);
-  assert.match(viewer, /data-section="students" data-section-preset="submitted-students"/);
-  assert.match(viewer, /data-section="students" data-section-preset="missing-mentors"/);
-  assert.match(viewer, /data-section="students" data-section-preset="archive-failed-students"/);
+  assert.match(viewer, /data-staff-workspace-today="true"/);
+  assert.match(viewer, /Viewer Workspace \/ Read-only/);
+  assert.match(viewer, /data-staff-attention-queue="needs-review"/);
+  assert.match(viewer, /data-staff-queue-student-row="true"/);
+  assert.match(viewer, /data-section="students" data-section-preset="all-students"/);
+  assert.match(viewer, /data-section="students" data-section-preset="mentor-meeting-follow-up-students"/);
   assert.doesNotMatch(viewer, /Open review queue|Open operations/);
-  assert.match(viewer, /Private proof/);
+  assert.match(viewer, /Open Student/);
 
   const administration = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -9079,8 +9086,9 @@ test("School Admin next actions stay role-safe on the Site Dashboard", async () 
         rows: [],
       },
     },
-  }, { activeSection: "siteDashboard" });
+  });
 
+  vm.runInContext('activeSection = "siteDashboard"; renderAppShell();', context);
   openWorkspaceDisclosure(context, "dashboard", "siteDashboard");
   assert.match(workspaceRoot.innerHTML, /Act on assigned site records[\s\S]*data-section="students" data-section-preset="all-students"[\s\S]*Open student list/);
   assert.match(workspaceRoot.innerHTML, /Program Teacher follow-up[\s\S]*Summary only/);

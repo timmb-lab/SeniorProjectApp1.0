@@ -515,6 +515,7 @@ const ADMIN_ARCHIVE_EXPORT_URL_FILTER_PARAMS = ["adminExportFilter"];
 const ADMIN_PEOPLE_VIEW_VALUES = new Set(["manage-students", "add-student", "manage-staff", "add-staff", "import-students", "import-staff", "assignments"]);
 const ADMIN_PEOPLE_URL_PARAMS = ["peopleView"];
 const SITE_STUDENT_DETAIL_URL_SECTIONS = new Set([
+  "overview",
   "adminDashboard",
   "siteDashboard",
   "students",
@@ -4391,9 +4392,9 @@ function renderOverviewSection() {
   const primaryRole = primaryRoleForUser(currentUser);
   if (["platform_admin", "global_admin", "admin", "site_admin"].includes(primaryRole)) return renderStaffWorkspaceTodaySection();
   if (primaryRole === "administration") return renderStaffWorkspaceTodaySection();
-  if (primaryRole === "viewer") return renderViewerOverviewSection();
-  if (primaryRole === "program_teacher") return renderProgramTeacherDashboardSection();
-  if (primaryRole === "mentor") return renderMentorDashboardSection();
+  if (primaryRole === "viewer") return renderStaffWorkspaceTodaySection();
+  if (primaryRole === "program_teacher") return renderStaffWorkspaceTodaySection();
+  if (primaryRole === "mentor") return renderStaffWorkspaceTodaySection();
   if (primaryRole === "student") return renderStudentSection();
   if (primaryRole === "misc_admin") return renderStaffReportsSection();
   return `
@@ -4435,50 +4436,421 @@ function renderOverviewSection() {
 }
 
 function renderStaffWorkspaceTodaySection() {
-  const roles = roleIds(currentUser);
-  const todayTitle = hasGlobalAdminRole(roles) ? "Platform Today" : roles.has("site_admin") ? "Site Today" : "School Today";
+  const model = staffWorkspaceAttentionModel();
+  const roles = model.roles;
+  const todayTitle = staffWorkspaceTitle(model);
   return `
-    <section class="workspace-workflow-landing" data-staff-workspace-today="true" aria-labelledby="staffWorkspaceTodayTitle">
-      <div class="workspace-card-head">
+    <section class="workspace-workflow-landing workspace-staff-today" data-staff-workspace-today="true" data-staff-attention-model="true" aria-labelledby="staffWorkspaceTodayTitle">
+      <div class="workspace-card-head workspace-staff-today-head">
         <div>
           <p class="workspace-kicker">Staff Workspace</p>
           <h2 id="staffWorkspaceTodayTitle">${escapeHtml(todayTitle)}</h2>
-          <p class="workspace-muted">Which students need attention today?</p>
+          <p class="workspace-muted">Who needs attention today?</p>
         </div>
-        ${adminConsoleCapabilitiesFor(currentUser).canSee ? `<button class="workspace-button workspace-button-primary" type="button" data-workspace-mode-target="admin">Open Admin Console</button>` : ""}
+        <div class="workspace-row-actions">
+          ${renderStaffPrimaryAction(model)}
+          ${adminConsoleCapabilitiesFor(currentUser).canSee ? `<button class="workspace-button workspace-button-secondary" type="button" data-workspace-mode-target="admin">Open Admin Console</button>` : ""}
+        </div>
       </div>
-      <div class="workspace-admin-console-metrics" data-staff-workspace-summary="true">
-        ${renderMetricTile("Students", adminConsoleStudentCount(), "Visible in this scope", "student", hasSiteStudentDirectoryRole(roles) ? "students" : "", { label: "Open Students", preset: "all-students" })}
-        ${renderMetricTile("Needs Review", adminConsoleReviewCount(), "Waiting on feedback", safeNumber(adminConsoleReviewCount()) ? "warning" : "teacher", hasSiteReviewQueueRole(roles) ? "teacher" : "", { label: "Open Reviews", preset: "submitted" })}
-        ${renderMetricTile("Needs Setup", adminConsoleOperationsCount(), "Setup or readiness signals", safeNumber(adminConsoleOperationsCount()) ? "warning" : "mentor", hasSiteOperationsRole(roles) ? "operations" : "", { label: "Open Worklist", preset: "needs-attention" })}
-        ${renderMetricTile("Reports", safeNumber(unwrap(currentData.readiness)?.summary?.studentsTotal || 0), "School-friendly summary", "admin", hasStaffReportsSection(roles) ? "staffReports" : "", { label: "Open Reports" })}
+      ${model.readOnly ? renderReadOnlyBanner() : ""}
+      <div class="workspace-staff-summary-strip" data-staff-workspace-summary="true">
+        ${renderStaffSummaryMetric("Needs Review", model.counts.needsReview, "Waiting for feedback", "needs-review")}
+        ${renderStaffSummaryMetric("Needs Help", model.counts.needsHelp, "Revision, risk, or readiness", "needs-help")}
+        ${renderStaffSummaryMetric("Missing Setup", model.counts.missingSetup, "Mentor, evidence, or closeout", "missing-setup")}
+        ${renderStaffSummaryMetric("Recently Updated", model.counts.recent, "Latest activity in scope", "recent")}
+        ${renderStaffSummaryMetric("Visible Students", model.counts.total, model.scopeLabel, "total")}
       </div>
-      <div class="workspace-attention-queue" data-staff-attention-queue="true" aria-label="Staff attention queue">
-        ${renderStaffAttentionRow("Needs Review", adminConsoleReviewCount(), "Open submitted work before browsing lower-priority summaries.", hasSiteReviewQueueRole(roles) ? "teacher" : "", "submitted")}
-        ${renderStaffAttentionRow("Missing Setup", adminConsoleOperationsCount(), "Check mentor, presentation, or final-file blockers using existing worklists.", hasSiteOperationsRole(roles) ? "operations" : "", "needs-attention")}
-        ${renderStaffAttentionRow("Student Rows", adminConsoleStudentCount(), "Open a student record from the scoped directory.", hasSiteStudentDirectoryRole(roles) ? "students" : "", "all-students")}
+      ${renderStaffNoAssignmentState(model)}
+      <div class="workspace-staff-attention-layout">
+        <div class="workspace-staff-attention-grid" aria-label="Staff attention queues">
+          ${staffWorkspaceQueueDefinitions().map((queue) => renderStaffAttentionQueue(model, queue)).join("")}
+        </div>
+        ${renderStaffTodayScopePanel(model)}
       </div>
+      ${siteStudentDetailState?.sourceSection === "overview" ? renderSiteStudentDetailSurface({
+        students: model.detailRows,
+        scope: model.scope,
+      }) : ""}
     </section>
-    ${renderSiteDashboardSection()}
-    ${renderWorkspaceAdminConsoleHandoff()}
   `;
 }
 
-function renderStaffAttentionRow(title, count, detail, section = "", preset = "") {
-  const safeCount = safeNumber(count);
-  const available = section && availableSectionIdsForAnyMode().has(section);
+function staffWorkspaceTitle(model = {}) {
+  const roles = model.roles || roleIds(currentUser);
+  if (hasGlobalAdminRole(roles)) return "Global Admin Workspace";
+  if (roles.has("site_admin")) return "Site Admin Workspace";
+  if (roles.has("administration")) return "Administration Workspace";
+  if (roles.has("program_teacher")) return "Program Teacher Workspace";
+  if (roles.has("mentor")) return "Mentor Workspace";
+  if (roles.has("viewer")) return "Viewer Workspace / Read-only";
+  return "Staff Workspace";
+}
+
+function staffWorkspaceAttentionModel() {
+  const roles = roleIds(currentUser);
+  const directory = unwrap(currentData.siteStudents) || {};
+  const programDashboard = unwrap(currentData.programTeacherDashboard) || {};
+  const mentorResult = currentData.mentorDashboard?.ok
+    ? currentData.mentorDashboard
+    : currentData.mentorAssigned || currentData.mentorDashboard;
+  const mentorDashboard = unwrap(mentorResult) || {};
+  const directoryRows = staffWorkspaceRowsFromSiteStudents(directory);
+  const programRows = roles.has("program_teacher") ? staffWorkspaceRowsFromProgramDashboard(programDashboard) : [];
+  const mentorRows = roles.has("mentor") ? staffWorkspaceRowsFromMentorDashboard(mentorDashboard) : [];
+  const rows = staffWorkspaceMergeRows([...directoryRows, ...programRows, ...mentorRows])
+    .map((row) => {
+      const attention = staffStudentAttentionFlags(row);
+      return {
+        ...row,
+        attention,
+        queueKeys: staffStudentQueueKeys(row, attention),
+      };
+    });
+  const scope = roles.has("mentor")
+    ? {
+      role: "mentor",
+      readOnly: false,
+      siteName: mentorDashboard.scope?.siteName || directory.scope?.siteName || "Assigned students",
+    }
+    : directory.scope || {};
+  const readOnly = Boolean(scope.readOnly || roles.has("viewer"));
+  const detailRows = rows.map((row) => ({
+    studentId: row.studentId,
+    displayName: row.displayName,
+    email: row.email,
+  })).filter((row) => row.studentId);
+  const queueCounts = staffWorkspaceQueueDefinitions().reduce((counts, queue) => {
+    counts[queue.id] = staffWorkspaceQueueRows(rows, queue.id).length;
+    return counts;
+  }, {});
+  const reviewFallback = adminConsoleReviewCount();
+  const setupFallback = adminConsoleOperationsCount();
+  const totalFallback = adminConsoleStudentCount();
+  return {
+    roles,
+    rows,
+    detailRows,
+    scope,
+    readOnly,
+    scopeLabel: staffWorkspaceScopeLabel(roles, scope),
+    counts: {
+      needsReview: Math.max(safeNumber(queueCounts["needs-review"]), safeNumber(reviewFallback)),
+      needsHelp: safeNumber(queueCounts["needs-help"]),
+      missingSetup: Math.max(safeNumber(queueCounts["missing-setup"]), safeNumber(setupFallback)),
+      recent: safeNumber(queueCounts.recent),
+      total: Math.max(rows.length, safeNumber(totalFallback)),
+    },
+  };
+}
+
+function staffWorkspaceRowsFromSiteStudents(directory = {}) {
+  const students = Array.isArray(directory.students) ? directory.students : [];
+  return students.map((student) => ({
+    studentId: student.studentId || "",
+    displayName: student.displayName || student.studentName || "Student",
+    email: student.email || "",
+    siteName: student.siteName || directory.scope?.siteName || "",
+    programName: student.programName || "",
+    cohortName: student.cohortName || student.cohort || "",
+    mentorName: student.mentorName || "",
+    viewerName: student.viewerName || "",
+    hasActiveMentor: student.hasActiveMentor,
+    mentorMeetingStatus: student.mentorMeetingStatus || "",
+    latestSubmissionStatus: student.latestSubmissionStatus || student.status || "",
+    evidenceStatus: student.evidenceStatus || "",
+    reviewStatus: student.reviewStatus || "",
+    presentationStatus: student.presentationStatus || "",
+    archiveStatus: student.archiveStatus || "",
+    riskFlags: Array.isArray(student.riskFlags) ? student.riskFlags : [],
+    progressStatus: student.progressStatus || "",
+    progressPercent: student.progressPercent,
+    lastActivityAt: student.lastActivityAt || student.latestSubmissionUpdatedAt || "",
+    nextAction: student.nextAction || "",
+    evidenceCount: student.evidenceCount,
+    reviewCount: student.reviewCount,
+    commentCount: student.commentCount,
+    storyBucket: student.storyBucket || "",
+    source: "students",
+  }));
+}
+
+function staffWorkspaceRowsFromProgramDashboard(dashboard = {}) {
+  const rows = [
+    ...(Array.isArray(dashboard.needsReview) ? dashboard.needsReview : []),
+    ...(Array.isArray(dashboard.needsAttention) ? dashboard.needsAttention : []),
+    ...(Array.isArray(dashboard.students) ? dashboard.students : []),
+  ];
+  return rows.map((row) => ({
+    studentId: row.studentId || "",
+    displayName: row.displayName || row.studentName || "Student",
+    email: row.email || "",
+    siteName: row.siteName || dashboard.scope?.siteName || "",
+    programName: row.programName || "",
+    cohortName: row.cohortName || row.cohort || "",
+    mentorName: row.mentorName || "",
+    hasActiveMentor: row.hasActiveMentor,
+    latestSubmissionStatus: row.latestSubmissionStatus || row.submissionStatus || row.status || "",
+    evidenceStatus: row.evidenceStatus || (safeNumber(row.evidenceCount || row.proofCount) ? "attached" : ""),
+    reviewStatus: row.reviewStatus || (normalizeStatus(row.status || row.submissionStatus) === "submitted" ? "needs_review" : ""),
+    presentationStatus: row.presentationStatus || "",
+    archiveStatus: row.archiveStatus || "",
+    riskFlags: Array.isArray(row.riskFlags) ? row.riskFlags : [],
+    progressStatus: row.progressStatus || "",
+    progressPercent: row.progressPercent,
+    lastActivityAt: row.updatedAt || row.submittedAt || row.lastActivityAt || "",
+    nextAction: row.nextAction || row.decisionGuidance || "",
+    evidenceCount: row.evidenceCount || row.proofCount,
+    reviewCount: row.reviewCount,
+    commentCount: row.commentCount,
+    storyBucket: row.storyBucket || "",
+    source: "programDashboard",
+  }));
+}
+
+function staffWorkspaceRowsFromMentorDashboard(body = {}) {
+  const assigned = Array.isArray(body.assignedStudents)
+    ? prioritizeMentorDashboardStudents(body.assignedStudents, cleanMentorDashboardSort(mentorDashboardSort))
+    : [];
+  return assigned.map((row) => {
+    const attention = Array.isArray(row.needsAttention) ? row.needsAttention : [];
+    return {
+      studentId: row.studentId || "",
+      displayName: row.displayName || row.studentName || "Student",
+      email: row.email || "",
+      siteName: row.siteName || body.scope?.siteName || "",
+      programName: row.programName || "",
+      cohortName: row.cohortName || row.cohort || "",
+      mentorName: currentUser?.displayName || "Assigned mentor",
+      hasActiveMentor: true,
+      mentorMeetingStatus: row.mentorMeetingStatus || "",
+      latestSubmissionStatus: row.latestSubmissionStatus || row.submissionStatus || "",
+      evidenceStatus: row.evidenceStatus || (safeNumber(row.evidenceCount) ? "attached" : ""),
+      reviewStatus: row.reviewStatus || "",
+      presentationStatus: row.presentationStatus || "",
+      archiveStatus: row.archiveStatus || "",
+      riskFlags: Array.isArray(row.riskFlags) ? row.riskFlags : attention,
+      progressStatus: row.progressStatus || "",
+      progressPercent: row.progressPercent,
+      lastActivityAt: row.lastActivityAt || row.updatedAt || row.latestActivityAt || "",
+      nextAction: mentorDashboardNextStep(row, attention),
+      evidenceCount: row.evidenceCount,
+      reviewCount: row.reviewCount,
+      commentCount: row.commentCount,
+      storyBucket: row.storyBucket || "",
+      source: "mentorDashboard",
+    };
+  });
+}
+
+function staffWorkspaceMergeRows(rows = []) {
+  const merged = new Map();
+  for (const row of rows.filter(Boolean)) {
+    const key = cleanDirectoryFilter(row.studentId || "") || `row:${String(row.displayName || "").toLowerCase()}:${String(row.email || "").toLowerCase()}`;
+    if (!key) continue;
+    const previous = merged.get(key) || {};
+    merged.set(key, {
+      ...previous,
+      ...Object.fromEntries(Object.entries(row).filter(([, value]) => value !== "" && value !== null && value !== undefined)),
+      riskFlags: Array.from(new Set([...(previous.riskFlags || []), ...(row.riskFlags || [])])),
+    });
+  }
+  return Array.from(merged.values());
+}
+
+function staffStudentAttentionFlags(row = {}) {
+  const flags = [];
+  const riskFlags = Array.isArray(row.riskFlags) ? row.riskFlags.map(normalizeStatus) : [];
+  const submission = normalizeStatus(row.latestSubmissionStatus || row.submissionStatus || row.status || "");
+  const review = normalizeStatus(row.reviewStatus || "");
+  const progress = normalizeStatus(row.progressStatus || "");
+  const evidence = normalizeStatus(row.evidenceStatus || "");
+  const meeting = normalizeStatus(row.mentorMeetingStatus || "");
+  const presentation = normalizeStatus(row.presentationStatus || "");
+  const archive = normalizeStatus(row.archiveStatus || "");
+  const noMentor = row.hasActiveMentor === false || riskFlags.includes("no_mentor") || progress === "missing_mentor";
+
+  if (submission === "submitted" || submission === "under_review" || review === "needs_review" || riskFlags.includes("awaiting_review")) {
+    flags.push({ key: "review", queue: "needs-review", label: "Review waiting", detail: "Program Teacher feedback is the next staff move." });
+  }
+  if (submission === "revision_requested" || review === "needs_revision" || progress === "needs_revision" || riskFlags.includes("revision_requested")) {
+    flags.push({ key: "revision", queue: "needs-help", label: "Revision support", detail: "Student needs help closing a requested revision." });
+  }
+  if (riskFlags.includes("high") || riskFlags.includes("stale") || normalizeStatus(row.riskLevel || "") === "high") {
+    flags.push({ key: "risk", queue: "needs-help", label: "Support signal", detail: "Risk or stale activity should be checked before routine rows." });
+  }
+  if (noMentor) {
+    flags.push({ key: "mentor", queue: "missing-setup", label: "No mentor", detail: "Mentor coverage needs to be confirmed." });
+  }
+  if (evidence === "missing" || progress === "missing_evidence") {
+    flags.push({ key: "evidence", queue: "missing-setup", label: "Evidence missing", detail: "Evidence is missing for the current work." });
+  }
+  if (meeting === "not_recorded" || meeting === "missed" || meeting === "makeup_required" || progress === "mentor_meeting_follow_up") {
+    flags.push({ key: "meeting", queue: "needs-help", label: "Meeting follow-up", detail: "Mentor meeting status needs a check." });
+  }
+  if (["pending", "missing", "outline_pending", "outline_revision_needed", "attention_required"].includes(presentation)) {
+    flags.push({ key: "presentation", queue: "needs-help", label: "Presentation readiness", detail: "Presentation readiness needs staff attention." });
+  }
+  if (["failed", "expired", "provider_unavailable"].includes(archive)) {
+    flags.push({ key: "archive", queue: "missing-setup", label: "Final-file blocker", detail: "Closeout file status needs follow-up." });
+  }
+  return flags;
+}
+
+function staffStudentQueueKeys(row = {}, attention = []) {
+  const keys = Array.from(new Set(attention.map((flag) => flag.queue).filter(Boolean)));
+  if (staffStudentIsRecent(row)) keys.push("recent");
+  if (!keys.length) keys.push("on-track");
+  return Array.from(new Set(keys));
+}
+
+function staffStudentIsRecent(row = {}) {
+  const timestamp = Date.parse(row.lastActivityAt || row.updatedAt || row.submittedAt || "");
+  if (!Number.isFinite(timestamp)) return false;
+  const now = Date.now();
+  const thirtyDays = 1000 * 60 * 60 * 24 * 30;
+  return timestamp > now - thirtyDays || now < timestamp;
+}
+
+function staffWorkspaceQueueDefinitions() {
+  return [
+    { id: "needs-review", title: "Needs Review", detail: "Open submitted work and feedback decisions first.", empty: "No submitted work is waiting in this scope." },
+    { id: "needs-help", title: "Needs Help", detail: "Revision, meeting, presentation, or risk signals.", empty: "No support signal is open right now." },
+    { id: "missing-setup", title: "Missing Setup", detail: "Mentor coverage, evidence, and closeout blockers.", empty: "No setup blocker is visible in this scope." },
+    { id: "recent", title: "Recently Updated", detail: "Fresh activity worth a quick scan.", empty: "No recent student activity is visible." },
+    { id: "on-track", title: "On Track", detail: "Regular monitoring rows after urgent queues are clear.", empty: "No routine rows are visible yet." },
+  ];
+}
+
+function staffWorkspaceQueueRows(rows = [], queueId = "") {
+  return rows.filter((row) => Array.isArray(row.queueKeys) && row.queueKeys.includes(queueId));
+}
+
+function staffWorkspaceScopeLabel(roles, scope = {}) {
+  if (roles.has("mentor")) return "Assigned mentor students";
+  if (roles.has("program_teacher")) return scope.programName || scope.siteName || "Program scope";
+  if (roles.has("viewer")) return scope.siteName ? `${scope.siteName} read-only` : "Assigned read-only scope";
+  if (hasGlobalAdminRole(roles)) return "All accessible schools";
+  return scope.siteName || "Assigned school scope";
+}
+
+function renderStaffSummaryMetric(label, value, detail, key) {
   return `
-    <article class="workspace-table-row" data-attention-queue-row="${escapeHtml(title.toLowerCase().replace(/[^a-z0-9]+/g, "-"))}">
+    <article class="workspace-staff-summary-metric" data-staff-summary-metric="${escapeHtml(key)}">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(safeNumber(value))}</strong>
+      <small>${escapeHtml(detail)}</small>
+    </article>
+  `;
+}
+
+function renderStaffPrimaryAction(model = {}) {
+  const focus = model.rows?.find((row) => row.studentId && row.queueKeys?.some((key) => key !== "on-track"))
+    || model.rows?.find((row) => row.studentId);
+  if (focus?.studentId) {
+    return `
+      <button class="workspace-button workspace-button-primary" type="button" data-staff-primary-action="open-student" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(focus.studentId)}" data-student-detail-source-section="overview">
+        Open Student
+      </button>
+    `;
+  }
+  if (availableSectionIdsForAnyMode().has("students")) {
+    return `<button class="workspace-button workspace-button-primary" type="button" data-section="students" data-section-preset="all-students">Open Students</button>`;
+  }
+  if (availableSectionIdsForAnyMode().has("mentor")) {
+    return `<button class="workspace-button workspace-button-primary" type="button" data-section="mentor">Open Students</button>`;
+  }
+  return `<span class="workspace-summary-badge">No student rows yet</span>`;
+}
+
+function renderStaffNoAssignmentState(model = {}) {
+  if (!model.roles?.has("mentor") || safeNumber(model.counts?.total) > 0) return "";
+  return `
+    <section class="workspace-card workspace-empty" data-workspace-state="no-active-assignment">
+      <strong>No students are assigned to you yet</strong>
+      <span>Mentor students</span>
+      <p>No active students are assigned to this account yet.</p>
+      ${renderProblemState({
+        reason: "No active students are assigned to this account yet.",
+        owner: "Project coordinator or site administrator.",
+        nextAction: "Confirm the assignment, then refresh this workspace.",
+      })}
+    </section>
+  `;
+}
+
+function renderStaffAttentionQueue(model = {}, queue = {}) {
+  const rows = staffWorkspaceQueueRows(model.rows || [], queue.id);
+  return `
+    <section class="workspace-staff-queue" data-staff-attention-queue="${escapeHtml(queue.id)}" aria-labelledby="staffQueue-${escapeHtml(queue.id)}">
+      <div class="workspace-staff-queue-head">
+        <div>
+          <h3 id="staffQueue-${escapeHtml(queue.id)}">${escapeHtml(queue.title)}</h3>
+          <p>${escapeHtml(queue.detail)}</p>
+        </div>
+        <span class="workspace-summary-badge">${escapeHtml(rows.length)}</span>
+      </div>
+      <div class="workspace-staff-queue-list">
+        ${rows.length
+          ? rows.slice(0, 4).map((row) => renderStaffQueueStudentRow(row, queue.id, model)).join("")
+          : `<article class="workspace-staff-queue-empty"><strong>${escapeHtml(queue.empty)}</strong></article>`}
+      </div>
+      ${rows.length > 4 ? `<p class="workspace-muted">${escapeHtml(rows.length - 4)} more ${escapeHtml(queue.title.toLowerCase())} rows remain in Students.</p>` : ""}
+    </section>
+  `;
+}
+
+function renderStaffQueueStudentRow(row = {}, queueId = "", model = {}) {
+  const flags = (Array.isArray(row.attention) ? row.attention : []).filter((flag) => flag.queue === queueId);
+  const primaryFlag = flags[0] || row.attention?.[0] || { label: queueId === "on-track" ? "On track" : "Attention", detail: row.nextAction || "Open student detail for context." };
+  const supportingText = row.nextAction || primaryFlag.detail || "Open student detail for the current status.";
+  const studentName = row.displayName || row.studentName || "Student";
+  const context = [row.programName, row.cohortName].filter(Boolean).join(" / ") || model.scopeLabel || "Assigned scope";
+  return `
+    <article class="workspace-staff-student-row" data-staff-queue-student-row="true" data-staff-queue-kind="${escapeHtml(queueId)}" data-student-id="${escapeHtml(row.studentId || "")}">
       <div>
-        <strong>${escapeHtml(title)}</strong>
-        <span>${escapeHtml(detail)}</span>
+        <strong>${escapeHtml(studentName)}</strong>
+        <p class="workspace-muted">${escapeHtml(context)}</p>
+        <p>${escapeHtml(supportingText)}</p>
+      </div>
+      <div class="workspace-staff-student-signals">
+        <span class="workspace-story-chip">${escapeHtml(primaryFlag.label)}</span>
+        ${statusPill(row.latestSubmissionStatus || row.reviewStatus || row.progressStatus || "configured")}
+        ${row.mentorName ? `<span class="workspace-site-context-badge">Mentor: ${escapeHtml(row.mentorName)}</span>` : ""}
+        ${model.readOnly ? `<span class="workspace-chip" data-workspace-mode="read-only">Read-only</span>` : ""}
       </div>
       <div class="workspace-row-actions">
-        <span class="workspace-summary-badge">${escapeHtml(String(safeCount))}</span>
-        ${statusPill(safeCount ? "warning" : "complete")}
-        ${available ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(section)}"${preset ? ` data-section-preset="${escapeHtml(preset)}"` : ""}>Open</button>` : `<span class="workspace-summary-badge">No route</span>`}
+        ${row.studentId ? `
+          <button class="workspace-link-button workspace-link-button-small" type="button" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(row.studentId)}" data-student-detail-source-section="overview">
+            Open Student
+          </button>
+          ${renderViewAsStudentAction(row.studentId, studentName, { sourceSection: "overview" })}
+        ` : `<span class="workspace-summary-badge">No detail route</span>`}
       </div>
     </article>
+  `;
+}
+
+function renderStaffTodayScopePanel(model = {}) {
+  const reportsButton = hasStaffReportsSection(model.roles) && availableSectionIdsForAnyMode().has("staffReports")
+    ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="staffReports">Open Reports</button>`
+    : `<span class="workspace-summary-badge">Reports unavailable</span>`;
+  const studentsButton = availableSectionIdsForAnyMode().has("students")
+    ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="students" data-section-preset="all-students">Open Students</button>`
+    : "";
+  return `
+    <aside class="workspace-staff-scope-panel" aria-label="Current staff scope">
+      <p class="workspace-kicker">Current scope</p>
+      <h3>${escapeHtml(model.scopeLabel)}</h3>
+      <p>Start with the first populated queue, open one student, then use Students or Reports only when the urgent rows are clear.</p>
+      <div class="workspace-chip-row">
+        <span class="workspace-site-context-badge">${escapeHtml(roleLabel(primaryRoleForUser(currentUser)))}</span>
+        ${model.readOnly ? `<span class="workspace-chip" data-workspace-mode="read-only">Read-only</span>` : statusPill("configured")}
+      </div>
+      <div class="workspace-row-actions">
+        ${studentsButton}
+        ${reportsButton}
+      </div>
+    </aside>
   `;
 }
 
@@ -5348,11 +5720,11 @@ function renderSiteStudentDirectorySection() {
       ${renderSiteContextBlock(directory)}
       <div class="workspace-command-hero">
         <div>
-          <p class="workspace-kicker">Student Directory</p>
+          <p class="workspace-kicker">Students</p>
           <h1 id="siteStudentsTitle">Students</h1>
           <p>
-            Search and filter assigned student records by program, mentor coverage, progress status,
-            risk, presentation readiness, and final-file state without exposing private proof storage details.
+            Search the students this account can access, then open one record for the current blocker,
+            work history, feedback, evidence, and timeline.
           </p>
         </div>
         <div class="workspace-command-hero-grid">
@@ -5360,6 +5732,7 @@ function renderSiteStudentDirectorySection() {
           <span class="workspace-chip">Assigned records only</span>
         </div>
       </div>
+      ${readOnly ? renderReadOnlyBanner() : ""}
       <div class="workspace-dashboard-grid">
         ${renderMetricTile("Students", summary.studentsTotal, `${safeNumber(pagination.returned)} shown now`, "admin")}
         ${renderMetricTile("No Mentor", summary.noMentor, "Needs mentor coverage", safeNumber(summary.noMentor) ? "warning" : "mentor", "students", { label: "View students", preset: "missing-mentors" })}
@@ -5370,7 +5743,6 @@ function renderSiteStudentDirectorySection() {
         ${renderMetricTile("Final Files Failed", summary.archiveFailed, "Export follow-up", safeNumber(summary.archiveFailed) ? "danger" : "admin", "students", { label: "View students", preset: "archive-failed-students" })}
         ${renderMetricTile("High Risk", summary.highRisk, "Prioritize outreach", safeNumber(summary.highRisk) ? "danger" : "admin", "students", { label: "View students", preset: "high-risk-students" })}
       </div>
-      ${renderStudentDirectoryOperatingPosture(readOnly)}
       ${renderStudentDirectoryActionMap(directory)}
       ${renderStudentDirectorySavedFilterChips(summary)}
       ${renderStudentDirectoryFilterBar(directory)}
@@ -5407,13 +5779,13 @@ function renderStudentDirectoryActionMap(directory = {}) {
       tone: "mentor",
     },
     {
-      id: "missing-proof",
-      label: "Missing proof",
+      id: "missing-evidence",
+      label: "Evidence missing",
       count: studentDirectoryMapCount(summary, students, ["evidenceMissing", "missingEvidence"], (student) => normalizeStatus(student?.evidenceStatus) === "missing"),
-      detail: "Find students who still need to attach proof for Program Teacher review.",
+      detail: "Find students who still need to attach evidence for Program Teacher review.",
       owner: "Student and Program Teacher",
       preset: "missing-evidence-students",
-      tone: "proof",
+      tone: "evidence",
     },
     {
       id: "review-needed",
@@ -5489,11 +5861,11 @@ function renderStudentDirectoryActionMap(directory = {}) {
         </div>
         <span class="workspace-chip">${liveLaneCount} live lane${liveLaneCount === 1 ? "" : "s"}</span>
       </div>
-      <div class="workspace-student-directory-action-map-grid">
+      <div class="workspace-student-directory-action-map-list">
         ${lanes.map((lane) => {
           const active = studentDirectoryPresetMatchesFilters(lane.preset, filters);
           return `
-            <article class="workspace-student-directory-action-card" data-student-directory-action-card="${escapeHtml(lane.id)}" data-tone="${escapeHtml(lane.tone)}" data-current-filter="${active ? "true" : "false"}">
+            <article class="workspace-student-directory-action-row" data-student-directory-action-card="${escapeHtml(lane.id)}" data-tone="${escapeHtml(lane.tone)}" data-current-filter="${active ? "true" : "false"}">
               <div class="workspace-student-directory-action-card-head">
                 <strong>${escapeHtml(lane.label)}</strong>
                 <span>${safeNumber(lane.count)}</span>
@@ -5551,8 +5923,8 @@ function renderStudentDirectorySavedFilterChips(summary = {}) {
       preset: "submitted-students",
     },
     {
-      label: "Proof missing",
-      detail: safeNumber(summary.missingEvidence ?? summary.evidenceMissing) ? `${safeNumber(summary.missingEvidence ?? summary.evidenceMissing)} missing proof` : "Missing proof",
+      label: "Evidence missing",
+      detail: safeNumber(summary.missingEvidence ?? summary.evidenceMissing) ? `${safeNumber(summary.missingEvidence ?? summary.evidenceMissing)} missing evidence` : "Missing evidence",
       preset: "missing-evidence-students",
     },
     {
@@ -5660,7 +6032,7 @@ function renderStudentDirectoryFilterBar(directory) {
       <label class="workspace-label">
         <span>Evidence</span>
         <select class="workspace-select" name="evidenceStatus">
-          ${renderValueOptions(options.evidenceStatuses || [], filters.evidenceStatus || "", "Any proof", evidenceStatusFilterLabel)}
+          ${renderValueOptions(options.evidenceStatuses || [], filters.evidenceStatus || "", "Any evidence", evidenceStatusFilterLabel)}
         </select>
       </label>
       <label class="workspace-label">
@@ -5746,15 +6118,20 @@ function renderStudentDirectoryResultSummary(directory) {
   const returned = safeNumber(pagination.returned);
   const filteredTotal = safeNumber(pagination.filteredTotal);
   const total = safeNumber(pagination.total);
+  const noResults = returned === 0;
   return `
     <section class="workspace-card workspace-directory-summary" aria-label="Student directory results">
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Results</p>
-          <h2>${filters.noMentor
+          <h2>${noResults
+            ? "No students match those filters"
+            : filters.noMentor
             ? `Showing ${escapeHtml(returned)} of ${escapeHtml(filteredTotal)} students missing mentors`
-            : `Showing ${escapeHtml(returned)} of ${escapeHtml(filteredTotal)}`}</h2>
-          <p class="workspace-muted">${filters.noMentor
+            : `${escapeHtml(returned)} of ${escapeHtml(filteredTotal)} students shown`}</h2>
+          <p class="workspace-muted">${noResults
+            ? "Clear filters or try another search to see students this account can access."
+            : filters.noMentor
             ? "The list is filtered to students without active mentor assignments in the current school."
             : "Returned rows respect pagination; total and filtered totals stay tied to the selected school or program."}</p>
         </div>
@@ -5782,7 +6159,7 @@ function renderStudentRow(student, readOnly = false, permissions = {}, scope = {
   const canRemoveStudent = !readOnly && permissions.canManageSiteUsers && student.studentId && scope.siteId;
   const guidance = studentDirectoryRowGuidance(student, readOnly);
   return `
-    <article class="workspace-student-row workspace-student-card">
+    <article class="workspace-student-row workspace-student-card" data-staff-student-row="true">
       <div>
         <strong>${escapeHtml(student.displayName || "Student")}</strong>
         <p>${escapeHtml(student.email || "")}</p>
@@ -5821,8 +6198,8 @@ function renderStudentRow(student, readOnly = false, permissions = {}, scope = {
       <div class="workspace-row-actions">
         <span class="workspace-site-context-badge">${escapeHtml(safeNumber(student.evidenceCount))} evidence</span>
         <span class="workspace-site-context-badge">${escapeHtml(safeNumber(student.reviewCount))} reviews</span>
-        <button class="workspace-link-button workspace-link-button-small" type="button" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(student.studentId || "")}">
-          View detail
+        <button class="workspace-link-button workspace-link-button-small" type="button" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(student.studentId || "")}" data-student-detail-source-section="students">
+          Open Student
         </button>
         ${renderViewAsStudentAction(student.studentId, student.displayName, { sourceSection: "students" })}
         ${readOnly ? `<span class="workspace-chip" data-workspace-mode="read-only">Read-only</span>` : ""}
@@ -6192,12 +6569,12 @@ function renderSiteStudentDetailSurface(directory) {
 
   const scope = detail.scope || {};
   const student = detail.student || {};
-  const activeTab = state.activeTab || "summary";
+  const activeTab = cleanStudentDetailTab(state.activeTab) || "overview";
   const riskFlags = Array.isArray(student.riskFlags) ? student.riskFlags : [];
   return `
     <aside id="siteStudentDetailPanel" class="workspace-detail-drawer" data-student-detail-panel="true" data-student-detail-state="ready" data-student-detail-id="${escapeHtml(student.studentId || state.studentId)}" aria-labelledby="siteStudentDetailTitle" tabindex="-1">
       <div class="workspace-detail-panel">
-        <div class="workspace-card-head">
+        <div class="workspace-card-head workspace-student-detail-header" data-student-detail-header="true">
           <div>
             <p class="workspace-kicker">Student detail</p>
             <h2 id="siteStudentDetailTitle">${escapeHtml(student.displayName || title)}</h2>
@@ -6209,11 +6586,12 @@ function renderSiteStudentDetailSurface(directory) {
             <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="close">${escapeHtml(returnCopy.buttonLabel)}</button>
           </div>
         </div>
-        <div class="workspace-chip-row">
+        <div class="workspace-chip-row workspace-student-detail-facts" data-student-detail-facts="true">
           <span class="workspace-site-context-badge">${escapeHtml(scope.siteName || directory.scope?.siteName || "Selected school")}</span>
           <span class="workspace-site-context-badge">${escapeHtml(student.programName || "Unassigned")}</span>
           <span class="workspace-site-context-badge">${escapeHtml(student.cohortName || "No cohort")}</span>
           <span class="workspace-site-context-badge">${escapeHtml(studentRosterProfileText(student))}</span>
+          ${student.mentorName ? `<span class="workspace-site-context-badge">Mentor: ${escapeHtml(student.mentorName)}</span>` : ""}
           ${student.viewerName ? `<span class="workspace-site-context-badge">Viewer: ${escapeHtml(student.viewerName)}</span>` : ""}
           ${scope.readOnly ? `<span class="workspace-chip" data-workspace-mode="read-only">Read-only viewer</span>` : ""}
         </div>
@@ -6224,6 +6602,12 @@ function renderSiteStudentDetailSurface(directory) {
           ${student.storyBucket ? `<span class="workspace-story-chip">${escapeHtml(storyLabel(student.storyBucket))}</span>` : ""}
           ${riskFlags.length ? riskFlags.map((flag) => `<span class="workspace-risk-chip">${escapeHtml(riskLabel(flag))}</span>`).join("") : `<span class="workspace-risk-chip">Low risk</span>`}
         </div>
+        ${scope.readOnly ? `
+          <section class="workspace-read-only-banner" data-student-detail-read-only="true" data-workspace-mode="read-only">
+            <span class="workspace-chip workspace-role-chip">Read-only</span>
+            <p>You can view this student for context, but approvals, assignments, evidence changes, and access changes stay with authorized staff.</p>
+          </section>
+        ` : ""}
         ${renderStudentDetailTabs(activeTab)}
         ${renderStudentDetailTab(detail, activeTab, state)}
       </div>
@@ -6233,14 +6617,10 @@ function renderSiteStudentDetailSurface(directory) {
 
 function renderStudentDetailTabs(activeTab) {
   const tabs = [
-    ["summary", "Summary"],
-    ["progress", "Progress"],
-    ["submissions", "Submissions"],
+    ["overview", "Overview"],
+    ["work", "Work"],
+    ["feedback", "Feedback"],
     ["evidence", "Evidence"],
-    ["reviews", "Reviews & Comments"],
-    ["mentor", "Mentor"],
-    ["presentation", "Presentation"],
-    ["archive", "Archive"],
     ["timeline", "Timeline"],
   ];
   return `
@@ -6255,13 +6635,9 @@ function renderStudentDetailTabs(activeTab) {
 }
 
 function renderStudentDetailTab(detail, activeTab, state) {
-  if (activeTab === "progress") return renderStudentDetailProgress(detail);
-  if (activeTab === "submissions") return renderStudentDetailSubmissions(detail);
+  if (activeTab === "work") return renderStudentDetailWork(detail);
   if (activeTab === "evidence") return renderStudentDetailEvidence(detail);
-  if (activeTab === "reviews") return renderStudentDetailReviews(detail);
-  if (activeTab === "mentor") return renderStudentDetailMentor(detail);
-  if (activeTab === "presentation") return renderStudentDetailPresentation(detail);
-  if (activeTab === "archive") return renderStudentDetailArchive(detail);
+  if (activeTab === "feedback") return renderStudentDetailReviews(detail);
   if (activeTab === "timeline") return renderStudentDetailTimeline(detail, state);
   return renderStudentDetailSummary(detail);
 }
@@ -6272,12 +6648,12 @@ function renderStudentDetailSummary(detail) {
   const progress = detail.progress || {};
   const latestFeedback = latestStudentDetailFeedback(detail);
   return `
-    <section class="workspace-detail-section" data-student-detail-section="summary">
+    <section class="workspace-detail-section" data-student-detail-section="overview" data-student-detail-alias="summary">
       <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
         ${renderDashboardCard("Current Story", "Assigned record view", `
           <p>${escapeHtml(student.nextAction || "Continue normal capstone monitoring.")}</p>
           <div class="workspace-chip-row">
-            <span class="workspace-site-context-badge">${escapeHtml(safeNumber(student.evidenceCount))} proof item${safeNumber(student.evidenceCount) === 1 ? "" : "s"}</span>
+            <span class="workspace-site-context-badge">${escapeHtml(safeNumber(student.evidenceCount))} evidence item${safeNumber(student.evidenceCount) === 1 ? "" : "s"}</span>
             <span class="workspace-site-context-badge">${escapeHtml(safeNumber(student.reviewCount))} reviews</span>
             <span class="workspace-site-context-badge">${escapeHtml(safeNumber(student.commentCount))} comments</span>
           </div>
@@ -6429,6 +6805,20 @@ function latestStudentDetailFeedback(detail) {
   };
 }
 
+function renderStudentDetailWork(detail) {
+  return `
+    <section class="workspace-detail-section" data-student-detail-section="work" data-student-detail-alias="progress submissions mentor presentation archive">
+      ${renderStudentDetailProgress(detail)}
+      ${renderStudentDetailSubmissions(detail)}
+      ${renderStudentDetailMentor(detail)}
+      <div class="workspace-detail-grid">
+        ${renderStudentDetailPresentation(detail)}
+        ${renderStudentDetailArchive(detail)}
+      </div>
+    </section>
+  `;
+}
+
 function renderStudentDetailProgress(detail) {
   const progress = detail.progress || {};
   const blockedReasons = Array.isArray(progress.blockedReasons) ? progress.blockedReasons : [];
@@ -6458,7 +6848,7 @@ function renderStudentDetailSubmissions(detail) {
     <article class="workspace-row">
       <div>
         <strong>${escapeHtml(row.requirementTitle || "Senior Project work")}</strong>
-        <p>Version ${escapeHtml(row.version || 1)} / ${escapeHtml(row.evidenceCount || 0)} proof item${safeNumber(row.evidenceCount) === 1 ? "" : "s"}</p>
+        <p>Version ${escapeHtml(row.version || 1)} / ${escapeHtml(row.evidenceCount || 0)} evidence item${safeNumber(row.evidenceCount) === 1 ? "" : "s"}</p>
         <p class="workspace-muted">${escapeHtml(row.nextAction || "")}</p>
       </div>
       ${statusPill(row.status || "draft")}
@@ -6468,11 +6858,13 @@ function renderStudentDetailSubmissions(detail) {
 
 function renderStudentDetailEvidence(detail) {
   const rows = detail.evidence || [];
-  return renderStudentDetailList("Proof", "Proof details", rows, "No proof records are available for this student.", (row) => `
+  return `
+    <section class="workspace-detail-section" data-student-detail-section="evidence">
+      ${renderStudentDetailList("Evidence", "Evidence records", rows, "No evidence records are available for this student.", (row) => `
     <article class="workspace-row">
       <div>
-        <strong>${escapeHtml(row.title || "Proof")}</strong>
-        <p>${escapeHtml(row.artifactType || "proof")} / ${escapeHtml(statusText(row.sourceKind || "proof"))}</p>
+        <strong>${escapeHtml(row.title || "Evidence")}</strong>
+        <p>${escapeHtml(row.artifactType || "evidence")} / ${escapeHtml(statusText(row.sourceKind || "evidence"))}</p>
         <p class="workspace-muted">${row.externalUrl ? escapeHtml(row.externalUrl) : "File details are protected."}</p>
       </div>
       <div class="workspace-row-actions">
@@ -6480,7 +6872,9 @@ function renderStudentDetailEvidence(detail) {
         ${statusPill(row.reviewStatus || "pending_review")}
       </div>
     </article>
-  `);
+      `)}
+    </section>
+  `;
 }
 
 function renderStudentDetailReviews(detail) {
@@ -6488,7 +6882,7 @@ function renderStudentDetailReviews(detail) {
   const comments = detail.comments || [];
   const commentMode = studentDetailCommentVisibilityMode(detail);
   return `
-    <section class="workspace-detail-section" data-student-detail-section="reviews">
+    <section class="workspace-detail-section" data-student-detail-section="feedback" data-student-detail-alias="reviews">
       ${renderStudentDetailList("Reviews", "Program Teacher feedback history", reviews, "No review records are available for this student.", (row) => `
         <article class="workspace-row">
           <div>
@@ -18476,7 +18870,7 @@ async function handleMentorDashboardAction(event) {
     activeSection = "mentorDashboard";
     await openSiteStudentDetail(event.currentTarget?.dataset?.mentorDashboardStudentId || "", {
       sourceSection: "mentorDashboard",
-      activeTab: "mentor",
+      activeTab: "work",
     });
   }
 }
@@ -18737,7 +19131,7 @@ async function submitMentorMeeting(event) {
     await refreshConnectedSurfacesAfterMentorMeeting(studentId);
     siteStudentDetailState = {
       ...siteStudentDetailState,
-      activeTab: "mentor",
+      activeTab: "work",
     };
     renderAppShell("Mentor meeting recorded.", "success");
   } finally {
@@ -18853,9 +19247,10 @@ async function handleSiteStudentAction(event) {
   const action = event?.currentTarget?.dataset?.siteStudentAction;
   if (!action) return;
   if (action === "view-detail") {
-    const sourceSection = activeSection === "adminDashboard" || activeSection === "programDashboard" || activeSection === "siteDashboard"
+    const requestedSource = cleanWorkspaceSection(event.currentTarget?.dataset?.studentDetailSourceSection || "");
+    const sourceSection = requestedSource || (activeSection === "adminDashboard" || activeSection === "programDashboard" || activeSection === "siteDashboard" || activeSection === "overview"
       ? activeSection
-      : "students";
+      : "students");
     await openSiteStudentDetail(event.currentTarget?.dataset?.studentDetailId || "", { sourceSection });
     return;
   }
@@ -18901,7 +19296,7 @@ async function openSiteStudentDetail(studentId, options = {}) {
     ...defaultSiteStudentDetailState(),
     studentId: selectedStudentId,
     sourceSection,
-    activeTab: requestedTab || "summary",
+    activeTab: requestedTab || "overview",
     loading: true,
   };
   activeSection = sourceSection;
@@ -18944,15 +19339,26 @@ async function handleSiteStudentDetailAction(event) {
 }
 
 function cleanStudentDetailTab(value) {
-  const requested = String(value || "").trim();
-  const allowedTabs = new Set(["summary", "progress", "submissions", "evidence", "reviews", "mentor", "presentation", "archive", "timeline"]);
-  return allowedTabs.has(requested) ? requested : "";
+  const requested = cleanDirectoryFilter(value);
+  const aliases = {
+    summary: "overview",
+    progress: "work",
+    submissions: "work",
+    reviews: "feedback",
+    mentor: "work",
+    presentation: "work",
+    archive: "work",
+  };
+  const normalized = aliases[requested] || requested;
+  const allowedTabs = new Set(["overview", "work", "feedback", "evidence", "timeline"]);
+  return allowedTabs.has(normalized) ? normalized : "";
 }
 
 function studentDetailReturnCopy(sourceSection) {
   const sectionId = cleanWorkspaceSection(sourceSection) || "students";
   const labels = {
     adminDashboard: "Admin Command Center",
+    overview: "Today",
     siteDashboard: "Site Dashboard",
     students: "Students",
     teacher: "Review Queue",
@@ -18966,7 +19372,9 @@ function studentDetailReturnCopy(sourceSection) {
     sectionId,
     label,
     buttonLabel: `Back to ${label}`,
-    hint: sectionId === "students"
+    hint: sectionId === "overview"
+      ? "Return to Today when you finish with this record."
+      : sectionId === "students"
       ? "Return to the filtered student list when you finish with this record."
       : `Return to ${label} when you finish with this record.`,
   };
@@ -22681,7 +23089,7 @@ function defaultSiteStudentDetailState() {
   return {
     studentId: "",
     sourceSection: "students",
-    activeTab: "summary",
+    activeTab: "overview",
     loading: false,
     loadingTimeline: false,
     timelineType: "",
@@ -23125,7 +23533,7 @@ function viewAsStudentUrlStateFromSearchParams(params) {
 
 function siteStudentDetailUrlStateFromSearchParams(params, section) {
   const sourceSection = cleanWorkspaceSection(section) || "students";
-  const activeTab = cleanStudentDetailTab(params.get("detailTab")) || "summary";
+  const activeTab = cleanStudentDetailTab(params.get("detailTab")) || "overview";
   return {
     ...defaultSiteStudentDetailState(),
     studentId: cleanDirectoryFilter(params.get("detailStudentId")),
@@ -23513,6 +23921,7 @@ function cleanWorkspaceSection(value) {
 function canUseSiteStudentDetailUrlState(section, roles = roleIds(currentUser)) {
   const sourceSection = cleanWorkspaceSection(section);
   if (!SITE_STUDENT_DETAIL_URL_SECTIONS.has(sourceSection) || !roles?.size) return false;
+  if (sourceSection === "overview") return hasStaffReportsSection(roles);
   if (sourceSection === "adminDashboard") return hasGlobalAdminRole(roles);
   if (sourceSection === "siteDashboard") return hasSiteDashboardRole(roles);
   if (sourceSection === "students") return hasSiteStudentDirectoryRole(roles);
@@ -23539,7 +23948,7 @@ async function restoreSiteStudentDetailFromUrlState(options = {}) {
   if (!shouldRestoreSiteStudentDetailFromUrlState(roleIds(currentUser), options.section || activeSection)) return false;
   const sourceSection = cleanWorkspaceSection(siteStudentDetailState.sourceSection) || "students";
   const studentId = cleanDirectoryFilter(siteStudentDetailState.studentId);
-  const requestedTab = cleanStudentDetailTab(siteStudentDetailState.activeTab) || "summary";
+  const requestedTab = cleanStudentDetailTab(siteStudentDetailState.activeTab) || "overview";
   const requestedTimelineType = requestedTab === "timeline"
     ? cleanStudentDetailTimelineType(siteStudentDetailState.timelineType || "")
     : "";
@@ -23600,8 +24009,8 @@ function appendSiteStudentDetailUrlState(url, section) {
   const detailSourceSection = cleanWorkspaceSection(siteStudentDetailState.sourceSection) || sourceSection;
   if (!detailStudentId || detailSourceSection !== sourceSection) return;
   url.searchParams.set("detailStudentId", detailStudentId);
-  const activeTab = cleanStudentDetailTab(siteStudentDetailState.activeTab) || "summary";
-  if (activeTab !== "summary") url.searchParams.set("detailTab", activeTab);
+  const activeTab = cleanStudentDetailTab(siteStudentDetailState.activeTab) || "overview";
+  if (activeTab !== "overview") url.searchParams.set("detailTab", activeTab);
   const timelineType = activeTab === "timeline"
     ? cleanStudentDetailTimelineType(siteStudentDetailState.timelineType || "")
     : "";

@@ -67,7 +67,7 @@ const criticalMobileSurfaces = [
   ["review queue read-only state", /data-review-queue-read-only="true"/],
   ["site dashboard next actions", /renderSiteNextActions/],
   ["operations row next action", /data-operations-row-next-action="true"/],
-  ["viewer monitoring overview", /data-viewer-monitoring-overview="true"/],
+  ["staff attention queues", /data-staff-attention-model="true"[\s\S]*data-staff-attention-queue/],
   ["users and access import preflight", /workspace-admin-import-preflight/],
 ];
 

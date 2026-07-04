@@ -77,6 +77,12 @@ test("workspace UI polish manifest records durable local fake-account screenshot
     "22-student-final-files-state",
     "24-student-my-work-desktop",
     "25-student-feedback-desktop",
+    "26-administration-workspace-today",
+    "27-global-admin-workspace-today",
+    "28-student-detail-evidence",
+    "29-workspace-reports",
+    "30-mobile-mentor-today",
+    "31-mobile-student-detail",
     "23-student-detail-phone",
   ];
   assert.equal(manifest.screenshots.length, requiredIds.length);
@@ -104,6 +110,11 @@ test("workspace UI polish manifest records durable local fake-account screenshot
   const byId = new Map(manifest.screenshots.map((screenshot) => [screenshot.id, screenshot]));
   assert.equal(byId.get("13-site-admin-student-detail-click").markers.studentDetailPanel, true);
   assert.equal(byId.get("14-viewer-read-only-detail-click").markers.readOnlyBoundary, true);
+  assert.equal(byId.get("02-workspace-site-admin-desktop").markers.staffAttentionModel, true);
+  assert.equal(byId.get("27-global-admin-workspace-today").markers.staffAttentionQueue, true);
+  assert.equal(byId.get("28-student-detail-evidence").markers.studentDetailEvidence, true);
+  assert.equal(byId.get("29-workspace-reports").markers.staffReports, true);
+  assert.equal(byId.get("31-mobile-student-detail").markers.studentDetailPanel, true);
   assert.equal(byId.get("15-view-as-student-entered-desktop").markers.viewAsBanner, true);
   assert.equal(byId.get("16-view-as-student-exited-return").markers.viewAsBanner, false);
   assert.equal(byId.get("17-people-access-landing").markers.peopleManagement, true);
