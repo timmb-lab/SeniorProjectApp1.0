@@ -334,6 +334,9 @@ const WORKSPACE_SECTION_IDS = new Set([
   "programs",
   "students",
   "student",
+  "studentWork",
+  "studentFeedback",
+  "studentFinalChecklist",
   "archive",
   "mentorDashboard",
   "mentor",
@@ -342,14 +345,21 @@ const WORKSPACE_SECTION_IDS = new Set([
   "mentorAssignments",
   "operations",
   "presentation",
+  "staffReports",
   "adminDashboard",
   "readiness",
   "adminUsers",
+  "adminPeople",
+  "adminStudents",
+  "adminAssignments",
+  "adminImports",
+  "adminReports",
   "audit",
   "archiveExports",
   "security",
 ]);
 const WORKSPACE_MODES = new Set(["workspace", "admin"]);
+const STUDENT_NAV_SECTION_IDS = new Set(["student", "studentWork", "studentFeedback", "studentFinalChecklist"]);
 const ADMIN_ARCHIVE_EXPORT_FILTER_VALUES = new Set(["all", "failed", "in_progress", "complete"]);
 const ADMIN_AUDIT_SAVED_FILTERS = [
   {
@@ -678,7 +688,7 @@ async function loadWorkspaceData(statusMessage = "") {
     currentData[key] = result;
   }
 
-  const firstAvailable = availableSections()[0]?.id || "overview";
+  const firstAvailable = firstVisibleSection(availableSections())?.id || availableSections()[0]?.id || "overview";
   if (!availableSections().some((section) => section.id === activeSection)) {
     activeSection = firstAvailable;
   }
@@ -706,7 +716,7 @@ async function loadWorkspaceData(statusMessage = "") {
     });
     return;
   }
-  renderAppShell(statusMessage || "Workspace ready.", "success");
+  renderAppShell(statusMessage || readyMessageForCurrentExperience(), "success");
 }
 
 function renderLoading(message) {
@@ -745,12 +755,37 @@ function renderProductHeader(options = {}) {
         </div>
       </div>
       ${contextChips.length ? `
-        <div class="workspace-product-context" aria-label="Workspace role context">
+        <div class="workspace-product-context" aria-label="Page context">
           ${contextChips.map((chip) => `<span class="workspace-posture-chip">${escapeHtml(chip)}</span>`).join("")}
         </div>
       ` : ""}
     </section>
   `;
+}
+
+function isStudentExperience(primaryRole = primaryRoleForUser(currentUser), roles = roleIds(currentUser), viewingAsStudent = isViewAsStudentActive()) {
+  return Boolean(viewingAsStudent || primaryRole === "student" || roles.has("student"));
+}
+
+function workspaceAreaName({ isAdminConsole = false, studentExperience = false } = {}) {
+  if (isAdminConsole) return "Admin Console";
+  if (studentExperience) return "My Capstone";
+  return "Staff Workspace";
+}
+
+function readyMessageForCurrentExperience() {
+  const roles = roleIds(currentUser);
+  if (isStudentExperience(primaryRoleForUser(currentUser), roles, isViewAsStudentActive())) return "My Capstone ready.";
+  if (activeWorkspaceMode === "admin" && adminConsoleCapabilitiesFor(currentUser).canSee) return "Admin Console ready.";
+  return "Staff Workspace ready.";
+}
+
+function shouldRenderWorkflowScreenGuidance(sectionId = activeSection, options = {}) {
+  const section = cleanWorkspaceSection(sectionId) || "overview";
+  if (options.isAdminConsole && section === "overview") return false;
+  if (section === "overview") return false;
+  if (options.studentExperience && STUDENT_NAV_SECTION_IDS.has(section)) return false;
+  return true;
 }
 
 function renderWorkspaceLandingHero() {
@@ -1020,20 +1055,23 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   const primaryRole = primaryRoleForUser(currentUser);
   const roles = roleIds(currentUser);
   const viewingAsStudent = isViewAsStudentActive();
+  const studentExperience = isStudentExperience(primaryRole, roles, viewingAsStudent);
+  const experience = isAdminConsole ? "admin-console" : studentExperience ? "student" : "staff-workspace";
+  const areaName = workspaceAreaName({ isAdminConsole, studentExperience });
   const guidancePrimaryRole = viewingAsStudent ? "student" : primaryRole;
   const guidanceRoles = viewingAsStudent ? new Set(["student"]) : roles;
   const siteContext = currentSiteWorkspaceContext();
   const headerTitle = isAdminConsole
     ? "Admin Console"
-    : primaryRole === "student" || viewingAsStudent ? "Capstone Project Workspace" : "Capstone Workspace";
+    : studentExperience ? "My Capstone" : "Staff Workspace";
   const headerSubtitle = isAdminConsole
     ? adminConsoleSubtitle(consoleCapabilities)
-    : workspaceHeaderSubtitle(primaryRole, siteContext);
+    : studentExperience ? "What do I need to do next?" : workspaceHeaderSubtitle(primaryRole, siteContext);
   const headerContext = isAdminConsole
     ? adminConsoleHeaderContext(consoleCapabilities)
     : workspaceHeaderContext(primaryRole, siteContext);
-  const roleFirstOverview = !isAdminConsole && primaryRole === "program_teacher" && activeSection === "overview";
-  const studentFirstWorkspace = !isAdminConsole && (primaryRole === "student" || viewingAsStudent) && activeSection === "student";
+  const roleFirstOverview = !isAdminConsole && activeSection === "overview";
+  const studentFirstWorkspace = !isAdminConsole && studentExperience && STUDENT_NAV_SECTION_IDS.has(activeSection);
   const activeSectionFirst = roleFirstOverview || studentFirstWorkspace;
   const modeUnavailableNotice = blockedWorkspaceMode === "admin" && !isAdminConsole
     ? renderAdminConsoleUnavailableNotice()
@@ -1042,21 +1080,15 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     ? renderWorkspaceSectionUnavailableNotice(blockedWorkspaceSection)
     : "";
   const renderBlockedSectionOnly = Boolean(sectionUnavailableNotice);
-  const screenGuidance = renderBlockedSectionOnly ? "" : renderScreenGuidance(activeSection, guidancePrimaryRole, guidanceRoles, sections);
+  const screenGuidance = renderBlockedSectionOnly || !shouldRenderWorkflowScreenGuidance(activeSection, { isAdminConsole, studentExperience })
+    ? ""
+    : renderScreenGuidance(activeSection, guidancePrimaryRole, guidanceRoles, sections);
   const activeSectionMarkup = renderBlockedSectionOnly
     ? ""
     : isAdminConsole ? renderAdminConsoleActiveSection() : renderActiveSection();
   const activeSectionBeforeGuidance = activeSectionFirst || isAdminConsole;
-  const roleCommandStripMarkup = renderWorkspaceRoleCommandStrip({
-    primaryRole,
-    roles,
-    isAdminConsole,
-    viewingAsStudent,
-    consoleCapabilities,
-  });
-  const showRoleCommandBeforeSection = !studentFirstWorkspace;
   workspaceMain.innerHTML = `
-    <section class="workspace-app" data-primary-role="${escapeHtml(primaryRole)}" data-app-mode="${escapeHtml(activeWorkspaceMode)}" data-nav-state="${workspaceNavCollapsed ? "collapsed" : "expanded"}" data-view-as-student="${viewingAsStudent ? "active" : "inactive"}">
+    <section class="workspace-app" data-primary-role="${escapeHtml(primaryRole)}" data-app-mode="${escapeHtml(activeWorkspaceMode)}" data-experience="${escapeHtml(experience)}" data-nav-state="${workspaceNavCollapsed ? "collapsed" : "expanded"}" data-view-as-student="${viewingAsStudent ? "active" : "inactive"}">
       <header class="workspace-topbar">
         <div class="workspace-topbar-start">
           <button class="workspace-menu-toggle" id="workspaceMenuToggle" type="button" aria-controls="workspaceNavigationRail" aria-expanded="${workspaceNavCollapsed ? "false" : "true"}" aria-pressed="${workspaceNavCollapsed ? "true" : "false"}" aria-label="${workspaceNavCollapsed ? "Open menu" : "Close menu"}">
@@ -1066,7 +1098,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
           <a class="workspace-brand" href="index.html">
             <span class="workspace-mark">SC</span>
             <span class="workspace-abc-motif" aria-hidden="true"><span></span><span></span><span></span></span>
-            <span>Capstone Project Workspace</span>
+            <span>${escapeHtml(studentExperience ? "My Capstone" : "Capstone App")}</span>
           </a>
         </div>
         <div class="workspace-topbar-center">
@@ -1080,42 +1112,41 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
             <strong>${escapeHtml(currentUser.displayName || "Signed in")}</strong>
             <span>${escapeHtml(currentUser.email || "")}</span>
           </div>
-          <div class="workspace-topbar-actions" aria-label="Workspace account actions">
+          <div class="workspace-topbar-actions" aria-label="${escapeHtml(areaName)} account actions">
             <button class="workspace-button" id="workspaceRefresh" type="button">Refresh</button>
             <button class="workspace-button workspace-button-secondary" id="workspaceLogout" type="button">Sign out</button>
           </div>
         </div>
       </header>
       <div class="workspace-content ${isAdminConsole ? "workspace-admin-console-content" : ""}">
-        <aside class="workspace-rail ${isAdminConsole ? "workspace-admin-console-rail" : ""}" id="workspaceNavigationRail" aria-label="${isAdminConsole ? "Admin Console navigation" : "Workspace navigation"}" ${workspaceNavCollapsed ? 'hidden aria-hidden="true"' : ""}>
+        <aside class="workspace-rail ${isAdminConsole ? "workspace-admin-console-rail" : ""}" id="workspaceNavigationRail" aria-label="${escapeHtml(areaName)} navigation" ${workspaceNavCollapsed ? 'hidden aria-hidden="true"' : ""}>
           <div class="workspace-rail-drawer-header" data-workspace-rail-drawer-header="true">
-            <strong>${escapeHtml(isAdminConsole ? "Admin Console menu" : "Workspace menu")}</strong>
+            <strong>${escapeHtml(`${areaName} menu`)}</strong>
             <button class="workspace-button workspace-button-secondary workspace-button-small workspace-rail-close" id="workspaceRailClose" type="button">Close menu</button>
           </div>
           ${renderWorkspaceRailAccessSummary({ isAdminConsole, primaryRole, consoleCapabilities })}
-          <nav class="workspace-tabs" aria-label="${isAdminConsole ? "Admin Console sections" : "Workspace sections"}">
+          <nav class="workspace-tabs" aria-label="${escapeHtml(`${areaName} sections`)}">
             ${renderWorkspaceNavigation(sections, { isAdminConsole })}
           </nav>
           <section class="workspace-rail-card">
-            <p class="workspace-kicker">${isAdminConsole ? "Mode" : "Next step"}</p>
-            <p>${escapeHtml(isAdminConsole ? adminConsoleRailNote(consoleCapabilities) : nextStepText())}</p>
+            <p class="workspace-kicker">${escapeHtml(isAdminConsole ? "Mode" : studentExperience ? "Today" : "Next step")}</p>
+            <p>${escapeHtml(isAdminConsole ? adminConsoleRailNote(consoleCapabilities) : studentExperience ? "Start with the next capstone action." : nextStepText())}</p>
           </section>
         </aside>
         <div class="workspace-main ${isAdminConsole ? "workspace-admin-console-main" : ""}">
           ${renderViewAsStudentBanner()}
           ${statusMessage ? statusHtml(statusMessage, tone) : ""}
-          ${showRoleCommandBeforeSection ? roleCommandStripMarkup : ""}
-          ${isAdminConsole ? renderAdminConsoleHeader(consoleCapabilities, sections) : primaryRole === "student" || viewingAsStudent ? "" : renderProductHeader({
-            eyebrow: "",
+          ${isAdminConsole ? renderAdminConsoleHeader(consoleCapabilities, sections) : renderProductHeader({
+            eyebrow: studentExperience ? "My Capstone" : "",
             title: headerTitle,
             subtitle: headerSubtitle,
             context: headerContext,
             readOnly: roles.has("viewer"),
+            chips: studentExperience ? ["Today", "My Work", "Feedback", "Final Checklist"] : WORKSPACE_POSTURE_CHIPS,
           })}
           ${modeUnavailableNotice}
           ${sectionUnavailableNotice}
           ${activeSectionBeforeGuidance ? activeSectionMarkup : ""}
-          ${showRoleCommandBeforeSection ? "" : roleCommandStripMarkup}
           ${activeSectionBeforeGuidance ? "" : screenGuidance}
           ${renderReadOnlyBanner()}
           ${activeSectionBeforeGuidance ? screenGuidance : activeSectionMarkup}
@@ -1187,8 +1218,9 @@ function renderWorkspaceModeSwitch(capabilities = adminConsoleCapabilitiesFor(cu
 
 function renderWorkspaceNavigation(sections = [], options = {}) {
   const isAdminConsole = Boolean(options.isAdminConsole);
+  const visibleSections = sections.filter((section) => !section.hidden);
   let lastGroup = "";
-  return sections.map((section) => {
+  return visibleSections.map((section) => {
     const group = workspaceNavGroupFor(section.id, { isAdminConsole });
     const groupLabel = group && group !== lastGroup
       ? `<p class="workspace-tab-group-label" data-workspace-nav-group="${escapeHtml(group)}">${escapeHtml(group)}</p>`
@@ -1207,6 +1239,9 @@ function renderWorkspaceNavigation(sections = [], options = {}) {
 
 function workspaceNavGroupFor(sectionId = "", options = {}) {
   const isAdminConsole = Boolean(options.isAdminConsole);
+  if (STUDENT_NAV_SECTION_IDS.has(sectionId)) return "";
+  if (["overview", "students", "teacher", "staffReports"].includes(sectionId) && !isAdminConsole) return "";
+  if (["adminPeople", "adminStudents", "adminAssignments", "adminImports", "adminReports", "programs", "audit"].includes(sectionId) && isAdminConsole) return "";
   if (sectionId === "overview" || sectionId === "profile" || sectionId === "student") return "Daily Work";
   if (["siteDashboard", "adminDashboard", "programDashboard", "mentorDashboard", "readiness"].includes(sectionId)) {
     return isAdminConsole ? "Operations" : "Dashboards";
@@ -1303,13 +1338,13 @@ function renderWorkspaceRoleCommandStrip(options = {}) {
   const items = [
     {
       id: "identity",
-      label: "Signed in as",
+      label: "Account",
       value: currentUser.displayName || currentUser.email || "Signed in",
       detail: currentUser.email || roleLabel(primaryRole),
     },
     {
       id: "mode",
-      label: "Role and mode",
+      label: "Area",
       value: `${identity.label} / ${modeLabel}`,
       detail: scopeText,
     },
@@ -1323,7 +1358,7 @@ function renderWorkspaceRoleCommandStrip(options = {}) {
     {
       id: "safety",
       label: "Safety",
-      value: readOnly ? "Read-only visible" : "Allowed for your role",
+      value: readOnly ? "Read-only access" : "Allowed actions",
       detail: roleCommandSafetyText(primaryRole, roles, isAdminConsole, viewingAsStudent, consoleCapabilities),
     },
   ];
@@ -1341,7 +1376,7 @@ function renderWorkspaceRoleCommandStrip(options = {}) {
   return `
     <section class="workspace-role-command-strip" data-role-command-strip="true" data-role-command-role="${escapeHtml(identity.key)}" data-role-command-mode="${escapeHtml(mode)}" data-role-command-read-only="${readOnly ? "true" : "false"}" aria-labelledby="roleCommandStripTitle">
       <div class="workspace-role-command-intro">
-        <p class="workspace-kicker">Role context</p>
+        <p class="workspace-kicker">Context</p>
         <h2 id="roleCommandStripTitle">${escapeHtml(identity.label)} ${viewingAsStudent ? "student preview" : isAdminConsole ? "admin console" : "workspace"}</h2>
         <p>${escapeHtml(roleCommandSummary(primaryRole, roles, isAdminConsole, viewingAsStudent, consoleCapabilities))}</p>
       </div>
@@ -1349,7 +1384,7 @@ function renderWorkspaceRoleCommandStrip(options = {}) {
         ${items.map((item) => renderRoleCommandItem(item)).join("")}
       </div>
       ${renderRoleActionTrail(primaryRole, roles, isAdminConsole, viewingAsStudent, consoleCapabilities)}
-      <div class="workspace-role-confidence-row" data-role-confidence-strip="true" aria-label="Demo and access confidence">
+      <div class="workspace-role-confidence-row" data-role-confidence-strip="true" aria-label="Access summary">
         ${confidenceItems.map((item) => renderRoleConfidenceItem(item)).join("")}
       </div>
     </section>
@@ -1372,7 +1407,7 @@ function renderCompactAccessSummary({ identity, mode, readOnly = false, scopeTex
           ${items.map((item) => renderRoleCommandItem(item)).join("")}
         </div>
         ${renderRoleActionTrail(key, roleIds(currentUser), mode === "admin", isViewAsStudentActive(), adminConsoleCapabilitiesFor(currentUser))}
-        <div class="workspace-role-confidence-row" data-role-confidence-strip="true" aria-label="Demo and access confidence">
+        <div class="workspace-role-confidence-row" data-role-confidence-strip="true" aria-label="Access summary">
           ${confidenceItems.map((item) => renderRoleConfidenceItem(item)).join("")}
         </div>
       </div>
@@ -1649,11 +1684,11 @@ function roleCommandConfidenceItems(primaryRole, roles = roleIds(currentUser), i
   return [
     {
       id: "demo",
-      label: "Demo boundary",
-      value: isTrainingAccount(currentUser) ? "Training account proof" : "Demo rehearsal",
+      label: "Account type",
+      value: isTrainingAccount(currentUser) ? "Training account" : "School account",
       detail: isTrainingAccount(currentUser)
-        ? "This signed-in training account supports the demo proof; live student use still needs district policy sign-off."
-        : "Use training accounts and visible role labels for walkthroughs; live student use still needs district policy sign-off.",
+        ? "Use training records for walkthroughs and keep real student data out of practice flows."
+        : "Use this account only for records this school has assigned to you.",
     },
     {
       id: "scope",
@@ -1751,6 +1786,11 @@ function renderAdminConsoleActiveSection() {
   if (!availableSectionIds("admin").has(activeSection)) {
     return renderPermissionDeniedSection("Admin Console", "a console section available to this role");
   }
+  if (activeSection === "adminPeople") return renderAdminUsersSectionForView("manage-staff");
+  if (activeSection === "adminStudents") return renderAdminUsersSectionForView("manage-students");
+  if (activeSection === "adminAssignments") return renderAdminUsersSectionForView("assignments");
+  if (activeSection === "adminImports") return renderAdminUsersSectionForView("import-students");
+  if (activeSection === "adminReports") return renderAdminReportsSection();
   return renderActiveSection();
 }
 
@@ -1834,6 +1874,9 @@ function workspaceSectionTitle(sectionId = "") {
     programs: "Programs",
     students: "Students",
     student: "My Work",
+    studentWork: "My Work",
+    studentFeedback: "Feedback",
+    studentFinalChecklist: "Final Checklist",
     archive: "Final Files",
     mentorDashboard: "Mentor Dashboard",
     mentor: "Mentor students",
@@ -1842,9 +1885,15 @@ function workspaceSectionTitle(sectionId = "") {
     mentorAssignments: "Mentor assignments",
     operations: "Operations readiness",
     presentation: "Presentation schedule",
+    staffReports: "Reports",
     adminDashboard: "Admin command center",
     readiness: "Readiness report",
     adminUsers: "Users & Access",
+    adminPeople: "People",
+    adminStudents: "Students",
+    adminAssignments: "Assignments",
+    adminImports: "Imports",
+    adminReports: "Reports",
     audit: "Audit",
     archiveExports: "Final files",
     security: hasGlobalAdminRole(roleIds(currentUser)) ? "Security" : "Account",
@@ -1853,14 +1902,14 @@ function workspaceSectionTitle(sectionId = "") {
 }
 
 function renderAdminConsoleOverviewSection(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
-  const sections = capabilities.sections.filter((section) => section.id !== "overview");
+  const sections = capabilities.sections.filter((section) => section.id !== "overview" && !section.hidden);
   return `
     <section class="workspace-admin-console-overview" data-admin-console-overview="true" data-admin-console-read-only="${escapeHtml(String(capabilities.readOnly))}">
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Console overview</p>
-          <h2>What this role can manage or monitor</h2>
-          <p class="workspace-muted">${escapeHtml(capabilities.scope.detail)}</p>
+          <h2>Operations Overview</h2>
+          <p class="workspace-muted">What setup, people, assignments, imports, programs, reports, or access issues need attention?</p>
         </div>
         ${capabilities.readOnly ? `<span class="workspace-read-only-chip">Read-only</span>` : `<span class="workspace-site-context-badge">${escapeHtml(capabilities.scope.label)}</span>`}
       </div>
@@ -1876,7 +1925,7 @@ function renderAdminConsoleOverviewSection(capabilities = adminConsoleCapabiliti
         <div class="workspace-card-head">
           <div>
             <p class="workspace-kicker">Visible sections</p>
-            <h3 id="adminConsoleMatrixTitle">Role-based console access</h3>
+            <h3 id="adminConsoleMatrixTitle">Operations sections</h3>
           </div>
           <span class="workspace-summary-badge">${escapeHtml(String(sections.length))} sections</span>
         </div>
@@ -1905,30 +1954,24 @@ function renderAdminConsoleSafetyStrip(capabilities = adminConsoleCapabilitiesFo
     {
       id: "scope",
       step: "1",
-      title: capabilities.scope.label,
-      detail: capabilities.scope.detail || "Only records in this role's allowed scope are visible.",
+      title: "Scope selected",
+      detail: capabilities.scope.detail || "Only records allowed for this account are visible.",
     },
     {
       id: "actions",
       step: "2",
-      title: capabilities.readOnly ? "Monitoring only" : "Allowed changes only",
+      title: capabilities.readOnly ? "Read-only access" : "Needs setup",
       detail: capabilities.readOnly
-        ? "Viewer and read-only console access hide edit, decision, assignment, import, and setup controls."
-        : "Add Staff, Add Student, CSV Import, assignments, review decisions, and program changes appear only when this role can use them.",
+        ? "You can view this student but cannot make changes."
+        : "Use People, Students, Assignments, Programs, and Imports for setup work.",
     },
     {
       id: "elevated",
       step: "3",
-      title: hasGlobalAdminRole(roleIds(currentUser)) ? "Global admin separated" : "Elevated tools separated",
+      title: "Access review",
       detail: hasGlobalAdminRole(roleIds(currentUser))
-        ? "Global Admin stays tied to local admin accounts; audit and security tools remain in protected console sections."
-        : "Security, audit, global access, and cross-site actions stay hidden unless the signed-in role explicitly allows them.",
-    },
-    {
-      id: "demo",
-      step: "4",
-      title: "Demo proof guard",
-      detail: "Use .test training accounts for walkthroughs; live student use still needs district policy sign-off.",
+        ? "Audit and account controls stay separate from student work."
+        : "Unavailable tools stay hidden unless this account has the right school or program scope.",
     },
   ];
   return `
@@ -1980,10 +2023,10 @@ function renderAdminConsoleOperatingOrder(capabilities = adminConsoleCapabilitie
     {
       id: "safety",
       step: "4",
-      title: "Audit and safety",
+      title: "Access review",
       detail: capabilities.sectionIds.has("audit")
-        ? "Use the audit log for protected activity questions; keep secrets and raw storage values out of the walkthrough."
-        : "Safety language stays visible even when audit tools are not available to this role.",
+        ? "Use Audit for access, role, assignment, and recent-change questions."
+        : "Review setup issues and scope before opening a management form.",
       section: capabilities.sectionIds.has("audit") ? "audit" : "overview",
       action: capabilities.sectionIds.has("audit") ? "Open audit" : "Review scope",
       tone: "quiet",
@@ -1996,7 +2039,7 @@ function renderAdminConsoleOperatingOrder(capabilities = adminConsoleCapabilitie
         <div>
           <p class="workspace-kicker">Operating order</p>
           <h3>What to do first</h3>
-          <p>Use this path before opening forms, imports, assignments, or elevated tools.</p>
+          <p>Start with setup issues, then open the exact management screen.</p>
         </div>
         <span class="workspace-summary-badge">${escapeHtml(capabilities.readOnly ? "Monitor only" : "Scoped changes")}</span>
       </div>
@@ -2037,10 +2080,10 @@ function renderAdminConsoleActionCards(capabilities = adminConsoleCapabilitiesFo
   if (sectionIds.has("teacher")) {
     cards.push({
       tone: "review",
-      title: "Review / Evidence",
+      title: "Reviews",
       detail: capabilities.actions.review.writable
-        ? "Review submitted work, check proof, and record Program Teacher decisions."
-        : "Monitor submitted work and evidence status without decision controls.",
+        ? "Review submitted work and record Program Teacher decisions."
+        : "Monitor submitted work without decision controls.",
       section: "teacher",
       preset: "submitted",
       action: "Open review",
@@ -2050,11 +2093,19 @@ function renderAdminConsoleActionCards(capabilities = adminConsoleCapabilitiesFo
   if (sectionIds.has("adminUsers")) {
     cards.push({
       tone: "access",
-      title: "People & Access",
-      detail: "Create users, preview CSV rows, and manage mentor/viewer assignments only for the current school or program assignment.",
-      section: "adminUsers",
-      action: "Open access",
+      title: "People",
+      detail: "Add staff, check active accounts, and keep access changes scoped to the current school or program.",
+      section: "adminPeople",
+      action: "Open People",
       badge: capabilities.actions.peopleAccess.writable ? "Writable" : "Read-only",
+    });
+    cards.push({
+      tone: "access",
+      title: "Imports",
+      detail: "Download CSV templates, preview rows, and fix validation errors before saving.",
+      section: "adminImports",
+      action: "Open Imports",
+      badge: capabilities.actions.peopleAccess.writable ? "Templates" : "Read-only",
     });
   }
   if (sectionIds.has("programs")) {
@@ -2081,14 +2132,14 @@ function renderAdminConsoleActionCards(capabilities = adminConsoleCapabilitiesFo
     cards.push({
       tone: "files",
       title: "Final Files",
-      detail: "Check closeout packages and export status without changing the real-student pilot gate.",
+      detail: "Check closeout packages and export status.",
       section: "archiveExports",
       action: "Open final files",
       badge: capabilities.scope.label,
     });
   }
   if (!cards.length) {
-    return `<div class="workspace-empty">No console actions are available for this role yet.</div>`;
+    return `<div class="workspace-empty">No setup actions are available for this role.</div>`;
   }
   return cards.map((card) => renderAdminConsoleActionCard(card)).join("");
 }
@@ -4240,54 +4291,68 @@ function availableSections(options = {}) {
 
 function availableWorkspaceSections(user = currentUser) {
   const roles = roleIds(user);
-  const sections = [
-    { id: "overview", label: "Overview", detail: "Daily priorities and access" },
-    { id: "profile", label: "Profile", detail: "Plain-language role guide" },
-  ];
-  const studentDirectorySection = { id: "students", label: "Students", detail: "Search and filter capstone progress" };
-  const add = (id, label, detail) => {
-    if (!sections.some((section) => section.id === id)) sections.push({ id, label, detail });
+  const sections = [];
+  const add = (id, label, detail, options = {}) => {
+    if (!sections.some((section) => section.id === id)) sections.push({ id, label, detail, ...options });
   };
 
-  if (isViewAsStudentActive()) {
-    add("student", "Student Preview", "Read-only student workspace preview");
-  }
-  if (roles.has("student")) {
-    add("student", "My Work", "Next step, phase goals, proof, and feedback");
-    add("presentation", "Presentation", "Schedule, outline, and day-of status");
-    add("archive", "Final Files", "May 5 downloads");
-  }
-  if (roles.has("mentor")) {
-    add("mentorDashboard", "Mentor Dashboard", "Assigned student risks");
-    add("mentor", "Assigned Students", "Assigned students and proof counts");
-    add("presentation", "Presentation", "Schedule, outline, and day-of status");
-  }
-  if (roles.has("viewer")) {
-    add(studentDirectorySection.id, studentDirectorySection.label, studentDirectorySection.detail);
-  }
-  if (roles.has("program_teacher")) {
-    add("programDashboard", "Program Dashboard", "Your students and review needs");
-    add(studentDirectorySection.id, studentDirectorySection.label, studentDirectorySection.detail);
-    add("teacher", "Review Queue", "Program Teacher review and submitted work");
-    add("operations", "Operations", "Presentation, mentor, and final-file blockers");
-    add("presentation", "Presentation", "Schedule, outline, and day-of status");
-  }
-  if (roles.has("administration")) {
-    add("siteDashboard", "Site Dashboard", "School-wide capstone health");
-    add(studentDirectorySection.id, studentDirectorySection.label, studentDirectorySection.detail);
-    add("operations", "Operations", "Presentation, final files, and readiness");
-  }
-  if (hasGlobalAdminRole(roles) || roles.has("site_admin") || roles.has("administration")) {
-    add("presentation", "Presentation", "Schedule, outline, and day-of status");
-    add("readiness", "Readiness", "Aggregate project readiness");
-  }
-  if (roles.has("misc_admin")) {
-    add("readiness", "Readiness", "Aggregate project readiness");
+  add("profile", "Profile", "Plain-language role guide", { hidden: true });
+
+  if (isViewAsStudentActive() || roles.has("student")) {
+    add("student", "Today", "What to finish next");
+    add("studentWork", "My Work", "Current requirements and proof");
+    add("studentFeedback", "Feedback", "Reviews and revision notes");
+    add("studentFinalChecklist", "Final Checklist", "Presentation and final files");
+    add("presentation", "Presentation", "Schedule, outline, and day-of status", { hidden: true });
+    add("archive", "Final Files", "May 5 downloads", { hidden: true });
+    add("security", "Account", "Password and sessions", { hidden: true });
+    return sections;
   }
 
-  sections.push(hasGlobalAdminRole(roles)
-    ? { id: "security", label: "Security", detail: "Password and session controls" }
-    : { id: "security", label: "Account", detail: "Password and sessions" });
+  add("overview", "Today", "Students needing attention");
+
+  if (roles.has("mentor")) {
+    add("mentor", "Students", "Assigned student rows");
+    add("mentorDashboard", "Mentor Dashboard", "Assigned student risks", { hidden: true });
+    add("presentation", "Presentation", "Schedule, outline, and day-of status", { hidden: true });
+  }
+  if (roles.has("viewer")) {
+    add("students", "Students", "Assigned read-only student records");
+  }
+  if (roles.has("program_teacher")) {
+    add("students", "Students", "Program-scoped student rows");
+    add("teacher", "Reviews", "Submitted work waiting for feedback");
+    add("programDashboard", "Program Dashboard", "Your students and review needs", { hidden: true });
+    add("operations", "Operations", "Presentation, mentor, and final-file blockers", { hidden: true });
+    add("presentation", "Presentation", "Schedule, outline, and day-of status", { hidden: true });
+  }
+  if (roles.has("administration")) {
+    add("students", "Students", "School student rows");
+    add("siteDashboard", "Site Dashboard", "School-wide capstone health", { hidden: true });
+    add("operations", "Operations", "Presentation, final files, and readiness", { hidden: true });
+    add("mentorAssignments", "Mentor Assignments", "Coverage and assignment workflow", { hidden: true });
+  }
+  if (roles.has("site_admin") || hasGlobalAdminRole(roles)) {
+    add("students", "Students", "Site student rows");
+    add("teacher", "Reviews", "Submitted work and follow-up");
+    add("siteDashboard", "Site Dashboard", "Site-wide capstone health", { hidden: true });
+    add("operations", "Operations", "Presentation, final files, and readiness", { hidden: true });
+    add("mentorAssignments", "Mentor Assignments", "Coverage and assignment workflow", { hidden: true });
+    add("presentation", "Presentation", "Schedule, outline, and day-of status", { hidden: true });
+    add("readiness", "Readiness", "Aggregate project readiness", { hidden: true });
+  } else if (roles.has("administration")) {
+    add("presentation", "Presentation", "Schedule, outline, and day-of status", { hidden: true });
+    add("readiness", "Readiness", "Aggregate project readiness", { hidden: true });
+  }
+  if (roles.has("misc_admin")) {
+    add("readiness", "Readiness", "Aggregate project readiness", { hidden: true });
+  }
+  if (hasGlobalAdminRole(roles)) {
+    add("adminDashboard", "Global Overview", "All schools overview", { hidden: true });
+  }
+  if (hasStaffReportsSection(roles)) add("staffReports", "Reports", "Progress and setup summary");
+
+  add("security", hasGlobalAdminRole(roles) ? "Security" : "Account", "Password and sessions", { hidden: true });
   return sections;
 }
 
@@ -4301,6 +4366,10 @@ function renderActiveSection() {
   if (activeSection === "siteDashboard") return renderSiteDashboardSection();
   if (activeSection === "programs") return renderSiteProgramsSection();
   if (activeSection === "students") return renderSiteStudentDirectorySection();
+  if (activeSection === "studentWork") return renderStudentSection({ view: "work" });
+  if (activeSection === "studentFeedback") return renderStudentSection({ view: "feedback" });
+  if (activeSection === "studentFinalChecklist") return renderStudentSection({ view: "final-checklist" });
+  if (activeSection === "staffReports") return renderStaffReportsSection();
   if (activeSection === "adminDashboard") return renderAdminOverviewSection();
   if (activeSection === "student") return renderStudentSection();
   if (activeSection === "programDashboard") return renderProgramTeacherDashboardSection();
@@ -4320,16 +4389,14 @@ function renderActiveSection() {
 
 function renderOverviewSection() {
   const primaryRole = primaryRoleForUser(currentUser);
-  const profile = renderRoleProfileSection({ compact: true });
-  if (["platform_admin", "global_admin", "admin", "site_admin"].includes(primaryRole)) return `${profile}${renderWorkspaceAdminConsoleHandoff()}`;
-  if (primaryRole === "administration") return `${profile}${renderSiteDashboardSection()}`;
-  if (primaryRole === "viewer") return `${profile}${renderViewerOverviewSection()}`;
-  if (primaryRole === "program_teacher") return `${profile}${renderProgramTeacherDashboardSection()}`;
-  if (primaryRole === "mentor") return `${profile}${renderMentorDashboardSection()}`;
-  if (primaryRole === "student") return `${profile}${renderStudentSection()}`;
-  if (primaryRole === "misc_admin") return `${profile}${renderReadinessSection()}`;
+  if (["platform_admin", "global_admin", "admin", "site_admin"].includes(primaryRole)) return renderStaffWorkspaceTodaySection();
+  if (primaryRole === "administration") return renderStaffWorkspaceTodaySection();
+  if (primaryRole === "viewer") return renderViewerOverviewSection();
+  if (primaryRole === "program_teacher") return renderProgramTeacherDashboardSection();
+  if (primaryRole === "mentor") return renderMentorDashboardSection();
+  if (primaryRole === "student") return renderStudentSection();
+  if (primaryRole === "misc_admin") return renderStaffReportsSection();
   return `
-    ${profile}
     <section class="workspace-card workspace-hero-card">
       <p class="workspace-kicker">Signed in</p>
       <h1>${escapeHtml(greetingForUser())}</h1>
@@ -4367,6 +4434,98 @@ function renderOverviewSection() {
   `;
 }
 
+function renderStaffWorkspaceTodaySection() {
+  const roles = roleIds(currentUser);
+  const todayTitle = hasGlobalAdminRole(roles) ? "Platform Today" : roles.has("site_admin") ? "Site Today" : "School Today";
+  return `
+    <section class="workspace-workflow-landing" data-staff-workspace-today="true" aria-labelledby="staffWorkspaceTodayTitle">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Staff Workspace</p>
+          <h2 id="staffWorkspaceTodayTitle">${escapeHtml(todayTitle)}</h2>
+          <p class="workspace-muted">Which students need attention today?</p>
+        </div>
+        ${adminConsoleCapabilitiesFor(currentUser).canSee ? `<button class="workspace-button workspace-button-primary" type="button" data-workspace-mode-target="admin">Open Admin Console</button>` : ""}
+      </div>
+      <div class="workspace-admin-console-metrics" data-staff-workspace-summary="true">
+        ${renderMetricTile("Students", adminConsoleStudentCount(), "Visible in this scope", "student", hasSiteStudentDirectoryRole(roles) ? "students" : "", { label: "Open Students", preset: "all-students" })}
+        ${renderMetricTile("Needs Review", adminConsoleReviewCount(), "Waiting on feedback", safeNumber(adminConsoleReviewCount()) ? "warning" : "teacher", hasSiteReviewQueueRole(roles) ? "teacher" : "", { label: "Open Reviews", preset: "submitted" })}
+        ${renderMetricTile("Needs Setup", adminConsoleOperationsCount(), "Setup or readiness signals", safeNumber(adminConsoleOperationsCount()) ? "warning" : "mentor", hasSiteOperationsRole(roles) ? "operations" : "", { label: "Open Worklist", preset: "needs-attention" })}
+        ${renderMetricTile("Reports", safeNumber(unwrap(currentData.readiness)?.summary?.studentsTotal || 0), "School-friendly summary", "admin", hasStaffReportsSection(roles) ? "staffReports" : "", { label: "Open Reports" })}
+      </div>
+      <div class="workspace-attention-queue" data-staff-attention-queue="true" aria-label="Staff attention queue">
+        ${renderStaffAttentionRow("Needs Review", adminConsoleReviewCount(), "Open submitted work before browsing lower-priority summaries.", hasSiteReviewQueueRole(roles) ? "teacher" : "", "submitted")}
+        ${renderStaffAttentionRow("Missing Setup", adminConsoleOperationsCount(), "Check mentor, presentation, or final-file blockers using existing worklists.", hasSiteOperationsRole(roles) ? "operations" : "", "needs-attention")}
+        ${renderStaffAttentionRow("Student Rows", adminConsoleStudentCount(), "Open a student record from the scoped directory.", hasSiteStudentDirectoryRole(roles) ? "students" : "", "all-students")}
+      </div>
+    </section>
+    ${renderSiteDashboardSection()}
+    ${renderWorkspaceAdminConsoleHandoff()}
+  `;
+}
+
+function renderStaffAttentionRow(title, count, detail, section = "", preset = "") {
+  const safeCount = safeNumber(count);
+  const available = section && availableSectionIdsForAnyMode().has(section);
+  return `
+    <article class="workspace-table-row" data-attention-queue-row="${escapeHtml(title.toLowerCase().replace(/[^a-z0-9]+/g, "-"))}">
+      <div>
+        <strong>${escapeHtml(title)}</strong>
+        <span>${escapeHtml(detail)}</span>
+      </div>
+      <div class="workspace-row-actions">
+        <span class="workspace-summary-badge">${escapeHtml(String(safeCount))}</span>
+        ${statusPill(safeCount ? "warning" : "complete")}
+        ${available ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(section)}"${preset ? ` data-section-preset="${escapeHtml(preset)}"` : ""}>Open</button>` : `<span class="workspace-summary-badge">No route</span>`}
+      </div>
+    </article>
+  `;
+}
+
+function renderStaffReportsSection() {
+  const roles = roleIds(currentUser);
+  return `
+    <section class="workspace-command-center workspace-staff-reports" data-staff-reports="true" aria-labelledby="staffReportsTitle">
+      <div class="workspace-command-hero">
+        <div>
+          <p class="workspace-kicker">Reports</p>
+          <h1 id="staffReportsTitle">Student Progress Reports</h1>
+          <p>Use simple counts to spot review, setup, and readiness work inside this account's allowed scope.</p>
+        </div>
+      </div>
+      <div class="workspace-admin-console-metrics" data-staff-report-metrics="true">
+        ${renderMetricTile("Visible Students", adminConsoleStudentCount(), "Rows available to this role", "student", hasSiteStudentDirectoryRole(roles) ? "students" : "", { label: "Open Students" })}
+        ${renderMetricTile("Needs Review", adminConsoleReviewCount(), "Submitted or review-related rows", safeNumber(adminConsoleReviewCount()) ? "warning" : "teacher", hasSiteReviewQueueRole(roles) ? "teacher" : "", { label: "Open Reviews", preset: "submitted" })}
+        ${renderMetricTile("Setup Signals", adminConsoleOperationsCount(), "Presentation, mentor, or final-file blockers", safeNumber(adminConsoleOperationsCount()) ? "warning" : "mentor", hasSiteOperationsRole(roles) ? "operations" : "", { label: "Open Worklist", preset: "needs-attention" })}
+      </div>
+      ${availableSectionIdsForAnyMode().has("readiness") ? renderReadinessSection() : ""}
+    </section>
+  `;
+}
+
+function renderAdminUsersSectionForView(view = "manage-students") {
+  adminPeopleView = cleanAdminPeopleView(view) || "manage-students";
+  return renderAdminUsersSection();
+}
+
+function renderAdminReportsSection() {
+  return `
+    <section class="workspace-admin-reports" data-admin-reports="true" aria-labelledby="adminReportsTitle">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Admin Console</p>
+          <h2 id="adminReportsTitle">Operational Reports</h2>
+          <p class="workspace-muted">Roster, review, setup, and readiness counts for the current scope.</p>
+        </div>
+      </div>
+      <div class="workspace-admin-console-metrics">
+        ${renderAdminConsoleMetrics(adminConsoleCapabilitiesFor(currentUser))}
+      </div>
+      ${availableSectionIdsForAnyMode().has("readiness") ? renderReadinessSection() : ""}
+    </section>
+  `;
+}
+
 function renderViewerOverviewSection() {
   const siteStudents = unwrap(currentData.siteStudents) || {};
   const summary = siteStudents.summary || {};
@@ -4385,9 +4544,9 @@ function renderWorkspaceAdminConsoleHandoff() {
     <section class="workspace-card workspace-console-handoff" data-workspace-admin-console-handoff="true" aria-labelledby="workspaceConsoleHandoffTitle">
       <div class="workspace-card-head">
         <div>
-          <p class="workspace-kicker">Workspace</p>
-          <h2 id="workspaceConsoleHandoffTitle">Daily workspace is clear. Management lives in Admin Console.</h2>
-          <p class="workspace-muted">Use Workspace for your account, role profile, and immediate work. Use Admin Console for student monitoring, review, access, programs, operations, and security sections allowed by this role.</p>
+          <p class="workspace-kicker">Admin Console</p>
+          <h2 id="workspaceConsoleHandoffTitle">Need setup or access work?</h2>
+          <p class="workspace-muted">Open Admin Console for People, Students, Assignments, Programs, Imports, Reports, and Audit sections available to this account.</p>
         </div>
         <span class="workspace-site-context-badge">${escapeHtml(capabilities.scope.label)}</span>
       </div>
@@ -4395,8 +4554,8 @@ function renderWorkspaceAdminConsoleHandoff() {
         <button class="workspace-button workspace-button-primary" type="button" data-workspace-mode-target="admin">
           ${escapeHtml(primaryAction)}
         </button>
-        <button class="workspace-button workspace-button-secondary" type="button" data-section="profile">
-          Review role profile
+        <button class="workspace-button workspace-button-secondary" type="button" data-section="students">
+          Open Students
         </button>
       </div>
       <div class="workspace-admin-console-matrix" data-workspace-admin-console-preview="true">
@@ -19804,7 +19963,7 @@ function renderViewAsStudentBanner() {
     <section class="workspace-view-as-banner" data-view-as-student-banner="true" data-view-as-student-mode="safe-preview" aria-label="View as student mode">
       <div class="workspace-view-as-banner-copy">
         <span>Viewing as: ${escapeHtml(viewAsStudentDisplayName())}</span>
-        <small data-view-as-student-staff-context="true">Signed in as ${escapeHtml(staffName)} (${escapeHtml(staffRole)}). Staff identity and permissions remain active behind this preview.</small>
+        <small data-view-as-student-staff-context="true">Staff account: ${escapeHtml(staffName)} (${escapeHtml(staffRole)}). Staff identity and permissions remain active behind this preview.</small>
         <div class="workspace-view-as-banner-chips" aria-label="Preview safeguards">
           <span class="workspace-view-as-chip">Read-only preview</span>
           <span class="workspace-view-as-chip">Authorized student only</span>
@@ -21290,7 +21449,7 @@ const ROLE_PROFILE_ALIASES = {
 
 const ROLE_WORKING_PROFILES = {
   student: {
-    title: "Student working profile",
+    title: "Student guide",
     job: "Finish your Senior Project one step at a time. Use this app to see the current phase goal, what to turn in, feedback to fix, presentation details, and final files to save.",
     quickStart: [
       {
@@ -21352,7 +21511,7 @@ const ROLE_WORKING_PROFILES = {
     ],
   },
   mentor: {
-    title: "Mentor working profile",
+    title: "Mentor guide",
     job: "Support the students assigned to you by checking their progress, meeting status, evidence, feedback needs, and presentation readiness.",
     quickStart: [
       {
@@ -21405,7 +21564,7 @@ const ROLE_WORKING_PROFILES = {
     ],
   },
   viewer: {
-    title: "Viewer working profile",
+    title: "Viewer guide",
     job: "Read assigned student records for context without changing student work, reviews, assignments, accounts, or school operations.",
     quickStart: [
       {
@@ -21511,7 +21670,7 @@ const ROLE_WORKING_PROFILES = {
     ],
   },
   administration: {
-    title: "School Admin working profile",
+    title: "School Admin guide",
     job: "Support one or more assigned schools by managing student, mentor, viewer, and Program Teacher access while watching student status, readiness, presentation needs, and closeout blockers.",
     quickStart: [
       {
@@ -21567,7 +21726,7 @@ const ROLE_WORKING_PROFILES = {
     ],
   },
   site_admin: {
-    title: "Site Admin working profile",
+    title: "Site Admin guide",
     job: "Run the assigned school's capstone setup and operations: students, programs, mentor coverage, site access, readiness, presentations, and closeout follow-up.",
     quickStart: [
       {
@@ -21622,7 +21781,7 @@ const ROLE_WORKING_PROFILES = {
     ],
   },
   global_admin: {
-    title: "Global Admin working profile",
+    title: "Global Admin guide",
     job: "Operate the full platform: all schools, users, site access, audit visibility, final-file export follow-up, readiness, and high-level workflow health.",
     quickStart: [
       {
@@ -21677,7 +21836,7 @@ const ROLE_WORKING_PROFILES = {
     ],
   },
   misc_admin: {
-    title: "Legacy Reporting Admin working profile",
+    title: "Reporting Admin guide",
     job: "Review aggregate readiness reporting without opening individual student records or changing operational data.",
     quickStart: [
       {
@@ -21747,7 +21906,7 @@ function renderRoleProfileSection(options = {}) {
     <section class="workspace-role-profile" data-role-profile="${escapeHtml(primaryRole)}" data-role-profile-key="${escapeHtml(profileKey)}" aria-labelledby="${escapeHtml(titleId)}">
       <div class="workspace-card-head">
         <div>
-          <p class="workspace-kicker">${compact ? "Working profile" : "Role profile"}</p>
+          <p class="workspace-kicker">${compact ? "Help" : "Role guide"}</p>
           <h2 id="${escapeHtml(titleId)}">${escapeHtml(profile.title)}</h2>
           <p class="workspace-muted">${escapeHtml(profile.job)}</p>
         </div>
@@ -21888,20 +22047,25 @@ function hasSiteOperationsRole(roles) {
   return ["platform_admin", "global_admin", "admin", "site_admin", "administration", "program_teacher"].some((role) => roles.has(role));
 }
 
+function hasStaffReportsSection(roles) {
+  return hasSiteStudentDirectoryRole(roles)
+    || hasSiteReviewQueueRole(roles)
+    || hasSiteOperationsRole(roles)
+    || roles.has("mentor")
+    || roles.has("misc_admin");
+}
+
 function adminConsoleCapabilitiesFor(user = currentUser) {
   const roles = roleIds(user);
   const globalAdmin = hasGlobalAdminRole(roles);
   const writableStaff = globalAdmin
     || roles.has("site_admin")
     || roles.has("administration")
-    || roles.has("program_teacher")
-    || roles.has("mentor");
+    || roles.has("program_teacher");
   const canSee = globalAdmin
     || roles.has("site_admin")
     || roles.has("administration")
-    || roles.has("program_teacher")
-    || roles.has("mentor")
-    || roles.has("viewer");
+    || roles.has("program_teacher");
   const readOnly = roles.has("viewer") && !writableStaff;
   const scope = adminConsoleScopeForRoles(roles);
   const sections = canSee ? adminConsoleSectionsForRoles(roles) : [];
@@ -21960,60 +22124,49 @@ function adminConsoleScopeForRoles(roles) {
 
 function adminConsoleSectionsForRoles(roles) {
   const sections = [];
-  const add = (id, label, detail) => {
-    if (!sections.some((section) => section.id === id)) sections.push({ id, label, detail });
+  const add = (id, label, detail, options = {}) => {
+    if (!sections.some((section) => section.id === id)) sections.push({ id, label, detail, ...options });
   };
-  add("overview", "Overview", "Console scope, counts, and next admin actions");
+  add("overview", "Overview", "Setup issues and quick actions");
 
-  if (roles.has("viewer")) {
-    add("students", "Students", "Read-only assigned student monitoring");
+  if (canUseUsersAccess(roles)) {
+    add("adminPeople", "People", "Staff and account setup");
+    add("adminStudents", "Students", "Student roster setup");
+    add("adminAssignments", "Assignments", "Mentor, viewer, and program coverage");
   }
-  if (roles.has("mentor")) {
-    add("mentorDashboard", "Student Monitor", "Assigned-student risks and support needs");
-    add("mentor", "Assigned Students", "Mentor student cards and proof counts");
+  if (canUseSitePrograms(roles)) {
+    add("programs", "Programs", "Site program management");
   }
-  if (roles.has("program_teacher")) {
-    add("programDashboard", "Program Progress", "Assigned program students and blockers");
-    add("students", "Students", "Program-scoped student directory");
-    add("teacher", "Review / Evidence", "Submitted work, proof, and review decisions");
-    add("mentorAssignments", "Mentors", "Read-only mentor coverage");
-    add("operations", "Operations", "Presentation, mentor, and final-file blockers");
-    if (canUseUsersAccess(roles)) add("adminUsers", "People & Access", "Scoped roster and access corrections");
+  if (canUseUsersAccess(roles)) {
+    add("adminImports", "Imports", "CSV templates and preview");
+    add("adminUsers", "People & Access", "Legacy people and access renderer", { hidden: true });
   }
-  if (roles.has("administration")) {
-    add("siteDashboard", "School Overview", "School-wide student health");
-    add("students", "Students", "Allowed school student oversight");
-    add("mentorAssignments", "Mentors", "Coverage and assignment workflow");
-    add("operations", "Operations", "Presentation, final-file, and readiness blockers");
-    if (canUseUsersAccess(roles)) add("adminUsers", "People & Access", "Scoped users and access");
-    add("presentation", "Presentation", "Schedule and day-of status");
-    add("readiness", "Readiness", "Aggregate school readiness");
+
+  if (hasSiteStudentDirectoryRole(roles)) {
+    add("students", "Students", "Legacy scoped student directory", { hidden: true });
   }
-  if (roles.has("site_admin")) {
-    add("siteDashboard", "Site Overview", "Site-wide student and program health");
-    add("students", "Students", "Site-scoped student directory");
-    add("teacher", "Review / Evidence", "Submitted work and proof status");
-    add("mentorAssignments", "Mentors", "Mentor coverage and assignments");
-    add("operations", "Operations", "Presentation, final-file, and readiness blockers");
-    add("adminUsers", "People & Access", "Staff, viewer, mentor, teacher, and admin access");
-    add("programs", "Programs", "Site programs add, remove, and restore");
-    add("presentation", "Presentation", "Schedule and day-of status");
-    add("readiness", "Readiness", "Aggregate site readiness");
+  if (hasSiteReviewQueueRole(roles)) {
+    add("teacher", "Review / Evidence", "Legacy submitted work renderer", { hidden: true });
+  }
+  if (hasSiteMentorAssignmentRole(roles)) {
+    add("mentorAssignments", "Mentor Assignments", "Legacy mentor coverage renderer", { hidden: true });
+  }
+  if (hasSiteOperationsRole(roles)) {
+    add("operations", "Operations", "Legacy readiness worklist", { hidden: true });
+  }
+  if (roles.has("administration") || roles.has("site_admin") || hasGlobalAdminRole(roles)) {
+    add("presentation", "Presentation", "Legacy schedule renderer", { hidden: true });
+    add("readiness", "Readiness", "Legacy readiness renderer", { hidden: true });
+    add("adminReports", "Reports", "Roster and operational health");
   }
   if (hasGlobalAdminRole(roles)) {
-    add("adminDashboard", "Global Overview", "All schools overview");
-    add("siteDashboard", "Site Overview", "Current-site health");
-    add("students", "Students", "Cross-site student directory when allowed");
-    add("teacher", "Review / Evidence", "Submitted work and proof status");
-    add("mentorAssignments", "Mentors", "Mentor coverage and assignments");
-    add("operations", "Operations", "Platform readiness blockers");
-    add("adminUsers", "People & Access", "Global and site access management");
-    add("programs", "Programs", "Site program management");
-    add("presentation", "Presentation", "Schedule and day-of status");
-    add("readiness", "Readiness", "Aggregate readiness");
-    add("audit", "Audit", "Protected-record activity");
-    add("archiveExports", "Final Files", "Closeout package status");
-    add("security", "Settings / Security", "Local admin account and session controls");
+    add("adminDashboard", "Global Overview", "Legacy all-schools overview", { hidden: true });
+    add("siteDashboard", "Site Overview", "Legacy current-site health", { hidden: true });
+    add("archiveExports", "Final Files", "Legacy closeout package status", { hidden: true });
+    add("audit", "Audit", "Access review and recent changes");
+    add("security", "Settings / Security", "Local admin account and session controls", { hidden: true });
+  } else if (roles.has("site_admin") || roles.has("administration")) {
+    add("siteDashboard", "Site Overview", "Legacy site or school health", { hidden: true });
   }
 
   return sections;
@@ -23024,6 +23177,10 @@ function availableSectionIds(mode = activeWorkspaceMode) {
   return new Set(availableSections({ mode }).map((section) => section.id));
 }
 
+function firstVisibleSection(sections = []) {
+  return sections.find((section) => !section.hidden) || sections[0] || null;
+}
+
 function availableSectionIdsForAnyMode() {
   return new Set([
     ...availableSectionIds("workspace"),
@@ -23042,8 +23199,12 @@ function modeForAvailableSection(section) {
 
 function defaultSectionForMode(mode = activeWorkspaceMode) {
   const sectionIds = availableSectionIds(mode);
-  if (sectionIds.has(workspaceModeLastSections[mode])) return workspaceModeLastSections[mode];
-  return availableSections({ mode })[0]?.id || "overview";
+  if (sectionIds.has(workspaceModeLastSections[mode])) {
+    const remembered = availableSections({ mode }).find((section) => section.id === workspaceModeLastSections[mode]);
+    if (remembered && !remembered.hidden) return remembered.id;
+  }
+  const sections = availableSections({ mode });
+  return firstVisibleSection(sections)?.id || "overview";
 }
 
 function rememberCurrentModeSection() {
@@ -23235,7 +23396,7 @@ function assignmentScopeLabel(role) {
   const siteName = siteNameForAssignment(role);
   const tenantName = tenantNameForWorkspace();
 
-  if (roleId === "student") return "Your project workspace";
+  if (roleId === "student") return "Your project";
   if (roleId === "mentor") return "Assigned students";
   if (roleId === "viewer") return "Assigned students";
   if (roleId === "misc_admin") return "Legacy readiness reporting";

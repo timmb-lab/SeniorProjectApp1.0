@@ -32,6 +32,9 @@ const expectedSections = [
   "programs",
   "students",
   "student",
+  "studentWork",
+  "studentFeedback",
+  "studentFinalChecklist",
   "archive",
   "mentorDashboard",
   "mentor",
@@ -40,9 +43,15 @@ const expectedSections = [
   "mentorAssignments",
   "operations",
   "presentation",
+  "staffReports",
   "adminDashboard",
   "readiness",
   "adminUsers",
+  "adminPeople",
+  "adminStudents",
+  "adminAssignments",
+  "adminImports",
+  "adminReports",
   "audit",
   "archiveExports",
   "security",
@@ -115,14 +124,15 @@ assertMatches("workspaceJs", /renderScreenVisibilityGuide\(sectionId, primaryRol
 assertMatches("workspaceJs", /function renderScreenDoneGuide\(sectionId = activeSection[\s\S]*data-screen-done-guide="\$\{escapeHtml\(activeId\)\}"[\s\S]*data-done-signal="\$\{escapeHtml\(key\)\}"/, "Screen done guide must render stable completion-signal markers");
 assertMatches("workspaceJs", /function screenDoneSignalsFor\(sectionId = "overview"[\s\S]*The current phase item shows the new proof count, waiting review state, revision message, or approval status[\s\S]*The selected review item shows the saved Program Teacher decision or follow-up message[\s\S]*Filters point to the action, person, or record pattern you needed to investigate/, "Screen done guide must explain completion signals for student work, review decisions, and audit filters");
 assertMatches("workspaceJs", /renderScreenStartGuide\(sectionId, primaryRole, roles, sections\)[\s\S]*renderScreenDoneGuide\(sectionId, primaryRole, roles, sections\)/, "Workspace app shell must render the done guide after the start guide");
-assertMatches("workspaceJs", /renderWorkspaceRoleCommandStrip\(\{[\s\S]*primaryRole,[\s\S]*roles,[\s\S]*isAdminConsole,[\s\S]*viewingAsStudent,[\s\S]*consoleCapabilities,[\s\S]*\}\)/, "Workspace app shell must render the role command strip with current role and mode context");
-assertMatches("workspaceJs", /function renderWorkspaceRoleCommandStrip\(options = \{\}\)[\s\S]*data-role-command-strip="true"[\s\S]*data-role-command-mode/, "Role command strip must expose stable role and mode markers");
-assertMatches("workspaceJs", /function renderWorkspaceRoleCommandStrip\(options = \{\}\)[\s\S]*data-role-confidence-strip="true"[\s\S]*function roleCommandConfidenceItems/, "Role command strip must expose demo, scope, and boundary confidence markers");
+assertMatches("workspaceJs", /data-experience="\$\{escapeHtml\(experience\)\}"/, "Workspace app shell must expose student, staff workspace, and admin console experience markers");
+assertMatches("workspaceJs", /studentExperience \? "My Capstone" : "Staff Workspace"/, "Workspace app shell must use product mental-model titles instead of a generic workspace title");
+assertMatches("workspaceJs", /renderWorkspaceNavigation\(sections,[\s\S]*visibleSections = sections\.filter\(\(section\) => !section\.hidden\)/, "Workspace navigation must hide compatibility-only legacy sections from visible nav");
+assertMatches("workspaceJs", /STUDENT_NAV_SECTION_IDS = new Set\(\["student", "studentWork", "studentFeedback", "studentFinalChecklist"\]\)/, "Student nav contract must include Today, My Work, Feedback, and Final Checklist route ids");
 assertMatches("workspaceJs", /function roleCommandSafetyText\([\s\S]*Viewer remains read-only[\s\S]*Students see only their own workspace[\s\S]*Global Admin is local-account-only/, "Role command strip must explain student, Viewer, and Global Admin safety boundaries");
-assertMatches("workspaceJs", /function roleCommandConfidenceItems\([\s\S]*Demo boundary[\s\S]*live student use still needs district policy sign-off[\s\S]*Cannot do here/, "Role confidence strip must label demo-proof and live-use caveats without changing permissions");
+assertMatches("workspaceJs", /function roleCommandConfidenceItems\([\s\S]*Account type[\s\S]*Use training records for walkthroughs[\s\S]*Cannot do here/, "Legacy role confidence helper must avoid demo-proof and live-use product copy");
 assertMatches("workspaceJs", /function roleCommandBoundaryText\([\s\S]*No proof, submission, password, review, import, account, or assignment changes can be saved from View as Student[\s\S]*Approve, import, assignment, schedule, review, and account controls stay hidden[\s\S]*Students cannot open staff dashboards, staff preview tools, management consoles, or other student records/, "Role confidence strip must preserve student, Viewer, and View as Student boundaries");
-assertMatches("workspaceCss", /\.workspace-role-command-strip[\s\S]*border-left: 6px solid var\(--role-accent\)/, "Role command strip must use the active role accent with text labels");
-assertMatches("workspaceCss", /@media \(max-width: 900px\)[\s\S]*\.workspace-role-command-strip,[\s\S]*\.workspace-role-command-grid/, "Role command strip must collapse cleanly on compact screens");
+assertMatches("workspaceCss", /\.workspace-active-role-badge/, "Compact active role badge must remain styled");
+assertMatches("workspaceCss", /@media \(max-width: 900px\)[\s\S]*\.workspace-active-role-badge/, "Compact role badge must collapse cleanly on compact screens");
 assertMatches("workspaceJs", /async function openWorkspaceSection\(button\)[\s\S]*activeSection = section;\s*syncCurrentWorkspaceUrlState\(\);\s*renderAppShell\(\);/, "Plain workspace section actions must sync the URL before rendering");
 assertMatches("workspaceJs", /function renderTaskFinishChecklist\(id, title, items = \[\], options = \{\}\)[\s\S]*data-task-finish-checklist="\$\{escapeHtml\(id\)\}"[\s\S]*data-task-finish-check/, "High-risk workflow surfaces must render shared before-you-finish checklists");
 assertMatches("workspaceJs", /renderTaskFinishChecklist\("student-next-action"[\s\S]*studentPrimaryActionChecklist\(action, summary\)/, "Student command card must explain the checks before acting");
@@ -157,16 +167,16 @@ assertMatches("workspaceCss", /\.workspace-app\[data-nav-state="collapsed"\] \.w
 assertMatches("workspaceCss", /\.workspace-app\[data-nav-state="collapsed"\] \.workspace-content[\s\S]*grid-template-columns: minmax\(0, 1fr\)/, "Collapsed workspace content must use the freed navigation width");
 
 assertMatches("workspaceJs", /renderReadOnlyBanner\(\)[\s\S]*Read-only workspace/, "Viewer read-only banner must stay visible");
-assertMatches("workspaceJs", /function renderAdminConsoleSafetyStrip\(capabilities = adminConsoleCapabilitiesFor\(currentUser\)\)[\s\S]*data-admin-console-safety-strip="true"[\s\S]*data-admin-console-safety="\$\{escapeHtml\(card\.id\)\}"/, "Admin Console overview must render scoped safety summary cards");
-assertMatches("workspaceJs", /function renderAdminConsoleSafetyStrip\(capabilities = adminConsoleCapabilitiesFor\(currentUser\)\)[\s\S]*Add Staff, Add Student, CSV Import[\s\S]*Global Admin stays tied to local admin accounts[\s\S]*data-admin-console-safety-strip="true"/, "Admin Console safety summary must explain people access, imports, and Global Admin separation");
-assertMatches("workspaceJs", /function renderAdminConsoleSafetyStrip\(capabilities = adminConsoleCapabilitiesFor\(currentUser\)\)[\s\S]*Demo proof guard[\s\S]*live student use still needs district policy sign-off/, "Admin Console safety summary must keep demo proof caveats visible");
+assertMatches("workspaceJs", /function renderAdminConsoleSafetyStrip\(capabilities = adminConsoleCapabilitiesFor\(currentUser\)\)[\s\S]*data-admin-console-safety-strip="true"[\s\S]*data-admin-console-safety="\$\{escapeHtml\(card\.id\)\}"/, "Admin Console overview must render scoped setup and access summary cards");
+assertMatches("workspaceJs", /function renderAdminConsoleSafetyStrip\(capabilities = adminConsoleCapabilitiesFor\(currentUser\)\)[\s\S]*Needs setup[\s\S]*Use People, Students, Assignments, Programs, and Imports for setup work[\s\S]*Access review/, "Admin Console overview must explain operations setup without proof copy");
+assertMatches("workspaceJs", /function adminConsoleSectionsForRoles\(roles\)[\s\S]*add\("adminPeople", "People"[\s\S]*add\("adminStudents", "Students"[\s\S]*add\("adminAssignments", "Assignments"[\s\S]*add\("programs", "Programs"[\s\S]*add\("adminImports", "Imports"[\s\S]*add\("adminReports", "Reports"[\s\S]*add\("audit", "Audit"/, "Admin Console nav must follow the operations IA order");
 assertMatches("workspaceJs", /data-review-queue-read-only="true"[\s\S]*No Program Teacher decision available for this row/, "Read-only Review Queue must not expose decision controls");
 assertMatches("workspaceJs", /data-mentor-assignment-controls-hidden="true"[\s\S]*Assignment changes unavailable/, "Read-only Mentor Assignments must hide mutation controls");
 assertMatches("workspaceJs", /data-operations-read-only="true"[\s\S]*Read-only operations worklists/, "Operations view must remain monitoring-only");
 assertMatches("workspaceJs", /\/api\/site\/programs/, "Programs section must load the scoped site-programs route");
 assertMatches("workspaceJs", /function canUseSitePrograms\(roles\)\s*\{\s*return hasGlobalAdminRole\(roles\) \|\| roles\.has\("site_admin"\);\s*\}/, "Programs navigation must stay hidden for School Admin, Viewer, Program Teacher, Mentor, and Student roles");
-assertMatches("workspaceJs", /if \(roles\.has\("site_admin"\)\)[\s\S]*add\("programs", "Programs", "Site programs add, remove, and restore"\)/, "Site Admin Programs section must live in the scoped Admin Console");
-assertMatches("workspaceJs", /if \(hasGlobalAdminRole\(roles\)\)[\s\S]*add\("programs", "Programs", "Site program management"\)/, "Global Admin Programs section must live in the scoped Admin Console");
+assertMatches("workspaceJs", /if \(canUseSitePrograms\(roles\)\) \{[\s\S]*add\("programs", "Programs", "Site program management"\)/, "Programs section must live in the scoped Admin Console for Site Admin and Global Admin");
+assertMatches("workspaceJs", /function canUseSitePrograms\(roles\)\s*\{\s*return hasGlobalAdminRole\(roles\) \|\| roles\.has\("site_admin"\);\s*\}/, "Programs visibility must stay limited to Site Admin and Global Admin");
 assertMatches("workspaceJs", /data-site-programs-section="true"[\s\S]*Active site programs[\s\S]*Programs you can add/, "Programs section must render real current and available program states");
 assertMatches("workspaceJs", /data-site-program-form/, "Programs section must expose real program forms");
 assertMatches("workspaceJs", /renderSiteProgramForm\("assign", "Add program"/, "Programs section must expose a real add-program form");
