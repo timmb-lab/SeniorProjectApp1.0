@@ -615,31 +615,25 @@ test("workspace separates Admin Console mode by role and URL state", async () =>
     assert.match(markup, /data-workspace-mode-target="admin"[\s\S]*Admin Console/, `${row.roleId} admin switch`);
     assert.doesNotMatch(markup, /data-role-command-strip="true"/, `${row.roleId} no role command strip`);
     assert.match(markup, /data-admin-console-overview="true"/, `${row.roleId} overview`);
-    assert.match(markup, /data-admin-console-safety-strip="true"/, `${row.roleId} safety strip`);
-    assert.match(markup, /data-admin-console-safety="scope"/, `${row.roleId} scope safety`);
-    assert.match(markup, /data-admin-console-safety="actions"/, `${row.roleId} actions safety`);
-    assert.match(markup, /data-admin-console-safety="elevated"/, `${row.roleId} elevated safety`);
+    assert.match(markup, /data-admin-console-setup-list="true"/, `${row.roleId} setup list`);
+    assert.match(markup, /Needs Setup/, `${row.roleId} setup heading`);
+    assert.match(markup, /data-admin-console-health="true"/, `${row.roleId} health summary`);
+    assert.match(markup, /Health Summary/, `${row.roleId} health heading`);
+    assert.match(markup, /data-admin-console-quick-actions="true"/, `${row.roleId} quick actions`);
+    assert.match(markup, /Quick Actions/, `${row.roleId} quick action heading`);
+    assert.match(markup, /data-admin-console-recent-activity="true"/, `${row.roleId} recent activity`);
+    assert.match(markup, /Recent Admin Activity/, `${row.roleId} recent activity heading`);
     assert.doesNotMatch(visibleText(markup), /Demo proof guard|live student use still needs district policy sign-off|What this role can manage or monitor/, `${row.roleId} no proof overview copy`);
-    assert.match(markup, /data-admin-console-operating-order="true"/, `${row.roleId} operating order`);
-    assert.match(markup, /What to do first/, `${row.roleId} operating order heading`);
-    assert.match(markup, /data-admin-console-operating-step="scope"/, `${row.roleId} scope operating step`);
-    assert.match(markup, /data-admin-console-operating-step="safety"/, `${row.roleId} safety operating step`);
-    if (row.visible.includes("adminPeople")) {
-      assert.match(markup, /data-admin-console-operating-step="people"[\s\S]*People/, `${row.roleId} people operating step`);
-    }
-    if (row.hiddenAllowed.some((section) => ["students", "teacher", "mentor"].includes(section))) {
-      assert.match(markup, /data-admin-console-operating-step="student-work"/, `${row.roleId} student work operating step`);
-    }
+    assert.doesNotMatch(markup, /data-admin-console-safety-strip="true"|data-admin-console-operating-order="true"/, `${row.roleId} old overview panels removed`);
     assert.match(markup, new RegExp(escapeRegExp(row.scope)), `${row.roleId} scope`);
     for (const section of row.visible) {
-      assert.match(markup, new RegExp(`data-admin-console-section="${escapeRegExp(section)}"`), `${row.roleId} should show ${section}`);
       assert.match(markup, new RegExp(`data-section="${escapeRegExp(section)}"`), `${row.roleId} nav/action should route ${section}`);
     }
     for (const section of row.hiddenAllowed) {
-      assert.doesNotMatch(markup, new RegExp(`data-admin-console-section="${escapeRegExp(section)}"`), `${row.roleId} hidden legacy section ${section} not in overview matrix`);
+      assert.doesNotMatch(markup, new RegExp(`data-admin-console-quick-action="${escapeRegExp(section)}"`), `${row.roleId} hidden legacy section ${section} not in quick actions`);
     }
     for (const section of row.absent) {
-      assert.doesNotMatch(markup, new RegExp(`data-admin-console-section="${escapeRegExp(section)}"`), `${row.roleId} should hide ${section}`);
+      assert.doesNotMatch(markup, new RegExp(`data-admin-console-quick-action="${escapeRegExp(section)}"|data-section="${escapeRegExp(section)}"`), `${row.roleId} should hide ${section}`);
     }
   }
 
@@ -948,7 +942,7 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
     "See what to do next, what this phase must finish, and what proof or feedback needs action.",
     "Review one submitted or revision item at a time.",
     "Create or change access only after school access is clear.",
-    "Investigate protected activity while staying redacted.",
+    "Review access, roles, assignments, and recent changes while staying redacted.",
     "Suggested next clicks",
     "Before you finish",
     "Before you act on this item",
@@ -1170,7 +1164,7 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(siteDashboard, /Desert Valley School District/);
   assert.match(siteDashboard, /data-app-mode="admin"/);
   assert.match(siteDashboard, /workspace-admin-console-header/);
-  assert.match(siteDashboard, /Protected staff mode/);
+  assert.match(siteDashboard, /Operations/);
   assert.match(siteDashboard, /Admin Console/);
   assert.match(siteDashboard, /data-admin-console-active-section="siteDashboard"/);
   assert.match(siteDashboard, /Admin Console sections/);
@@ -1391,7 +1385,7 @@ test("workspace explains what clicks do before users act", async () => {
   assert.match(audit, /data-screen-action-impact-guide="audit"/);
   assert.match(audit, /data-action-impact="filters" data-action-impact-state="safe"/);
   assert.match(audit, /Audit filters narrow logged activity without changing the records\./);
-  assert.match(audit, /Rows stay redacted so private notes, proof links, and file details are not exposed\./);
+  assert.match(audit, /Rows stay redacted so private notes, file links, and Drive identifiers are not exposed\./);
 });
 
 test("workspace explains who can see screen information", async () => {
@@ -1661,7 +1655,7 @@ test("global admin site dashboard recent activity opens the existing audit secti
   await vm.runInContext('openWorkspaceSection({ dataset: { section: "audit" } })', context);
 
   assert.equal(vm.runInContext("activeSection", context), "audit");
-  assert.match(workspaceRoot.innerHTML, /Recent Protected Activity/);
+  assert.match(workspaceRoot.innerHTML, /Access Review/);
   assert.match(workspaceRoot.innerHTML, /Redacted activity list/);
 });
 
@@ -2529,20 +2523,22 @@ test("global admin recent audit rows open filtered audit activity", async () => 
   assert.equal(new URL(window.location.href).searchParams.get("entityType"), "student_dashboard");
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-filters="true"/);
   assert.match(workspaceRoot.innerHTML, /data-screen-orientation-section="audit"/);
-  assert.match(workspaceRoot.innerHTML, /Investigate protected activity while staying redacted/);
+  assert.match(workspaceRoot.innerHTML, /Review access, roles, assignments, and recent changes while staying redacted/);
   assert.match(workspaceRoot.innerHTML, /Open saved filters and anomaly cards first/);
-  assert.match(workspaceRoot.innerHTML, /Do not expose private notes, proof links, tokens, or file details/);
+  assert.match(workspaceRoot.innerHTML, /Do not expose private notes, file links, tokens, or Drive identifiers/);
   assert.match(workspaceRoot.innerHTML, /data-screen-orientation-actions="true"/);
-  assert.match(workspaceRoot.innerHTML, /data-section="audit"[\s\S]*Recent protected activity/);
+  assert.match(workspaceRoot.innerHTML, /data-section="audit"[\s\S]*Recent activity/);
   assert.match(workspaceRoot.innerHTML, /data-section="audit" data-audit-action="student_dashboard_viewed" data-audit-entity-type="student_dashboard"[\s\S]*Student dashboard activity/);
   assert.match(workspaceRoot.innerHTML, /data-section="audit" data-audit-action="review_queue_viewed" data-audit-entity-type="review_queue"[\s\S]*Review queue activity/);
-  assert.match(workspaceRoot.innerHTML, /data-first-use-guide="audit"/);
-  assert.match(workspaceRoot.innerHTML, /Investigate protected activity without exposing secrets/);
-  assert.match(workspaceRoot.innerHTML, /Open a saved filter/);
-  assert.match(workspaceRoot.innerHTML, /Stay redacted/);
+  assert.match(workspaceRoot.innerHTML, /data-admin-audit-overview="true"/);
+  assert.match(workspaceRoot.innerHTML, /Access Review/);
+  assert.match(workspaceRoot.innerHTML, /Role Assignments/);
+  assert.match(workspaceRoot.innerHTML, /Recent Changes/);
+  assert.match(workspaceRoot.innerHTML, /Potential Issues/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-first-use-guide="audit"/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map="true"/);
   assert.match(workspaceRoot.innerHTML, /Choose one redacted audit lane/);
-  assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map-card="recent"[\s\S]*Global admin[\s\S]*1 event[\s\S]*Start with latest protected activity[\s\S]*data-section="audit"[\s\S]*Show recent/);
+  assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map-card="recent"[\s\S]*Global admin[\s\S]*1 event[\s\S]*Start with latest changes[\s\S]*data-section="audit"[\s\S]*Show recent/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map-card="review-decisions"[\s\S]*Program Teacher lead[\s\S]*0 decisions[\s\S]*Confirm review decisions[\s\S]*data-audit-entity-type="review"[\s\S]*Open reviews/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-saved-filters="true"/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-anomaly-view="true"/);
@@ -2550,8 +2546,8 @@ test("global admin recent audit rows open filtered audit activity", async () => 
   assert.match(workspaceRoot.innerHTML, /Owner: Access admin/);
   assert.match(workspaceRoot.innerHTML, /Confirm the current school, program, or student assignment before changing access/);
   assert.match(workspaceRoot.innerHTML, /Owner: Storage admin/);
-  assert.match(workspaceRoot.innerHTML, /Check storage readiness, then tell students to use the secure proof-link fallback if needed/);
-  assert.match(workspaceRoot.innerHTML, /data-admin-security-proof="true"/);
+  assert.match(workspaceRoot.innerHTML, /Check storage readiness, then tell students to use the secure link fallback if needed/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-admin-security-proof="true"|Security checks that are enforced now|Audit is for triage and proof/);
   assert.match(workspaceRoot.innerHTML, /Filtered by student dashboard \/ student dashboard viewed/);
   assert.match(workspaceRoot.innerHTML, /Show recent activity/);
   assert.match(workspaceRoot.innerHTML, /student dashboard viewed/);
@@ -2702,19 +2698,19 @@ test("global admin audit URL state restores filtered activity", async () => {
   assert.equal(blockedFileUrl.searchParams.get("action"), "evidence_upload_blocked_signature");
   assert.equal(blockedFileUrl.searchParams.get("entityType"), "submission");
   assert.match(workspaceRoot.innerHTML, /Filtered by submission \/ evidence upload blocked signature/);
-  assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map-card="blocked-proof"[\s\S]*1 block[\s\S]*Review blocked proof safely[\s\S]*data-audit-action="evidence_upload_blocked_signature"[\s\S]*data-audit-entity-type="submission"[\s\S]*aria-pressed="true"[\s\S]*Viewing/);
+  assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map-card="blocked-evidence"[\s\S]*1 block[\s\S]*Review blocked evidence safely[\s\S]*data-audit-action="evidence_upload_blocked_signature"[\s\S]*data-audit-entity-type="submission"[\s\S]*aria-pressed="true"[\s\S]*Viewing/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-saved-filter="blocked-file-uploads"[\s\S]*aria-pressed="true"/);
   assert.match(workspaceRoot.innerHTML, /evidence upload blocked signature/i);
   assert.doesNotMatch(workspaceRoot.innerHTML, /student:secret|password-reset|drive_file_id|driveFileId/i);
 
   await vm.runInContext('openWorkspaceSection({ dataset: { section: "audit" } })', context);
-  assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map-card="recent"[\s\S]*4 events[\s\S]*Start with latest protected activity/);
-  assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map-card="blocked-proof"[\s\S]*2 blocks[\s\S]*Review blocked proof safely/);
+  assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map-card="recent"[\s\S]*4 events[\s\S]*Start with latest changes/);
+  assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map-card="blocked-evidence"[\s\S]*2 blocks[\s\S]*Review blocked evidence safely/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map-card="review-decisions"[\s\S]*1 decision[\s\S]*Confirm review decisions/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map-card="session-pressure" data-admin-audit-action-owner="Account support" data-current-filter="false"/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map-card="session-pressure"[\s\S]*Account support[\s\S]*0 signals[\s\S]*Summary only/);
-  assert.match(workspaceRoot.innerHTML, /data-admin-audit-anomaly="blocked-proof-attempts" data-admin-audit-anomaly-state="needs-review"/);
-  assert.match(workspaceRoot.innerHTML, /Blocked proof attempts[\s\S]*2/);
+  assert.match(workspaceRoot.innerHTML, /data-admin-audit-anomaly="blocked-evidence-attempts" data-admin-audit-anomaly-state="needs-review"/);
+  assert.match(workspaceRoot.innerHTML, /Blocked evidence attempts[\s\S]*2/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-saved-filter="blocked-proof-links"[\s\S]*evidence link blocked unsafe url/i);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-saved-filter="blocked-file-uploads"[\s\S]*evidence upload blocked signature/i);
 });

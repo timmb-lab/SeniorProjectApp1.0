@@ -70,7 +70,7 @@ test("workspace UI polish manifest records durable local fake-account screenshot
     "15-view-as-student-entered-desktop",
     "16-view-as-student-exited-return",
     "17-people-access-landing",
-    "18-add-student-flow",
+    "18-admin-students",
     "19-csv-import-template",
     "20-student-admin-route-blocked",
     "21-empty-student-search",
@@ -83,6 +83,13 @@ test("workspace UI polish manifest records durable local fake-account screenshot
     "29-workspace-reports",
     "30-mobile-mentor-today",
     "31-mobile-student-detail",
+    "32-admin-console-site-admin-overview",
+    "33-admin-assignments",
+    "34-admin-programs",
+    "35-admin-reports",
+    "36-admin-audit",
+    "37-mobile-admin-overview",
+    "38-mobile-admin-imports",
     "23-student-detail-phone",
   ];
   assert.equal(manifest.screenshots.length, requiredIds.length);
@@ -118,7 +125,16 @@ test("workspace UI polish manifest records durable local fake-account screenshot
   assert.equal(byId.get("15-view-as-student-entered-desktop").markers.viewAsBanner, true);
   assert.equal(byId.get("16-view-as-student-exited-return").markers.viewAsBanner, false);
   assert.equal(byId.get("17-people-access-landing").markers.peopleManagement, true);
+  assert.equal(byId.get("18-admin-students").markers.adminStudents, true);
   assert.equal(byId.get("19-csv-import-template").markers.csvImportStepper, true);
+  assert.equal(byId.get("19-csv-import-template").markers.adminImports, true);
+  assert.equal(byId.get("32-admin-console-site-admin-overview").markers.adminSetupList, true);
+  assert.equal(byId.get("33-admin-assignments").markers.adminAssignments, true);
+  assert.equal(byId.get("34-admin-programs").markers.adminPrograms, true);
+  assert.equal(byId.get("35-admin-reports").markers.adminReports, true);
+  assert.equal(byId.get("36-admin-audit").markers.adminAudit, true);
+  assert.equal(byId.get("37-mobile-admin-overview").markers.adminQuickActions, true);
+  assert.equal(byId.get("38-mobile-admin-imports").markers.csvImportStepper, true);
   assert.equal(byId.get("20-student-admin-route-blocked").markers.problemState, true);
   assert.equal(byId.get("21-empty-student-search").markers.intentionalEmptyState, true);
   assert.equal(byId.get("22-student-final-files-state").markers.finalFiles, true);

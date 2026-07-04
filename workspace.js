@@ -365,14 +365,14 @@ const ADMIN_AUDIT_SAVED_FILTERS = [
   {
     id: "denied-access",
     label: "Denied access",
-    detail: "Recent protected-record access denials.",
+    detail: "Recent access denials.",
     action: "evidence_download_denied",
     entityType: "evidence_artifact",
   },
   {
     id: "upload-failures",
     label: "Upload failures",
-    detail: "Drive upload failures that can block student proof.",
+    detail: "Drive upload failures that can block student files.",
     action: "google_drive_upload_failed",
     entityType: "evidence_repository",
   },
@@ -385,8 +385,8 @@ const ADMIN_AUDIT_SAVED_FILTERS = [
   },
   {
     id: "blocked-proof-links",
-    label: "Blocked proof links",
-    detail: "Credential-looking proof links blocked before save.",
+    label: "Blocked unsafe links",
+    detail: "Credential-looking links blocked before save.",
     action: "evidence_link_blocked_unsafe_url",
     entityType: "submission",
   },
@@ -1800,7 +1800,7 @@ function renderAdminConsoleHeader(capabilities = adminConsoleCapabilitiesFor(cur
   return `
     <section class="workspace-admin-console-header" aria-labelledby="adminConsoleTitle" data-admin-console-header="true" data-admin-console-active-section="${escapeHtml(active.id || "")}">
       <div>
-        <p class="workspace-kicker">Protected staff mode</p>
+        <p class="workspace-kicker">Operations</p>
         <h1 id="adminConsoleTitle">Admin Console</h1>
         <p>${escapeHtml(adminConsoleSubtitle(capabilities))}</p>
       </div>
@@ -1810,9 +1810,9 @@ function renderAdminConsoleHeader(capabilities = adminConsoleCapabilitiesFor(cur
 
 function adminConsoleSubtitle(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
   if (capabilities.readOnly) {
-    return "Monitor assigned student records without edit, review, assignment, program, or security actions.";
+    return "Monitor assigned student records without edit, review, assignment, program, import, or account actions.";
   }
-  return "Manage, monitor, review, and configure only the records allowed by this account's role and scope.";
+  return "Set up people, assignments, imports, programs, reports, and access review inside this account's allowed scope.";
 }
 
 function adminConsoleHeaderContext(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
@@ -1903,7 +1903,7 @@ function workspaceSectionTitle(sectionId = "") {
 }
 
 function renderAdminConsoleOverviewSection(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
-  const sections = capabilities.sections.filter((section) => section.id !== "overview" && !section.hidden);
+  const model = adminConsoleOperationsModel(capabilities);
   return `
     <section class="workspace-admin-console-overview" data-admin-console-overview="true" data-admin-console-read-only="${escapeHtml(String(capabilities.readOnly))}">
       <div class="workspace-card-head">
@@ -1914,26 +1914,278 @@ function renderAdminConsoleOverviewSection(capabilities = adminConsoleCapabiliti
         </div>
         ${capabilities.readOnly ? `<span class="workspace-read-only-chip">Read-only</span>` : `<span class="workspace-site-context-badge">${escapeHtml(capabilities.scope.label)}</span>`}
       </div>
-      <div class="workspace-admin-console-metrics">
-        ${renderAdminConsoleMetrics(capabilities)}
+      <div class="workspace-admin-console-overview-layout">
+        ${renderAdminSetupIssues(model.setupIssues)}
+        ${renderAdminHealthSummary(model.health)}
+        ${renderAdminQuickActions(model.quickActions)}
+        ${renderAdminRecentActivity(model.recentActivity)}
       </div>
-      ${renderAdminConsoleSafetyStrip(capabilities)}
-      ${renderAdminConsoleOperatingOrder(capabilities)}
-      <div class="workspace-admin-console-grid">
-        ${renderAdminConsoleActionCards(capabilities)}
+    </section>
+  `;
+}
+
+function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  const access = unwrap(currentData.accessAssignments) || {};
+  const users = access.users || {};
+  const assignments = access.assignments || {};
+  const siteStudents = unwrap(currentData.siteStudents) || {};
+  const siteDashboard = unwrap(currentData.siteDashboard) || {};
+  const sitePrograms = unwrap(currentData.sitePrograms) || {};
+  const dashboard = unwrap(currentData.adminDashboard) || {};
+  const audit = unwrap(currentData.auditEvents) || {};
+  const summary = {
+    ...(siteDashboard.summary || {}),
+    ...(siteStudents.summary || {}),
+  };
+  const students = Array.isArray(users.students) ? users.students : [];
+  const staffRows = siteAccountRows(users).filter((row) => !row.roleIds.includes("student"));
+  const activePrograms = Array.isArray(sitePrograms.activePrograms) ? sitePrograms.activePrograms : [];
+  const availablePrograms = Array.isArray(sitePrograms.availablePrograms) ? sitePrograms.availablePrograms : [];
+  const mentorAssignments = Array.isArray(assignments.mentorStudent) ? assignments.mentorStudent : [];
+  const viewerAssignments = Array.isArray(assignments.viewerStudent) ? assignments.viewerStudent : [];
+  const programTeacherAssignments = Array.isArray(assignments.programTeacherProgram) ? assignments.programTeacherProgram : [];
+  const studentTotal = safeNumber(summary.studentsTotal ?? siteStudents.pagination?.total ?? students.length);
+  const scopedStudentCount = studentTotal || students.length;
+  const rosterIncomplete = students.filter((student) => {
+    const profileText = studentRosterProfileText(student);
+    return /not set/i.test(profileText) || !student.email;
+  }).length;
+  const missingMentors = Math.max(
+    safeNumber(summary.studentsNoMentor),
+    safeNumber(summary.noMentor),
+    students.filter((student) => !student.mentorUserId && !student.mentorName && student.hasActiveMentor !== true).length,
+  );
+  const missingViewers = students.filter((student) => !student.viewerUserId && !student.viewerName).length;
+  const missingProgramTeacherCoverage = Math.max(0, activePrograms.length - programTeacherAssignments.length);
+  const reviewFollowUp = safeNumber(summary.submissionsSubmitted) + safeNumber(summary.submitted) + safeNumber(summary.revisionRequested);
+  const exportFailures = safeNumber(summary.exportsFailed) + safeNumber(summary.archiveFailed);
+  const setupIssues = [
+    missingMentors ? {
+      id: "mentor-coverage",
+      title: "Mentor coverage missing",
+      detail: `${missingMentors} ${pluralize(missingMentors, "student")} need active mentor coverage.`,
+      count: missingMentors,
+      tone: "warning",
+      section: capabilities.sectionIds.has("adminAssignments") ? "adminAssignments" : consoleStudentSectionId(capabilities),
+      action: capabilities.sectionIds.has("adminAssignments") ? "Open assignments" : "Open students",
+    } : null,
+    rosterIncomplete ? {
+      id: "roster-profile",
+      title: "Roster profile incomplete",
+      detail: `${rosterIncomplete} ${pluralize(rosterIncomplete, "student")} need cohort, graduation year, or email cleanup.`,
+      count: rosterIncomplete,
+      tone: "warning",
+      section: capabilities.sectionIds.has("adminStudents") ? "adminStudents" : consoleStudentSectionId(capabilities),
+      action: "Open students",
+    } : null,
+    missingViewers ? {
+      id: "viewer-coverage",
+      title: "Viewer access unassigned",
+      detail: `${missingViewers} ${pluralize(missingViewers, "student")} have no read-only viewer listed in the loaded roster.`,
+      count: missingViewers,
+      tone: "quiet",
+      section: capabilities.sectionIds.has("adminAssignments") ? "adminAssignments" : "overview",
+      action: "Open assignments",
+    } : null,
+    missingProgramTeacherCoverage ? {
+      id: "program-teacher-coverage",
+      title: "Program Teacher coverage gap",
+      detail: `${missingProgramTeacherCoverage} active ${pluralize(missingProgramTeacherCoverage, "program")} need Program Teacher access confirmed.`,
+      count: missingProgramTeacherCoverage,
+      tone: "warning",
+      section: capabilities.sectionIds.has("adminAssignments") ? "adminAssignments" : "programs",
+      action: "Open assignments",
+    } : null,
+    !activePrograms.length && capabilities.sectionIds.has("programs") ? {
+      id: "program-setup",
+      title: "No active programs mapped",
+      detail: "Add an active program for this school before relying on program-scoped queues.",
+      count: availablePrograms.length,
+      tone: "warning",
+      section: "programs",
+      action: "Open programs",
+    } : null,
+    exportFailures ? {
+      id: "final-files",
+      title: "Final-file follow-up",
+      detail: `${exportFailures} final-file or export ${pluralize(exportFailures, "record")} need review.`,
+      count: exportFailures,
+      tone: "danger",
+      section: capabilities.sectionIds.has("adminReports") ? "adminReports" : "overview",
+      action: "Open reports",
+    } : null,
+  ].filter(Boolean);
+  const quickActions = [
+    capabilities.sectionIds.has("adminStudents") ? { id: "add-student", title: "Add Student", detail: "Create one student in the current school scope.", section: "adminStudents", peopleView: "add-student", tone: "students" } : null,
+    capabilities.sectionIds.has("adminPeople") ? { id: "add-staff", title: "Add Staff", detail: "Create one mentor, viewer, Program Teacher, or admin account.", section: "adminPeople", peopleView: "add-staff", tone: "access" } : null,
+    capabilities.sectionIds.has("adminAssignments") ? { id: "assign-coverage", title: "Assign Coverage", detail: "Manage mentor, viewer, Program Teacher, and admin coverage.", section: "adminAssignments", tone: "assignments" } : null,
+    capabilities.sectionIds.has("adminImports") ? { id: "import-roster", title: "Import CSV", detail: "Download student or staff templates and preview rows.", section: "adminImports", peopleView: "import-students", tone: "imports" } : null,
+    capabilities.sectionIds.has("programs") ? { id: "programs", title: "Programs", detail: "Confirm active school program mappings.", section: "programs", tone: "programs" } : null,
+    capabilities.sectionIds.has("adminReports") ? { id: "reports", title: "Reports", detail: "Review roster, coverage, progress, and setup counts.", section: "adminReports", tone: "reports" } : null,
+    capabilities.sectionIds.has("audit") ? { id: "audit", title: "Audit", detail: "Review access, roles, changes, and potential issues.", section: "audit", tone: "audit" } : null,
+  ].filter(Boolean);
+  const mentorCoveragePercent = scopedStudentCount
+    ? clampPercent(((scopedStudentCount - missingMentors) / scopedStudentCount) * 100)
+    : null;
+  const viewerCoveragePercent = students.length
+    ? clampPercent(((students.length - missingViewers) / students.length) * 100)
+    : null;
+  const programCoveragePercent = activePrograms.length
+    ? clampPercent(((activePrograms.length - missingProgramTeacherCoverage) / activePrograms.length) * 100)
+    : null;
+  const rosterCompletenessPercent = students.length
+    ? clampPercent(((students.length - rosterIncomplete) / students.length) * 100)
+    : null;
+  const health = [
+    { id: "students", label: "Students", value: scopedStudentCount, detail: `${students.length || scopedStudentCount} loaded in roster setup`, tone: "students" },
+    { id: "staff", label: "Staff", value: staffRows.length, detail: "Staff and support accounts loaded", tone: "access" },
+    { id: "programs", label: "Programs", value: activePrograms.length || safeNumber(summary.programsTotal), detail: "Active program mappings", tone: "programs" },
+    { id: "mentor-coverage", label: "Mentor Coverage", value: percentLabel(mentorCoveragePercent), detail: `${mentorAssignments.length} active mentor assignments`, tone: missingMentors ? "warning" : "ready" },
+    { id: "roster-complete", label: "Roster Completeness", value: percentLabel(rosterCompletenessPercent), detail: `${rosterIncomplete} profile ${pluralize(rosterIncomplete, "gap")}`, tone: rosterIncomplete ? "warning" : "ready" },
+    { id: "setup-issues", label: "Setup Issues", value: setupIssues.length, detail: "Prioritized issues above", tone: setupIssues.length ? "warning" : "ready" },
+  ];
+  const recentRows = [
+    ...(Array.isArray(access.history) ? access.history.map((row) => ({
+      id: row.historyId,
+      title: siteAccessHistoryTitle(row),
+      detail: `${row.actorName || "Admin"} / ${formatDate(row.createdAt)}`,
+      type: "access",
+    })) : []),
+    ...(Array.isArray(dashboard.recentAudit) ? dashboard.recentAudit.map((row) => ({
+      id: row.id || row.auditId,
+      title: statusText(row.action || row.title || "Recent admin event"),
+      detail: `${row.actorName || row.actor || "Admin"} / ${formatDate(row.createdAt || row.occurredAt)}`,
+      type: "audit",
+    })) : []),
+    ...(Array.isArray(audit.events) ? audit.events.map((row) => ({
+      id: row.id || row.auditId,
+      title: statusText(row.action || "Recent change"),
+      detail: `${row.actorName || "Admin"} / ${formatDate(row.createdAt)}`,
+      type: "audit",
+    })) : []),
+  ].filter((row) => row.title).slice(0, 5);
+  return {
+    setupIssues,
+    quickActions,
+    recentActivity: recentRows,
+    health,
+    report: {
+      studentTotal: scopedStudentCount,
+      staffTotal: staffRows.length,
+      activePrograms: activePrograms.length || safeNumber(summary.programsTotal),
+      rosterCompletenessPercent,
+      mentorCoveragePercent,
+      viewerCoveragePercent,
+      programCoveragePercent,
+      reviewFollowUp,
+      setupIssueCount: setupIssues.length,
+      importIssueCount: (adminCsvImportState.students?.errors?.length || 0) + (adminCsvImportState.staff?.errors?.length || 0),
+    },
+  };
+}
+
+function percentLabel(value) {
+  return value === null || value === undefined ? "n/a" : `${Math.round(value)}%`;
+}
+
+function renderAdminSetupIssues(issues = []) {
+  return `
+    <section class="workspace-card workspace-admin-setup-list" data-admin-console-setup-list="true" aria-labelledby="adminSetupIssuesTitle">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Needs Setup</p>
+          <h3 id="adminSetupIssuesTitle">What to fix first</h3>
+        </div>
+        <span class="workspace-summary-badge">${escapeHtml(String(issues.length))} issue${issues.length === 1 ? "" : "s"}</span>
       </div>
-      <section class="workspace-card workspace-admin-console-matrix" data-admin-console-section-matrix="true" aria-labelledby="adminConsoleMatrixTitle">
-        <div class="workspace-card-head">
-          <div>
-            <p class="workspace-kicker">Visible sections</p>
-            <h3 id="adminConsoleMatrixTitle">Operations sections</h3>
-          </div>
-          <span class="workspace-summary-badge">${escapeHtml(String(sections.length))} sections</span>
+      ${issues.length ? `
+        <div class="workspace-list">
+          ${issues.map((issue) => `
+            <article class="workspace-admin-setup-row ${escapeHtml(issue.tone || "quiet")}" data-admin-console-setup-issue="${escapeHtml(issue.id || "issue")}">
+              <div>
+                <strong>${escapeHtml(issue.title || "Setup issue")}</strong>
+                <p>${escapeHtml(issue.detail || "Review this setup issue.")}</p>
+              </div>
+              <div class="workspace-row-actions">
+                ${statusPill(issue.tone === "danger" ? "failed" : "needs_review")}
+                ${issue.section ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(issue.section)}">${escapeHtml(issue.action || "Open")}</button>` : ""}
+              </div>
+            </article>
+          `).join("")}
         </div>
-        <div class="workspace-table">
-          ${sections.map((section) => renderAdminConsoleSectionRow(section, capabilities)).join("")}
+      ` : `
+        <article class="workspace-empty-state-card" data-admin-console-setup-empty="true">
+          <strong>No setup issues found.</strong>
+          <p>Roster, coverage, programs, and recent admin activity do not show a current setup issue in the loaded scope.</p>
+        </article>
+      `}
+    </section>
+  `;
+}
+
+function renderAdminHealthSummary(rows = []) {
+  return `
+    <section class="workspace-card workspace-admin-health-summary" data-admin-console-health="true" aria-labelledby="adminHealthTitle">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Health Summary</p>
+          <h3 id="adminHealthTitle">Current scope health</h3>
         </div>
-      </section>
+      </div>
+      <div class="workspace-admin-health-grid">
+        ${rows.map((row) => `
+          <article class="workspace-admin-health-card ${escapeHtml(row.tone || "quiet")}" data-admin-health-card="${escapeHtml(row.id || row.label || "health")}">
+            <span>${escapeHtml(row.label || "Metric")}</span>
+            <strong>${escapeHtml(String(row.value ?? 0))}</strong>
+            <small>${escapeHtml(row.detail || "")}</small>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderAdminQuickActions(actions = []) {
+  return `
+    <section class="workspace-card workspace-admin-quick-actions" data-admin-console-quick-actions="true" aria-labelledby="adminQuickActionsTitle">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Quick Actions</p>
+          <h3 id="adminQuickActionsTitle">Open the exact setup screen</h3>
+        </div>
+      </div>
+      <div class="workspace-admin-quick-action-grid">
+        ${actions.map((action) => `
+          <button class="workspace-admin-quick-action ${escapeHtml(action.tone || "default")}" type="button" data-section="${escapeHtml(action.section || "overview")}" ${action.peopleView ? `data-admin-people-view="${escapeHtml(action.peopleView)}"` : ""} data-admin-console-quick-action="${escapeHtml(action.id || action.section || "action")}">
+            <strong>${escapeHtml(action.title || "Open")}</strong>
+            <span>${escapeHtml(action.detail || "Open this admin screen.")}</span>
+          </button>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderAdminRecentActivity(rows = []) {
+  return `
+    <section class="workspace-card workspace-admin-recent-activity" data-admin-console-recent-activity="true" aria-labelledby="adminRecentActivityTitle">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Recent Admin Activity</p>
+          <h3 id="adminRecentActivityTitle">Latest changes in this scope</h3>
+        </div>
+        ${availableSectionIdsForAnyMode().has("audit") ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="audit">Open audit</button>` : ""}
+      </div>
+      ${rows.length ? `
+        <div class="workspace-list">
+          ${rows.map((row) => `
+            <article class="workspace-mini-row" data-admin-recent-activity-row="${escapeHtml(row.id || row.type || "activity")}">
+              <span>${escapeHtml(row.title || "Recent change")}</span>
+              <small>${escapeHtml(row.detail || "Recent admin activity")}</small>
+            </article>
+          `).join("")}
+        </div>
+      ` : `<div class="workspace-empty">No recent admin activity found.</div>`}
     </section>
   `;
 }
@@ -1948,246 +2200,6 @@ function renderAdminConsoleMetrics(capabilities = adminConsoleCapabilitiesFor(cu
     renderMetricTile("Operations signals", operationsCount, "Presentation, mentor, or final-file blockers", "", capabilities.sectionIds.has("operations") ? "operations" : "", { label: "Open operations" }),
     renderMetricTile("Console sections", capabilities.sections.length, capabilities.readOnly ? "Read-only tools only" : "Role-scoped tools", "", "overview"),
   ].join("");
-}
-
-function renderAdminConsoleSafetyStrip(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
-  const cards = [
-    {
-      id: "scope",
-      step: "1",
-      title: "Scope selected",
-      detail: capabilities.scope.detail || "Only records allowed for this account are visible.",
-    },
-    {
-      id: "actions",
-      step: "2",
-      title: capabilities.readOnly ? "Read-only access" : "Needs setup",
-      detail: capabilities.readOnly
-        ? "You can view this student but cannot make changes."
-        : "Use People, Students, Assignments, Programs, and Imports for setup work.",
-    },
-    {
-      id: "elevated",
-      step: "3",
-      title: "Access review",
-      detail: hasGlobalAdminRole(roleIds(currentUser))
-        ? "Audit and account controls stay separate from student work."
-        : "Unavailable tools stay hidden unless this account has the right school or program scope.",
-    },
-  ];
-  return `
-    <section class="workspace-admin-console-safety-strip" data-admin-console-safety-strip="true" aria-label="Admin Console safety summary">
-      ${cards.map((card) => `
-        <article class="workspace-admin-console-safety-card" data-admin-console-safety="${escapeHtml(card.id)}">
-          <b class="workspace-admin-console-safety-step" aria-hidden="true">${escapeHtml(card.step)}</b>
-          <span>${escapeHtml(card.title)}</span>
-          <p>${escapeHtml(card.detail)}</p>
-        </article>
-      `).join("")}
-    </section>
-  `;
-}
-
-function renderAdminConsoleOperatingOrder(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
-  const studentSection = consoleStudentSectionId(capabilities);
-  const items = [
-    {
-      id: "scope",
-      step: "1",
-      title: "Confirm scope",
-      detail: `You are in ${capabilities.scope.label || "role-scoped"} console mode. Confirm the school, program, or assigned-student scope before acting.`,
-      section: "overview",
-      action: "Stay on overview",
-      tone: "ready",
-    },
-    capabilities.sectionIds.has("adminUsers") ? {
-      id: "people",
-      step: "2",
-      title: "People and Access",
-      detail: "Use Add Student, Add Staff, CSV preview, and assignments only when the current role and scope allow them.",
-      section: "adminUsers",
-      action: "Open access",
-      tone: "student",
-    } : null,
-    studentSection ? {
-      id: "student-work",
-      step: "3",
-      title: "Student work",
-      detail: capabilities.sectionIds.has("teacher")
-        ? "Open submitted work or scoped students before recording one Program Teacher decision."
-        : "Open assigned students for monitoring without adding edit controls.",
-      section: capabilities.sectionIds.has("teacher") ? "teacher" : studentSection,
-      preset: capabilities.sectionIds.has("teacher") ? "submitted" : "",
-      action: capabilities.sectionIds.has("teacher") ? "Open review" : "Open students",
-      tone: "teacher",
-    } : null,
-    {
-      id: "safety",
-      step: "4",
-      title: "Access review",
-      detail: capabilities.sectionIds.has("audit")
-        ? "Use Audit for access, role, assignment, and recent-change questions."
-        : "Review setup issues and scope before opening a management form.",
-      section: capabilities.sectionIds.has("audit") ? "audit" : "overview",
-      action: capabilities.sectionIds.has("audit") ? "Open audit" : "Review scope",
-      tone: "quiet",
-    },
-  ].filter(Boolean);
-
-  return `
-    <section class="workspace-admin-console-operating-order" data-admin-console-operating-order="true" aria-label="Admin Console operating order">
-      <div class="workspace-admin-console-operating-head">
-        <div>
-          <p class="workspace-kicker">Operating order</p>
-          <h3>What to do first</h3>
-          <p>Start with setup issues, then open the exact management screen.</p>
-        </div>
-        <span class="workspace-summary-badge">${escapeHtml(capabilities.readOnly ? "Monitor only" : "Scoped changes")}</span>
-      </div>
-      <ol class="workspace-admin-console-operating-list">
-        ${items.map((item) => `
-          <li class="workspace-admin-console-operating-item ${escapeHtml(item.tone || "quiet")}" data-admin-console-operating-step="${escapeHtml(item.id)}">
-            <span>${escapeHtml(item.step)}</span>
-            <div>
-              <strong>${escapeHtml(item.title)}</strong>
-              <p>${escapeHtml(item.detail)}</p>
-              <button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(item.section || "overview")}" ${item.preset ? `data-section-preset="${escapeHtml(item.preset)}"` : ""}>
-                ${escapeHtml(item.action || "Open")}
-              </button>
-            </div>
-          </li>
-        `).join("")}
-      </ol>
-    </section>
-  `;
-}
-
-function renderAdminConsoleActionCards(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
-  const cards = [];
-  const sectionIds = capabilities.sectionIds;
-  const studentSection = consoleStudentSectionId(capabilities);
-  if (studentSection) {
-    cards.push({
-      tone: "students",
-      title: "Students",
-      detail: capabilities.scope.key === "assigned_students"
-        ? "Monitor assigned students, open authorized detail, and keep mentoring signals read-only when required."
-        : "Search, filter, and open only the student records this role can see.",
-      section: studentSection,
-      action: "Open students",
-      badge: capabilities.readOnly ? "Read-only" : capabilities.scope.label,
-    });
-  }
-  if (sectionIds.has("teacher")) {
-    cards.push({
-      tone: "review",
-      title: "Reviews",
-      detail: capabilities.actions.review.writable
-        ? "Review submitted work and record Program Teacher decisions."
-        : "Monitor submitted work without decision controls.",
-      section: "teacher",
-      preset: "submitted",
-      action: "Open review",
-      badge: capabilities.actions.review.writable ? "Review allowed" : "Monitor",
-    });
-  }
-  if (sectionIds.has("adminUsers")) {
-    cards.push({
-      tone: "access",
-      title: "People",
-      detail: "Add staff, check active accounts, and keep access changes scoped to the current school or program.",
-      section: "adminPeople",
-      action: "Open People",
-      badge: capabilities.actions.peopleAccess.writable ? "Writable" : "Read-only",
-    });
-    cards.push({
-      tone: "access",
-      title: "Imports",
-      detail: "Download CSV templates, preview rows, and fix validation errors before saving.",
-      section: "adminImports",
-      action: "Open Imports",
-      badge: capabilities.actions.peopleAccess.writable ? "Templates" : "Read-only",
-    });
-  }
-  if (sectionIds.has("programs")) {
-    cards.push({
-      tone: "programs",
-      title: "Programs",
-      detail: "Add, remove, restore, and review programs for the selected school without opening cross-site controls.",
-      section: "programs",
-      action: "Open programs",
-      badge: capabilities.actions.programs.writable ? "Writable" : "Scoped",
-    });
-  }
-  if (sectionIds.has("audit")) {
-    cards.push({
-      tone: "audit",
-      title: "Audit",
-      detail: "Review the audit log without exposing secret or private storage values.",
-      section: "audit",
-      action: "Open audit",
-      badge: "Global",
-    });
-  }
-  if (sectionIds.has("archiveExports")) {
-    cards.push({
-      tone: "files",
-      title: "Final Files",
-      detail: "Check closeout packages and export status.",
-      section: "archiveExports",
-      action: "Open final files",
-      badge: capabilities.scope.label,
-    });
-  }
-  if (!cards.length) {
-    return `<div class="workspace-empty">No setup actions are available for this role.</div>`;
-  }
-  return cards.map((card) => renderAdminConsoleActionCard(card)).join("");
-}
-
-function renderAdminConsoleActionCard(card = {}) {
-  return `
-    <article class="workspace-admin-console-card workspace-admin-console-card-${escapeHtml(card.tone || "default")}" data-admin-console-action-card="${escapeHtml(card.section || "overview")}">
-      <div>
-        <span class="workspace-admin-console-card-visual" aria-hidden="true">${escapeHtml(adminConsoleActionInitials(card.title))}</span>
-        <span class="workspace-summary-badge">${escapeHtml(card.badge || "Scoped")}</span>
-        <h3>${escapeHtml(card.title || "Console section")}</h3>
-        <p>${escapeHtml(card.detail || "Open this role-scoped console section.")}</p>
-      </div>
-      <button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(card.section || "overview")}" ${card.preset ? `data-section-preset="${escapeHtml(card.preset)}"` : ""}>
-        ${escapeHtml(card.action || "Open")}
-      </button>
-    </article>
-  `;
-}
-
-function adminConsoleActionInitials(title = "") {
-  const words = String(title || "Go").replace(/&/g, " ").split(/\s+/).filter(Boolean);
-  return words.slice(0, 2).map((word) => word[0]?.toUpperCase() || "").join("") || "GO";
-}
-
-function renderAdminConsoleSectionRow(section = {}, capabilities = adminConsoleCapabilitiesFor(currentUser)) {
-  return `
-    <article class="workspace-table-row" data-admin-console-section="${escapeHtml(section.id || "")}">
-      <div>
-        <strong>${escapeHtml(section.label || "Console section")}</strong>
-        <span>${escapeHtml(section.detail || "Role-scoped console section.")}</span>
-      </div>
-      <div class="workspace-row-actions">
-        <span class="workspace-summary-badge">${escapeHtml(adminConsoleSectionAccessLabel(section.id, capabilities))}</span>
-        <button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(section.id || "overview")}">Open</button>
-      </div>
-    </article>
-  `;
-}
-
-function adminConsoleSectionAccessLabel(sectionId, capabilities = adminConsoleCapabilitiesFor(currentUser)) {
-  if (capabilities.readOnly) return "Read-only";
-  if (sectionId === "teacher") return capabilities.actions.review.writable ? "Review writable" : "Monitor";
-  if (sectionId === "adminUsers") return capabilities.actions.peopleAccess.writable ? "Writable in scope" : "Monitor";
-  if (sectionId === "programs") return capabilities.actions.programs.writable ? "Writable in scope" : "Monitor";
-  if (sectionId === "security") return capabilities.actions.settings.writable ? "Global admin" : "Account only";
-  return capabilities.scope.label;
 }
 
 function consoleStudentSectionId(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
@@ -2274,7 +2286,7 @@ function handlePeopleViewAction(button) {
   const view = cleanAdminPeopleView(button?.dataset?.peopleViewTarget || "");
   if (!view || !canUsePeopleManagementScreens(roleIds(currentUser))) return;
   adminPeopleView = view;
-  activeSection = "adminUsers";
+  activeSection = adminSectionForPeopleView(view, activeSection);
   syncAdminPeopleUrlState();
   renderAppShell(`${peopleViewLabel(view)} opened.`, "success");
 }
@@ -2282,6 +2294,24 @@ function handlePeopleViewAction(button) {
 function peopleViewLabel(view) {
   const match = peopleManagementScreensForRoles(roleIds(currentUser)).find((screen) => screen.id === view);
   return match?.label || "People";
+}
+
+function adminSectionForPeopleView(view, fallbackSection = "adminUsers") {
+  const sectionIds = availableSectionIdsForAnyMode();
+  if (view === "manage-staff" || view === "add-staff") {
+    return sectionIds.has("adminPeople") ? "adminPeople" : "adminUsers";
+  }
+  if (view === "manage-students" || view === "add-student") {
+    return sectionIds.has("adminStudents") ? "adminStudents" : "adminUsers";
+  }
+  if (view === "assignments") {
+    return sectionIds.has("adminAssignments") ? "adminAssignments" : "adminUsers";
+  }
+  if (view === "import-students" || view === "import-staff") {
+    return sectionIds.has("adminImports") ? "adminImports" : "adminUsers";
+  }
+  const cleanFallback = cleanWorkspaceSection(fallbackSection);
+  return sectionIds.has(cleanFallback) ? cleanFallback : "adminUsers";
 }
 
 function handleSecurityFocusAction(button) {
@@ -2735,6 +2765,10 @@ async function openWorkspaceSection(button) {
   }
   activeWorkspaceMode = sectionMode;
   blockedWorkspaceMode = "";
+  const requestedAdminPeopleView = cleanAdminPeopleView(button?.dataset?.adminPeopleView || "");
+  if (requestedAdminPeopleView) {
+    adminPeopleView = requestedAdminPeopleView;
+  }
   if (section === "mentorAssignments" && button.dataset.sectionPreset === "no-mentor") {
     mentorAssignmentFilters = {
       ...defaultMentorAssignmentFilters(),
@@ -3166,8 +3200,8 @@ async function openWorkspaceSection(button) {
     activeSection = "audit";
     syncAdminAuditUrlState({ clearFilters: !adminAuditFilters.action && !adminAuditFilters.entityType });
     await loadAdminAuditEventsResult(adminAuditFilters.action || adminAuditFilters.entityType
-      ? "Showing matching protected activity."
-      : "Showing recent protected activity.");
+      ? "Showing matching audit activity."
+      : "Showing recent audit activity.");
     return;
   }
   if (section === "presentation" && button.dataset.sectionPreset) {
@@ -3294,9 +3328,9 @@ function screenOrientationFor(sectionId = "overview", primaryRole = primaryRoleF
     },
     audit: {
       title: "Audit",
-      useFor: "Investigate protected activity while staying redacted.",
+      useFor: "Review access, roles, assignments, and recent changes while staying redacted.",
       start: "Open saved filters and anomaly cards first.",
-      notFor: "Do not expose private notes, proof links, tokens, or file details.",
+      notFor: "Do not expose private notes, file links, tokens, or Drive identifiers.",
     },
     archiveExports: {
       title: "Final Files",
@@ -3449,7 +3483,7 @@ function screenOrientationActionCandidates(sectionId = "overview", primaryRole =
       { label: "Open Security", section: "security" },
     ],
     audit: [
-      { label: "Recent protected activity", section: "audit" },
+      { label: "Recent activity", section: "audit" },
       { label: "Student dashboard activity", section: "audit", auditAction: "student_dashboard_viewed", auditEntityType: "student_dashboard" },
       { label: "Review queue activity", section: "audit", auditAction: "review_queue_viewed", auditEntityType: "review_queue" },
     ],
@@ -3774,8 +3808,8 @@ function screenActionImpactsFor(sectionId = "overview", primaryRole = primaryRol
     ],
     audit: [
       ["Filters", "Audit filters narrow logged activity without changing the records.", "safe"],
-      ["Rows", "Rows stay redacted so private notes, proof links, and file details are not exposed.", "safe"],
-      ["Follow-up", "Account, proof, review, or package fixes happen in the source screen, not in the log.", "context"],
+      ["Rows", "Rows stay redacted so private notes, file links, and Drive identifiers are not exposed.", "safe"],
+      ["Follow-up", "Account, access, review, storage, or package fixes happen in the source screen, not in the log.", "context"],
     ],
     archiveExports: [
       ["Package filters", "Filters narrow package rows by failed, in-progress, or complete status.", "safe"],
@@ -4877,10 +4911,18 @@ function renderStaffReportsSection() {
 
 function renderAdminUsersSectionForView(view = "manage-students") {
   adminPeopleView = cleanAdminPeopleView(view) || "manage-students";
+  if (activeWorkspaceMode === "admin") {
+    if (activeSection === "adminPeople") return renderAdminConsolePeopleSection();
+    if (activeSection === "adminStudents") return renderAdminConsoleStudentsSection();
+    if (activeSection === "adminAssignments") return renderAdminConsoleAssignmentsSection();
+    if (activeSection === "adminImports") return renderAdminConsoleImportsSection();
+  }
   return renderAdminUsersSection();
 }
 
 function renderAdminReportsSection() {
+  const capabilities = adminConsoleCapabilitiesFor(currentUser);
+  const model = adminConsoleOperationsModel(capabilities);
   return `
     <section class="workspace-admin-reports" data-admin-reports="true" aria-labelledby="adminReportsTitle">
       <div class="workspace-card-head">
@@ -4891,9 +4933,234 @@ function renderAdminReportsSection() {
         </div>
       </div>
       <div class="workspace-admin-console-metrics">
-        ${renderAdminConsoleMetrics(adminConsoleCapabilitiesFor(currentUser))}
+        ${renderAdminConsoleMetrics(capabilities)}
       </div>
+      ${renderAdminOperationalReportSummary(model.report)}
       ${availableSectionIdsForAnyMode().has("readiness") ? renderReadinessSection() : ""}
+    </section>
+  `;
+}
+
+function renderAdminConsolePeopleSection() {
+  const roles = roleIds(currentUser);
+  if (!canUseUsersAccess(roles)) return renderPermissionDeniedSection("People", "staff account setup records");
+  const canCreateGlobal = hasGlobalAdminRole(roles);
+  const roleChoices = adminRoleChoicesForRoles(roles);
+  const options = {
+    canCreateGlobal,
+    localAccountsOnly: !authConfigForUi().googleSsoEnabled,
+  };
+  const screens = peopleManagementScreensForRoles(roles);
+  adminPeopleView = ["add-staff", "manage-staff"].includes(cleanAdminPeopleView(adminPeopleView)) ? adminPeopleView : "manage-staff";
+  return `
+    <section class="workspace-admin-operations-section" data-admin-operations-section="people" aria-labelledby="adminPeopleTitle">
+      ${renderAdminSectionHeader({
+        kicker: "People",
+        title: "Staff Directory",
+        id: "adminPeopleTitle",
+        detail: "Add and manage staff, mentors, viewers, Program Teachers, School Admins, and Site Admins inside the current scope.",
+        badge: options.canCreateGlobal ? "Global people access" : "School-scoped people access",
+      })}
+      ${renderPeopleManagementNav(screens.filter((screen) => screen.group === "Staff" || screen.id === "assignments"), adminPeopleView)}
+      ${renderPeopleManagementScopeSummary(roleChoices, options)}
+      ${renderPeopleManagementScreen(adminPeopleView, roleChoices, options)}
+      ${renderAdminImportResult()}
+    </section>
+  `;
+}
+
+function renderAdminConsoleStudentsSection() {
+  const roles = roleIds(currentUser);
+  if (!canUseUsersAccess(roles)) return renderPermissionDeniedSection("Students", "student roster setup records");
+  const roleChoices = adminRoleChoicesForRoles(roles);
+  const options = {
+    canCreateGlobal: hasGlobalAdminRole(roles),
+    localAccountsOnly: !authConfigForUi().googleSsoEnabled,
+  };
+  const screens = peopleManagementScreensForRoles(roles);
+  adminPeopleView = ["add-student", "manage-students"].includes(cleanAdminPeopleView(adminPeopleView)) ? adminPeopleView : "manage-students";
+  return `
+    <section class="workspace-admin-operations-section" data-admin-operations-section="students" aria-labelledby="adminStudentsTitle">
+      ${renderAdminSectionHeader({
+        kicker: "Students",
+        title: "Student Roster Setup",
+        id: "adminStudentsTitle",
+        detail: "Review roster profile, school/program placement, mentor and viewer signals, then add one scoped student when needed.",
+        badge: "Roster setup",
+      })}
+      ${renderPeopleManagementNav(screens.filter((screen) => screen.group === "Students" || screen.id === "assignments"), adminPeopleView)}
+      ${renderPeopleManagementScopeSummary(roleChoices, options)}
+      ${renderPeopleManagementScreen(adminPeopleView, roleChoices, options)}
+      ${renderAdminImportResult()}
+    </section>
+  `;
+}
+
+function renderAdminConsoleAssignmentsSection() {
+  const roles = roleIds(currentUser);
+  if (!canUseUsersAccess(roles)) return renderPermissionDeniedSection("Assignments", "student and staff assignment records");
+  adminPeopleView = "assignments";
+  return `
+    <section class="workspace-admin-operations-section" data-admin-operations-section="assignments" aria-labelledby="adminAssignmentsTitle">
+      ${renderAdminSectionHeader({
+        kicker: "Assignments",
+        title: "Coverage and Access Assignments",
+        id: "adminAssignmentsTitle",
+        detail: "Put missing coverage first, then use the scoped assignment forms already allowed for this role.",
+        badge: "Scoped forms",
+      })}
+      ${renderAdminAssignmentCoverageSummary()}
+      ${renderAssignmentsPeopleScreen()}
+      ${renderAdminAccessAssignmentPanel()}
+    </section>
+  `;
+}
+
+function renderAdminConsoleImportsSection() {
+  const roles = roleIds(currentUser);
+  if (!canUseUsersAccess(roles)) return renderPermissionDeniedSection("Imports", "student and staff import records");
+  const view = cleanAdminPeopleView(adminPeopleView);
+  adminPeopleView = view === "import-staff" ? "import-staff" : "import-students";
+  return `
+    <section class="workspace-admin-operations-section" data-admin-operations-section="imports" aria-labelledby="adminImportsTitle">
+      ${renderAdminSectionHeader({
+        kicker: "Imports",
+        title: "Student and Staff Imports",
+        id: "adminImportsTitle",
+        detail: "Download the supported CSV template, preview validation, fix errors, then confirm only valid scoped rows.",
+        badge: "CSV preview",
+      })}
+      ${renderAdminImportTemplateShelf()}
+      ${renderPeopleManagementNav(peopleManagementScreensForRoles(roles).filter((screen) => screen.group === "Imports"), adminPeopleView)}
+      ${renderCsvImportScreen(adminPeopleView === "import-staff" ? "staff" : "students", {
+        canCreateGlobal: hasGlobalAdminRole(roles),
+        localAccountsOnly: !authConfigForUi().googleSsoEnabled,
+      })}
+      ${renderAdminImportResult()}
+    </section>
+  `;
+}
+
+function renderAdminSectionHeader({ kicker = "Admin Console", title = "Section", id = "", detail = "", badge = "" } = {}) {
+  return `
+    <div class="workspace-admin-section-header">
+      <div>
+        <p class="workspace-kicker">${escapeHtml(kicker)}</p>
+        <h2 ${id ? `id="${escapeHtml(id)}"` : ""}>${escapeHtml(title)}</h2>
+        <p>${escapeHtml(detail)}</p>
+      </div>
+      ${badge ? `<span class="workspace-site-context-badge">${escapeHtml(badge)}</span>` : ""}
+    </div>
+  `;
+}
+
+function renderAdminAssignmentCoverageSummary() {
+  const access = unwrap(currentData.accessAssignments) || {};
+  const users = access.users || {};
+  const assignments = access.assignments || {};
+  const students = Array.isArray(users.students) ? users.students : [];
+  const programs = Array.isArray(access.programs) ? access.programs : [];
+  const mentorAssignments = Array.isArray(assignments.mentorStudent) ? assignments.mentorStudent : [];
+  const viewerAssignments = Array.isArray(assignments.viewerStudent) ? assignments.viewerStudent : [];
+  const programTeacherAssignments = Array.isArray(assignments.programTeacherProgram) ? assignments.programTeacherProgram : [];
+  const studentIdsWithMentors = new Set(mentorAssignments.map((row) => row.studentId).filter(Boolean));
+  const studentIdsWithViewers = new Set(viewerAssignments.map((row) => row.studentId).filter(Boolean));
+  const programsWithTeachers = new Set(programTeacherAssignments.map((row) => row.programId).filter(Boolean));
+  const missingMentorStudents = students.filter((student) => !studentIdsWithMentors.has(student.userId || student.studentId || student.id || "") && !student.mentorUserId && !student.mentorName);
+  const missingViewerStudents = students.filter((student) => !studentIdsWithViewers.has(student.userId || student.studentId || student.id || "") && !student.viewerUserId && !student.viewerName);
+  const missingTeacherPrograms = programs.filter((program) => !programsWithTeachers.has(program.programId || program.id || ""));
+  const cards = [
+    { id: "mentor", label: "Missing Mentor Coverage", value: missingMentorStudents.length, detail: `${mentorAssignments.length} active mentor assignments`, tone: missingMentorStudents.length ? "warning" : "ready" },
+    { id: "viewer", label: "Missing Viewer Access", value: missingViewerStudents.length, detail: `${viewerAssignments.length} active viewer assignments`, tone: missingViewerStudents.length ? "warning" : "ready" },
+    { id: "program-teacher", label: "Program Teacher Gaps", value: missingTeacherPrograms.length, detail: `${programTeacherAssignments.length} active Program Teacher assignments`, tone: missingTeacherPrograms.length ? "warning" : "ready" },
+    { id: "admin", label: "School Admin Grants", value: safeNumber((assignments.administrationSite || []).length) + safeNumber((assignments.siteAdminSite || []).length), detail: "Administration and Site Admin access rows", tone: "quiet" },
+  ];
+  return `
+    <section class="workspace-admin-coverage-summary" data-admin-assignment-coverage-summary="true" aria-label="Assignment coverage summary">
+      ${cards.map((card) => `
+        <article class="${escapeHtml(card.tone)}" data-admin-assignment-coverage="${escapeHtml(card.id)}">
+          <span>${escapeHtml(card.label)}</span>
+          <strong>${escapeHtml(String(card.value))}</strong>
+          <small>${escapeHtml(card.detail)}</small>
+        </article>
+      `).join("")}
+    </section>
+  `;
+}
+
+function renderAdminImportTemplateShelf() {
+  const templates = [
+    {
+      kind: "students",
+      title: "Student CSV template",
+      detail: "Student name, email, school, program, cohort, graduation year, status, mentor email, viewer email.",
+    },
+    {
+      kind: "staff",
+      title: "Staff CSV template",
+      detail: "Staff name, email, role, school, program, assigned student emails, and status.",
+    },
+  ];
+  return `
+    <section class="workspace-admin-template-shelf" data-admin-import-template-shelf="true" aria-label="CSV templates">
+      ${templates.map((template) => {
+        const csv = csvTemplateForKind(template.kind);
+        const href = `data:text/csv;charset=utf-8,${encodeURIComponent(csv)}`;
+        return `
+          <article data-admin-import-template="${escapeHtml(template.kind)}">
+            <div>
+              <strong>${escapeHtml(template.title)}</strong>
+              <p>${escapeHtml(template.detail)}</p>
+            </div>
+            <div class="workspace-row-actions">
+              <button class="workspace-link-button workspace-link-button-small" type="button" data-people-view-target="${escapeHtml(template.kind === "staff" ? "import-staff" : "import-students")}">
+                Preview ${escapeHtml(template.kind)}
+              </button>
+              <a class="workspace-button workspace-button-secondary" href="${href}" download="${escapeHtml(template.kind === "staff" ? "capstone-staff-template.csv" : "capstone-students-template.csv")}" data-csv-template-download="${escapeHtml(template.kind)}">Download template</a>
+            </div>
+          </article>
+        `;
+      }).join("")}
+    </section>
+  `;
+}
+
+function renderAdminOperationalReportSummary(report = {}) {
+  const rows = [
+    { id: "roster", label: "Roster completeness", value: percentLabel(report.rosterCompletenessPercent), percent: report.rosterCompletenessPercent, detail: `${safeNumber(report.studentTotal)} students in scope` },
+    { id: "mentor", label: "Mentor coverage", value: percentLabel(report.mentorCoveragePercent), percent: report.mentorCoveragePercent, detail: "Mentor assignment coverage" },
+    { id: "viewer", label: "Viewer coverage", value: percentLabel(report.viewerCoveragePercent), percent: report.viewerCoveragePercent, detail: "Read-only viewer assignment coverage" },
+    { id: "program", label: "Program coverage", value: percentLabel(report.programCoveragePercent), percent: report.programCoveragePercent, detail: `${safeNumber(report.activePrograms)} active programs` },
+    { id: "progress", label: "Progress follow-up", value: safeNumber(report.reviewFollowUp), percent: null, detail: "Submitted and revision-requested records" },
+    { id: "issues", label: "Setup/import issues", value: safeNumber(report.setupIssueCount) + safeNumber(report.importIssueCount), percent: null, detail: "Setup list and CSV preview issues" },
+  ];
+  return `
+    <section class="workspace-card workspace-admin-report-summary" data-admin-report-summary="true" aria-labelledby="adminReportSummaryTitle">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Reports</p>
+          <h3 id="adminReportSummaryTitle">Operational coverage summary</h3>
+          <p class="workspace-muted">Roster completeness, mentor/viewer/program coverage, review status, setup, and import issues for the current scope.</p>
+        </div>
+      </div>
+      <div class="workspace-admin-report-bars">
+        ${rows.map((row) => `
+          <article class="workspace-admin-report-row" data-admin-report-row="${escapeHtml(row.id)}">
+            <div>
+              <strong>${escapeHtml(row.label)}</strong>
+              <span>${escapeHtml(row.detail)}</span>
+            </div>
+            <div class="workspace-admin-report-value">
+              <b>${escapeHtml(String(row.value))}</b>
+              ${row.percent === null || row.percent === undefined ? "" : `
+                <span class="workspace-admin-report-meter" aria-label="${escapeHtml(`${row.label} ${percentLabel(row.percent)}`)}">
+                  <i style="width: ${escapeHtml(String(clampPercent(row.percent)))}%"></i>
+                </span>
+              `}
+            </div>
+          </article>
+        `).join("")}
+      </div>
     </section>
   `;
 }
@@ -5558,13 +5825,14 @@ function renderSiteProgramsSection() {
     <section class="workspace-card" data-site-programs-section="true">
       <div class="workspace-card-head">
         <div>
-          <p class="workspace-kicker">Site setup</p>
+          <p class="workspace-kicker">Programs</p>
           <h2>Programs at ${escapeHtml(body.scope?.siteName || "this school")}</h2>
         </div>
         <span class="workspace-chip">${escapeHtml(body.scope?.siteName || "Current site")}</span>
       </div>
       ${renderApiNotice(result)}
       <p class="workspace-muted">Manage which active programs belong to this school. Removing a program here turns off the school mapping only and keeps historical student and assignment records intact.</p>
+      ${renderAdminProgramsCoveragePanel(activePrograms, body)}
       ${renderSiteProgramsSetupFlow(activePrograms, availablePrograms, body)}
       <div class="workspace-assignment-summary">
         <div>
@@ -5657,6 +5925,38 @@ function renderSiteProgramsSetupFlow(activePrograms = [], availablePrograms = []
           </article>
         `).join("")}
       </div>
+    </section>
+  `;
+}
+
+function renderAdminProgramsCoveragePanel(activePrograms = [], body = {}) {
+  const access = unwrap(currentData.accessAssignments) || {};
+  const assignments = access.assignments || {};
+  const programTeacherAssignments = Array.isArray(assignments.programTeacherProgram) ? assignments.programTeacherProgram : [];
+  const assignedProgramIds = new Set(programTeacherAssignments.map((row) => row.programId).filter(Boolean));
+  const gaps = activePrograms.filter((program) => !assignedProgramIds.has(program.programId || program.id || ""));
+  return `
+    <section class="workspace-admin-program-coverage" data-admin-program-coverage="true" aria-label="Program coverage">
+      <article>
+        <span>School context</span>
+        <strong>${escapeHtml(body.scope?.siteName || "Current school")}</strong>
+        <small>${escapeHtml(body.scope?.schoolYear || "Current school year")}</small>
+      </article>
+      <article>
+        <span>Active programs</span>
+        <strong>${escapeHtml(String(activePrograms.length))}</strong>
+        <small>${escapeHtml(`${programTeacherAssignments.length} Program Teacher assignment ${pluralize(programTeacherAssignments.length, "row")}`)}</small>
+      </article>
+      <article class="${gaps.length ? "warning" : "ready"}">
+        <span>Coverage issues</span>
+        <strong>${escapeHtml(String(gaps.length))}</strong>
+        <small>${escapeHtml(gaps.length ? "Confirm Program Teacher access in Assignments." : "No Program Teacher gaps in loaded assignments.")}</small>
+      </article>
+      ${availableSectionIdsForAnyMode().has("adminAssignments") ? `
+        <button class="workspace-link-button workspace-link-button-small" type="button" data-section="adminAssignments">
+          Open assignments
+        </button>
+      ` : ""}
     </section>
   `;
 }
@@ -7551,7 +7851,7 @@ function renderAdminOverviewSection() {
         ${renderMetricTile("Needs Revision", summary.revisionRequested, "Open revision loops", "warning", "teacher", { label: "Review", preset: "revision-requested" })}
         ${renderMetricTile("Presentations", summary.presentationScheduled, "Scheduled slots", "teacher", "operations", { label: "Review", preset: "presentation-pending" })}
         ${renderMetricTile("Exports", summary.exportsQueued, exportsAttention, safeNumber(summary.exportsFailed) ? "danger" : "admin", "archiveExports")}
-        ${renderMetricTile("Audit", summary.recentAuditEvents, "Recent protected activity", "admin", "audit")}
+        ${renderMetricTile("Audit", summary.recentAuditEvents, "Recent audit activity", "admin", "audit")}
       </div>
       ${siteStudentDetailState?.sourceSection === "adminDashboard" ? renderSiteStudentDetailSurface({
         students: (dashboard.reviewQueue || []).map((row) => ({
@@ -9569,7 +9869,7 @@ function operationRowsForDetail(body = {}) {
 function renderAdminAuditSection() {
   const result = currentData.auditEvents;
   if (result?.status === 403) {
-    return renderPermissionDeniedSection("Audit", "protected activity records");
+    return renderPermissionDeniedSection("Audit", "audit activity records");
   }
   const auditEvents = unwrap(result);
   if (!auditEvents) {
@@ -9589,22 +9889,14 @@ function renderAdminAuditSection() {
       <div class="workspace-command-hero">
         <div>
           <p class="workspace-kicker">Audit</p>
-          <h1>Recent Protected Activity</h1>
+          <h1>Access Review</h1>
           <p>${escapeHtml(hasFilters
-            ? `Showing protected activity for ${filterLabel}.`
-            : "Recent activity is summarized without sensitive private details.")}</p>
+            ? `Showing recent changes for ${filterLabel}.`
+            : "Review access, roles, assignments, recent changes, and potential issues from redacted activity rows.")}</p>
         </div>
         <span class="workspace-chip">${safeNumber(events.length)} recent event${safeNumber(events.length) === 1 ? "" : "s"}</span>
       </div>
-      ${renderFirstUseGuide("audit", "Investigate protected activity without exposing secrets", [
-        ["Open a saved filter", "Start with denied access, upload failures, review decisions, account changes, or export failures."],
-        ["Check anomaly counts", "Use the signal cards to decide whether this is support, setup, or security follow-up."],
-        ["Stay redacted", "Do not expose note text, proof links, tokens, or Drive identifiers while investigating."],
-        ["Route the fix", "Send account issues to access admins, proof failures to storage setup, and review issues to Program Teachers."],
-      ], {
-        detail: "Audit is for triage and proof, not for reading private student work.",
-        badge: "Audit path",
-      })}
+      ${renderAdminAuditOperationsSummary(events)}
       <div class="workspace-filter-bar" data-admin-audit-filters="true" aria-label="Audit filters">
         <span class="workspace-muted">${escapeHtml(hasFilters ? `Filtered by ${filterLabel}` : "Showing the latest redacted audit activity.")}</span>
         ${hasFilters ? `
@@ -9616,13 +9908,54 @@ function renderAdminAuditSection() {
       ${renderAdminAuditActionMap(events, adminAuditFilters)}
       ${renderAdminAuditSavedFilters(events, adminAuditFilters)}
       ${renderAdminAuditAnomalyView(events)}
-      ${renderAdminAuditSecurityProofPanel(events)}
-      ${renderDashboardCard("Recent Audit", hasFilters ? "Filtered activity from the protected audit log" : "Redacted activity list", renderAuditSummary(events, {
+      ${renderDashboardCard("Recent Audit", hasFilters ? "Filtered redacted activity rows" : "Redacted activity list", renderAuditSummary(events, {
         allowAuditDrillDown: true,
         emptyMessage: hasFilters
-          ? "No protected activity matches this filter right now."
+          ? "No recent changes match this filter right now."
           : "No recent audit rows are available for this view.",
       }))}
+    </section>
+  `;
+}
+
+function renderAdminAuditOperationsSummary(events = []) {
+  const safeEvents = Array.isArray(events) ? events : [];
+  const countWhere = (pattern) => safeEvents.filter((event) => pattern.test(`${event.action || ""} ${event.entityType || ""}`)).length;
+  const cards = [
+    {
+      id: "access-review",
+      title: "Access Review",
+      value: countWhere(/denied|unauthorized|access|assignment/i),
+      detail: "Denied access, assignment, and scope-change rows.",
+    },
+    {
+      id: "role-assignments",
+      title: "Role Assignments",
+      value: countWhere(/role|user_account|site_access_assignment/i),
+      detail: "Account, role, and school access changes.",
+    },
+    {
+      id: "recent-changes",
+      title: "Recent Changes",
+      value: safeEvents.length,
+      detail: "Loaded redacted rows in this audit view.",
+    },
+    {
+      id: "potential-issues",
+      title: "Potential Issues",
+      value: adminAuditAnomalyRows(safeEvents).reduce((sum, row) => sum + safeNumber(row.count), 0),
+      detail: "Rows that may need support, setup, or access follow-up.",
+    },
+  ];
+  return `
+    <section class="workspace-admin-audit-overview" data-admin-audit-overview="true" aria-label="Audit overview">
+      ${cards.map((card) => `
+        <article data-admin-audit-overview-card="${escapeHtml(card.id)}">
+          <span>${escapeHtml(card.title)}</span>
+          <strong>${escapeHtml(String(card.value))}</strong>
+          <small>${escapeHtml(card.detail)}</small>
+        </article>
+      `).join("")}
     </section>
   `;
 }
@@ -9642,7 +9975,7 @@ function renderAdminAuditActionMap(events = [], activeFilters = {}) {
       tone: "ready",
       owner: "Global admin",
       count: `${eventCount} ${pluralize(eventCount, "event")}`,
-      title: "Start with latest protected activity",
+      title: "Start with latest changes",
       detail: "Use the unfiltered redacted log when you need the newest platform pattern before choosing a lane.",
       source: "Recent audit rows",
       actionLabel: "Show recent",
@@ -9654,30 +9987,30 @@ function renderAdminAuditActionMap(events = [], activeFilters = {}) {
       count: `${safeNumber(anomalyById.get("denied-access")?.count)} ${pluralize(anomalyById.get("denied-access")?.count, "denial", "denials")}`,
       title: "Check denied access first",
       detail: "Confirm the current school, program, or student before widening access.",
-      source: "Protected-record denials",
+      source: "Access denials",
       action: "evidence_download_denied",
       entityType: "evidence_artifact",
       actionLabel: "Open denials",
     },
     {
-      id: "proof-storage",
+      id: "storage",
       tone: anomalyById.get("failed-uploads")?.count ? "warning" : "quiet",
       owner: "Storage admin",
       count: `${safeNumber(anomalyById.get("failed-uploads")?.count)} ${pluralize(anomalyById.get("failed-uploads")?.count, "failure")}`,
       title: "Separate storage setup from student error",
-      detail: "Review provider failures before asking students to upload the same proof again.",
+      detail: "Review provider failures before asking students to retry the same upload.",
       source: "Upload failures",
       action: "google_drive_upload_failed",
       entityType: "evidence_repository",
       actionLabel: "Open uploads",
     },
     {
-      id: "blocked-proof",
-      tone: anomalyById.get("blocked-proof-attempts")?.count ? "warning" : "quiet",
+      id: "blocked-evidence",
+      tone: anomalyById.get("blocked-evidence-attempts")?.count ? "warning" : "quiet",
       owner: "Program Teacher or security admin",
-      count: `${safeNumber(anomalyById.get("blocked-proof-attempts")?.count)} ${pluralize(anomalyById.get("blocked-proof-attempts")?.count, "block")}`,
-      title: "Review blocked proof safely",
-      detail: "Decide whether the student needs proof-link help or the pattern needs security follow-up.",
+      count: `${safeNumber(anomalyById.get("blocked-evidence-attempts")?.count)} ${pluralize(anomalyById.get("blocked-evidence-attempts")?.count, "block")}`,
+      title: "Review blocked evidence safely",
+      detail: "Decide whether the student needs file/link help or the pattern needs security follow-up.",
       source: "Blocked files and links",
       action: "evidence_upload_blocked_signature",
       entityType: "submission",
@@ -9689,7 +10022,7 @@ function renderAdminAuditActionMap(events = [], activeFilters = {}) {
       owner: "Program Teacher lead",
       count: `${reviewCount} ${pluralize(reviewCount, "decision")}`,
       title: "Confirm review decisions",
-      detail: "Use review rows to verify approvals, revisions, and comments without opening private proof here.",
+      detail: "Use review rows to verify approvals, revisions, and comments without opening private files here.",
       source: "Review rows",
       action: "",
       entityType: "review",
@@ -9777,7 +10110,7 @@ function renderAdminAuditActionMapCard(card = {}, activeFilters = {}) {
           <span>${escapeHtml(card.owner || "Global admin")}</span>
           <b>${escapeHtml(card.count || "0")}</b>
         </div>
-        <strong>${escapeHtml(card.title || "Review protected activity")}</strong>
+        <strong>${escapeHtml(card.title || "Review activity")}</strong>
         <p>${escapeHtml(card.detail || "Use the matching redacted filter before investigating the source screen.")}</p>
         ${card.source ? `<small>${escapeHtml(card.source)}</small>` : ""}
       </div>
@@ -9803,7 +10136,7 @@ function renderAdminAuditSavedFilters(events = [], activeFilters = {}) {
     <section class="workspace-admin-audit-saved-filters" data-admin-audit-saved-filters="true" aria-label="Saved audit filters">
       <div>
         <strong>Saved audit filters</strong>
-        <p>Open the exact protected-activity view before investigating. These links reuse the current audit endpoint and stay redacted.</p>
+        <p>Open the exact redacted activity view before investigating. These links reuse the current audit endpoint.</p>
       </div>
       <div class="workspace-admin-audit-filter-grid">
         ${ADMIN_AUDIT_SAVED_FILTERS.map((filter) => {
@@ -9838,9 +10171,9 @@ function renderAdminAuditAnomalyView(events = []) {
     <section class="workspace-admin-audit-anomalies" data-admin-audit-anomaly-view="true" aria-label="Audit anomaly review">
       <div class="workspace-card-head">
         <div>
-          <p class="workspace-kicker">Anomaly review</p>
-          <h2>Security signals to check</h2>
-          <p class="workspace-muted">This is a triage view over the currently loaded redacted audit rows. It does not expose notes, proof links, tokens, or Drive identifiers.</p>
+          <p class="workspace-kicker">Potential issues</p>
+          <h2>Rows to check</h2>
+          <p class="workspace-muted">This view summarizes the currently loaded redacted audit rows. It does not expose private notes, file links, tokens, or Drive identifiers.</p>
         </div>
         <span class="workspace-chip">${safeNumber(rows.reduce((sum, row) => sum + row.count, 0))} signal${rows.reduce((sum, row) => sum + row.count, 0) === 1 ? "" : "s"}</span>
       </div>
@@ -9890,18 +10223,18 @@ function adminAuditAnomalyRows(events = []) {
       reviewCopy: "Use storage setup and student fallback language before asking students to upload again.",
       quietCopy: "No upload-failure rows are visible in this audit view.",
       owner: "Storage admin",
-      nextAction: "Check storage readiness, then tell students to use the secure proof-link fallback if needed.",
+      nextAction: "Check storage readiness, then tell students to use the secure link fallback if needed.",
       action: "google_drive_upload_failed",
       entityType: "evidence_repository",
     },
     {
-      id: "blocked-proof-attempts",
-      label: "Blocked proof attempts",
+      id: "blocked-evidence-attempts",
+      label: "Blocked evidence attempts",
       count: countWhere((event) => /evidence_(upload_blocked_signature|link_blocked_unsafe_url)/i.test(event.action || "")),
-      reviewCopy: "Check whether students need help attaching proof safely or whether the pattern looks malicious.",
-      quietCopy: "No blocked file or proof-link attempts are visible in this audit view.",
+      reviewCopy: "Check whether students need help attaching evidence safely or whether the pattern looks malicious.",
+      quietCopy: "No blocked file or link attempts are visible in this audit view.",
       owner: "Program Teacher or security admin",
-      nextAction: "Help the student attach proof safely, or escalate repeated unsafe patterns.",
+      nextAction: "Help the student attach evidence safely, or escalate repeated unsafe patterns.",
       action: "",
       entityType: "",
     },
@@ -9950,34 +10283,6 @@ function adminAuditAnomalyRows(events = []) {
       entityType: "export",
     },
   ];
-}
-
-function renderAdminAuditSecurityProofPanel(events = []) {
-  const rateLimitedRows = (Array.isArray(events) ? events : []).filter((event) => /rate_limited/i.test(event.action || ""));
-  const mutationRows = (Array.isArray(events) ? events : []).filter((event) => /created|uploaded|decision|meeting|assignment|program|export|reset/i.test(event.action || ""));
-  return `
-    <section class="workspace-admin-security-proof" data-admin-security-proof="true" aria-label="Security proof summary">
-      <strong>Security checks that are enforced now</strong>
-      <div class="workspace-admin-security-proof-grid">
-        <article>
-          <span>Cross-origin POST guard</span>
-          <small>Mutation routes use the shared POST helper, which blocks browser posts from a different origin before route work starts.</small>
-        </article>
-        <article>
-          <span>Login and reset throttling</span>
-          <small>Login and required-reset completion count recent failures and return rate_limited before creating sessions.</small>
-        </article>
-        <article>
-          <span>Mutation audit trail</span>
-          <small>${escapeHtml(mutationRows.length ? `${mutationRows.length} mutation-like audit row${mutationRows.length === 1 ? "" : "s"} visible in this view.` : "Mutation routes write redacted audit rows when they create, deny, or fail protected changes.")}</small>
-        </article>
-        <article>
-          <span>Rate-limit visibility</span>
-          <small>${escapeHtml(rateLimitedRows.length ? `${rateLimitedRows.length} rate-limited row${rateLimitedRows.length === 1 ? "" : "s"} visible here.` : "No rate-limited audit row is visible in the current audit view.")}</small>
-        </article>
-      </div>
-    </section>
-  `;
 }
 
 function renderAdminArchiveExportsSection() {
@@ -16082,9 +16387,9 @@ function renderSecurityActionMap({ roles = roleIds(currentUser), globalAdmin = h
       tone: canOpenAudit ? "history" : "quiet",
       owner: "Security review",
       count: canOpenAudit ? "Audit" : "Admin only",
-      title: "Review protected activity elsewhere",
+      title: "Review audit activity elsewhere",
       detail: "Denied access, role changes, import attempts, and reset activity are reviewed from Audit, not from this account form.",
-      source: canOpenAudit ? "Audit source screen" : "Protected audit screen",
+      source: canOpenAudit ? "Audit source screen" : "Admin-only audit screen",
       section: canOpenAudit ? "audit" : "",
       actionLabel: "Open audit",
       summaryLabel: "Admin only",
@@ -22649,7 +22954,7 @@ const ROLE_WORKING_PROFILES = {
         id: "audit",
         step: "3",
         tone: "quiet",
-        title: "Check protected activity",
+        title: "Check audit activity",
         detail: "Use Audit and Security only when the question needs elevated account or activity context.",
         section: "audit",
         action: "Open Audit",
@@ -23380,7 +23685,7 @@ function applyWorkspaceUrlState(state, options = {}) {
   }
   if (state.hasAdminPeopleState) {
     adminPeopleView = state.adminPeopleView || "manage-students";
-    if (!state.section) activeSection = "adminUsers";
+    if (!state.section) activeSection = adminSectionForPeopleView(adminPeopleView, "adminUsers");
   }
   if (state.hasSiteStudentDetailState) {
     siteStudentDetailState = {
@@ -23430,7 +23735,7 @@ function workspaceUrlStateFromLocation() {
   const hasPresentationScheduleState = presentationViewRequested || (!requestedSection && !requestedView && hasPresentationScheduleFilterParams(params));
   const hasAdminAuditState = requestedSection === "audit" || (!requestedSection && !requestedView && hasAdminAuditFilterParams(params));
   const hasAdminArchiveExportState = requestedSection === "archiveExports" || (!requestedSection && !requestedView && hasAdminArchiveExportFilterParams(params));
-  const hasAdminPeopleState = requestedSection === "adminUsers" || params.has("peopleView");
+  const hasAdminPeopleState = ["adminUsers", "adminPeople", "adminStudents", "adminAssignments", "adminImports"].includes(requestedSection) || params.has("peopleView");
   const hasSiteStudentDetailState = hasSiteStudentDetailUrlState(params, resolvedSection);
   const hasViewAsStudentState = hasViewAsStudentUrlState(params);
   return {
@@ -23733,7 +24038,7 @@ function syncCurrentWorkspaceUrlState(options = {}) {
     syncAdminArchiveExportUrlState(options);
     return;
   }
-  if (activeSection === "adminUsers") {
+  if (["adminUsers", "adminPeople", "adminStudents", "adminAssignments", "adminImports"].includes(activeSection)) {
     syncAdminPeopleUrlState(options);
     return;
   }
@@ -23858,8 +24163,18 @@ function syncAdminArchiveExportUrlState(options = {}) {
 }
 
 function syncAdminPeopleUrlState(options = {}) {
-  syncFilteredWorkspaceUrlState("adminUsers", { peopleView: cleanAdminPeopleView(adminPeopleView) || "manage-students" }, options, (url, filters) => {
-    if (filters.peopleView && filters.peopleView !== "manage-students") {
+  const view = cleanAdminPeopleView(adminPeopleView) || "manage-students";
+  const visibleSection = adminSectionForPeopleView(view, activeSection);
+  const section = cleanWorkspaceSection(activeSection) === "adminUsers" ? "adminUsers" : visibleSection;
+  const defaultViewForSection = {
+    adminPeople: "manage-staff",
+    adminStudents: "manage-students",
+    adminAssignments: "assignments",
+    adminImports: "import-students",
+    adminUsers: "manage-students",
+  }[section] || "manage-students";
+  syncFilteredWorkspaceUrlState(section, { peopleView: view }, options, (url, filters) => {
+    if (filters.peopleView && filters.peopleView !== defaultViewForSection) {
       url.searchParams.set("peopleView", filters.peopleView);
     }
   });
