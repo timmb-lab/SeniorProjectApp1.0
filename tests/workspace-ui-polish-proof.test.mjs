@@ -121,6 +121,8 @@ test("workspace UI polish manifest records durable local fake-account screenshot
   assert.equal(byId.get("27-global-admin-workspace-today").markers.staffAttentionQueue, true);
   assert.equal(byId.get("28-student-detail-evidence").markers.studentDetailEvidence, true);
   assert.equal(byId.get("29-workspace-reports").markers.staffReports, true);
+  assert.equal(byId.get("29-workspace-reports").markers.staffReportBars, true);
+  assert.equal(byId.get("29-workspace-reports").markers.reportBars, true);
   assert.equal(byId.get("31-mobile-student-detail").markers.studentDetailPanel, true);
   assert.equal(byId.get("15-view-as-student-entered-desktop").markers.viewAsBanner, true);
   assert.equal(byId.get("16-view-as-student-exited-return").markers.viewAsBanner, false);
@@ -132,6 +134,7 @@ test("workspace UI polish manifest records durable local fake-account screenshot
   assert.equal(byId.get("33-admin-assignments").markers.adminAssignments, true);
   assert.equal(byId.get("34-admin-programs").markers.adminPrograms, true);
   assert.equal(byId.get("35-admin-reports").markers.adminReports, true);
+  assert.equal(byId.get("35-admin-reports").markers.reportBars, true);
   assert.equal(byId.get("36-admin-audit").markers.adminAudit, true);
   assert.equal(byId.get("37-mobile-admin-overview").markers.adminQuickActions, true);
   assert.equal(byId.get("38-mobile-admin-imports").markers.csvImportStepper, true);

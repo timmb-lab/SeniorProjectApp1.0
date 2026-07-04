@@ -368,9 +368,9 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?mode=workspace&section=staffReports&siteId=site-desert-valley-high"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
-    expected: ["Reports", "Student Progress Reports", "VISIBLE STUDENTS"],
-    absent: ["Admin Console Overview", "Role context"],
-    proves: "Workspace Reports remain available as a progress summary outside Admin Console.",
+    expected: ["Reports", "Student Progress Reports", "Visible students by status", "Needs Review", "Missing work/setup"],
+    absent: ["Admin Console Overview", "Role context", "Showing 0 of 0"],
+    proves: "Workspace Reports show scoped student status bars outside Admin Console.",
   },
   {
     id: "30-mobile-mentor-today",
@@ -439,6 +439,7 @@ const SCREENSHOT_PLAN = [
     url: workspaceUrl("?mode=admin&section=adminReports&siteId=site-desert-valley-high"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
     expected: ["Reports", "Operational Reports", "Operational coverage summary", "Roster completeness", "Mentor coverage"],
+    absent: ["Showing 0 of 0", "No data", "No rows"],
     proves: "Reports shows roster completeness, coverage, review, setup, and import issue summaries.",
   },
   {
@@ -945,6 +946,8 @@ async function collectPageState(client) {
         staffAttentionQueue: Boolean(document.querySelector("[data-staff-attention-queue]")),
         studentDetailEvidence: Boolean(document.querySelector("[data-student-detail-section='evidence']")),
         staffReports: Boolean(document.querySelector("[data-staff-reports='true']")),
+        reportBars: Boolean(document.querySelector("[data-report-bars='true']")),
+        staffReportBars: Boolean(document.querySelector("[data-staff-report-bars='true']")),
         problemState: Boolean(document.querySelector("[data-workspace-state='permission-denied'], .workspace-problem-state")),
         intentionalEmptyState: Boolean(document.querySelector("[data-intentional-empty-state], [data-student-directory-empty='true']")),
         finalFiles: Boolean(document.querySelector("[data-archive-dashboard], .workspace-archive-dashboard, [data-student-final-checklist='true']"))

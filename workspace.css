@@ -2002,11 +2002,13 @@ body[data-page="workspace"],
   color: var(--abc-muted);
 }
 
+.workspace-report-bars,
 .workspace-admin-report-bars {
   display: grid;
   gap: 0.58rem;
 }
 
+.workspace-report-row,
 .workspace-admin-report-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(9rem, 0.55fr);
@@ -2018,26 +2020,50 @@ body[data-page="workspace"],
   padding: 0.7rem;
 }
 
+.workspace-report-row.ready {
+  border-color: color-mix(in srgb, var(--abc-green) 28%, white);
+}
+
+.workspace-report-row.warning {
+  border-color: color-mix(in srgb, var(--abc-gold) 36%, white);
+}
+
+.workspace-report-row.mentor,
+.workspace-report-row.student,
+.workspace-report-row.teacher {
+  border-color: color-mix(in srgb, var(--role-accent, var(--abc-teal)) 22%, white);
+}
+
+.workspace-report-row.danger {
+  border-color: color-mix(in srgb, var(--abc-red) 30%, white);
+}
+
+.workspace-report-row strong,
+.workspace-report-row span,
 .workspace-admin-report-row strong,
 .workspace-admin-report-row span {
   display: block;
 }
 
+.workspace-report-row span,
 .workspace-admin-report-row span {
   color: var(--abc-muted);
   font-size: 0.84rem;
 }
 
+.workspace-report-value,
 .workspace-admin-report-value {
   display: grid;
   gap: 0.32rem;
   justify-items: stretch;
 }
 
+.workspace-report-value b,
 .workspace-admin-report-value b {
   justify-self: end;
 }
 
+.workspace-report-meter,
 .workspace-admin-report-meter {
   display: block;
   height: 0.48rem;
@@ -2046,11 +2072,24 @@ body[data-page="workspace"],
   background: color-mix(in srgb, var(--abc-muted) 14%, white);
 }
 
+.workspace-report-meter i,
 .workspace-admin-report-meter i {
   display: block;
   height: 100%;
   border-radius: inherit;
   background: var(--abc-teal);
+}
+
+.workspace-report-row.warning .workspace-report-meter i {
+  background: var(--abc-gold);
+}
+
+.workspace-report-row.ready .workspace-report-meter i {
+  background: var(--abc-green);
+}
+
+.workspace-report-row.danger .workspace-report-meter i {
+  background: var(--abc-red);
 }
 
 .workspace-console-handoff {
@@ -9041,6 +9080,7 @@ button.workspace-metric-tile,
   .workspace-admin-console-safety-strip,
   .workspace-admin-console-operating-list,
   .workspace-admin-template-shelf,
+  .workspace-report-row,
   .workspace-admin-report-row,
   .workspace-student-completion-lanes {
     grid-template-columns: 1fr;
@@ -9049,6 +9089,16 @@ button.workspace-metric-tile,
   .workspace-admin-console-operating-head {
     display: grid;
     justify-content: stretch;
+  }
+
+  .workspace-report-value b,
+  .workspace-admin-report-value b {
+    justify-self: start;
+  }
+
+  .workspace-report-meter,
+  .workspace-admin-report-meter {
+    min-width: 0;
   }
 
   .workspace-access-summary-head {
@@ -9499,6 +9549,6 @@ button.workspace-metric-tile,
   }
 
   .workspace-admin-flow {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 }

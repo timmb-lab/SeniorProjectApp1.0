@@ -4890,6 +4890,39 @@ function renderStaffTodayScopePanel(model = {}) {
 
 function renderStaffReportsSection() {
   const roles = roleIds(currentUser);
+  const visibleStudents = adminConsoleStudentCount();
+  const reviewCount = adminConsoleReviewCount();
+  const setupSignalCount = adminConsoleOperationsCount();
+  const reportMax = Math.max(visibleStudents, reviewCount, setupSignalCount, 1);
+  const reportRows = [
+    {
+      id: "visible-students",
+      label: "Visible students",
+      value: visibleStudents,
+      max: reportMax,
+      detail: "Students available inside this role's scope.",
+      tone: "student",
+      dataAttrs: `data-staff-report-row="visible-students"`,
+    },
+    {
+      id: "needs-review",
+      label: "Needs Review",
+      value: reviewCount,
+      max: reportMax,
+      detail: "Submitted or revision rows waiting for staff follow-up.",
+      tone: reviewCount ? "warning" : "ready",
+      dataAttrs: `data-staff-report-row="needs-review"`,
+    },
+    {
+      id: "missing-work-setup",
+      label: "Missing work/setup",
+      value: setupSignalCount,
+      max: reportMax,
+      detail: "Presentation, mentor, or final-file signals in this scope.",
+      tone: setupSignalCount ? "warning" : "ready",
+      dataAttrs: `data-staff-report-row="missing-work-setup"`,
+    },
+  ];
   return `
     <section class="workspace-command-center workspace-staff-reports" data-staff-reports="true" aria-labelledby="staffReportsTitle">
       <div class="workspace-command-hero">
@@ -4904,6 +4937,15 @@ function renderStaffReportsSection() {
         ${renderMetricTile("Needs Review", adminConsoleReviewCount(), "Submitted or review-related rows", safeNumber(adminConsoleReviewCount()) ? "warning" : "teacher", hasSiteReviewQueueRole(roles) ? "teacher" : "", { label: "Open Reviews", preset: "submitted" })}
         ${renderMetricTile("Setup Signals", adminConsoleOperationsCount(), "Presentation, mentor, or final-file blockers", safeNumber(adminConsoleOperationsCount()) ? "warning" : "mentor", hasSiteOperationsRole(roles) ? "operations" : "", { label: "Open Worklist", preset: "needs-attention" })}
       </div>
+      ${renderReportBars({
+        id: "staffReportBarTitle",
+        kicker: "Staff reports",
+        title: "Visible students by status",
+        detail: "Quick bars compare the visible roster with review and setup signals; each value is also shown as text.",
+        rows: reportRows,
+        className: "workspace-staff-report-summary",
+        dataAttrs: `data-staff-report-bars="true"`,
+      })}
       ${availableSectionIdsForAnyMode().has("readiness") ? renderReadinessSection() : ""}
     </section>
   `;
@@ -5127,42 +5169,22 @@ function renderAdminImportTemplateShelf() {
 
 function renderAdminOperationalReportSummary(report = {}) {
   const rows = [
-    { id: "roster", label: "Roster completeness", value: percentLabel(report.rosterCompletenessPercent), percent: report.rosterCompletenessPercent, detail: `${safeNumber(report.studentTotal)} students in scope` },
-    { id: "mentor", label: "Mentor coverage", value: percentLabel(report.mentorCoveragePercent), percent: report.mentorCoveragePercent, detail: "Mentor assignment coverage" },
-    { id: "viewer", label: "Viewer coverage", value: percentLabel(report.viewerCoveragePercent), percent: report.viewerCoveragePercent, detail: "Read-only viewer assignment coverage" },
-    { id: "program", label: "Program coverage", value: percentLabel(report.programCoveragePercent), percent: report.programCoveragePercent, detail: `${safeNumber(report.activePrograms)} active programs` },
-    { id: "progress", label: "Progress follow-up", value: safeNumber(report.reviewFollowUp), percent: null, detail: "Submitted and revision-requested records" },
-    { id: "issues", label: "Setup/import issues", value: safeNumber(report.setupIssueCount) + safeNumber(report.importIssueCount), percent: null, detail: "Setup list and CSV preview issues" },
+    { id: "roster", label: "Roster completeness", value: report.rosterCompletenessPercent, max: 100, valueLabel: percentLabel(report.rosterCompletenessPercent), detail: `${safeNumber(report.studentTotal)} students in scope`, tone: "student", dataAttrs: `data-admin-report-row="roster"` },
+    { id: "mentor", label: "Mentor coverage", value: report.mentorCoveragePercent, max: 100, valueLabel: percentLabel(report.mentorCoveragePercent), detail: "Mentor assignment coverage", tone: "mentor", dataAttrs: `data-admin-report-row="mentor"` },
+    { id: "viewer", label: "Viewer coverage", value: report.viewerCoveragePercent, max: 100, valueLabel: percentLabel(report.viewerCoveragePercent), detail: "Read-only viewer assignment coverage", tone: "ready", dataAttrs: `data-admin-report-row="viewer"` },
+    { id: "program", label: "Program coverage", value: report.programCoveragePercent, max: 100, valueLabel: percentLabel(report.programCoveragePercent), detail: `${safeNumber(report.activePrograms)} active programs`, tone: "teacher", dataAttrs: `data-admin-report-row="program"` },
+    { id: "progress", label: "Progress follow-up", value: safeNumber(report.reviewFollowUp), max: Math.max(safeNumber(report.studentTotal), safeNumber(report.reviewFollowUp), 1), detail: "Submitted and revision-requested records", tone: safeNumber(report.reviewFollowUp) ? "warning" : "ready", dataAttrs: `data-admin-report-row="progress"` },
+    { id: "issues", label: "Setup/import issues", value: safeNumber(report.setupIssueCount) + safeNumber(report.importIssueCount), max: Math.max(safeNumber(report.studentTotal), safeNumber(report.setupIssueCount) + safeNumber(report.importIssueCount), 1), detail: "Setup list and CSV preview issues", tone: safeNumber(report.setupIssueCount) + safeNumber(report.importIssueCount) ? "warning" : "ready", dataAttrs: `data-admin-report-row="issues"` },
   ];
-  return `
-    <section class="workspace-card workspace-admin-report-summary" data-admin-report-summary="true" aria-labelledby="adminReportSummaryTitle">
-      <div class="workspace-card-head">
-        <div>
-          <p class="workspace-kicker">Reports</p>
-          <h3 id="adminReportSummaryTitle">Operational coverage summary</h3>
-          <p class="workspace-muted">Roster completeness, mentor/viewer/program coverage, review status, setup, and import issues for the current scope.</p>
-        </div>
-      </div>
-      <div class="workspace-admin-report-bars">
-        ${rows.map((row) => `
-          <article class="workspace-admin-report-row" data-admin-report-row="${escapeHtml(row.id)}">
-            <div>
-              <strong>${escapeHtml(row.label)}</strong>
-              <span>${escapeHtml(row.detail)}</span>
-            </div>
-            <div class="workspace-admin-report-value">
-              <b>${escapeHtml(String(row.value))}</b>
-              ${row.percent === null || row.percent === undefined ? "" : `
-                <span class="workspace-admin-report-meter" aria-label="${escapeHtml(`${row.label} ${percentLabel(row.percent)}`)}">
-                  <i style="width: ${escapeHtml(String(clampPercent(row.percent)))}%"></i>
-                </span>
-              `}
-            </div>
-          </article>
-        `).join("")}
-      </div>
-    </section>
-  `;
+  return renderReportBars({
+    id: "adminReportSummaryTitle",
+    kicker: "Reports",
+    title: "Operational coverage summary",
+    detail: "Roster completeness, mentor/viewer/program coverage, review status, setup, and import issues for the current scope.",
+    rows,
+    className: "workspace-admin-report-summary",
+    dataAttrs: `data-admin-report-summary="true"`,
+  });
 }
 
 function renderViewerOverviewSection() {
@@ -5184,7 +5206,7 @@ function renderWorkspaceAdminConsoleHandoff() {
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Admin Console</p>
-          <h2 id="workspaceConsoleHandoffTitle">Need setup or access work?</h2>
+          <h2 id="workspaceConsoleHandoffTitle">Open operations console</h2>
           <p class="workspace-muted">Open Admin Console for People, Students, Assignments, Programs, Imports, Reports, and Audit sections available to this account.</p>
         </div>
         <span class="workspace-site-context-badge">${escapeHtml(capabilities.scope.label)}</span>
@@ -21267,6 +21289,57 @@ function renderSummaryStrip(items = [], options = {}) {
         </article>
       `).join("")}
     </div>
+  `;
+}
+
+function renderReportBars({ id = "workspaceReportBarsTitle", kicker = "Reports", title = "Report summary", detail = "", rows = [], className = "", dataAttrs = "" } = {}) {
+  const safeRows = Array.isArray(rows) ? rows.filter(Boolean) : [];
+  return `
+    <section class="workspace-card workspace-report-summary ${escapeHtml(className)}" ${dataAttrs} aria-labelledby="${escapeHtml(id)}">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">${escapeHtml(kicker)}</p>
+          <h3 id="${escapeHtml(id)}">${escapeHtml(title)}</h3>
+          ${detail ? `<p class="workspace-muted">${escapeHtml(detail)}</p>` : ""}
+        </div>
+      </div>
+      ${safeRows.length ? `
+        <div class="workspace-report-bars" data-report-bars="true">
+          ${safeRows.map(renderReportBarRow).join("")}
+        </div>
+      ` : `
+        <article class="workspace-empty-state-card" data-report-empty="true">
+          <strong>No report data is available for this scope yet.</strong>
+          <p>Report rows appear after scoped roster, review, or setup data loads.</p>
+        </article>
+      `}
+    </section>
+  `;
+}
+
+function renderReportBarRow(row = {}) {
+  const value = safeNumber(row.value);
+  const max = Math.max(safeNumber(row.max), value, 1);
+  const percent = clampPercent((value / max) * 100);
+  const valueLabel = row.valueLabel === undefined || row.valueLabel === null
+    ? String(value)
+    : String(row.valueLabel);
+  const label = row.label || "Report row";
+  const detail = row.detail || "";
+  const ariaLabel = `${label}: ${valueLabel}${detail ? `. ${detail}` : ""}`;
+  return `
+    <article class="workspace-report-row workspace-admin-report-row ${escapeHtml(row.tone || "")}" data-report-row="${escapeHtml(row.id || label)}" ${row.dataAttrs || ""}>
+      <div>
+        <strong>${escapeHtml(label)}</strong>
+        ${detail ? `<span>${escapeHtml(detail)}</span>` : ""}
+      </div>
+      <div class="workspace-report-value workspace-admin-report-value">
+        <b>${escapeHtml(valueLabel)}</b>
+        <span class="workspace-report-meter workspace-admin-report-meter" role="meter" aria-label="${escapeHtml(ariaLabel)}" aria-valuemin="0" aria-valuemax="${escapeHtml(String(max))}" aria-valuenow="${escapeHtml(String(value))}" aria-valuetext="${escapeHtml(valueLabel)}">
+          <i style="width: ${escapeHtml(String(percent))}%"></i>
+        </span>
+      </div>
+    </article>
   `;
 }
 

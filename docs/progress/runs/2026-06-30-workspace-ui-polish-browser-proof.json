@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:50962",
+  "baseUrl": "http://127.0.0.1:53963",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-04T19:57:25.608Z",
-  "completedAt": "2026-07-04T20:00:50.777Z",
+  "startedAt": "2026-07-04T20:09:43.784Z",
+  "completedAt": "2026-07-04T20:13:07.515Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:50962",
+    "baseUrl": "http://127.0.0.1:53963",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-06-30-ui-polish",
@@ -77,6 +77,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -144,6 +146,8 @@
         "staffAttentionQueue": true,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -210,6 +214,8 @@
         "staffAttentionQueue": true,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -276,6 +282,8 @@
         "staffAttentionQueue": true,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -341,6 +349,8 @@
         "staffAttentionQueue": true,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -406,6 +416,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -470,6 +482,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -533,6 +547,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -599,6 +615,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -664,6 +682,8 @@
         "staffAttentionQueue": true,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -728,6 +748,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -791,6 +813,8 @@
         "staffAttentionQueue": true,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -856,6 +880,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -921,6 +947,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -986,6 +1014,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1050,6 +1080,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1115,6 +1147,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1182,6 +1216,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1251,6 +1287,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1316,6 +1354,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": true,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1379,6 +1419,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": true,
         "intentionalEmptyState": true,
         "finalFiles": false
@@ -1443,6 +1485,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": true
@@ -1509,6 +1553,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1576,6 +1622,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1641,6 +1689,8 @@
         "staffAttentionQueue": true,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1707,6 +1757,8 @@
         "staffAttentionQueue": true,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1772,6 +1824,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": true,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1801,9 +1855,11 @@
       "expected": [
         "Reports",
         "Student Progress Reports",
-        "VISIBLE STUDENTS"
+        "Visible students by status",
+        "Needs Review",
+        "Missing work/setup"
       ],
-      "proves": "Workspace Reports remain available as a progress summary outside Admin Console.",
+      "proves": "Workspace Reports show scoped student status bars outside Admin Console.",
       "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
       "login": {
         "status": 200,
@@ -1838,6 +1894,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": true,
+        "reportBars": true,
+        "staffReportBars": true,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1903,6 +1961,8 @@
         "staffAttentionQueue": true,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1968,6 +2028,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -2036,6 +2098,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -2102,6 +2166,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -2168,6 +2234,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -2235,6 +2303,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": true,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -2302,6 +2372,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -2368,6 +2440,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -2434,6 +2508,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -2499,6 +2575,8 @@
         "staffAttentionQueue": false,
         "studentDetailEvidence": false,
         "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false

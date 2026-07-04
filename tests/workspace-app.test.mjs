@@ -686,6 +686,39 @@ test("workspace keeps staff admin tools out of the regular Workspace shell and s
   assert.match(workspaceCss, /@media \(max-width: 620px\)[\s\S]*\.workspace-mode-switch/);
 });
 
+test("workspace main role landings stay free of proof-dashboard copy", async () => {
+  const bannedLandingCopy = /What this role can do|Your account can|Daily workspace is clear|Global Admin working profile|Security controls enforced by this role|role proof|fake pilot|hydrated dashboard|Showing 0 of 0|Need setup or access work\?|What this role can manage or monitor|Demo proof guard|Role context|Demo boundary/i;
+  for (const roleId of ["student", "mentor", "viewer", "program_teacher", "administration", "site_admin", "global_admin"]) {
+    const markup = await renderWorkspaceWithFetch(profileRoutesForRole(roleId));
+    assert.doesNotMatch(visibleText(markup), bannedLandingCopy, `${roleId} landing avoids proof-dashboard copy`);
+  }
+});
+
+test("workspace reports render accessible shared report bars with mobile fallback", async () => {
+  const staffReports = await renderWorkspaceWithFetch(profileRoutesForRole("site_admin"), "", "", {
+    url: "https://workspace.example/workspace.html?mode=workspace&section=staffReports&siteId=site-desert-valley-high",
+  });
+  assert.match(staffReports, /data-staff-reports="true"/);
+  assert.match(staffReports, /data-staff-report-bars="true"/);
+  assert.match(staffReports, /data-report-row="visible-students"[\s\S]*aria-label="Visible students:/);
+  assert.match(staffReports, /data-staff-report-row="needs-review"[\s\S]*role="meter"[\s\S]*aria-valuetext=/);
+  assert.match(staffReports, /Missing work\/setup/);
+  assert.doesNotMatch(visibleText(staffReports), /Showing 0 of 0|No data|No rows/);
+
+  const adminReports = await renderWorkspaceWithFetch(profileRoutesForRole("site_admin"), "", "", {
+    url: "https://workspace.example/workspace.html?mode=admin&section=adminReports&siteId=site-desert-valley-high",
+  });
+  assert.match(adminReports, /data-admin-reports="true"/);
+  assert.match(adminReports, /data-admin-report-summary="true"/);
+  assert.match(adminReports, /data-admin-report-row="roster"[\s\S]*aria-valuemax="100"[\s\S]*aria-valuetext="/);
+  assert.match(adminReports, /data-admin-report-row="issues"[\s\S]*Setup\/import issues/);
+  assert.match(adminReports, /data-report-bars="true"/);
+
+  assert.match(workspaceCss, /\.workspace-report-row/);
+  assert.match(cssMediaBlock(900), /\.workspace-report-row[\s\S]*grid-template-columns: 1fr/);
+  assert.match(cssMediaBlock(620), /\.workspace-admin-flow\s*\{[\s\S]*grid-template-columns: 1fr/);
+});
+
 test("workspace production text avoids internal build language", () => {
   const combined = `${workspaceHtml}\n${workspaceJs}\n${workspaceCss}`;
   for (const pattern of [
