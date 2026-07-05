@@ -18,7 +18,9 @@ The readiness boundary did not change: fake-account demo readiness is green for 
 
 ## Ending SHA
 
-The Prompt 11 ending SHA is the commit that contains this report and is recorded in the final response after commit/push. Prompt 12 will update this report with the final repository SHA and final command results after the closure pass. A commit cannot reliably include its own final hash inside the committed file.
+Prompt 11 ended at `786ed314d3beffa476e60ae2ec3ccc0b5f42a177`.
+
+Prompt 12 starts from that SHA and commits this final hygiene update. The final Prompt 12 commit hash is recorded in the final response after commit/push. A commit cannot reliably include its own final hash inside the committed file.
 
 ## Commits Included So Far
 
@@ -36,7 +38,8 @@ The Prompt 11 ending SHA is the commit that contains this report and is recorded
 | Prompt 08 | `37477d2f` | `ui: improve mobile accessibility and proof screenshots` |
 | Prompt 09 | `87a74f03` | `test: harden role access and view as student proof` |
 | Prompt 10 | `531c9a9c` | `docs: strengthen real student pilot readiness gate` |
-| Prompt 11 | pending final commit | `test: refresh yuge max proof and release report` |
+| Prompt 11 | `786ed314` | `test: refresh yuge max proof and release report` |
+| Prompt 12 | pending final commit | `chore: close yuge max repo hygiene` |
 
 ## Tests And Checks Run
 
@@ -163,6 +166,28 @@ Future/pilot-scope-dependent evidence:
 - Get school/district policy-owner approval for data handling, privacy, support, and retention.
 - Capture approved pilot-shaped account proof before any real student launch.
 - Decide whether archive/download is excluded from the first pilot or must be proven and approved.
+
+## Prompt 12 Final Hygiene Findings
+
+- README now links the YUGE MAX final proof report, hosted browser screenshot index, local workspace screenshot index, readiness gate/runbook packet, role matrix, and YUGE MAX blueprint.
+- `docs/progress/runs/README.md` now names the current final proof report and the two durable screenshot manifests.
+- Screenshot manifest validation found 0 missing referenced screenshot files across the hosted and local browser proof manifests.
+- Tracked temp/log scan found no tracked `.tmp`, `.temp`, `.bak`, `.orig`, `.rej`, `.log`, or backup-suffix artifacts.
+- Readiness/overclaim scan kept fake-account demo readiness separate from real-student pilot readiness.
+- `C:\Curriculum` references in this repo are scope/caveat statements only; that workspace was not touched.
+- New tests added during the round are included by the existing `npm test` / `npm run check` path.
+
+## Prompt 12 Final Validation Before Commit
+
+- `git diff --check`: passed with line-ending warnings only.
+- `node --test tests\hosted-browser-proof-gate.test.mjs tests\workspace-ui-polish-proof.test.mjs tests\real-student-pilot-readiness.test.mjs tests\real-student-pilot-demo-docs.test.mjs tests\next-major-round-blueprint.test.mjs`: passed, 17/17.
+- `npm run check:pilot-readiness`: passed with expected `PILOT_READINESS_PREFLIGHT_COMPLETE_NO_GO` and `NO_GO_REAL_STUDENT_PILOT`.
+- `npm run typecheck`: passed.
+- `npm run build:public-site`: passed, 35 top-level public companion entries.
+- `npm test`: passed, 481 passing and 4 expected local HTTP skips.
+- `npm run check`: passed, 481 passing and 4 expected local HTTP skips in the aggregate tail.
+
+No plain `build` script exists in `package.json`; `build:public-site` is the available build target.
 
 ## Final Recommendation
 
