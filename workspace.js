@@ -9220,7 +9220,7 @@ function renderOperationsSummaryDeck(dashboard = {}) {
   return renderDashboardKpis([
     {
       label: "Readiness score",
-      value: dashboard.score === null ? "No data" : `${dashboard.score}/100`,
+      value: dashboard.score === null ? "No score yet" : `${dashboard.score}/100`,
       detail: dashboard.score === null ? "No visible records" : dashboard.scoreDetail,
       tone: dashboard.score !== null && dashboard.score < 70 ? "warning" : "mentor",
     },
@@ -9392,7 +9392,7 @@ function renderReadinessScoreCard(score, total = 0, title = "Readiness score", d
     <section class="workspace-score-card" data-readiness-score-card="true">
       <div>
         <p class="workspace-kicker">${escapeHtml(title)}</p>
-        <strong>${escapeHtml(hasData ? `${value}/100` : "No data")}</strong>
+        <strong>${escapeHtml(hasData ? `${value}/100` : "No score yet")}</strong>
         <p>${escapeHtml(detail || (hasData ? `${value}% readiness across ${total} visible records.` : "No visible records to summarize yet."))}</p>
       </div>
       <div class="workspace-score-meter" role="progressbar" aria-label="${escapeHtml(title)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${escapeHtml(value)}">
@@ -9429,7 +9429,7 @@ function renderStackedDistribution(items = [], label = "Status distribution") {
 function renderHorizontalBars(items = [], denominator = 0, options = {}) {
   const rows = (Array.isArray(items) ? items : []).filter((item) => safeNumber(item.value) > 0);
   const total = safeNumber(denominator) || rows.reduce((sum, item) => sum + safeNumber(item.value), 0);
-  if (!rows.length) return `<div class="workspace-empty">${escapeHtml(options.emptyLabel || "No rows to summarize.")}</div>`;
+  if (!rows.length) return `<div class="workspace-empty">${escapeHtml(options.emptyLabel || "No summary rows are available yet.")}</div>`;
   return `
     <div class="workspace-bar-list ${escapeHtml(options.className || "")}" aria-label="${escapeHtml(options.label || "Ranked counts")}">
       ${rows.map((item) => `
@@ -15893,7 +15893,7 @@ function renderAggregateReadinessDashboard(result, report = {}, scopeLabel = "Ag
       ${renderApiNotice(result)}
       ${renderAggregateReadinessActionMap(report, { score, totalWork, approved, scopeLabel })}
       ${renderDashboardKpis([
-        { label: "Readiness score", value: score === null ? "No data" : `${score}/100`, detail: totalWork ? `${approved} of ${totalWork} reviewed items approved` : "No reviewed work to summarize yet", tone: score !== null && score < 70 ? "warning" : "mentor" },
+        { label: "Readiness score", value: score === null ? "No score yet" : `${score}/100`, detail: totalWork ? `${approved} of ${totalWork} reviewed items approved` : "No reviewed work to summarize yet", tone: score !== null && score < 70 ? "warning" : "mentor" },
         { label: "Submitted", value: submitted, detail: "Work waiting for Program Teacher review", tone: "warning" },
         { label: "Needs revision", value: revisionRequested, detail: "Follow-up requested by reviewers", tone: revisionRequested ? "danger" : "mentor" },
         { label: "Approved", value: approved, detail: "Work marked complete", tone: "mentor" },
@@ -15933,7 +15933,7 @@ function renderSiteReadinessDashboard(operationsBody = {}, readinessResult = nul
       ${renderApiNotice(readinessResult)}
       ${renderSiteReadinessActionMap(operationsBody, dashboard, administrationMonitoring)}
       ${renderDashboardKpis([
-        { label: "Readiness score", value: dashboard.score === null ? "No data" : `${dashboard.score}/100`, detail: dashboard.scoreDetail, tone: dashboard.score !== null && dashboard.score < 70 ? "warning" : "mentor" },
+        { label: "Readiness score", value: dashboard.score === null ? "No score yet" : `${dashboard.score}/100`, detail: dashboard.scoreDetail, tone: dashboard.score !== null && dashboard.score < 70 ? "warning" : "mentor" },
         { label: "Ready signals", value: metricWithPercent(dashboard.readySignals, dashboard.total), detail: "Best available ready/complete count", tone: "mentor" },
         { label: "Blocked/failed", value: dashboard.blockers.filter((row) => ["final_files_failed", "archive_failed", "storage_setup_needed"].includes(normalizeStatus(row.label))).reduce((sum, row) => sum + safeNumber(row.value), 0), detail: "Final-file failure and setup blockers", tone: "danger" },
         { label: "Missing proof", value: dashboard.blockers.find((row) => ["proof_missing", "evidence_missing"].includes(normalizeStatus(row.label)))?.value || 0, detail: "Proof or progress missing", tone: "warning" },
@@ -15965,7 +15965,7 @@ function renderAggregateReadinessActionMap(report = {}, options = {}) {
       id: "score",
       tone: score !== null && score !== undefined && score < 70 ? "warning" : "ready",
       owner: "Reporting",
-      count: score === null || score === undefined ? "No data" : `${score}/100`,
+      count: score === null || score === undefined ? "No score yet" : `${score}/100`,
       title: "Interpret the score",
       detail: totalWork ? `${approved} of ${totalWork} reviewed items are approved. Treat this as a trend signal, not a student roster.` : "No reviewed work is visible in this aggregate report yet.",
       source: options.scopeLabel || "Aggregate report",
@@ -16053,7 +16053,7 @@ function renderSiteReadinessActionMap(operationsBody = {}, dashboard = {}, admin
       id: "score",
       tone: score !== null && score !== undefined && score < 70 ? "warning" : "ready",
       owner: administrationMonitoring ? "School Admin" : "Site team",
-      count: score === null || score === undefined ? "No data" : `${score}/100`,
+      count: score === null || score === undefined ? "No score yet" : `${score}/100`,
       title: "Interpret school readiness",
       detail: dashboard.scoreDetail || "Use this score as a routing signal before opening protected details.",
       source: "Readiness score",

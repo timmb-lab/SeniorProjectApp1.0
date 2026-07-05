@@ -51,14 +51,18 @@
   --color-header: #22303a;
   --surface-page: var(--abc-paper);
   --surface-card: var(--abc-card);
-  --surface-row: #fbfdfc;
-  --border-soft: var(--abc-line);
+  --surface-muted: #f6faf8;
+  --surface-section: #fbfcfb;
+  --surface-row: #ffffff;
+  --border-soft: #e1e8e8;
+  --border-subtle: rgba(34, 48, 58, 0.12);
   --text-muted: var(--abc-muted);
   --radius-card: 8px;
   --radius-control: 8px;
   --radius-pill: 999px;
-  --shadow-card: 0 12px 30px rgba(23, 32, 38, 0.09);
-  --shadow-soft: 0 6px 18px rgba(23, 32, 38, 0.06);
+  --shadow-card: 0 8px 22px rgba(23, 32, 38, 0.055);
+  --shadow-soft: 0 4px 14px rgba(23, 32, 38, 0.045);
+  --shadow-row: 0 1px 0 rgba(23, 32, 38, 0.045);
   --space-card: 1rem;
   --space-section: clamp(1rem, 2vw, 1.4rem);
   --focus-ring: 0 0 0 3px rgba(36, 99, 166, 0.22);
@@ -9082,6 +9086,113 @@ button.workspace-metric-tile,
   background:
     linear-gradient(135deg, color-mix(in srgb, var(--workspace-soft) 72%, white), #fff 78%),
     #fff;
+}
+
+.workspace-card,
+.workspace-rail-card,
+.workspace-role-profile,
+.workspace-role-panel,
+.workspace-panel,
+.workspace-dashboard-card,
+.workspace-metric-tile,
+.workspace-detail-drawer,
+.workspace-detail-panel,
+.workspace-student-panel-map,
+.workspace-admin-console-header,
+.workspace-admin-console-operating-order,
+.workspace-admin-console-safety-card {
+  border-color: var(--border-subtle);
+  box-shadow: var(--shadow-card);
+}
+
+.workspace-dashboard-card,
+.workspace-metric-tile,
+.workspace-detail-drawer,
+.workspace-detail-panel,
+.workspace-student-panel-map,
+.workspace-admin-console-header,
+.workspace-admin-console-operating-order,
+.workspace-admin-console-safety-card {
+  box-shadow: var(--shadow-soft);
+}
+
+.workspace-role-command-strip,
+.workspace-role-profile-start,
+.workspace-role-profile-start-card,
+.workspace-student-panel-map-card,
+.workspace-student-presentation-plan,
+.workspace-student-primary-action,
+.workspace-student-approval-banner,
+.workspace-error-card,
+.workspace-access-card,
+.workspace-primary-workflow-card,
+.workspace-worklist-row,
+.workspace-ranked-list li,
+.workspace-student-row,
+.workspace-student-card,
+.workspace-admin-console-safety-card,
+.workspace-admin-console-operating-order {
+  border-left-width: 3px;
+}
+
+.workspace-student-row,
+.workspace-student-card,
+.workspace-worklist-row,
+.workspace-card-list-row,
+.workspace-compact-dashboard-card,
+.workspace-secondary-panel,
+.workspace-detail-history-disclosure {
+  background: var(--surface-row);
+  box-shadow: var(--shadow-row);
+}
+
+.workspace-worklist-row {
+  padding: 0.6rem 0.64rem;
+}
+
+.workspace-student-row,
+.workspace-student-card {
+  padding: 0.76rem;
+}
+
+.workspace-admin-console-safety-card,
+.workspace-admin-console-operating-order {
+  background: var(--surface-section);
+}
+
+.workspace-admin-console-safety-step {
+  font-weight: 820;
+}
+
+.workspace-kicker,
+.workspace-tab-group-label,
+.workspace-chip,
+.workspace-status-pill,
+.workspace-story-chip,
+.workspace-risk-chip,
+.workspace-detail-tab,
+.workspace-problem-state-label,
+.workspace-student-panel-map-card span,
+.workspace-student-presentation-step > span,
+.workspace-worklist-head,
+.workspace-view-as-chip {
+  font-weight: 760;
+}
+
+.workspace-chip,
+.workspace-status-pill,
+.workspace-story-chip,
+.workspace-risk-chip,
+.workspace-view-as-chip {
+  min-height: 26px;
+  border-color: color-mix(in srgb, currentColor 26%, white);
+  padding: 0.2rem 0.52rem;
+}
+
+.workspace-empty-state-card,
+.workspace-intentional-empty-state {
+  border-color: color-mix(in srgb, var(--workspace-primary) 20%, white);
+  background: color-mix(in srgb, var(--workspace-soft) 42%, white);
 }
 
 @media (max-width: 900px) {

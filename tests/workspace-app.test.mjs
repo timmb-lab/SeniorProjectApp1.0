@@ -781,13 +781,25 @@ test("workspace exposes Figma-aligned design tokens and future site patterns", (
     "--color-info",
     "--surface-page",
     "--surface-card",
+    "--surface-muted",
+    "--surface-section",
+    "--surface-row",
     "--border-soft",
+    "--border-subtle",
     "--shadow-card",
+    "--shadow-row",
     "--radius-card",
     "--focus-ring",
   ]) {
     assert.ok(workspaceCss.includes(token), `missing workspace token ${token}`);
   }
+
+  assert.match(workspaceCss, /--shadow-card:\s*0 8px 22px rgba\(23, 32, 38, 0\.055\);/);
+  assert.match(workspaceCss, /--border-subtle:\s*rgba\(34, 48, 58, 0\.12\);/);
+  assert.match(workspaceCss, /\.workspace-student-row,\s*\.workspace-student-card,[\s\S]*?border-left-width:\s*3px;/);
+  assert.match(workspaceCss, /\.workspace-student-row,\s*\.workspace-student-card,[\s\S]*?box-shadow:\s*var\(--shadow-row\);/);
+  assert.match(workspaceCss, /\.workspace-chip,\s*\.workspace-status-pill,\s*\.workspace-story-chip,\s*\.workspace-risk-chip,\s*\.workspace-detail-tab/s);
+  assert.doesNotMatch(workspaceJs, /"No data"|"No rows to summarize\."|Showing 0 of 0/);
 
   for (const className of [
     ".workspace-read-only-banner",
