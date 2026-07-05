@@ -90,6 +90,9 @@ test("workspace UI polish manifest records durable local fake-account screenshot
     "36-admin-audit",
     "37-mobile-admin-overview",
     "38-mobile-admin-imports",
+    "39-viewer-students-directory",
+    "40-staff-reviews",
+    "41-student-detail-timeline",
     "23-student-detail-phone",
   ];
   assert.equal(manifest.screenshots.length, requiredIds.length);
@@ -138,6 +141,8 @@ test("workspace UI polish manifest records durable local fake-account screenshot
   assert.equal(byId.get("36-admin-audit").markers.adminAudit, true);
   assert.equal(byId.get("37-mobile-admin-overview").markers.adminQuickActions, true);
   assert.equal(byId.get("38-mobile-admin-imports").markers.csvImportStepper, true);
+  assert.equal(byId.get("39-viewer-students-directory").markers.readOnlyBoundary, true);
+  assert.equal(byId.get("41-student-detail-timeline").markers.studentDetailPanel, true);
   assert.equal(byId.get("20-student-admin-route-blocked").markers.problemState, true);
   assert.equal(byId.get("21-empty-student-search").markers.intentionalEmptyState, true);
   assert.equal(byId.get("22-student-final-files-state").markers.finalFiles, true);

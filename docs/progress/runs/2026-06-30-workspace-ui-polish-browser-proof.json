@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:63418",
+  "baseUrl": "http://127.0.0.1:53564",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-05T15:24:33.867Z",
-  "completedAt": "2026-07-05T15:28:08.957Z",
+  "startedAt": "2026-07-05T15:53:57.192Z",
+  "completedAt": "2026-07-05T15:57:42.758Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:63418",
+    "baseUrl": "http://127.0.0.1:53564",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-06-30-ui-polish",
@@ -1968,7 +1968,7 @@
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Mentor AF Staff Workspace ready. Staff Workspace Mentor / Assigned students Student progress Private proof Mentor coverage Review queue Presentation readiness Assigned students STAFF WORKSPACE Mentor Workspace Who needs attention today? Open Student Needs Review 1 Waiting for feedback Needs Help 5 Revision, risk, or readiness Missing Setup 0 Mentor, evidence, or closeout Recently Updated 0 Latest activity in scope Visible Students 9 Assigned mentor students Needs Review Open submitted work and feedback decisions first. 1 Willa Frostvale Assigned mentor students Check outline and presentation readiness with this student. Review waiting Submitted Mentor: ",
+      "textSample": "Skip to workspace Menu SC Capstone App Mentor AF Staff Workspace ready. Staff Workspace Mentor / Assigned students Student progress Private proof Mentor coverage Review queue Presentation readiness Assigned students STAFF WORKSPACE Mentor Workspace Who needs attention today? Open Student Needs Review 1 Waiting for feedback Needs Help 5 Revision, risk, or readiness Missing Setup 0 Mentor, evidence, or closeout Recently Updated 0 Latest activity in scope Visible Students 9 Assigned mentor students Needs Review Open submitted work and feedback decisions first. 1 Willa Frostvale Assigned mentor students Check outline and presentation readiness with this student. Owner: Program Teacher Do next: O",
       "activeNav": [
         "Home\n        Today\n        Students needing attention"
       ]
@@ -2520,6 +2520,213 @@
         "Admin Console",
         "Imports\n        Imports\n        CSV templates and preview",
         "Import Students"
+      ]
+    },
+    {
+      "id": "39-viewer-students-directory",
+      "label": "Viewer Students directory",
+      "persona": "Viewer Students",
+      "role": "viewer",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace.html?section=students&siteId=site-desert-valley-high",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/39-viewer-students-directory.png",
+      "expected": [
+        "Students",
+        "Search the students this account can access",
+        "Action map",
+        "Assigned records only",
+        "Read-only"
+      ],
+      "proves": "Viewer Students shows scoped read-only roster search, filters, counts, and detail actions without admin controls.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "adminSetupList": false,
+        "adminQuickActions": false,
+        "adminStudents": false,
+        "adminAssignments": false,
+        "adminImports": false,
+        "adminPrograms": false,
+        "adminReports": false,
+        "adminAudit": false,
+        "readOnlyBoundary": true,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false
+      },
+      "heading": "Staff Workspace",
+      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Students FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Viewer READ-ONLY VV Valeria Viewer viewer.desert-valley-high@demo-staff.capstone.test YOUR ACCESS Viewer Assigned students Assigned student records only. Change controls stay hidden. Today Students needing attention Students Assigned read-only student records Reports Progress and setup summary NEXT STEP Review assigned students in read-only mode. Staff Workspace ready. Staff Workspace Viewer / Desert Valley High School Student progress Private proof Mentor coverage Review queue Presentation readiness Desert Valley School District 2026-2027 Rea",
+      "activeNav": [
+        "Students\n        Students\n        Assigned read-only student records"
+      ]
+    },
+    {
+      "id": "40-staff-reviews",
+      "label": "Staff Reviews",
+      "persona": "Program Teacher Reviews",
+      "role": "program_teacher",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace.html?section=teacher&siteId=site-desert-valley-high",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/40-staff-reviews.png",
+      "expected": [
+        "Review Queue",
+        "Submitted work, revision follow-up",
+        "Program Teacher decisions enabled",
+        "Review one submitted item at a time",
+        "Program Teacher decision order"
+      ],
+      "proves": "Staff Reviews exposes role-aware review queues, decision order, filters, selected-row context, and student detail links.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "adminSetupList": false,
+        "adminQuickActions": false,
+        "adminStudents": false,
+        "adminAssignments": false,
+        "adminImports": false,
+        "adminPrograms": false,
+        "adminReports": false,
+        "adminAudit": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
+        "problemState": true,
+        "intentionalEmptyState": false,
+        "finalFiles": false
+      },
+      "heading": "Staff Workspace",
+      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Reviews FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Program Teacher ROLE GQ Gray Quinn teacher-it-01@demo-staff.capstone.test YOUR ACCESS Program Teacher Assigned program: IT Review work and student support stay inside your assigned program. Today Students needing attention Students Program-scoped student rows Reviews Submitted work waiting for feedback Reports Progress and setup summary NEXT STEP Review submitted work and follow up where students need feedback. Staff Workspace ready. Staff Workspace Program Teacher / Desert Valley High School Student progress Private pro",
+      "activeNav": [
+        "Workspace",
+        "Review\n        Reviews\n        Submitted work waiting for feedback"
+      ]
+    },
+    {
+      "id": "41-student-detail-timeline",
+      "label": "Student detail Timeline tab",
+      "persona": "Site Admin timeline detail",
+      "role": "site_admin",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace.html?mode=workspace&section=students&siteId=site-desert-valley-high",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/41-student-detail-timeline.png",
+      "expected": [
+        "Timeline",
+        "Showing all activity",
+        "RECENT ACTIVITY",
+        "Comment added"
+      ],
+      "proves": "Student Detail exposes the Timeline tab through the protected detail drawer with scoped activity context.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "markers": {
+        "studentDetailPanel": true,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "adminSetupList": false,
+        "adminQuickActions": false,
+        "adminStudents": false,
+        "adminAssignments": false,
+        "adminImports": false,
+        "adminPrograms": false,
+        "adminReports": false,
+        "adminAudit": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false
+      },
+      "heading": "Staff Workspace",
+      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Students Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test YOUR ACCESS Site Admin Assigned school: Desert Valley High School Site tools stay tied to the selected or assigned school. Today Students needing attention Students Site student rows Reviews Submitted work and follow-up Reports Progress and setup summary NEXT STEP Review site progress, student readiness, mentor coverage, presentation status, and final-file signals available to this acc",
+      "activeNav": [
+        "Workspace",
+        "Students\n        Students\n        Site student rows",
+        "Timeline",
+        "All activity"
       ]
     },
     {

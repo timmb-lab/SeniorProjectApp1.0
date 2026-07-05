@@ -479,6 +479,42 @@ const SCREENSHOT_PLAN = [
     proves: "Mobile Imports keeps template downloads and CSV preview readable on phone width.",
   },
   {
+    id: "39-viewer-students-directory",
+    label: "Viewer Students directory",
+    persona: "Viewer Students",
+    authRole: "viewer",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?section=students&siteId=site-desert-valley-high"),
+    viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Students", "Search the students this account can access", "Action map", "Assigned records only", "Read-only"],
+    absent: ["Admin Console", "Remove student", "Manage Site Access"],
+    proves: "Viewer Students shows scoped read-only roster search, filters, counts, and detail actions without admin controls.",
+  },
+  {
+    id: "40-staff-reviews",
+    label: "Staff Reviews",
+    persona: "Program Teacher Reviews",
+    authRole: "program_teacher",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?section=teacher&siteId=site-desert-valley-high"),
+    viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Review Queue", "Submitted work, revision follow-up", "Program Teacher decisions enabled", "Review one submitted item at a time", "Program Teacher decision order"],
+    absent: ["Teacher intervention"],
+    proves: "Staff Reviews exposes role-aware review queues, decision order, filters, selected-row context, and student detail links.",
+  },
+  {
+    id: "41-student-detail-timeline",
+    label: "Student detail Timeline tab",
+    persona: "Site Admin timeline detail",
+    authRole: "site_admin",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?mode=workspace&section=students&siteId=site-desert-valley-high"),
+    viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Timeline", "Showing all activity", "RECENT ACTIVITY", "Comment added"],
+    actions: ["clickFirstStudentDetail", "clickStudentDetailTimelineTab"],
+    proves: "Student Detail exposes the Timeline tab through the protected detail drawer with scoped activity context.",
+  },
+  {
     id: "23-student-detail-phone",
     label: "Student detail phone",
     persona: "Site Admin phone detail",
@@ -866,6 +902,12 @@ async function performSinglePlanAction(client, action) {
   if (action === "clickStudentDetailEvidenceTab") {
     await clickSelector(client, "[data-student-detail-tab='evidence']", "student detail Evidence tab");
     await waitForSelectorState(client, "[data-student-detail-section='evidence']");
+    await sleep(700);
+    return;
+  }
+  if (action === "clickStudentDetailTimelineTab") {
+    await clickSelector(client, "[data-student-detail-tab='timeline']", "student detail Timeline tab");
+    await waitForSelectorState(client, "[data-student-detail-section='timeline']");
     await sleep(700);
     return;
   }

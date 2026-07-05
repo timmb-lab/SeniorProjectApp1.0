@@ -3712,9 +3712,20 @@ test("workspace opens real student detail, loads timeline, and preserves directo
   assert.match(workspaceRoot.innerHTML, /Student detail/);
   assert.match(workspaceRoot.innerHTML, /Missing Mentor Demo 001/);
   assert.match(workspaceRoot.innerHTML, /workspace-site-context-badge/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-site="Desert Valley High School"/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-program="Information Technology"/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-cohort="IT 2026"/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-year="2026"/);
   assert.match(workspaceRoot.innerHTML, /workspace-story-chip/);
   assert.match(workspaceRoot.innerHTML, /workspace-risk-chip/);
   assert.match(workspaceRoot.innerHTML, /Read-only viewer/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-case-plan="true" data-student-detail-case-read-only="true"/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="status"[\s\S]*Revision requested/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="step"[\s\S]*proposal/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="coverage"[\s\S]*No active mentor/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="attention"[\s\S]*No mentor/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="action"[\s\S]*Use this row for context, then share the student name with authorized staff/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="access"[\s\S]*Read-only context/);
   assert.match(workspaceRoot.innerHTML, /Overview/);
   assert.match(workspaceRoot.innerHTML, /Work/);
   assert.match(workspaceRoot.innerHTML, /Feedback/);
@@ -3853,6 +3864,11 @@ test("student detail handles missing real-data fields conservatively", async () 
   `, context);
 
   assert.match(workspaceRoot.innerHTML, /Incomplete Student/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-case-plan="true" data-student-detail-case-read-only="false"/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="status"[\s\S]*Pending/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="step"[\s\S]*Current step not confirmed yet/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="coverage"[\s\S]*No active mentor/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="access"[\s\S]*Authorized staff context/);
   assert.match(workspaceRoot.innerHTML, /Work item total is not confirmed yet/);
   assert.match(workspaceRoot.innerHTML, /Progress percent not confirmed yet \/ Current stage not confirmed yet/);
   assert.match(workspaceRoot.innerHTML, /workspace-status-pill pending/);
@@ -9094,6 +9110,7 @@ test("workspace renders role-pending and permission-denied access states", async
   assert.match(viewer, /Viewer Workspace \/ Read-only/);
   assert.match(viewer, /data-staff-attention-queue="needs-review"/);
   assert.match(viewer, /data-staff-queue-student-row="true"/);
+  assert.match(viewer, /data-staff-row-case-plan="true"[\s\S]*Owner: Assigned staff[\s\S]*Do next: Use this row for context, then share the student name with authorized staff/);
   assert.match(viewer, /data-section="students" data-section-preset="all-students"/);
   assert.match(viewer, /data-section="students" data-section-preset="mentor-meeting-follow-up-students"/);
   assert.doesNotMatch(viewer, /Open review queue|Open operations/);

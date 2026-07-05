@@ -4878,12 +4878,17 @@ function renderStaffQueueStudentRow(row = {}, queueId = "", model = {}) {
   const supportingText = row.nextAction || primaryFlag.detail || "Open student detail for the current status.";
   const studentName = row.displayName || row.studentName || "Student";
   const context = [row.programName, row.cohortName].filter(Boolean).join(" / ") || model.scopeLabel || "Assigned scope";
+  const casePlan = studentDirectoryRowGuidance(row, Boolean(model.readOnly));
   return `
     <article class="workspace-staff-student-row" data-staff-queue-student-row="true" data-staff-queue-kind="${escapeHtml(queueId)}" data-student-id="${escapeHtml(row.studentId || "")}">
       <div>
         <strong>${escapeHtml(studentName)}</strong>
         <p class="workspace-muted">${escapeHtml(context)}</p>
         <p>${escapeHtml(supportingText)}</p>
+        <div class="workspace-owner-action workspace-owner-action-inline" data-staff-row-case-plan="true" data-staff-row-owner="${escapeHtml(casePlan.owner)}">
+          <span>Owner: ${escapeHtml(casePlan.owner)}</span>
+          <small>Do next: ${escapeHtml(casePlan.nextAction)}</small>
+        </div>
       </div>
       <div class="workspace-staff-student-signals">
         <span class="workspace-story-chip">${escapeHtml(primaryFlag.label)}</span>
@@ -6593,7 +6598,7 @@ function studentDirectoryRowGuidance(student = {}, readOnly = false) {
       nextAction: "Use this row for context, then share the student name with authorized staff.",
     };
   }
-  if (!student.hasActiveMentor || flags.includes("no_mentor") || progress === "missing_mentor") {
+  if (student.hasActiveMentor === false || flags.includes("no_mentor") || progress === "missing_mentor") {
     return {
       owner: "Site Admin or Program Teacher",
       nextAction: "Open Mentor Assignments and assign coverage before the next check-in.",
@@ -6942,10 +6947,10 @@ function renderSiteStudentDetailSurface(directory) {
           </div>
         </div>
         <div class="workspace-chip-row workspace-student-detail-facts" data-student-detail-facts="true">
-          <span class="workspace-site-context-badge">${escapeHtml(scope.siteName || directory.scope?.siteName || "Selected school")}</span>
-          <span class="workspace-site-context-badge">${escapeHtml(student.programName || "Unassigned")}</span>
-          <span class="workspace-site-context-badge">${escapeHtml(student.cohortName || "No cohort")}</span>
-          <span class="workspace-site-context-badge">${escapeHtml(studentRosterProfileText(student))}</span>
+          <span class="workspace-site-context-badge" data-student-detail-site="${escapeHtml(scope.siteName || directory.scope?.siteName || "Selected school")}">${escapeHtml(scope.siteName || directory.scope?.siteName || "Selected school")}</span>
+          <span class="workspace-site-context-badge" data-student-detail-program="${escapeHtml(student.programName || "Unassigned")}">${escapeHtml(student.programName || "Unassigned")}</span>
+          <span class="workspace-site-context-badge" data-student-detail-cohort="${escapeHtml(student.cohortName || "No cohort")}">${escapeHtml(student.cohortName || "No cohort")}</span>
+          <span class="workspace-site-context-badge" data-student-detail-year="${escapeHtml(student.graduationYear || "")}">${escapeHtml(studentRosterProfileText(student))}</span>
           ${student.mentorName ? `<span class="workspace-site-context-badge">Mentor: ${escapeHtml(student.mentorName)}</span>` : ""}
           ${student.viewerName ? `<span class="workspace-site-context-badge">Viewer: ${escapeHtml(student.viewerName)}</span>` : ""}
           ${scope.readOnly ? `<span class="workspace-chip" data-workspace-mode="read-only">Read-only viewer</span>` : ""}
@@ -6957,6 +6962,7 @@ function renderSiteStudentDetailSurface(directory) {
           ${student.storyBucket ? `<span class="workspace-story-chip">${escapeHtml(storyLabel(student.storyBucket))}</span>` : ""}
           ${riskFlags.length ? riskFlags.map((flag) => `<span class="workspace-risk-chip">${escapeHtml(riskLabel(flag))}</span>`).join("") : `<span class="workspace-risk-chip">Low risk</span>`}
         </div>
+        ${renderStudentDetailCasePlan(detail, scope)}
         ${scope.readOnly ? `
           <section class="workspace-read-only-banner" data-student-detail-read-only="true" data-workspace-mode="read-only">
             <span class="workspace-chip workspace-role-chip">Read-only</span>
@@ -7252,6 +7258,92 @@ function renderStudentDetailEvidence(detail) {
       `)}
     </section>
   `;
+}
+
+function renderStudentDetailCasePlan(detail = {}, scope = {}) {
+  const plan = studentDetailCasePlan(detail, scope);
+  return `
+    <section class="workspace-student-detail-case-plan" data-student-detail-case-plan="true" data-student-detail-case-read-only="${plan.readOnly ? "true" : "false"}" aria-label="Student case-management snapshot">
+      ${renderStudentDetailCasePlanItem("Current status", plan.currentStatus, "status")}
+      ${renderStudentDetailCasePlanItem("Current step", plan.currentStep, "step")}
+      ${renderStudentDetailCasePlanItem("Coverage", plan.coverage, "coverage")}
+      ${renderStudentDetailCasePlanItem("Attention", plan.attention, "attention")}
+      ${renderStudentDetailCasePlanItem("Do next", plan.nextAction, "action", plan.owner)}
+      ${renderStudentDetailCasePlanItem("Access", plan.access, "access")}
+    </section>
+  `;
+}
+
+function renderStudentDetailCasePlanItem(label, value, key, meta = "") {
+  return `
+    <article class="workspace-student-detail-case-item" data-student-detail-case-item="${escapeHtml(key)}">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value || "Not confirmed yet")}</strong>
+      ${meta ? `<small>${escapeHtml(meta)}</small>` : ""}
+    </article>
+  `;
+}
+
+function studentDetailCasePlan(detail = {}, scope = {}) {
+  const student = detail.student || {};
+  const progress = detail.progress || {};
+  const mentor = detail.mentor || {};
+  const latestSubmission = latestStudentDetailSubmission(detail);
+  const latestReview = latestStudentDetailReview(detail);
+  const flags = studentDetailAttentionFlags(detail);
+  const rowLikeStudent = {
+    ...student,
+    hasActiveMentor: mentor.active,
+    mentorName: mentor.mentorName || student.mentorName,
+    mentorMeetingStatus: mentor.latestMeetingStatus || student.mentorMeetingStatus,
+    latestSubmissionStatus: latestSubmission?.status || student.latestSubmissionStatus || student.status,
+    reviewStatus: latestReview?.decision || student.reviewStatus,
+    progressStatus: progress.status || student.progressStatus,
+    evidenceStatus: student.evidenceStatus || (safeNumber(student.evidenceCount) ? "attached" : ""),
+    riskFlags: Array.from(new Set([...(Array.isArray(student.riskFlags) ? student.riskFlags : []), ...flags.map((flag) => flag.key)])),
+    nextAction: student.nextAction || progress.nextAction || latestSubmission?.nextAction || latestReview?.feedback,
+  };
+  const guidance = studentDirectoryRowGuidance(rowLikeStudent, Boolean(scope.readOnly));
+  const currentStatus = statusText(latestSubmission?.status || student.latestSubmissionStatus || latestReview?.decision || student.status || progress.status || "pending");
+  const currentStep = progress.currentStage || latestSubmission?.requirementTitle || student.currentPhase || "Current step not confirmed yet";
+  const coverage = mentor.active === true
+    ? mentor.mentorName || student.mentorName || "Assigned mentor"
+    : mentor.active === false
+    ? "No active mentor"
+    : student.mentorName || "Mentor coverage not confirmed yet";
+  const attention = flags[0]?.label || (student.storyBucket ? storyLabel(student.storyBucket) : "Routine monitoring");
+  return {
+    currentStatus,
+    currentStep,
+    coverage,
+    attention,
+    owner: guidance.owner,
+    nextAction: guidance.nextAction,
+    access: scope.readOnly ? "Read-only context" : "Authorized staff context",
+    readOnly: Boolean(scope.readOnly),
+  };
+}
+
+function studentDetailAttentionFlags(detail = {}) {
+  const student = detail.student || {};
+  const progress = detail.progress || {};
+  const mentor = detail.mentor || {};
+  const presentation = detail.presentation || {};
+  const archive = detail.archive || {};
+  const latestSubmission = latestStudentDetailSubmission(detail);
+  const latestReview = latestStudentDetailReview(detail);
+  return staffStudentAttentionFlags({
+    ...student,
+    hasActiveMentor: mentor.active,
+    mentorMeetingStatus: mentor.latestMeetingStatus || student.mentorMeetingStatus,
+    latestSubmissionStatus: latestSubmission?.status || student.latestSubmissionStatus || student.status,
+    reviewStatus: latestReview?.decision || latestReview?.status || student.reviewStatus,
+    progressStatus: progress.status || student.progressStatus,
+    evidenceStatus: student.evidenceStatus || (safeNumber(student.evidenceCount) ? "attached" : ""),
+    presentationStatus: presentation.status || student.presentationStatus,
+    archiveStatus: archive.status || student.archiveStatus,
+    riskFlags: Array.isArray(student.riskFlags) ? student.riskFlags : [],
+  });
 }
 
 function renderStudentDetailReviews(detail) {

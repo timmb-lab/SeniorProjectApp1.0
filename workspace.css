@@ -8939,6 +8939,43 @@ body[data-page="workspace"],
   color: #734300;
 }
 
+.workspace-student-detail-case-plan {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.52rem;
+}
+
+.workspace-student-detail-case-item {
+  display: grid;
+  align-content: start;
+  gap: 0.22rem;
+  min-width: 0;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-card);
+  background: #fff;
+  box-shadow: var(--shadow-soft);
+  padding: 0.62rem;
+}
+
+.workspace-student-detail-case-item span {
+  color: var(--text-muted);
+  font-size: var(--font-size-caption);
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.workspace-student-detail-case-item strong {
+  color: var(--text-main);
+  font-size: 0.88rem;
+  line-height: 1.24;
+}
+
+.workspace-student-detail-case-item small {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.28;
+}
+
 .workspace-detail-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -9651,6 +9688,7 @@ button.workspace-metric-tile,
   .workspace-student-mission-grid,
   .workspace-student-summary-grid,
   .workspace-student-details-grid,
+  .workspace-student-detail-case-plan,
   .workspace-filter-bar,
   .workspace-review-layout,
   .workspace-mentor-assignment-layout,
