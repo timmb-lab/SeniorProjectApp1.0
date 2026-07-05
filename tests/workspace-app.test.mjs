@@ -1209,6 +1209,7 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(siteDashboard, /Desert Valley School District/);
   assert.match(siteDashboard, /data-app-mode="admin"/);
   assert.match(siteDashboard, /workspace-admin-console-header/);
+  assert.match(siteDashboard, /data-admin-console-shell-header="compact"/);
   assert.match(siteDashboard, /Operations/);
   assert.match(siteDashboard, /Admin Console/);
   assert.match(siteDashboard, /data-admin-console-active-section="siteDashboard"/);
@@ -6962,12 +6963,17 @@ test("workspace half-width drawer and phone drawer stay bounded and keep global 
   assert.match(phone, /\.workspace-button,[\s\S]*\.workspace-site-switcher select\s*\{[\s\S]*width:\s*100%;/);
   assert.match(workspaceJs, /data-topbar-density="compact"/);
   assert.match(workspaceJs, /function renderWorkspaceAccountMenu/);
+  assert.match(workspaceJs, /function accountInitials/);
+  assert.match(workspaceJs, /workspace-account-avatar/);
+  assert.match(workspaceJs, /data-admin-console-shell-header="compact"/);
   assert.match(workspaceCss, /\.workspace-topbar\s*\{[\s\S]*grid-template-columns:\s*minmax\(17rem,\s*0\.72fr\) minmax\(0,\s*1\.28fr\);/);
   assert.match(workspaceCss, /\.workspace-topbar-center\s*\{[\s\S]*display:\s*flex;[\s\S]*justify-content:\s*flex-end;/);
   assert.match(workspaceCss, /\.workspace-topbar-actions\s*\{[\s\S]*position:\s*absolute;[\s\S]*display:\s*none;/);
   assert.match(workspaceCss, /\.workspace-account-menu\[open\] \.workspace-topbar-actions\s*\{[\s\S]*display:\s*grid;/);
   assert.match(tablet, /\.workspace-topbar-center\s*\{[\s\S]*flex-wrap:\s*wrap;[\s\S]*justify-content:\s*flex-start;/);
   assert.match(tablet, /\.workspace-topbar-actions\s*\{[\s\S]*position:\s*static;[\s\S]*flex:\s*1 1 100%;/);
+  assert.match(phone, /\.workspace-account-summary \.workspace-user-text[\s\S]*display:\s*none;/);
+  assert.match(phone, /\.workspace-active-role-badge small,[\s\S]*\.workspace-site-switcher em\s*\{[\s\S]*display:\s*none;/);
   assert.match(workspaceCss, /\.workspace-admin-console-content\s*\{[\s\S]*grid-template-columns:\s*minmax\(188px,\s*220px\) minmax\(0,\s*1560px\);[\s\S]*justify-content:\s*center;/);
   assert.match(workspaceCss, /\.workspace-admin-console-main\s*\{[\s\S]*max-width:\s*1560px;/);
   assert.match(workspaceCss, /\.workspace-admin-operations-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(auto-fit,\s*minmax\(185px,\s*1fr\)\);/);
@@ -6992,6 +6998,7 @@ test("workspace half-width drawer and phone drawer stay bounded and keep global 
   assert.match(tabletContext.workspaceRoot.innerHTML, /id="workspaceLogout"[\s\S]*Sign out/);
   assert.match(tabletContext.workspaceRoot.innerHTML, /workspace-topbar-actions/);
   assert.match(tabletContext.workspaceRoot.innerHTML, /data-account-menu="true"/);
+  assert.match(tabletContext.workspaceRoot.innerHTML, /workspace-account-avatar/);
   assert.match(tabletContext.workspaceRoot.innerHTML, /data-topbar-density="compact"/);
   assert.equal(tabletContext.documentElements.get("#workspaceMenuToggle")?.hasEventListener("click"), true);
   assert.equal(tabletContext.documentElements.get("#workspaceRefresh")?.hasEventListener("click"), true);

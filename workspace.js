@@ -1277,6 +1277,7 @@ function renderWorkspaceAccountMenu(areaName = workspaceAreaName()) {
   return `
     <details class="workspace-account-menu" data-account-menu="true">
       <summary class="workspace-account-summary" aria-label="${escapeHtml(`${displayName} account menu`)}">
+        <span class="workspace-account-avatar" aria-hidden="true">${escapeHtml(accountInitials(displayName, email))}</span>
         <span class="workspace-user-text">
           <strong>${escapeHtml(displayName)}</strong>
           <span>${escapeHtml(email)}</span>
@@ -1289,6 +1290,15 @@ function renderWorkspaceAccountMenu(areaName = workspaceAreaName()) {
       </div>
     </details>
   `;
+}
+
+function accountInitials(displayName = "", email = "") {
+  const source = String(displayName || email || "A").trim();
+  const words = source.split(/[\s._@-]+/).filter(Boolean);
+  const letters = words.length > 1
+    ? `${words[0][0] || ""}${words[1][0] || ""}`
+    : source.slice(0, 2);
+  return letters.toUpperCase() || "A";
 }
 
 function renderWorkspaceRailAccessSummary({ isAdminConsole = false, primaryRole = primaryRoleForUser(currentUser), consoleCapabilities = adminConsoleCapabilitiesFor(currentUser) } = {}) {
@@ -1824,12 +1834,14 @@ function renderAdminConsoleActiveSection() {
 
 function renderAdminConsoleHeader(capabilities = adminConsoleCapabilitiesFor(currentUser), sections = availableSections({ mode: "admin" })) {
   const active = sections.find((section) => section.id === activeSection) || sections[0] || {};
+  const title = active.label || "Overview";
+  const detail = active.detail || adminConsoleSubtitle(capabilities);
   return `
-    <section class="workspace-admin-console-header" aria-labelledby="adminConsoleTitle" data-admin-console-header="true" data-admin-console-active-section="${escapeHtml(active.id || "")}">
+    <section class="workspace-admin-console-header" aria-labelledby="adminConsoleTitle" data-admin-console-header="true" data-admin-console-shell-header="compact" data-admin-console-active-section="${escapeHtml(active.id || "")}">
       <div>
-        <p class="workspace-kicker">Operations</p>
-        <h1 id="adminConsoleTitle">Admin Console</h1>
-        <p>${escapeHtml(adminConsoleSubtitle(capabilities))}</p>
+        <p class="workspace-kicker">Admin Console</p>
+        <h1 id="adminConsoleTitle">${escapeHtml(title)}</h1>
+        <p>${escapeHtml(detail)}</p>
       </div>
     </section>
   `;
