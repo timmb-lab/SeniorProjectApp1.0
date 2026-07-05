@@ -27,6 +27,13 @@ function visibleText(markup) {
     .trim();
 }
 
+function assertNoRawDebugState(markup) {
+  const text = visibleText(markup);
+  assert.doesNotMatch(text, /\[object Object\]|TypeError|ReferenceError|SyntaxError|Unhandled|stack trace/i);
+  assert.doesNotMatch(text, /\b(error|status|ok)"?\s*:\s*["{\[]/i);
+  assert.doesNotMatch(markup, /\{&quot;|\{"ok"|\{"error"/i);
+}
+
 function assertFocusableStudentDetailPanel(markup) {
   assert.match(markup, /id="siteStudentDetailPanel"/);
   assert.match(markup, /data-student-detail-panel="true"/);
@@ -7198,6 +7205,107 @@ test("admin console surfaces setup reasons across overview people students and r
   assert.match(reports, /data-admin-setup-readiness="true"/);
   assert.match(reports, /Operational coverage summary/);
   assert.match(reports, /Setup\/import issues/);
+});
+
+test("admin console empty and failed data states stay actionable without raw output", async () => {
+  const accessAssignments = siteAccessAssignmentsFixture();
+  accessAssignments.users.students = accessAssignments.users.students.map((student) => ({
+    ...student,
+    programId: "it",
+    programName: "Information Technology",
+  }));
+  accessAssignments.history = [];
+
+  const clearDashboard = siteDashboardFixture();
+  clearDashboard.summary = {
+    ...clearDashboard.summary,
+    studentsNoMentor: 0,
+    noMentor: 0,
+    submissionsSubmitted: 0,
+    submitted: 0,
+    revisionRequested: 0,
+    exportsFailed: 0,
+    archiveFailed: 0,
+    recentActivityCount: 0,
+  };
+  clearDashboard.needsAttention = [];
+  clearDashboard.recentAudit = [];
+
+  const clearSiteStudents = siteStudentsFixture({ total: 1, filteredTotal: 1 });
+  clearSiteStudents.summary = {
+    ...clearSiteStudents.summary,
+    studentsTotal: 1,
+    filteredTotal: 1,
+    noMentor: 0,
+    submitted: 0,
+    revisionRequested: 0,
+    archiveFailed: 0,
+  };
+
+  const routes = {
+    ...profileRoutesForRole("global_admin"),
+    "/api/site/dashboard": { status: 200, body: clearDashboard },
+    "/api/site/students": { status: 200, body: clearSiteStudents },
+    "/api/site/access-assignments": { status: 200, body: accessAssignments },
+    "/api/admin/dashboard": {
+      status: 200,
+      body: {
+        ok: true,
+        summary: {},
+        needsAttention: [],
+        programBreakdown: [],
+        reviewQueue: [],
+        mentorCoverage: [],
+        presentationSnapshot: [],
+        archiveSnapshot: [],
+        recentAudit: [],
+        recentExports: [],
+      },
+    },
+    "/api/admin/audit-events": { status: 200, body: { ok: true, events: [] } },
+  };
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch(routes, {
+    url: "https://workspace.example/workspace.html?mode=admin&section=overview&siteId=site-desert-valley-high",
+  });
+
+  vm.runInContext('activeWorkspaceMode = "admin"; activeSection = "overview"; renderAppShell();', context);
+  const overview = workspaceRoot.innerHTML;
+  assert.match(overview, /data-admin-console-setup-empty="true"[\s\S]*No setup issues found/);
+  assert.match(overview, /data-admin-recent-activity-empty="true"[\s\S]*No recent admin activity found/);
+  assert.match(overview, /workspace-problem-state[\s\S]*Refresh after roster, program, or import changes/);
+  assertNoRawDebugState(overview);
+
+  vm.runInContext('activeSection = "audit"; renderAppShell();', context);
+  const audit = workspaceRoot.innerHTML;
+  assert.match(audit, /data-admin-audit-empty-state="true"[\s\S]*No audit events found/);
+  assert.match(audit, /audit request succeeded but returned no event rows/);
+  assertNoRawDebugState(audit);
+
+  vm.runInContext(`
+    adminCsvImportState = defaultAdminCsvImportState();
+    activeSection = "adminImports";
+    adminPeopleView = "import-students";
+    renderAppShell();
+  `, context);
+  const waitingImport = workspaceRoot.innerHTML;
+  assert.match(waitingImport, /data-csv-preview="students" data-csv-preview-state="waiting" data-csv-import-empty-state="true"/);
+  assert.match(waitingImport, /No CSV preview has run in this browser session/);
+  assertNoRawDebugState(waitingImport);
+
+  vm.runInContext(`
+    adminCsvImportState.students = validateAdminCsvImport("students", ${JSON.stringify([
+      "first_name,last_name,email,site,program,guardian_phone",
+      "Header,Drift,header.drift@senior-capstone.test,Desert Valley High School,Information Technology,555-0100",
+    ].join("\n"))});
+    activeSection = "adminImports";
+    adminPeopleView = "import-students";
+    renderAppShell();
+  `, context);
+  const failedImport = workspaceRoot.innerHTML;
+  assert.match(failedImport, /data-csv-preview="students" data-csv-preview-state="errors"[\s\S]*data-csv-import-error-guide="true"/);
+  assert.match(failedImport, /No account or roster changes are saved from rows with errors/);
+  assert.match(failedImport, /Unsupported column: guardian_phone/);
+  assertNoRawDebugState(failedImport);
 });
 
 test("workspace dashboard actions use supported filters and loaders", () => {

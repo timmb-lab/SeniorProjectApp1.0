@@ -33,6 +33,26 @@ const apiNotice = functionBody("renderApiNotice");
 requirePattern("API notice uses generic error mapper", apiNotice, /messageForApiError\(result\.error,\s*result\.status\)/);
 requirePattern("503 can render as neutral provider state", apiNotice, /result\.status === 503 \? "neutral" : "error"/);
 
+const setupIssues = functionBody("renderAdminSetupIssues");
+requirePattern("Admin setup empty state has explicit marker", setupIssues, /data-admin-console-setup-empty="true"/);
+requirePattern("Admin setup empty state uses problem guidance", setupIssues, /renderProblemState\(/);
+requirePattern("Admin setup empty state asks for refresh after changes", setupIssues, /Refresh after roster, program, or import changes/);
+
+const recentActivity = functionBody("renderAdminRecentActivity");
+requirePattern("Admin recent activity empty state has explicit marker", recentActivity, /data-admin-recent-activity-empty="true"/);
+requirePattern("Admin recent activity empty state uses problem guidance", recentActivity, /renderProblemState\(/);
+
+const auditEmptyState = functionBody("renderAdminAuditEmptyState");
+requirePattern("Admin audit empty state has explicit marker", auditEmptyState, /data-admin-audit-empty-state="true"/);
+requirePattern("Admin audit empty state avoids overclaiming", auditEmptyState, /before treating the audit view as quiet/);
+requirePattern("Admin audit section renders explicit no-events state", functionBody("renderAdminAuditSection"), /events\.length \? "" : renderAdminAuditEmptyState/);
+
+const csvPreview = functionBody("renderCsvImportPreview");
+requirePattern("CSV waiting state has explicit no-preview marker", csvPreview, /data-csv-import-empty-state="true"/);
+requirePattern("CSV waiting state uses problem guidance", csvPreview, /No CSV preview has run in this browser session[\s\S]*renderProblemState\(/);
+requirePattern("CSV error state has explicit failed-preview guide", csvPreview, /data-csv-import-error-guide="true"/);
+requirePattern("CSV error state says rows with errors are not saved", csvPreview, /No account or roster changes are saved from rows with errors/);
+
 const majorSections = [
   ["Site dashboard", "renderSiteDashboardSection"],
   ["Site programs", "renderSiteProgramsSection"],

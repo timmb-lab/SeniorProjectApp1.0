@@ -2397,7 +2397,17 @@ function renderAdminSetupIssues(issues = []) {
       ` : `
         <article class="workspace-empty-state-card" data-admin-console-setup-empty="true">
           <strong>No setup issues found.</strong>
-          <p>Roster, coverage, programs, and recent admin activity do not show a current setup issue in the loaded scope.</p>
+          <p>Roster, coverage, programs, imports, and recent admin activity do not show a current setup issue in the loaded scope.</p>
+          ${renderProblemState({
+            reason: "The current admin scope loaded without setup issues that need action.",
+            owner: "Site admin",
+            nextAction: "Refresh after roster, program, or import changes before treating the scope as still clear.",
+            actions: [
+              { label: "Refresh workspace", problemAction: "refresh" },
+              availableSectionIdsForAnyMode().has("adminReports") ? { label: "Open reports", section: "adminReports" } : null,
+              availableSectionIdsForAnyMode().has("adminImports") ? { label: "Open imports", section: "adminImports" } : null,
+            ].filter(Boolean),
+          })}
         </article>
       `}
     </section>
@@ -2495,7 +2505,21 @@ function renderAdminRecentActivity(rows = []) {
             </article>
           `).join("")}
         </div>
-      ` : `<div class="workspace-empty">No recent admin activity found.</div>`}
+      ` : `
+        <article class="workspace-empty-state-card" data-admin-recent-activity-empty="true">
+          <strong>No recent admin activity found.</strong>
+          <p>No redacted admin changes are available for this loaded scope yet.</p>
+          ${renderProblemState({
+            reason: "The recent activity feed loaded with no activity rows.",
+            owner: "Site admin",
+            nextAction: "Refresh after staff, roster, import, or access changes; open Audit if this role can review older rows.",
+            actions: [
+              { label: "Refresh workspace", problemAction: "refresh" },
+              availableSectionIdsForAnyMode().has("audit") ? { label: "Open audit", section: "audit" } : null,
+            ].filter(Boolean),
+          })}
+        </article>
+      `}
     </section>
   `;
 }
@@ -10312,6 +10336,28 @@ function operationRowsForDetail(body = {}) {
     }));
 }
 
+function renderAdminAuditEmptyState(hasFilters = false, filterLabel = "") {
+  return `
+    <article class="workspace-empty-state-card" data-admin-audit-empty-state="true">
+      <strong>${escapeHtml(hasFilters ? "No audit events match this filter." : "No audit events found.")}</strong>
+      <p>${escapeHtml(hasFilters
+        ? `No redacted audit rows match ${filterLabel || "the selected filter"} in the loaded result.`
+        : "No redacted audit rows are available in the loaded result yet.")}</p>
+      ${renderProblemState({
+        reason: hasFilters ? "The selected audit filter returned no rows." : "The audit request succeeded but returned no event rows.",
+        owner: "Global admin",
+        nextAction: hasFilters
+          ? "Show recent activity or choose a different filter before drawing conclusions."
+          : "Refresh after access, account, import, or review changes before treating the audit view as quiet.",
+        actions: [
+          { label: "Refresh workspace", problemAction: "refresh" },
+          hasFilters ? { label: "Show recent activity", section: "audit" } : null,
+        ].filter(Boolean),
+      })}
+    </article>
+  `;
+}
+
 function renderAdminAuditSection() {
   const result = currentData.auditEvents;
   if (result?.status === 403) {
@@ -10351,6 +10397,7 @@ function renderAdminAuditSection() {
           </button>
         ` : ""}
       </div>
+      ${events.length ? "" : renderAdminAuditEmptyState(hasFilters, filterLabel)}
       ${renderAdminAuditActionMap(events, adminAuditFilters)}
       ${renderAdminAuditSavedFilters(events, adminAuditFilters)}
       ${renderAdminAuditAnomalyView(events)}
@@ -17676,9 +17723,18 @@ function renderCsvTemplateDocumentation(kind = "students") {
 function renderCsvImportPreview(kind = "students", state = defaultAdminCsvImportKindState(kind)) {
   if (!state.previewed) {
     return `
-      <section class="workspace-csv-preview" data-csv-preview="${escapeHtml(kind)}" data-csv-preview-state="waiting">
+      <section class="workspace-csv-preview" data-csv-preview="${escapeHtml(kind)}" data-csv-preview-state="waiting" data-csv-import-empty-state="true">
         <strong>Preview required before import</strong>
         <p class="workspace-muted">Upload or paste a CSV, then preview validation before anything is saved.</p>
+        ${renderProblemState({
+          reason: "No CSV preview has run in this browser session.",
+          owner: "Signed-in admin using the current template",
+          nextAction: "Download the template, paste or upload CSV rows, then preview before importing.",
+          actions: [
+            { label: "Refresh workspace", problemAction: "refresh" },
+            availableSectionIdsForAnyMode().has("adminImports") ? { label: "Open imports", section: "adminImports" } : null,
+          ].filter(Boolean),
+        })}
       </section>
     `;
   }
@@ -17695,6 +17751,19 @@ function renderCsvImportPreview(kind = "students", state = defaultAdminCsvImport
         ${kind === "students" ? renderCsvSummaryMetric("Viewer assignments", summary.viewerAssignmentsCreated) : ""}
       </div>
       ${state.errors.length ? `
+        <article class="workspace-empty-state-card" data-csv-import-error-guide="true">
+          <strong>CSV preview found rows to fix.</strong>
+          <p>No account or roster changes are saved from rows with errors. Fix the listed rows, preview again, and import only after valid rows are confirmed.</p>
+          ${renderProblemState({
+            reason: "Preview validation found fields, scope, or template columns that cannot be imported safely.",
+            owner: "Signed-in admin using the current template",
+            nextAction: "Fix the row errors shown below, then run preview again before importing.",
+            actions: [
+              { label: "Refresh workspace", problemAction: "refresh" },
+              availableSectionIdsForAnyMode().has("adminImports") ? { label: "Open imports", section: "adminImports" } : null,
+            ].filter(Boolean),
+          })}
+        </article>
         <div class="workspace-list" data-csv-row-errors="true">
           ${state.errors.map((error) => `
             <article class="workspace-mini-row" data-csv-row-error="${escapeHtml(String(error.rowNumber || ""))}">
