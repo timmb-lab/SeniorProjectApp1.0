@@ -2,6 +2,8 @@
 
 Date: 2026-06-30
 
+Latest refresh: 2026-07-05 Prompt 11 reran `npm run prove:workspace-ui-polish`; the manifest stayed green with 46 local fake-account screenshots and 0 failures.
+
 Environment: local Pages proof by default (`npm run prove:workspace-ui-polish`). A caller may set `WORKSPACE_UI_POLISH_BASE_URL`, but the claim boundary stays fake-account UI proof only.
 
 Proof status: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF` when `docs/progress/runs/2026-06-30-workspace-ui-polish-browser-proof.json` has no failures.

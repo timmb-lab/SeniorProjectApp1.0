@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:51953",
+  "baseUrl": "http://127.0.0.1:65013",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-05T17:43:09.677Z",
-  "completedAt": "2026-07-05T17:47:21.203Z",
+  "startedAt": "2026-07-05T18:00:44.749Z",
+  "completedAt": "2026-07-05T18:04:59.927Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:51953",
+    "baseUrl": "http://127.0.0.1:65013",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-06-30-ui-polish",
