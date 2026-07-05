@@ -10075,6 +10075,34 @@ test("People CSV import screens provide templates and row-level preview validati
     url: "https://workspace.example/workspace.html?mode=admin&section=adminUsers&peopleView=import-students",
   });
 
+  vm.runInContext(`
+    currentUser = ${JSON.stringify(userForRoleProfile("site_admin"))};
+    currentData = defaultCurrentData({ ok: true, body: ${JSON.stringify(authConfigFixture())} });
+    currentData.authConfig = { ok: true, body: ${JSON.stringify(authConfigFixture())} };
+    currentData.accessAssignments = { ok: true, body: ${JSON.stringify(siteAccessAssignmentsFixture())} };
+    currentData.sitePrograms = { ok: true, body: ${JSON.stringify(siteProgramsFixture())} };
+    currentData.siteStudents = { ok: true, body: ${JSON.stringify(siteStudentsFixture({ role: "site_admin" }))} };
+    currentData.reviewQueue = { ok: true, body: ${JSON.stringify(siteReviewQueueFixture({ role: "site_admin", readOnly: true }))} };
+  `, context);
+  vm.runInContext(`
+    activeWorkspaceMode = "admin";
+    activeSection = "adminImports";
+    adminPeopleView = "import-students";
+    renderAppShell();
+  `, context);
+  const importShelfMarkup = workspaceRoot.innerHTML;
+  assert.match(importShelfMarkup, /data-admin-import-template-shelf="true"/);
+  assert.match(importShelfMarkup, /data-admin-import-template="students"[\s\S]*Required[\s\S]*data-csv-template-column="first_name" data-csv-template-column-required="true"[\s\S]*data-csv-template-column="program" data-csv-template-column-required="true"/);
+  assert.match(importShelfMarkup, /data-admin-import-template="students"[\s\S]*Optional[\s\S]*data-csv-template-column="mentor_email" data-csv-template-column-required="false"[\s\S]*data-csv-template-column="viewer_email" data-csv-template-column-required="false"/);
+  assert.match(importShelfMarkup, /data-admin-import-template="staff"[\s\S]*Staff imports cannot create Global Admin or student rows/);
+  assert.match(importShelfMarkup, /Unsupported columns are blocked so data is not silently ignored/);
+
+  vm.runInContext(`
+    activeSection = "adminUsers";
+    adminPeopleView = "import-students";
+    renderAppShell();
+  `, context);
+
   assert.match(workspaceRoot.innerHTML, /data-people-view="import-students"/);
   assert.match(workspaceRoot.innerHTML, /data-csv-template-download="students"/);
   assert.match(workspaceRoot.innerHTML, /data-csv-import-stepper="students"/);
@@ -10082,6 +10110,14 @@ test("People CSV import screens provide templates and row-level preview validati
   assert.match(workspaceRoot.innerHTML, /Mentor and Viewer emails must already exist in the current roster/);
   assert.match(workspaceRoot.innerHTML, /first_name[\s\S]*last_name[\s\S]*mentor_email[\s\S]*viewer_email/);
   assert.match(workspaceRoot.innerHTML, /data-csv-preview="students" data-csv-preview-state="waiting"/);
+  assert.equal(
+    vm.runInContext('csvTemplateForKind("students").split("\\n")[0]', context),
+    vm.runInContext('csvTemplateColumnsForKind("students").join(",")', context),
+  );
+  assert.equal(
+    vm.runInContext('csvTemplateForKind("staff").split("\\n")[0]', context),
+    vm.runInContext('csvTemplateColumnsForKind("staff").join(",")', context),
+  );
 
   vm.runInContext(`
     adminCsvImportState.students = validateAdminCsvImport("students", ${JSON.stringify([
@@ -10119,6 +10155,19 @@ test("People CSV import screens provide templates and row-level preview validati
   assert.match(workspaceRoot.innerHTML, /data-csv-preview="students" data-csv-preview-state="errors"/);
   assert.match(workspaceRoot.innerHTML, /Student users cannot be assigned as mentors/);
   assert.match(workspaceRoot.innerHTML, /Mentor email must already exist in the current roster before automatic assignment/);
+
+  vm.runInContext(`
+    adminCsvImportState.students = validateAdminCsvImport("students", ${JSON.stringify([
+      "first_name,last_name,email,site,program,guardian_phone",
+      "Header,Drift,header.drift@senior-capstone.test,Desert Valley High School,Information Technology,555-0100",
+    ].join("\n"))});
+    adminPeopleView = "import-students";
+    activeSection = "adminUsers";
+    renderAppShell();
+  `, context);
+  assert.match(workspaceRoot.innerHTML, /data-csv-preview="students" data-csv-preview-state="errors"/);
+  assert.match(workspaceRoot.innerHTML, /Unsupported column: guardian_phone/);
+  assert.equal(vm.runInContext("adminCsvImportState.students.validRows.length", context), 0);
 
   vm.runInContext(`
     adminCsvImportState.staff = validateAdminCsvImport("staff", ${JSON.stringify([

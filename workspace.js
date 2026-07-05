@@ -5159,16 +5159,8 @@ function renderAdminAssignmentCoverageSummary() {
 
 function renderAdminImportTemplateShelf() {
   const templates = [
-    {
-      kind: "students",
-      title: "Student CSV template",
-      detail: "Student name, email, school, program, cohort, graduation year, status, mentor email, viewer email.",
-    },
-    {
-      kind: "staff",
-      title: "Staff CSV template",
-      detail: "Staff name, email, role, school, program, assigned student emails, and status.",
-    },
+    csvTemplateContractForKind("students"),
+    csvTemplateContractForKind("staff"),
   ];
   return `
     <section class="workspace-admin-template-shelf" data-admin-import-template-shelf="true" aria-label="CSV templates">
@@ -5180,6 +5172,8 @@ function renderAdminImportTemplateShelf() {
             <div>
               <strong>${escapeHtml(template.title)}</strong>
               <p>${escapeHtml(template.detail)}</p>
+              ${renderCsvTemplateColumnGroups(template.kind)}
+              <p class="workspace-muted">${escapeHtml(template.scopeNote)}</p>
             </div>
             <div class="workspace-row-actions">
               <button class="workspace-link-button workspace-link-button-small" type="button" data-people-view-target="${escapeHtml(template.kind === "staff" ? "import-staff" : "import-students")}">
@@ -17255,16 +17249,12 @@ function renderCsvImportStepper(kind = "students") {
 }
 
 function renderCsvTemplateDocumentation(kind = "students") {
-  const columns = kind === "staff"
-    ? ["first_name", "last_name", "email", "role", "site", "program", "assigned_student_emails", "status"]
-    : ["first_name", "last_name", "email", "site", "program", "cohort", "graduation_year", "status", "mentor_email", "viewer_email"];
+  const contract = csvTemplateContractForKind(kind);
   return `
     <section class="workspace-csv-template-doc" data-csv-template-doc="${escapeHtml(kind)}">
       <strong>Template columns</strong>
-      <div class="workspace-chip-row">
-        ${columns.map((column) => `<code>${escapeHtml(column)}</code>`).join("")}
-      </div>
-      <p class="workspace-muted">Column names stay stable even when internal field names differ. Site, program, and assigned-student values must match records in your current scope.</p>
+      ${renderCsvTemplateColumnGroups(kind)}
+      <p class="workspace-muted">${escapeHtml(contract.scopeNote)} ${escapeHtml(contract.validationNote)}</p>
     </section>
   `;
 }
@@ -17321,16 +17311,62 @@ function renderCsvSummaryMetric(label, value) {
 }
 
 function csvTemplateForKind(kind = "students") {
-  if (kind === "staff") {
-    return [
-      "first_name,last_name,email,role,site,program,assigned_student_emails,status",
-      "Maya,Rivera,maya.rivera@senior-capstone.test,mentor,Desert Valley High School,,alex.student@senior-capstone.test,active",
-    ].join("\n");
-  }
+  const contract = csvTemplateContractForKind(kind);
   return [
-    "first_name,last_name,email,site,program,cohort,graduation_year,status,mentor_email,viewer_email",
-    "Alex,Student,alex.student@senior-capstone.test,Desert Valley High School,Information Technology,Class of 2026,2026,active,maya.rivera@senior-capstone.test,viewer.one@senior-capstone.test",
+    csvTemplateColumnsForKind(kind).join(","),
+    contract.example.join(","),
   ].join("\n");
+}
+
+function csvTemplateContractForKind(kind = "students") {
+  const safeKind = kind === "staff" ? "staff" : "students";
+  return {
+    students: {
+      kind: "students",
+      title: "Student CSV template",
+      detail: "Creates local student accounts with school/program placement and optional roster coverage fields.",
+      required: ["first_name", "last_name", "email", "site", "program"],
+      optional: ["cohort", "graduation_year", "status", "mentor_email", "viewer_email"],
+      example: ["Alex", "Student", "alex.student@senior-capstone.test", "Desert Valley High School", "Information Technology", "Class of 2026", "2026", "active", "maya.rivera@senior-capstone.test", "viewer.one@senior-capstone.test"],
+      scopeNote: "Student imports stay inside the selected school scope; mentor_email and viewer_email must already be staff accounts visible in this scope.",
+      validationNote: "Unsupported columns are blocked so data is not silently ignored.",
+    },
+    staff: {
+      kind: "staff",
+      title: "Staff CSV template",
+      detail: "Creates local scoped staff, mentor, viewer, Program Teacher, School Admin, or Site Admin accounts.",
+      required: ["first_name", "last_name", "email", "role"],
+      optional: ["site", "program", "assigned_student_emails", "status"],
+      example: ["Maya", "Rivera", "maya.rivera@senior-capstone.test", "mentor", "Desert Valley High School", "", "alex.student@senior-capstone.test", "active"],
+      scopeNote: "Staff imports cannot create Global Admin or student rows; roles must be allowed for the signed-in admin.",
+      validationNote: "Site Admin and Administration need a site, Program Teacher needs a program, and Mentor or Viewer needs a site or assigned students.",
+    },
+  }[safeKind];
+}
+
+function csvTemplateColumnsForKind(kind = "students") {
+  const contract = csvTemplateContractForKind(kind);
+  return [...contract.required, ...contract.optional];
+}
+
+function renderCsvTemplateColumnGroups(kind = "students") {
+  const contract = csvTemplateContractForKind(kind);
+  const groups = [
+    ["Required", contract.required, true],
+    ["Optional", contract.optional, false],
+  ];
+  return `
+    <div class="workspace-csv-template-columns" data-csv-template-columns="${escapeHtml(contract.kind)}" aria-label="${escapeHtml(`${contract.title} columns`)}">
+      ${groups.map(([label, columns, required]) => `
+        <div class="workspace-csv-template-column-group" data-csv-template-column-group="${escapeHtml(String(label).toLowerCase())}">
+          <span>${escapeHtml(label)}</span>
+          <div class="workspace-chip-row">
+            ${columns.map((column) => `<code data-csv-template-column="${escapeHtml(column)}" data-csv-template-column-required="${escapeHtml(String(required))}">${escapeHtml(column)}</code>`).join("")}
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
 }
 
 function renderUsersAccessActionMap(roleChoices = [], options = {}) {
@@ -25167,6 +25203,13 @@ function validateAdminCsvImport(kind = "students", text = "", options = {}) {
       rowNumber: index + 2,
       values: Object.fromEntries(normalizedHeaders.map((header, cellIndex) => [header, String(row[cellIndex] || "").trim()])),
     }));
+  const headerErrors = validateCsvImportHeaders(kind, normalizedHeaders);
+  if (headerErrors.length) {
+    state.errors.push(...headerErrors.map((message) => ({ rowNumber: 1, message })));
+    state.summary.rowsDetected = rowObjects.length;
+    state.summary.rowsWithErrors = headerErrors.length;
+    return state;
+  }
   const context = adminCsvValidationContext();
   const seenEmails = new Set();
   const existingEmails = context.existingEmails;
@@ -25230,6 +25273,21 @@ function parseCsv(text = "") {
 
 function normalizeCsvColumn(value) {
   return String(value || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+}
+
+function validateCsvImportHeaders(kind = "students", normalizedHeaders = []) {
+  const contract = csvTemplateContractForKind(kind);
+  const required = new Set(contract.required);
+  const supported = new Set(csvTemplateColumnsForKind(kind));
+  const present = new Set(normalizedHeaders.filter(Boolean));
+  const missing = [...required].filter((column) => !present.has(column));
+  const unsupported = [...present].filter((column) => !supported.has(column));
+  const duplicates = [...present].filter((column) => normalizedHeaders.filter((header) => header === column).length > 1);
+  const errors = [];
+  if (missing.length) errors.push(`Missing required column${missing.length === 1 ? "" : "s"}: ${missing.join(", ")}.`);
+  if (unsupported.length) errors.push(`Unsupported column${unsupported.length === 1 ? "" : "s"}: ${unsupported.join(", ")}. Use only the supported ${contract.kind} CSV template columns.`);
+  if (duplicates.length) errors.push(`Duplicate column${duplicates.length === 1 ? "" : "s"}: ${Array.from(new Set(duplicates)).join(", ")}.`);
+  return errors;
 }
 
 function adminCsvValidationContext() {

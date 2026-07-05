@@ -2098,6 +2098,24 @@ body[data-page="workspace"],
   color: var(--abc-muted);
 }
 
+.workspace-csv-template-columns {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.55rem;
+}
+
+.workspace-csv-template-column-group {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.workspace-csv-template-column-group > span {
+  color: var(--abc-muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
 .workspace-report-bars,
 .workspace-admin-report-bars {
   display: grid;
@@ -4473,7 +4491,8 @@ body[data-page="workspace"],
   gap: 0.55rem;
 }
 
-.workspace-csv-template-doc code {
+.workspace-csv-template-doc code,
+.workspace-admin-template-shelf code {
   border: 1px solid var(--border-soft);
   border-radius: 6px;
   background: #fff;

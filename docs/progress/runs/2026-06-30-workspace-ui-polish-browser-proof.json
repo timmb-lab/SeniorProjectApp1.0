@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:60063",
+  "baseUrl": "http://127.0.0.1:49691",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-05T01:42:17.116Z",
-  "completedAt": "2026-07-05T01:45:50.966Z",
+  "startedAt": "2026-07-05T02:03:54.463Z",
+  "completedAt": "2026-07-05T02:09:05.332Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:60063",
+    "baseUrl": "http://127.0.0.1:49691",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-06-30-ui-polish",
@@ -2515,7 +2515,7 @@
         "finalFiles": false
       },
       "heading": "Admin Console",
-      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Only one site Workspace Admin Console Site Admin ROLE Sam Site Admin Admin Console ready. OPERATIONS Admin Console Set up people, assignments, imports, programs, reports, and access review inside this account's allowed scope. IMPORTS Student and Staff Imports Download the supported CSV template, preview validation, fix errors, then confirm only valid scoped rows. CSV preview Student CSV template Student name, email, school, program, cohort, graduation year, status, mentor email, viewer email. Preview students Download template Staff CSV template Staff name, email, role, school, program, assigned student emails, and status. Prev",
+      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Only one site Workspace Admin Console Site Admin ROLE Sam Site Admin Admin Console ready. OPERATIONS Admin Console Set up people, assignments, imports, programs, reports, and access review inside this account's allowed scope. IMPORTS Student and Staff Imports Download the supported CSV template, preview validation, fix errors, then confirm only valid scoped rows. CSV preview Student CSV template Creates local student accounts with school/program placement and optional roster coverage fields. REQUIRED first_name last_name email site program OPTIONAL cohort graduation_year status mentor_email viewer_email Student imports stay ins",
       "activeNav": [
         "Admin Console",
         "Imports\n        Imports\n        CSV templates and preview",
