@@ -7797,6 +7797,8 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.match(student, /What do I need to do next\?/);
   assert.match(student, /data-student-primary-action="continue-work"[\s\S]*Continue My Work/);
   assert.match(student, /Current Step \/ Next Action/);
+  assert.match(student, /data-student-current-step-card="true"[\s\S]*data-student-current-step-status="true"[\s\S]*Status: Revision requested/);
+  assert.match(student, /data-student-next-action-card="true"[\s\S]*data-student-next-action-path="true"[\s\S]*Open Feedback or My Work, fix the note, then send the revision/);
   assert.match(student, /Progress Tracker/);
   assert.match(student, /Feedback Alert/);
   assert.match(student, /Upcoming or Missing Items/);
@@ -9435,7 +9437,7 @@ test("workspace renders self-service password rotation controls", async () => {
 });
 
 test("workspace renders evidence download and external-link actions without storage ids", async () => {
-  const student = await renderWorkspaceWithFetch({
+  const studentEvidenceRoutes = {
     "/api/auth/me": {
       status: 200,
       body: {
@@ -9493,7 +9495,8 @@ test("workspace renders evidence download and external-link actions without stor
       status: 200,
       body: { ok: true, slots: [] },
     },
-  }, "student", `
+  };
+  const student = await renderWorkspaceWithFetch(studentEvidenceRoutes, "student", `
     studentDisclosureState.requirements = true;
     studentDisclosureState.evidence = true;
     studentDisclosureState.files = true;
@@ -9522,6 +9525,14 @@ test("workspace renders evidence download and external-link actions without stor
   assert.match(student, /rel="noopener noreferrer"/);
   assert.match(student, /Open proof link/);
   assert.doesNotMatch(student, /drive_file_id|driveFileId|drive-secret/i);
+
+  const finalChecklist = await renderWorkspaceWithFetch(studentEvidenceRoutes, "studentFinalChecklist");
+  assert.match(finalChecklist, /data-student-screen="final-checklist"/);
+  assert.match(finalChecklist, /data-student-final-checklist="true"/);
+  assert.match(finalChecklist, /data-student-final-check-row="phase-1"[\s\S]*Not confirmed yet/);
+  assert.match(finalChecklist, /data-student-final-check-row="evidence"[\s\S]*No evidence has been uploaded yet|data-student-final-check-row="evidence"[\s\S]*Not confirmed yet/);
+  assert.match(finalChecklist, /data-student-primary-action="open-next-missing"[\s\S]*Continue My Work/);
+  assert.doesNotMatch(visibleText(finalChecklist), /Approved for next steps|Complete for closeout/);
 });
 
 test("student files rows reopen the matching requirement detail", async () => {

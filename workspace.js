@@ -154,7 +154,7 @@ const STATUS_CLASS_BY_STATUS = {
 };
 const STATUS_LABELS = {
   draft: "Draft",
-  not_started: "Draft",
+  not_started: "Not started",
   submitted: "Submitted",
   under_review: "Under review",
   reviewing: "Under review",
@@ -10794,6 +10794,8 @@ function renderStudentFinalChecklistScreen(context = {}) {
   const { summary = {}, requirements = [], submissions = [], evidence = [], feedback = [], archiveNextAction = null, previewingStudent = false } = context;
   const rows = studentFinalChecklistRows({ summary, requirements, submissions, evidence, feedback, archiveNextAction });
   const nextMissing = rows.find((row) => row.status !== "Complete");
+  const nextActionSection = nextMissing?.actionSection === "studentFeedback" ? "studentFeedback" : "studentWork";
+  const nextActionLabel = nextMissing?.actionSection === "studentFeedback" ? "View Feedback" : "Continue My Work";
   return `
     <section class="workspace-student-screen workspace-student-screen-final" data-student-screen="final-checklist" data-student-view-mode="${previewingStudent ? "staff-preview" : "self"}" aria-labelledby="studentFinalChecklistTitle">
       ${renderStudentScreenHeader({
@@ -10802,7 +10804,7 @@ function renderStudentFinalChecklistScreen(context = {}) {
         titleId: "studentFinalChecklistTitle",
         question: "What is left before I am finished?",
         badgeHtml: statusPill(nextMissing ? "needs_review" : "complete"),
-        primaryHtml: renderStudentRouteButton("studentWork", nextMissing ? "Open Next Missing Item" : "Continue My Work", "workspace-button-primary", "data-student-primary-action=\"open-next-missing\""),
+        primaryHtml: renderStudentRouteButton(nextMissing ? nextActionSection : "studentWork", nextMissing ? nextActionLabel : "Continue My Work", "workspace-button-primary", "data-student-primary-action=\"open-next-missing\""),
       })}
       ${previewingStudent ? renderViewAsStudentReadOnlyNotice() : ""}
       <section class="workspace-student-section" data-student-final-checklist="true" aria-labelledby="studentFinalChecklistRowsTitle">
@@ -10860,15 +10862,17 @@ function renderStudentTodayActionSection(action = {}, summary = {}) {
         ${statusPill(action.status || action.submissionStatus || "pending")}
       </div>
       <div class="workspace-student-action-summary">
-        <article>
+        <article data-student-current-step-card="true">
           <span>Current Step</span>
           <strong>${escapeHtml(action.itemTitle || action.title || summary.currentPhaseLabel || "Current capstone item")}</strong>
           <p>${escapeHtml(action.detail || "Open My Work to see the exact item and proof status.")}</p>
+          <p class="workspace-muted" data-student-current-step-status="true">Status: ${escapeHtml(studentConservativeStatusText(action.status || action.submissionStatus))}</p>
         </article>
-        <article>
+        <article data-student-next-action-card="true">
           <span>Next Action</span>
           <strong>${escapeHtml(action.owner || "Your action")}</strong>
           <p>${escapeHtml(action.when || "Open My Work before starting anything new.")}</p>
+          <p class="workspace-muted" data-student-next-action-path="true">${escapeHtml(studentNextActionPathCopy(action))}</p>
           <div class="workspace-row-actions">
             ${renderStudentStepButtons(action, "Open item") || renderStudentRouteButton("studentWork", "Continue My Work", "workspace-button-primary")}
           </div>
@@ -10876,6 +10880,22 @@ function renderStudentTodayActionSection(action = {}, summary = {}) {
       </div>
     </section>
   `;
+}
+
+function studentConservativeStatusText(value, fallback = "Not confirmed yet") {
+  const normalized = normalizeStatus(value);
+  if (!normalized || normalized === "unknown") return fallback;
+  if (normalized === "not_started") return "Not started";
+  return statusText(normalized);
+}
+
+function studentNextActionPathCopy(action = {}) {
+  const status = normalizeStatus(action.status || action.submissionStatus);
+  if (status === "revision_requested") return "Open Feedback or My Work, fix the note, then send the revision.";
+  if (["submitted", "under_review", "pending_review"].includes(status)) return "Review what you sent, then wait for the Program Teacher decision.";
+  if (["failed", "provider_unavailable", "expired", "expiring_soon"].includes(status)) return "Ask for help before changing final-file work.";
+  if (action?.requirementId || action?.submissionId) return "Open the matching item in My Work.";
+  return "Use My Work before starting anything new.";
 }
 
 function renderStudentProgressTracker(summary = {}, requirements = []) {
@@ -11071,7 +11091,7 @@ function studentFinalChecklistRows({ summary = {}, requirements = [], submission
       id: phaseKey,
       label,
       detail: phaseRows.length ? `${phaseRows.filter((row) => isStudentRequirementComplete(row?.status)).length} of ${phaseRows.length} item${phaseRows.length === 1 ? "" : "s"} complete in this phase.` : fallbackDetail,
-      status: complete ? "Complete" : submitted ? "Submitted" : needsWork ? "Needs work" : phaseRows.length ? "Needs work" : "Not started",
+      status: complete ? "Complete" : submitted ? "Submitted" : needsWork ? "Needs work" : phaseRows.length ? "Needs work" : "Not confirmed yet",
       actionSection: "studentWork",
     };
   };
@@ -11092,8 +11112,8 @@ function studentFinalChecklistRows({ summary = {}, requirements = [], submission
     {
       id: "evidence",
       label: "Evidence / files attached",
-      detail: evidenceRows.length ? `${evidenceRows.length} proof item${evidenceRows.length === 1 ? "" : "s"} saved.` : "No proof links or files are saved in this view.",
-      status: proofComplete ? "Submitted" : "Not started",
+      detail: evidenceRows.length ? `${evidenceRows.length} proof item${evidenceRows.length === 1 ? "" : "s"} saved.` : "No evidence has been uploaded yet.",
+      status: proofComplete ? "Submitted" : "Not confirmed yet",
       actionSection: "studentWork",
     },
     {
