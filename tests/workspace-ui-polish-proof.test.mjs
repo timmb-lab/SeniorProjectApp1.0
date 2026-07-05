@@ -134,12 +134,15 @@ test("workspace UI polish manifest records durable local fake-account screenshot
   assert.equal(byId.get("19-csv-import-template").markers.csvImportStepper, true);
   assert.equal(byId.get("19-csv-import-template").markers.adminImports, true);
   assert.equal(byId.get("32-admin-console-site-admin-overview").markers.adminSetupList, true);
+  assert.equal(byId.get("32-admin-console-site-admin-overview").markers.adminSetupReadiness, true);
   assert.equal(byId.get("33-admin-assignments").markers.adminAssignments, true);
   assert.equal(byId.get("34-admin-programs").markers.adminPrograms, true);
   assert.equal(byId.get("35-admin-reports").markers.adminReports, true);
+  assert.equal(byId.get("35-admin-reports").markers.adminSetupReadiness, true);
   assert.equal(byId.get("35-admin-reports").markers.reportBars, true);
   assert.equal(byId.get("36-admin-audit").markers.adminAudit, true);
   assert.equal(byId.get("37-mobile-admin-overview").markers.adminQuickActions, true);
+  assert.equal(byId.get("37-mobile-admin-overview").markers.adminSetupReadiness, true);
   assert.equal(byId.get("38-mobile-admin-imports").markers.csvImportStepper, true);
   assert.equal(byId.get("39-viewer-students-directory").markers.readOnlyBoundary, true);
   assert.equal(byId.get("41-student-detail-timeline").markers.studentDetailPanel, true);

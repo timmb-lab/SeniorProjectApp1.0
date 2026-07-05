@@ -1955,6 +1955,7 @@ function renderAdminConsoleOverviewSection(capabilities = adminConsoleCapabiliti
       </div>
       <div class="workspace-admin-console-overview-layout">
         ${renderAdminSetupIssues(model.setupIssues)}
+        ${renderAdminSetupReadinessPanel(model.setupReadiness)}
         ${renderAdminHealthSummary(model.health)}
         ${renderAdminQuickActions(model.quickActions)}
         ${renderAdminRecentActivity(model.recentActivity)}
@@ -1978,24 +1979,28 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
   };
   const students = Array.isArray(users.students) ? users.students : [];
   const staffRows = siteAccountRows(users).filter((row) => !row.roleIds.includes("student"));
-  const activePrograms = Array.isArray(sitePrograms.activePrograms) ? sitePrograms.activePrograms : [];
+  const accessPrograms = Array.isArray(access.programs) ? access.programs : [];
+  const activePrograms = Array.isArray(sitePrograms.activePrograms) && sitePrograms.activePrograms.length ? sitePrograms.activePrograms : accessPrograms;
   const availablePrograms = Array.isArray(sitePrograms.availablePrograms) ? sitePrograms.availablePrograms : [];
   const mentorAssignments = Array.isArray(assignments.mentorStudent) ? assignments.mentorStudent : [];
   const viewerAssignments = Array.isArray(assignments.viewerStudent) ? assignments.viewerStudent : [];
   const programTeacherAssignments = Array.isArray(assignments.programTeacherProgram) ? assignments.programTeacherProgram : [];
+  const studentSetupRows = adminStudentSetupRows(students, assignments);
+  const staffSetupRows = adminStaffSetupRows(staffRows, assignments);
+  const importSetupRows = adminImportSetupRows(adminCsvImportState);
   const studentTotal = safeNumber(summary.studentsTotal ?? siteStudents.pagination?.total ?? students.length);
   const scopedStudentCount = studentTotal || students.length;
-  const rosterIncomplete = students.filter((student) => {
-    const profileText = studentRosterProfileText(student);
-    return /not set/i.test(profileText) || !student.email;
-  }).length;
+  const rosterIncomplete = studentSetupRows.filter((row) => row.flagIds.includes("profile") || row.flagIds.includes("email")).length;
+  const missingProgramStudents = studentSetupRows.filter((row) => row.flagIds.includes("program")).length;
   const missingMentors = Math.max(
     safeNumber(summary.studentsNoMentor),
     safeNumber(summary.noMentor),
-    students.filter((student) => !student.mentorUserId && !student.mentorName && student.hasActiveMentor !== true).length,
+    studentSetupRows.filter((row) => row.flagIds.includes("mentor")).length,
   );
-  const missingViewers = students.filter((student) => !student.viewerUserId && !student.viewerName).length;
+  const missingViewers = studentSetupRows.filter((row) => row.flagIds.includes("viewer")).length;
   const missingProgramTeacherCoverage = Math.max(0, activePrograms.length - programTeacherAssignments.length);
+  const staffScopeGaps = staffSetupRows.length;
+  const importIssueCount = importSetupRows.reduce((sum, row) => sum + safeNumber(row.count), 0);
   const reviewFollowUp = safeNumber(summary.submissionsSubmitted) + safeNumber(summary.submitted) + safeNumber(summary.revisionRequested);
   const exportFailures = safeNumber(summary.exportsFailed) + safeNumber(summary.archiveFailed);
   const setupIssues = [
@@ -2013,6 +2018,15 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
       title: "Roster profile incomplete",
       detail: `${rosterIncomplete} ${pluralize(rosterIncomplete, "student")} need cohort, graduation year, or email cleanup.`,
       count: rosterIncomplete,
+      tone: "warning",
+      section: capabilities.sectionIds.has("adminStudents") ? "adminStudents" : consoleStudentSectionId(capabilities),
+      action: "Open students",
+    } : null,
+    missingProgramStudents ? {
+      id: "student-program",
+      title: "Student program missing",
+      detail: `${missingProgramStudents} ${pluralize(missingProgramStudents, "student")} need a program before program-scoped queues can be trusted.`,
+      count: missingProgramStudents,
       tone: "warning",
       section: capabilities.sectionIds.has("adminStudents") ? "adminStudents" : consoleStudentSectionId(capabilities),
       action: "Open students",
@@ -2035,6 +2049,15 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
       section: capabilities.sectionIds.has("adminAssignments") ? "adminAssignments" : "programs",
       action: "Open assignments",
     } : null,
+    staffScopeGaps ? {
+      id: "staff-scope",
+      title: "Staff scope needs confirmation",
+      detail: `${staffScopeGaps} staff ${pluralize(staffScopeGaps, "row")} need role, email, or assignment scope review.`,
+      count: staffScopeGaps,
+      tone: "warning",
+      section: capabilities.sectionIds.has("adminPeople") ? "adminPeople" : "adminAssignments",
+      action: "Open people",
+    } : null,
     !activePrograms.length && capabilities.sectionIds.has("programs") ? {
       id: "program-setup",
       title: "No active programs mapped",
@@ -2043,6 +2066,15 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
       tone: "warning",
       section: "programs",
       action: "Open programs",
+    } : null,
+    importIssueCount ? {
+      id: "csv-import",
+      title: "CSV preview needs fixes",
+      detail: `${importIssueCount} CSV ${pluralize(importIssueCount, "row")} need correction before import confirmation.`,
+      count: importIssueCount,
+      tone: "warning",
+      section: capabilities.sectionIds.has("adminImports") ? "adminImports" : "adminPeople",
+      action: "Open imports",
     } : null,
     exportFailures ? {
       id: "final-files",
@@ -2080,7 +2112,9 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
     { id: "staff", label: "Staff", value: staffRows.length, detail: "Staff and support accounts loaded", tone: "access" },
     { id: "programs", label: "Programs", value: activePrograms.length || safeNumber(summary.programsTotal), detail: "Active program mappings", tone: "programs" },
     { id: "mentor-coverage", label: "Mentor Coverage", value: percentLabel(mentorCoveragePercent), detail: `${mentorAssignments.length} active mentor assignments`, tone: missingMentors ? "warning" : "ready" },
+    { id: "viewer-coverage", label: "Viewer Coverage", value: percentLabel(viewerCoveragePercent), detail: `${viewerAssignments.length} active viewer assignments`, tone: missingViewers ? "warning" : "ready" },
     { id: "roster-complete", label: "Roster Completeness", value: percentLabel(rosterCompletenessPercent), detail: `${rosterIncomplete} profile ${pluralize(rosterIncomplete, "gap")}`, tone: rosterIncomplete ? "warning" : "ready" },
+    { id: "staff-scope", label: "Staff Scope", value: staffScopeGaps, detail: "Staff role, email, or assignment gaps", tone: staffScopeGaps ? "warning" : "ready" },
     { id: "setup-issues", label: "Setup Issues", value: setupIssues.length, detail: "Prioritized issues above", tone: setupIssues.length ? "warning" : "ready" },
   ];
   const recentRows = [
@@ -2118,9 +2152,217 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
       programCoveragePercent,
       reviewFollowUp,
       setupIssueCount: setupIssues.length,
-      importIssueCount: (adminCsvImportState.students?.errors?.length || 0) + (adminCsvImportState.staff?.errors?.length || 0),
+      importIssueCount,
+      staffScopeGaps,
+      studentProgramGaps: missingProgramStudents,
     },
+    setupReadiness: adminSetupReadinessRows({
+      studentSetupRows,
+      staffSetupRows,
+      importSetupRows,
+      students,
+      staffRows,
+      activePrograms,
+      missingMentors,
+      missingViewers,
+      missingProgramTeacherCoverage,
+      rosterIncomplete,
+      missingProgramStudents,
+      importIssueCount,
+    }).map((row) => capabilities.sectionIds.has(row.section) ? row : {
+      ...row,
+      section: "overview",
+      action: "Open overview",
+    }),
   };
+}
+
+function adminStudentId(student = {}) {
+  return student.userId || student.studentId || student.id || "";
+}
+
+function adminStudentProgramValue(student = {}) {
+  return String(student.programName || student.program || student.programId || student.pathway || "").trim();
+}
+
+function adminStudentCohortValue(student = {}) {
+  return String(student.cohort || student.rosterCohort || "").trim();
+}
+
+function adminStudentGraduationValue(student = {}) {
+  return String(student.graduationYear || student.graduation_year || student.graduation_year_label || "").trim();
+}
+
+function adminStudentSetupFlags(student = {}, assignments = {}) {
+  const studentId = adminStudentId(student);
+  const mentorStudentIds = new Set((assignments.mentorStudent || []).map((row) => row.studentId).filter(Boolean));
+  const viewerStudentIds = new Set((assignments.viewerStudent || []).map((row) => row.studentId).filter(Boolean));
+  const flags = [];
+  if (!String(student.email || "").trim()) {
+    flags.push({ id: "email", label: "Missing email" });
+  }
+  if (!adminStudentProgramValue(student)) {
+    flags.push({ id: "program", label: "Missing program" });
+  }
+  if (!adminStudentCohortValue(student) || !adminStudentGraduationValue(student)) {
+    flags.push({ id: "profile", label: "Missing cohort/year" });
+  }
+  if (!student.mentorUserId && !student.mentorName && student.hasActiveMentor !== true && !mentorStudentIds.has(studentId)) {
+    flags.push({ id: "mentor", label: "No mentor" });
+  }
+  if (!student.viewerUserId && !student.viewerName && !viewerStudentIds.has(studentId)) {
+    flags.push({ id: "viewer", label: "No viewer" });
+  }
+  return flags;
+}
+
+function adminStudentSetupRows(students = [], assignments = {}) {
+  return (Array.isArray(students) ? students : [])
+    .map((student) => {
+      const flags = adminStudentSetupFlags(student, assignments);
+      return {
+        id: adminStudentId(student),
+        label: student.displayName || student.studentName || student.email || "Student",
+        flags,
+        flagIds: flags.map((flag) => flag.id),
+      };
+    })
+    .filter((row) => row.flags.length);
+}
+
+function adminStaffSetupFlags(staff = {}, assignments = {}) {
+  const userId = staff.userId || staff.id || "";
+  const roleIds = Array.isArray(staff.roleIds) ? staff.roleIds : [];
+  const mentorIds = new Set((assignments.mentorStudent || []).map((row) => row.mentorUserId).filter(Boolean));
+  const viewerIds = new Set((assignments.viewerStudent || []).map((row) => row.viewerUserId).filter(Boolean));
+  const programTeacherIds = new Set((assignments.programTeacherProgram || []).map((row) => row.programTeacherUserId).filter(Boolean));
+  const administrationIds = new Set((assignments.administrationSite || []).map((row) => row.userId).filter(Boolean));
+  const siteAdminIds = new Set((assignments.siteAdminSite || []).map((row) => row.userId).filter(Boolean));
+  const flags = [];
+  if (!String(staff.email || "").trim()) {
+    flags.push({ id: "email", label: "Missing email" });
+  }
+  if (!roleIds.length) {
+    flags.push({ id: "role", label: "Missing role" });
+  }
+  if (roleIds.includes("mentor") && !mentorIds.has(userId)) {
+    flags.push({ id: "mentor-scope", label: "No mentor students" });
+  }
+  if (roleIds.includes("viewer") && !viewerIds.has(userId)) {
+    flags.push({ id: "viewer-scope", label: "No viewer students" });
+  }
+  if (roleIds.includes("program_teacher") && !programTeacherIds.has(userId)) {
+    flags.push({ id: "program-scope", label: "No program" });
+  }
+  if (roleIds.includes("administration") && !administrationIds.has(userId)) {
+    flags.push({ id: "site-scope", label: "No school access row" });
+  }
+  if (roleIds.includes("site_admin") && !siteAdminIds.has(userId)) {
+    flags.push({ id: "site-admin-scope", label: "No Site Admin row" });
+  }
+  return flags;
+}
+
+function adminStaffSetupRows(staffRows = [], assignments = {}) {
+  return (Array.isArray(staffRows) ? staffRows : [])
+    .map((staff) => {
+      const flags = adminStaffSetupFlags(staff, assignments);
+      return {
+        id: staff.userId || staff.id || "",
+        label: staff.displayName || staff.email || "Staff account",
+        flags,
+        flagIds: flags.map((flag) => flag.id),
+      };
+    })
+    .filter((row) => row.flags.length);
+}
+
+function adminImportSetupRows(state = adminCsvImportState) {
+  return ["students", "staff"].map((kind) => {
+    const importState = state[kind] || defaultAdminCsvImportKindState(kind);
+    const errors = Array.isArray(importState.errors) ? importState.errors : [];
+    const summary = importState.summary || {};
+    return {
+      id: kind,
+      label: kind === "staff" ? "Staff CSV" : "Student CSV",
+      count: errors.length,
+      detail: importState.previewed
+        ? `${safeNumber(summary.validRows)} valid / ${safeNumber(summary.rowsWithErrors || errors.length)} to fix`
+        : "No preview run in this browser session",
+    };
+  }).filter((row) => row.count);
+}
+
+function adminSetupReadinessRows({
+  studentSetupRows = [],
+  staffSetupRows = [],
+  importSetupRows = [],
+  students = [],
+  staffRows = [],
+  activePrograms = [],
+  missingMentors = 0,
+  missingViewers = 0,
+  missingProgramTeacherCoverage = 0,
+  rosterIncomplete = 0,
+  missingProgramStudents = 0,
+  importIssueCount = 0,
+} = {}) {
+  const studentIssueCount = Math.max(studentSetupRows.length, rosterIncomplete, missingProgramStudents, missingMentors, missingViewers);
+  return [
+    {
+      id: "students",
+      label: "Student roster setup",
+      count: studentIssueCount,
+      detail: studentIssueCount
+        ? `${rosterIncomplete} profile, ${missingProgramStudents} program, ${missingMentors} mentor, ${missingViewers} viewer gaps.`
+        : `${students.length} loaded students have the setup fields visible here.`,
+      sample: studentSetupRows.slice(0, 2).map(adminSetupSampleText),
+      section: "adminStudents",
+      action: "Open students",
+      tone: studentIssueCount ? "warning" : "ready",
+    },
+    {
+      id: "staff",
+      label: "Staff role and scope",
+      count: staffSetupRows.length,
+      detail: staffSetupRows.length
+        ? "Staff rows need an email, role, or scoped assignment before handoff."
+        : `${staffRows.length} staff rows have role and assignment scope visible here.`,
+      sample: staffSetupRows.slice(0, 2).map(adminSetupSampleText),
+      section: "adminPeople",
+      action: "Open people",
+      tone: staffSetupRows.length ? "warning" : "ready",
+    },
+    {
+      id: "coverage",
+      label: "Program coverage",
+      count: missingProgramTeacherCoverage,
+      detail: missingProgramTeacherCoverage
+        ? `${missingProgramTeacherCoverage} active ${pluralize(missingProgramTeacherCoverage, "program")} need Program Teacher coverage.`
+        : `${activePrograms.length} active ${pluralize(activePrograms.length, "program")} have Program Teacher coverage or no active gap in the loaded scope.`,
+      sample: [],
+      section: "adminAssignments",
+      action: "Open assignments",
+      tone: missingProgramTeacherCoverage ? "warning" : "ready",
+    },
+    {
+      id: "imports",
+      label: "CSV import preview",
+      count: importIssueCount,
+      detail: importIssueCount
+        ? `${importIssueCount} preview ${pluralize(importIssueCount, "error")} must be fixed before import.`
+        : "Student and staff templates match the current preview validators.",
+      sample: importSetupRows.slice(0, 2).map((row) => `${row.label}: ${row.detail}`),
+      section: "adminImports",
+      action: "Open imports",
+      tone: importIssueCount ? "warning" : "ready",
+    },
+  ];
+}
+
+function adminSetupSampleText(row = {}) {
+  const labels = (row.flags || []).map((flag) => flag.label).filter(Boolean).join(", ");
+  return `${row.label || "Row"}: ${labels || "Review setup"}`;
 }
 
 function percentLabel(value) {
@@ -2177,6 +2419,35 @@ function renderAdminHealthSummary(rows = []) {
             <span>${escapeHtml(row.label || "Metric")}</span>
             <strong>${escapeHtml(String(row.value ?? 0))}</strong>
             <small>${escapeHtml(row.detail || "")}</small>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderAdminSetupReadinessPanel(rows = []) {
+  const safeRows = Array.isArray(rows) ? rows : [];
+  return `
+    <section class="workspace-card workspace-admin-setup-readiness" data-admin-setup-readiness="true" aria-labelledby="adminSetupReadinessTitle">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Operations Readiness</p>
+          <h3 id="adminSetupReadinessTitle">Setup reasons by lane</h3>
+        </div>
+      </div>
+      <div class="workspace-admin-setup-readiness-list">
+        ${safeRows.map((row) => `
+          <article class="workspace-admin-setup-readiness-row ${escapeHtml(row.tone || "quiet")}" data-admin-setup-readiness-row="${escapeHtml(row.id || "row")}">
+            <div>
+              <span>${escapeHtml(row.label || "Setup lane")}</span>
+              <strong>${escapeHtml(String(safeNumber(row.count)))}</strong>
+              <p>${escapeHtml(row.detail || "Review this setup lane.")}</p>
+              ${row.sample?.length ? `<small>${escapeHtml(row.sample.join(" / "))}</small>` : ""}
+            </div>
+            <button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(row.section || "adminDashboard")}">
+              ${escapeHtml(row.action || "Open")}
+            </button>
           </article>
         `).join("")}
       </div>
@@ -5021,6 +5292,7 @@ function renderAdminReportsSection() {
       <div class="workspace-admin-console-metrics">
         ${renderAdminConsoleMetrics(capabilities)}
       </div>
+      ${renderAdminSetupReadinessPanel(model.setupReadiness)}
       ${renderAdminOperationalReportSummary(model.report)}
       ${availableSectionIdsForAnyMode().has("readiness") ? renderReadinessSection() : ""}
     </section>
@@ -17002,20 +17274,23 @@ function renderManageStudentsScreen() {
 }
 
 function renderManageStudentRow(student = {}) {
+  const assignments = unwrap(currentData.accessAssignments)?.assignments || {};
   const profileText = studentRosterProfileText(student);
   const assignmentText = studentAssignmentStatusText(student);
+  const setupFlags = adminStudentSetupFlags(student, assignments);
   return `
-    <article class="workspace-row" data-manage-student-row="${escapeHtml(student.userId || "")}">
+    <article class="workspace-row" data-manage-student-row="${escapeHtml(student.userId || "")}" data-manage-student-setup="${escapeHtml(setupFlags.length ? "needs-review" : "ready")}">
       <div>
         <strong>${escapeHtml(student.displayName || "Student")}</strong>
         <p>${escapeHtml(student.email || "")}</p>
         <p class="workspace-muted">${escapeHtml(profileText)}</p>
         <p class="workspace-muted">${escapeHtml(assignmentText)}</p>
+        ${renderAdminSetupFlagChips(setupFlags)}
       </div>
       <div class="workspace-row-actions">
         ${availableSectionIdsForAnyMode().has("students") ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(student.userId || "")}">View student</button>` : ""}
         ${renderViewAsStudentAction(student.userId, student.displayName, { sourceSection: "adminUsers" })}
-        ${statusPill("active")}
+        ${statusPill(setupFlags.length ? "needs_review" : "active")}
       </div>
     </article>
   `;
@@ -17041,6 +17316,7 @@ function studentAssignmentStatusText(student = {}) {
 function renderManageStaffScreen() {
   const access = unwrap(currentData.accessAssignments) || {};
   const users = access.users || {};
+  const assignments = access.assignments || {};
   const accounts = siteAccountRows(users).filter((row) => !row.roleIds.includes("student"));
   return `
     <section class="workspace-people-screen" data-people-screen="manage-staff">
@@ -17054,19 +17330,23 @@ function renderManageStaffScreen() {
       </div>
       ${accounts.length ? `
         <div class="workspace-list">
-          ${accounts.map((account) => `
-            <article class="workspace-row" data-manage-staff-row="${escapeHtml(account.userId || "")}">
+          ${accounts.map((account) => {
+            const setupFlags = adminStaffSetupFlags(account, assignments);
+            return `
+            <article class="workspace-row" data-manage-staff-row="${escapeHtml(account.userId || "")}" data-manage-staff-setup="${escapeHtml(setupFlags.length ? "needs-review" : "ready")}">
               <div>
                 <strong>${escapeHtml(account.displayName || "Staff account")}</strong>
                 <p>${escapeHtml(account.email || "")}</p>
                 <p class="workspace-muted">${escapeHtml((account.roleLabels || []).join(", ") || "Assigned staff")}</p>
+                ${renderAdminSetupFlagChips(setupFlags)}
               </div>
               <div class="workspace-row-actions">
                 <button class="workspace-link-button workspace-link-button-small" type="button" data-people-view-target="assignments">Manage assignments</button>
-                ${statusPill("active")}
+                ${statusPill(setupFlags.length ? "needs_review" : "active")}
               </div>
             </article>
-          `).join("")}
+          `;
+          }).join("")}
         </div>
       ` : `
         <article class="workspace-empty-state-card" data-manage-staff-empty="true">
@@ -17075,6 +17355,16 @@ function renderManageStaffScreen() {
         </article>
       `}
     </section>
+  `;
+}
+
+function renderAdminSetupFlagChips(flags = []) {
+  const safeFlags = Array.isArray(flags) ? flags : [];
+  if (!safeFlags.length) return "";
+  return `
+    <div class="workspace-chip-row workspace-admin-setup-flags" data-admin-setup-flags="true">
+      ${safeFlags.map((flag) => `<span class="workspace-risk-chip" data-admin-setup-flag="${escapeHtml(flag.id || "flag")}">${escapeHtml(flag.label || "Needs setup")}</span>`).join("")}
+    </div>
   `;
 }
 

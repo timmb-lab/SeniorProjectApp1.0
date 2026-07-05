@@ -7128,6 +7128,78 @@ test("workspace wide admin console keeps operations readable and source actions 
   assertMarkupOrder(markup, "School-Wide Operations", "Words on this screen", "diagnostic language rows should not precede the dashboard");
 });
 
+test("admin console surfaces setup reasons across overview people students and reports", async () => {
+  const accessAssignments = siteAccessAssignmentsFixture();
+  accessAssignments.users.students = [
+    {
+      ...accessAssignments.users.students[0],
+      programName: "",
+      programId: "",
+    },
+    {
+      userId: "student-needs-setup",
+      displayName: "No Year Student",
+      email: "no.year.student@demo-student.capstone.test",
+      programName: "Information Technology",
+      cohort: "",
+      graduationYear: "",
+    },
+  ];
+  accessAssignments.users.mentors.push({
+    userId: "mentor-no-scope",
+    displayName: "Orphan Mentor",
+    email: "",
+  });
+  const routes = {
+    ...profileRoutesForRole("site_admin"),
+    "/api/site/access-assignments": { status: 200, body: accessAssignments },
+  };
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch(routes, {
+    url: "https://workspace.example/workspace.html?mode=admin&section=overview&siteId=site-desert-valley-high",
+  });
+
+  vm.runInContext(`
+    adminCsvImportState.students = validateAdminCsvImport("students", ${JSON.stringify([
+      "first_name,last_name,email,site,program,guardian_phone",
+      "Header,Drift,header.drift@senior-capstone.test,Desert Valley High School,Information Technology,555-0100",
+    ].join("\n"))});
+    activeWorkspaceMode = "admin";
+    activeSection = "overview";
+    renderAppShell();
+  `, context);
+
+  const overview = workspaceRoot.innerHTML;
+  assert.match(overview, /data-admin-console-overview="true"/);
+  assert.match(overview, /data-admin-setup-readiness="true"/);
+  assert.match(overview, /Student program missing/);
+  assert.match(overview, /Roster profile incomplete/);
+  assert.match(overview, /Staff scope needs confirmation/);
+  assert.match(overview, /CSV preview needs fixes/);
+  assert.match(overview, /data-admin-setup-readiness-row="students"[\s\S]*Student roster setup[\s\S]*1 profile, 1 program, 17 mentor, 1 viewer gaps/);
+  assert.match(overview, /No Year Student: Missing cohort\/year, No mentor, No viewer/);
+  assert.match(overview, /data-admin-setup-readiness-row="staff"[\s\S]*Orphan Mentor: Missing email, No mentor students/);
+  assert.match(overview, /data-admin-setup-readiness-row="imports"[\s\S]*Student CSV: 0 valid \/ 1 to fix/);
+
+  vm.runInContext('activeSection = "adminStudents"; adminPeopleView = "manage-students"; renderAppShell();', context);
+  const students = workspaceRoot.innerHTML;
+  assert.match(students, /data-manage-student-row="student-needs-setup" data-manage-student-setup="needs-review"/);
+  assert.match(students, /data-admin-setup-flag="profile"[\s\S]*Missing cohort\/year/);
+  assert.match(students, /data-admin-setup-flag="mentor"[\s\S]*No mentor/);
+  assert.match(students, /data-admin-setup-flag="viewer"[\s\S]*No viewer/);
+
+  vm.runInContext('activeSection = "adminPeople"; adminPeopleView = "manage-staff"; renderAppShell();', context);
+  const people = workspaceRoot.innerHTML;
+  assert.match(people, /data-manage-staff-row="mentor-no-scope" data-manage-staff-setup="needs-review"/);
+  assert.match(people, /data-admin-setup-flag="email"[\s\S]*Missing email/);
+  assert.match(people, /data-admin-setup-flag="mentor-scope"[\s\S]*No mentor students/);
+
+  vm.runInContext('activeSection = "adminReports"; renderAppShell();', context);
+  const reports = workspaceRoot.innerHTML;
+  assert.match(reports, /data-admin-setup-readiness="true"/);
+  assert.match(reports, /Operational coverage summary/);
+  assert.match(reports, /Setup\/import issues/);
+});
+
 test("workspace dashboard actions use supported filters and loaders", () => {
   const sectionOpenBlock = workspaceJs.match(/async function openWorkspaceSection[\s\S]*?function availableSections/)?.[0] || "";
   assert.match(sectionOpenBlock, /activeSection = section;\s*syncCurrentWorkspaceUrlState\(\);\s*renderAppShell\(\);/);

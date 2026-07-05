@@ -1928,12 +1928,14 @@ body[data-page="workspace"],
 }
 
 .workspace-admin-console-overview-layout > :first-child,
+.workspace-admin-setup-readiness,
 .workspace-admin-quick-actions,
 .workspace-admin-report-summary {
   grid-column: 1 / -1;
 }
 
 .workspace-admin-setup-list,
+.workspace-admin-setup-readiness,
 .workspace-admin-health-summary,
 .workspace-admin-quick-actions,
 .workspace-admin-recent-activity,
@@ -1966,6 +1968,60 @@ body[data-page="workspace"],
 .workspace-admin-setup-row p {
   margin: 0.15rem 0 0;
   color: var(--abc-muted);
+}
+
+.workspace-admin-setup-readiness-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.55rem;
+}
+
+.workspace-admin-setup-readiness-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.6rem;
+  align-items: start;
+  min-height: 8rem;
+  border: 1px solid var(--border-soft);
+  border-left: 5px solid var(--abc-teal);
+  border-radius: var(--radius-card);
+  background: #fff;
+  padding: 0.72rem;
+}
+
+.workspace-admin-setup-readiness-row.warning {
+  border-left-color: var(--abc-gold);
+  background: color-mix(in srgb, var(--abc-soft-gold) 34%, white);
+}
+
+.workspace-admin-setup-readiness-row.ready {
+  border-left-color: var(--abc-green);
+}
+
+.workspace-admin-setup-readiness-row span {
+  color: var(--abc-muted);
+  font-size: 0.72rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.workspace-admin-setup-readiness-row strong {
+  display: block;
+  color: var(--abc-ink);
+  font-size: 1.55rem;
+  line-height: 1;
+  margin-top: 0.16rem;
+}
+
+.workspace-admin-setup-readiness-row p,
+.workspace-admin-setup-readiness-row small {
+  color: var(--abc-muted);
+  line-height: 1.3;
+  margin: 0.22rem 0 0;
+}
+
+.workspace-admin-setup-flags {
+  margin-top: 0.42rem;
 }
 
 .workspace-admin-health-grid,
@@ -9506,6 +9562,7 @@ button.workspace-metric-tile,
   .workspace-student-action-summary,
   .workspace-admin-flow,
   .workspace-admin-console-overview-layout,
+  .workspace-admin-setup-readiness-list,
   .workspace-admin-console-safety-strip,
   .workspace-admin-console-operating-list,
   .workspace-admin-template-shelf,
@@ -9859,6 +9916,7 @@ button.workspace-metric-tile,
   .workspace-student-section-head,
   .workspace-admin-console-header,
   .workspace-admin-setup-row,
+  .workspace-admin-setup-readiness-row,
   .workspace-card-head,
   .workspace-row,
   .workspace-read-only-banner,
@@ -9892,11 +9950,20 @@ button.workspace-metric-tile,
     grid-template-columns: 1fr;
   }
 
-  .workspace-admin-setup-row .workspace-row-actions {
+  .workspace-admin-setup-readiness-row {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-admin-setup-row .workspace-row-actions,
+  .workspace-admin-setup-readiness-row .workspace-link-button {
     justify-content: stretch;
   }
 
   .workspace-admin-setup-row .workspace-button {
+    width: 100%;
+  }
+
+  .workspace-admin-setup-readiness-row .workspace-link-button {
     width: 100%;
   }
 
