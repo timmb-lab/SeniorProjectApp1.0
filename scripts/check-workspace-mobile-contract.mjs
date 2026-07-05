@@ -49,7 +49,7 @@ requirePattern("tablet review panel stops sticky positioning", tablet, /\.worksp
 requirePattern("half-width rail is fixed overlay drawer", tablet, /\.workspace-rail\s*\{[\s\S]*?position:\s*fixed;[\s\S]*?width:\s*min\(360px,\s*calc\(100vw - 32px\)\);[\s\S]*?max-height:\s*calc\(100dvh - var\(--workspace-drawer-top\) - 1rem - env\(safe-area-inset-bottom\)\);[\s\S]*?overflow-x:\s*hidden;[\s\S]*?overflow-y:\s*auto;/);
 requirePattern("half-width drawer has sticky visible close control", tablet, /\.workspace-rail-drawer-header\s*\{[\s\S]*?position:\s*sticky;[\s\S]*?top:\s*0;[\s\S]*?display:\s*flex;/);
 requirePattern("half-width header wraps user controls", tablet, /\.workspace-user\s*\{[\s\S]*?flex-wrap:\s*wrap;[\s\S]*?justify-content:\s*flex-start;/);
-requirePattern("half-width email text cannot stretch layout", tablet, /\.workspace-user-text\s*\{[\s\S]*?flex:\s*1 1 12rem;[\s\S]*?max-width:\s*min\(100%,\s*24rem\);/);
+requirePattern("half-width email text cannot stretch layout", tablet, /\.workspace-user-text\s*\{[\s\S]*?flex:\s*1 1 auto;[\s\S]*?max-width:\s*100%;/);
 requirePattern("half-width main content stays in viewport", tablet, /\.workspace-main\s*\{[\s\S]*?grid-column:\s*1 \/ -1;[\s\S]*?max-width:\s*100%;/);
 
 requirePattern("phone controls stretch for tap targets", phone, /\.workspace-button,[\s\S]*?\.workspace-site-switcher select\s*\{[\s\S]*?width:\s*100%;/);

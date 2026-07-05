@@ -1088,35 +1088,35 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     ? ""
     : isAdminConsole ? renderAdminConsoleActiveSection() : renderActiveSection();
   const activeSectionBeforeGuidance = activeSectionFirst || isAdminConsole;
+  const topbarContextControls = [
+    renderSiteSwitcherControl(),
+    renderWorkspaceStudentSearchControl(roles),
+    renderWorkspaceModeSwitch(consoleCapabilities),
+  ].filter(Boolean).join("");
   workspaceMain.innerHTML = `
     <section class="workspace-app" data-primary-role="${escapeHtml(primaryRole)}" data-app-mode="${escapeHtml(activeWorkspaceMode)}" data-experience="${escapeHtml(experience)}" data-nav-state="${workspaceNavCollapsed ? "collapsed" : "expanded"}" data-view-as-student="${viewingAsStudent ? "active" : "inactive"}">
-      <header class="workspace-topbar">
+      <header class="workspace-topbar" data-topbar-density="compact">
         <div class="workspace-topbar-start">
           <button class="workspace-menu-toggle" id="workspaceMenuToggle" type="button" aria-controls="workspaceNavigationRail" aria-expanded="${workspaceNavCollapsed ? "false" : "true"}" aria-pressed="${workspaceNavCollapsed ? "true" : "false"}" aria-label="${workspaceNavCollapsed ? "Open menu" : "Close menu"}">
             <span class="workspace-menu-icon" aria-hidden="true"><span></span><span></span><span></span></span>
-            <span class="workspace-menu-toggle-label">${workspaceNavCollapsed ? "Open menu" : "Close menu"}</span>
+            <span class="workspace-menu-toggle-label">Menu</span>
           </button>
           <a class="workspace-brand" href="index.html">
             <span class="workspace-mark">SC</span>
             <span class="workspace-abc-motif" aria-hidden="true"><span></span><span></span><span></span></span>
             <span>${escapeHtml(studentExperience ? "My Capstone" : "Capstone App")}</span>
           </a>
-        </div>
-        <div class="workspace-topbar-center">
-          ${renderSiteSwitcherControl()}
-          ${renderWorkspaceStudentSearchControl(roles)}
-          ${renderWorkspaceModeSwitch(consoleCapabilities)}
+          <div class="workspace-topbar-area" aria-label="Current area">
+            <strong>${escapeHtml(areaName)}</strong>
+            <span>${escapeHtml(sectionLabelForTopbar(sections, activeSection))}</span>
+          </div>
         </div>
         <div class="workspace-user">
-          ${renderActiveRoleBadge(primaryRole)}
-          <div class="workspace-user-text">
-            <strong>${escapeHtml(currentUser.displayName || "Signed in")}</strong>
-            <span>${escapeHtml(currentUser.email || "")}</span>
+          <div class="workspace-topbar-center">
+            ${topbarContextControls}
           </div>
-          <div class="workspace-topbar-actions" aria-label="${escapeHtml(areaName)} account actions">
-            <button class="workspace-button" id="workspaceRefresh" type="button">Refresh</button>
-            <button class="workspace-button workspace-button-secondary" id="workspaceLogout" type="button">Sign out</button>
-          </div>
+          ${renderActiveRoleBadge(primaryRole, { readOnly: viewingAsStudent || roles.has("viewer") || Boolean(isAdminConsole && consoleCapabilities.readOnly) })}
+          ${renderWorkspaceAccountMenu(areaName)}
         </div>
       </header>
       <div class="workspace-content ${isAdminConsole ? "workspace-admin-console-content" : ""}">
@@ -1200,6 +1200,12 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   flushPendingStudentEvidenceFocus();
 }
 
+function sectionLabelForTopbar(sections = [], sectionId = activeSection) {
+  const section = sections.find((item) => item.id === sectionId && !item.hidden);
+  if (!section) return "Ready";
+  return section.label || sectionShortLabel(section);
+}
+
 function renderWorkspaceModeSwitch(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
   if (!capabilities.canSee) return "";
   const modes = [
@@ -1254,13 +1260,34 @@ function workspaceNavGroupFor(sectionId = "", options = {}) {
   return "General";
 }
 
-function renderActiveRoleBadge(primaryRole = primaryRoleForUser(currentUser)) {
+function renderActiveRoleBadge(primaryRole = primaryRoleForUser(currentUser), options = {}) {
   const identity = roleIdentityFor(primaryRole);
+  const readOnly = Boolean(options.readOnly);
   return `
-    <span class="workspace-active-role-badge" data-active-role-badge="true" data-role-identity="${escapeHtml(identity.key)}" aria-label="Active role: ${escapeHtml(identity.label)}">
+    <span class="workspace-active-role-badge" data-active-role-badge="true" data-role-identity="${escapeHtml(identity.key)}" data-role-read-only="${readOnly ? "true" : "false"}" aria-label="Active role: ${escapeHtml(identity.label)}${readOnly ? ", read-only" : ""}">
       <b>${escapeHtml(identity.label)}</b>
-      <small>Active role</small>
+      <small>${escapeHtml(readOnly ? "Read-only" : "Role")}</small>
     </span>
+  `;
+}
+
+function renderWorkspaceAccountMenu(areaName = workspaceAreaName()) {
+  const displayName = currentUser?.displayName || "Signed in";
+  const email = currentUser?.email || "";
+  return `
+    <details class="workspace-account-menu" data-account-menu="true">
+      <summary class="workspace-account-summary" aria-label="${escapeHtml(`${displayName} account menu`)}">
+        <span class="workspace-user-text">
+          <strong>${escapeHtml(displayName)}</strong>
+          <span>${escapeHtml(email)}</span>
+        </span>
+        <span class="workspace-account-caret" aria-hidden="true"></span>
+      </summary>
+      <div class="workspace-topbar-actions" aria-label="${escapeHtml(areaName)} account actions">
+        <button class="workspace-button workspace-button-small" id="workspaceRefresh" type="button">Refresh</button>
+        <button class="workspace-button workspace-button-secondary workspace-button-small" id="workspaceLogout" type="button">Sign out</button>
+      </div>
+    </details>
   `;
 }
 
