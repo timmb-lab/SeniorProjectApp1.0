@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:65013",
+  "baseUrl": "http://127.0.0.1:60079",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-05T18:00:44.749Z",
-  "completedAt": "2026-07-05T18:04:59.927Z",
+  "startedAt": "2026-07-05T19:07:01.972Z",
+  "completedAt": "2026-07-05T19:11:15.069Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:65013",
+    "baseUrl": "http://127.0.0.1:60079",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-06-30-ui-polish",
@@ -448,7 +448,7 @@
         "finalFiles": false
       },
       "heading": "My Capstone",
-      "textSample": "Skip to workspace Menu SC My Capstone My Capstone Today Student ROLE TS Test Student Maya maya.student@senior-capstone.test YOUR ACCESS Student Your project Only your own project work and feedback are visible here. Today What to finish next My Work Current requirements and proof Feedback Reviews and revision notes Final Checklist Presentation and final files TODAY Start with the next capstone action. My Capstone ready. MY CAPSTONE My Capstone What do I need to do next? Today My Work Feedback Final Checklist Your project TODAY My Capstone What do I need to do next? WAITING FOR REVIEW Review My Work CURRENT STEP / NEXT ACTION Current Step / Next Action check the sent work once, then wait for P",
+      "textSample": "Skip to workspace Menu SC My Capstone My Capstone Today Student ROLE TS Test Student Maya maya.student@senior-capstone.test YOUR ACCESS Student Your project Only your own project work and feedback are visible here. Today What to finish next My Work Current requirements and proof Feedback Feedback and work to fix Final Checklist Presentation and final files TODAY Start with the next capstone action. My Capstone ready. MY CAPSTONE My Capstone What do I need to do next? Today My Work Feedback Final Checklist Your project TODAY My Capstone What do I need to do next? WAITING FOR REVIEW Review My Work CURRENT STEP / NEXT ACTION Current Step / Next Action check the sent work once, then wait for Pro",
       "activeNav": [
         "My Work\n        Today\n        What to finish next"
       ]
@@ -518,7 +518,7 @@
         "finalFiles": false
       },
       "heading": "My Capstone",
-      "textSample": "Skip to workspace Menu SC My Capstone Student TS My Capstone ready. MY CAPSTONE My Capstone What do I need to do next? Today My Work Feedback Final Checklist Your project TODAY My Capstone What do I need to do next? WAITING FOR REVIEW Review My Work CURRENT STEP / NEXT ACTION Current Step / Next Action check the sent work once, then wait for Program Teacher approval before starting another phase. Submitted CURRENT STEP Senior Project Workspace Your work is with your Program Teacher. Check what you sent once, then wait for approval or revision before changing direction. Status: Submitted NEXT ACTION Program Teacher review Done for now. Do not upload another copy unless your Program Teacher as",
+      "textSample": "Skip to workspace Menu SC My Capstone Student TS My Capstone ready. MY CAPSTONE My Capstone What do I need to do next? Today My Work Feedback Final Checklist Your project TODAY My Capstone What do I need to do next? WAITING FOR REVIEW Review My Work CURRENT STEP / NEXT ACTION Current Step / Next Action check the sent work once, then wait for Program Teacher approval before starting another phase. Turned in CURRENT STEP Senior Project Workspace Your work is with your Program Teacher. Check what you sent once, then wait for approval or revision before changing direction. Status: Turned in NEXT ACTION Program Teacher review Done for now. Do not upload another copy unless your Program Teacher as",
       "activeNav": [
         "My Work\n        Today\n        What to finish next"
       ]
@@ -801,7 +801,7 @@
         "finalFiles": false
       },
       "heading": "My Capstone",
-      "textSample": "Skip to workspace Menu SC My Capstone Student TS My Capstone menu Close menu YOUR ACCESS Student Your project Only your own project work and feedback are visible here. Today What to finish next My Work Current requirements and proof Feedback Reviews and revision notes Final Checklist Presentation and final files TODAY Start with the next capstone action. Menu opened. MY CAPSTONE My Capstone What do I need to do next? Today My Work Feedback Final Checklist Your project TODAY My Capstone What do I need to do next? WAITING FOR REVIEW Review My Work CURRENT STEP / NEXT ACTION Current Step / Next Action check the sent work once, then wait for Program Teacher approval before starting another phase",
+      "textSample": "Skip to workspace Menu SC My Capstone Student TS My Capstone menu Close menu YOUR ACCESS Student Your project Only your own project work and feedback are visible here. Today What to finish next My Work Current requirements and proof Feedback Feedback and work to fix Final Checklist Presentation and final files TODAY Start with the next capstone action. Menu opened. MY CAPSTONE My Capstone What do I need to do next? Today My Work Feedback Final Checklist Your project TODAY My Capstone What do I need to do next? WAITING FOR REVIEW Review My Work CURRENT STEP / NEXT ACTION Current Step / Next Action check the sent work once, then wait for Program Teacher approval before starting another phase. ",
       "activeNav": [
         "My Work\n        Today\n        What to finish next"
       ]
@@ -1083,7 +1083,7 @@
         "finalFiles": false
       },
       "heading": "My Capstone",
-      "textSample": "Skip to workspace Menu SC My Capstone My Capstone Today Current site Desert Valley High School Only one site Workspace Admin Console Site Admin READ-ONLY SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test YOUR ACCESS Site Admin Assigned school: Desert Valley High School Site tools stay tied to the selected or assigned school. Today What to finish next My Work Current requirements and proof Feedback Reviews and revision notes Final Checklist Presentation and final files TODAY Start with the next capstone action. Viewing as: High Risk Demo 01 Staff account: Sam Site Admin (Site Admin). Staff identity and permissions remain active behind this preview. Read-only preview Authoriz",
+      "textSample": "Skip to workspace Menu SC My Capstone My Capstone Today Current site Desert Valley High School Only one site Workspace Admin Console Site Admin READ-ONLY SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test YOUR ACCESS Site Admin Assigned school: Desert Valley High School Site tools stay tied to the selected or assigned school. Today What to finish next My Work Current requirements and proof Feedback Feedback and work to fix Final Checklist Presentation and final files TODAY Start with the next capstone action. Viewing as: High Risk Demo 01 Staff account: Sam Site Admin (Site Admin). Staff identity and permissions remain active behind this preview. Read-only preview Authorized",
       "activeNav": [
         "Workspace",
         "My Work\n        Today\n        What to finish next"
@@ -1443,7 +1443,7 @@
         "finalFiles": false
       },
       "heading": "My Capstone",
-      "textSample": "Skip to workspace Menu SC My Capstone My Capstone Today Student ROLE TS Test Student Maya maya.student@senior-capstone.test YOUR ACCESS Student Your project Only your own project work and feedback are visible here. Today What to finish next My Work Current requirements and proof Feedback Reviews and revision notes Final Checklist Presentation and final files TODAY Start with the next capstone action. My Capstone ready. MY CAPSTONE My Capstone What do I need to do next? Today My Work Feedback Final Checklist Your project ADMIN CONSOLE Admin Console is not available for this role Students use Workspace only. Staff console sections appear only when the signed-in account has a monitoring or admi",
+      "textSample": "Skip to workspace Menu SC My Capstone My Capstone Today Student ROLE TS Test Student Maya maya.student@senior-capstone.test YOUR ACCESS Student Your project Only your own project work and feedback are visible here. Today What to finish next My Work Current requirements and proof Feedback Feedback and work to fix Final Checklist Presentation and final files TODAY Start with the next capstone action. My Capstone ready. MY CAPSTONE My Capstone What do I need to do next? Today My Work Feedback Final Checklist Your project ADMIN CONSOLE Admin Console is not available for this role Students use Workspace only. Staff console sections appear only when the signed-in account has a monitoring or admin-",
       "activeNav": [
         "My Work\n        Today\n        What to finish next"
       ]
@@ -1582,7 +1582,7 @@
         "finalFiles": true
       },
       "heading": "My Capstone",
-      "textSample": "Skip to workspace Menu SC My Capstone My Capstone Final Checklist Student ROLE TS Test Student Maya maya.student@senior-capstone.test YOUR ACCESS Student Your project Only your own project work and feedback are visible here. Today What to finish next My Work Current requirements and proof Feedback Reviews and revision notes Final Checklist Presentation and final files TODAY Start with the next capstone action. My Capstone ready. MY CAPSTONE My Capstone What do I need to do next? Today My Work Feedback Final Checklist Your project FINAL CHECKLIST Final Checklist What is left before I am finished? Pending Continue My Work FINISH CHECKS Finish checks These rows use your current capstone records",
+      "textSample": "Skip to workspace Menu SC My Capstone My Capstone Final Checklist Student ROLE TS Test Student Maya maya.student@senior-capstone.test YOUR ACCESS Student Your project Only your own project work and feedback are visible here. Today What to finish next My Work Current requirements and proof Feedback Feedback and work to fix Final Checklist Presentation and final files TODAY Start with the next capstone action. My Capstone ready. MY CAPSTONE My Capstone What do I need to do next? Today My Work Feedback Final Checklist Your project FINAL CHECKLIST Final Checklist What is left before I am finished? Waiting for review Continue My Work FINISH CHECKS Finish checks These rows use your current capston",
       "activeNav": [
         "Final Checklist\n        Final Checklist\n        Presentation and final files"
       ]
@@ -1605,10 +1605,10 @@
         "My Work",
         "Where do I open, submit, or review my capstone work?",
         "Current Work",
-        "Submitted Work",
-        "Evidence / Files"
+        "Work You Turned In",
+        "Proof Files"
       ],
-      "proves": "Student My Work shows checklist, submitted work, and proof rows as the work surface.",
+      "proves": "Student My Work shows checklist, work turned in, and proof rows as the work surface.",
       "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
       "login": {
         "status": 200,
@@ -1654,7 +1654,7 @@
         "finalFiles": false
       },
       "heading": "My Capstone",
-      "textSample": "Skip to workspace Menu SC My Capstone My Capstone My Work Student ROLE TS Test Student Maya maya.student@senior-capstone.test YOUR ACCESS Student Your project Only your own project work and feedback are visible here. Today What to finish next My Work Current requirements and proof Feedback Reviews and revision notes Final Checklist Presentation and final files TODAY Start with the next capstone action. My Capstone ready. MY CAPSTONE My Capstone What do I need to do next? Today My Work Feedback Final Checklist Your project MY WORK My Work Where do I open, submit, or review my capstone work? WAITING FOR REVIEW Open Current Work CURRENT WORK Current Work Open the current item, check details, ad",
+      "textSample": "Skip to workspace Menu SC My Capstone My Capstone My Work Student ROLE TS Test Student Maya maya.student@senior-capstone.test YOUR ACCESS Student Your project Only your own project work and feedback are visible here. Today What to finish next My Work Current requirements and proof Feedback Feedback and work to fix Final Checklist Presentation and final files TODAY Start with the next capstone action. My Capstone ready. MY CAPSTONE My Capstone What do I need to do next? Today My Work Feedback Final Checklist Your project MY WORK My Work Where do I open, submit, or review my capstone work? WAITING FOR REVIEW Open Current Work CURRENT WORK Current Work Open the current item, check details, add ",
       "activeNav": [
         "My Work\n        My Work\n        Current requirements and proof",
         "All phases"
@@ -1678,10 +1678,10 @@
         "My Work",
         "Where do I open, submit, or review my capstone work?",
         "Current Work",
-        "Submitted Work",
-        "Evidence / Files"
+        "Work You Turned In",
+        "Proof Files"
       ],
-      "proves": "Student My Work keeps current work, submitted work, and evidence rows readable on phone width.",
+      "proves": "Student My Work keeps current work, work turned in, and proof rows readable on phone width.",
       "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
       "login": {
         "status": 200,
@@ -1750,7 +1750,7 @@
       "expected": [
         "Feedback",
         "What feedback did I receive, and what do I need to fix?",
-        "Needs Revision",
+        "Needs Changes",
         "Recent Feedback",
         "Past Feedback"
       ],
@@ -1800,9 +1800,9 @@
         "finalFiles": false
       },
       "heading": "My Capstone",
-      "textSample": "Skip to workspace Menu SC My Capstone My Capstone Feedback Student ROLE TS Test Student Maya maya.student@senior-capstone.test YOUR ACCESS Student Your project Only your own project work and feedback are visible here. Today What to finish next My Work Current requirements and proof Feedback Reviews and revision notes Final Checklist Presentation and final files TODAY Start with the next capstone action. My Capstone ready. MY CAPSTONE My Capstone What do I need to do next? Today My Work Feedback Final Checklist Your project FEEDBACK Feedback What feedback did I receive, and what do I need to fix? Pending Open My Work NEEDS REVISION Needs Revision No needs revision right now. No revision feedb",
+      "textSample": "Skip to workspace Menu SC My Capstone My Capstone Feedback Student ROLE TS Test Student Maya maya.student@senior-capstone.test YOUR ACCESS Student Your project Only your own project work and feedback are visible here. Today What to finish next My Work Current requirements and proof Feedback Feedback and work to fix Final Checklist Presentation and final files TODAY Start with the next capstone action. My Capstone ready. MY CAPSTONE My Capstone What do I need to do next? Today My Work Feedback Final Checklist Your project FEEDBACK Feedback What feedback did I receive, and what do I need to fix? Not confirmed yet Open My Work NEEDS CHANGES Needs Changes No needs changes right now. No feedback ",
       "activeNav": [
-        "Feedback\n        Feedback\n        Reviews and revision notes"
+        "Feedback\n        Feedback\n        Feedback and work to fix"
       ]
     },
     {
