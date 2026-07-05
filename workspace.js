@@ -212,6 +212,34 @@ const STATUS_LABELS = {
   staff_only: "Staff-only",
   comment_only: "Comment only",
 };
+const STUDENT_STATUS_LABELS = {
+  draft: "Draft",
+  not_started: "Not started",
+  submitted: "Turned in",
+  under_review: "Waiting for review",
+  reviewing: "Waiting for review",
+  pending_review: "Waiting for review",
+  pending: "Not confirmed yet",
+  needs_review: "Waiting for review",
+  revision_requested: "Needs changes",
+  revision_needed: "Needs changes",
+  needs_revision: "Needs changes",
+  outline_revision_needed: "Outline needs changes",
+  approved: "Approved",
+  active: "Approved",
+  complete: "Done",
+  completed: "Done",
+  ready_complete: "Ready / done",
+  missing_evidence: "Missing proof",
+  missing: "Missing",
+  blocked: "Ask for help",
+  failed: "Needs help",
+  provider_unavailable: "Staff setup needed",
+  setup_needed: "Staff setup needed",
+  needs_staff_action: "Staff help needed",
+  not_requested: "Not ready yet",
+  policy_review_required: "Not ready yet",
+};
 const STUDENT_BOOKLET_PHASE_ORDER = [
   "start",
   "phase-1",
@@ -4686,7 +4714,7 @@ function availableWorkspaceSections(user = currentUser) {
   if (isViewAsStudentActive() || roles.has("student")) {
     add("student", "Today", "What to finish next");
     add("studentWork", "My Work", "Current requirements and proof");
-    add("studentFeedback", "Feedback", "Reviews and revision notes");
+    add("studentFeedback", "Feedback", "Feedback and work to fix");
     add("studentFinalChecklist", "Final Checklist", "Presentation and final files");
     add("presentation", "Presentation", "Schedule, outline, and day-of status", { hidden: true });
     add("archive", "Final Files", "May 5 downloads", { hidden: true });
@@ -11388,9 +11416,9 @@ function renderStudentMyWorkScreen(context = {}) {
       <section class="workspace-student-section" data-student-work-section="submitted" aria-labelledby="studentSubmittedWorkTitle">
         <div class="workspace-student-section-head">
           <div>
-            <p class="workspace-kicker">Submitted Work</p>
-            <h2 id="studentSubmittedWorkTitle">Submitted Work</h2>
-            <p>${escapeHtml(submissions.length ? "Review drafts, waiting items, revisions, and approved work in compact rows." : "Submitted work appears after you start or send a capstone item.")}</p>
+            <p class="workspace-kicker">Work You Turned In</p>
+            <h2 id="studentSubmittedWorkTitle">Work You Turned In</h2>
+            <p>${escapeHtml(submissions.length ? "Review drafts, waiting work, work to fix, and approved work in compact rows." : "Work you turn in appears after you start or send a capstone item.")}</p>
           </div>
         </div>
         ${renderStudentSubmissionsPanelBody(submissions, filteredSubmissions, feedback, activeSubmissionFilter)}
@@ -11398,8 +11426,8 @@ function renderStudentMyWorkScreen(context = {}) {
       <section class="workspace-student-section" data-student-work-section="evidence-files" aria-labelledby="studentEvidenceFilesTitle">
         <div class="workspace-student-section-head">
           <div>
-            <p class="workspace-kicker">Evidence / Files</p>
-            <h2 id="studentEvidenceFilesTitle">Evidence / Files</h2>
+            <p class="workspace-kicker">Proof Files</p>
+            <h2 id="studentEvidenceFilesTitle">Proof Files</h2>
             <p>${escapeHtml(evidence.length ? "Check saved links and files, and add proof only to the matching work item." : "Proof tools appear when work can accept links or files.")}</p>
           </div>
         </div>
@@ -11426,15 +11454,15 @@ function renderStudentFeedbackScreen(context = {}) {
         title: "Feedback",
         titleId: "studentFeedbackScreenTitle",
         question: "What feedback did I receive, and what do I need to fix?",
-        badgeHtml: statusPill(summary.revisionRequestedCount ? "revision_requested" : rows.length ? "under_review" : "pending"),
-        primaryHtml: renderStudentRouteButton("studentWork", summary.revisionRequestedCount ? "Open Revision Work" : "Open My Work", "workspace-button-primary", "data-student-primary-action=\"open-feedback-work\""),
+        badgeHtml: studentStatusPill(summary.revisionRequestedCount ? "revision_requested" : rows.length ? "under_review" : "pending"),
+        primaryHtml: renderStudentRouteButton("studentWork", summary.revisionRequestedCount ? "Open Work To Fix" : "Open My Work", "workspace-button-primary", "data-student-primary-action=\"open-feedback-work\""),
       })}
       ${previewingStudent ? renderViewAsStudentReadOnlyNotice() : ""}
       ${rows.length > 1 ? renderStudentFeedbackFilters(rows, activeFilter) : ""}
       ${activeFilter !== "all"
         ? renderStudentFeedbackLane("filtered", studentFeedbackFilterLabel(activeFilter), filteredRows, "No feedback matches this filter.")
         : `
-          ${renderStudentFeedbackLane("needs-revision", "Needs Revision", revisionRows, "No revision feedback is waiting right now.")}
+          ${renderStudentFeedbackLane("needs-revision", "Needs Changes", revisionRows, "No feedback needs changes right now.")}
           ${renderStudentFeedbackLane("recent", "Recent Feedback", recentRows, "No feedback yet. When your mentor or teacher reviews your work, it will appear here.")}
           ${renderStudentFeedbackLane("past", "Past Feedback", pastRows, "Past approved feedback appears here after reviews are complete.")}
         `}
@@ -11455,7 +11483,7 @@ function renderStudentFinalChecklistScreen(context = {}) {
         title: "Final Checklist",
         titleId: "studentFinalChecklistTitle",
         question: "What is left before I am finished?",
-        badgeHtml: statusPill(nextMissing ? "needs_review" : "complete"),
+        badgeHtml: studentStatusPill(nextMissing ? "needs_review" : "complete"),
         primaryHtml: renderStudentRouteButton(nextMissing ? nextActionSection : "studentWork", nextMissing ? nextActionLabel : "Continue My Work", "workspace-button-primary", "data-student-primary-action=\"open-next-missing\""),
       })}
       ${previewingStudent ? renderViewAsStudentReadOnlyNotice() : ""}
@@ -11511,7 +11539,7 @@ function renderStudentTodayActionSection(action = {}, summary = {}) {
           <h2 id="studentTodayNextActionTitle">Current Step / Next Action</h2>
           <p>${escapeHtml(studentPrimaryCommandCopy(action, summary))}</p>
         </div>
-        ${statusPill(action.status || action.submissionStatus || "pending")}
+        ${studentStatusPill(action.status || action.submissionStatus || "pending")}
       </div>
       <div class="workspace-student-action-summary">
         <article data-student-current-step-card="true">
@@ -11538,12 +11566,12 @@ function studentConservativeStatusText(value, fallback = "Not confirmed yet") {
   const normalized = normalizeStatus(value);
   if (!normalized || normalized === "unknown") return fallback;
   if (normalized === "not_started") return "Not started";
-  return statusText(normalized);
+  return studentStatusText(normalized);
 }
 
 function studentNextActionPathCopy(action = {}) {
   const status = normalizeStatus(action.status || action.submissionStatus);
-  if (status === "revision_requested") return "Open Feedback or My Work, fix the note, then send the revision.";
+  if (status === "revision_requested") return "Open Feedback or My Work, fix the note, then send your updated work.";
   if (["submitted", "under_review", "pending_review"].includes(status)) return "Review what you sent, then wait for the Program Teacher decision.";
   if (["failed", "provider_unavailable", "expired", "expiring_soon"].includes(status)) return "Ask for help before changing final-file work.";
   if (action?.requirementId || action?.submissionId) return "Open the matching item in My Work.";
@@ -11570,7 +11598,7 @@ function renderStudentProgressTracker(summary = {}, requirements = []) {
       <div class="workspace-student-summary-grid">
         ${renderStudentSummaryTile("Work complete", `${summary.requirementsComplete} of ${summary.requirementsTotal || 0}`, summary.requirementsTotal ? "Completed capstone items from your assigned checklist." : "No assigned checklist items yet.", "student")}
         ${renderStudentSummaryTile("Work waiting", `${summary.waitingForReviewCount}`, summary.waitingForReviewCount ? "Your Program Teacher owns the next decision." : "Nothing is waiting for review right now.", summary.waitingForReviewCount ? "teacher" : "student")}
-        ${renderStudentSummaryTile("Needs work", `${summary.revisionRequestedCount + summary.missingRequiredCount}`, summary.revisionRequestedCount ? "Fix feedback before new phase work." : summary.missingRequiredCount ? "Finish missing items before closeout." : "No missing or revision item is listed.", summary.revisionRequestedCount ? "danger" : summary.missingRequiredCount ? "warning" : "student")}
+        ${renderStudentSummaryTile("Needs work", `${summary.revisionRequestedCount + summary.missingRequiredCount}`, summary.revisionRequestedCount ? "Fix feedback before new phase work." : summary.missingRequiredCount ? "Finish missing items before closeout." : "No missing item or feedback to fix is listed.", summary.revisionRequestedCount ? "danger" : summary.missingRequiredCount ? "warning" : "student")}
       </div>
       ${renderStudentPhasePath(summary, requirements)}
     </section>
@@ -11648,7 +11676,7 @@ function renderStudentUpcomingRow(item = {}) {
       </div>
       <div class="workspace-row-actions">
         ${renderStudentStepButtons(item, "Open item")}
-        ${statusPill(status)}
+        ${studentStatusPill(status)}
       </div>
     </article>
   `;
@@ -11664,7 +11692,7 @@ function renderStudentCompactFeedbackRow(item = {}) {
         <p class="workspace-muted">${escapeHtml(item.authorName || "Program Teacher")} / ${escapeHtml(formatDate(item.createdAt || item.created_at))}</p>
       </div>
       <div class="workspace-row-actions">
-        ${statusPill(status)}
+        ${studentStatusPill(status)}
       </div>
     </article>
   `;
@@ -11763,15 +11791,15 @@ function studentFinalChecklistRows({ summary = {}, requirements = [], submission
     rowForPhase("phase-4", "Reflection and portfolio complete", "Reflection or portfolio work is not confirmed yet."),
     {
       id: "evidence",
-      label: "Evidence / files attached",
-      detail: evidenceRows.length ? `${evidenceRows.length} proof item${evidenceRows.length === 1 ? "" : "s"} saved.` : "No evidence has been uploaded yet.",
+      label: "Proof files attached",
+      detail: evidenceRows.length ? `${evidenceRows.length} proof item${evidenceRows.length === 1 ? "" : "s"} saved.` : "No proof files have been uploaded yet.",
       status: proofComplete ? "Submitted" : "Not confirmed yet",
       actionSection: "studentWork",
     },
     {
       id: "feedback",
       label: "Feedback resolved",
-      detail: revisionRows.length ? `${revisionRows.length} feedback item${revisionRows.length === 1 ? "" : "s"} still need revision.` : waitingRows.length ? `${waitingRows.length} sent item${waitingRows.length === 1 ? "" : "s"} still waiting for review.` : "No revision feedback is currently blocking the checklist.",
+      detail: revisionRows.length ? `${revisionRows.length} feedback item${revisionRows.length === 1 ? "" : "s"} still need changes.` : waitingRows.length ? `${waitingRows.length} sent item${waitingRows.length === 1 ? "" : "s"} still waiting for review.` : "No feedback needs changes right now.",
       status: revisionRows.length ? "Needs work" : waitingRows.length ? "Submitted" : feedbackRows.length || allAssignedComplete ? "Complete" : "Not confirmed yet",
       actionSection: revisionRows.length ? "studentFeedback" : "studentWork",
     },
@@ -11793,11 +11821,20 @@ function renderStudentFinalChecklistRow(row = {}) {
         <p>${escapeHtml(row.detail || "Status is not confirmed yet.")}</p>
       </div>
       <div class="workspace-row-actions">
-        <span class="workspace-student-final-status">${escapeHtml(row.status || "Not confirmed yet")}</span>
+        <span class="workspace-student-final-status">${escapeHtml(studentFinalChecklistStatusText(row.status || "Not confirmed yet"))}</span>
         ${row.actionSection ? renderStudentRouteButton(row.actionSection, row.actionSection === "studentFeedback" ? "Open Feedback" : "Open My Work", "workspace-button-secondary") : ""}
       </div>
     </article>
   `;
+}
+
+function studentFinalChecklistStatusText(status) {
+  const normalized = normalizeStatus(status);
+  if (normalized === "complete") return "Done";
+  if (normalized === "submitted") return "Waiting for review";
+  if (normalized === "needs_work") return "Needs work";
+  if (normalized === "not_confirmed_yet") return "Not confirmed yet";
+  return studentStatusText(status);
 }
 
 function renderStudentSetupGuide(summary = {}, requirements = []) {
@@ -11981,7 +12018,7 @@ function renderStudentCompletionLanes(summary = {}, archiveNextAction = null) {
       label: "Do now",
       value: revisionCount ? `${revisionCount} to fix` : missingCount ? `${missingCount} to finish` : "Keep going",
       detail: revisionCount
-        ? "Fix Program Teacher revision notes before new phase work."
+        ? "Fix Program Teacher feedback before new phase work."
         : missingCount
           ? "Open the current checklist item and add matching proof when needed."
           : "No urgent student action is listed right now.",
@@ -12020,7 +12057,7 @@ function renderStudentCompletionLanes(summary = {}, archiveNextAction = null) {
           <span>${escapeHtml(lane.label)}</span>
           <strong>${escapeHtml(lane.value)}</strong>
           <p>${escapeHtml(lane.detail)}</p>
-          ${statusPill(lane.status)}
+          ${studentStatusPill(lane.status)}
         </article>
       `).join("")}
     </section>
@@ -12049,7 +12086,7 @@ function studentAttentionMission(summary = {}, requirements = [], archiveNextAct
       tone: "danger",
       label: "Needs attention",
       title: `${summary.revisionRequestedCount} revision ${summary.revisionRequestedCount === 1 ? "item" : "items"}`,
-      detail: "Fix revision work before starting new phase work.",
+      detail: "Fix work that needs changes before starting new phase work.",
       meta: overdueCount ? `${overdueCount} overdue item${overdueCount === 1 ? "" : "s"} also need attention.` : "Start with Program Teacher Feedback.",
     };
   }
@@ -12115,7 +12152,7 @@ function studentProofMission(summary = {}, submissions = [], evidence = []) {
       tone: "warning",
       label: "Proof",
       title: `${proofRows.length} proof item${proofRows.length === 1 ? "" : "s"}`,
-      detail: "Corrected proof belongs on the revision item only.",
+      detail: "Corrected proof belongs on the item that needs changes.",
       meta: `${revisionCount} revision ${revisionCount === 1 ? "item needs" : "items need"} a clean send-back.`,
     };
   }
@@ -12361,7 +12398,7 @@ function studentPanelMapItems({ requirements = [], feedback = [], summary = {}, 
       id: "submissions",
       label: "Sent work",
       value: waitingSubmissions ? `${waitingSubmissions} waiting` : `${submissionRows.length} started`,
-      detail: waitingSubmissions ? "Open to confirm what your Program Teacher is reviewing." : "Open to review draft, revision, approved, or sent items.",
+      detail: waitingSubmissions ? "Open to confirm what your Program Teacher is reviewing." : "Open to review drafts, work to fix, approved work, or sent items.",
       tone: waitingSubmissions ? "teacher" : submissionRows.length ? "student" : "quiet",
       action: "Open sent work",
     },
@@ -12405,7 +12442,7 @@ function renderStudentPrimaryNextAction(summary, nextSteps = [], archiveNextActi
           <h2 id="studentPrimaryNextActionTitle">${escapeHtml(action.title)}</h2>
           <p>${escapeHtml(action.detail)}</p>
         </div>
-        ${statusPill(action.status)}
+        ${studentStatusPill(action.status)}
       </div>
       <div class="workspace-student-action-focus">
         <strong>${escapeHtml(action.owner)}</strong>
@@ -12480,7 +12517,7 @@ function studentActionPathSteps(action = {}, summary = {}) {
       {
         id: "send",
         tone: canSend ? "student" : "warning",
-        title: canSend ? "Send revision" : "Add proof first",
+        title: canSend ? "Send updated work" : "Add proof first",
         detail: canSend ? "Send only after the work and proof match the note." : "Add the corrected proof before sending this back.",
         actionsHtml: submitButton || proofButton,
       },
@@ -12639,7 +12676,7 @@ function studentApprovalGateBannerCopy(summary = {}) {
     return {
       state: "revision",
       title: "Revision comes before new phase work",
-      detail: "Fix the Program Teacher feedback, send the revision, and wait for recorded Program Teacher approval before moving ahead.",
+      detail: "Fix the Program Teacher feedback, send your updated work, and wait for recorded Program Teacher approval before moving ahead.",
       badge: "Student action",
     };
   }
@@ -12677,7 +12714,7 @@ function renderStudentStagePlaybook(summary, nextSteps = []) {
           <h2 id="studentStageGuideTitle">${escapeHtml(playbook.title)}</h2>
           <p>${escapeHtml(playbook.summary)}</p>
         </div>
-        ${statusPill(playbook.status)}
+        ${studentStatusPill(playbook.status)}
       </div>
       <ol class="workspace-student-stage-steps">
         ${playbook.steps.map((step, index) => `
@@ -12862,7 +12899,7 @@ function studentPrimaryNextAction(summary, nextSteps = [], archiveNextAction = n
   if (summary.revisionRequestedCount) {
     return studentPrimaryActionFromStep(revisionStep || firstStep, {
       title: revisionStep?.title ? `Fix ${revisionStep.title} and send it back` : "Fix and send again",
-      detail: revisionStep?.detail || "Open the item marked Needs Revision, make the changes, then send it back to your Program Teacher.",
+      detail: revisionStep?.detail || "Open the item marked Needs Changes, make the changes, then send it back to your Program Teacher.",
       status: "revision_requested",
       owner: "Your action",
       when: "Start with Work You Sent In below.",
@@ -12971,9 +13008,9 @@ function clampPercent(value) {
 }
 
 function studentStatusBadge(status) {
-  const normalized = String(status || "Not Started").trim() || "Not Started";
-  const statusKey = normalized.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-  return `<span class="workspace-student-status-badge" data-student-progress-status="${escapeHtml(statusKey)}">${escapeHtml(normalized)}</span>`;
+  const normalized = normalizeStatus(status || "not_started");
+  const statusKey = normalized.replace(/[^a-z0-9]+/g, "-");
+  return `<span class="workspace-student-status-badge" data-student-progress-status="${escapeHtml(statusKey)}">${escapeHtml(studentStatusText(status || "not_started"))}</span>`;
 }
 
 function renderStudentSummaryTile(title, metricText, explanation, tone = "") {
@@ -13036,7 +13073,7 @@ function renderStudentNextStepRow(item) {
       </div>
       <div class="workspace-row-actions">
         ${stepButtons}
-        ${statusPill(item.status || "not_started")}
+        ${studentStatusPill(item.status || "not_started")}
       </div>
     </article>
   `;
@@ -13171,7 +13208,7 @@ function renderStudentDeadlineRow(item, summary = {}) {
       </div>
       <div class="workspace-row-actions">
         ${actionButtons}
-        ${statusPill(item?.status || "missing")}
+        ${studentStatusPill(item?.status || "missing")}
       </div>
     </article>
   `;
@@ -13195,7 +13232,7 @@ function studentDeadlineUrgency(item = {}) {
   if (daysUntil < 0) {
     return {
       state: "overdue",
-      copy: isRevision ? "Overdue: fix and send the revision before new phase work." : "Overdue: open this item, add proof, and send it for review.",
+      copy: isRevision ? "Overdue: fix this and send your updated work before new phase work." : "Overdue: open this item, add proof, and send it for review.",
     };
   }
   if (daysUntil <= 3) {
@@ -13340,7 +13377,7 @@ function studentPrimaryActionFromStep(step = null, overrides = {}) {
 
 function studentPrimaryCommandCopy(action = {}, summary = {}) {
   const status = normalizeStatus(action.status || action.submissionStatus);
-  if (status === "revision_requested") return "open the revision item, fix the exact Program Teacher note, attach corrected proof if needed, then send the revision.";
+  if (status === "revision_requested") return "open the item that needs changes, fix the exact Program Teacher note, attach corrected proof if needed, then send your updated work.";
   if (["submitted", "under_review", "pending_review"].includes(status)) return "check the sent work once, then wait for Program Teacher approval before starting another phase.";
   if (status === "draft" || status === "missing" || summary?.missingRequiredCount) return "open this checklist item, complete the work, attach proof, and send it to your Program Teacher for review.";
   if (["provider_unavailable", "failed", "expired", "expiring_soon"].includes(status)) return studentInstructionCopy(action.detail || "ask staff for final-file help before closeout.");
@@ -13488,7 +13525,7 @@ function renderStudentRequirementRow(item, feedback = [], detailState = defaultS
         ${version > 0 ? `<span class="workspace-site-context-badge" data-student-requirement-version="true">Version ${escapeHtml(version)}</span>` : ""}
         ${requirementId ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-requirement-action="toggle-detail" data-student-requirement-id="${escapeHtml(requirementId)}" aria-expanded="${selected ? "true" : "false"}" aria-controls="${escapeHtml(detailDomId)}" aria-label="${escapeHtml(`${detailActionLabel}: ${studentRequirementActionLabel(item)}`)}">${escapeHtml(detailActionLabel)}</button>` : ""}
         ${renderStudentRequirementAction(item, evidenceCount)}
-        ${statusPill(item?.status || "missing")}
+        ${studentStatusPill(item?.status || "missing")}
       </div>
       ${selected ? renderStudentRequirementDetail(item, latestFeedback, relatedEvidence, historyState) : ""}
     </article>
@@ -13544,9 +13581,9 @@ function renderStudentRequirementDetail(item, latestFeedback = null, evidenceRow
   const submissionId = cleanDirectoryFilter(item?.submissionId || "");
   const evidenceCount = safeNumber(item?.evidenceCount);
   const version = safeNumber(item?.submissionVersion);
-  const status = statusText(item?.status || "missing");
-  const submissionStatus = item?.submissionStatus ? statusText(item.submissionStatus) : status;
-  const progressStatus = item?.progressStatus ? statusText(item.progressStatus) : "Not started";
+  const status = studentStatusText(item?.status || "missing");
+  const submissionStatus = item?.submissionStatus ? studentStatusText(item.submissionStatus) : status;
+  const progressStatus = item?.progressStatus ? studentStatusText(item.progressStatus) : "Not started";
   const phase = studentBookletPhaseInfo(item?.phase || item?.phaseLabel || "", item?.phaseLabel || "");
   const phaseChecklist = Array.isArray(phase.checklist) ? phase.checklist : [];
   const approvalGate = studentRequirementApprovalGateText(item);
@@ -13679,10 +13716,10 @@ function renderStudentRequirementReadyChecklist(item = {}, latestFeedback = null
       state: evidenceCount ? "ready" : "blocked",
     },
     {
-      label: needsRevision ? "Program Teacher revision note checked" : "Program Teacher feedback checked",
+      label: "Program Teacher feedback checked",
       detail: needsRevision
         ? (latestFeedback?.message || "Open Program Teacher Feedback and confirm the exact requested change.")
-        : "No revision note is blocking this item right now.",
+        : "No feedback to fix is blocking this item right now.",
       state: needsRevision && !latestFeedback ? "needs_review" : "ready",
     },
     {
@@ -13812,7 +13849,7 @@ function studentSubmissionActionState(item = {}) {
       reason: "Add at least one proof link or file before sending this item for review.",
     };
   }
-  const label = status === "revision_requested" ? "Send revision" : "Send for review";
+  const label = status === "revision_requested" ? "Send updated work" : "Send for review";
   return {
     visible: true,
     canSubmit: true,
@@ -13871,7 +13908,7 @@ function renderStudentRevisionLane(rows = []) {
     <section class="workspace-student-revision-lane" data-student-revision-lane="true" data-student-revision-lane-count="${escapeHtml(revisionRows.length)}">
       <div>
         <strong>Fix revisions first</strong>
-        <p>${escapeHtml(`Start with ${first.requirementTitle || "the first revision item"}. New phase work waits until this is approved.`)}</p>
+        <p>${escapeHtml(`Start with ${first.requirementTitle || "the first item that needs changes"}. New phase work waits until this is approved.`)}</p>
       </div>
       <ol>
         <li>Read the Program Teacher note.</li>
@@ -13892,7 +13929,7 @@ function renderStudentFeedbackInboxGuide(rows = [], summary = {}) {
         ? "Approved notes show what is done and can be used next."
         : "Program Teacher feedback will appear here after review.";
   const nextMove = counts.revisionRequested
-    ? "Open the matching work, make the requested change, attach corrected proof if needed, then send the revision."
+    ? "Open the matching work, make the requested change, attach corrected proof if needed, then send your updated work."
     : summary?.waitingForReviewCount
       ? "You are done for now on waiting items. Your Program Teacher owns the next decision."
       : summary?.missingRequiredCount
@@ -13949,7 +13986,7 @@ function studentFeedbackFilterOptions(rows = []) {
   }
   return [
     { value: "all", label: "All notes", count: counts.all },
-    { value: "revision_requested", label: "Needs revision", count: counts.revision_requested },
+    { value: "revision_requested", label: "Needs changes", count: counts.revision_requested },
     { value: "under_review", label: "Program Teacher notes", count: counts.under_review },
     { value: "approved", label: "Approved", count: counts.approved },
   ];
@@ -13964,7 +14001,7 @@ function studentFeedbackFilterKey(value) {
 }
 
 function studentFeedbackFilterLabel(value) {
-  if (value === "revision_requested") return "Needs revision feedback";
+  if (value === "revision_requested") return "Feedback that needs changes";
   if (value === "under_review") return "Program Teacher notes";
   if (value === "approved") return "Approved feedback";
   return "All Program Teacher feedback";
@@ -13989,12 +14026,12 @@ function renderStudentFeedbackEmptyState(summary = {}, filterKey = "all", totalR
   const activeFilter = studentFeedbackFilterKey(filterKey);
   const copy = {
     revision_requested: {
-      title: "No revision notes are listed right now.",
+      title: "No feedback needs changes right now.",
       detail: "Show all notes or check Work You Sent In for anything still waiting for review.",
     },
     under_review: {
       title: "No general Program Teacher notes are listed right now.",
-      detail: "Show revision notes or approved feedback for your recent work.",
+      detail: "Show all notes or approved feedback for your recent work.",
     },
     approved: {
       title: "No approved feedback is listed yet.",
@@ -14031,8 +14068,8 @@ function renderStudentFeedbackRow(item, historyState = defaultStudentFeedbackHis
       </div>
       <div class="workspace-row-actions">
         ${submissionId ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-feedback-action="open-history" data-student-feedback-origin="feedback" data-student-feedback-submission-id="${escapeHtml(submissionId)}">${escapeHtml(isSelected ? "Refresh work history" : "View work history")}</button>` : ""}
-        ${needsRevision ? `<button class="workspace-button workspace-button-small workspace-button-secondary" type="button" data-student-support-action="focus-submissions" data-student-support-filter="revision_requested">Open revision work</button>` : ""}
-        ${statusPill(item.status || "under_review")}
+        ${needsRevision ? `<button class="workspace-button workspace-button-small workspace-button-secondary" type="button" data-student-support-action="focus-submissions" data-student-support-filter="revision_requested">Open work to fix</button>` : ""}
+        ${studentStatusPill(item.status || "under_review")}
       </div>
       ${renderStudentRevisionHelper(item)}
       ${isSelected ? renderStudentFeedbackTimeline(historyState) : ""}
@@ -14051,7 +14088,7 @@ function renderStudentRevisionHelper(item = {}) {
         <p>${escapeHtml(item?.message || "Review the Program Teacher feedback for this item.")}</p>
       </div>
       <div>
-        <strong>Your revision checklist</strong>
+        <strong>Your fix checklist</strong>
         <ol>
           ${checklist.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}
         </ol>
@@ -14081,7 +14118,7 @@ function studentFeedbackApprovalGateText(item = {}) {
     return "Wait here. Your Program Teacher must approve this work before next steps.";
   }
   if (["revision_requested", "needs_revision"].includes(status)) {
-    return "Fix this feedback item, send the revision, then wait for Program Teacher approval.";
+    return "Fix this feedback item, send your updated work, then wait for Program Teacher approval.";
   }
   return "Read this note, update your work if needed, and ask your Program Teacher before skipping ahead.";
 }
@@ -14103,7 +14140,7 @@ function studentFeedbackSubmissionMeta(item) {
   const parts = [];
   const version = safeNumber(item?.submissionVersion);
   if (version > 0) parts.push(`Version ${version}`);
-  if (item?.submissionStatus) parts.push(`Now: ${statusText(item.submissionStatus)}`);
+  if (item?.submissionStatus) parts.push(`Now: ${studentStatusText(item.submissionStatus)}`);
   return parts.join(" / ");
 }
 
@@ -14233,7 +14270,7 @@ function studentTimelineEvidenceCount(row = {}) {
 
 function studentTimelineNextMove(status = "") {
   const normalized = normalizeStatus(status);
-  if (["revision_requested", "needs_revision"].includes(normalized)) return "Fix the Program Teacher note, send the revision, then wait for Program Teacher approval.";
+  if (["revision_requested", "needs_revision"].includes(normalized)) return "Fix the Program Teacher note, send your updated work, then wait for Program Teacher approval.";
   if (["submitted", "under_review", "reviewing", "pending_review"].includes(normalized)) return "Wait here. Your Program Teacher owns the next decision.";
   if (["approved", "complete", "completed", "archived"].includes(normalized)) return "Approved for next steps. Use the next assigned item.";
   return "Use the newest Program Teacher note and ask your Program Teacher before skipping ahead.";
@@ -14357,10 +14394,10 @@ function renderStudentProgressDetailsBody(summary, dashboard) {
           ${renderStudentDetailFact("Work done", `${summary.requirementsComplete} of ${summary.requirementsTotal || 0}`)}
           ${renderStudentDetailFact("Work still missing", summary.missingRequiredCount ? `${summary.missingRequiredCount} to finish` : "None right now")}
           ${renderStudentDetailFact("Waiting for review", summary.waitingForReviewCount ? `${summary.waitingForReviewCount} sent` : "Nothing waiting")}
-          ${renderStudentDetailFact("Needs revision", summary.revisionRequestedCount ? `${summary.revisionRequestedCount} item${summary.revisionRequestedCount === 1 ? "" : "s"}` : "Nothing right now")}
+          ${renderStudentDetailFact("Needs changes", summary.revisionRequestedCount ? `${summary.revisionRequestedCount} item${summary.revisionRequestedCount === 1 ? "" : "s"}` : "Nothing right now")}
           ${renderStudentDetailFact("Last updated", summary.lastUpdatedAt ? formatDate(summary.lastUpdatedAt) : "Not available yet")}
           ${renderStudentDetailFact("Proof added", `${evidence.length} item${evidence.length === 1 ? "" : "s"}`)}
-          ${renderStudentDetailFact("Program Teacher feedback", summary.revisionRequestedCount ? "Review the item marked Needs Revision." : "You do not have feedback that needs action right now.")}
+          ${renderStudentDetailFact("Program Teacher feedback", summary.revisionRequestedCount ? "Review the item marked Needs Changes." : "You do not have feedback that needs action right now.")}
           ${archiveFact ? renderStudentDetailFact("Final files due May 5", archiveFact) : ""}
         </div>
       </div>
@@ -14467,13 +14504,13 @@ function renderStudentSubmissionStatusGuide(submissions = [], activeSubmissionFi
     },
     {
       id: "revision_requested",
-      title: "Needs revision",
+      title: "Needs changes",
       detail: counts.revision
-        ? "Fix the Program Teacher note, update the matching proof if needed, then send the revision."
-        : "No revision work is waiting for you right now.",
+        ? "Fix the Program Teacher note, update the matching proof if needed, then send your updated work."
+        : "No work to fix is waiting for you right now.",
       tone: counts.revision ? "warning" : "quiet",
       count: counts.revision,
-      action: "Show revision work",
+      action: "Show work to fix",
     },
     {
       id: "approved",
@@ -14514,7 +14551,7 @@ function renderStudentSubmissionActionSummary(submissions = []) {
   const rows = Array.isArray(submissions) ? submissions : [];
   const counts = studentSubmissionStatusCounts(rows);
   const guidance = counts.revision
-    ? "Do revision items first. Update the matching work, attach corrected proof if needed, then send the revision."
+    ? "Do work that needs changes first. Update the matching work, attach corrected proof if needed, then send your updated work."
     : counts.waiting
       ? "Done for now on waiting items. Your Program Teacher owns the next decision."
     : counts.draft
@@ -14659,7 +14696,7 @@ function renderStudentProofReceipt(evidence = []) {
           <p>${escapeHtml(`${proofLabel} saved for ${matchedTitle}.`)}</p>
           <p class="workspace-muted">${escapeHtml(`${fileLabel} / ${savedAt}`)}</p>
         </div>
-        ${statusPill(matchedEvidence ? "ready" : "needs_review")}
+        ${studentStatusPill(matchedEvidence ? "ready" : "needs_review")}
       </div>
       <div class="workspace-student-proof-receipt-map" data-student-proof-receipt-map="true">
         ${renderStudentProofReceiptCard({
@@ -14766,7 +14803,7 @@ function renderStudentEvidenceGroup(group = {}) {
         </div>
         <span class="workspace-site-context-badge">${escapeHtml(rows.length)} proof</span>
       </div>
-      <p class="workspace-muted" data-student-proof-recovery="true">Wrong item? Add the corrected proof to the right checklist item, then tell your Program Teacher in the revision note or next check-in.</p>
+      <p class="workspace-muted" data-student-proof-recovery="true">Wrong item? Add the corrected proof to the right checklist item, then tell your Program Teacher in the feedback note or next check-in.</p>
       <div class="workspace-list">
         ${rows.map(renderEvidenceRow).join("")}
       </div>
@@ -14873,7 +14910,7 @@ function renderEvidenceForms(submissions, requirements = []) {
   const linkGuideId = "workspaceProofGuideLink";
   const fileGuideId = "workspaceProofGuideFile";
   const options = rows.map((submission) => `
-    <option value="${escapeHtml(studentSubmissionId(submission))}">${escapeHtml(studentSubmissionRequirementTitle(submission))} - ${escapeHtml(statusText(submission.status))}</option>
+    <option value="${escapeHtml(studentSubmissionId(submission))}">${escapeHtml(studentSubmissionRequirementTitle(submission))} - ${escapeHtml(studentStatusText(submission.status))}</option>
   `).join("");
 
   return `
@@ -15052,7 +15089,7 @@ function renderStudentStorageFallbackMap(submissions = [], archiveBody = null) {
           <h3 id="studentStorageFallbackTitle">Attach proof without getting stuck</h3>
           <p>${escapeHtml(storageState.summary)}</p>
         </div>
-        ${statusPill(storageState.status === "provider_unavailable" ? "needs_staff_action" : storageState.status)}
+        ${studentStatusPill(storageState.status === "provider_unavailable" ? "needs_staff_action" : storageState.status)}
       </div>
       <div class="workspace-student-storage-fallback-grid">
         ${cards.map(renderStudentStorageFallbackCard).join("")}
@@ -15177,7 +15214,7 @@ function studentProofGuideForSubmission(submission = {}, requirements = []) {
     phaseGoal: phase.deliverable || "Finish the work your Program Teacher lists for this phase.",
     phaseDone: phase.done || "Program Teacher marks the listed work approved.",
     phaseChecklist: Array.isArray(phase.checklist) ? phase.checklist : [],
-    statusLabel: statusText(submission?.status || requirement?.submissionStatus || requirement?.status || "draft"),
+    statusLabel: studentStatusText(submission?.status || requirement?.submissionStatus || requirement?.status || "draft"),
     nextAction,
   };
 }
@@ -20904,7 +20941,7 @@ function renderArchiveSection() {
           <h1 id="archiveDashboardTitle">Download and Keep</h1>
           <p>${escapeHtml(studentFinalFilesCopy(archive.message, "Before May 5, make sure your important Senior Project files can be downloaded and kept in your personal files."))}</p>
         </div>
-        ${statusPill(summary.archiveAvailableToRequest ? "ready" : archive.status || "not_requested")}
+        ${studentStatusPill(summary.archiveAvailableToRequest ? "ready" : archive.status || "not_requested")}
       </div>
       ${renderDashboardKpis([
         { label: "Files ready", value: metricWithPercent(dashboard.readyChecks, dashboard.totalChecks), detail: "Final checks ready", tone: "mentor" },
@@ -20946,7 +20983,7 @@ function renderArchiveSection() {
             <p class="workspace-kicker">Download setup</p>
             <h2>Download</h2>
           </div>
-          ${statusPill(storage.credentialsConfigured ? "configured" : "needs_staff_action")}
+          ${studentStatusPill(storage.credentialsConfigured ? "configured" : "needs_staff_action")}
         </div>
         <div class="workspace-worklist workspace-archive-status-worklist">
           ${renderArchiveStatusRow("Download status", downloadMessage, archive.status || "not_requested", archiveDownloadUrl ? `<a class="workspace-link-button workspace-link-button-small" data-archive-download="manifest" href="${escapeHtml(archiveDownloadUrl)}">Download file list</a>` : "")}
@@ -21003,7 +21040,7 @@ function renderArchiveStatusRow(label, detail, status, actionHtml = "", extraAtt
       </div>
       <div>
         <span class="workspace-worklist-label">Status</span>
-        ${statusPill(status)}
+        ${studentStatusPill(status)}
       </div>
       <div class="workspace-worklist-action">
         ${actionHtml || `<span class="workspace-summary-badge">Summary only</span>`}
@@ -21049,7 +21086,7 @@ function renderStudentArchiveGuidance(body) {
           <h2 id="studentArchiveGuidanceTitle">${escapeHtml(guidance.title)}</h2>
           <p>${escapeHtml(guidance.detail)}</p>
         </div>
-        ${statusPill(guidance.status === "provider_unavailable" ? "needs_staff_action" : guidance.status)}
+        ${studentStatusPill(guidance.status === "provider_unavailable" ? "needs_staff_action" : guidance.status)}
       </div>
       <div class="workspace-student-action-focus">
         <strong>${escapeHtml(guidance.owner)}</strong>
@@ -21220,7 +21257,7 @@ function renderArchiveCheckRow(check) {
         <p>${escapeHtml(check.message || "Review this final check.")}</p>
         <p class="workspace-muted">${escapeHtml(check.evidenceCount || 0)} proof item${Number(check.evidenceCount || 0) === 1 ? "" : "s"} matched to this check.</p>
       </div>
-      ${statusPill(check.status)}
+      ${studentStatusPill(check.status)}
     </article>
   `;
 }
@@ -21249,7 +21286,7 @@ function renderPresentationSlotRow(slot, canManage, options = {}) {
       </div>
       <div>
         <span class="workspace-worklist-label">Status</span>
-        ${statusPill(status)}
+        ${studentView ? studentStatusPill(status) : statusPill(status)}
       </div>
       <div class="workspace-presentation-actions workspace-worklist-action">
         ${renderPresentationAction(slot, canManage)}
@@ -22050,7 +22087,7 @@ function studentSidebarNextStepText(dashboard = {}) {
   if (summary.revisionRequestedCount) {
     return title
       ? `Fix ${title} first, then send it back for Program Teacher review.`
-      : "Fix revision feedback first, then send it back for Program Teacher review.";
+      : "Fix feedback first, then send it back for Program Teacher review.";
   }
   if (summary.waitingForReviewCount) {
     return "Check what you sent, then wait for Program Teacher approval before starting the next phase.";
@@ -23174,7 +23211,7 @@ function renderSubmissionRow(submission, feedback = [], historyState = defaultSt
       </div>
       <div class="workspace-row-actions">
         ${submissionId ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-feedback-action="open-history" data-student-feedback-origin="submissions" data-student-feedback-submission-id="${escapeHtml(submissionId)}">${escapeHtml(isSelected ? "Refresh work history" : "View work history")}</button>` : ""}
-        ${statusPill(submission.status)}
+        ${studentStatusPill(submission.status)}
       </div>
       ${isSelected ? `<div data-student-submission-timeline="true">${renderStudentFeedbackTimeline(historyState)}</div>` : ""}
     </article>
@@ -23199,7 +23236,7 @@ function studentSubmissionApprovalGateText(submission = {}) {
     return "Wait here. Your Program Teacher must approve this sent work before next steps.";
   }
   if (["revision_requested", "needs_revision"].includes(status)) {
-    return "Fix this sent work, send the revision, then wait for Program Teacher approval.";
+    return "Fix this sent work, send your updated work, then wait for Program Teacher approval.";
   }
   return "Finish this work, attach proof if needed, then send it to your Program Teacher for review.";
 }
@@ -23233,7 +23270,7 @@ function studentSubmissionFilterOptions(rows = []) {
     { value: "all", label: "All work", count: counts.all },
     { value: "draft", label: "Drafts", count: counts.draft },
     { value: "submitted", label: "Waiting for review", count: counts.submitted },
-    { value: "revision_requested", label: "Needs revision", count: counts.revision_requested },
+    { value: "revision_requested", label: "Needs changes", count: counts.revision_requested },
     { value: "approved", label: "Approved", count: counts.approved },
   ];
 }
@@ -23250,7 +23287,7 @@ function studentSubmissionFilterKey(value) {
 function studentSubmissionFilterLabel(value) {
   if (value === "draft") return "draft work";
   if (value === "submitted") return "work waiting for review";
-  if (value === "revision_requested") return "work that needs revision";
+  if (value === "revision_requested") return "work that needs changes";
   if (value === "approved") return "approved work";
   return "all work you sent in";
 }
@@ -23324,7 +23361,7 @@ function renderEvidenceRow(item) {
       </div>
       <div class="workspace-row-actions">
         ${actions.join("")}
-        ${statusPill(reviewStatus)}
+        ${studentStatusPill(reviewStatus)}
       </div>
     </article>
   `;
@@ -23351,6 +23388,12 @@ function statusPill(status) {
   return `<span class="workspace-status-pill ${escapeHtml(statusClass)}" data-status="${escapeHtml(normalized)}">${escapeHtml(statusText(status))}</span>`;
 }
 
+function studentStatusPill(status) {
+  const normalized = normalizeStatus(status);
+  const statusClass = statusClassFor(status);
+  return `<span class="workspace-status-pill ${escapeHtml(statusClass)}" data-status="${escapeHtml(normalized)}">${escapeHtml(studentStatusText(status))}</span>`;
+}
+
 function statusClassFor(status) {
   const normalized = normalizeStatus(status);
   return STATUS_CLASS_BY_STATUS[normalized] || normalized;
@@ -23359,6 +23402,11 @@ function statusClassFor(status) {
 function statusText(value) {
   const normalized = normalizeStatus(value);
   return STATUS_LABELS[normalized] || String(value || "Unknown").replace(/_/g, " ");
+}
+
+function studentStatusText(value) {
+  const normalized = normalizeStatus(value);
+  return STUDENT_STATUS_LABELS[normalized] || statusText(value);
 }
 
 function archiveProviderStatusText(value) {
