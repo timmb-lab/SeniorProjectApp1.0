@@ -11,6 +11,7 @@ Fake-account demo readiness is not real-student pilot readiness. Real-student pi
 - The real-student pilot decision is blocked by missing manual/policy evidence.
 - Full production readiness is not claimed.
 - The durable RBAC contract is `docs/security/role-access-matrix.md`; any mismatch between the gate, runbook, and role matrix keeps the pilot at NO-GO.
+- Supporting closure docs now exist for role-scope proof, synthetic roster validation, and backup/restore rehearsal, but they do not replace the required evidence manifests.
 
 ## What Is Green
 
@@ -39,6 +40,12 @@ Fake-account demo readiness is not real-student pilot readiness. Real-student pi
 | Privacy/support/retention approval | `docs/progress/runs/real-student-pilot-privacy-support-retention-approval.json` | MANUAL_PROOF_REQUIRED |
 | SSO or managed-local credential delivery approval | `docs/progress/runs/real-student-pilot-credential-delivery-approval.json` | MANUAL_PROOF_REQUIRED |
 | Archive/download proof, if in scope | `docs/progress/runs/real-student-pilot-archive-download-evidence.json` | FUTURE_PILOT_ITEM |
+
+Supporting docs:
+
+- `docs/demo/role-scoped-pilot-account-proof.md`
+- `docs/demo/synthetic-roster-validation-dry-run.md`
+- `docs/demo/backup-restore-rehearsal-runbook.md`
 
 ## Automated Proof Summary
 

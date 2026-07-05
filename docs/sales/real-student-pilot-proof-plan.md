@@ -6,6 +6,12 @@ Decision boundary: **NO-GO for real-student production pilot readiness.** This p
 
 Hosted fake-account proof remains useful and green for fake `.test` click-around demos only. The missing items below are manual/operator evidence requirements for a controlled real-student pilot.
 
+Supporting operator docs narrow the proof work without changing the NO-GO decision:
+
+- `docs/demo/role-scoped-pilot-account-proof.md`
+- `docs/demo/synthetic-roster-validation-dry-run.md`
+- `docs/demo/backup-restore-rehearsal-runbook.md`
+
 ## Expected Evidence Manifests
 
 These paths are intentionally absent until each proof is actually performed and reviewed. `npm run check:pilot-readiness` reports missing required manifests as `MANUAL_PROOF_REQUIRED`, not as completed work.

@@ -15,6 +15,9 @@ Operator proof details live in `docs/sales/real-student-pilot-proof-plan.md`. Th
 - `docs/demo/staff-pilot-onboarding-checklist.md`
 - `docs/demo/student-pilot-onboarding-checklist.md`
 - `docs/demo/student-data-handling-summary.md`
+- `docs/demo/role-scoped-pilot-account-proof.md`
+- `docs/demo/synthetic-roster-validation-dry-run.md`
+- `docs/demo/backup-restore-rehearsal-runbook.md`
 
 The non-mutating gate is:
 

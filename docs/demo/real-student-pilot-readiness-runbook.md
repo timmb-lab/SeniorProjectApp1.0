@@ -4,7 +4,7 @@ Status: **NO-GO for real-student pilot use until the manual/policy evidence belo
 
 This runbook closes the operational gap between fake-account demo readiness and a controlled real-student pilot. It is an operator checklist, not an approval by itself.
 
-Use this runbook with `docs/security/role-access-matrix.md`, `docs/sales/real-student-pilot-readiness-gap-analysis.md`, and `docs/sales/real-student-pilot-proof-plan.md`.
+Use this runbook with `docs/security/role-access-matrix.md`, `docs/sales/real-student-pilot-readiness-gap-analysis.md`, `docs/sales/real-student-pilot-proof-plan.md`, `docs/demo/role-scoped-pilot-account-proof.md`, `docs/demo/synthetic-roster-validation-dry-run.md`, and `docs/demo/backup-restore-rehearsal-runbook.md`.
 
 ## Readiness Levels
 
@@ -284,6 +284,12 @@ Missing manual evidence defaults to NO-GO.
 | Privacy/support/retention approval | Written school/district approval | `docs/progress/runs/real-student-pilot-privacy-support-retention-approval.json` | Privacy/support owner | NO-GO | Operational summary is not legal advice. |
 | SSO or managed-local credential delivery | Approved SSO proof or managed local credential delivery approval | `docs/progress/runs/real-student-pilot-credential-delivery-approval.json` | School IT / technical owner | NO-GO | Global Admin remains local-account-only. |
 | Archive/download, if in scope | Hosted proof that archive manifest download is ready | `docs/progress/runs/real-student-pilot-archive-download-evidence.json` | Privacy/retention owner | Future pilot item | Exclude unless first pilot needs archive handoff. |
+
+Supporting closure docs that narrow, but do not close, blockers:
+
+- `docs/demo/role-scoped-pilot-account-proof.md`
+- `docs/demo/synthetic-roster-validation-dry-run.md`
+- `docs/demo/backup-restore-rehearsal-runbook.md`
 
 ## Validation Commands
 
