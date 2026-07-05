@@ -10,6 +10,7 @@ Fake-account demo readiness is not real-student pilot readiness. Real-student pi
 - Local fake-account browser UI proof is green for fake/demo accounts.
 - The real-student pilot decision is blocked by missing manual/policy evidence.
 - Full production readiness is not claimed.
+- The durable RBAC contract is `docs/security/role-access-matrix.md`; any mismatch between the gate, runbook, and role matrix keeps the pilot at NO-GO.
 
 ## What Is Green
 
@@ -74,6 +75,7 @@ The pilot remains NO-GO if any blocker is true:
 | Decision field | Value |
 | --- | --- |
 | Decision date | TBD |
+| Decision owner | TBD |
 | Pilot owner | TBD |
 | Technical owner | TBD |
 | Support owner | TBD |

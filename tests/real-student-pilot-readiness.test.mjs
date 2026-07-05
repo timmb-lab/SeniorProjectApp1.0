@@ -7,6 +7,14 @@ const docPath = "docs/sales/real-student-pilot-readiness-gap-analysis.md";
 const proofPlanPath = "docs/sales/real-student-pilot-proof-plan.md";
 const preflightPath = "scripts/check-real-student-pilot-readiness.mjs";
 const manifestPath = "docs/progress/runs/2026-06-29-hosted-fake-pilot-browser-proof.json";
+const roleMatrixPath = "docs/security/role-access-matrix.md";
+const demoPilotDocs = {
+  runbook: "docs/demo/real-student-pilot-readiness-runbook.md",
+  gate: "docs/demo/real-student-pilot-go-no-go-gate.md",
+  dataHandling: "docs/demo/student-data-handling-summary.md",
+  staffOnboarding: "docs/demo/staff-pilot-onboarding-checklist.md",
+  studentOnboarding: "docs/demo/student-pilot-onboarding-checklist.md",
+};
 
 function read(file) {
   return readFileSync(file, "utf8").replace(/^\uFEFF/, "");
@@ -136,6 +144,114 @@ test("real-student pilot readiness matrix preserves no-go and exact proof catego
   assert.doesNotMatch(doc, /\breal\s+student\s+data\s+ready\b/i);
   assert.doesNotMatch(doc, /fake-account[^.\n]{0,160}(means|equals|proves)[^.\n]{0,160}real-student production/i);
   assert.doesNotMatch(doc, /real-student production pilot readiness (is )?(complete|ready|approved)/i);
+});
+
+test("operator-facing pilot packet stays no-go, linked, and complete", () => {
+  for (const file of [roleMatrixPath, ...Object.values(demoPilotDocs)]) {
+    assert.equal(existsSync(file), true, `${file} exists`);
+  }
+
+  const readme = read("README.md");
+  const gap = read(docPath);
+  const roleMatrix = read(roleMatrixPath);
+  const runbook = read(demoPilotDocs.runbook);
+  const gate = read(demoPilotDocs.gate);
+  const dataHandling = read(demoPilotDocs.dataHandling);
+  const staff = read(demoPilotDocs.staffOnboarding);
+  const student = read(demoPilotDocs.studentOnboarding);
+
+  for (const file of [...Object.values(demoPilotDocs), roleMatrixPath]) {
+    assert.match(readme, new RegExp(escapeRegex(file)));
+  }
+  for (const file of Object.values(demoPilotDocs)) {
+    assert.match(gap, new RegExp(escapeRegex(file)));
+  }
+  assert.match(gap, new RegExp(escapeRegex(roleMatrixPath)));
+  assert.match(runbook, new RegExp(escapeRegex(roleMatrixPath)));
+  assert.match(gate, new RegExp(escapeRegex(roleMatrixPath)));
+  assert.match(roleMatrix, /Real-student pilot remains NO-GO/);
+
+  for (const phrase of [
+    "Pilot Scope",
+    "Required Approvals",
+    "Number of students",
+    "Staff roles",
+    "What the pilot tests",
+    "What the pilot does not test",
+    "Account Provisioning",
+    "Account Deprovisioning",
+    "Pre-Pilot Checklist",
+    "During-Pilot Operating Procedure",
+    "Incident/Support Procedure",
+    "Rollback/disable procedure",
+    "Post-Pilot Checklist",
+    "Go/No-Go Table",
+  ]) {
+    assert.match(runbook, new RegExp(escapeRegex(phrase)));
+  }
+
+  for (const phrase of [
+    "Current status: **NO-GO",
+    "What Is Green",
+    "What Is Not Yet Proven",
+    "Required Manual Evidence",
+    "Automated Proof Summary",
+    "Non-Negotiable Blockers",
+    "Decision owner",
+    "NO-GO until all required evidence is present",
+  ]) {
+    assert.match(gate, new RegExp(escapeRegex(phrase), "i"));
+  }
+
+  for (const phrase of [
+    "operational summary, not legal advice",
+    "school/district policy owner",
+    "Student Data Categories",
+    "Staff Access By Role",
+    "Site And Program Scoping",
+    "Viewer Read-Only Behavior",
+    "Global Admin Caveat",
+    "Demo/Fake Data Separation",
+    "Export And Import Handling",
+    "Retention And Deletion Expectations",
+    "Limitations And Open Questions",
+    "real-student pilot remains NO-GO",
+  ]) {
+    assert.match(dataHandling, new RegExp(escapeRegex(phrase), "i"));
+  }
+
+  for (const phrase of [
+    "Login Path",
+    "Role Expectations",
+    "Viewer Read-Only",
+    "View As Student",
+    "Assignment Checks",
+    "Feedback And Review Workflow",
+    "Support Process",
+    "Data Handling Reminders",
+  ]) {
+    assert.match(staff, new RegExp(escapeRegex(phrase)));
+  }
+
+  for (const phrase of [
+    "Login Path",
+    "My Capstone Overview",
+    "Today",
+    "My Work",
+    "Feedback",
+    "Final Checklist",
+    "What To Do If Something Is Missing",
+    "If you see another student's information",
+    "Who To Ask For Help",
+    "Privacy Reminder",
+  ]) {
+    assert.match(student, new RegExp(escapeRegex(phrase)));
+  }
+
+  for (const doc of [runbook, gate, dataHandling, staff, student]) {
+    assert.doesNotMatch(doc, /\bproduction\s+pilot\s+ready\b/i);
+    assert.doesNotMatch(doc, /fake-account[^.\n]{0,160}(means|equals|proves)[^.\n]{0,160}real-student/i);
+  }
 });
 
 test("pilot readiness preflight is exposed, non-mutating, and reports all status categories", () => {

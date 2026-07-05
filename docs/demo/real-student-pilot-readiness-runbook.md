@@ -4,6 +4,8 @@ Status: **NO-GO for real-student pilot use until the manual/policy evidence belo
 
 This runbook closes the operational gap between fake-account demo readiness and a controlled real-student pilot. It is an operator checklist, not an approval by itself.
 
+Use this runbook with `docs/security/role-access-matrix.md`, `docs/sales/real-student-pilot-readiness-gap-analysis.md`, and `docs/sales/real-student-pilot-proof-plan.md`.
+
 ## Readiness Levels
 
 ### Fake-Account Local Demo Readiness
@@ -110,6 +112,8 @@ Access model:
 - Viewers are read-only and assigned-student scoped.
 - Administration and Site Admin roles stay school/site scoped.
 - Global Admin remains a local account and is not created or operated through SSO.
+
+The durable role contract is `docs/security/role-access-matrix.md`. If this runbook and the role matrix disagree, treat the pilot as NO-GO until the mismatch is resolved and tested.
 
 Exports and retention:
 

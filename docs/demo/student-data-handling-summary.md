@@ -54,8 +54,7 @@ Exports:
 
 - Archive/final-file export is excluded from the first pilot unless explicitly approved.
 - Export/download proof must show no raw Drive IDs, storage IDs, tokens, private URLs, setup passwords, or credential material.
-- `student_archive_manifest_download` remains a future pilot item unless hosted proof marks it passed.
-- student_archive_manifest_download remains a future pilot item until that proof is passed and approved.
+- student_archive_manifest_download remains a future pilot item until hosted proof marks it passed and the workflow is approved for pilot scope.
 
 ## Retention And Deletion Expectations
 

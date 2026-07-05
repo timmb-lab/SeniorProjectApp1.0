@@ -8,7 +8,15 @@ Allowed claim today: **Hosted fake-account click-around demo readiness is green*
 
 This document is the gap-closure framework for moving from hosted fake-account demo readiness toward a small controlled real-student pilot. It does not approve real student data, real roster seeding, live destructive migrations, or a production pilot. It names what is proven, what is fake/demo-only, what is missing, and what must be verified before any real-student pilot.
 
-Operator proof details live in `docs/sales/real-student-pilot-proof-plan.md`. The non-mutating gate is:
+Operator proof details live in `docs/sales/real-student-pilot-proof-plan.md`. The role boundary contract is `docs/security/role-access-matrix.md`. The operator-facing runbook packet is under `docs/demo/`:
+
+- `docs/demo/real-student-pilot-readiness-runbook.md`
+- `docs/demo/real-student-pilot-go-no-go-gate.md`
+- `docs/demo/staff-pilot-onboarding-checklist.md`
+- `docs/demo/student-pilot-onboarding-checklist.md`
+- `docs/demo/student-data-handling-summary.md`
+
+The non-mutating gate is:
 
 ```powershell
 npm run check:pilot-readiness
