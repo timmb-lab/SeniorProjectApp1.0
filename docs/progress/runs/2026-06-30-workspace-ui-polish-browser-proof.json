@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:63458",
+  "baseUrl": "http://127.0.0.1:61137",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-05T16:58:22.401Z",
-  "completedAt": "2026-07-05T17:02:07.829Z",
+  "startedAt": "2026-07-05T17:31:18.821Z",
+  "completedAt": "2026-07-05T17:35:22.665Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:63458",
+    "baseUrl": "http://127.0.0.1:61137",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-06-30-ui-polish",
@@ -82,6 +82,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -153,6 +155,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -223,6 +227,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -293,6 +299,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -362,6 +370,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -431,6 +441,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -499,6 +511,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -566,6 +580,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -637,6 +653,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -706,6 +724,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -774,6 +794,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -841,6 +863,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -910,6 +934,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": true,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -979,6 +1005,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": true,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1048,6 +1076,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1116,6 +1146,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": true,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1185,6 +1217,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1256,6 +1290,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1329,6 +1365,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": true,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1398,6 +1436,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": true,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1465,6 +1505,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": true,
+        "studentWork": false,
         "problemState": true,
         "intentionalEmptyState": true,
         "finalFiles": false
@@ -1533,6 +1575,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": true
@@ -1603,12 +1647,87 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": true,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
       },
       "heading": "My Capstone",
       "textSample": "Skip to workspace Menu SC My Capstone My Capstone My Work Student ROLE TS Test Student Maya maya.student@senior-capstone.test YOUR ACCESS Student Your project Only your own project work and feedback are visible here. Today What to finish next My Work Current requirements and proof Feedback Reviews and revision notes Final Checklist Presentation and final files TODAY Start with the next capstone action. My Capstone ready. MY CAPSTONE My Capstone What do I need to do next? Today My Work Feedback Final Checklist Your project MY WORK My Work Where do I open, submit, or review my capstone work? WAITING FOR REVIEW Open Current Work CURRENT WORK Current Work Open the current item, check details, ad",
+      "activeNav": [
+        "My Work\n        My Work\n        Current requirements and proof",
+        "All phases"
+      ]
+    },
+    {
+      "id": "43-student-my-work-phone",
+      "label": "Student My Work phone",
+      "persona": "Student mobile My Work",
+      "role": "student",
+      "accountType": "Fake .test demo student account",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 2,
+        "mobile": true
+      },
+      "route": "/workspace.html?section=studentWork",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/43-student-my-work-phone.png",
+      "expected": [
+        "My Work",
+        "Where do I open, submit, or review my capstone work?",
+        "Current Work",
+        "Submitted Work",
+        "Evidence / Files"
+      ],
+      "proves": "Student My Work keeps current work, submitted work, and evidence rows readable on phone width.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "adminSetupList": false,
+        "adminSetupReadiness": false,
+        "adminQuickActions": false,
+        "adminStudents": false,
+        "adminAssignments": false,
+        "adminImports": false,
+        "adminPrograms": false,
+        "adminReports": false,
+        "adminAudit": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
+        "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": true,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false
+      },
+      "heading": "My Capstone",
+      "textSample": "Skip to workspace Menu SC My Capstone Student TS My Capstone ready. MY CAPSTONE My Capstone What do I need to do next? Today My Work Feedback Final Checklist Your project MY WORK My Work Where do I open, submit, or review my capstone work? WAITING FOR REVIEW Open Current Work CURRENT WORK Current Work Open the current item, check details, add proof when needed, and send only when the item is ready. Show one phase Current phase: Start: Setup. Show one phase if the full checklist feels too long. All phases Start: Setup (Current) Phase 1: Kickoff and Proposal Phase 2A: Build Phase 2B: Build Part II Phase 3A: Present Phase 3B: Celebrate Phase 4: Give Thanks, Reflect, Launch Finish: Download and ",
       "activeNav": [
         "My Work\n        My Work\n        Current requirements and proof",
         "All phases"
@@ -1674,6 +1793,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1743,6 +1864,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1813,6 +1936,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1882,6 +2007,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": true,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -1954,6 +2081,8 @@
         "reportBars": true,
         "staffReportBars": true,
         "reportExportPanel": true,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -2023,6 +2152,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -2092,16 +2223,163 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": true,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS Student detail loaded. Staff Workspace Site Admin / Desert Valley High School Student progress Private proof Mentor coverage Review queue Presentation readiness Desert Valley School District 2026-2027 SCREEN GUIDE Students Terms, click effects, visibility, start checks, and done signals CURRENT SITE Desert Valley High School / 2026-2027 Approved Desert Valley School District Site Admin School access No student messaging This selected school carries across Dashboard, Students, Review Queue, Mentor Assignments, Operations, Programs, and Users & Access when your role can open them. STUDENTS St",
+      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS Student detail loaded. Staff Workspace Site Admin / Desert Valley High School Student progress Private proof Mentor coverage Review queue Presentation readiness Desert Valley School District 2026-2027 CURRENT SITE Desert Valley High School / 2026-2027 Approved Desert Valley School District Site Admin School access No student messaging STUDENTS Students Search the students this account can access, then open one record for the current blocker, work history, feedback, evidence, and timeline. Approved Assigned records only STUDENTS 250 50 shown now SUMMARY ONLY NO MENTOR 38 Needs mentor coverag",
       "activeNav": [
         "Workspace",
         "Students\n        Students\n        Site student rows",
         "Overview"
+      ]
+    },
+    {
+      "id": "44-mobile-staff-students",
+      "label": "Mobile Staff Students",
+      "persona": "Site Admin mobile Students",
+      "role": "site_admin",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 2,
+        "mobile": true
+      },
+      "route": "/workspace.html?mode=workspace&section=students&siteId=site-desert-valley-high",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/44-mobile-staff-students.png",
+      "expected": [
+        "Students",
+        "Search the students this account can access",
+        "Action map",
+        "Open Student"
+      ],
+      "proves": "Staff Students keeps filters, action-map context, and row actions readable on phone width.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "adminSetupList": false,
+        "adminSetupReadiness": false,
+        "adminQuickActions": false,
+        "adminStudents": false,
+        "adminAssignments": false,
+        "adminImports": false,
+        "adminPrograms": false,
+        "adminReports": false,
+        "adminAudit": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
+        "reportExportPanel": false,
+        "studentDirectory": true,
+        "studentWork": false,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false
+      },
+      "heading": "Staff Workspace",
+      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS Staff Workspace ready. Staff Workspace Site Admin / Desert Valley High School Student progress Private proof Mentor coverage Review queue Presentation readiness Desert Valley School District 2026-2027 CURRENT SITE Desert Valley High School / 2026-2027 Approved Desert Valley School District Site Admin School access No student messaging STUDENTS Students Search the students this account can access, then open one record for the current blocker, work history, feedback, evidence, and timeline. Approved Assigned records only STUDENTS 250 50 shown now SUMMARY ONLY NO MENTOR 38 Needs mentor coverag",
+      "activeNav": [
+        "Workspace",
+        "Students\n        Students\n        Site student rows"
+      ]
+    },
+    {
+      "id": "45-mobile-student-detail-evidence",
+      "label": "Mobile Student Detail Evidence",
+      "persona": "Site Admin mobile evidence detail",
+      "role": "site_admin",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 2,
+        "mobile": true
+      },
+      "route": "/workspace.html?mode=workspace&section=students&siteId=site-desert-valley-high",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/45-mobile-student-detail-evidence.png",
+      "expected": [
+        "STUDENT DETAIL",
+        "Evidence",
+        "EVIDENCE RECORDS",
+        "Protected file details"
+      ],
+      "proves": "Student Detail Evidence stays usable on phone width without exposing file/storage identifiers.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "markers": {
+        "studentDetailPanel": true,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "adminSetupList": false,
+        "adminSetupReadiness": false,
+        "adminQuickActions": false,
+        "adminStudents": false,
+        "adminAssignments": false,
+        "adminImports": false,
+        "adminPrograms": false,
+        "adminReports": false,
+        "adminAudit": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": true,
+        "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
+        "reportExportPanel": false,
+        "studentDirectory": true,
+        "studentWork": false,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false
+      },
+      "heading": "Staff Workspace",
+      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS Staff Workspace Site Admin / Desert Valley High School Student progress Private proof Mentor coverage Review queue Presentation readiness Desert Valley School District 2026-2027 CURRENT SITE Desert Valley High School / 2026-2027 Approved Desert Valley School District Site Admin School access No student messaging STUDENTS Students Search the students this account can access, then open one record for the current blocker, work history, feedback, evidence, and timeline. Approved Assigned records only STUDENTS 250 50 shown now SUMMARY ONLY NO MENTOR 38 Needs mentor coverage View students SUBMITT",
+      "activeNav": [
+        "Workspace",
+        "Students\n        Students\n        Site student rows",
+        "Evidence"
       ]
     },
     {
@@ -2165,6 +2443,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": true,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -2235,6 +2515,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -2305,6 +2587,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -2377,6 +2661,8 @@
         "reportBars": true,
         "staffReportBars": false,
         "reportExportPanel": true,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -2448,6 +2734,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -2519,6 +2807,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": true,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -2589,6 +2879,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": true,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -2660,6 +2952,8 @@
         "reportBars": true,
         "staffReportBars": false,
         "reportExportPanel": true,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -2731,12 +3025,85 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": true,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
       },
       "heading": "Staff Workspace",
       "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Students FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Viewer READ-ONLY VV Valeria Viewer viewer.desert-valley-high@demo-staff.capstone.test YOUR ACCESS Viewer Assigned students Assigned student records only. Change controls stay hidden. Today Students needing attention Students Assigned read-only student records Reports Progress and setup summary NEXT STEP Review assigned students in read-only mode. Staff Workspace ready. Staff Workspace Viewer / Desert Valley High School Student progress Private proof Mentor coverage Review queue Presentation readiness Desert Valley School District 2026-2027 Rea",
+      "activeNav": [
+        "Students\n        Students\n        Assigned read-only student records"
+      ]
+    },
+    {
+      "id": "46-mobile-viewer-students",
+      "label": "Mobile Viewer Students",
+      "persona": "Viewer mobile Students",
+      "role": "viewer",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 2,
+        "mobile": true
+      },
+      "route": "/workspace.html?section=students&siteId=site-desert-valley-high",
+      "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/46-mobile-viewer-students.png",
+      "expected": [
+        "Students",
+        "Search the students this account can access",
+        "Assigned records only",
+        "Read-only"
+      ],
+      "proves": "Viewer Students keeps assigned-record, read-only context readable on phone width.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "adminSetupList": false,
+        "adminSetupReadiness": false,
+        "adminQuickActions": false,
+        "adminStudents": false,
+        "adminAssignments": false,
+        "adminImports": false,
+        "adminPrograms": false,
+        "adminReports": false,
+        "adminAudit": false,
+        "readOnlyBoundary": true,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
+        "reportExportPanel": false,
+        "studentDirectory": true,
+        "studentWork": false,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false
+      },
+      "heading": "Staff Workspace",
+      "textSample": "Skip to workspace Menu SC Capstone App Viewer VV Staff Workspace ready. Staff Workspace Viewer / Desert Valley High School Student progress Private proof Mentor coverage Review queue Presentation readiness Desert Valley School District 2026-2027 Read-only viewer CURRENT SITE Desert Valley High School / 2026-2027 Configured Desert Valley School District Viewer Read-only viewer No student messaging STUDENTS Students Search the students this account can access, then open one record for the current blocker, work history, feedback, evidence, and timeline. Configured Assigned records only Viewer Read-only workspace. You can open assigned student records for context, then share concerns with the Pr",
       "activeNav": [
         "Students\n        Students\n        Assigned read-only student records"
       ]
@@ -2801,6 +3168,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
         "problemState": true,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -2871,6 +3240,8 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": true,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
@@ -2941,12 +3312,14 @@
         "reportBars": false,
         "staffReportBars": false,
         "reportExportPanel": false,
+        "studentDirectory": true,
+        "studentWork": false,
         "problemState": false,
         "intentionalEmptyState": false,
         "finalFiles": false
       },
       "heading": "Students",
-      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS Student detail loaded. ADMIN CONSOLE Students Legacy scoped student directory CURRENT SITE Desert Valley High School / 2026-2027 Approved Desert Valley School District Site Admin School access No student messaging This selected school carries across Dashboard, Students, Review Queue, Mentor Assignments, Operations, Programs, and Users & Access when your role can open them. STUDENTS Students Search the students this account can access, then open one record for the current blocker, work history, feedback, evidence, and timeline. Approved Assigned records only STUDENTS 250 50 shown now SUMMARY",
+      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS Student detail loaded. ADMIN CONSOLE Students Legacy scoped student directory CURRENT SITE Desert Valley High School / 2026-2027 Approved Desert Valley School District Site Admin School access No student messaging STUDENTS Students Search the students this account can access, then open one record for the current blocker, work history, feedback, evidence, and timeline. Approved Assigned records only STUDENTS 250 50 shown now SUMMARY ONLY NO MENTOR 38 Needs mentor coverage View students SUBMITTED 52 Program Teacher review queue signal View students NEEDS REVISION 43 Program Teacher follow-up ",
       "activeNav": [
         "Admin Console",
         "Overview"

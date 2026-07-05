@@ -49,6 +49,10 @@ function assertFocusableStudentDetailPanel(markup) {
   assert.match(markup, /data-student-detail-panel="true"/);
   assert.match(markup, /tabindex="-1"/);
   assert.match(markup, /aria-labelledby="siteStudentDetailTitle"/);
+  assert.match(markup, /class="workspace-detail-tabs" role="tablist" aria-label="Student detail sections"/);
+  assert.match(markup, /id="studentDetailTab-overview"[\s\S]*role="tab"[\s\S]*data-student-detail-tab="overview"[\s\S]*aria-selected="(?:true|false)"[\s\S]*aria-controls="studentDetailPanel-overview"/);
+  assert.match(markup, /id="studentDetailTab-evidence"[\s\S]*role="tab"[\s\S]*data-student-detail-tab="evidence"[\s\S]*aria-selected="(?:true|false)"[\s\S]*aria-controls="studentDetailPanel-evidence"/);
+  assert.match(markup, /role="tabpanel"[\s\S]*aria-labelledby="studentDetailTab-(?:overview|work|feedback|evidence|timeline)"[\s\S]*tabindex="0"[\s\S]*data-student-detail-section=/);
 }
 
 function escapeRegExp(value) {
@@ -862,6 +866,8 @@ test("workspace exposes Figma-aligned design tokens and future site patterns", (
   assert.match(workspaceCss, /\.workspace-student-row,\s*\.workspace-student-card,[\s\S]*?border-left-width:\s*3px;/);
   assert.match(workspaceCss, /\.workspace-student-row,\s*\.workspace-student-card,[\s\S]*?box-shadow:\s*var\(--shadow-row\);/);
   assert.match(workspaceCss, /\.workspace-chip,\s*\.workspace-status-pill,\s*\.workspace-story-chip,\s*\.workspace-risk-chip,\s*\.workspace-detail-tab/s);
+  assert.match(workspaceCss, /\.workspace-detail-tab\.is-active\s*\{[\s\S]*box-shadow:\s*inset/);
+  assert.match(workspaceCss, /\.workspace-detail-tab:focus-visible\s*\{[\s\S]*box-shadow:\s*var\(--focus-ring\);/);
   assert.doesNotMatch(workspaceJs, /"No data"|"No rows to summarize\."|Showing 0 of 0|Nothing to display/);
 
   for (const className of [
@@ -3314,8 +3320,10 @@ test("workspace renders route-connected student directory with filters and real 
 
   assert.match(siteAdmin, /data-section="students"/);
   assert.match(siteAdmin, /Staff Workspace/);
+  assert.match(siteAdmin, /data-current-site-summary="true"/);
   assert.match(siteAdmin, /Students: Site student rows/);
   assert.match(siteAdmin, /workspace-student-directory/);
+  assertMarkupOrder(siteAdmin, "workspace-student-directory", "Screen guide", "student directory should appear before helper guide");
   assert.match(siteAdmin, /workspace-filter-bar/);
   assert.match(siteAdmin, /workspace-directory-summary/);
   assert.match(siteAdmin, /2 of 250 students shown/);
@@ -3770,6 +3778,9 @@ test("workspace opens real student detail, loads timeline, and preserves directo
   assert.match(workspaceRoot.innerHTML, /Feedback/);
   assert.match(workspaceRoot.innerHTML, /Evidence/);
   assert.match(workspaceRoot.innerHTML, /Timeline/);
+  assert.match(workspaceRoot.innerHTML, /id="studentDetailTab-overview"[\s\S]*data-student-detail-tab="overview"[\s\S]*aria-selected="true"[\s\S]*aria-controls="studentDetailPanel-overview"/);
+  assert.match(workspaceRoot.innerHTML, /id="studentDetailTab-evidence"[\s\S]*data-student-detail-tab="evidence"[\s\S]*aria-selected="false"[\s\S]*aria-controls="studentDetailPanel-evidence"/);
+  assert.match(workspaceRoot.innerHTML, /id="studentDetailPanel-overview" role="tabpanel" aria-labelledby="studentDetailTab-overview" tabindex="0" data-student-detail-section="overview"/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /Reviews &amp; Comments|data-student-detail-tab="summary"|data-student-detail-tab="progress"/);
   assert.match(workspaceRoot.innerHTML, /Latest Feedback/);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-feedback="latest"/);
@@ -7055,6 +7066,9 @@ test("workspace half-width drawer and phone drawer stay bounded and keep global 
   assert.match(phone, /\.workspace-active-role-badge small,[\s\S]*\.workspace-site-switcher em\s*\{[\s\S]*display:\s*none;/);
   assert.match(phone, /\.workspace-admin-setup-row\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
   assert.match(phone, /\.workspace-admin-setup-row \.workspace-button\s*\{[\s\S]*width:\s*100%;/);
+  assert.match(tablet, /\.workspace-current-site-summary\s*\{[\s\S]*padding:\s*0\.85rem;/);
+  assert.match(tablet, /\.workspace-current-site-summary \.workspace-card-head h2\s*\{[\s\S]*font-size:\s*1\.35rem;/);
+  assert.match(tablet, /\.workspace-current-site-summary \[data-site-selection-persistence="true"\]\s*\{[\s\S]*display:\s*none;/);
   assert.match(workspaceCss, /\.workspace-admin-console-content\s*\{[\s\S]*grid-template-columns:\s*minmax\(188px,\s*220px\) minmax\(0,\s*1560px\);[\s\S]*justify-content:\s*center;/);
   assert.match(workspaceCss, /\.workspace-admin-console-main\s*\{[\s\S]*max-width:\s*1560px;/);
   assert.match(workspaceCss, /\.workspace-admin-operations-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(auto-fit,\s*minmax\(185px,\s*1fr\)\);/);

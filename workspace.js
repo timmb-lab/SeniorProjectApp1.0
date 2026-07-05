@@ -360,6 +360,15 @@ const WORKSPACE_SECTION_IDS = new Set([
 ]);
 const WORKSPACE_MODES = new Set(["workspace", "admin"]);
 const STUDENT_NAV_SECTION_IDS = new Set(["student", "studentWork", "studentFeedback", "studentFinalChecklist"]);
+const STAFF_WORKLIST_FIRST_SECTION_IDS = new Set([
+  "students",
+  "teacher",
+  "staffReports",
+  "mentorAssignments",
+  "operations",
+  "presentation",
+  "archive",
+]);
 const ADMIN_ARCHIVE_EXPORT_FILTER_VALUES = new Set(["all", "failed", "in_progress", "complete"]);
 const ADMIN_AUDIT_SAVED_FILTERS = [
   {
@@ -1073,7 +1082,8 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     : workspaceHeaderContext(primaryRole, siteContext);
   const roleFirstOverview = !isAdminConsole && activeSection === "overview";
   const studentFirstWorkspace = !isAdminConsole && studentExperience && STUDENT_NAV_SECTION_IDS.has(activeSection);
-  const activeSectionFirst = roleFirstOverview || studentFirstWorkspace;
+  const staffWorklistFirst = !isAdminConsole && !studentExperience && STAFF_WORKLIST_FIRST_SECTION_IDS.has(activeSection);
+  const activeSectionFirst = roleFirstOverview || studentFirstWorkspace || staffWorklistFirst;
   const modeUnavailableNotice = blockedWorkspaceMode === "admin" && !isAdminConsole
     ? renderAdminConsoleUnavailableNotice()
     : "";
@@ -7497,13 +7507,29 @@ function renderStudentDetailTabs(activeTab) {
   ];
   return `
     <div class="workspace-detail-tabs" role="tablist" aria-label="Student detail sections">
-      ${tabs.map(([id, label]) => `
-        <button class="workspace-detail-tab ${activeTab === id ? "is-active" : ""}" type="button" role="tab" data-student-detail-tab="${escapeHtml(id)}" ${activeTab === id ? 'aria-selected="true"' : ""}>
+      ${tabs.map(([id, label]) => {
+        const selected = activeTab === id;
+        return `
+        <button id="${escapeHtml(studentDetailTabId(id))}" class="workspace-detail-tab ${selected ? "is-active" : ""}" type="button" role="tab" data-student-detail-tab="${escapeHtml(id)}" aria-selected="${selected ? "true" : "false"}" aria-controls="${escapeHtml(studentDetailPanelId(id))}">
           ${escapeHtml(label)}
         </button>
-      `).join("")}
+      `;
+      }).join("")}
     </div>
   `;
+}
+
+function studentDetailTabId(tabId = "overview") {
+  return `studentDetailTab-${tabId}`;
+}
+
+function studentDetailPanelId(tabId = "overview") {
+  return `studentDetailPanel-${tabId}`;
+}
+
+function studentDetailPanelAttrs(tabId = "overview", alias = "") {
+  const aliasAttr = alias ? ` data-student-detail-alias="${escapeHtml(alias)}"` : "";
+  return `id="${escapeHtml(studentDetailPanelId(tabId))}" role="tabpanel" aria-labelledby="${escapeHtml(studentDetailTabId(tabId))}" tabindex="0" data-student-detail-section="${escapeHtml(tabId)}"${aliasAttr}`;
 }
 
 function renderStudentDetailTab(detail, activeTab, state) {
@@ -7521,7 +7547,7 @@ function renderStudentDetailSummary(detail) {
   const latestFeedback = latestStudentDetailFeedback(detail);
   const progressFacts = studentDetailProgressFacts(progress);
   return `
-    <section class="workspace-detail-section" data-student-detail-section="overview" data-student-detail-alias="summary">
+    <section class="workspace-detail-section" ${studentDetailPanelAttrs("overview", "summary")}>
       <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
         ${renderDashboardCard("Current Story", "Assigned record view", `
           <p>${escapeHtml(student.nextAction || "Continue normal capstone monitoring.")}</p>
@@ -7700,7 +7726,7 @@ function latestStudentDetailFeedback(detail) {
 
 function renderStudentDetailWork(detail) {
   return `
-    <section class="workspace-detail-section" data-student-detail-section="work" data-student-detail-alias="progress submissions mentor presentation archive">
+    <section class="workspace-detail-section" ${studentDetailPanelAttrs("work", "progress submissions mentor presentation archive")}>
       ${renderStudentDetailProgress(detail)}
       ${renderStudentDetailSubmissions(detail)}
       ${renderStudentDetailMentor(detail)}
@@ -7753,7 +7779,7 @@ function renderStudentDetailSubmissions(detail) {
 function renderStudentDetailEvidence(detail) {
   const rows = Array.isArray(detail.evidence) ? detail.evidence : [];
   return `
-    <section class="workspace-detail-section" data-student-detail-section="evidence">
+    <section class="workspace-detail-section" ${studentDetailPanelAttrs("evidence")}>
       ${renderStudentDetailList("Evidence", "Evidence records", rows, "No evidence records are available for this student.", (row) => `
     <article class="workspace-row">
       <div>
@@ -7862,7 +7888,7 @@ function renderStudentDetailReviews(detail) {
   const comments = Array.isArray(detail.comments) ? detail.comments : [];
   const commentMode = studentDetailCommentVisibilityMode(detail);
   return `
-    <section class="workspace-detail-section" data-student-detail-section="feedback" data-student-detail-alias="reviews">
+    <section class="workspace-detail-section" ${studentDetailPanelAttrs("feedback", "reviews")}>
       ${renderStudentDetailList("Reviews", "Program Teacher feedback history", reviews, "No review records are available for this student.", (row) => `
         <article class="workspace-row">
           <div>
@@ -8166,7 +8192,7 @@ function renderStudentDetailTimeline(detail, state) {
   const title = timelineBody ? "Timeline" : "Timeline Preview";
   const selectedType = cleanStudentDetailTimelineType(state.timelineType || "");
   return `
-    <section class="workspace-detail-section" data-student-detail-section="timeline">
+    <section class="workspace-detail-section" ${studentDetailPanelAttrs("timeline")}>
       ${renderStudentDetailTimelineFilters(selectedType, Boolean(timelineBody))}
       ${state.loadingTimeline ? `
         <div class="workspace-empty-state-card">
@@ -8336,7 +8362,7 @@ function renderSiteContextBlock(dashboard) {
   const scope = dashboard.scope || {};
   const accessibleSites = scope.accessibleSites || [];
   return `
-    <section class="workspace-card">
+    <section class="workspace-card workspace-current-site-summary" data-current-site-summary="true">
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Current site</p>
