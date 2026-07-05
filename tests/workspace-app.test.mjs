@@ -762,6 +762,27 @@ test("workspace reports render accessible shared report bars with mobile fallbac
   assert.match(cssMediaBlock(620), /\.workspace-admin-flow\s*\{[\s\S]*grid-template-columns: 1fr/);
 });
 
+test("workspace report exports stay scoped for viewer and unavailable to students", async () => {
+  const viewerReports = await renderWorkspaceWithFetch(profileRoutesForRole("viewer"), "", "", {
+    url: "https://workspace.example/workspace.html?mode=workspace&section=staffReports&siteId=site-desert-valley-high",
+  });
+  assert.match(viewerReports, /data-workspace-mode="read-only"/);
+  assert.match(viewerReports, /data-staff-reports="true"/);
+  assert.match(viewerReports, /data-report-export-panel="staff"/);
+  assert.doesNotMatch(viewerReports, /data-report-export-panel="admin"|data-report-export-card="admin-/);
+  assert.doesNotMatch(viewerReports, /data-csv-import-kind="students"|data-mentor-assignment-form="true"|data-review-decision="approved"|data-admin-action="import-users"/);
+  const viewerCsv = reportExportCsv(viewerReports, "staff-visible-students");
+  assert.match(viewerCsv, /^Student name,Program,Latest submission,Review status,Evidence status,Presentation,Final files,Next action/m);
+  assert.match(viewerCsv, /Missing Mentor Demo 001/);
+  assert.doesNotMatch(viewerCsv, /studentId|userId|storage|adminNote|temporaryPassword|demo-student-/i);
+
+  const studentReports = await renderWorkspaceWithFetch(profileRoutesForRole("student"), "", "", {
+    url: "https://workspace.example/workspace.html?mode=workspace&section=staffReports",
+  });
+  assert.doesNotMatch(studentReports, /data-staff-reports="true"|data-report-export-panel=|data-report-export=/);
+  assert.doesNotMatch(studentReports, /data-admin-reports="true"|data-csv-import-kind="students"|data-mentor-assignment-form="true"|data-review-decision=/);
+});
+
 test("workspace production text avoids internal build language", () => {
   const combined = `${workspaceHtml}\n${workspaceJs}\n${workspaceCss}`;
   for (const pattern of [

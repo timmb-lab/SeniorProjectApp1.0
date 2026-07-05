@@ -73,3 +73,18 @@ These screenshots prove local fake-account demo UI state only. They do not prove
 - The script writes only screenshot metadata, role labels, routes, viewports, checks, and a short text sample. It does not write credential values.
 - Fake `.test` account labels and fake demo records may appear in screenshots.
 - Upload-heavy hosted evidence proof is intentionally separate from this local UI polish screenshot set.
+
+## Prompt 09 Role-Security Proof Mapping
+
+These captures are reused for the RBAC and View as Student proof pass. They remain local fake-account UI proof and do not change the real-student pilot NO-GO boundary.
+
+| Prompt 09 proof need | Screenshot evidence |
+| --- | --- |
+| Student clean shell | `06-student-today-desktop.png`, `07-student-today-phone.png`, `24-student-my-work-desktop.png`, `43-student-my-work-phone.png` |
+| Mentor assigned queue | `04-mentor-workspace.png`, `30-mobile-mentor-today.png` |
+| Program Teacher program queue | `03-program-teacher-workspace.png`, `40-staff-reviews.png` |
+| Viewer read-only detail | `05-viewer-read-only-workspace.png`, `14-viewer-read-only-detail-click.png`, `39-viewer-students-directory.png`, `46-mobile-viewer-students.png` |
+| Unauthorized or denied state | `20-student-admin-route-blocked.png` |
+| Site Admin Admin Console | `32-admin-console-site-admin-overview.png`, `33-admin-assignments.png`, `35-admin-reports.png` |
+| Global Admin Admin Console | `01-admin-console-global-admin-desktop.png`, `36-admin-audit.png` |
+| View as Student banner and exit | `08-staff-view-as-student-phone.png`, `15-view-as-student-entered-desktop.png`, `16-view-as-student-exited-return.png` |

@@ -4,6 +4,7 @@ const files = {
   permissions: "functions/_lib/permissions.ts",
   siteAwareTests: "tests/site-aware-permissions.test.mjs",
   workspace: "workspace.js",
+  roleMatrix: "docs/security/role-access-matrix.md",
 };
 
 const source = Object.fromEntries(
@@ -74,6 +75,24 @@ assertIncludes(
   "Assigned students only. Can view assigned student progress and feedback workflows.",
   "Mentor account preview must preserve assigned-student-only wording",
 );
+
+for (const [pattern, message] of [
+  [/Student \| Own student record only\./, "role matrix must document student self-only access"],
+  [/Mentor \| Active mentor-assigned students only\./, "role matrix must document mentor assignment-backed access"],
+  [/Viewer \| Viewer-assigned students only\./, "role matrix must document viewer assigned-student-only access"],
+  [/Program Teacher \| Students inside assigned program or cohort scopes only\./, "role matrix must document Program Teacher program/cohort scope"],
+  [/Site Admin \| Students and operations inside assigned site only\./, "role matrix must document Site Admin site scope"],
+  [/Global Admin \/ Platform Admin \/ legacy Admin \| All active tenants, sites, and students exposed by the current APIs\./, "role matrix must document global admin scope"],
+  [/Student accounts cannot start View as Student/, "role matrix must document student View as Student denial"],
+  [/Unauthorized `viewAsStudentId` requests are removed from URL state/, "role matrix must document unauthorized View as Student deep-link handling"],
+  [/Report CSV exports are generated from data already loaded for the authorized viewer/, "role matrix must document scoped report export boundary"],
+  [/omit internal IDs, storage identifiers, password material, admin notes, and raw JSON/, "role matrix must document CSV redaction boundary"],
+  [/npm run verify:permission-matrix/, "role matrix must list permission matrix proof command"],
+  [/npm run verify:mutation-origin/, "role matrix must list mutation origin proof command"],
+  [/node --test tests\\workspace-app\.test\.mjs/, "role matrix must list workspace role proof tests"],
+]) {
+  assertMatches("roleMatrix", pattern, message);
+}
 
 if (failures.length) {
   console.error("Permission role matrix verification failed.");
