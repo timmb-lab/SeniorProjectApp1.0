@@ -784,22 +784,46 @@ test("workspace exposes Figma-aligned design tokens and future site patterns", (
     "--surface-muted",
     "--surface-section",
     "--surface-row",
+    "--surface-raised",
+    "--surface-muted-quiet",
     "--border-soft",
     "--border-subtle",
+    "--border-divider",
+    "--text-primary",
+    "--text-secondary",
+    "--text-muted",
+    "--action-primary",
+    "--action-secondary",
+    "--action-danger",
+    "--action-success",
+    "--action-warning",
     "--shadow-card",
+    "--shadow-soft",
     "--shadow-row",
+    "--space-xs",
+    "--space-sm",
+    "--space-md",
+    "--space-lg",
+    "--row-padding-y",
+    "--row-padding-x",
     "--radius-card",
     "--focus-ring",
   ]) {
     assert.ok(workspaceCss.includes(token), `missing workspace token ${token}`);
   }
 
-  assert.match(workspaceCss, /--shadow-card:\s*0 8px 22px rgba\(23, 32, 38, 0\.055\);/);
-  assert.match(workspaceCss, /--border-subtle:\s*rgba\(34, 48, 58, 0\.12\);/);
+  assert.match(workspaceCss, /--shadow-card:\s*0 5px 16px rgba\(23, 32, 38, 0\.04\);/);
+  assert.match(workspaceCss, /--shadow-soft:\s*0 2px 10px rgba\(23, 32, 38, 0\.035\);/);
+  assert.match(workspaceCss, /--border-subtle:\s*rgba\(34, 48, 58, 0\.1\);/);
+  assert.match(workspaceCss, /\.workspace-button,\s*\.workspace-link-button\s*\{[\s\S]*?border-color:\s*var\(--border-subtle\);/);
+  assert.match(workspaceCss, /\.workspace-button-primary\s*\{[\s\S]*?background:\s*var\(--action-primary\);/);
+  assert.match(workspaceCss, /\.workspace-button-secondary\s*\{[\s\S]*?background:\s*var\(--action-secondary\);/);
+  assert.match(workspaceCss, /\.workspace-report-row,\s*\.workspace-admin-report-row\s*\{[\s\S]*?border-color:\s*var\(--border-subtle\);/);
+  assert.match(workspaceCss, /\.workspace-metric,\s*\.workspace-metric-tile,\s*\.workspace-summary-only-metric,[\s\S]*?border-left-width:\s*3px;/);
   assert.match(workspaceCss, /\.workspace-student-row,\s*\.workspace-student-card,[\s\S]*?border-left-width:\s*3px;/);
   assert.match(workspaceCss, /\.workspace-student-row,\s*\.workspace-student-card,[\s\S]*?box-shadow:\s*var\(--shadow-row\);/);
   assert.match(workspaceCss, /\.workspace-chip,\s*\.workspace-status-pill,\s*\.workspace-story-chip,\s*\.workspace-risk-chip,\s*\.workspace-detail-tab/s);
-  assert.doesNotMatch(workspaceJs, /"No data"|"No rows to summarize\."|Showing 0 of 0/);
+  assert.doesNotMatch(workspaceJs, /"No data"|"No rows to summarize\."|Showing 0 of 0|Nothing to display/);
 
   for (const className of [
     ".workspace-read-only-banner",
@@ -6974,6 +6998,8 @@ test("workspace half-width drawer and phone drawer stay bounded and keep global 
   assert.match(tablet, /\.workspace-topbar-actions\s*\{[\s\S]*position:\s*static;[\s\S]*flex:\s*1 1 100%;/);
   assert.match(phone, /\.workspace-account-summary \.workspace-user-text[\s\S]*display:\s*none;/);
   assert.match(phone, /\.workspace-active-role-badge small,[\s\S]*\.workspace-site-switcher em\s*\{[\s\S]*display:\s*none;/);
+  assert.match(phone, /\.workspace-admin-setup-row\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
+  assert.match(phone, /\.workspace-admin-setup-row \.workspace-button\s*\{[\s\S]*width:\s*100%;/);
   assert.match(workspaceCss, /\.workspace-admin-console-content\s*\{[\s\S]*grid-template-columns:\s*minmax\(188px,\s*220px\) minmax\(0,\s*1560px\);[\s\S]*justify-content:\s*center;/);
   assert.match(workspaceCss, /\.workspace-admin-console-main\s*\{[\s\S]*max-width:\s*1560px;/);
   assert.match(workspaceCss, /\.workspace-admin-operations-grid\s*\{[\s\S]*grid-template-columns:\s*repeat\(auto-fit,\s*minmax\(185px,\s*1fr\)\);/);
