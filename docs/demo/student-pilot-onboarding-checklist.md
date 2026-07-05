@@ -12,10 +12,19 @@ Status: draft checklist for a future approved real-student pilot. Use only after
 
 Use My Capstone to answer: what do I do next?
 
-- Today: the most important current work and next steps.
-- My Work: your project requirements and submission status.
-- Feedback: teacher feedback and revision notes.
-- Final Checklist: final-file and closeout status if this is included in the pilot.
+- Today: check what to do next and where to click.
+- My Work: see your project work, proof files, and what you turned in.
+- Feedback: read teacher or mentor notes and work to fix.
+- Final Checklist: check final files and closeout status if this is included in the pilot.
+
+## Simple Daily Steps
+
+1. Sign in.
+2. Open My Capstone.
+3. Start on Today.
+4. Do the item marked next.
+5. Open Feedback if something needs changes.
+6. Ask for help if work, feedback, or proof files look wrong.
 
 ## What To Do If Something Is Missing
 
@@ -26,7 +35,7 @@ Use My Capstone to answer: what do I do next?
 ## How To Read Feedback
 
 - Look for the latest teacher decision.
-- If the work was sent back, revise the item named in the feedback.
+- If the work needs changes, fix the item named in the feedback.
 - Attach or link proof only where your teacher asks for it.
 - Ask for help if the feedback does not match the work you submitted.
 
@@ -47,3 +56,5 @@ Use My Capstone to answer: what do I do next?
 ## Privacy Reminder
 
 This app is for your Senior Capstone work during an approved pilot. Use your own account, do not share login information, and report anything that looks like the wrong student's record.
+
+Student-facing wording should follow `docs/design/plain-language-and-esl-ui-guidelines.md`.

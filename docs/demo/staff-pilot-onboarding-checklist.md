@@ -47,7 +47,8 @@ Global Admin remains a local account; do not convert it to SSO during pilot setu
 
 - Program Teacher decisions should be made from the Review Queue or student detail surfaces that are in scope.
 - Read prior feedback and proof before saving a decision.
-- Do not save broad status changes to work around missing evidence.
+- Use student-friendly feedback: what changed, what the student should fix, and when to send updated work.
+- Do not save broad status changes to work around missing proof files.
 - If a student record appears incomplete or wrong, pause and contact the roster/support owner.
 
 ## Support Process
@@ -64,3 +65,5 @@ Global Admin remains a local account; do not convert it to SSO during pilot setu
 - Do not share credentials or setup passwords in screenshots or docs.
 - Do not export/archive student records unless that workflow is explicitly in pilot scope and approved.
 - Fake-account proof remains fake-account proof; it is not real-student pilot approval.
+
+Staff and admin wording should follow `docs/design/plain-language-and-esl-ui-guidelines.md`.
