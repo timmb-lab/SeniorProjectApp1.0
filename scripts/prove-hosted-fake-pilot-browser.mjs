@@ -45,7 +45,7 @@ const SCREENSHOT_PLAN = [
     label: 'Student dashboard',
     url: workspaceUrl('?section=student'),
     viewport: desktopViewport(),
-    expected: ['My Work', 'Upcoming deadlines'],
+    expected: ['My Capstone', 'What do I need to do next?', 'Current Step / Next Action'],
     authRole: 'student'
   },
   {
@@ -101,7 +101,7 @@ const SCREENSHOT_PLAN = [
     label: 'Student mobile dashboard',
     url: workspaceUrl('?section=student'),
     viewport: mobileViewport(),
-    expected: ['My Work', 'Upcoming deadlines'],
+    expected: ['My Capstone', 'What do I need to do next?', 'Current Step / Next Action'],
     authRole: 'student'
   }
 ];

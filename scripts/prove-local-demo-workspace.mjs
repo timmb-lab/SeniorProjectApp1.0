@@ -202,6 +202,10 @@ function sourceContainsNone(source, values) {
   return values.every((value) => !source.includes(value));
 }
 
+function sourceMatchesAll(source, patterns) {
+  return patterns.every((pattern) => pattern.test(source));
+}
+
 function sourceAddsSections(source, sectionIds) {
   return sectionIds.every((sectionId) => source.includes(`add("${sectionId}"`));
 }
@@ -209,18 +213,21 @@ function sourceAddsSections(source, sectionIds) {
 function verifyWorkspaceAdminConsoleArchitectureProof(repoRoot) {
   const workspaceJs = readFileSync(path.join(repoRoot, "workspace.js"), "utf8");
   const workspaceCss = readFileSync(path.join(repoRoot, "workspace.css"), "utf8");
+  const userAccessBlock = extractSourceBlock(workspaceJs, "function canUseUsersAccess");
+  const siteProgramsBlock = extractSourceBlock(workspaceJs, "function canUseSitePrograms");
+  const siteDashboardRoleBlock = extractSourceBlock(workspaceJs, "function hasSiteDashboardRole");
+  const siteStudentDirectoryRoleBlock = extractSourceBlock(workspaceJs, "function hasSiteStudentDirectoryRole");
+  const siteReviewQueueRoleBlock = extractSourceBlock(workspaceJs, "function hasSiteReviewQueueRole");
+  const siteMentorAssignmentRoleBlock = extractSourceBlock(workspaceJs, "function hasSiteMentorAssignmentRole");
+  const siteOperationsRoleBlock = extractSourceBlock(workspaceJs, "function hasSiteOperationsRole");
+  const workspaceSectionsBlock = extractSourceBlock(workspaceJs, "function availableWorkspaceSections");
   const capabilitiesBlock = extractSourceBlock(workspaceJs, "function adminConsoleCapabilitiesFor");
   const scopeBlock = extractSourceBlock(workspaceJs, "function adminConsoleScopeForRoles");
   const sectionsBlock = extractSourceBlock(workspaceJs, "function adminConsoleSectionsForRoles");
   const modeSwitchBlock = extractSourceBlock(workspaceJs, "function renderWorkspaceModeSwitch");
   const urlStateBlock = extractSourceBlock(workspaceJs, "function applyWorkspaceUrlState");
   const ensureModeBlock = extractSourceBlock(workspaceJs, "function ensureActiveWorkspaceModeAndSection");
-  const viewerBlock = extractSourceBlock(sectionsBlock, 'if (roles.has("viewer"))');
-  const mentorBlock = extractSourceBlock(sectionsBlock, 'if (roles.has("mentor"))');
-  const programTeacherBlock = extractSourceBlock(sectionsBlock, 'if (roles.has("program_teacher"))');
-  const administrationBlock = extractSourceBlock(sectionsBlock, 'if (roles.has("administration"))');
-  const siteAdminBlock = extractSourceBlock(sectionsBlock, 'if (roles.has("site_admin"))');
-  const globalAdminBlock = extractSourceBlock(sectionsBlock, "if (hasGlobalAdminRole(roles))");
+  const canSeeExpression = capabilitiesBlock.match(/const canSee =([\s\S]*?);/)?.[1] || "";
 
   const checks = {
     centralCapabilityMap: sourceContainsAll(workspaceJs, [
@@ -238,9 +245,17 @@ function verifyWorkspaceAdminConsoleArchitectureProof(repoRoot) {
       'roles.has("site_admin")',
       'roles.has("administration")',
       'roles.has("program_teacher")',
+    ]) && sourceContainsAll(workspaceSectionsBlock, [
+      'roles.has("student")',
+      'add("student", "Today"',
+      'add("studentWork", "My Work"',
+      'add("studentFeedback", "Feedback"',
+      'add("studentFinalChecklist", "Final Checklist"',
+    ]) && sourceContainsNone(canSeeExpression, [
+      'roles.has("student")',
       'roles.has("mentor")',
       'roles.has("viewer")',
-    ]) && !capabilitiesBlock.includes('roles.has("student")'),
+    ]),
     unauthorizedAdminDeepLinksDeniedSafely: sourceContainsAll(urlStateBlock, [
       'requestedMode === "admin"',
       "adminConsoleCapabilitiesFor(currentUser).canSee",
@@ -264,57 +279,90 @@ function verifyWorkspaceAdminConsoleArchitectureProof(repoRoot) {
       'data-workspace-admin-console-handoff="true"',
       'data-workspace-admin-console-preview="true"',
     ]),
-    viewerReadOnlyAssignedStudentScope: sourceAddsSections(viewerBlock, ["students"])
-      && sourceContainsAll(scopeBlock, ['roles.has("viewer")', 'key: "read_only"', 'label: "Read-only"'])
+    viewerReadOnlyAssignedStudentScope: sourceContainsAll(scopeBlock, ['roles.has("viewer")', 'key: "read_only"', 'label: "Read-only"'])
+      && sourceContainsAll(workspaceSectionsBlock, [
+        'roles.has("viewer")',
+        'add("students", "Students", "Assigned read-only student records"',
+      ])
+      && sourceContainsAll(siteStudentDirectoryRoleBlock, ['"viewer"'])
       && sourceContainsAll(capabilitiesBlock, [
         'const readOnly = roles.has("viewer") && !writableStaff;',
         "writable: false",
         "!readOnly && canUseUsersAccess(roles)",
         "!readOnly && canUseSitePrograms(roles)",
-      ]),
-    mentorAssignedStudentMonitoringOnly: sourceAddsSections(mentorBlock, ["mentorDashboard", "mentor"])
-      && sourceContainsNone(mentorBlock, ['add("adminUsers"', 'add("programs"', 'add("security"', 'add("audit"']),
-    programTeacherProgramReviewEvidence: sourceAddsSections(programTeacherBlock, [
-      "programDashboard",
-      "students",
-      "teacher",
-      "mentorAssignments",
-      "operations",
-      "adminUsers",
-    ]) && sourceContainsNone(programTeacherBlock, ['add("programs"', 'add("security"', 'add("audit"', 'add("archiveExports"']),
-    administrationSchoolOversightNoGlobalTools: sourceAddsSections(administrationBlock, [
-      "siteDashboard",
-      "students",
-      "mentorAssignments",
-      "operations",
-      "presentation",
-      "readiness",
-    ]) && sourceContainsNone(administrationBlock, ['add("programs"', 'add("security"', 'add("audit"', 'add("archiveExports"']),
-    siteAdminSiteScopedTools: sourceAddsSections(siteAdminBlock, [
-      "siteDashboard",
-      "students",
-      "teacher",
-      "mentorAssignments",
-      "operations",
-      "adminUsers",
-      "programs",
-      "presentation",
-      "readiness",
-    ]) && sourceContainsNone(siteAdminBlock, ['add("security"', 'add("audit"', 'add("archiveExports"']),
-    globalAdminGlobalSiteSecurityTools: sourceAddsSections(globalAdminBlock, [
-      "adminDashboard",
-      "siteDashboard",
-      "students",
-      "teacher",
-      "mentorAssignments",
-      "operations",
-      "adminUsers",
-      "programs",
-      "presentation",
-      "readiness",
-      "audit",
-      "archiveExports",
-      "security",
+      ])
+      && sourceContainsNone(canSeeExpression, ['roles.has("viewer")']),
+    mentorAssignedStudentMonitoringOnly: sourceContainsAll(workspaceSectionsBlock, [
+      'roles.has("mentor")',
+      'add("mentor", "Students", "Assigned student rows"',
+      'add("mentorDashboard", "Mentor Dashboard", "Assigned student risks", { hidden: true })',
+    ]) && sourceContainsAll(workspaceJs, [
+      'if (roles.has("mentor") || hasGlobalAdminRole(roles)) loaders.push(["mentorDashboard"',
+      'if (sourceSection === "mentorDashboard") return roles.has("mentor") || hasGlobalAdminRole(roles);',
+    ]) && sourceContainsNone(canSeeExpression, ['roles.has("mentor")']),
+    programTeacherProgramReviewEvidence: sourceContainsAll(canSeeExpression, ['roles.has("program_teacher")'])
+      && sourceContainsAll(userAccessBlock, ['roles.has("program_teacher")'])
+      && sourceContainsAll(siteStudentDirectoryRoleBlock, ['"program_teacher"'])
+      && sourceContainsAll(siteReviewQueueRoleBlock, ['"program_teacher"'])
+      && sourceContainsAll(siteMentorAssignmentRoleBlock, ['"program_teacher"'])
+      && sourceContainsAll(siteOperationsRoleBlock, ['"program_teacher"'])
+      && sourceContainsAll(workspaceSectionsBlock, [
+        'roles.has("program_teacher")',
+        'add("teacher", "Reviews"',
+        'add("programDashboard", "Program Dashboard"',
+      ])
+      && sourceContainsAll(sectionsBlock, [
+        'add("adminPeople", "People"',
+        'add("adminStudents", "Students"',
+        'add("adminAssignments", "Assignments"',
+        'add("adminImports", "Imports"',
+        'add("adminUsers", "People & Access"',
+      ])
+      && sourceContainsNone(siteProgramsBlock, ['roles.has("program_teacher")'])
+      && sourceMatchesAll(sectionsBlock, [/if \(hasGlobalAdminRole\(roles\)\) \{[\s\S]*add\("audit"/, /if \(hasGlobalAdminRole\(roles\)\) \{[\s\S]*add\("security"/]),
+    administrationSchoolOversightNoGlobalTools: sourceContainsAll(canSeeExpression, ['roles.has("administration")'])
+      && sourceContainsAll(userAccessBlock, ['roles.has("administration")'])
+      && sourceContainsAll(siteDashboardRoleBlock, ['"administration"'])
+      && sourceContainsAll(siteStudentDirectoryRoleBlock, ['"administration"'])
+      && sourceContainsAll(siteMentorAssignmentRoleBlock, ['"administration"'])
+      && sourceContainsAll(siteOperationsRoleBlock, ['"administration"'])
+      && sourceContainsAll(workspaceSectionsBlock, [
+        'roles.has("administration")',
+        'add("students", "Students", "School student rows"',
+        'add("siteDashboard", "Site Dashboard", "School-wide capstone health"',
+        'add("mentorAssignments", "Mentor Assignments", "Coverage and assignment workflow"',
+      ])
+      && sourceContainsAll(sectionsBlock, [
+        'add("adminReports", "Reports"',
+        'roles.has("administration") || roles.has("site_admin") || hasGlobalAdminRole(roles)',
+      ])
+      && sourceContainsNone(siteProgramsBlock, ['roles.has("administration")'])
+      && sourceMatchesAll(sectionsBlock, [/if \(hasGlobalAdminRole\(roles\)\) \{[\s\S]*add\("archiveExports"/, /if \(hasGlobalAdminRole\(roles\)\) \{[\s\S]*add\("audit"/, /if \(hasGlobalAdminRole\(roles\)\) \{[\s\S]*add\("security"/]),
+    siteAdminSiteScopedTools: sourceContainsAll(canSeeExpression, ['roles.has("site_admin")'])
+      && sourceContainsAll(userAccessBlock, ['roles.has("site_admin")'])
+      && sourceContainsAll(siteProgramsBlock, ['roles.has("site_admin")'])
+      && sourceContainsAll(siteDashboardRoleBlock, ['"site_admin"'])
+      && sourceContainsAll(siteReviewQueueRoleBlock, ['"site_admin"'])
+      && sourceContainsAll(siteMentorAssignmentRoleBlock, ['"site_admin"'])
+      && sourceContainsAll(siteOperationsRoleBlock, ['"site_admin"'])
+      && sourceContainsAll(sectionsBlock, [
+        'add("programs", "Programs"',
+        'add("adminReports", "Reports"',
+        'add("siteDashboard", "Site Overview"',
+      ])
+      && sourceMatchesAll(sectionsBlock, [/if \(hasGlobalAdminRole\(roles\)\) \{[\s\S]*add\("archiveExports"/, /if \(hasGlobalAdminRole\(roles\)\) \{[\s\S]*add\("audit"/, /if \(hasGlobalAdminRole\(roles\)\) \{[\s\S]*add\("security"/]),
+    globalAdminGlobalSiteSecurityTools: sourceContainsAll(sectionsBlock, [
+      'add("adminPeople", "People"',
+      'add("adminStudents", "Students"',
+      'add("adminAssignments", "Assignments"',
+      'add("adminImports", "Imports"',
+      'add("programs", "Programs"',
+      'add("adminReports", "Reports"',
+      'add("adminDashboard", "Global Overview"',
+      'add("siteDashboard", "Site Overview"',
+      'add("archiveExports", "Final Files"',
+      'add("audit", "Audit"',
+      'add("security", "Settings / Security"',
     ]),
     mobileModeSwitchContract: sourceContainsAll(workspaceCss, [
       ".workspace-mode-switch",
