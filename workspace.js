@@ -6996,6 +6996,7 @@ function renderStudentDetailSummary(detail) {
   const mentor = detail.mentor || {};
   const progress = detail.progress || {};
   const latestFeedback = latestStudentDetailFeedback(detail);
+  const progressFacts = studentDetailProgressFacts(progress);
   return `
     <section class="workspace-detail-section" data-student-detail-section="overview" data-student-detail-alias="summary">
       <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
@@ -7022,9 +7023,9 @@ function renderStudentDetailSummary(detail) {
         `)}
         ${renderStudentDetailApprovalStatusCard(detail)}
         ${renderDashboardCard("Progress", "Progress summary", `
-          <p>${escapeHtml(safeNumber(progress.requirementsComplete))} of ${escapeHtml(safeNumber(progress.requirementsTotal))} work items done.</p>
-          <p>${escapeHtml(safeNumber(progress.percentComplete))}% complete / ${escapeHtml(progress.currentStage || "proposal")}</p>
-          ${statusPill(progress.blockedReasons?.length ? "blocked" : "ready")}
+          <p>${escapeHtml(progressFacts.workItemsText)}</p>
+          <p>${escapeHtml(`${progressFacts.percentText} / ${progressFacts.stageText}`)}</p>
+          ${statusPill(progress.blockedReasons?.length ? "blocked" : progressFacts.hasConfirmedTotals ? "ready" : "pending")}
         `)}
         ${renderDashboardCard("Visibility", "Protected student record", `
           <p>Details are limited to this school assignment and private file identifiers stay hidden.</p>
@@ -7034,6 +7035,26 @@ function renderStudentDetailSummary(detail) {
       </div>
     </section>
   `;
+}
+
+function studentDetailProgressFacts(progress = {}) {
+  const total = safeNumber(progress.requirementsTotal);
+  const complete = safeNumber(progress.requirementsComplete);
+  const rawPercent = Number(progress.percentComplete);
+  const hasPercent = Number.isFinite(rawPercent);
+  const stage = String(progress.currentStage || "").trim();
+  return {
+    hasConfirmedTotals: total > 0,
+    workItemsText: total > 0
+      ? `${Math.min(complete, total)} of ${total} work items done.`
+      : "Work item total is not confirmed yet.",
+    percentText: hasPercent ? `${clampPercent(rawPercent)}% complete` : "Progress percent not confirmed yet",
+    stageText: stage || "Current stage not confirmed yet",
+  };
+}
+
+function studentDetailDateLabel(value) {
+  return value ? formatDate(value) : "Date not recorded";
 }
 
 function renderStudentDetailApprovalStatusCard(detail = {}) {
@@ -7149,7 +7170,7 @@ function latestStudentDetailFeedback(detail) {
     kind: item.kind,
     title: item.title,
     text: item.text,
-    meta: `${item.actor} / ${formatDate(item.occurredAt)}`,
+    meta: `${item.actor} / ${studentDetailDateLabel(item.occurredAt)}`,
     status: item.status,
   };
 }
@@ -7171,14 +7192,15 @@ function renderStudentDetailWork(detail) {
 function renderStudentDetailProgress(detail) {
   const progress = detail.progress || {};
   const blockedReasons = Array.isArray(progress.blockedReasons) ? progress.blockedReasons : [];
+  const progressFacts = studentDetailProgressFacts(progress);
   return `
     <section class="workspace-detail-section" data-student-detail-section="progress">
       ${renderDashboardCard("Progress", "Current stage and next action", `
-        <p>${escapeHtml(safeNumber(progress.requirementsComplete))} of ${escapeHtml(safeNumber(progress.requirementsTotal))} work items done.</p>
+        <p>${escapeHtml(progressFacts.workItemsText)}</p>
         <p>${escapeHtml(progress.nextAction || "Continue the next capstone milestone.")}</p>
         <div class="workspace-chip-row">
-          <span class="workspace-site-context-badge">${escapeHtml(progress.currentStage || "proposal")}</span>
-          <span class="workspace-site-context-badge">${escapeHtml(safeNumber(progress.percentComplete))}% complete</span>
+          <span class="workspace-site-context-badge">${escapeHtml(progressFacts.stageText)}</span>
+          <span class="workspace-site-context-badge">${escapeHtml(progressFacts.percentText)}</span>
         </div>
       `)}
       ${blockedReasons.length ? `
@@ -7192,7 +7214,7 @@ function renderStudentDetailProgress(detail) {
 }
 
 function renderStudentDetailSubmissions(detail) {
-  const rows = detail.submissions || [];
+  const rows = Array.isArray(detail.submissions) ? detail.submissions : [];
   return renderStudentDetailList("Work Sent In", "Newest sent work", rows, "No sent work is available for this student.", (row) => `
     <article class="workspace-row">
       <div>
@@ -7206,7 +7228,7 @@ function renderStudentDetailSubmissions(detail) {
 }
 
 function renderStudentDetailEvidence(detail) {
-  const rows = detail.evidence || [];
+  const rows = Array.isArray(detail.evidence) ? detail.evidence : [];
   return `
     <section class="workspace-detail-section" data-student-detail-section="evidence">
       ${renderStudentDetailList("Evidence", "Evidence records", rows, "No evidence records are available for this student.", (row) => `
@@ -7227,8 +7249,8 @@ function renderStudentDetailEvidence(detail) {
 }
 
 function renderStudentDetailReviews(detail) {
-  const reviews = detail.reviews || [];
-  const comments = detail.comments || [];
+  const reviews = Array.isArray(detail.reviews) ? detail.reviews : [];
+  const comments = Array.isArray(detail.comments) ? detail.comments : [];
   const commentMode = studentDetailCommentVisibilityMode(detail);
   return `
     <section class="workspace-detail-section" data-student-detail-section="feedback" data-student-detail-alias="reviews">
@@ -7237,7 +7259,7 @@ function renderStudentDetailReviews(detail) {
           <div>
             <strong>${escapeHtml(row.requirementTitle || "Senior Project work")}</strong>
             <p>${escapeHtml(row.feedback || "Review recorded.")}</p>
-            <p class="workspace-muted">${escapeHtml(row.reviewerName || "Reviewer")} / ${escapeHtml(formatDate(row.createdAt))}</p>
+            <p class="workspace-muted">${escapeHtml(row.reviewerName || "Reviewer")} / ${escapeHtml(studentDetailDateLabel(row.createdAt))}</p>
           </div>
           ${statusPill(row.decision || "under_review")}
         </article>
@@ -7248,7 +7270,7 @@ function renderStudentDetailReviews(detail) {
           <div>
             <strong>${escapeHtml(row.authorName || "Staff")}</strong>
             <p>${escapeHtml(row.body || "Comment recorded.")}</p>
-            <p class="workspace-muted">${escapeHtml(formatDate(row.createdAt))}</p>
+            <p class="workspace-muted">${escapeHtml(studentDetailDateLabel(row.createdAt))}</p>
           </div>
           ${statusPill(row.visibility || "configured")}
         </article>
@@ -7259,8 +7281,8 @@ function renderStudentDetailReviews(detail) {
 
 function renderStudentDetailMentor(detail) {
   const mentor = detail.mentor || {};
-  const history = detail.mentorAssignmentHistory || [];
-  const meetings = detail.mentorMeetings || [];
+  const history = Array.isArray(detail.mentorAssignmentHistory) ? detail.mentorAssignmentHistory : [];
+  const meetings = Array.isArray(detail.mentorMeetings) ? detail.mentorMeetings : [];
   return `
     <section class="workspace-detail-section" data-student-detail-section="mentor">
       ${renderDashboardCard("Mentor", mentor.active ? "Assigned support" : "Coverage needed", `
@@ -7278,7 +7300,7 @@ function renderStudentDetailMentor(detail) {
           <div>
             <strong>${escapeHtml(row.mentorName || "Mentor")}</strong>
             <p>${escapeHtml(row.nextAction || (row.active ? "Current mentor coverage is active." : "Previous mentor assignment."))}</p>
-            <p class="workspace-muted">Assigned ${escapeHtml(formatDate(row.assignedAt))}${row.assignedByName ? ` by ${escapeHtml(row.assignedByName)}` : ""}</p>
+            <p class="workspace-muted">Assigned ${escapeHtml(studentDetailDateLabel(row.assignedAt))}${row.assignedByName ? ` by ${escapeHtml(row.assignedByName)}` : ""}</p>
           </div>
           ${statusPill(row.active ? "approved" : "configured")}
         </article>
@@ -7289,7 +7311,7 @@ function renderStudentDetailMentor(detail) {
             <strong>${escapeHtml(row.mentorName || "Mentor")}</strong>
             <p>${escapeHtml(row.notes || row.nextAction || "Meeting recorded.")}</p>
             ${renderMentorMeetingLinkedWork(row)}
-            <p class="workspace-muted">${escapeHtml(formatDate(row.heldAt || row.scheduledFor || row.createdAt))}</p>
+            <p class="workspace-muted">${escapeHtml(studentDetailDateLabel(row.heldAt || row.scheduledFor || row.createdAt))}</p>
           </div>
           ${statusPill(row.status || "pending")}
         </article>
@@ -7444,10 +7466,11 @@ function studentDetailCommentEmptyMessage(mode) {
 
 function renderStudentDetailCommentVisibilitySummary(detail, comments = []) {
   const mode = studentDetailCommentVisibilityMode(detail);
-  const total = safeNumber(comments.length);
+  const safeComments = Array.isArray(comments) ? comments : [];
+  const total = safeNumber(safeComments.length);
 
   if (mode === "admin_detailed") {
-    const counts = comments.reduce((summary, row) => {
+    const counts = safeComments.reduce((summary, row) => {
       const visibility = normalizeStatus(row.visibility);
       if (visibility === "staff_only") {
         summary.staffOnly += 1;
@@ -7526,7 +7549,11 @@ function studentDetailOperationsButton(studentId) {
 
 function renderStudentDetailTimeline(detail, state) {
   const timelineBody = unwrap(state.timelineResult);
-  const events = timelineBody?.events || detail.timelinePreview || [];
+  const events = Array.isArray(timelineBody?.events)
+    ? timelineBody.events
+    : Array.isArray(detail.timelinePreview)
+      ? detail.timelinePreview
+      : [];
   const title = timelineBody ? "Timeline" : "Timeline Preview";
   const selectedType = cleanStudentDetailTimelineType(state.timelineType || "");
   return `
@@ -7556,9 +7583,9 @@ function renderStudentDetailTimeline(detail, state) {
       ${renderStudentDetailList(title, "Recent activity", events, "No timeline events are available for this student.", (event) => `
         <article class="workspace-row">
           <div>
-            <strong>${escapeHtml(event.title || statusText(event.type))}</strong>
+            <strong>${escapeHtml(event.title || (event.type ? statusText(event.type) : "Timeline event"))}</strong>
             <p>${escapeHtml(event.summary || "Timeline event recorded.")}</p>
-            <p class="workspace-muted">${escapeHtml(statusText(event.type || "timeline"))} / ${escapeHtml(formatDate(event.occurredAt))}</p>
+            <p class="workspace-muted">${escapeHtml(event.type ? statusText(event.type) : "Timeline")} / ${escapeHtml(studentDetailDateLabel(event.occurredAt))}</p>
           </div>
           ${statusPill(event.status || "configured")}
         </article>

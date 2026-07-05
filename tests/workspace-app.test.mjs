@@ -3750,6 +3750,113 @@ test("workspace opens real student detail, loads timeline, and preserves directo
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-detail-action="open-operations"|Open operations for this student/);
 });
 
+test("student detail handles missing real-data fields conservatively", async () => {
+  const incompleteDetail = siteStudentDetailFixture({ readOnly: false });
+  incompleteDetail.student = {
+    studentId: "demo-student-101",
+    displayName: "Incomplete Student",
+    email: "",
+    siteName: "Desert Valley High School",
+    programName: "",
+    cohortName: "",
+    graduationYear: "",
+    status: "",
+    presentationStatus: "",
+    archiveStatus: "",
+    riskFlags: [],
+    evidenceCount: null,
+    reviewCount: null,
+    commentCount: null,
+    nextAction: "",
+  };
+  incompleteDetail.progress = {};
+  incompleteDetail.submissions = { unexpected: "shape" };
+  incompleteDetail.evidence = [];
+  incompleteDetail.reviews = [{
+    reviewId: "review-missing-fields",
+    requirementTitle: "",
+    decision: "",
+    feedback: "",
+    reviewerName: "",
+    createdAt: "",
+  }];
+  incompleteDetail.comments = { unexpected: "shape" };
+  incompleteDetail.mentorAssignmentHistory = { unexpected: "shape" };
+  incompleteDetail.mentorMeetings = { unexpected: "shape" };
+  incompleteDetail.timelinePreview = [{
+    id: "timeline-missing-fields",
+    type: "",
+    occurredAt: "",
+    title: "",
+    summary: "",
+    status: "",
+  }];
+
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-admin-incomplete-detail",
+          email: "site.admin.incomplete@example.edu",
+          displayName: "Site Admin Incomplete Detail",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: false }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ readOnly: false }),
+    },
+  });
+
+  vm.runInContext(`
+    siteStudentDetailState = {
+      ...defaultSiteStudentDetailState(),
+      studentId: "demo-student-101",
+      sourceSection: "students",
+      activeTab: "overview",
+      result: { ok: true, status: 200, body: ${JSON.stringify(incompleteDetail)} }
+    };
+    activeSection = "students";
+    renderAppShell();
+  `, context);
+
+  assert.match(workspaceRoot.innerHTML, /Incomplete Student/);
+  assert.match(workspaceRoot.innerHTML, /Work item total is not confirmed yet/);
+  assert.match(workspaceRoot.innerHTML, /Progress percent not confirmed yet \/ Current stage not confirmed yet/);
+  assert.match(workspaceRoot.innerHTML, /workspace-status-pill pending/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /0 of 0 work items done|0% complete \/ proposal|undefined|Invalid Date|\[object Object\]/);
+
+  vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "work" } } })', context);
+  assert.match(workspaceRoot.innerHTML, /No sent work is available for this student/);
+  assert.match(workspaceRoot.innerHTML, /No mentor assignment history is available for this student/);
+  assert.match(workspaceRoot.innerHTML, /No mentor meetings are available for this student/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /undefined|Invalid Date|\[object Object\]/);
+
+  vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "feedback" } } })', context);
+  assert.match(workspaceRoot.innerHTML, /Senior Project work/);
+  assert.match(workspaceRoot.innerHTML, /Review recorded/);
+  assert.match(workspaceRoot.innerHTML, /Reviewer \/ Date not recorded/);
+  assert.match(workspaceRoot.innerHTML, /No student-visible or staff-only notes are available for this student/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /undefined|Invalid Date|Not set|\[object Object\]/);
+
+  vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "evidence" } } })', context);
+  assert.match(workspaceRoot.innerHTML, /No evidence records are available for this student/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /undefined|Invalid Date|\[object Object\]/);
+
+  vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "timeline" } } })', context);
+  assert.match(workspaceRoot.innerHTML, /Timeline event/);
+  assert.match(workspaceRoot.innerHTML, /Timeline event recorded/);
+  assert.match(workspaceRoot.innerHTML, /Timeline \/ Date not recorded/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /Unknown|undefined|Invalid Date|Not set|\[object Object\]/);
+});
+
 test("staff roles can enter and exit read-only View as Student from authorized contexts", async () => {
   const roleCases = [
     { roleId: "global_admin", section: "students", studentName: "Missing Mentor Demo 001" },
