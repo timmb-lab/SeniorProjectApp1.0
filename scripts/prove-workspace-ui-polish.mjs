@@ -479,6 +479,18 @@ const SCREENSHOT_PLAN = [
     proves: "Mobile Imports keeps template downloads and CSV preview readable on phone width.",
   },
   {
+    id: "42-mobile-admin-reports",
+    label: "Mobile Admin Reports",
+    persona: "Site Admin mobile reports",
+    authRole: "site_admin",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?mode=admin&section=adminReports&siteId=site-desert-valley-high"),
+    viewport: { width: 390, height: 844, deviceScaleFactor: 2, mobile: true },
+    expected: ["Reports", "Admin CSV downloads", "Download CSV", "unknown states are not counted as complete"],
+    actions: ["scrollToReportExports"],
+    proves: "Mobile Admin Reports keeps scoped CSV export buttons and denominator confidence copy readable on phone width.",
+  },
+  {
     id: "39-viewer-students-directory",
     label: "Viewer Students directory",
     persona: "Viewer Students",
@@ -873,6 +885,10 @@ async function performSinglePlanAction(client, action) {
     await scrollToSelector(client, "[data-csv-import-stepper]", "CSV import stepper");
     return;
   }
+  if (action === "scrollToReportExports") {
+    await scrollToSelector(client, "[data-report-export-panel]", "Report exports");
+    return;
+  }
   if (action === "scrollToStudentDirectoryEmpty") {
     await scrollToSelector(client, "[data-student-directory-empty='true']", "student directory empty state");
     return;
@@ -991,6 +1007,7 @@ async function collectPageState(client) {
         staffReports: Boolean(document.querySelector("[data-staff-reports='true']")),
         reportBars: Boolean(document.querySelector("[data-report-bars='true']")),
         staffReportBars: Boolean(document.querySelector("[data-staff-report-bars='true']")),
+        reportExportPanel: Boolean(document.querySelector("[data-report-export-panel]")),
         problemState: Boolean(document.querySelector("[data-workspace-state='permission-denied'], .workspace-problem-state")),
         intentionalEmptyState: Boolean(document.querySelector("[data-intentional-empty-state], [data-student-directory-empty='true']")),
         finalFiles: Boolean(document.querySelector("[data-archive-dashboard], .workspace-archive-dashboard, [data-student-final-checklist='true']"))

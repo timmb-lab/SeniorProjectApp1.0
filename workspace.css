@@ -2202,6 +2202,32 @@ body[data-page="workspace"],
   text-transform: uppercase;
 }
 
+.workspace-csv-template-example {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.workspace-csv-template-example > span {
+  color: var(--abc-muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.workspace-csv-template-example code {
+  display: block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-card);
+  background: #fff;
+  padding: 0.45rem 0.55rem;
+  color: var(--abc-charcoal);
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
 .workspace-report-bars,
 .workspace-admin-report-bars {
   display: grid;
@@ -2249,6 +2275,48 @@ body[data-page="workspace"],
 .workspace-admin-report-row span {
   color: var(--abc-muted);
   font-size: 0.84rem;
+}
+
+.workspace-report-export-panel {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.workspace-report-confidence-note {
+  border: 1px solid color-mix(in srgb, var(--abc-teal) 24%, white);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--abc-soft-teal) 58%, white);
+  padding: 0.65rem 0.75rem;
+  color: var(--abc-charcoal);
+  font-weight: 750;
+}
+
+.workspace-report-export-grid {
+  display: grid;
+  gap: 0.58rem;
+}
+
+.workspace-report-export-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-card);
+  background: #fff;
+  padding: 0.7rem;
+}
+
+.workspace-report-export-row strong,
+.workspace-report-export-row p,
+.workspace-report-export-row small {
+  display: block;
+}
+
+.workspace-report-export-row p,
+.workspace-report-export-row small {
+  margin: 0.18rem 0 0;
+  color: var(--abc-muted);
 }
 
 .workspace-report-value,
@@ -9750,6 +9818,7 @@ button.workspace-metric-tile,
   .workspace-review-layout,
   .workspace-mentor-assignment-layout,
   .workspace-operations-layout,
+  .workspace-report-export-row,
   .workspace-mentor-student-row,
   .workspace-student-row,
   .workspace-student-row[data-staff-student-row="true"],

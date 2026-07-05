@@ -34,6 +34,16 @@ function assertNoRawDebugState(markup) {
   assert.doesNotMatch(markup, /\{&quot;|\{"ok"|\{"error"/i);
 }
 
+function reportExportCsv(markup, exportId) {
+  const pattern = new RegExp(`data-report-export="${escapeRegExp(exportId)}"[^>]*href="([^"]+)"`);
+  const match = String(markup || "").match(pattern);
+  assert.ok(match, `missing report export ${exportId}`);
+  const href = match[1].replace(/&amp;/g, "&");
+  const prefix = "data:text/csv;charset=utf-8,";
+  assert.ok(href.startsWith(prefix), `report export ${exportId} should be a CSV data URL`);
+  return decodeURIComponent(href.slice(prefix.length));
+}
+
 function assertFocusableStudentDetailPanel(markup) {
   assert.match(markup, /id="siteStudentDetailPanel"/);
   assert.match(markup, /data-student-detail-panel="true"/);
@@ -710,6 +720,13 @@ test("workspace reports render accessible shared report bars with mobile fallbac
   assert.match(staffReports, /data-report-row="visible-students"[\s\S]*aria-label="Visible students:/);
   assert.match(staffReports, /data-staff-report-row="needs-review"[\s\S]*role="meter"[\s\S]*aria-valuetext=/);
   assert.match(staffReports, /Missing work\/setup/);
+  assert.match(staffReports, /data-report-export-panel="staff"/);
+  assert.match(staffReports, /data-report-confidence-note="staff"[\s\S]*unknown states are not counted as complete/);
+  assert.match(staffReports, /data-report-export-card="staff-visible-students"[\s\S]*capstone-visible-students\.csv/);
+  const visibleStudentsCsv = reportExportCsv(staffReports, "staff-visible-students");
+  assert.match(visibleStudentsCsv, /^Student name,Program,Latest submission,Review status,Evidence status,Presentation,Final files,Next action/m);
+  assert.match(visibleStudentsCsv, /Missing Mentor Demo 001/);
+  assert.doesNotMatch(visibleStudentsCsv, /studentId|userId|storage|adminNote|temporaryPassword|demo-student-/i);
   assert.doesNotMatch(visibleText(staffReports), /Showing 0 of 0|No data|No rows/);
 
   const adminReports = await renderWorkspaceWithFetch(profileRoutesForRole("site_admin"), "", "", {
@@ -718,11 +735,26 @@ test("workspace reports render accessible shared report bars with mobile fallbac
   assert.match(adminReports, /data-admin-reports="true"/);
   assert.match(adminReports, /data-admin-report-summary="true"/);
   assert.match(adminReports, /data-admin-report-row="roster"[\s\S]*aria-valuemax="100"[\s\S]*aria-valuetext="/);
+  assert.match(adminReports, /data-admin-report-row="mentor"[\s\S]*Denominator: \d+ students in scope/);
   assert.match(adminReports, /data-admin-report-row="issues"[\s\S]*Setup\/import issues/);
   assert.match(adminReports, /data-report-bars="true"/);
+  assert.match(adminReports, /data-report-export-panel="admin"/);
+  assert.match(adminReports, /data-report-export-card="admin-roster-completeness"[\s\S]*capstone-admin-roster-completeness\.csv/);
+  assert.match(adminReports, /data-report-export-empty="admin-import-result"/);
+  const rosterCsv = reportExportCsv(adminReports, "admin-roster-completeness");
+  assert.match(rosterCsv, /^Student name,Program,Cohort,Graduation year,Mentor coverage,Viewer coverage,Setup flags/m);
+  assert.match(rosterCsv, /Missing Mentor Demo 001/);
+  assert.doesNotMatch(rosterCsv, /studentId|userId|storage|adminNote|temporaryPassword|demo-student-/i);
+  const setupCsv = reportExportCsv(adminReports, "admin-setup-issues");
+  assert.match(setupCsv, /^Issue,Detail,Count,Action/m);
+  assert.match(setupCsv, /Mentor coverage missing|Roster profile incomplete|Student program missing/);
+  assert.doesNotMatch(setupCsv, /storage|adminNote|temporaryPassword|\{|\}/i);
 
   assert.match(workspaceCss, /\.workspace-report-row/);
+  assert.match(workspaceCss, /\.workspace-report-export-panel/);
+  assert.match(workspaceCss, /\.workspace-csv-template-example/);
   assert.match(cssMediaBlock(900), /\.workspace-report-row[\s\S]*grid-template-columns: 1fr/);
+  assert.match(cssMediaBlock(900), /\.workspace-report-export-row[\s\S]*grid-template-columns: 1fr/);
   assert.match(cssMediaBlock(620), /\.workspace-admin-flow\s*\{[\s\S]*grid-template-columns: 1fr/);
 });
 
@@ -10335,7 +10367,9 @@ test("People CSV import screens provide templates and row-level preview validati
   assert.match(importShelfMarkup, /data-admin-import-template-shelf="true"/);
   assert.match(importShelfMarkup, /data-admin-import-template="students"[\s\S]*Required[\s\S]*data-csv-template-column="first_name" data-csv-template-column-required="true"[\s\S]*data-csv-template-column="program" data-csv-template-column-required="true"/);
   assert.match(importShelfMarkup, /data-admin-import-template="students"[\s\S]*Optional[\s\S]*data-csv-template-column="mentor_email" data-csv-template-column-required="false"[\s\S]*data-csv-template-column="viewer_email" data-csv-template-column-required="false"/);
+  assert.match(importShelfMarkup, /data-csv-template-example="students"[\s\S]*alex\.student@senior-capstone\.test/);
   assert.match(importShelfMarkup, /data-admin-import-template="staff"[\s\S]*Staff imports cannot create Global Admin or student rows/);
+  assert.match(importShelfMarkup, /data-csv-template-example="staff"[\s\S]*maya\.rivera@senior-capstone\.test/);
   assert.match(importShelfMarkup, /Unsupported columns are blocked so data is not silently ignored/);
 
   vm.runInContext(`
@@ -10350,6 +10384,7 @@ test("People CSV import screens provide templates and row-level preview validati
   assert.match(workspaceRoot.innerHTML, /Before you import[\s\S]*Download the template[\s\S]*Preview validation[\s\S]*Confirm only valid rows/);
   assert.match(workspaceRoot.innerHTML, /Mentor and Viewer emails must already exist in the current roster/);
   assert.match(workspaceRoot.innerHTML, /first_name[\s\S]*last_name[\s\S]*mentor_email[\s\S]*viewer_email/);
+  assert.match(workspaceRoot.innerHTML, /data-csv-template-example="students"[\s\S]*Alex,Student,alex\.student@senior-capstone\.test/);
   assert.match(workspaceRoot.innerHTML, /data-csv-preview="students" data-csv-preview-state="waiting"/);
   assert.equal(
     vm.runInContext('csvTemplateForKind("students").split("\\n")[0]', context),

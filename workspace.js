@@ -2144,8 +2144,14 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
     health,
     report: {
       studentTotal: scopedStudentCount,
+      loadedStudentRows: students.length,
       staffTotal: staffRows.length,
       activePrograms: activePrograms.length || safeNumber(summary.programsTotal),
+      activeProgramRows: activePrograms.length,
+      mentorCoverageDenominator: scopedStudentCount,
+      viewerCoverageDenominator: students.length,
+      rosterCompletenessDenominator: students.length,
+      programCoverageDenominator: activePrograms.length,
       rosterCompletenessPercent,
       mentorCoveragePercent,
       viewerCoveragePercent,
@@ -5280,10 +5286,16 @@ function renderStaffReportsSection() {
         id: "staffReportBarTitle",
         kicker: "Staff reports",
         title: "Visible students by status",
-        detail: "Quick bars compare the visible roster with review and setup signals; each value is also shown as text.",
+        detail: "Quick bars compare the visible roster with review and setup signals; each value is also shown as text and unknown states stay separate from completed work.",
         rows: reportRows,
         className: "workspace-staff-report-summary",
         dataAttrs: `data-staff-report-bars="true"`,
+      })}
+      ${renderReportExportPanel({
+        id: "staff",
+        title: "Scoped CSV downloads",
+        detail: "Downloads use only rows already loaded for this role and omit internal ids, storage ids, passwords, and admin notes.",
+        exports: staffReportExportSpecs(),
       })}
       ${availableSectionIdsForAnyMode().has("readiness") ? renderReadinessSection() : ""}
     </section>
@@ -5318,6 +5330,12 @@ function renderAdminReportsSection() {
       </div>
       ${renderAdminSetupReadinessPanel(model.setupReadiness)}
       ${renderAdminOperationalReportSummary(model.report)}
+      ${renderReportExportPanel({
+        id: "admin",
+        title: "Admin CSV downloads",
+        detail: "Exports are generated from the current authorized admin scope and include only report-safe fields.",
+        exports: adminReportExportSpecs(model),
+      })}
       ${availableSectionIdsForAnyMode().has("readiness") ? renderReadinessSection() : ""}
     </section>
   `;
@@ -5486,6 +5504,7 @@ function renderAdminImportTemplateShelf() {
               <strong>${escapeHtml(template.title)}</strong>
               <p>${escapeHtml(template.detail)}</p>
               ${renderCsvTemplateColumnGroups(template.kind)}
+              ${renderCsvTemplateExample(template.kind)}
               <p class="workspace-muted">${escapeHtml(template.scopeNote)}</p>
             </div>
             <div class="workspace-row-actions">
@@ -5503,10 +5522,10 @@ function renderAdminImportTemplateShelf() {
 
 function renderAdminOperationalReportSummary(report = {}) {
   const rows = [
-    { id: "roster", label: "Roster completeness", value: report.rosterCompletenessPercent, max: 100, valueLabel: percentLabel(report.rosterCompletenessPercent), detail: `${safeNumber(report.studentTotal)} students in scope`, tone: "student", dataAttrs: `data-admin-report-row="roster"` },
-    { id: "mentor", label: "Mentor coverage", value: report.mentorCoveragePercent, max: 100, valueLabel: percentLabel(report.mentorCoveragePercent), detail: "Mentor assignment coverage", tone: "mentor", dataAttrs: `data-admin-report-row="mentor"` },
-    { id: "viewer", label: "Viewer coverage", value: report.viewerCoveragePercent, max: 100, valueLabel: percentLabel(report.viewerCoveragePercent), detail: "Read-only viewer assignment coverage", tone: "ready", dataAttrs: `data-admin-report-row="viewer"` },
-    { id: "program", label: "Program coverage", value: report.programCoveragePercent, max: 100, valueLabel: percentLabel(report.programCoveragePercent), detail: `${safeNumber(report.activePrograms)} active programs`, tone: "teacher", dataAttrs: `data-admin-report-row="program"` },
+    { id: "roster", label: "Roster completeness", value: report.rosterCompletenessPercent, max: 100, valueLabel: percentLabel(report.rosterCompletenessPercent), detail: `Denominator: ${safeNumber(report.rosterCompletenessDenominator)} loaded roster rows`, tone: "student", dataAttrs: `data-admin-report-row="roster"` },
+    { id: "mentor", label: "Mentor coverage", value: report.mentorCoveragePercent, max: 100, valueLabel: percentLabel(report.mentorCoveragePercent), detail: `Denominator: ${safeNumber(report.mentorCoverageDenominator)} students in scope`, tone: "mentor", dataAttrs: `data-admin-report-row="mentor"` },
+    { id: "viewer", label: "Viewer coverage", value: report.viewerCoveragePercent, max: 100, valueLabel: percentLabel(report.viewerCoveragePercent), detail: `Denominator: ${safeNumber(report.viewerCoverageDenominator)} loaded roster rows`, tone: "ready", dataAttrs: `data-admin-report-row="viewer"` },
+    { id: "program", label: "Program coverage", value: report.programCoveragePercent, max: 100, valueLabel: percentLabel(report.programCoveragePercent), detail: `Denominator: ${safeNumber(report.programCoverageDenominator)} active programs`, tone: "teacher", dataAttrs: `data-admin-report-row="program"` },
     { id: "progress", label: "Progress follow-up", value: safeNumber(report.reviewFollowUp), max: Math.max(safeNumber(report.studentTotal), safeNumber(report.reviewFollowUp), 1), detail: "Submitted and revision-requested records", tone: safeNumber(report.reviewFollowUp) ? "warning" : "ready", dataAttrs: `data-admin-report-row="progress"` },
     { id: "issues", label: "Setup/import issues", value: safeNumber(report.setupIssueCount) + safeNumber(report.importIssueCount), max: Math.max(safeNumber(report.studentTotal), safeNumber(report.setupIssueCount) + safeNumber(report.importIssueCount), 1), detail: "Setup list and CSV preview issues", tone: safeNumber(report.setupIssueCount) + safeNumber(report.importIssueCount) ? "warning" : "ready", dataAttrs: `data-admin-report-row="issues"` },
   ];
@@ -5519,6 +5538,202 @@ function renderAdminOperationalReportSummary(report = {}) {
     className: "workspace-admin-report-summary",
     dataAttrs: `data-admin-report-summary="true"`,
   });
+}
+
+function renderReportExportPanel({ id = "reports", title = "CSV downloads", detail = "", exports = [] } = {}) {
+  const safeExports = (Array.isArray(exports) ? exports : []).filter(Boolean);
+  if (!safeExports.length) return "";
+  const titleId = `${id}ReportExportsTitle`;
+  return `
+    <section class="workspace-card workspace-report-export-panel" data-report-export-panel="${escapeHtml(id)}" aria-labelledby="${escapeHtml(titleId)}">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Exports</p>
+          <h3 id="${escapeHtml(titleId)}">${escapeHtml(title)}</h3>
+          ${detail ? `<p class="workspace-muted">${escapeHtml(detail)}</p>` : ""}
+        </div>
+      </div>
+      <p class="workspace-report-confidence-note" data-report-confidence-note="${escapeHtml(id)}">
+        Percentages name their denominator, zero-row exports stay disabled, and unknown states are not counted as complete.
+      </p>
+      <div class="workspace-report-export-grid">
+        ${safeExports.map(renderReportExportRow).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderReportExportRow(spec = {}) {
+  const headers = Array.isArray(spec.headers) ? spec.headers : [];
+  const rows = Array.isArray(spec.rows) ? spec.rows : [];
+  const rowCount = rows.length;
+  const filename = spec.filename || `${spec.id || "report"}.csv`;
+  const hasRows = headers.length && rowCount > 0;
+  const href = hasRows ? csvDataHref(csvFromRows(headers, rows)) : "";
+  return `
+    <article class="workspace-report-export-row" data-report-export-card="${escapeHtml(spec.id || "report")}">
+      <div>
+        <strong>${escapeHtml(spec.title || "Report export")}</strong>
+        <p>${escapeHtml(spec.detail || "Download a scoped report CSV.")}</p>
+        <small data-report-export-fields="${escapeHtml(spec.id || "report")}">Fields: ${escapeHtml(headers.join(", "))}</small>
+      </div>
+      <div class="workspace-row-actions">
+        <span class="workspace-summary-badge">${escapeHtml(String(rowCount))} row${rowCount === 1 ? "" : "s"}</span>
+        ${hasRows
+          ? `<a class="workspace-button workspace-button-secondary workspace-button-small" data-report-export="${escapeHtml(spec.id || "report")}" href="${escapeHtml(href)}" download="${escapeHtml(filename)}" aria-label="${escapeHtml(`Download ${spec.title || "report"} CSV`)}">Download CSV</a>`
+          : `<span class="workspace-summary-badge" data-report-export-empty="${escapeHtml(spec.id || "report")}">Awaiting report data</span>`}
+      </div>
+    </article>
+  `;
+}
+
+function staffReportExportSpecs() {
+  const visibleStudentRows = staffVisibleStudentExportRows();
+  const reviewRows = staffPendingReviewExportRows();
+  return [
+    {
+      id: "staff-visible-students",
+      title: "Visible students",
+      detail: "Current Student Directory rows loaded for this role and site.",
+      filename: "capstone-visible-students.csv",
+      headers: ["Student name", "Program", "Latest submission", "Review status", "Evidence status", "Presentation", "Final files", "Next action"],
+      rows: visibleStudentRows,
+    },
+    {
+      id: "staff-pending-reviews",
+      title: "Pending reviews",
+      detail: "Loaded review queue rows that this role can already open.",
+      filename: "capstone-pending-reviews.csv",
+      headers: ["Student name", "Requirement", "Status", "Evidence count", "Updated", "Next action"],
+      rows: reviewRows,
+    },
+  ];
+}
+
+function adminReportExportSpecs(model = adminConsoleOperationsModel()) {
+  const rosterRows = adminRosterCompletenessExportRows();
+  const setupIssueRows = (model.setupIssues || []).map((issue) => [
+    reportCell(issue.title, "Setup issue"),
+    reportCell(issue.detail, "Review this setup issue."),
+    String(safeNumber(issue.count)),
+    reportCell(issue.action, "Open linked section"),
+  ]);
+  const importRows = adminImportResultExportRows();
+  return [
+    {
+      id: "admin-roster-completeness",
+      title: "Roster completeness",
+      detail: "Student setup fields from the current admin scope.",
+      filename: "capstone-admin-roster-completeness.csv",
+      headers: ["Student name", "Program", "Cohort", "Graduation year", "Mentor coverage", "Viewer coverage", "Setup flags"],
+      rows: rosterRows,
+    },
+    {
+      id: "admin-setup-issues",
+      title: "Setup issues",
+      detail: "Prioritized setup/import issue list for the current admin scope.",
+      filename: "capstone-admin-setup-issues.csv",
+      headers: ["Issue", "Detail", "Count", "Action"],
+      rows: setupIssueRows,
+    },
+    {
+      id: "admin-import-result",
+      title: "Latest import summary",
+      detail: "One-time import summary only; credentials and admin notes are never exported.",
+      filename: "capstone-admin-import-summary.csv",
+      headers: ["Metric", "Value"],
+      rows: importRows,
+    },
+  ];
+}
+
+function staffVisibleStudentExportRows() {
+  const body = unwrap(currentData.siteStudents) || {};
+  const students = Array.isArray(body.students) ? body.students : [];
+  return students.map((student) => [
+    reportCell(student.displayName || student.studentName, "Student"),
+    reportCell(student.programName || student.program, "Not confirmed"),
+    statusText(student.latestSubmissionStatus || student.submissionStatus || student.status || "unknown"),
+    statusText(student.reviewStatus || student.latestReviewStatus || "unknown"),
+    statusText(student.evidenceStatus || "unknown"),
+    statusText(student.presentationStatus || "unknown"),
+    statusText(student.archiveStatus || "unknown"),
+    reportCell(student.nextAction, "Not confirmed"),
+  ]);
+}
+
+function staffPendingReviewExportRows() {
+  const body = unwrap(currentData.reviewQueue) || {};
+  const rows = Array.isArray(body.queue) ? body.queue : [];
+  return rows.map((row) => [
+    reportCell(row.studentName, "Student"),
+    reportCell(row.requirementTitle, "Requirement not confirmed"),
+    statusText(row.status || "unknown"),
+    String(safeNumber(row.evidenceCount)),
+    formatDate(row.updatedAt || row.submittedAt),
+    reportCell(row.nextAction, "Not confirmed"),
+  ]);
+}
+
+function adminRosterCompletenessExportRows() {
+  const access = unwrap(currentData.accessAssignments) || {};
+  const assignments = access.assignments || {};
+  const students = Array.isArray(access.users?.students) ? access.users.students : [];
+  return students.map((student) => {
+    const flags = adminStudentSetupFlags(student, assignments);
+    const flagLabels = flags.map((flag) => flag.label).filter(Boolean);
+    return [
+      reportCell(student.displayName || student.studentName, "Student"),
+      reportCell(adminStudentProgramValue(student), "Not confirmed"),
+      reportCell(adminStudentCohortValue(student), "Not confirmed"),
+      reportCell(adminStudentGraduationValue(student), "Not confirmed"),
+      flagLabels.includes("No mentor") ? "Missing" : "Confirmed",
+      flagLabels.includes("No viewer") ? "Missing" : "Confirmed",
+      flagLabels.length ? flagLabels.join("; ") : "No setup flags",
+    ];
+  });
+}
+
+function adminImportResultExportRows() {
+  const summary = lastAdminImportResult?.summary || null;
+  if (!summary) return [];
+  return [
+    ["Students created", String(safeNumber(summary.studentsCreated))],
+    ["Students skipped", String(safeNumber(summary.studentsSkipped))],
+    ["Invalid rows blocked", String(safeNumber(summary.invalidRowsBlocked))],
+    ["Mentor assignments created", String(safeNumber(summary.mentorAssignmentsCreated))],
+    ["Mentor assignments skipped", String(safeNumber(summary.mentorAssignmentsSkipped))],
+    ["Viewer assignments created", String(safeNumber(summary.viewerAssignmentsCreated))],
+    ["Viewer assignments skipped", String(safeNumber(summary.viewerAssignmentsSkipped))],
+  ];
+}
+
+function reportCell(value, fallback = "Not confirmed") {
+  const text = String(value ?? "").trim();
+  return text || fallback;
+}
+
+function csvDataHref(csv = "") {
+  return `data:text/csv;charset=utf-8,${encodeURIComponent(csv)}`;
+}
+
+function csvFromRows(headers = [], rows = []) {
+  const safeHeaders = Array.isArray(headers) ? headers : [];
+  const safeRows = Array.isArray(rows) ? rows : [];
+  return [
+    safeHeaders,
+    ...safeRows.map((row) => Array.isArray(row) ? row : []),
+  ].map(csvLine).join("\n");
+}
+
+function csvLine(cells = []) {
+  return (Array.isArray(cells) ? cells : []).map(csvCell).join(",");
+}
+
+function csvCell(value) {
+  const text = String(value ?? "");
+  if (!/[",\r\n]/.test(text)) return text;
+  return `"${text.replace(/"/g, '""')}"`;
 }
 
 function renderViewerOverviewSection() {
@@ -17715,6 +17930,7 @@ function renderCsvTemplateDocumentation(kind = "students") {
     <section class="workspace-csv-template-doc" data-csv-template-doc="${escapeHtml(kind)}">
       <strong>Template columns</strong>
       ${renderCsvTemplateColumnGroups(kind)}
+      ${renderCsvTemplateExample(kind)}
       <p class="workspace-muted">${escapeHtml(contract.scopeNote)} ${escapeHtml(contract.validationNote)}</p>
     </section>
   `;
@@ -17848,6 +18064,16 @@ function renderCsvTemplateColumnGroups(kind = "students") {
           </div>
         </div>
       `).join("")}
+    </div>
+  `;
+}
+
+function renderCsvTemplateExample(kind = "students") {
+  const contract = csvTemplateContractForKind(kind);
+  return `
+    <div class="workspace-csv-template-example" data-csv-template-example="${escapeHtml(contract.kind)}" aria-label="${escapeHtml(`${contract.title} example row`)}">
+      <span>Example row</span>
+      <code>${escapeHtml(contract.example.join(","))}</code>
     </div>
   `;
 }
