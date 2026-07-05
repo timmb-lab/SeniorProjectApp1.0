@@ -55,6 +55,7 @@ Exports:
 - Archive/final-file export is excluded from the first pilot unless explicitly approved.
 - Export/download proof must show no raw Drive IDs, storage IDs, tokens, private URLs, setup passwords, or credential material.
 - student_archive_manifest_download remains a future pilot item until hosted proof marks it passed and the workflow is approved for pilot scope.
+- Archive scope decision: `docs/demo/student-archive-export-scope-decision.md`.
 
 ## Retention And Deletion Expectations
 
@@ -68,6 +69,7 @@ Retention/deletion expectations must be approved before real student data is ent
 - SSO or approved managed-local credential delivery evidence is missing.
 - Role-scoped pilot account proof is missing.
 - Archive/download should be excluded unless its evidence is completed.
+- Student pilot evidence packet: `docs/demo/student-pilot-evidence-packet.md`.
 
 ## Required Approvers Before Real-Student Pilot
 

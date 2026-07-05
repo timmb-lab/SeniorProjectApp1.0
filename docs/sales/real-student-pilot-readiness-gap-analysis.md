@@ -18,6 +18,8 @@ Operator proof details live in `docs/sales/real-student-pilot-proof-plan.md`. Th
 - `docs/demo/role-scoped-pilot-account-proof.md`
 - `docs/demo/synthetic-roster-validation-dry-run.md`
 - `docs/demo/backup-restore-rehearsal-runbook.md`
+- `docs/demo/student-pilot-evidence-packet.md`
+- `docs/demo/student-archive-export-scope-decision.md`
 
 The non-mutating gate is:
 

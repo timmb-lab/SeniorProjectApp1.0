@@ -11,6 +11,8 @@ Supporting operator docs narrow the proof work without changing the NO-GO decisi
 - `docs/demo/role-scoped-pilot-account-proof.md`
 - `docs/demo/synthetic-roster-validation-dry-run.md`
 - `docs/demo/backup-restore-rehearsal-runbook.md`
+- `docs/demo/student-pilot-evidence-packet.md`
+- `docs/demo/student-archive-export-scope-decision.md`
 
 ## Expected Evidence Manifests
 
