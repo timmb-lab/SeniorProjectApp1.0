@@ -6977,9 +6977,15 @@ function renderSiteProgramsSetupFlow(activePrograms = [], availablePrograms = []
 function renderAdminProgramsCoveragePanel(activePrograms = [], body = {}) {
   const access = unwrap(currentData.accessAssignments) || {};
   const assignments = access.assignments || {};
+  const availablePrograms = Array.isArray(body.availablePrograms) ? body.availablePrograms : [];
   const programTeacherAssignments = Array.isArray(assignments.programTeacherProgram) ? assignments.programTeacherProgram : [];
   const assignedProgramIds = new Set(programTeacherAssignments.map((row) => row.programId).filter(Boolean));
   const gaps = activePrograms.filter((program) => !assignedProgramIds.has(program.programId || program.id || ""));
+  const firstAction = gaps.length && availableSectionIdsForAnyMode().has("adminAssignments")
+    ? { label: "Open assignments", section: "adminAssignments" }
+    : availablePrograms.length
+      ? { label: "Review add form", section: "programs" }
+      : { label: "Review reports", section: availableSectionIdsForAnyMode().has("adminReports") ? "adminReports" : "programs" };
   return `
     <section class="workspace-admin-program-coverage" data-admin-program-coverage="true" aria-label="Program coverage">
       <article>
@@ -6992,16 +6998,26 @@ function renderAdminProgramsCoveragePanel(activePrograms = [], body = {}) {
         <strong>${escapeHtml(String(activePrograms.length))}</strong>
         <small>${escapeHtml(`${programTeacherAssignments.length} Program Teacher assignment ${pluralize(programTeacherAssignments.length, "row")}`)}</small>
       </article>
+      <article class="${availablePrograms.length ? "warning" : "ready"}">
+        <span>Available to add</span>
+        <strong>${escapeHtml(String(availablePrograms.length))}</strong>
+        <small>${escapeHtml(availablePrograms.length ? "Add only programs that belong to this school." : "Every available active program is already mapped.")}</small>
+      </article>
       <article class="${gaps.length ? "warning" : "ready"}">
         <span>Coverage issues</span>
         <strong>${escapeHtml(String(gaps.length))}</strong>
         <small>${escapeHtml(gaps.length ? "Confirm Program Teacher access in Assignments." : "No Program Teacher gaps in loaded assignments.")}</small>
       </article>
-      ${availableSectionIdsForAnyMode().has("adminAssignments") ? `
-        <button class="workspace-link-button workspace-link-button-small" type="button" data-section="adminAssignments">
-          Open assignments
-        </button>
-      ` : ""}
+      <article class="workspace-admin-program-first-action ${gaps.length || availablePrograms.length ? "warning" : "ready"}" data-admin-program-first-action="${escapeHtml(gaps[0]?.programId || gaps[0]?.id || availablePrograms[0]?.programId || "clear")}">
+        <span>First program action</span>
+        <strong>${escapeHtml(gaps.length ? "Confirm Program Teacher coverage" : availablePrograms.length ? "Review available program mappings" : "Program setup is clear")}</strong>
+        <small>${escapeHtml(gaps.length
+          ? `${gaps[0]?.programName || "A program"} needs Program Teacher access confirmed.`
+          : availablePrograms.length
+            ? `${availablePrograms.length} active ${pluralize(availablePrograms.length, "program")} can be added if they belong to this school.`
+            : "No active program mapping or Program Teacher coverage issue is first in line.")}</small>
+        ${renderAdminActionControl(firstAction, "workspace-link-button workspace-link-button-small", "program-first")}
+      </article>
     </section>
   `;
 }

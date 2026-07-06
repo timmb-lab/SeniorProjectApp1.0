@@ -7295,6 +7295,12 @@ test("admin console surfaces setup reasons across overview people students and r
   assert.match(assignments, /data-admin-assignment-flow-lane="viewer"[\s\S]*Assign viewer access/);
   assert.match(assignments, /data-admin-assignment-flow-lane="program-teacher"[\s\S]*Program Teacher coverage/);
 
+  vm.runInContext('activeSection = "programs"; renderAppShell();', context);
+  const programs = workspaceRoot.innerHTML;
+  assert.match(programs, /data-admin-program-coverage="true"[\s\S]*Available to add[\s\S]*Coverage issues/);
+  assert.match(programs, /data-admin-program-first-action="[^"]+"[\s\S]*First program action/);
+  assert.match(programs, /data-site-programs-setup-flow="true"[\s\S]*Program setup order/);
+
   vm.runInContext('activeSection = "adminPeople"; adminPeopleView = "manage-staff"; renderAppShell();', context);
   const people = workspaceRoot.innerHTML;
   assert.match(people, /data-admin-page-header="true" data-admin-page-section="adminPeople"/);
