@@ -7279,6 +7279,8 @@ test("admin console surfaces setup reasons across overview people students and r
   const students = workspaceRoot.innerHTML;
   assert.match(students, /data-admin-page-header="true" data-admin-page-section="adminStudents"/);
   assert.match(students, /data-admin-action-menu="adminStudents"[\s\S]*Import students[\s\S]*Download student template/);
+  assert.match(students, /data-admin-student-setup-summary="true"[\s\S]*Students loaded[\s\S]*Roster fields[\s\S]*Mentor gaps[\s\S]*Viewer gaps/);
+  assert.match(students, /data-admin-student-first-action="[^"]+"[\s\S]*(Review first|Current roster state)/);
   assert.match(students, /data-manage-student-row="student-needs-setup" data-manage-student-setup="needs-review"/);
   assert.match(students, /data-admin-more-menu="student-student-needs-setup"[\s\S]*More[\s\S]*View as Student[\s\S]*Manage assignments/);
   assert.match(students, /data-admin-setup-flag="profile"[\s\S]*Missing cohort\/year/);

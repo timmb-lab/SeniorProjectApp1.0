@@ -18275,6 +18275,7 @@ function renderManageStudentsScreen() {
         </div>
         <button class="workspace-button workspace-button-secondary" type="button" data-people-view-target="add-student">Add Student</button>
       </div>
+      ${renderManageStudentSetupSummary(students, access.assignments || {})}
       ${students.length ? `
         <div class="workspace-list">
           ${students.map((student) => renderManageStudentRow(student)).join("")}
@@ -18285,6 +18286,63 @@ function renderManageStudentsScreen() {
           <p>Add a student or choose a site with student access.</p>
         </article>
       `}
+    </section>
+  `;
+}
+
+function renderManageStudentSetupSummary(students = [], assignments = {}) {
+  const rows = (Array.isArray(students) ? students : []).map((student) => ({
+    student,
+    flags: adminStudentSetupFlags(student, assignments),
+  }));
+  const issueRows = rows.filter((row) => row.flags.length);
+  const programGaps = rows.filter((row) => row.flags.some((flag) => flag.id === "program")).length;
+  const profileGaps = rows.filter((row) => row.flags.some((flag) => flag.id === "profile" || flag.id === "email")).length;
+  const mentorGaps = rows.filter((row) => row.flags.some((flag) => flag.id === "mentor")).length;
+  const viewerGaps = rows.filter((row) => row.flags.some((flag) => flag.id === "viewer")).length;
+  const firstIssue = issueRows[0] || null;
+  const firstLabels = firstIssue ? firstIssue.flags.map((flag) => flag.label).join(", ") : "";
+  const firstHasCoverageGap = firstIssue?.flags?.some((flag) => flag.id === "mentor" || flag.id === "viewer");
+  const sections = availableSectionIdsForAnyMode();
+  const firstAction = firstIssue
+    ? firstHasCoverageGap && sections.has("adminAssignments")
+      ? { label: "Assign coverage", section: "adminAssignments" }
+      : sections.has("students")
+        ? { label: "Open student directory", section: "students" }
+        : { label: "Review roster", peopleView: "manage-students" }
+    : { label: "Review reports", section: sections.has("adminReports") ? "adminReports" : "overview" };
+  return `
+    <section class="workspace-admin-student-setup-summary" data-admin-student-setup-summary="true" aria-label="Student setup summary">
+      <div class="workspace-admin-student-setup-cards">
+        <article>
+          <span>Students loaded</span>
+          <strong>${escapeHtml(String(rows.length))}</strong>
+          <small>Roster rows available in this school view.</small>
+        </article>
+        <article class="${programGaps + profileGaps ? "warning" : "ready"}">
+          <span>Roster fields</span>
+          <strong>${escapeHtml(String(programGaps + profileGaps))}</strong>
+          <small>${escapeHtml(`${profileGaps} profile, ${programGaps} program gaps.`)}</small>
+        </article>
+        <article class="${mentorGaps ? "warning" : "ready"}">
+          <span>Mentor gaps</span>
+          <strong>${escapeHtml(String(mentorGaps))}</strong>
+          <small>Students without loaded active mentor coverage.</small>
+        </article>
+        <article class="${viewerGaps ? "warning" : "ready"}">
+          <span>Viewer gaps</span>
+          <strong>${escapeHtml(String(viewerGaps))}</strong>
+          <small>Students without loaded read-only viewer coverage.</small>
+        </article>
+      </div>
+      <article class="workspace-admin-student-first-action ${firstIssue ? "warning" : "ready"}" data-admin-student-first-action="${escapeHtml(firstIssue?.student?.userId || "clear")}">
+        <div>
+          <span>${escapeHtml(firstIssue ? "Review first" : "Current roster state")}</span>
+          <strong>${escapeHtml(firstIssue?.student?.displayName || "No student setup blocker is first in line")}</strong>
+          <p>${escapeHtml(firstIssue ? firstLabels : "Loaded student rows do not show program, profile, mentor, or viewer setup gaps.")}</p>
+        </div>
+        ${renderAdminActionControl(firstAction, "workspace-button workspace-button-secondary workspace-button-small", "student-first")}
+      </article>
     </section>
   `;
 }
