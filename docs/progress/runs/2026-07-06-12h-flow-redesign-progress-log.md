@@ -116,3 +116,57 @@ Blockers:
 - The all-day 12-hour minimum is not complete and must not be claimed complete.
 
 Block type: break/checkpoint.
+
+## 2026-07-06 13:44 PT - Stage 02/03 Checkpoint Block
+
+Current SHA before Stage 02/03 commit: `da2026e2e16954bbe112ef9d649cb157b4d04023`
+
+Files changed:
+
+- `workspace.js`
+- `workspace.css`
+- `tests/workspace-app.test.mjs`
+- `scripts/prove-workspace-ui-polish.mjs`
+- `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- `docs/sales/screenshots/2026-07-06-flow-redesign/`
+- `docs/progress/runs/2026-07-06-12h-flow-redesign-progress-log.md`
+
+Tests and checks run:
+
+- `node --check workspace.js`
+- `node --check scripts\prove-workspace-ui-polish.mjs`
+- `node --test tests\workspace-app.test.mjs` - 114/114 passed
+- `npm run prove:workspace-ui-polish` with `WORKSPACE_UI_POLISH_SCREENSHOT_DIR=docs/sales/screenshots/2026-07-06-flow-redesign` and `WORKSPACE_UI_POLISH_MANIFEST_PATH=docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+
+Screenshot/proof status:
+
+- Manifest: `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- Screenshot count: 46
+- Screenshot verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Failures: 0
+- Boundary: local fake-account UI proof only. Real-student production status remains `NOT_CLAIMED_READY`.
+
+Finished:
+
+- Rebuilt Student Today into a one-job flow: "What to do next" with one primary action and one visible current action.
+- Removed the student left-rail access summary, role/access explainer card, duplicate dark product banner, and mobile student role badge from the student experience.
+- Moved progress, feedback, and missing-work context into a closed "Show progress, feedback, and checklist" disclosure.
+- Moved current-item detail behind a closed "Show current item details" disclosure.
+- Kept student navigation route-backed through Today, My Work, Feedback, and Final Checklist.
+- Updated tests and proof expectations so the student flow must stay focused while staff/admin role identity remains visible.
+- Manually inspected Student Today desktop and phone screenshots after the green proof run.
+
+Remaining:
+
+- Stage 04 mentor one-student flow still needs a focused assigned-student-to-detail-to-action pass.
+- Stage 05 Program Teacher review flow still needs queue-to-work-to-decision simplification.
+- Stage 07 Admin setup flow still needs guided issue-to-fix-to-confirmation work.
+- Stage 08/09 broader control-panel artifact and visual rebirth work remains for non-student screens.
+- Real-student pilot remains `NO_GO_REAL_STUDENT_PILOT` pending required manual/policy evidence.
+
+Blockers:
+
+- None for this stage.
+- The all-day 12-hour minimum is not complete and must not be claimed complete.
+
+Block type: break/checkpoint.

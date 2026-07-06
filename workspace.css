@@ -8320,8 +8320,14 @@ body[data-page="workspace"],
 
 .workspace-student-screen {
   display: grid;
+  align-content: start;
   gap: 0.85rem;
   min-width: 0;
+}
+
+.workspace-student-screen-today {
+  grid-auto-rows: max-content;
+  align-items: start;
 }
 
 .workspace-student-screen-header {
@@ -8385,14 +8391,121 @@ body[data-page="workspace"],
   line-height: 1.18;
 }
 
+.workspace-student-section-head h1 {
+  margin: 0;
+  color: var(--abc-ink);
+  font-size: 2rem;
+  line-height: 1.06;
+}
+
 .workspace-student-section-head p {
   margin: 0.22rem 0 0;
+}
+
+.workspace-student-next-action-hero {
+  align-content: start;
+  align-self: start;
+  border-color: color-mix(in srgb, var(--abc-blue) 28%, white);
+  border-left: 6px solid var(--abc-blue);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--abc-soft-blue) 58%, white), #fff 72%),
+    var(--surface-card);
+  padding: 1.08rem;
+}
+
+.workspace-student-next-action-hero .workspace-student-section-head {
+  align-items: center;
+}
+
+.workspace-student-action-summary-primary {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.workspace-student-action-summary-primary article {
+  align-content: start;
+  min-height: 0;
+  border-left-color: var(--abc-blue);
+  background: #fff;
+  padding: 0.86rem;
+}
+
+.workspace-student-action-summary-primary strong {
+  font-size: 1.16rem;
+}
+
+.workspace-student-today-disclosure,
+.workspace-student-today-support {
+  align-self: start;
+  min-height: 0;
+  min-width: 0;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--surface-row) 74%, white);
+}
+
+.workspace-student-today-disclosure summary,
+.workspace-student-today-support summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 42px;
+  cursor: pointer;
+  color: var(--abc-ink);
+  font-weight: 900;
+  padding: 0.72rem 0.82rem;
+}
+
+.workspace-student-today-disclosure summary::marker,
+.workspace-student-today-support summary::marker {
+  color: var(--abc-blue);
+}
+
+.workspace-student-today-support summary small {
+  color: var(--abc-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-align: right;
+}
+
+.workspace-student-today-disclosure article {
+  display: grid;
+  gap: 0.32rem;
+  margin: 0 0.82rem 0.82rem;
+  border-top: 1px solid var(--border-soft);
+  padding-top: 0.72rem;
+}
+
+.workspace-student-today-disclosure span {
+  color: var(--abc-muted);
+  font-size: 0.74rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.workspace-student-today-disclosure strong {
+  color: var(--abc-ink);
+}
+
+.workspace-student-today-disclosure p {
+  margin: 0;
+}
+
+.workspace-student-today-support-stack {
+  display: grid;
+  gap: 0.72rem;
+  border-top: 1px solid var(--border-soft);
+  padding: 0.82rem;
 }
 
 .workspace-student-action-summary {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.65rem;
+}
+
+.workspace-student-action-summary-primary {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .workspace-student-action-summary article {
@@ -8413,6 +8526,12 @@ body[data-page="workspace"],
   font-size: 0.74rem;
   font-weight: 900;
   text-transform: uppercase;
+}
+
+.workspace-student-action-summary-primary span {
+  color: var(--abc-blue);
+  font-size: 0.82rem;
+  text-transform: none;
 }
 
 .workspace-student-action-summary strong {

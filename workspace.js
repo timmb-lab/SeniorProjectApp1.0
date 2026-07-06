@@ -1185,7 +1185,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
           <div class="workspace-topbar-center">
             ${topbarContextControls}
           </div>
-          ${renderActiveRoleBadge(primaryRole, { readOnly: viewingAsStudent || roles.has("viewer") || Boolean(isAdminConsole && consoleCapabilities.readOnly) })}
+          ${studentExperience ? "" : renderActiveRoleBadge(primaryRole, { readOnly: viewingAsStudent || roles.has("viewer") || Boolean(isAdminConsole && consoleCapabilities.readOnly) })}
           ${renderWorkspaceAccountMenu(areaName)}
         </div>
       </header>
@@ -1195,19 +1195,21 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
             <strong>${escapeHtml(`${areaName} menu`)}</strong>
             <button class="workspace-button workspace-button-secondary workspace-button-small workspace-rail-close" id="workspaceRailClose" type="button">Close menu</button>
           </div>
-          ${renderWorkspaceRailAccessSummary({ isAdminConsole, primaryRole, consoleCapabilities })}
+          ${studentExperience ? "" : renderWorkspaceRailAccessSummary({ isAdminConsole, primaryRole, consoleCapabilities })}
           <nav class="workspace-tabs" aria-label="${escapeHtml(`${areaName} sections`)}">
             ${renderWorkspaceNavigation(sections, { isAdminConsole })}
           </nav>
-          <section class="workspace-rail-card">
-            <p class="workspace-kicker">${escapeHtml(isAdminConsole ? "Mode" : studentExperience ? "Today" : "Next step")}</p>
-            <p>${escapeHtml(isAdminConsole ? adminConsoleRailNote(consoleCapabilities) : studentExperience ? "Start with the next capstone action." : nextStepText())}</p>
-          </section>
+          ${studentExperience ? "" : `
+            <section class="workspace-rail-card">
+              <p class="workspace-kicker">${escapeHtml(isAdminConsole ? "Mode" : "Next step")}</p>
+              <p>${escapeHtml(isAdminConsole ? adminConsoleRailNote(consoleCapabilities) : nextStepText())}</p>
+            </section>
+          `}
         </aside>
         <div class="workspace-main ${isAdminConsole ? "workspace-admin-console-main" : ""}">
           ${renderViewAsStudentBanner()}
           ${statusMarkup}
-          ${isAdminConsole ? renderAdminConsoleHeader(consoleCapabilities, sections) : renderProductHeader({
+          ${isAdminConsole ? renderAdminConsoleHeader(consoleCapabilities, sections) : studentExperience ? "" : renderProductHeader({
             eyebrow: studentExperience ? "My Capstone" : "",
             title: headerTitle,
             subtitle: headerSubtitle,
@@ -12055,19 +12057,9 @@ function renderStudentTodayScreen(context = {}) {
   const action = studentPrimaryNextAction(summary, nextSteps, archiveNextAction);
   return `
     <section class="workspace-student-screen workspace-student-screen-today" data-student-screen="today" data-student-view-mode="${previewingStudent ? "staff-preview" : "self"}" aria-labelledby="studentTodayTitle">
-      ${renderStudentScreenHeader({
-        kicker: "Today",
-        title: "My Capstone",
-        titleId: "studentTodayTitle",
-        question: "What to do next",
-        badgeHtml: studentStatusBadge(summary.currentStatus),
-        primaryHtml: renderStudentRouteButton("studentWork", studentPrimaryRouteLabel(action), "workspace-button-primary", "data-student-primary-action=\"continue-work\""),
-      })}
-      ${previewingStudent ? renderViewAsStudentReadOnlyNotice() : ""}
       ${renderStudentTodayActionSection(action, summary)}
-      ${renderStudentProgressTracker(summary, requirements)}
-      ${renderStudentTodayFeedbackSummary(feedback, summary)}
-      ${renderStudentTodayUpcomingItems(nextSteps, requirements, summary)}
+      ${previewingStudent ? renderViewAsStudentReadOnlyNotice() : ""}
+      ${renderStudentTodaySupportDetails({ summary, requirements, feedback, nextSteps })}
     </section>
   `;
 }
@@ -12225,24 +12217,21 @@ function studentPrimaryRouteLabel(action = {}) {
 
 function renderStudentTodayActionSection(action = {}, summary = {}) {
   return `
-    <section class="workspace-student-section workspace-student-next-action" data-student-today-section="next-action" aria-labelledby="studentTodayNextActionTitle">
+    <section class="workspace-student-section workspace-student-next-action workspace-student-next-action-hero" data-student-today-section="next-action" aria-labelledby="studentTodayTitle">
       <div class="workspace-student-section-head">
         <div>
-          <p class="workspace-kicker">What to do next</p>
-          <h2 id="studentTodayNextActionTitle">What to do next</h2>
+          <p class="workspace-kicker">Today</p>
+          <h1 id="studentTodayTitle">What to do next</h1>
           <p>${escapeHtml(studentPrimaryCommandCopy(action, summary))}</p>
         </div>
-        ${studentStatusPill(action.status || action.submissionStatus || "pending")}
+        <div class="workspace-student-screen-actions">
+          ${studentStatusPill(action.status || action.submissionStatus || "pending")}
+          ${renderStudentRouteButton("studentWork", studentPrimaryRouteLabel(action), "workspace-button-primary", "data-student-primary-action=\"continue-work\"")}
+        </div>
       </div>
-      <div class="workspace-student-action-summary">
-        <article data-student-current-step-card="true">
-          <span>Current work</span>
-          <strong>${escapeHtml(action.itemTitle || action.title || summary.currentPhaseLabel || "Current capstone item")}</strong>
-          <p>${escapeHtml(action.detail || "Open My Work to see this item.")}</p>
-          <p class="workspace-muted" data-student-current-step-status="true">Status: ${escapeHtml(studentConservativeStatusText(action.status || action.submissionStatus))}</p>
-        </article>
+      <div class="workspace-student-action-summary workspace-student-action-summary-primary">
         <article data-student-next-action-card="true">
-          <span>Do this next</span>
+          <span>One thing now</span>
           <strong>${escapeHtml(action.owner || "Your action")}</strong>
           <p>${escapeHtml(action.when || "Open My Work before starting anything new.")}</p>
           <p class="workspace-muted" data-student-next-action-path="true">${escapeHtml(studentNextActionPathCopy(action))}</p>
@@ -12251,8 +12240,41 @@ function renderStudentTodayActionSection(action = {}, summary = {}) {
           </div>
         </article>
       </div>
+      <details class="workspace-student-today-disclosure" data-student-today-current-details="true">
+        <summary>Show current item details</summary>
+        <article data-student-current-step-card="true">
+          <span>Current work</span>
+          <strong>${escapeHtml(action.itemTitle || action.title || summary.currentPhaseLabel || "Current capstone item")}</strong>
+          <p>${escapeHtml(action.detail || "Open My Work to see this item.")}</p>
+          <p class="workspace-muted" data-student-current-step-status="true">Status: ${escapeHtml(studentConservativeStatusText(action.status || action.submissionStatus))}</p>
+        </article>
+      </details>
     </section>
   `;
+}
+
+function renderStudentTodaySupportDetails({ summary = {}, requirements = [], feedback = [], nextSteps = [] } = {}) {
+  return `
+    <details class="workspace-student-today-support" data-student-today-support-details="true">
+      <summary>
+        <span>Show progress, feedback, and checklist</span>
+        <small>${escapeHtml(studentTodaySupportSummary(summary))}</small>
+      </summary>
+      <div class="workspace-student-today-support-stack">
+        ${renderStudentProgressTracker(summary, requirements)}
+        ${renderStudentTodayFeedbackSummary(feedback, summary)}
+        ${renderStudentTodayUpcomingItems(nextSteps, requirements, summary)}
+      </div>
+    </details>
+  `;
+}
+
+function studentTodaySupportSummary(summary = {}) {
+  if (summary.revisionRequestedCount) return `${summary.revisionRequestedCount} feedback ${pluralize(summary.revisionRequestedCount, "item")} need changes.`;
+  if (summary.waitingForReviewCount) return `${summary.waitingForReviewCount} ${pluralize(summary.waitingForReviewCount, "item")} waiting for teacher review.`;
+  if (summary.missingRequiredCount) return `${summary.missingRequiredCount} ${pluralize(summary.missingRequiredCount, "item")} still need work.`;
+  if (summary.requirementsTotal) return `${summary.requirementsComplete} of ${summary.requirementsTotal} checklist ${pluralize(summary.requirementsTotal, "item")} done.`;
+  return "Checklist details appear after work is assigned.";
 }
 
 function studentConservativeStatusText(value, fallback = "Not confirmed yet") {

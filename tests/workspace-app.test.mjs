@@ -1548,7 +1548,8 @@ test("workspace explains what clicks do before users act", async () => {
 test("workspace explains who can see screen information", async () => {
   const student = await renderWorkspaceWithFetch(profileRoutesForRole("student"), "student");
   assert.match(student, /data-experience="student"/);
-  assert.match(student, /Only your own project work and feedback are visible here/);
+  assert.doesNotMatch(student, /data-rail-access-summary="full"/);
+  assert.doesNotMatch(student, /Only your own project work and feedback are visible here/);
   assert.doesNotMatch(student, /data-screen-visibility-guide="student"/);
 
   const teacher = await renderWorkspaceWithFetch(profileRoutesForRole("program_teacher"), "teacher");
@@ -1577,7 +1578,8 @@ test("workspace explains who can see screen information", async () => {
 test("workspace explains what users need before starting a screen", async () => {
   const student = await renderWorkspaceWithFetch(profileRoutesForRole("student"), "student");
   assert.match(student, /data-experience="student"/);
-  assert.match(student, /Start with the next capstone action/);
+  assert.match(student, /What to do next/);
+  assert.doesNotMatch(student, /workspace-rail-card[\s\S]*Start with the next capstone action/);
   assert.doesNotMatch(student, /data-screen-start-guide="student"/);
 
   const teacher = await renderWorkspaceWithFetch(profileRoutesForRole("program_teacher"), "teacher");
@@ -7862,7 +7864,7 @@ test("workspace renders upload progress, validation, completion, and retry state
   assert.match(uploading, /Upload a PDF, image, text file, spreadsheet, presentation, or document up to 20 MB/i);
   assert.match(uploading, /data-student-screen="work"/);
   assert.match(uploading, /Files/);
-  assert.match(uploading, /workspace-product-header/);
+  assert.doesNotMatch(uploading, /workspace-product-header/);
   assert.doesNotMatch(uploading, /Database-backed MVP|Cloudflare target|Audit-sensitive admin/);
 
   const failed = await renderWorkspaceWithFetch(routes, "student", `
@@ -8168,10 +8170,13 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.match(student, /data-student-screen="today"/);
   assert.match(student, /My Capstone/);
   assert.match(student, /What to do next/);
+  assert.match(student, /workspace-student-next-action-hero/);
   assert.match(student, /data-student-primary-action="continue-work"[\s\S]*Fix Work/);
-  assert.match(student, /What to do next/);
+  assert.match(student, /data-student-next-action-card="true"[\s\S]*One thing now/);
   assert.match(student, /data-student-current-step-card="true"[\s\S]*data-student-current-step-status="true"[\s\S]*Status: Needs changes/);
+  assert.match(student, /data-student-today-current-details="true"[\s\S]*Show current item details/);
   assert.match(student, /data-student-next-action-card="true"[\s\S]*data-student-next-action-path="true"[\s\S]*Read your feedback\. Fix your work\. Turn it in again/);
+  assert.match(student, /data-student-today-support-details="true"[\s\S]*Show progress, feedback, and checklist/);
   assert.match(student, /Progress/);
   assert.match(student, /Needs changes/);
   assert.match(student, /Missing work/);
@@ -10419,17 +10424,20 @@ test("workspace renders visible role identity for every logged-in role", async (
   for (const [roleId, label] of roles) {
     const markup = await renderWorkspaceWithFetch(profileRoutesForRole(roleId));
     assert.match(markup, new RegExp(`data-primary-role="${escapeRegExp(roleId)}"`), `${roleId} primary role marker`);
-    assert.match(markup, /data-active-role-badge="true"/, `${roleId} active role badge`);
-    assert.match(markup, new RegExp(`data-role-identity="${escapeRegExp(roleId)}"`), `${roleId} role identity marker`);
-    assert.match(markup, new RegExp(`Active role:\\s*${escapeRegExp(label)}|${escapeRegExp(label)}[\\s\\S]*Active role`), `${roleId} visible role text`);
     assert.doesNotMatch(markup, /data-role-command-strip="true"/, `${roleId} role command strip removed from landing`);
-    assert.match(markup, /workspace-product-header/, `${roleId} product header`);
     if (roleId === "student") {
       assert.match(markup, /data-experience="student"/);
       assert.match(markup, /My Capstone/);
+      assert.doesNotMatch(markup, /workspace-product-header/, `${roleId} product header removed from focused student flow`);
+      assert.doesNotMatch(markup, /data-rail-access-summary="full"/, `${roleId} access card removed from focused student flow`);
+      assert.doesNotMatch(markup, /data-active-role-badge="true"/, `${roleId} role badge removed from focused student flow`);
     } else {
+      assert.match(markup, /data-active-role-badge="true"/, `${roleId} active role badge`);
+      assert.match(markup, new RegExp(`data-role-identity="${escapeRegExp(roleId)}"`), `${roleId} role identity marker`);
+      assert.match(markup, new RegExp(`Active role:\\s*${escapeRegExp(label)}|${escapeRegExp(label)}[\\s\\S]*Active role`), `${roleId} visible role text`);
       assert.match(markup, /data-experience="staff-workspace"/);
       assert.match(markup, /Staff Workspace/);
+      assert.match(markup, /workspace-product-header/, `${roleId} product header`);
     }
     assert.doesNotMatch(visibleText(markup), /Role context|Demo boundary|working profile|What this role can manage or monitor/, `${roleId} no role-proof landing text`);
   }

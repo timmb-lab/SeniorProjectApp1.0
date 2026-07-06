@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:62715",
+  "baseUrl": "http://127.0.0.1:60643",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-06T19:34:53.836Z",
-  "completedAt": "2026-07-06T19:41:05.233Z",
+  "startedAt": "2026-07-06T20:40:16.329Z",
+  "completedAt": "2026-07-06T20:44:33.158Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:62715",
+    "baseUrl": "http://127.0.0.1:60643",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-07-06-flow-redesign",
@@ -399,8 +399,9 @@
       "expected": [
         "My Capstone",
         "What to do next",
+        "One thing now",
         "View Work",
-        "Progress"
+        "Show progress, feedback, and checklist"
       ],
       "proves": "Student Today answers the next capstone action with student-only navigation.",
       "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
@@ -447,8 +448,8 @@
         "intentionalEmptyState": false,
         "finalFiles": false
       },
-      "heading": "My Capstone",
-      "textSample": "Skip to workspace Menu SC My Capstone My Capstone Today Student ROLE TS Test Student Maya maya.student@senior-capstone.test YOUR ACCESS Student Your project Only your own project work and feedback are visible here. Today What to finish next My Work Current work and files Feedback Feedback and work to fix Final Checklist Presentation and final files TODAY Start with the next capstone action. MY CAPSTONE My Capstone What to do next Today My Work Feedback Final Checklist Your project TODAY My Capstone What to do next WAITING FOR REVIEW View Work WHAT TO DO NEXT What to do next View what you turned in. Wait for your teacher. Turned in CURRENT WORK Senior Project Workspace Your work is with your ",
+      "heading": "What to do next",
+      "textSample": "Skip to workspace Menu SC My Capstone My Capstone Today TS Test Student Maya maya.student@senior-capstone.test Today What to finish next My Work Current work and files Feedback Feedback and work to fix Final Checklist Presentation and final files TODAY What to do next View what you turned in. Wait for your teacher. Turned in View Work One thing now Teacher review Done for now. Do not upload another copy unless your teacher asks. View what you sent. Wait for your teacher. Open item Show current item details Show progress, feedback, and checklist 1 item waiting for teacher review.",
       "activeNav": [
         "My Work\n        Today\n        What to finish next"
       ]
@@ -470,6 +471,7 @@
       "expected": [
         "My Capstone",
         "What to do next",
+        "One thing now",
         "View Work"
       ],
       "proves": "Student Today keeps the primary action near the top at phone width.",
@@ -517,8 +519,8 @@
         "intentionalEmptyState": false,
         "finalFiles": false
       },
-      "heading": "My Capstone",
-      "textSample": "Skip to workspace Menu SC My Capstone Student TS MY CAPSTONE My Capstone What to do next Today My Work Feedback Final Checklist Your project TODAY My Capstone What to do next WAITING FOR REVIEW View Work WHAT TO DO NEXT What to do next View what you turned in. Wait for your teacher. Turned in CURRENT WORK Senior Project Workspace Your work is with your teacher. Check what you turned in once. Then wait. Status: Turned in DO THIS NEXT Teacher review Done for now. Do not upload another copy unless your teacher asks. View what you sent. Wait for your teacher. Open item PROGRESS Progress 0 of 16 capstone items are complete. 0% COMPLETE DONE 0 of 16 Items your teacher marked done. WAITING 1 Your t",
+      "heading": "What to do next",
+      "textSample": "Skip to workspace Menu SC My Capstone TS TODAY What to do next View what you turned in. Wait for your teacher. Turned in View Work One thing now Teacher review Done for now. Do not upload another copy unless your teacher asks. View what you sent. Wait for your teacher. Open item Show current item details Show progress, feedback, and checklist 1 item waiting for teacher review.",
       "activeNav": [
         "My Work\n        Today\n        What to finish next"
       ]
@@ -586,8 +588,8 @@
         "intentionalEmptyState": false,
         "finalFiles": false
       },
-      "heading": "My Capstone",
-      "textSample": "Skip to workspace Menu SC My Capstone Desert Valley High School Workspace Admin Console Site Admin SS Viewing as: Aven Ashford Staff account: Sam Site Admin (Site Admin). Staff identity and permissions remain active behind this preview. Read-only preview Authorized student only No student changes saved here No proof or account changes This is a read-only staff preview of the student workspace. Exit returns to Students. Exit student view Student view restored. MY CAPSTONE My Capstone What to do next Today My Work Feedback Final Checklist Desert Valley School District 2026-2027 TODAY My Capstone What to do next IN PROGRESS Start Safe preview only Staff preview is read-only by default. Use the ",
+      "heading": "What to do next",
+      "textSample": "Skip to workspace Menu SC My Capstone Desert Valley High School Workspace Admin Console SS Viewing as: Aven Ashford Staff account: Sam Site Admin (Site Admin). Staff identity and permissions remain active behind this preview. Read-only preview Authorized student only No student changes saved here No proof or account changes This is a read-only staff preview of the student workspace. Exit returns to Students. Exit student view Student view restored. TODAY What to do next Open this item. Finish the work. Add a file or link if needed. Missing Start One thing now Your action Due Before using cycle documents Open the matching item in My Work. Open item Show current item details Safe preview only ",
       "activeNav": [
         "Workspace",
         "My Work\n        Today\n        What to finish next"
@@ -800,8 +802,8 @@
         "intentionalEmptyState": false,
         "finalFiles": false
       },
-      "heading": "My Capstone",
-      "textSample": "Skip to workspace Menu SC My Capstone Student TS My Capstone menu Close menu YOUR ACCESS Student Your project Only your own project work and feedback are visible here. Today What to finish next My Work Current work and files Feedback Feedback and work to fix Final Checklist Presentation and final files TODAY Start with the next capstone action. Menu opened. MY CAPSTONE My Capstone What to do next Today My Work Feedback Final Checklist Your project TODAY My Capstone What to do next WAITING FOR REVIEW View Work WHAT TO DO NEXT What to do next View what you turned in. Wait for your teacher. Turned in CURRENT WORK Senior Project Workspace Your work is with your teacher. Check what you turned in ",
+      "heading": "What to do next",
+      "textSample": "Skip to workspace Menu SC My Capstone TS My Capstone menu Close menu Today What to finish next My Work Current work and files Feedback Feedback and work to fix Final Checklist Presentation and final files Menu opened. TODAY What to do next View what you turned in. Wait for your teacher. Turned in View Work One thing now Teacher review Done for now. Do not upload another copy unless your teacher asks. View what you sent. Wait for your teacher. Open item Show current item details Show progress, feedback, and checklist 1 item waiting for teacher review.",
       "activeNav": [
         "My Work\n        Today\n        What to finish next"
       ]
@@ -1083,8 +1085,8 @@
         "intentionalEmptyState": false,
         "finalFiles": false
       },
-      "heading": "My Capstone",
-      "textSample": "Skip to workspace Menu SC My Capstone My Capstone Today Current site Desert Valley High School Only one site Workspace Admin Console Site Admin READ-ONLY SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test YOUR ACCESS Site Admin Assigned school: Desert Valley High School Site tools stay tied to the selected or assigned school. Today What to finish next My Work Current work and files Feedback Feedback and work to fix Final Checklist Presentation and final files TODAY Start with the next capstone action. Viewing as: High Risk Demo 01 Staff account: Sam Site Admin (Site Admin). Staff identity and permissions remain active behind this preview. Read-only preview Authorized student",
+      "heading": "What to do next",
+      "textSample": "Skip to workspace Menu SC My Capstone My Capstone Today Current site Desert Valley High School Only one site Workspace Admin Console SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test Today What to finish next My Work Current work and files Feedback Feedback and work to fix Final Checklist Presentation and final files Viewing as: High Risk Demo 01 Staff account: Sam Site Admin (Site Admin). Staff identity and permissions remain active behind this preview. Read-only preview Authorized student only No student changes saved here No proof or account changes This is a read-only staff preview of the student workspace. Exit returns to Students. Exit student view Student view loaded",
       "activeNav": [
         "Workspace",
         "My Work\n        Today\n        What to finish next"
@@ -1443,8 +1445,8 @@
         "intentionalEmptyState": false,
         "finalFiles": false
       },
-      "heading": "My Capstone",
-      "textSample": "Skip to workspace Menu SC My Capstone My Capstone Today Student ROLE TS Test Student Maya maya.student@senior-capstone.test YOUR ACCESS Student Your project Only your own project work and feedback are visible here. Today What to finish next My Work Current work and files Feedback Feedback and work to fix Final Checklist Presentation and final files TODAY Start with the next capstone action. MY CAPSTONE My Capstone What to do next Today My Work Feedback Final Checklist Your project ADMIN CONSOLE Admin Console is not available for this role Students use Workspace only. Staff console sections appear only when the signed-in account has a monitoring or admin-capable role. REASON This account does",
+      "heading": "Admin Console is not available for this role",
+      "textSample": "Skip to workspace Menu SC My Capstone My Capstone Today TS Test Student Maya maya.student@senior-capstone.test Today What to finish next My Work Current work and files Feedback Feedback and work to fix Final Checklist Presentation and final files ADMIN CONSOLE Admin Console is not available for this role Students use Workspace only. Staff console sections appear only when the signed-in account has a monitoring or admin-capable role. REASON This account does not have a staff or admin console capability. OWNER Project coordinator or site administrator. NEXT ACTION Use Workspace or ask for the correct assigned role. TRY NEXT Refresh workspace Review profile Open Account TODAY What to do next Vi",
       "activeNav": [
         "My Work\n        Today\n        What to finish next"
       ]
@@ -1582,8 +1584,8 @@
         "intentionalEmptyState": false,
         "finalFiles": true
       },
-      "heading": "My Capstone",
-      "textSample": "Skip to workspace Menu SC My Capstone My Capstone Final Checklist Student ROLE TS Test Student Maya maya.student@senior-capstone.test YOUR ACCESS Student Your project Only your own project work and feedback are visible here. Today What to finish next My Work Current work and files Feedback Feedback and work to fix Final Checklist Presentation and final files TODAY Start with the next capstone action. MY CAPSTONE My Capstone What to do next Today My Work Feedback Final Checklist Your project FINAL CHECKLIST Final Checklist What is done? What still needs work? Waiting for review Continue My Work FINISH CHECKS Finish checks These rows show what is done and what still needs work. Proposal done 0",
+      "heading": "Final Checklist",
+      "textSample": "Skip to workspace Menu SC My Capstone My Capstone Final Checklist TS Test Student Maya maya.student@senior-capstone.test Today What to finish next My Work Current work and files Feedback Feedback and work to fix Final Checklist Presentation and final files FINAL CHECKLIST Final Checklist What is done? What still needs work? Waiting for review Continue My Work FINISH CHECKS Finish checks These rows show what is done and what still needs work. Proposal done 0 of 3 items complete in this phase. ASK YOUR TEACHER View Work Build file started 0 of 1 item complete in this phase. NOT DONE View Work Build update and presentation plan 0 of 1 item complete in this phase. NOT DONE View Work Presentation",
       "activeNav": [
         "Final Checklist\n        Final Checklist\n        Presentation and final files"
       ]
@@ -1655,8 +1657,8 @@
         "intentionalEmptyState": false,
         "finalFiles": false
       },
-      "heading": "My Capstone",
-      "textSample": "Skip to workspace Menu SC My Capstone My Capstone My Work Student ROLE TS Test Student Maya maya.student@senior-capstone.test YOUR ACCESS Student Your project Only your own project work and feedback are visible here. Today What to finish next My Work Current work and files Feedback Feedback and work to fix Final Checklist Presentation and final files TODAY Start with the next capstone action. MY CAPSTONE My Capstone What to do next Today My Work Feedback Final Checklist Your project MY WORK My Work Open work. Turn in work. Check files. WAITING FOR REVIEW Continue CURRENT WORK Current work Open one item. Add a file or link if the item asks for it. Turn it in when it is ready. Show one phase C",
+      "heading": "My Work",
+      "textSample": "Skip to workspace Menu SC My Capstone My Capstone My Work TS Test Student Maya maya.student@senior-capstone.test Today What to finish next My Work Current work and files Feedback Feedback and work to fix Final Checklist Presentation and final files MY WORK My Work Open work. Turn in work. Check files. WAITING FOR REVIEW Continue CURRENT WORK Current work Open one item. Add a file or link if the item asks for it. Turn it in when it is ready. Show one phase Current phase: Start: Setup. Show one phase if the full checklist feels too long. All phases Start: Setup (Current) Phase 1: Kickoff and Proposal Phase 2A: Build Phase 2B: Build Part II Phase 3A: Present Phase 3B: Celebrate Phase 4: Give Th",
       "activeNav": [
         "My Work\n        My Work\n        Current work and files",
         "All phases"
@@ -1729,8 +1731,8 @@
         "intentionalEmptyState": false,
         "finalFiles": false
       },
-      "heading": "My Capstone",
-      "textSample": "Skip to workspace Menu SC My Capstone Student TS MY CAPSTONE My Capstone What to do next Today My Work Feedback Final Checklist Your project MY WORK My Work Open work. Turn in work. Check files. WAITING FOR REVIEW Continue CURRENT WORK Current work Open one item. Add a file or link if the item asks for it. Turn it in when it is ready. Show one phase Current phase: Start: Setup. Show one phase if the full checklist feels too long. All phases Start: Setup (Current) Phase 1: Kickoff and Proposal Phase 2A: Build Phase 2B: Build Part II Phase 3A: Present Phase 3B: Celebrate Phase 4: Give Thanks, Reflect, Launch Finish: Download and Keep Start: Setup Fix setup before starting proposal work. Main t",
+      "heading": "My Work",
+      "textSample": "Skip to workspace Menu SC My Capstone TS MY WORK My Work Open work. Turn in work. Check files. WAITING FOR REVIEW Continue CURRENT WORK Current work Open one item. Add a file or link if the item asks for it. Turn it in when it is ready. Show one phase Current phase: Start: Setup. Show one phase if the full checklist feels too long. All phases Start: Setup (Current) Phase 1: Kickoff and Proposal Phase 2A: Build Phase 2B: Build Part II Phase 3A: Present Phase 3B: Celebrate Phase 4: Give Thanks, Reflect, Launch Finish: Download and Keep Start: Setup Fix setup before starting proposal work. Main thing to finish: Project folder is ready and your Program Teacher can find it. Done when: You can ope",
       "activeNav": [
         "My Work\n        My Work\n        Current work and files",
         "All phases"
@@ -1802,8 +1804,8 @@
         "intentionalEmptyState": false,
         "finalFiles": false
       },
-      "heading": "My Capstone",
-      "textSample": "Skip to workspace Menu SC My Capstone My Capstone Feedback Student ROLE TS Test Student Maya maya.student@senior-capstone.test YOUR ACCESS Student Your project Only your own project work and feedback are visible here. Today What to finish next My Work Current work and files Feedback Feedback and work to fix Final Checklist Presentation and final files TODAY Start with the next capstone action. MY CAPSTONE My Capstone What to do next Today My Work Feedback Final Checklist Your project FEEDBACK Feedback Read feedback. Fix work if asked. Not confirmed yet View Work NEEDS CHANGES Needs changes No needs changes right now. No feedback needs changes right now. NEW FEEDBACK New feedback No feedback ",
+      "heading": "Feedback",
+      "textSample": "Skip to workspace Menu SC My Capstone My Capstone Feedback TS Test Student Maya maya.student@senior-capstone.test Today What to finish next My Work Current work and files Feedback Feedback and work to fix Final Checklist Presentation and final files FEEDBACK Feedback Read feedback. Fix work if asked. Not confirmed yet View Work NEEDS CHANGES Needs changes No needs changes right now. No feedback needs changes right now. NEW FEEDBACK New feedback No feedback yet. No feedback yet. When your teacher reviews your work, it will appear here. OLD FEEDBACK Old feedback No old feedback right now. Old feedback appears here after reviews are done.",
       "activeNav": [
         "Feedback\n        Feedback\n        Feedback and work to fix"
       ]
