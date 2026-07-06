@@ -6,6 +6,8 @@ Current proof reports:
 
 - `2026-07-05-yuge-max-final-proof.md` is the final proof/status report for the 2026-07-05 YUGE MAX round.
 - `2026-07-05-student-ready-final-proof.md` is the student-ready pilot closure proof/status report.
+- `2026-07-06-admin-console-overhaul-final-proof.md` is the final proof/status report for the 2026-07-06 admin console overhaul.
+- `2026-07-06-admin-console-overhaul-browser-proof.json` is the local fake-account screenshot manifest for the 2026-07-06 admin console overhaul.
 - `2026-06-30-workspace-ui-polish-browser-proof.json` is the current local fake-account screenshot manifest.
 - `2026-06-29-hosted-fake-pilot-browser-proof.json` is the current hosted fake-account browser screenshot manifest.
 
