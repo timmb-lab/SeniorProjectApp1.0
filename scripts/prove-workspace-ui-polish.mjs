@@ -392,7 +392,7 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?section=overview"),
     viewport: { width: 390, height: 844, deviceScaleFactor: 2, mobile: true },
-    expected: ["Staff Workspace", "Mentor Workspace", "Start with one group, then open one student."],
+    expected: ["STAFF WORKSPACE", "Mentor Workspace", "Start with one group, then open one student."],
     absent: ["Admin Console", "Role context"],
     proves: "Mentor Today queues remain readable on phone width.",
   },

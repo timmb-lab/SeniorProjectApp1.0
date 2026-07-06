@@ -117,6 +117,63 @@ Blockers:
 
 Block type: break/checkpoint.
 
+## 2026-07-06 14:14 PT - Stage 04/08 Staff Shell Cleanup Checkpoint
+
+Current SHA before Stage 04/08 commit: `f8835f2591332d1f3f7a2b6d861393b5e09acf91`
+
+Files changed:
+
+- `workspace.js`
+- `tests/workspace-app.test.mjs`
+- `scripts/prove-workspace-ui-polish.mjs`
+- `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- `docs/sales/screenshots/2026-07-06-flow-redesign/`
+- `docs/progress/runs/2026-07-06-12h-flow-redesign-progress-log.md`
+
+Tests and checks run:
+
+- `node --check workspace.js`
+- `node --check scripts\prove-workspace-ui-polish.mjs`
+- `node --test tests\workspace-app.test.mjs` - 114/114 passed
+- `npm run prove:workspace-ui-polish` with `WORKSPACE_UI_POLISH_SCREENSHOT_DIR=docs/sales/screenshots/2026-07-06-flow-redesign` and `WORKSPACE_UI_POLISH_MANIFEST_PATH=docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- `git diff --check`
+- `npm run check:workspace-mobile`
+- `npm run check:workspace-accessibility`
+- `npm run verify:permission-matrix`
+- `npm run check:pilot-readiness`
+
+Screenshot/proof status:
+
+- Manifest: `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- Screenshot count: 46
+- Screenshot verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Failures: 0
+- Boundary: local fake-account UI proof only. Real-student production status remains `NOT_CLAIMED_READY`.
+
+Finished:
+
+- Removed the old non-admin Workspace product header from staff, mentor, teacher, viewer, and site workspace flows.
+- Removed the non-admin left-rail access summary and secondary rail note cards so staff screens open on the worklist, not role explanation.
+- Kept Admin Console scope controls intact for admin-only setup surfaces.
+- Updated test coverage so non-admin workspaces must stay free of the old product-header and full rail-access card.
+- Refreshed the browser proof screenshots after the shell cleanup and adjusted the mobile mentor proof expectation to the responsive heading text.
+- Manually inspected Program Teacher, Mentor, and Viewer screenshots after proof generation.
+
+Remaining:
+
+- Stage 05 should reduce Review Queue to a queue-to-work-to-decision flow with secondary filters collapsed.
+- Stage 04 detail continuation should make mentor student detail lead to one next action, not a detail-control wall.
+- Viewer read-only guidance still appears as a first-viewport permission explanation and needs a calmer collapsed/support treatment.
+- Program Teacher still exposes secondary topbar controls and an Admin Console button beside the primary action; those should move behind menus or clearer secondary affordances.
+- Real-student pilot remains `NO_GO_REAL_STUDENT_PILOT` pending required manual/policy evidence.
+
+Blockers:
+
+- None for this stage.
+- The all-day 12-hour minimum is not complete and must not be claimed complete.
+
+Block type: active checkpoint.
+
 ## 2026-07-06 13:44 PT - Stage 02/03 Checkpoint Block
 
 Current SHA before Stage 02/03 commit: `da2026e2e16954bbe112ef9d649cb157b4d04023`

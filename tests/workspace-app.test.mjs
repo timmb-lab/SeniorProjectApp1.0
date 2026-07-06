@@ -1071,7 +1071,8 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
   assert.match(signInBlock, /renderWorkspaceLandingHero\(\)/);
   assert.doesNotMatch(signInBlock, /renderProductHeader\(/);
   assert.doesNotMatch(signInBlock, /Student progress|Private files|Mentor coverage|Review work|Presentation readiness/);
-  assert.match(appShellBlock, /renderProductHeader\(\{[\s\S]*context: headerContext,[\s\S]*readOnly: roles\.has\("viewer"\)/);
+  assert.doesNotMatch(appShellBlock, /renderProductHeader\(/);
+  assert.match(appShellBlock, /renderAdminConsoleHeader\(consoleCapabilities, sections\)/);
   assert.match(appShellBlock, /renderScreenGuidance\(activeSection, guidancePrimaryRole, guidanceRoles, sections\)/);
   assert.match(screenGuidanceBlock, /renderScreenOrientation\(sectionId, primaryRole, roles, sections\)/);
   assert.match(screenGuidanceBlock, /renderScreenLanguageGuide\(sectionId, primaryRole, roles, sections\)/);
@@ -1206,7 +1207,7 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
   assert.match(workspaceJs, /data-workspace-state="no-active-assignment"[\s\S]*renderProblemState\(/);
   assert.match(workspaceJs, /data-workspace-state="permission-denied"[\s\S]*renderProblemState\(/);
 
-  assert.match(appShellBlock, /readOnly: roles\.has\("viewer"\)/);
+  assert.match(appShellBlock, /readOnly: viewingAsStudent \|\| roles\.has\("viewer"\) \|\| Boolean\(isAdminConsole && consoleCapabilities\.readOnly\)/);
   assert.match(workspaceJs, /data-workspace-mode="read-only"/);
   assert.match(workspaceJs, /Read-only workspace/);
   assert.doesNotMatch(workspaceJs, /\/api\/announcements|\/api\/admin\/announcements|workspace-kicker">Announcements/i);
@@ -3126,7 +3127,8 @@ test("program teacher dashboard rows open existing student detail", async () => 
   assert.match(programTeacher, /Revision loop active[\s\S]*data-section="teacher" data-section-preset="revision-requested"/);
   assert.match(programTeacher, /Presentation readiness pending[\s\S]*data-section="operations" data-section-preset="presentation-pending"/);
   assert.match(programTeacher, /Mentor meeting follow-up[\s\S]*data-section="students" data-section-preset="mentor-meeting-follow-up-students"/);
-  assert.match(programTeacher, /data-rail-access-summary="full"[\s\S]*Program Teacher[\s\S]*Assigned program: IT[\s\S]*Review work and student support stay inside your assigned program/);
+  assert.doesNotMatch(programTeacher, /data-rail-access-summary="full"/);
+  assert.doesNotMatch(programTeacher, /Review work and student support stay inside your assigned program/);
   assert.match(programTeacher, /data-workspace-disclosure-panel="dashboard:programDashboard"/);
   assert.match(programTeacher, /aria-expanded="false"/);
   assert.doesNotMatch(programTeacher, /Students by program|Assigned student list|Recent Activity|Core Concept Proposal \/ 2 proof items/);
@@ -9468,7 +9470,8 @@ test("workspace renders role-pending and permission-denied access states", async
   });
   assert.match(viewer, /data-workspace-mode="read-only"/);
   assert.match(viewer, /Read-only workspace/);
-  assert.match(viewer, /Read-only viewer/);
+  assert.doesNotMatch(viewer, /Read-only viewer/);
+  assert.doesNotMatch(viewer, /workspace-product-header|data-rail-access-summary="full"/);
   assert.match(viewer, /data-staff-workspace-today="true"/);
   assert.match(viewer, /Viewer Workspace \/ Read-only/);
   assert.match(viewer, /data-staff-start-here="true"/);
@@ -10437,7 +10440,8 @@ test("workspace renders visible role identity for every logged-in role", async (
       assert.match(markup, new RegExp(`Active role:\\s*${escapeRegExp(label)}|${escapeRegExp(label)}[\\s\\S]*Active role`), `${roleId} visible role text`);
       assert.match(markup, /data-experience="staff-workspace"/);
       assert.match(markup, /Staff Workspace/);
-      assert.match(markup, /workspace-product-header/, `${roleId} product header`);
+      assert.doesNotMatch(markup, /workspace-product-header/, `${roleId} product header removed from focused staff flow`);
+      assert.doesNotMatch(markup, /data-rail-access-summary="full"/, `${roleId} access card removed from focused staff flow`);
     }
     assert.doesNotMatch(visibleText(markup), /Role context|Demo boundary|working profile|What this role can manage or monitor/, `${roleId} no role-proof landing text`);
   }

@@ -1195,28 +1195,21 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
             <strong>${escapeHtml(`${areaName} menu`)}</strong>
             <button class="workspace-button workspace-button-secondary workspace-button-small workspace-rail-close" id="workspaceRailClose" type="button">Close menu</button>
           </div>
-          ${studentExperience ? "" : renderWorkspaceRailAccessSummary({ isAdminConsole, primaryRole, consoleCapabilities })}
+          ${isAdminConsole ? renderWorkspaceRailAccessSummary({ isAdminConsole, primaryRole, consoleCapabilities }) : ""}
           <nav class="workspace-tabs" aria-label="${escapeHtml(`${areaName} sections`)}">
             ${renderWorkspaceNavigation(sections, { isAdminConsole })}
           </nav>
-          ${studentExperience ? "" : `
+          ${isAdminConsole ? `
             <section class="workspace-rail-card">
               <p class="workspace-kicker">${escapeHtml(isAdminConsole ? "Mode" : "Next step")}</p>
               <p>${escapeHtml(isAdminConsole ? adminConsoleRailNote(consoleCapabilities) : nextStepText())}</p>
             </section>
-          `}
+          ` : ""}
         </aside>
         <div class="workspace-main ${isAdminConsole ? "workspace-admin-console-main" : ""}">
           ${renderViewAsStudentBanner()}
           ${statusMarkup}
-          ${isAdminConsole ? renderAdminConsoleHeader(consoleCapabilities, sections) : studentExperience ? "" : renderProductHeader({
-            eyebrow: studentExperience ? "My Capstone" : "",
-            title: headerTitle,
-            subtitle: headerSubtitle,
-            context: headerContext,
-            readOnly: roles.has("viewer"),
-            chips: studentExperience ? ["Today", "My Work", "Feedback", "Final Checklist"] : WORKSPACE_POSTURE_CHIPS,
-          })}
+          ${isAdminConsole ? renderAdminConsoleHeader(consoleCapabilities, sections) : ""}
           ${modeUnavailableNotice}
           ${sectionUnavailableNotice}
           ${activeSectionBeforeGuidance ? activeSectionMarkup : ""}
