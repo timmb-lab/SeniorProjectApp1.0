@@ -2063,7 +2063,7 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
     missingProgramStudents ? {
       id: "student-program",
       title: "Student program missing",
-      detail: `${missingProgramStudents} ${pluralize(missingProgramStudents, "student")} need a program before program-scoped queues can be trusted.`,
+      detail: `${missingProgramStudents} ${pluralize(missingProgramStudents, "student")} need a program before program views can be trusted.`,
       count: missingProgramStudents,
       tone: "warning",
       section: capabilities.sectionIds.has("adminStudents") ? "adminStudents" : consoleStudentSectionId(capabilities),
@@ -2099,7 +2099,7 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
     !activePrograms.length && capabilities.sectionIds.has("programs") ? {
       id: "program-setup",
       title: "No active programs mapped",
-      detail: "Add an active program for this school before relying on program-scoped queues.",
+      detail: "Add an active program for this school before relying on program views.",
       count: availablePrograms.length,
       tone: "warning",
       section: "programs",
@@ -2486,17 +2486,17 @@ function renderAdminSetupReadinessPanel(rows = []) {
     <section class="workspace-card workspace-admin-setup-readiness" data-admin-setup-readiness="true" aria-labelledby="adminSetupReadinessTitle">
       <div class="workspace-card-head">
         <div>
-          <p class="workspace-kicker">Operations Readiness</p>
-          <h3 id="adminSetupReadinessTitle">Setup reasons by lane</h3>
+          <p class="workspace-kicker">Setup Checklist</p>
+          <h3 id="adminSetupReadinessTitle">Setup work to review</h3>
         </div>
       </div>
       <div class="workspace-admin-setup-readiness-list">
         ${safeRows.map((row) => `
           <article class="workspace-admin-setup-readiness-row ${escapeHtml(row.tone || "quiet")}" data-admin-setup-readiness-row="${escapeHtml(row.id || "row")}">
             <div>
-              <span>${escapeHtml(row.label || "Setup lane")}</span>
+              <span>${escapeHtml(row.label || "Setup item")}</span>
               <strong>${escapeHtml(String(safeNumber(row.count)))}</strong>
-              <p>${escapeHtml(row.detail || "Review this setup lane.")}</p>
+              <p>${escapeHtml(row.detail || "Review this setup item.")}</p>
               ${row.sample?.length ? `<small>${escapeHtml(row.sample.join(" / "))}</small>` : ""}
             </div>
             <button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(row.section || "adminDashboard")}">
@@ -2573,10 +2573,10 @@ function renderAdminConsoleMetrics(capabilities = adminConsoleCapabilitiesFor(cu
   const reviewCount = adminConsoleReviewCount();
   const operationsCount = adminConsoleOperationsCount();
   return [
-    renderMetricTile("Students in scope", studentCount, capabilities.scope.label, "", consoleStudentSectionId(capabilities), { label: "Open students" }),
-    renderMetricTile("Review / evidence", reviewCount, "Submitted or review-related rows", "", capabilities.sectionIds.has("teacher") ? "teacher" : "", { label: "Open review" }),
-    renderMetricTile("Operations signals", operationsCount, "Presentation, mentor, or final-file blockers", "", capabilities.sectionIds.has("operations") ? "operations" : "", { label: "Open operations" }),
-    renderMetricTile("Console sections", capabilities.sections.length, capabilities.readOnly ? "Read-only tools only" : "Role-scoped tools", "", "overview"),
+    renderMetricTile("Students shown", studentCount, capabilities.scope.label, "", consoleStudentSectionId(capabilities), { label: "Open students" }),
+    renderMetricTile("Review / work", reviewCount, "Submitted or review-related rows", "", capabilities.sectionIds.has("teacher") ? "teacher" : "", { label: "Open review" }),
+    renderMetricTile("Setup work", operationsCount, "Presentation, mentor, or final-file follow-up", "", capabilities.sectionIds.has("operations") ? "operations" : "", { label: "Open operations" }),
+    renderMetricTile("Console tools", capabilities.sections.length, capabilities.readOnly ? "Read-only tools only" : "Available tools", "", "overview"),
   ].join("");
 }
 
@@ -4867,8 +4867,8 @@ function renderStaffWorkspaceTodaySection() {
       ${model.readOnly ? renderReadOnlyBanner() : ""}
       <div class="workspace-staff-summary-strip" data-staff-workspace-summary="true">
         ${renderStaffSummaryMetric("Needs Review", model.counts.needsReview, "Waiting for feedback", "needs-review")}
-        ${renderStaffSummaryMetric("Needs Help", model.counts.needsHelp, "Revision, risk, or readiness", "needs-help")}
-        ${renderStaffSummaryMetric("Missing Setup", model.counts.missingSetup, "Mentor, evidence, or closeout", "missing-setup")}
+        ${renderStaffSummaryMetric("Needs Help", model.counts.needsHelp, "Changes, meetings, or presentation", "needs-help")}
+        ${renderStaffSummaryMetric("Missing Setup", model.counts.missingSetup, "Mentor, work, or final files", "missing-setup")}
         ${renderStaffSummaryMetric("Recently Updated", model.counts.recent, "Latest activity in scope", "recent")}
         ${renderStaffSummaryMetric("Visible Students", model.counts.total, model.scopeLabel, "total")}
       </div>
@@ -5088,7 +5088,7 @@ function staffStudentAttentionFlags(row = {}) {
     flags.push({ key: "revision", queue: "needs-help", label: "Revision support", detail: "Student needs help closing a requested revision." });
   }
   if (riskFlags.includes("high") || riskFlags.includes("stale") || normalizeStatus(row.riskLevel || "") === "high") {
-    flags.push({ key: "risk", queue: "needs-help", label: "Support signal", detail: "Risk or stale activity should be checked before routine rows." });
+    flags.push({ key: "risk", queue: "needs-help", label: "Needs help", detail: "Student may need a check before routine rows." });
   }
   if (noMentor) {
     flags.push({ key: "mentor", queue: "missing-setup", label: "No mentor", detail: "Mentor coverage needs to be confirmed." });
@@ -5103,7 +5103,7 @@ function staffStudentAttentionFlags(row = {}) {
     flags.push({ key: "presentation", queue: "needs-help", label: "Presentation readiness", detail: "Presentation readiness needs staff attention." });
   }
   if (["failed", "expired", "provider_unavailable"].includes(archive)) {
-    flags.push({ key: "archive", queue: "missing-setup", label: "Final-file blocker", detail: "Closeout file status needs follow-up." });
+    flags.push({ key: "archive", queue: "missing-setup", label: "Final-file help", detail: "Final-file status needs follow-up." });
   }
   return flags;
 }
@@ -5126,10 +5126,10 @@ function staffStudentIsRecent(row = {}) {
 function staffWorkspaceQueueDefinitions() {
   return [
     { id: "needs-review", title: "Needs Review", detail: "Open submitted work and feedback decisions first.", empty: "No submitted work is waiting in this scope." },
-    { id: "needs-help", title: "Needs Help", detail: "Revision, meeting, presentation, or risk signals.", empty: "No support signal is open right now." },
-    { id: "missing-setup", title: "Missing Setup", detail: "Mentor coverage, evidence, and closeout blockers.", empty: "No setup blocker is visible in this scope." },
+    { id: "needs-help", title: "Needs Help", detail: "Changes, meetings, or presentation checks.", empty: "No student needs extra help right now." },
+    { id: "missing-setup", title: "Missing Setup", detail: "Mentor coverage, missing work, and final-file follow-up.", empty: "No setup work is visible in this scope." },
     { id: "recent", title: "Recently Updated", detail: "Fresh activity worth a quick scan.", empty: "No recent student activity is visible." },
-    { id: "on-track", title: "On Track", detail: "Regular monitoring rows after urgent queues are clear.", empty: "No routine rows are visible yet." },
+    { id: "on-track", title: "On Track", detail: "Regular monitoring rows after urgent groups are clear.", empty: "No routine rows are visible yet." },
   ];
 }
 
@@ -5216,7 +5216,7 @@ function renderStaffQueueStudentRow(row = {}, queueId = "", model = {}) {
   const primaryFlag = flags[0] || row.attention?.[0] || { label: queueId === "on-track" ? "On track" : "Attention", detail: row.nextAction || "Open student detail for context." };
   const supportingText = row.nextAction || primaryFlag.detail || "Open student detail for the current status.";
   const studentName = row.displayName || row.studentName || "Student";
-  const context = [row.programName, row.cohortName].filter(Boolean).join(" / ") || model.scopeLabel || "Assigned scope";
+  const context = [row.programName, row.cohortName].filter(Boolean).join(" / ") || model.scopeLabel || "Assigned program or cohort";
   const casePlan = studentDirectoryRowGuidance(row, Boolean(model.readOnly));
   return `
     <article class="workspace-staff-student-row" data-staff-queue-student-row="true" data-staff-queue-kind="${escapeHtml(queueId)}" data-student-id="${escapeHtml(row.studentId || "")}">
@@ -5225,8 +5225,8 @@ function renderStaffQueueStudentRow(row = {}, queueId = "", model = {}) {
         <p class="workspace-muted">${escapeHtml(context)}</p>
         <p>${escapeHtml(supportingText)}</p>
         <div class="workspace-owner-action workspace-owner-action-inline" data-staff-row-case-plan="true" data-staff-row-owner="${escapeHtml(casePlan.owner)}">
-          <span>Owner: ${escapeHtml(casePlan.owner)}</span>
-          <small>Do next: ${escapeHtml(casePlan.nextAction)}</small>
+          <span>Who can help: ${escapeHtml(casePlan.owner)}</span>
+          <small>Next step: ${escapeHtml(casePlan.nextAction)}</small>
         </div>
       </div>
       <div class="workspace-staff-student-signals">
@@ -5258,7 +5258,7 @@ function renderStaffTodayScopePanel(model = {}) {
     <aside class="workspace-staff-scope-panel" aria-label="Current staff scope">
       <p class="workspace-kicker">Current scope</p>
       <h3>${escapeHtml(model.scopeLabel)}</h3>
-      <p>Start with the first populated queue, open one student, then use Students or Reports only when the urgent rows are clear.</p>
+      <p>Start with the first populated group, open one student, then use Students or Reports only when the urgent rows are clear.</p>
       <div class="workspace-chip-row">
         <span class="workspace-site-context-badge">${escapeHtml(roleLabel(primaryRoleForUser(currentUser)))}</span>
         ${model.readOnly ? `<span class="workspace-chip" data-workspace-mode="read-only">Read-only</span>` : statusPill("configured")}
@@ -5301,7 +5301,7 @@ function renderStaffReportsSection() {
       label: "Missing work/setup",
       value: setupSignalCount,
       max: reportMax,
-      detail: "Presentation, mentor, or final-file signals in this scope.",
+      detail: "Presentation, mentor, or final-file follow-up in this scope.",
       tone: setupSignalCount ? "warning" : "ready",
       dataAttrs: `data-staff-report-row="missing-work-setup"`,
     },
@@ -5318,13 +5318,13 @@ function renderStaffReportsSection() {
       <div class="workspace-admin-console-metrics" data-staff-report-metrics="true">
         ${renderMetricTile("Visible Students", adminConsoleStudentCount(), "Rows available to this role", "student", hasSiteStudentDirectoryRole(roles) ? "students" : "", { label: "Open Students" })}
         ${renderMetricTile("Needs Review", adminConsoleReviewCount(), "Submitted or review-related rows", safeNumber(adminConsoleReviewCount()) ? "warning" : "teacher", hasSiteReviewQueueRole(roles) ? "teacher" : "", { label: "Open Reviews", preset: "submitted" })}
-        ${renderMetricTile("Setup Signals", adminConsoleOperationsCount(), "Presentation, mentor, or final-file blockers", safeNumber(adminConsoleOperationsCount()) ? "warning" : "mentor", hasSiteOperationsRole(roles) ? "operations" : "", { label: "Open Worklist", preset: "needs-attention" })}
+        ${renderMetricTile("Setup Work", adminConsoleOperationsCount(), "Presentation, mentor, or final-file follow-up", safeNumber(adminConsoleOperationsCount()) ? "warning" : "mentor", hasSiteOperationsRole(roles) ? "operations" : "", { label: "Open Worklist", preset: "needs-attention" })}
       </div>
       ${renderReportBars({
         id: "staffReportBarTitle",
         kicker: "Staff reports",
         title: "Visible students by status",
-        detail: "Quick bars compare the visible roster with review and setup signals; each value is also shown as text and unknown states stay separate from completed work.",
+        detail: "Quick bars compare the visible roster with review and setup work; each value is also shown as text and unknown states stay separate from completed work.",
         rows: reportRows,
         className: "workspace-staff-report-summary",
         dataAttrs: `data-staff-report-bars="true"`,
@@ -10272,8 +10272,8 @@ function renderRankedNextActions(actions = [], options = {}) {
             <strong>${escapeHtml(action.count ? `${action.label} (${action.count})` : action.label)}</strong>
             <p>${escapeHtml(action.why || "Review this operational signal.")}</p>
             <p class="workspace-owner-action workspace-owner-action-inline" data-operations-ranked-owner="true">
-              <span>Owner: ${escapeHtml(operationsRankedActionOwner(action))}</span>
-              <small>Do next: ${escapeHtml(operationsRankedActionNextStep(action))}</small>
+              <span>Who can help: ${escapeHtml(operationsRankedActionOwner(action))}</span>
+              <small>Next step: ${escapeHtml(operationsRankedActionNextStep(action))}</small>
             </p>
           </div>
           ${action.preset ? operationsPresetButton(action.preset) : `<span class="workspace-summary-badge">Summary only</span>`}
@@ -11070,8 +11070,8 @@ function renderAdminAuditAnomalyView(events = []) {
             </div>
             <p>${escapeHtml(row.count ? row.reviewCopy : row.quietCopy)}</p>
             <div class="workspace-owner-action" data-admin-audit-anomaly-owner="true">
-              <span>Owner: ${escapeHtml(row.owner)}</span>
-              <small>Do next: ${escapeHtml(row.nextAction)}</small>
+              <span>Who can help: ${escapeHtml(row.owner)}</span>
+              <small>Next step: ${escapeHtml(row.nextAction)}</small>
             </div>
             ${row.action || row.entityType ? `
               <button class="workspace-link-button workspace-link-button-small" type="button" data-section="audit" data-audit-action="${escapeHtml(row.action || "")}" data-audit-entity-type="${escapeHtml(row.entityType || "")}">

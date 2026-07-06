@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:57466",
+  "baseUrl": "http://127.0.0.1:60330",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-06T04:36:49.865Z",
-  "completedAt": "2026-07-06T04:41:32.568Z",
+  "startedAt": "2026-07-06T13:29:20.242Z",
+  "completedAt": "2026-07-06T13:35:26.479Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:57466",
+    "baseUrl": "http://127.0.0.1:60330",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-06-30-ui-polish",
@@ -38,12 +38,12 @@
         "Admin Console",
         "Operations Overview",
         "What to fix first",
-        "Setup reasons by lane",
+        "Setup work to review",
         "Open the exact setup screen",
         "Current scope health",
         "Latest changes in this scope"
       ],
-      "proves": "Global Admin sees the operations-first Admin Console overview with setup issues, readiness lanes, health, quick actions, and activity.",
+      "proves": "Global Admin sees the operations-first Admin Console overview with setup issues, setup checklist, health, quick actions, and activity.",
       "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
       "login": {
         "status": 200,
@@ -611,7 +611,7 @@
         "Admin Console",
         "Operations Overview",
         "What to fix first",
-        "Setup reasons by lane",
+        "Setup work to review",
         "Open the exact setup screen"
       ],
       "proves": "Admin Console setup and quick-action overview stacks without horizontal overflow at half width.",
@@ -731,7 +731,7 @@
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Today Desert Valley High School Only one site Open students Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test Staff Workspace ready. Staff Workspace Site Admin / Desert Valley High School Student progress Private proof Mentor coverage Review work Presentation readiness Desert Valley School District 2026-2027 STAFF WORKSPACE Site Admin Workspace Who needs attention today? Open Student Open Admin Console Needs Review 52 Waiting for feedback Needs Help 50 Revision, risk, or readiness Missing Setup 250 Mentor, evidence, or closeout Recently Updated 0 Latest activity in scope Visible S",
+      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Today Desert Valley High School Only one site Open students Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test Staff Workspace ready. Staff Workspace Site Admin / Desert Valley High School Student progress Private proof Mentor coverage Review work Presentation readiness Desert Valley School District 2026-2027 STAFF WORKSPACE Site Admin Workspace Who needs attention today? Open Student Open Admin Console Needs Review 52 Waiting for feedback Needs Help 50 Changes, meetings, or presentation Missing Setup 250 Mentor, work, or final files Recently Updated 0 Latest activity in scope Visi",
       "activeNav": [
         "Workspace",
         "Home\n        Today\n        Students needing attention"
@@ -2163,7 +2163,7 @@
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Mentor AF Staff Workspace ready. Staff Workspace Mentor / Assigned students Student progress Private proof Mentor coverage Review work Presentation readiness Assigned students STAFF WORKSPACE Mentor Workspace Who needs attention today? Open Student Needs Review 1 Waiting for feedback Needs Help 5 Revision, risk, or readiness Missing Setup 0 Mentor, evidence, or closeout Recently Updated 0 Latest activity in scope Visible Students 9 Assigned mentor students Needs Review Open submitted work and feedback decisions first. 1 Willa Frostvale Assigned mentor students Check outline and presentation readiness with this student. Owner: Program Teacher Do next: Op",
+      "textSample": "Skip to workspace Menu SC Capstone App Mentor AF Staff Workspace ready. Staff Workspace Mentor / Assigned students Student progress Private proof Mentor coverage Review work Presentation readiness Assigned students STAFF WORKSPACE Mentor Workspace Who needs attention today? Open Student Needs Review 1 Waiting for feedback Needs Help 5 Changes, meetings, or presentation Missing Setup 0 Mentor, work, or final files Recently Updated 0 Latest activity in scope Visible Students 9 Assigned mentor students Needs Review Open submitted work and feedback decisions first. 1 Willa Frostvale Assigned mentor students Check outline and presentation readiness with this student. Who can help: Program Teacher",
       "activeNav": [
         "Home\n        Today\n        Students needing attention"
       ]
@@ -2405,7 +2405,7 @@
         "Admin Console",
         "Operations Overview",
         "What to fix first",
-        "Setup reasons by lane",
+        "Setup work to review",
         "Open the exact setup screen",
         "Current scope health"
       ],
@@ -2622,7 +2622,7 @@
       "expected": [
         "Reports",
         "Operational Reports",
-        "Setup reasons by lane",
+        "Setup work to review",
         "Operational coverage summary",
         "Roster completeness",
         "Mentor coverage"
@@ -2770,7 +2770,7 @@
         "Admin Console",
         "Operations Overview",
         "What to fix first",
-        "Setup reasons by lane",
+        "Setup work to review",
         "Open the exact setup screen"
       ],
       "proves": "Mobile Admin Overview keeps setup issues and quick actions readable on phone width.",
@@ -2819,7 +2819,7 @@
         "finalFiles": false
       },
       "heading": "Overview",
-      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS Admin Console ready. ADMIN CONSOLE Overview Setup issues and quick actions CONSOLE OVERVIEW Operations Overview What setup, people, assignments, imports, programs, reports, or access issues need attention? Site NEEDS SETUP What to fix first 5 issues Mentor coverage missing 38 students need active mentor coverage. Pending Open assignments Roster profile incomplete 200 students need cohort, graduation year, or email cleanup. Pending Open students Student program missing 200 students need a program before program-scoped queues can be trusted. Pending Open students Viewer access unassigned 197 ",
+      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS Admin Console ready. ADMIN CONSOLE Overview Setup issues and quick actions CONSOLE OVERVIEW Operations Overview What setup, people, assignments, imports, programs, reports, or access issues need attention? Site NEEDS SETUP What to fix first 5 issues Mentor coverage missing 38 students need active mentor coverage. Pending Open assignments Roster profile incomplete 200 students need cohort, graduation year, or email cleanup. Pending Open students Student program missing 200 students need a program before program views can be trusted. Pending Open students Viewer access unassigned 197 students",
       "activeNav": [
         "Admin Console",
         "Home\n        Overview\n        Setup issues and quick actions"
@@ -2964,7 +2964,7 @@
         "finalFiles": false
       },
       "heading": "Reports",
-      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS Admin Console ready. ADMIN CONSOLE Reports Roster and operational health ADMIN CONSOLE Operational Reports Roster, review, setup, and readiness counts for the current scope. STUDENTS IN SCOPE 250 Site Open students REVIEW / EVIDENCE 52 Submitted or review-related rows Open review OPERATIONS SIGNALS 250 Presentation, mentor, or final-file blockers Open operations CONSOLE SECTIONS 15 Role-scoped tools Open OPERATIONS READINESS Setup reasons by lane STUDENT ROSTER SETUP 200 200 profile, 200 program, 38 mentor, 197 viewer gaps. Archive Failed Demo 01: Missing program, Missing cohort/year, No vi",
+      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS Admin Console ready. ADMIN CONSOLE Reports Roster and operational health ADMIN CONSOLE Operational Reports Roster, review, setup, and readiness counts for the current scope. STUDENTS SHOWN 250 Site Open students REVIEW / WORK 52 Submitted or review-related rows Open review SETUP WORK 250 Presentation, mentor, or final-file follow-up Open operations CONSOLE TOOLS 15 Available tools Open SETUP CHECKLIST Setup work to review STUDENT ROSTER SETUP 200 200 profile, 200 program, 38 mentor, 197 viewer gaps. Archive Failed Demo 01: Missing program, Missing cohort/year, No viewer / Archive Failed Dem",
       "activeNav": [
         "Admin Console",
         "Reports\n        Reports\n        Roster and operational health"

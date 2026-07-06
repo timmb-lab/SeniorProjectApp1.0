@@ -2686,9 +2686,9 @@ test("global admin recent audit rows open filtered audit activity", async () => 
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-saved-filters="true"/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-anomaly-view="true"/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-anomaly-owner="true"/);
-  assert.match(workspaceRoot.innerHTML, /Owner: Access admin/);
+  assert.match(workspaceRoot.innerHTML, /Who can help: Access admin/);
   assert.match(workspaceRoot.innerHTML, /Confirm the current school, program, or student assignment before changing access/);
-  assert.match(workspaceRoot.innerHTML, /Owner: Storage admin/);
+  assert.match(workspaceRoot.innerHTML, /Who can help: Storage admin/);
   assert.match(workspaceRoot.innerHTML, /Check storage readiness, then tell students to use the secure link fallback if needed/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-admin-security-proof="true"|Security checks that are enforced now|Audit is for triage and proof/);
   assert.match(workspaceRoot.innerHTML, /Filtered by student dashboard \/ student dashboard viewed/);
@@ -5987,9 +5987,9 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /Do this next/);
   assert.match(siteAdmin, /data-operations-ranked-actions="true"/);
   assert.match(siteAdmin, /data-operations-ranked-owner="true"/);
-  assert.match(siteAdmin, /Owner: Site Admin/);
+  assert.match(siteAdmin, /Who can help: Site Admin/);
   assert.match(siteAdmin, /Open failed final-file rows, check student detail, then use the approved export flow/);
-  assert.match(siteAdmin, /Owner: Student with Program Teacher follow-up/);
+  assert.match(siteAdmin, /Who can help: Student with Program Teacher follow-up/);
   assert.match(siteAdmin, /Tell the student which proof belongs with the current phase work/);
   assert.equal((siteAdmin.match(/<article class="workspace-dashboard-kpi/g) || []).length, 6);
   assert.doesNotMatch(siteAdmin, /workspace-metric-tile/);
@@ -9367,7 +9367,7 @@ test("workspace renders role-pending and permission-denied access states", async
   assert.match(viewer, /Viewer Workspace \/ Read-only/);
   assert.match(viewer, /data-staff-attention-queue="needs-review"/);
   assert.match(viewer, /data-staff-queue-student-row="true"/);
-  assert.match(viewer, /data-staff-row-case-plan="true"[\s\S]*Owner: Assigned staff[\s\S]*Do next: Use this row for context, then share the student name with authorized staff/);
+  assert.match(viewer, /data-staff-row-case-plan="true"[\s\S]*Who can help: Assigned staff[\s\S]*Next step: Use this row for context, then share the student name with authorized staff/);
   assert.match(viewer, /data-section="students" data-section-preset="all-students"/);
   assert.match(viewer, /data-section="students" data-section-preset="mentor-meeting-follow-up-students"/);
   assert.doesNotMatch(viewer, /Open review queue|Open operations/);
