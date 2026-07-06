@@ -2679,6 +2679,8 @@ test("global admin recent audit rows open filtered audit activity", async () => 
   assert.match(workspaceRoot.innerHTML, /Role Assignments/);
   assert.match(workspaceRoot.innerHTML, /Recent Changes/);
   assert.match(workspaceRoot.innerHTML, /Potential Issues/);
+  assert.match(workspaceRoot.innerHTML, /data-admin-audit-access-review="true"[\s\S]*Redaction[\s\S]*Always on[\s\S]*Current filter[\s\S]*student dashboard \/ student dashboard viewed/);
+  assert.match(workspaceRoot.innerHTML, /Audit rows stay redacted; use them for triage, not private note or file inspection/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-first-use-guide="audit"/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map="true"/);
   assert.match(workspaceRoot.innerHTML, /Choose one audit filter/);

@@ -2198,6 +2198,7 @@ body[data-page="workspace"],
 .workspace-admin-assignment-flow-grid,
 .workspace-admin-report-scope,
 .workspace-admin-program-coverage,
+.workspace-admin-audit-access-review,
 .workspace-admin-audit-overview {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
@@ -2209,6 +2210,7 @@ body[data-page="workspace"],
 .workspace-admin-assignment-flow-grid article,
 .workspace-admin-report-scope article,
 .workspace-admin-program-coverage article,
+.workspace-admin-audit-access-review article,
 .workspace-admin-audit-overview article {
   display: grid;
   gap: 0.18rem;
@@ -2242,6 +2244,7 @@ body[data-page="workspace"],
 .workspace-admin-assignment-flow-grid span,
 .workspace-admin-report-scope span,
 .workspace-admin-program-coverage span,
+.workspace-admin-audit-access-review span,
 .workspace-admin-audit-overview span {
   color: var(--abc-muted);
   font-size: 0.72rem;
@@ -2254,6 +2257,7 @@ body[data-page="workspace"],
 .workspace-admin-assignment-flow-grid strong,
 .workspace-admin-report-scope strong,
 .workspace-admin-program-coverage strong,
+.workspace-admin-audit-access-review strong,
 .workspace-admin-audit-overview strong {
   color: var(--abc-ink);
   font-size: 1.35rem;
@@ -2265,6 +2269,7 @@ body[data-page="workspace"],
 .workspace-admin-assignment-flow-grid small,
 .workspace-admin-report-scope small,
 .workspace-admin-program-coverage small,
+.workspace-admin-audit-access-review small,
 .workspace-admin-audit-overview small {
   color: var(--abc-muted);
   line-height: 1.28;

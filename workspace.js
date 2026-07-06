@@ -11257,6 +11257,7 @@ function renderAdminAuditSection() {
         <span class="workspace-chip">${safeNumber(events.length)} recent event${safeNumber(events.length) === 1 ? "" : "s"}</span>
       </div>
       ${renderAdminAuditOperationsSummary(events)}
+      ${renderAdminAuditAccessReviewPanel(events, adminAuditFilters)}
       <div class="workspace-filter-bar" data-admin-audit-filters="true" aria-label="Audit filters">
         <span class="workspace-muted">${escapeHtml(hasFilters ? `Filtered by ${filterLabel}` : "Showing the latest redacted audit activity.")}</span>
         ${hasFilters ? `
@@ -11275,6 +11276,29 @@ function renderAdminAuditSection() {
           ? "No recent changes match this filter right now."
           : "No recent audit rows are available for this view.",
       }))}
+    </section>
+  `;
+}
+
+function renderAdminAuditAccessReviewPanel(events = [], activeFilters = {}) {
+  const safeEvents = Array.isArray(events) ? events : [];
+  const hasFilters = Boolean(activeFilters.action || activeFilters.entityType);
+  const anomalyCount = adminAuditAnomalyRows(safeEvents).reduce((sum, row) => sum + safeNumber(row.count), 0);
+  const cards = [
+    ["Redaction", "Always on", "Audit rows stay redacted; use them for triage, not private note or file inspection."],
+    ["Current filter", hasFilters ? adminAuditFilterLabel(activeFilters) : "Recent activity", hasFilters ? "Clear filters before declaring the audit view quiet." : "Start with saved filters when investigating a specific problem."],
+    ["Potential issues", anomalyCount, "Anomaly cards group repeated denied access, blocked proof, session, or storage signals."],
+    ["Next move", safeEvents.length ? "Review first row" : "Refresh later", safeEvents.length ? "Open the relevant saved filter or row group before changing access." : "No redacted rows are loaded in this audit view."],
+  ];
+  return `
+    <section class="workspace-admin-audit-access-review" data-admin-audit-access-review="true" aria-label="Audit access review guidance">
+      ${cards.map(([label, value, detail]) => `
+        <article>
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(String(value))}</strong>
+          <small>${escapeHtml(detail)}</small>
+        </article>
+      `).join("")}
     </section>
   `;
 }
