@@ -7326,6 +7326,8 @@ test("admin console surfaces setup reasons across overview people students and r
   assert.match(reports, /data-admin-page-header="true" data-admin-page-section="adminReports"/);
   assert.match(reports, /data-admin-action-menu="adminReports"[\s\S]*Review roster summary[\s\S]*Review setup issues/);
   assert.doesNotMatch(reports, /data-admin-action-menu="adminReports"[\s\S]*View audit/);
+  assert.match(reports, /data-admin-report-scope-notice="true"[\s\S]*Current scope[\s\S]*Student denominator[\s\S]*Export safety[\s\S]*Unknowns/);
+  assert.match(reports, /Downloads omit passwords, admin notes, internal storage ids, and rows outside the current authorized view/);
   assert.match(reports, /data-admin-setup-readiness="true"/);
   assert.match(reports, /Operational coverage summary/);
   assert.match(reports, /Setup\/import issues/);

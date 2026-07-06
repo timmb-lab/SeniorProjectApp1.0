@@ -2196,6 +2196,7 @@ body[data-page="workspace"],
 .workspace-admin-health-grid,
 .workspace-admin-coverage-summary,
 .workspace-admin-assignment-flow-grid,
+.workspace-admin-report-scope,
 .workspace-admin-program-coverage,
 .workspace-admin-audit-overview {
   display: grid;
@@ -2206,6 +2207,7 @@ body[data-page="workspace"],
 .workspace-admin-health-card,
 .workspace-admin-coverage-summary article,
 .workspace-admin-assignment-flow-grid article,
+.workspace-admin-report-scope article,
 .workspace-admin-program-coverage article,
 .workspace-admin-audit-overview article {
   display: grid;
@@ -2221,6 +2223,7 @@ body[data-page="workspace"],
 .workspace-admin-health-card.warning,
 .workspace-admin-coverage-summary article.warning,
 .workspace-admin-assignment-flow-grid article.warning,
+.workspace-admin-report-scope article.warning,
 .workspace-admin-program-coverage article.warning {
   border-left-color: var(--abc-gold);
   background: color-mix(in srgb, var(--abc-soft-gold) 28%, white);
@@ -2229,6 +2232,7 @@ body[data-page="workspace"],
 .workspace-admin-health-card.ready,
 .workspace-admin-coverage-summary article.ready,
 .workspace-admin-assignment-flow-grid article.ready,
+.workspace-admin-report-scope article.ready,
 .workspace-admin-program-coverage article.ready {
   border-left-color: var(--abc-green);
 }
@@ -2236,6 +2240,7 @@ body[data-page="workspace"],
 .workspace-admin-health-card span,
 .workspace-admin-coverage-summary span,
 .workspace-admin-assignment-flow-grid span,
+.workspace-admin-report-scope span,
 .workspace-admin-program-coverage span,
 .workspace-admin-audit-overview span {
   color: var(--abc-muted);
@@ -2247,6 +2252,7 @@ body[data-page="workspace"],
 .workspace-admin-health-card strong,
 .workspace-admin-coverage-summary strong,
 .workspace-admin-assignment-flow-grid strong,
+.workspace-admin-report-scope strong,
 .workspace-admin-program-coverage strong,
 .workspace-admin-audit-overview strong {
   color: var(--abc-ink);
@@ -2257,6 +2263,7 @@ body[data-page="workspace"],
 .workspace-admin-health-card small,
 .workspace-admin-coverage-summary small,
 .workspace-admin-assignment-flow-grid small,
+.workspace-admin-report-scope small,
 .workspace-admin-program-coverage small,
 .workspace-admin-audit-overview small {
   color: var(--abc-muted);

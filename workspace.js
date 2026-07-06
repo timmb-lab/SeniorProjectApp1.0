@@ -5552,6 +5552,7 @@ function renderAdminReportsSection() {
         detail: "Roster, review, setup, and readiness counts for the current view.",
         badge: "Report-safe fields",
       })}
+      ${renderAdminReportScopeNotice(model.report, capabilities)}
       <div class="workspace-admin-console-metrics">
         ${renderAdminConsoleMetrics(capabilities)}
       </div>
@@ -5564,6 +5565,26 @@ function renderAdminReportsSection() {
         exports: adminReportExportSpecs(model),
       })}
       ${availableSectionIdsForAnyMode().has("readiness") ? renderReadinessSection() : ""}
+    </section>
+  `;
+}
+
+function renderAdminReportScopeNotice(report = {}, capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  const rows = [
+    ["Current scope", capabilities.scope?.label || "Allowed records", capabilities.scope?.detail || "Only records this account can already load."],
+    ["Student denominator", safeNumber(report.studentTotal || report.loadedStudentRows), `${safeNumber(report.loadedStudentRows)} loaded roster row${safeNumber(report.loadedStudentRows) === 1 ? "" : "s"} in this view.`],
+    ["Export safety", "Report-safe", "Downloads omit passwords, admin notes, internal storage ids, and rows outside the current authorized view."],
+    ["Unknowns", "Not complete", "Unknown or unloaded states are not counted as complete in coverage percentages."],
+  ];
+  return `
+    <section class="workspace-admin-report-scope" data-admin-report-scope-notice="true" aria-label="Report scope and export safety">
+      ${rows.map(([label, value, detail]) => `
+        <article>
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(String(value))}</strong>
+          <small>${escapeHtml(detail)}</small>
+        </article>
+      `).join("")}
     </section>
   `;
 }
