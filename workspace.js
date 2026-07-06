@@ -18348,6 +18348,7 @@ function renderManageStaffScreen() {
         </div>
         <button class="workspace-button workspace-button-secondary" type="button" data-people-view-target="add-staff">Add Staff</button>
       </div>
+      ${renderManageStaffSetupSummary(accounts, assignments)}
       ${accounts.length ? `
         <div class="workspace-list">
           ${accounts.map((account) => {
@@ -18392,6 +18393,59 @@ function renderAdminSetupFlagChips(flags = []) {
     <div class="workspace-chip-row workspace-admin-setup-flags" data-admin-setup-flags="true">
       ${safeFlags.map((flag) => `<span class="workspace-risk-chip" data-admin-setup-flag="${escapeHtml(flag.id || "flag")}">${escapeHtml(flag.label || "Needs setup")}</span>`).join("")}
     </div>
+  `;
+}
+
+function renderManageStaffSetupSummary(accounts = [], assignments = {}) {
+  const rows = (Array.isArray(accounts) ? accounts : []).map((account) => ({
+    account,
+    flags: adminStaffSetupFlags(account, assignments),
+  }));
+  const issueRows = rows.filter((row) => row.flags.length);
+  const missingEmail = rows.filter((row) => row.flags.some((flag) => flag.id === "email")).length;
+  const missingMentorScope = rows.filter((row) => row.flags.some((flag) => flag.id === "mentor-scope")).length;
+  const missingProgramScope = rows.filter((row) => row.flags.some((flag) => flag.id === "program-scope")).length;
+  const firstIssue = issueRows[0] || null;
+  const firstLabels = firstIssue ? firstIssue.flags.map((flag) => flag.label).join(", ") : "";
+  const firstHasAssignmentGap = firstIssue?.flags?.some((flag) => /scope/.test(flag.id || ""));
+  const firstAction = firstIssue
+    ? firstHasAssignmentGap
+      ? { label: "Open assignment forms", peopleView: "assignments" }
+      : { label: "Review staff list", peopleView: "manage-staff" }
+    : { label: "Review access", peopleView: "assignments" };
+  return `
+    <section class="workspace-admin-staff-setup-summary" data-admin-staff-setup-summary="true" aria-label="Staff setup summary">
+      <div class="workspace-admin-staff-setup-cards">
+        <article>
+          <span>Staff loaded</span>
+          <strong>${escapeHtml(String(rows.length))}</strong>
+          <small>Staff, mentors, viewers, teachers, and admins in this school view.</small>
+        </article>
+        <article class="${issueRows.length ? "warning" : "ready"}">
+          <span>Needs setup</span>
+          <strong>${escapeHtml(String(issueRows.length))}</strong>
+          <small>${escapeHtml(issueRows.length ? "Review these before handoff." : "No staff setup gaps in loaded rows.")}</small>
+        </article>
+        <article class="${missingEmail ? "warning" : "ready"}">
+          <span>Missing email</span>
+          <strong>${escapeHtml(String(missingEmail))}</strong>
+          <small>Local account delivery still needs an approved contact path.</small>
+        </article>
+        <article class="${missingMentorScope + missingProgramScope ? "warning" : "ready"}">
+          <span>Scope gaps</span>
+          <strong>${escapeHtml(String(missingMentorScope + missingProgramScope))}</strong>
+          <small>Mentor or Program Teacher coverage needs confirmation.</small>
+        </article>
+      </div>
+      <article class="workspace-admin-staff-first-action ${firstIssue ? "warning" : "ready"}" data-admin-staff-first-action="${escapeHtml(firstIssue?.account?.userId || "clear")}">
+        <div>
+          <span>${escapeHtml(firstIssue ? "Review first" : "Current staff state")}</span>
+          <strong>${escapeHtml(firstIssue?.account?.displayName || "No staff blocker is first in line")}</strong>
+          <p>${escapeHtml(firstIssue ? firstLabels : "Loaded staff rows do not show email, role, mentor, viewer, program, or site scope gaps.")}</p>
+        </div>
+        ${renderAdminActionControl(firstAction, "workspace-button workspace-button-secondary workspace-button-small", "staff-first")}
+      </article>
+    </section>
   `;
 }
 
