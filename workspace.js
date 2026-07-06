@@ -5626,6 +5626,7 @@ function renderAdminConsoleStudentsSection() {
 function renderAdminConsoleAssignmentsSection() {
   const roles = roleIds(currentUser);
   if (!canUseUsersAccess(roles)) return renderPermissionDeniedSection("Assignments", "student and staff assignment records");
+  const coverage = adminAssignmentCoverageModel();
   adminPeopleView = "assignments";
   return `
     <section class="workspace-admin-operations-section" data-admin-operations-section="assignments" aria-labelledby="adminAssignmentsTitle">
@@ -5636,7 +5637,8 @@ function renderAdminConsoleAssignmentsSection() {
         detail: "Put missing coverage first, then use the assignment forms already allowed for this role.",
         badge: "Limited forms",
       })}
-      ${renderAdminAssignmentCoverageSummary()}
+      ${renderAdminAssignmentCoverageSummary(coverage)}
+      ${renderAdminAssignmentFlowPanel(coverage)}
       ${renderAssignmentsPeopleScreen()}
       ${renderAdminAccessAssignmentPanel()}
     </section>
@@ -5846,7 +5848,7 @@ function renderAdminMoreMenu({ id = "row", actions = [], label = "More" } = {}) 
   `;
 }
 
-function renderAdminAssignmentCoverageSummary() {
+function adminAssignmentCoverageModel() {
   const access = unwrap(currentData.accessAssignments) || {};
   const users = access.users || {};
   const assignments = access.assignments || {};
@@ -5861,6 +5863,25 @@ function renderAdminAssignmentCoverageSummary() {
   const missingMentorStudents = students.filter((student) => !studentIdsWithMentors.has(student.userId || student.studentId || student.id || "") && !student.mentorUserId && !student.mentorName);
   const missingViewerStudents = students.filter((student) => !studentIdsWithViewers.has(student.userId || student.studentId || student.id || "") && !student.viewerUserId && !student.viewerName);
   const missingTeacherPrograms = programs.filter((program) => !programsWithTeachers.has(program.programId || program.id || ""));
+  return {
+    assignments,
+    mentorAssignments,
+    viewerAssignments,
+    programTeacherAssignments,
+    missingMentorStudents,
+    missingViewerStudents,
+    missingTeacherPrograms,
+  };
+}
+
+function renderAdminAssignmentCoverageSummary(model = adminAssignmentCoverageModel()) {
+  const assignments = model.assignments || {};
+  const mentorAssignments = Array.isArray(model.mentorAssignments) ? model.mentorAssignments : [];
+  const viewerAssignments = Array.isArray(model.viewerAssignments) ? model.viewerAssignments : [];
+  const programTeacherAssignments = Array.isArray(model.programTeacherAssignments) ? model.programTeacherAssignments : [];
+  const missingMentorStudents = Array.isArray(model.missingMentorStudents) ? model.missingMentorStudents : [];
+  const missingViewerStudents = Array.isArray(model.missingViewerStudents) ? model.missingViewerStudents : [];
+  const missingTeacherPrograms = Array.isArray(model.missingTeacherPrograms) ? model.missingTeacherPrograms : [];
   const cards = [
     { id: "mentor", label: "Missing Mentor Coverage", value: missingMentorStudents.length, detail: `${mentorAssignments.length} active mentor assignments`, tone: missingMentorStudents.length ? "warning" : "ready" },
     { id: "viewer", label: "Missing Viewer Access", value: missingViewerStudents.length, detail: `${viewerAssignments.length} active viewer assignments`, tone: missingViewerStudents.length ? "warning" : "ready" },
@@ -5876,6 +5897,67 @@ function renderAdminAssignmentCoverageSummary() {
           <small>${escapeHtml(card.detail)}</small>
         </article>
       `).join("")}
+    </section>
+  `;
+}
+
+function renderAdminAssignmentFlowPanel(model = adminAssignmentCoverageModel()) {
+  const lanes = [
+    {
+      id: "mentor",
+      title: "Assign mentor coverage",
+      count: safeNumber(model.missingMentorStudents?.length),
+      detail: "Start here when students have no active mentor in the loaded roster.",
+      tone: safeNumber(model.missingMentorStudents?.length) ? "warning" : "ready",
+      action: "Open mentor form",
+    },
+    {
+      id: "viewer",
+      title: "Assign viewer access",
+      count: safeNumber(model.missingViewerStudents?.length),
+      detail: "Confirm read-only viewer coverage after mentor coverage is clear.",
+      tone: safeNumber(model.missingViewerStudents?.length) ? "warning" : "ready",
+      action: "Open viewer form",
+    },
+    {
+      id: "program-teacher",
+      title: "Confirm Program Teacher coverage",
+      count: safeNumber(model.missingTeacherPrograms?.length),
+      detail: "Program worklists need an active Program Teacher assignment for each active program.",
+      tone: safeNumber(model.missingTeacherPrograms?.length) ? "warning" : "ready",
+      action: "Open program form",
+    },
+    {
+      id: "school-access",
+      title: "Review school grants",
+      count: usersAccessActiveAssignmentCount(model.assignments || {}),
+      detail: "Check Administration and Site Admin grants before adding broader school access.",
+      tone: "quiet",
+      action: "Review grants",
+    },
+  ];
+  const firstLane = lanes.find((lane) => lane.count > 0) || lanes[0];
+  return `
+    <section class="workspace-admin-assignment-flow" data-admin-assignment-flow="true" data-admin-assignment-flow-first="${escapeHtml(firstLane.id)}" aria-labelledby="adminAssignmentFlowTitle">
+      <div class="workspace-admin-assignment-flow-head">
+        <div>
+          <p class="workspace-kicker">Coverage Flow</p>
+          <h3 id="adminAssignmentFlowTitle">Fix coverage in order</h3>
+          <p class="workspace-muted">Use the matching assignment form for the first nonzero gap, then refresh the summary before moving to broader grants.</p>
+        </div>
+        <button class="workspace-button workspace-button-secondary workspace-button-small" type="button" data-users-access-focus="assignment-forms">Open forms</button>
+      </div>
+      <div class="workspace-admin-assignment-flow-grid">
+        ${lanes.map((lane, index) => `
+          <article class="${escapeHtml(lane.tone)}" data-admin-assignment-flow-lane="${escapeHtml(lane.id)}">
+            <span>${escapeHtml(`Step ${index + 1}`)}</span>
+            <strong>${escapeHtml(lane.title)}</strong>
+            <p>${escapeHtml(lane.detail)}</p>
+            <small>${escapeHtml(lane.count ? `${lane.count} to review` : "No active gap")}</small>
+            <button class="workspace-link-button workspace-link-button-small" type="button" data-users-access-focus="assignment-forms">${escapeHtml(lane.action)}</button>
+          </article>
+        `).join("")}
+      </div>
     </section>
   `;
 }

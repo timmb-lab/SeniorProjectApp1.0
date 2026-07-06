@@ -2195,6 +2195,7 @@ body[data-page="workspace"],
 
 .workspace-admin-health-grid,
 .workspace-admin-coverage-summary,
+.workspace-admin-assignment-flow-grid,
 .workspace-admin-program-coverage,
 .workspace-admin-audit-overview {
   display: grid;
@@ -2204,6 +2205,7 @@ body[data-page="workspace"],
 
 .workspace-admin-health-card,
 .workspace-admin-coverage-summary article,
+.workspace-admin-assignment-flow-grid article,
 .workspace-admin-program-coverage article,
 .workspace-admin-audit-overview article {
   display: grid;
@@ -2218,18 +2220,22 @@ body[data-page="workspace"],
 
 .workspace-admin-health-card.warning,
 .workspace-admin-coverage-summary article.warning,
+.workspace-admin-assignment-flow-grid article.warning,
 .workspace-admin-program-coverage article.warning {
   border-left-color: var(--abc-gold);
+  background: color-mix(in srgb, var(--abc-soft-gold) 28%, white);
 }
 
 .workspace-admin-health-card.ready,
 .workspace-admin-coverage-summary article.ready,
+.workspace-admin-assignment-flow-grid article.ready,
 .workspace-admin-program-coverage article.ready {
   border-left-color: var(--abc-green);
 }
 
 .workspace-admin-health-card span,
 .workspace-admin-coverage-summary span,
+.workspace-admin-assignment-flow-grid span,
 .workspace-admin-program-coverage span,
 .workspace-admin-audit-overview span {
   color: var(--abc-muted);
@@ -2240,6 +2246,7 @@ body[data-page="workspace"],
 
 .workspace-admin-health-card strong,
 .workspace-admin-coverage-summary strong,
+.workspace-admin-assignment-flow-grid strong,
 .workspace-admin-program-coverage strong,
 .workspace-admin-audit-overview strong {
   color: var(--abc-ink);
@@ -2249,10 +2256,44 @@ body[data-page="workspace"],
 
 .workspace-admin-health-card small,
 .workspace-admin-coverage-summary small,
+.workspace-admin-assignment-flow-grid small,
 .workspace-admin-program-coverage small,
 .workspace-admin-audit-overview small {
   color: var(--abc-muted);
   line-height: 1.28;
+}
+
+.workspace-admin-assignment-flow {
+  display: grid;
+  gap: 0.65rem;
+  border: 1px solid var(--border-soft);
+  border-left: 6px solid var(--abc-purple);
+  border-radius: var(--radius-card);
+  background: #fff;
+  box-shadow: var(--shadow-soft);
+  padding: 0.82rem;
+}
+
+.workspace-admin-assignment-flow-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.65rem;
+  align-items: start;
+}
+
+.workspace-admin-assignment-flow-head h3,
+.workspace-admin-assignment-flow-head p,
+.workspace-admin-assignment-flow-grid p {
+  margin: 0;
+}
+
+.workspace-admin-assignment-flow-grid article {
+  gap: 0.24rem;
+}
+
+.workspace-admin-assignment-flow-grid p {
+  color: var(--abc-muted);
+  line-height: 1.3;
 }
 
 .workspace-admin-quick-action-grid {
@@ -10482,6 +10523,7 @@ button.workspace-metric-tile,
   .workspace-admin-next-setup-action,
   .workspace-admin-staff-first-action,
   .workspace-admin-student-first-action,
+  .workspace-admin-assignment-flow-head,
   .workspace-site-action-map-head,
   .workspace-operations-action-map-head,
   .workspace-users-access-action-map-head,
@@ -10783,7 +10825,8 @@ button.workspace-metric-tile,
   .workspace-admin-next-setup-action .workspace-button,
   .workspace-admin-setup-first-grid .workspace-link-button,
   .workspace-admin-staff-first-action .workspace-button,
-  .workspace-admin-student-first-action .workspace-button {
+  .workspace-admin-student-first-action .workspace-button,
+  .workspace-admin-assignment-flow-head .workspace-button {
     width: 100%;
   }
 
