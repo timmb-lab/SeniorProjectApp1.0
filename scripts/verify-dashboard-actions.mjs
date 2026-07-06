@@ -174,8 +174,8 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function screenLanguageTermsFor\(sectionId = "overview"[\s\S]*Proof[\s\S]*Program Teacher approval[\s\S]*Setup password[\s\S]*Protected record/,
-  "screen language terms must cover student proof, review gates, account setup, and protected records",
+  /function screenLanguageTermsFor\(sectionId = "overview"[\s\S]*File or link[\s\S]*Teacher check[\s\S]*Setup password[\s\S]*Protected record/,
+  "screen language terms must cover student files, review checks, account setup, and protected records",
 );
 assertMatches(
   "workspaceJs",
@@ -184,7 +184,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function screenActionImpactsFor\(sectionId = "overview"[\s\S]*Proof links or uploads are saved to the exact checklist item you selected[\s\S]*The decision form records the Program Teacher outcome[\s\S]*Account creation and import forms save users, roles, and school, program, or student access/,
+  /function screenActionImpactsFor\(sectionId = "overview"[\s\S]*Files and links are saved to the exact checklist item you selected[\s\S]*The decision form records the Program Teacher outcome[\s\S]*Account creation and import forms save users, roles, and school, program, or student access/,
   "screen action-impact terms must distinguish safe navigation from saved proof, review, and account changes",
 );
 assertMatches(
@@ -194,8 +194,8 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function screenVisibilityNotesFor\(sectionId = "overview"[\s\S]*Proof you add is visible to you and staff who are allowed to review or support that work[\s\S]*Temporary setup passwords are sensitive handoffs[\s\S]*Rows hide private student, proof, account, and file details/,
-  "screen visibility terms must cover proof visibility, setup password handoff, and redacted audit rows",
+  /function screenVisibilityNotesFor\(sectionId = "overview"[\s\S]*Files and links you add are visible to you and staff who are allowed to review or support that work[\s\S]*Temporary setup passwords are sensitive handoffs[\s\S]*Rows hide private student, work, account, and file details/,
+  "screen visibility terms must cover file visibility, setup password handoff, and redacted audit rows",
 );
 assertMatches(
   "workspaceJs",
@@ -204,8 +204,8 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function screenStartRequirementsFor\(sectionId = "overview"[\s\S]*Have the exact proof link or file ready before adding proof or sending work for review[\s\S]*Have the setup handoff and admin note ready[\s\S]*Set action, person, or record filters before investigating the log/,
-  "screen start requirements must cover student proof readiness, account setup preparation, and audit filters",
+  /function screenStartRequirementsFor\(sectionId = "overview"[\s\S]*Have the exact file or link ready before adding it or turning in work[\s\S]*Have the setup handoff and admin note ready[\s\S]*Set action, person, or record filters before investigating the log/,
+  "screen start requirements must cover student file readiness, account setup preparation, and audit filters",
 );
 assertMatches(
   "workspaceJs",
@@ -214,7 +214,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function screenDoneSignalsFor\(sectionId = "overview"[\s\S]*The current phase item shows the new proof count, waiting review state, revision message, or approval status[\s\S]*Current access shows the intended person, role, and school, program, cohort, or student[\s\S]*Filters point to the action, person, or record pattern you needed to investigate/,
+  /function screenDoneSignalsFor\(sectionId = "overview"[\s\S]*The current phase item shows the new file count, waiting review state, feedback message, or Done status[\s\S]*Current access shows the intended person, role, and school, program, cohort, or student[\s\S]*Filters point to the action, person, or record pattern you needed to investigate/,
   "screen done signals must cover student status, account access rows, and audit investigations",
 );
 assertMatches(

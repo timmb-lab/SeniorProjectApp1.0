@@ -88,9 +88,9 @@ const actionErrorMappers = [
   ["review decision", "messageForReviewDecisionError", /status === 401[\s\S]*Sign in again before saving review feedback/],
   ["mentor assignment", "messageForMentorAssignmentError", /status === 401[\s\S]*Sign in again before assigning a mentor/],
   ["mentor meeting", "messageForMentorMeetingError", /status === 401[\s\S]*Sign in again before recording a mentor meeting/],
-  ["proof link", "messageForEvidenceError", /status === 401[\s\S]*Sign in again before adding proof/],
-  ["submit work", "messageForStudentSubmissionError", /status === 401[\s\S]*Sign in again before sending work for review/],
-  ["file upload", "messageForUploadError", /status === 401[\s\S]*Sign in again before uploading proof/],
+  ["work link", "messageForEvidenceError", /status === 401[\s\S]*Sign in again before adding a file or link/],
+  ["turn in work", "messageForStudentSubmissionError", /status === 401[\s\S]*Sign in again before turning in work/],
+  ["file upload", "messageForUploadError", /status === 401[\s\S]*Sign in again before uploading a file/],
   ["presentation transition", "messageForPresentationActionError", /status === 401[\s\S]*Sign in again before updating a presentation slot/],
 ];
 

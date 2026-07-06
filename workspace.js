@@ -193,7 +193,7 @@ const STATUS_LABELS = {
   needs_revision: "Needs revision",
   on_track: "On track",
   behind: "Behind",
-  missing_evidence: "Missing proof",
+  missing_evidence: "Missing file",
   missing_mentor: "Missing mentor",
   ready_complete: "Ready / complete",
   reviewed: "Reviewed",
@@ -230,7 +230,7 @@ const STUDENT_STATUS_LABELS = {
   complete: "Done",
   completed: "Done",
   ready_complete: "Ready / done",
-  missing_evidence: "Missing proof",
+  missing_evidence: "Missing file",
   missing: "Missing",
   blocked: "Ask for help",
   failed: "Needs help",
@@ -275,20 +275,20 @@ const STUDENT_BOOKLET_PHASES = {
   },
   "phase-2a": {
     label: "Phase 2A: Build",
-    deliverable: "First build proof and Mentor Meeting 1 plan.",
+    deliverable: "First build file or link and Mentor Meeting 1 plan.",
     checklist: [
-      "First build or research proof",
+      "First build or research file",
       "Mentor Meeting 1 plan or notes",
-      "Proof attached to the matching item",
+      "File or link attached to the matching item",
     ],
-    guidance: "Save proof while you work, not at the end.",
+    guidance: "Save files or links while you work, not at the end.",
     done: "Phase 2A work is approved or ready for the next build step.",
   },
   "phase-2b": {
     label: "Phase 2B: Build Part II",
-    deliverable: "Updated build proof, mentor feedback, presentation outline, and presentation time.",
+    deliverable: "Updated build file or link, mentor feedback, presentation outline, and presentation time.",
     checklist: [
-      "Updated build proof",
+      "Updated build file or link",
       "Mentor feedback you used",
       "Presentation outline and time choice",
     ],
@@ -297,13 +297,13 @@ const STUDENT_BOOKLET_PHASES = {
   },
   "phase-3a": {
     label: "Phase 3A: Present",
-    deliverable: "Completed presentation with your project proof ready to show.",
+    deliverable: "Completed presentation with your project file or link ready to show.",
     checklist: [
       "Practice from your approved outline",
       "Show what you made or learned",
       "Complete check-out or check-in if your school uses it",
     ],
-    guidance: "Presentation does not replace missing checklist proof.",
+    guidance: "Presentation does not replace a missing checklist file or link.",
     done: "Presentation status is complete or checked in.",
   },
   "phase-3b": {
@@ -580,7 +580,7 @@ const WORKSPACE_URL_FILTER_PARAMS = Array.from(new Set([
 let uploadState = {
   state: "idle",
   progress: 0,
-  message: "Choose a file to upload as proof.",
+  message: "Choose a file to upload.",
   fileName: "",
   fileSize: 0,
   retryReady: false,
@@ -839,7 +839,7 @@ function renderWorkspaceLandingHero() {
     <div class="workspace-landing-copy">
       <p class="workspace-landing-label">Protected project workspace</p>
       <h1 id="signInTitle">Capstone Project Workspace</h1>
-      <p>The workspace keeps Senior Project work, proof, Program Teacher feedback, mentor help, and presentation preparation organized for students and assigned school staff.</p>
+      <p>The workspace keeps Senior Project work, files, teacher feedback, mentor help, and presentation preparation organized for students and assigned school staff.</p>
     </div>
     ${renderWorkspaceHomeInfoBox()}
   `;
@@ -849,7 +849,7 @@ function renderWorkspaceHomeInfoBox() {
   return `
     <article class="workspace-home-info" aria-labelledby="workspaceHomeInfoTitle">
       <h2 id="workspaceHomeInfoTitle">What this workspace does</h2>
-      <p>Students can see their booklet phases, add proof, send work for review, read feedback, and prepare for presentations. Staff views follow assigned roles, so mentors, Program Teachers, administration, site admins, and global admins only see the tools and student information their access allows.</p>
+      <p>Students can see their booklet phases, add files or links, turn in work, read feedback, and prepare for presentations. Staff views follow assigned roles, so mentors, Program Teachers, administration, site admins, and global admins only see the tools and student information their access allows.</p>
     </article>
   `;
 }
@@ -1104,7 +1104,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     : studentExperience ? "My Capstone" : "Staff Workspace";
   const headerSubtitle = isAdminConsole
     ? adminConsoleSubtitle(consoleCapabilities)
-    : studentExperience ? "What do I need to do next?" : workspaceHeaderSubtitle(primaryRole, siteContext);
+    : studentExperience ? "What to do next" : workspaceHeaderSubtitle(primaryRole, siteContext);
   const headerContext = isAdminConsole
     ? adminConsoleHeaderContext(consoleCapabilities)
     : workspaceHeaderContext(primaryRole, siteContext);
@@ -1598,8 +1598,8 @@ function roleCommandTrailItems(primaryRole, roles = roleIds(currentUser), isAdmi
   if (primaryRole === "student" || roles.has("student")) {
     return [
       { step: "1", title: "Read Do this next", detail: "Start with the top card before opening every panel.", section: "student", actionLabel: "Open My Work", tone: "student" },
-      { step: "2", title: "Open the named item", detail: "Use the current checklist, proof, feedback, or sent-work item.", section: "student", actionLabel: "Open item", tone: "ready" },
-      { step: "3", title: "Stop at approval", detail: "Wait when Program Teacher review owns the next decision.", section: "student", actionLabel: "Check review", tone: "teacher" },
+      { step: "2", title: "Open the named item", detail: "Use the current checklist, file, feedback, or Turned in item.", section: "student", actionLabel: "Open item", tone: "ready" },
+      { step: "3", title: "Wait for teacher check", detail: "Wait when your teacher owns the next decision.", section: "student", actionLabel: "Check review", tone: "teacher" },
     ];
   }
   if (roles.has("viewer")) {
@@ -3634,9 +3634,9 @@ function screenOrientationFor(sectionId = "overview", primaryRole = primaryRoleF
     },
     student: {
       title: primaryRole === "student" ? "My Work" : "Student Workspace",
-      useFor: primaryRole === "student" ? "See what to do next, what this phase must finish, and what proof or feedback needs action." : "Follow the student's Senior Project checklist.",
+      useFor: primaryRole === "student" ? "See what to do next, what this phase must finish, and what file or feedback needs action." : "Follow the student's Senior Project checklist.",
       start: primaryRole === "student" ? "Read Do this next, then open the current phase item." : "Read Do this next before opening every panel.",
-      notFor: primaryRole === "student" ? "Do not start the next phase until Program Teacher approval is recorded." : "Do not start a new phase before Program Teacher approval.",
+      notFor: primaryRole === "student" ? "Do not start the next phase until your teacher says it is ready." : "Do not start a new phase before Program Teacher approval.",
     },
     archive: {
       title: "Final Files",
@@ -3684,7 +3684,7 @@ function screenOrientationFor(sectionId = "overview", primaryRole = primaryRoleF
       title: "Presentation",
       useFor: primaryRole === "student" ? "Check your presentation time, room, outline status, and check-in status." : "Manage presentation schedule, outline, and day-of status.",
       start: primaryRole === "student" ? "Read your time, room, and outline status before presentation day." : "Filter to the day or status you are working now.",
-      notFor: primaryRole === "student" ? "Do not use Presentation as checklist approval; missing proof stays in My Work." : "Do not make Program Teacher review decisions here.",
+      notFor: primaryRole === "student" ? "Do not use Presentation as checklist approval; missing files stay in My Work." : "Do not make Program Teacher review decisions here.",
     },
     adminDashboard: {
       title: "Admin Command Center",
@@ -3977,8 +3977,8 @@ function screenLanguageTermsFor(sectionId = "overview", primaryRole = primaryRol
     ],
     student: [
       ["Current phase deliverable", "The main thing this phase must finish before you move on."],
-      ["Proof", "The file, link, or note that shows one checklist item is complete."],
-      ["Program Teacher approval", "The manual review step that decides whether waiting work is accepted or needs changes."],
+      ["File or link", "The file, link, or note that shows one checklist item is complete."],
+      ["Teacher check", "The review step that decides whether waiting work is done or needs changes."],
     ],
     archive: [
       ["Final files", primaryRole === "student" ? "The Senior Project files you need to save before school account access closes." : "The finished Senior Project package prepared for end-of-year handoff."],
@@ -4125,9 +4125,9 @@ function screenActionImpactsFor(sectionId = "overview", primaryRole = primaryRol
       ["No review save", "Program Teacher review decisions are saved from Review Work, not from the directory list.", "context"],
     ],
     student: [
-      ["Open current item", "Open the checklist item for the current phase before adding proof or sending work.", "safe"],
-      ["Add proof", "Proof links or uploads are saved to the exact checklist item you selected.", "changes"],
-      ["Send for review", "Sending work moves that item to Program Teacher review; wait for the recorded decision before moving on.", "changes"],
+      ["Open current item", "Open the checklist item for the current phase before adding a file or link or turning in work.", "safe"],
+      ["Add file or link", "Files and links are saved to the exact checklist item you selected.", "changes"],
+      ["Turn in", "Turning in work moves that item to teacher review. Wait for feedback before moving on.", "changes"],
     ],
     archive: [
       ["Download", primaryRole === "student" ? "Download starts protected final-file retrieval when your download is ready." : "Download starts protected final-file retrieval when a package is ready.", "changes"],
@@ -4275,8 +4275,8 @@ function screenVisibilityNotesFor(sectionId = "overview", primaryRole = primaryR
       ["Private proof stays protected", "Files, links, and detailed notes stay in student detail, review, or download surfaces.", "private"],
     ],
     student: [
-      ["You and your Program Teacher", "This screen is centered on your own Senior Project work and the staff who can review or support it.", "self"],
-      ["Proof visibility", "Proof you add is visible to you and staff who are allowed to review or support that work.", "shared"],
+      ["You and your teacher", "This screen is centered on your own Senior Project work and the staff who can review or support it.", "self"],
+      ["File visibility", "Files and links you add are visible to you and staff who are allowed to review or support that work.", "shared"],
       ["Mentor view", "Mentors see support context only when they are assigned to you.", "staff"],
     ],
     archive: [
@@ -4336,7 +4336,7 @@ function screenVisibilityNotesFor(sectionId = "overview", primaryRole = primaryR
     ],
     audit: [
       ["Global admin only", "Audit details are limited to global admins and authorized security review staff.", "staff"],
-      ["Redacted rows", "Rows hide private student, proof, account, and file details until a source screen is opened with allowed access.", "redacted"],
+      ["Redacted rows", "Rows hide private student, work, account, and file details until a source screen is opened with allowed access.", "redacted"],
       ["Follow-up elsewhere", "Use the source screen for fixes; the log itself is for review and triage.", "context"],
     ],
     archiveExports: [
@@ -4427,7 +4427,7 @@ function screenStartRequirementsFor(sectionId = "overview", primaryRole = primar
     student: [
       ["Read Do this next", "Start with the action at the top of My Work before opening other panels.", "choose"],
       ["Open current phase item", "Open the checklist item that belongs to the phase deliverable you are trying to finish.", "choose"],
-      ["Proof ready", "Have the exact proof link or file ready before adding proof or sending work for review.", "prepare"],
+      ["File ready", "Have the exact file or link ready before adding it or turning in work.", "prepare"],
     ],
     archive: [
       ["Check download status", primaryRole === "student" ? "Read whether final files are ready, blocked, expired, or still being prepared." : "Read whether the final-file package is ready, blocked, failed, expired, or still running.", "check"],
@@ -4575,9 +4575,9 @@ function screenDoneSignalsFor(sectionId = "overview", primaryRole = primaryRoleF
       ["Decision work routed", "Review decisions remain in Review Work instead of the directory.", "safe"],
     ],
     student: [
-      ["Phase item updated", "The current phase item shows the new proof count, waiting review state, revision message, or approval status.", "complete"],
-      ["Next action is clear", "Do this next tells you whether to fix work, add proof, send work, wait, or move to another screen.", "complete"],
-      ["Approval gate is clear", "If Program Teacher review is needed, the screen says to wait for the recorded decision before moving on.", "waiting"],
+      ["Phase item updated", "The current phase item shows the new file count, waiting review state, feedback message, or Done status.", "complete"],
+      ["Next action is clear", "Do this next tells you whether to fix work, add a file, turn in work, wait, or move to another screen.", "complete"],
+      ["Teacher check is clear", "If teacher review is needed, the screen says to wait before moving on.", "waiting"],
     ],
     archive: [
       ["Download status known", primaryRole === "student" ? "The screen tells you whether saving, staff follow-up, or waiting is next." : "The package status tells you whether download, staff follow-up, or waiting is next.", "complete"],
@@ -4713,7 +4713,7 @@ function availableWorkspaceSections(user = currentUser) {
 
   if (isViewAsStudentActive() || roles.has("student")) {
     add("student", "Today", "What to finish next");
-    add("studentWork", "My Work", "Current requirements and proof");
+    add("studentWork", "My Work", "Current work and files");
     add("studentFeedback", "Feedback", "Feedback and work to fix");
     add("studentFinalChecklist", "Final Checklist", "Presentation and final files");
     add("presentation", "Presentation", "Schedule, outline, and day-of status", { hidden: true });
@@ -11490,7 +11490,7 @@ function renderStudentTodayScreen(context = {}) {
         kicker: "Today",
         title: "My Capstone",
         titleId: "studentTodayTitle",
-        question: "What do I need to do next?",
+        question: "What to do next",
         badgeHtml: studentStatusBadge(summary.currentStatus),
         primaryHtml: renderStudentRouteButton("studentWork", studentPrimaryRouteLabel(action), "workspace-button-primary", "data-student-primary-action=\"continue-work\""),
       })}
@@ -11520,27 +11520,28 @@ function renderStudentMyWorkScreen(context = {}) {
         kicker: "My Work",
         title: "My Work",
         titleId: "studentMyWorkTitle",
-        question: "Where do I open, submit, or review my capstone work?",
+        question: "Open work. Turn in work. Check files.",
         badgeHtml: studentStatusBadge(summary.currentStatus),
-        primaryHtml: renderStudentRouteButton("studentWork", "Open Current Work", "workspace-button-primary", "data-student-primary-action=\"open-current-work\""),
+        primaryHtml: renderStudentRouteButton("studentWork", "Continue", "workspace-button-primary", "data-student-primary-action=\"open-current-work\""),
       })}
       ${previewingStudent ? renderViewAsStudentReadOnlyNotice() : ""}
       <section class="workspace-student-section" data-student-work-section="current" aria-labelledby="studentCurrentWorkTitle">
         <div class="workspace-student-section-head">
           <div>
-            <p class="workspace-kicker">Current Work</p>
-            <h2 id="studentCurrentWorkTitle">Current Work</h2>
-            <p>${escapeHtml(requirements.length ? "Open the current item, check details, add proof when needed, and send only when the item is ready." : "Assigned capstone work will appear here after your Program Teacher adds it.")}</p>
+            <p class="workspace-kicker">Current work</p>
+            <h2 id="studentCurrentWorkTitle">Current work</h2>
+            <p>${escapeHtml(requirements.length ? "Open one item. Add a file or link if the item asks for it. Turn it in when it is ready." : "Your teacher has not added work yet.")}</p>
           </div>
         </div>
         ${renderStudentRequirementPanelBody(requirements, summary, feedback, studentRequirementDetailState, evidence, studentFeedbackHistoryState)}
       </section>
+      ${renderStudentMissingWorkSection(requirements, summary)}
       <section class="workspace-student-section" data-student-work-section="submitted" aria-labelledby="studentSubmittedWorkTitle">
         <div class="workspace-student-section-head">
           <div>
-            <p class="workspace-kicker">Work You Turned In</p>
-            <h2 id="studentSubmittedWorkTitle">Work You Turned In</h2>
-            <p>${escapeHtml(submissions.length ? "Review drafts, waiting work, work to fix, and approved work in compact rows." : "Work you turn in appears after you start or send a capstone item.")}</p>
+            <p class="workspace-kicker">Turned in</p>
+            <h2 id="studentSubmittedWorkTitle">Turned in</h2>
+            <p>${escapeHtml(submissions.length ? "See work you started, work waiting for review, and work you need to fix." : "Work you turn in will appear here.")}</p>
           </div>
         </div>
         ${renderStudentSubmissionsPanelBody(submissions, filteredSubmissions, feedback, activeSubmissionFilter)}
@@ -11548,9 +11549,9 @@ function renderStudentMyWorkScreen(context = {}) {
       <section class="workspace-student-section" data-student-work-section="evidence-files" aria-labelledby="studentEvidenceFilesTitle">
         <div class="workspace-student-section-head">
           <div>
-            <p class="workspace-kicker">Proof Files</p>
-            <h2 id="studentEvidenceFilesTitle">Proof Files</h2>
-            <p>${escapeHtml(evidence.length ? "Check saved links and files, and add proof only to the matching work item." : "Proof tools appear when work can accept links or files.")}</p>
+            <p class="workspace-kicker">Files</p>
+            <h2 id="studentEvidenceFilesTitle">Files</h2>
+            <p>${escapeHtml(evidence.length ? "Check files and links that show your work." : "Upload a file or add a link when your work asks for it.")}</p>
           </div>
         </div>
         ${submissions.length ? renderEvidenceForms(submissions, requirements) : renderStudentEvidenceEmptyState()}
@@ -11575,18 +11576,18 @@ function renderStudentFeedbackScreen(context = {}) {
         kicker: "Feedback",
         title: "Feedback",
         titleId: "studentFeedbackScreenTitle",
-        question: "What feedback did I receive, and what do I need to fix?",
+        question: "Read feedback. Fix work if asked.",
         badgeHtml: studentStatusPill(summary.revisionRequestedCount ? "revision_requested" : rows.length ? "under_review" : "pending"),
-        primaryHtml: renderStudentRouteButton("studentWork", summary.revisionRequestedCount ? "Open Work To Fix" : "Open My Work", "workspace-button-primary", "data-student-primary-action=\"open-feedback-work\""),
+        primaryHtml: renderStudentRouteButton("studentWork", summary.revisionRequestedCount ? "Fix Work" : "View Work", "workspace-button-primary", "data-student-primary-action=\"open-feedback-work\""),
       })}
       ${previewingStudent ? renderViewAsStudentReadOnlyNotice() : ""}
       ${rows.length > 1 ? renderStudentFeedbackFilters(rows, activeFilter) : ""}
       ${activeFilter !== "all"
         ? renderStudentFeedbackLane("filtered", studentFeedbackFilterLabel(activeFilter), filteredRows, "No feedback matches this filter.")
         : `
-          ${renderStudentFeedbackLane("needs-revision", "Needs Changes", revisionRows, "No feedback needs changes right now.")}
-          ${renderStudentFeedbackLane("recent", "Recent Feedback", recentRows, "No feedback yet. When your mentor or teacher reviews your work, it will appear here.")}
-          ${renderStudentFeedbackLane("past", "Past Feedback", pastRows, "Past approved feedback appears here after reviews are complete.")}
+          ${renderStudentFeedbackLane("needs-revision", "Needs changes", revisionRows, "No feedback needs changes right now.")}
+          ${renderStudentFeedbackLane("recent", "New feedback", recentRows, "No feedback yet. When your teacher reviews your work, it will appear here.")}
+          ${renderStudentFeedbackLane("past", "Old feedback", pastRows, "Old feedback appears here after reviews are done.")}
         `}
     </section>
   `;
@@ -11604,9 +11605,9 @@ function renderStudentFinalChecklistScreen(context = {}) {
         kicker: "Final Checklist",
         title: "Final Checklist",
         titleId: "studentFinalChecklistTitle",
-        question: "What is left before I am finished?",
+        question: "What is done? What still needs work?",
         badgeHtml: studentStatusPill(nextMissing ? "needs_review" : "complete"),
-        primaryHtml: renderStudentRouteButton(nextMissing ? nextActionSection : "studentWork", nextMissing ? nextActionLabel : "Continue My Work", "workspace-button-primary", "data-student-primary-action=\"open-next-missing\""),
+        primaryHtml: renderStudentRouteButton(nextMissing ? nextActionSection : "studentWork", nextMissing ? nextActionLabel : "View Work", "workspace-button-primary", "data-student-primary-action=\"open-next-missing\""),
       })}
       ${previewingStudent ? renderViewAsStudentReadOnlyNotice() : ""}
       <section class="workspace-student-section" data-student-final-checklist="true" aria-labelledby="studentFinalChecklistRowsTitle">
@@ -11614,7 +11615,7 @@ function renderStudentFinalChecklistScreen(context = {}) {
           <div>
             <p class="workspace-kicker">Finish checks</p>
             <h2 id="studentFinalChecklistRowsTitle">Finish checks</h2>
-            <p>These rows use your current capstone records. Items stay unconfirmed when the app does not have proof yet.</p>
+            <p>These rows show what is done and what still needs work.</p>
           </div>
         </div>
         <div class="workspace-list workspace-student-final-list">
@@ -11647,9 +11648,10 @@ function renderStudentRouteButton(section, label, className = "workspace-button-
 
 function studentPrimaryRouteLabel(action = {}) {
   const status = normalizeStatus(action?.submissionStatus || action?.status);
-  if (status === "revision_requested") return "Continue My Work";
-  if (["submitted", "under_review", "pending_review"].includes(status)) return "Review My Work";
-  return "Continue My Work";
+  if (status === "revision_requested") return "Fix Work";
+  if (["submitted", "under_review", "pending_review"].includes(status)) return "View Work";
+  if (status === "missing" || status === "not_started") return "Start";
+  return "Continue";
 }
 
 function renderStudentTodayActionSection(action = {}, summary = {}) {
@@ -11657,21 +11659,21 @@ function renderStudentTodayActionSection(action = {}, summary = {}) {
     <section class="workspace-student-section workspace-student-next-action" data-student-today-section="next-action" aria-labelledby="studentTodayNextActionTitle">
       <div class="workspace-student-section-head">
         <div>
-          <p class="workspace-kicker">Current Step / Next Action</p>
-          <h2 id="studentTodayNextActionTitle">Current Step / Next Action</h2>
+          <p class="workspace-kicker">What to do next</p>
+          <h2 id="studentTodayNextActionTitle">What to do next</h2>
           <p>${escapeHtml(studentPrimaryCommandCopy(action, summary))}</p>
         </div>
         ${studentStatusPill(action.status || action.submissionStatus || "pending")}
       </div>
       <div class="workspace-student-action-summary">
         <article data-student-current-step-card="true">
-          <span>Current Step</span>
+          <span>Current work</span>
           <strong>${escapeHtml(action.itemTitle || action.title || summary.currentPhaseLabel || "Current capstone item")}</strong>
-          <p>${escapeHtml(action.detail || "Open My Work to see the exact item and proof status.")}</p>
+          <p>${escapeHtml(action.detail || "Open My Work to see this item.")}</p>
           <p class="workspace-muted" data-student-current-step-status="true">Status: ${escapeHtml(studentConservativeStatusText(action.status || action.submissionStatus))}</p>
         </article>
         <article data-student-next-action-card="true">
-          <span>Next Action</span>
+          <span>Do this next</span>
           <strong>${escapeHtml(action.owner || "Your action")}</strong>
           <p>${escapeHtml(action.when || "Open My Work before starting anything new.")}</p>
           <p class="workspace-muted" data-student-next-action-path="true">${escapeHtml(studentNextActionPathCopy(action))}</p>
@@ -11693,8 +11695,8 @@ function studentConservativeStatusText(value, fallback = "Not confirmed yet") {
 
 function studentNextActionPathCopy(action = {}) {
   const status = normalizeStatus(action.status || action.submissionStatus);
-  if (status === "revision_requested") return "Open Feedback or My Work, fix the note, then send your updated work.";
-  if (["submitted", "under_review", "pending_review"].includes(status)) return "Review what you sent, then wait for the Program Teacher decision.";
+  if (status === "revision_requested") return "Read your feedback. Fix your work. Turn it in again.";
+  if (["submitted", "under_review", "pending_review"].includes(status)) return "View what you sent. Wait for your teacher.";
   if (["failed", "provider_unavailable", "expired", "expiring_soon"].includes(status)) return "Ask for help before changing final-file work.";
   if (action?.requirementId || action?.submissionId) return "Open the matching item in My Work.";
   return "Use My Work before starting anything new.";
@@ -11705,9 +11707,9 @@ function renderStudentProgressTracker(summary = {}, requirements = []) {
     <section class="workspace-student-section workspace-student-progress-tracker" data-student-today-section="progress" aria-labelledby="studentProgressTrackerTitle">
       <div class="workspace-student-section-head">
         <div>
-          <p class="workspace-kicker">Progress Tracker</p>
-          <h2 id="studentProgressTrackerTitle">Progress Tracker</h2>
-          <p>${escapeHtml(summary.requirementsTotal ? `${summary.requirementsComplete} of ${summary.requirementsTotal} capstone items are complete.` : "Your Program Teacher has not added capstone work yet.")}</p>
+          <p class="workspace-kicker">Progress</p>
+          <h2 id="studentProgressTrackerTitle">Progress</h2>
+          <p>${escapeHtml(summary.requirementsTotal ? `${summary.requirementsComplete} of ${summary.requirementsTotal} capstone items are complete.` : "Your teacher has not added capstone work yet.")}</p>
         </div>
         <div class="workspace-student-progress-number">
           <strong>${escapeHtml(summary.completionPercent)}%</strong>
@@ -11718,9 +11720,9 @@ function renderStudentProgressTracker(summary = {}, requirements = []) {
         <span style="width: ${escapeHtml(summary.completionPercent)}%"></span>
       </div>
       <div class="workspace-student-summary-grid">
-        ${renderStudentSummaryTile("Work complete", `${summary.requirementsComplete} of ${summary.requirementsTotal || 0}`, summary.requirementsTotal ? "Completed capstone items from your assigned checklist." : "No assigned checklist items yet.", "student")}
-        ${renderStudentSummaryTile("Work waiting", `${summary.waitingForReviewCount}`, summary.waitingForReviewCount ? "Your Program Teacher owns the next decision." : "Nothing is waiting for review right now.", summary.waitingForReviewCount ? "teacher" : "student")}
-        ${renderStudentSummaryTile("Needs work", `${summary.revisionRequestedCount + summary.missingRequiredCount}`, summary.revisionRequestedCount ? "Fix feedback before new phase work." : summary.missingRequiredCount ? "Finish missing items before closeout." : "No missing item or feedback to fix is listed.", summary.revisionRequestedCount ? "danger" : summary.missingRequiredCount ? "warning" : "student")}
+        ${renderStudentSummaryTile("Done", `${summary.requirementsComplete} of ${summary.requirementsTotal || 0}`, summary.requirementsTotal ? "Items your teacher marked done." : "No checklist items yet.", "student")}
+        ${renderStudentSummaryTile("Waiting", `${summary.waitingForReviewCount}`, summary.waitingForReviewCount ? "Your teacher is checking this work." : "Nothing is waiting right now.", summary.waitingForReviewCount ? "teacher" : "student")}
+        ${renderStudentSummaryTile("Needs changes", `${summary.revisionRequestedCount + summary.missingRequiredCount}`, summary.revisionRequestedCount ? "Read feedback. Fix the work." : summary.missingRequiredCount ? "Finish missing work." : "Nothing needs changes right now.", summary.revisionRequestedCount ? "danger" : summary.missingRequiredCount ? "warning" : "student")}
       </div>
       ${renderStudentPhasePath(summary, requirements)}
     </section>
@@ -11730,7 +11732,7 @@ function renderStudentProgressTracker(summary = {}, requirements = []) {
 function renderStudentTodayFeedbackSummary(feedback = [], summary = {}) {
   const rows = Array.isArray(feedback) ? feedback : [];
   const revisionRows = rows.filter((row) => ["revision_requested", "needs_revision"].includes(normalizeStatus(row?.submissionStatus || row?.status)));
-  const label = revisionRows.length ? "Feedback Alert" : "Feedback Summary";
+  const label = revisionRows.length ? "Needs changes" : "New feedback";
   const visibleRows = revisionRows.length ? revisionRows.slice(0, 2) : rows.slice(0, 2);
   return `
     <section class="workspace-student-section" data-student-today-section="feedback" aria-labelledby="studentTodayFeedbackTitle">
@@ -11738,7 +11740,7 @@ function renderStudentTodayFeedbackSummary(feedback = [], summary = {}) {
         <div>
           <p class="workspace-kicker">${escapeHtml(label)}</p>
           <h2 id="studentTodayFeedbackTitle">${escapeHtml(label)}</h2>
-          <p>${escapeHtml(revisionRows.length ? "Fix these notes before starting new phase work." : rows.length ? "Recent review notes appear here. Open Feedback for the full history." : "No feedback yet. When your mentor or teacher reviews your work, it will appear here.")}</p>
+          <p>${escapeHtml(revisionRows.length ? "Read your feedback. Then fix your work." : rows.length ? "New notes appear here. Open Feedback to read more." : "No feedback yet. When your teacher reviews your work, it will appear here.")}</p>
         </div>
         ${renderStudentRouteButton("studentFeedback", "Open Feedback", "workspace-button-secondary")}
       </div>
@@ -11746,7 +11748,7 @@ function renderStudentTodayFeedbackSummary(feedback = [], summary = {}) {
         ${visibleRows.length ? visibleRows.map((row) => renderStudentCompactFeedbackRow(row)).join("") : `
           <article class="workspace-empty-state-card" data-student-feedback-empty="true">
             <strong>No feedback yet.</strong>
-            <p>When your mentor or teacher reviews your work, it will appear here.</p>
+            <p>When your teacher reviews your work, it will appear here.</p>
           </article>
         `}
       </div>
@@ -11769,21 +11771,58 @@ function renderStudentTodayUpcomingItems(nextSteps = [], requirements = [], summ
     <section class="workspace-student-section" data-student-today-section="upcoming" aria-labelledby="studentUpcomingItemsTitle">
       <div class="workspace-student-section-head">
         <div>
-          <p class="workspace-kicker">Upcoming or Missing Items</p>
-          <h2 id="studentUpcomingItemsTitle">Upcoming or Missing Items</h2>
-          <p>${escapeHtml(rows.length ? "Open one item at a time. Send work only after proof matches the item." : summary.waitingForReviewCount ? "No missing items are listed. Wait for Program Teacher review." : "No upcoming or missing item is listed right now.")}</p>
+          <p class="workspace-kicker">Missing work</p>
+          <h2 id="studentUpcomingItemsTitle">Missing work</h2>
+          <p>${escapeHtml(rows.length ? "Open one item at a time. Turn in work only when the file or link matches the item." : summary.waitingForReviewCount ? "No missing work is listed. Wait for your teacher." : "You are caught up right now.")}</p>
         </div>
         ${renderStudentRouteButton("studentFinalChecklist", "Open Final Checklist", "workspace-button-secondary")}
       </div>
       <div class="workspace-list workspace-student-compact-list">
         ${rows.length ? rows.map(renderStudentUpcomingRow).join("") : `
           <article class="workspace-empty-state-card">
-            <strong>No missing capstone item is listed.</strong>
-            <p>Use My Work if your Program Teacher has added a new item that is not visible here yet.</p>
+            <strong>You are caught up right now.</strong>
+            <p>Ask your teacher if you think an item is missing.</p>
           </article>
         `}
       </div>
     </section>
+  `;
+}
+
+function renderStudentMissingWorkSection(requirements = [], summary = {}) {
+  const missingRows = (Array.isArray(requirements) ? requirements : [])
+    .filter((row) => !isStudentRequirementComplete(row?.status))
+    .slice(0, 4);
+  return `
+      <section class="workspace-student-section" data-student-work-section="missing" aria-labelledby="studentMissingWorkTitle">
+        <div class="workspace-student-section-head">
+          <div>
+            <p class="workspace-kicker">Missing work</p>
+            <h2 id="studentMissingWorkTitle">Missing work</h2>
+            <p>${escapeHtml(missingRows.length ? "Start with the first item. Ask your teacher if you are not sure." : "You are caught up right now.")}</p>
+          </div>
+        </div>
+        <div class="workspace-list workspace-student-compact-list">
+          ${missingRows.length ? missingRows.map((row) => `
+            <article class="workspace-row workspace-student-missing-row" data-student-missing-work-row="true">
+              <div>
+                <strong>${escapeHtml(row?.title || row?.requirementTitle || "Capstone work")}</strong>
+                <p>${escapeHtml(studentInstructionCopy(row?.nextAction || row?.detail || "Open this item and continue your work."))}</p>
+                <p class="workspace-muted">${escapeHtml(studentDueText(row, "Due date not listed"))}</p>
+              </div>
+              <div class="workspace-row-actions">
+                ${renderStudentStepButtons(row, "Open")}
+                ${studentStatusPill(row?.submissionStatus || row?.status || "missing")}
+              </div>
+            </article>
+          `).join("") : `
+            <article class="workspace-empty-state-card" data-student-missing-work-empty="true">
+              <strong>You are caught up right now.</strong>
+              <p>${escapeHtml(summary.waitingForReviewCount ? "Wait for your teacher to review your work." : "Ask your teacher if you think something is missing.")}</p>
+            </article>
+          `}
+        </div>
+      </section>
   `;
 }
 
@@ -11833,7 +11872,7 @@ function renderStudentFeedbackLane(id, title, rows = [], emptyText = "") {
       <div class="workspace-list">
         ${safeRows.length ? safeRows.map((row) => renderStudentFeedbackRow(row, studentFeedbackHistoryState)).join("") : `
           <article class="workspace-empty-state-card" data-student-feedback-empty="true">
-            <strong>${escapeHtml(title === "Recent Feedback" ? "No feedback yet." : `No ${title.toLowerCase()} right now.`)}</strong>
+            <strong>${escapeHtml(title === "New feedback" ? "No feedback yet." : `No ${title.toLowerCase()} right now.`)}</strong>
             <p>${escapeHtml(emptyText || "Feedback appears after review.")}</p>
           </article>
         `}
@@ -11906,15 +11945,15 @@ function studentFinalChecklistRows({ summary = {}, requirements = [], submission
   const revisionRows = feedbackRows.filter((row) => ["revision_requested", "needs_revision"].includes(normalizeStatus(row?.submissionStatus || row?.status)));
   const waitingRows = submissionRows.filter((row) => ["submitted", "under_review", "pending_review"].includes(normalizeStatus(row?.status)));
   return [
-    rowForPhase("phase-1", "Proposal approved", "Proposal work has not been confirmed in My Work yet."),
-    rowForPhase("phase-2a", "Build proof started", "Build proof is not started in the current records."),
+    rowForPhase("phase-1", "Proposal done", "Proposal work has not been checked in My Work yet."),
+    rowForPhase("phase-2a", "Build file started", "Build file is not started yet."),
     rowForPhase("phase-2b", "Build update and presentation plan", "Build update or presentation plan is not confirmed yet."),
     rowForPhase("phase-3a", "Presentation practice ready", "Presentation practice is not confirmed yet."),
     rowForPhase("phase-4", "Reflection and portfolio complete", "Reflection or portfolio work is not confirmed yet."),
     {
       id: "evidence",
-      label: "Proof files attached",
-      detail: evidenceRows.length ? `${evidenceRows.length} proof item${evidenceRows.length === 1 ? "" : "s"} saved.` : "No proof files have been uploaded yet.",
+      label: "Files added",
+      detail: evidenceRows.length ? `${evidenceRows.length} file${evidenceRows.length === 1 ? "" : "s"} saved.` : "No files have been uploaded yet.",
       status: proofComplete ? "Submitted" : "Not confirmed yet",
       actionSection: "studentWork",
     },
@@ -11936,6 +11975,7 @@ function studentFinalChecklistRows({ summary = {}, requirements = [], submission
 }
 
 function renderStudentFinalChecklistRow(row = {}) {
+  const actionLabel = row.actionSection === "studentFeedback" ? "View Feedback" : "View Work";
   return `
     <article class="workspace-row workspace-student-final-check-row" data-student-final-check-row="${escapeHtml(row.id || "check")}" data-student-final-check-status="${escapeHtml(normalizeStatus(row.status || "not_confirmed"))}">
       <div>
@@ -11944,7 +11984,7 @@ function renderStudentFinalChecklistRow(row = {}) {
       </div>
       <div class="workspace-row-actions">
         <span class="workspace-student-final-status">${escapeHtml(studentFinalChecklistStatusText(row.status || "Not confirmed yet"))}</span>
-        ${row.actionSection ? renderStudentRouteButton(row.actionSection, row.actionSection === "studentFeedback" ? "Open Feedback" : "Open My Work", "workspace-button-secondary") : ""}
+        ${row.actionSection ? renderStudentRouteButton(row.actionSection, actionLabel, "workspace-button-secondary") : ""}
       </div>
     </article>
   `;
@@ -11953,9 +11993,9 @@ function renderStudentFinalChecklistRow(row = {}) {
 function studentFinalChecklistStatusText(status) {
   const normalized = normalizeStatus(status);
   if (normalized === "complete") return "Done";
-  if (normalized === "submitted") return "Waiting for review";
-  if (normalized === "needs_work") return "Needs work";
-  if (normalized === "not_confirmed_yet") return "Not confirmed yet";
+  if (normalized === "submitted") return "Ask your teacher";
+  if (normalized === "needs_work") return "Not done";
+  if (normalized === "not_confirmed_yet") return "Not checked yet";
   return studentStatusText(status);
 }
 
@@ -12075,7 +12115,7 @@ function studentPhasePathStep(phase = {}, counts = {}, currentPhaseKey = "", cur
       indexLabel: studentPhasePathLabel(phase),
       title: phaseRank < currentRank ? "Check" : "Later",
       statusLabel: `${remaining} to finish`,
-      detail: phaseRank < currentRank ? "Ask your Program Teacher what still needs attention here." : "Wait until this phase is the next approved step.",
+      detail: phaseRank < currentRank ? "Ask your teacher what still needs attention here." : "Wait until this phase is the next step.",
     };
   }
   return {
@@ -12140,9 +12180,9 @@ function renderStudentCompletionLanes(summary = {}, archiveNextAction = null) {
       label: "Do now",
       value: revisionCount ? `${revisionCount} to fix` : missingCount ? `${missingCount} to finish` : "Keep going",
       detail: revisionCount
-        ? "Fix Program Teacher feedback before new phase work."
+        ? "Fix teacher feedback before new phase work."
         : missingCount
-          ? "Open the current checklist item and add matching proof when needed."
+          ? "Open the current checklist item and add a matching file when needed."
           : "No urgent student action is listed right now.",
       status: revisionCount ? "needs_revision" : missingCount ? "pending" : "ready",
     },
@@ -12151,8 +12191,8 @@ function renderStudentCompletionLanes(summary = {}, archiveNextAction = null) {
       label: "Waiting",
       value: waitingCount ? `${waitingCount} in review` : "Nothing waiting",
       detail: waitingCount
-        ? "Your Program Teacher owns the next decision for sent work."
-        : "Sent work that needs a Program Teacher decision will appear here.",
+        ? "Your teacher owns the next decision for work you turned in."
+        : "Turned-in work that needs a teacher decision will appear here.",
       status: waitingCount ? "under_review" : "ready",
     },
     {
@@ -12161,7 +12201,7 @@ function renderStudentCompletionLanes(summary = {}, archiveNextAction = null) {
       value: totalCount ? `${doneCount} of ${totalCount}` : "Not assigned",
       detail: totalCount
         ? "Approved or complete work supports the next Senior Project step."
-        : "Your Program Teacher adds assigned work before this lane fills in.",
+        : "Your teacher adds assigned work before this lane fills in.",
       status: totalCount && doneCount >= totalCount ? "complete" : "configured",
     },
     {
@@ -12209,7 +12249,7 @@ function studentAttentionMission(summary = {}, requirements = [], archiveNextAct
       label: "Needs attention",
       title: `${summary.revisionRequestedCount} revision ${summary.revisionRequestedCount === 1 ? "item" : "items"}`,
       detail: "Fix work that needs changes before starting new phase work.",
-      meta: overdueCount ? `${overdueCount} overdue item${overdueCount === 1 ? "" : "s"} also need attention.` : "Start with Program Teacher Feedback.",
+      meta: overdueCount ? `${overdueCount} overdue item${overdueCount === 1 ? "" : "s"} also need attention.` : "Start with Feedback.",
     };
   }
   if (overdueCount) {
@@ -12218,7 +12258,7 @@ function studentAttentionMission(summary = {}, requirements = [], archiveNextAct
       tone: "danger",
       label: "Needs attention",
       title: `${overdueCount} overdue item${overdueCount === 1 ? "" : "s"}`,
-      detail: "Open the overdue checklist item, add proof, and send it for review.",
+      detail: "Open the overdue checklist item. Add the file or link. Turn it in.",
       meta: "Overdue work comes before lower-priority tasks.",
     };
   }
@@ -12229,7 +12269,7 @@ function studentAttentionMission(summary = {}, requirements = [], archiveNextAct
       label: "Needs attention",
       title: `${summary.missingRequiredCount} item${summary.missingRequiredCount === 1 ? "" : "s"} not finished`,
       detail: "Open the checklist and finish the current phase item.",
-      meta: "Proof and Program Teacher approval still matter.",
+      meta: "Files and teacher checks still matter.",
     };
   }
   if (summary.waitingForReviewCount) {
@@ -12238,8 +12278,8 @@ function studentAttentionMission(summary = {}, requirements = [], archiveNextAct
       tone: "teacher",
       label: "Needs attention",
       title: "Waiting for review",
-      detail: "Your Program Teacher owns the next decision.",
-      meta: `${summary.waitingForReviewCount} sent item${summary.waitingForReviewCount === 1 ? "" : "s"} waiting.`,
+      detail: "Your teacher owns the next decision.",
+      meta: `${summary.waitingForReviewCount} turned-in item${summary.waitingForReviewCount === 1 ? "" : "s"} waiting.`,
     };
   }
   if (archiveNextAction?.status) {
@@ -12249,7 +12289,7 @@ function studentAttentionMission(summary = {}, requirements = [], archiveNextAct
       label: "Needs attention",
       title: archiveNextAction.title || "Final files need attention",
       detail: archiveNextAction.detail || "Read Final Files before closeout.",
-      meta: archiveNextAction.when || "Ask your Program Teacher if this is unclear.",
+      meta: archiveNextAction.when || "Ask your teacher if this is unclear.",
     };
   }
   return {
@@ -12272,29 +12312,29 @@ function studentProofMission(summary = {}, submissions = [], evidence = []) {
     return {
       id: "proof",
       tone: "warning",
-      label: "Proof",
-      title: `${proofRows.length} proof item${proofRows.length === 1 ? "" : "s"}`,
-      detail: "Corrected proof belongs on the item that needs changes.",
-      meta: `${revisionCount} revision ${revisionCount === 1 ? "item needs" : "items need"} a clean send-back.`,
+      label: "Files",
+      title: `${proofRows.length} file${proofRows.length === 1 ? "" : "s"}`,
+      detail: "Corrected files or links belong on the item that needs changes.",
+      meta: `${revisionCount} item${revisionCount === 1 ? " needs" : "s need"} to be turned in again.`,
     };
   }
   if (draftCount || summary.missingRequiredCount) {
     return {
       id: "proof",
       tone: "student",
-      label: "Proof",
-      title: `${proofRows.length} proof item${proofRows.length === 1 ? "" : "s"}`,
+      label: "Files",
+      title: `${proofRows.length} file${proofRows.length === 1 ? "" : "s"}`,
       detail: "Add a link or upload only after choosing the exact checklist item.",
-      meta: draftCount ? `${draftCount} draft item${draftCount === 1 ? "" : "s"} can still be finished.` : "Use proof when the checklist asks for it.",
+      meta: draftCount ? `${draftCount} draft item${draftCount === 1 ? "" : "s"} can still be finished.` : "Use a file when the checklist asks for it.",
     };
   }
   return {
     id: "proof",
     tone: waitingCount ? "teacher" : "ready",
-    label: "Proof",
-    title: `${proofRows.length} proof item${proofRows.length === 1 ? "" : "s"}`,
-    detail: waitingCount ? "Proof is waiting with sent work." : "Proof appears here after links or files are attached.",
-    meta: waitingCount ? `${waitingCount} sent item${waitingCount === 1 ? "" : "s"} waiting for review.` : "Keep proof matched to the correct item.",
+    label: "Files",
+    title: `${proofRows.length} file${proofRows.length === 1 ? "" : "s"}`,
+    detail: waitingCount ? "Files are waiting with turned-in work." : "Files appear here after links or uploads are added.",
+    meta: waitingCount ? `${waitingCount} turned-in item${waitingCount === 1 ? "" : "s"} waiting for review.` : "Keep files matched to the correct item.",
   };
 }
 
@@ -12319,20 +12359,20 @@ function latestStudentActivity(summary = {}, submissions = [], evidence = [], fe
       detail: "Your project summary was updated.",
     },
     ...(Array.isArray(submissions) ? submissions : []).map((row) => ({
-      kind: "Sent work",
+      kind: "Turned in",
       label: studentSubmissionRequirementTitle(row),
       when: row?.updated_at || row?.updatedAt,
       detail: "Work status changed or was updated.",
     })),
     ...(Array.isArray(evidence) ? evidence : []).map((row) => ({
-      kind: "Proof added",
-      label: row?.title || row?.requirementTitle || "Proof item",
+      kind: "File added",
+      label: row?.title || row?.requirementTitle || "File item",
       when: row?.created_at || row?.createdAt,
-      detail: "A proof link or file was saved.",
+      detail: "A file or link was saved.",
     })),
     ...(Array.isArray(feedback) ? feedback : []).map((row) => ({
-      kind: "Program Teacher feedback",
-      label: row?.requirementTitle || "Program Teacher note",
+      kind: "Teacher feedback",
+      label: row?.requirementTitle || "Teacher note",
       when: row?.createdAt || row?.created_at,
       detail: row?.message || "Program Teacher feedback was recorded.",
     })),
@@ -12398,9 +12438,9 @@ function renderStudentWorkspaceDisclosurePanels(dashboard, summary, submissions,
       ${renderWorkspaceDisclosurePanel({
         scope: "student",
         id: "feedback",
-        kicker: "Program Teacher notes",
-        title: "Program Teacher Feedback",
-        summary: `${feedbackCount} Program Teacher note${feedbackCount === 1 ? "" : "s"} available. Notes that need action stay first.`,
+        kicker: "Teacher notes",
+        title: "Teacher feedback",
+        summary: `${feedbackCount} teacher note${feedbackCount === 1 ? "" : "s"} available. Notes that need action stay first.`,
         openLabel: "Open feedback",
         closeLabel: "Hide feedback",
         dataAttrs: `data-student-feedback-panel="true" data-student-feedback-history="true" data-student-feedback-count="${escapeHtml(feedbackCount)}" tabindex="-1"`,
@@ -12421,7 +12461,7 @@ function renderStudentWorkspaceDisclosurePanels(dashboard, summary, submissions,
         scope: "student",
         id: "evidence",
         kicker: "Add your work",
-        title: "Add Proof or Links",
+        title: "Add Files or Links",
         summary: submissionCount ? "Add links or upload files for work you already started." : "Upload tools appear after work is ready.",
         openLabel: "Open upload tools",
         closeLabel: "Hide upload tools",
@@ -12432,10 +12472,10 @@ function renderStudentWorkspaceDisclosurePanels(dashboard, summary, submissions,
         scope: "student",
         id: "submissions",
         kicker: "Work history",
-        title: "Work You Sent In",
-        summary: submissionCount ? `${submissionCount} started item${submissionCount === 1 ? "" : "s"} available. Open this to show drafts, waiting work, revisions, or approved work.` : "Sent work appears after you start project work.",
-        openLabel: "Open sent work",
-        closeLabel: "Hide sent work",
+        title: "Turned in",
+        summary: submissionCount ? `${submissionCount} started item${submissionCount === 1 ? "" : "s"} available. Open this to show drafts, waiting work, work to fix, or done work.` : "Turned-in work appears after you start project work.",
+        openLabel: "Open turned-in work",
+        closeLabel: "Hide turned-in work",
         dataAttrs: 'data-student-submissions-panel="true" tabindex="-1"',
         bodyHtml: renderStudentSubmissionsPanelBody(submissions, filteredSubmissions, feedback, activeSubmissionFilter),
       })}
@@ -12443,10 +12483,10 @@ function renderStudentWorkspaceDisclosurePanels(dashboard, summary, submissions,
         scope: "student",
         id: "files",
         kicker: "Files and links",
-        title: "Proof You Added",
-        summary: `${evidenceCount} proof item${evidenceCount === 1 ? "" : "s"} available when you need the full proof list.`,
-        openLabel: "Open proof list",
-        closeLabel: "Hide proof list",
+        title: "Files",
+        summary: `${evidenceCount} file or link item${evidenceCount === 1 ? "" : "s"} available when you need the full list.`,
+        openLabel: "Open files",
+        closeLabel: "Hide files",
         dataAttrs: 'data-student-files-panel="true" tabindex="-1"',
         bodyHtml: renderStudentFilesPanelBody(evidence),
       })}
@@ -12496,7 +12536,7 @@ function studentPanelMapItems({ requirements = [], feedback = [], summary = {}, 
       id: "feedback",
       label: "Feedback",
       value: revisionNotes ? `${revisionNotes} fix` : `${feedbackRows.length} note${feedbackRows.length === 1 ? "" : "s"}`,
-      detail: revisionNotes ? "Read this before changing work or adding new proof." : "Open when you want Program Teacher notes.",
+      detail: revisionNotes ? "Read this before changing work or adding a new file." : "Open when you want teacher notes.",
       tone: revisionNotes ? "danger" : feedbackRows.length ? "teacher" : "quiet",
       action: "Open feedback",
     },
@@ -12510,25 +12550,25 @@ function studentPanelMapItems({ requirements = [], feedback = [], summary = {}, 
     },
     {
       id: "evidence",
-      label: "Proof tools",
+      label: "Files",
       value: submissionRows.length ? `${submissionRows.length} item${submissionRows.length === 1 ? "" : "s"}` : "Locked",
-      detail: draftSubmissions || revisionNotes ? "Open when you are ready to attach proof to one selected item." : "Tools appear after work exists.",
+      detail: draftSubmissions || revisionNotes ? "Open when you are ready to add a file or link to one selected item." : "Tools appear after work exists.",
       tone: draftSubmissions || revisionNotes ? "warning" : "quiet",
-      action: "Open proof tools",
+      action: "Open files",
     },
     {
       id: "submissions",
-      label: "Sent work",
+      label: "Turned in",
       value: waitingSubmissions ? `${waitingSubmissions} waiting` : `${submissionRows.length} started`,
-      detail: waitingSubmissions ? "Open to confirm what your Program Teacher is reviewing." : "Open to review drafts, work to fix, approved work, or sent items.",
+      detail: waitingSubmissions ? "Open to confirm what your teacher is checking." : "Open to review drafts, work to fix, done work, or turned-in items.",
       tone: waitingSubmissions ? "teacher" : submissionRows.length ? "student" : "quiet",
-      action: "Open sent work",
+      action: "Open turned-in work",
     },
     {
       id: "files",
       label: "Files and links",
-      value: `${proofRows.length} proof`,
-      detail: proofRows.length ? "Open to confirm proof is attached to the right work item." : "Proof appears here after you attach a link or upload.",
+      value: `${proofRows.length} file${proofRows.length === 1 ? "" : "s"}`,
+      detail: proofRows.length ? "Open to confirm each file or link is on the right work item." : "Files appear here after you add a link or upload.",
       tone: proofRows.length ? "mentor" : "quiet",
       action: "Open files",
     },
@@ -12614,8 +12654,8 @@ function studentActionPathSteps(action = {}, summary = {}) {
   const openItemButton = renderStudentRequirementOpenButton(action, "Open exact item")
     || renderStudentDisclosureOpenButton("requirements", "Open checklist");
   const feedbackButton = renderStudentDisclosureOpenButton("feedback", "Open feedback");
-  const proofButton = renderStudentDisclosureOpenButton("evidence", "Open proof tools");
-  const sentWorkButton = renderStudentDisclosureOpenButton("submissions", "Open sent work");
+  const proofButton = renderStudentDisclosureOpenButton("evidence", "Open files");
+  const sentWorkButton = renderStudentDisclosureOpenButton("submissions", "Open Turned in");
   const submitButton = renderStudentSubmissionActionButton(action);
   const canSend = Boolean(submitButton) && studentSubmissionActionState(action).canSubmit;
   const waitingCount = safeNumber(summary?.waitingForReviewCount);
@@ -12632,15 +12672,15 @@ function studentActionPathSteps(action = {}, summary = {}) {
       {
         id: "check-feedback-proof",
         tone: "warning",
-        title: "Check feedback and proof",
-        detail: "Read the Program Teacher note, then update proof on this same item.",
+        title: "Check feedback and files",
+        detail: "Read the teacher note. Then update the file on this same item.",
         actionsHtml: `${feedbackButton}${proofButton}`,
       },
       {
         id: "send",
         tone: canSend ? "student" : "warning",
-        title: canSend ? "Send updated work" : "Add proof first",
-        detail: canSend ? "Send only after the work and proof match the note." : "Add the corrected proof before sending this back.",
+        title: canSend ? "Turn in again" : "Upload first",
+        detail: canSend ? "Turn it in only after the work and file match the note." : "Add the corrected file before turning this in again.",
         actionsHtml: submitButton || proofButton,
       },
     ];
@@ -12651,22 +12691,22 @@ function studentActionPathSteps(action = {}, summary = {}) {
       {
         id: "open-sent-work",
         tone: "teacher",
-        title: "Open sent work",
-        detail: `Confirm the version your Program Teacher is reviewing for ${actionTitle}.`,
+        title: "Open turned-in work",
+        detail: `Confirm what your teacher is reviewing for ${actionTitle}.`,
         actionsHtml: sentWorkButton,
       },
       {
         id: "check-feedback-proof",
         tone: "student",
-        title: "Check feedback and proof",
-        detail: "Use feedback only if a Program Teacher note asks for a change.",
+        title: "Check feedback and files",
+        detail: "Use feedback only if a teacher note asks for a change.",
         actionsHtml: `${feedbackButton}${proofButton}`,
       },
       {
         id: "wait",
         tone: "quiet",
         title: "Wait for approval",
-        detail: "Stay in this phase until your Program Teacher records approval.",
+        detail: "Stay in this phase until your teacher approves it.",
         actionsHtml: "",
       },
     ];
@@ -12684,15 +12724,15 @@ function studentActionPathSteps(action = {}, summary = {}) {
       {
         id: "add-proof",
         tone: "warning",
-        title: "Add proof",
+        title: "Upload",
         detail: "Attach the link or file that shows this exact work.",
         actionsHtml: proofButton,
       },
       {
         id: "send",
         tone: canSend ? "student" : "quiet",
-        title: canSend ? "Send for review" : "Send after proof",
-        detail: canSend ? "Send it to your Program Teacher, then stop at the approval gate." : "The send button unlocks after proof is attached.",
+        title: canSend ? "Turn in" : "Turn in after upload",
+        detail: canSend ? "Turn it in to your teacher. Then wait." : "The Turn in button unlocks after a file or link is added.",
         actionsHtml: submitButton,
       },
     ];
@@ -12709,8 +12749,8 @@ function studentActionPathSteps(action = {}, summary = {}) {
     {
       id: "check-status",
       tone: waitingCount ? "teacher" : "quiet",
-      title: waitingCount ? "Check sent work" : "Check proof and feedback",
-      detail: waitingCount ? "Confirm what is already waiting for Program Teacher review." : "Use proof and feedback panels when there is an assigned item.",
+      title: waitingCount ? "Check turned-in work" : "Check files and feedback",
+      detail: waitingCount ? "Confirm what is already waiting for your teacher." : "Use Files and Feedback when there is an assigned item.",
       actionsHtml: waitingCount ? sentWorkButton : `${proofButton}${feedbackButton}`,
     },
     {
@@ -12737,36 +12777,36 @@ function studentPrimaryActionChecklist(action = {}, summary = {}) {
   if (status === "revision_requested") {
     return [
       ["Open the exact item", `Use the checklist or feedback panel for ${title}; do not work from memory.`, "ready"],
-      ["Read the Program Teacher note", "Find the exact change requested before adding new proof.", "ready"],
-      ["Attach corrected proof", "Add the revised link or file to the matching work item only.", "needs_review"],
-      ["Send once it matches", "Send the revision back for Program Teacher review, then stop at the approval gate.", "blocked"],
+      ["Read the teacher note", "Find the exact change before adding a new file.", "ready"],
+      ["Add the corrected file", "Add the revised link or file to the matching work item only.", "needs_review"],
+      ["Turn it in when it matches", "Turn it in again. Then wait for your teacher.", "blocked"],
     ];
   }
   if (["submitted", "under_review", "pending_review"].includes(status)) {
     return [
-      ["Check what you sent", `Use Work You Sent In for ${title} if you need to confirm the version.`, "context"],
-      ["Do not change direction", "The next phase waits for a recorded Program Teacher decision.", "blocked"],
-      ["Watch for feedback", "If revision is requested, fix only that item and send it back.", "context"],
+      ["Check what you turned in", `Use Turned in for ${title} if you need to confirm it.`, "context"],
+      ["Do not change direction", "The next phase waits for your teacher.", "blocked"],
+      ["Watch for feedback", "If changes are requested, fix only that item and turn it in again.", "context"],
     ];
   }
   if (["failed", "provider_unavailable", "expired", "expiring_soon"].includes(status)) {
     return [
       ["Read the blocker", "Use the final-files message to see whether this needs staff help, download setup, or a fresh window.", "needs_staff_action"],
-      ["Do not upload random files", "Only add proof when a final-file check below asks for it.", "context"],
+      ["Do not upload random files", "Only add a file when a final check below asks for it.", "context"],
       ["Ask the listed owner", "Use the owner shown above before assuming the download is ready.", "blocked"],
     ];
   }
   if (summary?.missingRequiredCount || status === "draft" || status === "missing" || status === "pending") {
     return [
       ["Match the checklist item", `Start with ${title} or the first missing item in the current phase.`, "ready"],
-      ["Add proof to this item", "Use a direct proof link or allowed file type for the work your Program Teacher asked for.", "needs_review"],
-      ["Send for review when ready", "Submit only after the proof and title match the assignment.", "context"],
-      ["Wait after sending", "Program Teacher approval controls the next phase.", "blocked"],
+      ["Add a file or link", "Use a direct link or allowed file type for the work your teacher asked for.", "needs_review"],
+      ["Turn in when ready", "Turn it in only after the file and title match the work.", "context"],
+      ["Wait after turning it in", "Your teacher approves the next phase.", "blocked"],
     ];
   }
   return [
     ["Confirm the next listed item", "Use the checklist instead of guessing the next phase.", "ready"],
-    ["Keep proof matched", "Attach links or files only to the correct work item.", "context"],
+    ["Keep files matched", "Attach links or files only to the correct work item.", "context"],
     ["Ask before skipping", "If the next move is unclear, ask your Program Teacher before moving ahead.", "needs_review"],
   ];
 }
@@ -12789,16 +12829,16 @@ function studentApprovalGateBannerCopy(summary = {}) {
   if (!summary.requirementsTotal) {
     return {
       state: "setup",
-      title: "Wait for your Program Teacher to set up your work",
-      detail: "Required work will appear here before you start the first Senior Project phase.",
+      title: "Wait for your teacher to add work",
+      detail: "Your first project step will appear here before you start.",
       badge: "Setup needed",
     };
   }
   if (summary.revisionRequestedCount) {
     return {
       state: "revision",
-      title: "Revision comes before new phase work",
-      detail: "Fix the Program Teacher feedback, send your updated work, and wait for recorded Program Teacher approval before moving ahead.",
+      title: "Fix work before new work",
+      detail: "Read your teacher feedback. Fix the work. Turn it in again before moving ahead.",
       badge: "Student action",
     };
   }
@@ -12806,15 +12846,15 @@ function studentApprovalGateBannerCopy(summary = {}) {
     return {
       state: "waiting",
       title: "Do not start the next phase yet",
-      detail: "Your work is with your Program Teacher. The next phase opens only after approval is recorded.",
-      badge: "Program Teacher owns next",
+      detail: "Your work is with your teacher. Wait before starting the next phase.",
+      badge: "Teacher check",
     };
   }
   if (summary.missingRequiredCount) {
     return {
       state: "working",
       title: "Finish the current item, then ask for review",
-      detail: "Complete the assigned work, add proof, send it for review, and wait for approval before new phase work.",
+      detail: "Complete the assigned work. Add a file or link if needed. Turn it in for review.",
       badge: "Work in order",
     };
   }
@@ -12850,8 +12890,8 @@ function renderStudentStagePlaybook(summary, nextSteps = []) {
         `).join("")}
       </ol>
       <div class="workspace-student-approval-checkpoint" data-student-manual-approval="true">
-        <strong>Program Teacher approval required for next steps</strong>
-        <p>${escapeHtml("Start the next phase only after your Program Teacher marks this phase approved. Mentor check-ins can help, but Program Teacher approval opens the next step.")}</p>
+        <strong>Ask your teacher before the next phase</strong>
+        <p>${escapeHtml("Start the next phase only after your teacher marks this phase done. Mentor check-ins can help, but your teacher opens the next step.")}</p>
       </div>
     </section>
   `;
@@ -12867,7 +12907,7 @@ function renderStudentPhaseDeliverableGuide(summary = {}, requirements = []) {
         <div>
           <p class="workspace-kicker">Phase goals</p>
           <h2 id="studentPhaseDeliverablesTitle">What to finish in each phase</h2>
-          <p>Each phase has one main thing to finish. Work on the current phase first, then stop when this page says to wait for Program Teacher approval.</p>
+          <p>Each phase has one main thing to finish. Work on the current phase first, then stop when this page says to wait for your teacher.</p>
         </div>
       </div>
       <div class="workspace-student-phase-grid">
@@ -12908,7 +12948,7 @@ function renderStudentPhaseDeliverableCard(phase = {}, currentPhaseKey = "", cou
       </div>
       <div class="workspace-student-phase-main">
         <strong>Main thing to finish</strong>
-        <p data-student-phase-deliverable-main="true">${escapeHtml(phase.deliverable || "Finish the work your Program Teacher lists for this phase.")}</p>
+        <p data-student-phase-deliverable-main="true">${escapeHtml(phase.deliverable || "Finish the work your teacher lists for this phase.")}</p>
       </div>
       ${checklist.length ? `
         <div class="workspace-student-phase-include" data-student-phase-deliverable-list="true">
@@ -12918,7 +12958,7 @@ function renderStudentPhaseDeliverableCard(phase = {}, currentPhaseKey = "", cou
           </ul>
         </div>
       ` : ""}
-      <p class="workspace-student-phase-done" data-student-phase-deliverable-done="true"><strong>Done when:</strong> ${escapeHtml(phase.done || "Program Teacher marks the listed work approved.")}</p>
+      <p class="workspace-student-phase-done" data-student-phase-deliverable-done="true"><strong>Done when:</strong> ${escapeHtml(phase.done || "Your teacher marks the listed work done.")}</p>
       <p class="workspace-muted" data-student-phase-deliverable-help="true"><strong>Helpful move:</strong> ${escapeHtml(phase.guidance || "Open the matching checklist item and follow the next step.")}</p>
       ${hideCount ? "" : `<p class="workspace-muted" data-student-phase-deliverable-count="true">${escapeHtml(assignedCopy)}</p>`}
     </article>
@@ -12955,36 +12995,36 @@ function studentStagePlaybook(summary = {}, nextSteps = []) {
   if (!summary.requirementsTotal) {
     return {
       title: "Wait for your project setup",
-      summary: "Your Program Teacher has not added the first required work yet.",
+      summary: "Your teacher has not added the first work yet.",
       status: "pending",
       steps: [
-        { title: "Check this page", detail: "Required work will appear here when your Program Teacher is ready for you to start." },
-        { title: "Ask your Program Teacher", detail: "If you think work is missing, ask your Program Teacher which phase you should be in." },
-        { title: "Do not skip ahead", detail: "Start the first phase only after your Program Teacher has added it here." },
+        { title: "Check this page", detail: "Work will appear here when your teacher is ready for you to start." },
+        { title: "Ask your teacher", detail: "If you think work is missing, ask your teacher which phase you should be in." },
+        { title: "Do not skip ahead", detail: "Start the first phase only after your teacher has added it here." },
       ],
     };
   }
   if (summary.revisionRequestedCount) {
     return {
-      title: "Fix this phase, then send it back",
-      summary: `Current phase: ${phaseLabel}. Fix Program Teacher feedback before any new phase work.`,
+      title: "Fix this phase, then turn it in again",
+      summary: `Current phase: ${phaseLabel}. Fix teacher feedback before any new phase work.`,
       status: "revision_requested",
       steps: [
-        { title: "Open Program Teacher feedback", detail: `Read the note for ${nextTitle} and find exactly what needs to change.` },
-        { title: "Fix the work and proof", detail: "Update the work, add the corrected proof, and send it back for review." },
-        { title: "Wait for approval", detail: "Stay in this phase until your Program Teacher marks it approved." },
+        { title: "Open teacher feedback", detail: `Read the note for ${nextTitle} and find exactly what needs to change.` },
+        { title: "Fix the work and file", detail: "Update the work. Add the corrected file or link. Turn it in again." },
+        { title: "Wait for review", detail: "Stay in this phase until your teacher marks it done." },
       ],
     };
   }
   if (summary.waitingForReviewCount) {
     return {
       title: "Wait for approval before moving on",
-      summary: `Current phase: ${phaseLabel}. Your Program Teacher has work to review before the next phase starts.`,
+      summary: `Current phase: ${phaseLabel}. Your teacher has work to review before the next phase starts.`,
       status: "submitted",
       steps: [
-        { title: "Check what you sent", detail: "Use Work You Sent In to confirm the right work and proof are waiting." },
-        { title: "Hold the next phase", detail: "Do not change direction or start the next phase until your Program Teacher records approval." },
-        { title: "Use the decision", detail: "If it is approved, follow the next phase. If revision is requested, fix and send again." },
+        { title: "Check what you turned in", detail: "Use Turned in to confirm the right work and file are waiting." },
+        { title: "Hold the next phase", detail: "Do not change direction or start the next phase until your teacher approves it." },
+        { title: "Use the decision", detail: "If it is approved, follow the next phase. If changes are requested, fix and turn it in again." },
       ],
     };
   }
@@ -12995,19 +13035,19 @@ function studentStagePlaybook(summary = {}, nextSteps = []) {
       status: "draft",
       steps: [
         { title: "Open the current item", detail: `Start with ${nextTitle} or the first missing item in this phase.` },
-        { title: "Add proof", detail: "Attach the link or file that shows this exact work." },
-        { title: "Send it for review", detail: "After proof is attached, send the item to your Program Teacher and wait for approval." },
+        { title: "Upload", detail: "Attach the link or file that shows this exact work." },
+        { title: "Turn it in", detail: "After a file or link is added, turn in the item and wait for your teacher." },
       ],
     };
   }
   return {
     title: "Use the approved next step",
-    summary: `Current phase: ${phaseLabel}. Keep following the phase your Program Teacher has approved.`,
+    summary: `Current phase: ${phaseLabel}. Keep following the phase your teacher marked done.`,
     status: "approved",
     steps: [
-      { title: "Check approved work", detail: "Use Program Teacher Feedback or the checklist to confirm what has been approved." },
+      { title: "Check done work", detail: "Use Feedback or the checklist to confirm what is done." },
       { title: "Follow the next listed item", detail: "Open the next item shown on this page and complete it in order." },
-      { title: "Ask before skipping", detail: "If the next phase is unclear, ask your Program Teacher before moving ahead." },
+      { title: "Ask before skipping", detail: "If the next phase is unclear, ask your teacher before moving ahead." },
     ],
   };
 }
@@ -13020,20 +13060,20 @@ function studentPrimaryNextAction(summary, nextSteps = [], archiveNextAction = n
   const missingStep = steps.find((step) => !isStudentRequirementComplete(step?.status) && normalizeStatus(step?.submissionStatus || step?.status) !== "submitted") || null;
   if (summary.revisionRequestedCount) {
     return studentPrimaryActionFromStep(revisionStep || firstStep, {
-      title: revisionStep?.title ? `Fix ${revisionStep.title} and send it back` : "Fix and send again",
-      detail: revisionStep?.detail || "Open the item marked Needs Changes, make the changes, then send it back to your Program Teacher.",
+      title: revisionStep?.title ? `Fix ${revisionStep.title} and turn it in again` : "Fix and turn in again",
+      detail: revisionStep?.detail || "Open the item marked Needs changes. Make the changes. Turn it in again.",
       status: "revision_requested",
       owner: "Your action",
-      when: "Start with Work You Sent In below.",
+      when: "Start with Turned in below.",
     });
   }
   if (summary.waitingForReviewCount) {
     return studentPrimaryActionFromStep(waitingStep || firstStep, {
-      title: waitingStep?.title ? `Wait for Program Teacher review on ${waitingStep.title}` : "Wait for Program Teacher approval",
-      detail: "Your work is with your Program Teacher. Check what you sent once, then wait for approval or revision before changing direction.",
+      title: waitingStep?.title ? `Wait for teacher review on ${waitingStep.title}` : "Wait for teacher approval",
+      detail: "Your work is with your teacher. Check what you turned in once. Then wait.",
       status: "submitted",
-      owner: "Program Teacher review",
-      when: "Done for now. Do not upload another copy unless your Program Teacher asks.",
+      owner: "Teacher review",
+      when: "Done for now. Do not upload another copy unless your teacher asks.",
     });
   }
   if (archiveNextAction?.status) {
@@ -13154,9 +13194,9 @@ function reviewMetric(summary) {
 }
 
 function reviewExplanation(summary) {
-  if (summary.revisionRequestedCount) return "Fix these items, then wait for Program Teacher approval.";
-  if (summary.waitingForReviewCount) return "Your Program Teacher has work to review and approve.";
-  return "Nothing is waiting for Program Teacher review right now.";
+  if (summary.revisionRequestedCount) return "Fix these items, then wait for your teacher.";
+  if (summary.waitingForReviewCount) return "Your teacher has work to review.";
+  return "Nothing is waiting for teacher review right now.";
 }
 
 function renderStudentNextSteps(nextSteps, summary) {
@@ -13176,7 +13216,7 @@ function renderStudentNextSteps(nextSteps, summary) {
         ${rows.length ? rows.map(renderStudentNextStepRow).join("") : `
           <article class="workspace-empty-state-card">
             <strong>You are caught up right now.</strong>
-            <p>${escapeHtml(summary.waitingForReviewCount ? "Check back after your Program Teacher reviews your work." : "Check back after your Program Teacher adds or checks project work.")}</p>
+            <p>${escapeHtml(summary.waitingForReviewCount ? "Check back after your teacher reviews your work." : "Check back after your teacher adds or checks project work.")}</p>
           </article>
         `}
       </div>
@@ -13212,8 +13252,8 @@ function renderStudentDeadlinePanel(requirements = [], summary = {}) {
     ? "No due dates need work right now."
     : "No due dates have been assigned yet.";
   const emptyDetail = summary?.dueDatesAvailable
-    ? "Keep using the checklist below for any work that is still waiting on review or proof."
-    : "Keep using What to Work On Next and the Senior Project Checklist. Ask your Program Teacher if a deadline seems missing.";
+    ? "Keep using the checklist below for any work that is still waiting on review or a file."
+    : "Keep using What to Work On Next and the project checklist. Ask your teacher if a deadline seems missing.";
   return `
     <section class="workspace-dashboard-card workspace-student-deadlines-panel" data-student-deadlines-panel="true" data-student-deadlines-count="${escapeHtml(rows.length)}" aria-labelledby="studentDeadlinesTitle">
       <div class="workspace-card-head">
@@ -13245,13 +13285,13 @@ function renderStudentDeadlineStatusGuide(rows = []) {
     {
       key: "overdue",
       title: "Overdue",
-      detail: "Do this first. Open the item, add or fix proof, then send it for review. Ask your Program Teacher what is blocking it if you cannot finish it.",
+      detail: "Do this first. Open the item. Add or fix the file. Turn it in for review. Ask your teacher what is blocking it if you cannot finish it.",
       actionLabel: "Open overdue item",
     },
     {
       key: "due-soon",
       title: "Due soon",
-      detail: "Open the item and add proof before the date. Finish this before lower-priority work.",
+      detail: "Open the item and add the file before the date. Finish this before lower-priority work.",
       actionLabel: "Open due-soon item",
     },
     {
@@ -13354,7 +13394,7 @@ function studentDeadlineUrgency(item = {}) {
   if (daysUntil < 0) {
     return {
       state: "overdue",
-      copy: isRevision ? "Overdue: fix this and send your updated work before new phase work." : "Overdue: open this item, add proof, and send it for review.",
+      copy: isRevision ? "Overdue: fix this and turn it in again before new phase work." : "Overdue: open this item, add the file, and turn it in.",
     };
   }
   if (daysUntil <= 3) {
@@ -13383,7 +13423,7 @@ function renderStudentRequirementPanel(requirements = [], summary = {}, feedback
         <div>
           <p class="workspace-kicker">Booklet checklist</p>
           <h2 id="studentRequirementChecklistTitle">Your Project Checklist</h2>
-          <p>${escapeHtml(rows.length ? "Work one booklet phase at a time: open the current phase, finish the item, add proof, then send it for review." : "Your Program Teacher has not added the first Senior Project item yet.")}</p>
+          <p>${escapeHtml(rows.length ? "Work one phase at a time. Open the current phase. Finish the item. Add a file or link. Turn it in." : "Your teacher has not added the first project item yet.")}</p>
         </div>
       </div>
       ${renderStudentRequirementPanelBody(requirements, summary, feedback, detailState, evidence, historyState)}
@@ -13403,8 +13443,8 @@ function renderStudentRequirementPanelBody(requirements = [], summary = {}, feed
       <div class="workspace-list">
         ${visiblePhaseGroups.length ? visiblePhaseGroups.map((group) => renderStudentRequirementPhaseGroup(group, feedback, detailState, evidence, historyState)).join("") : `
           <article class="workspace-empty-state-card" data-student-requirements-empty="true">
-            <strong>Your Program Teacher has not assigned Senior Project work yet.</strong>
-            <p>${escapeHtml(summary.waitingForReviewCount ? "Your Program Teacher is reviewing sent work. Stay on Work You Sent In until approval or revision appears." : "Ask your Program Teacher which Senior Project item should be assigned first. Do not start a new phase until it appears here.")}</p>
+            <strong>Your teacher has not added work yet.</strong>
+            <p>${escapeHtml(summary.waitingForReviewCount ? "Your teacher is checking the work you turned in. Stay on Turned in until feedback appears." : "Ask your teacher which project item should be added first. Do not start a new phase until it appears here.")}</p>
           </article>
         `}
       </div>
@@ -13421,9 +13461,9 @@ function groupStudentRequirementsByPhase(rows) {
       const group = {
         key,
         label: phase.label || row?.phaseLabel || (row?.phase ? statusText(row.phase) : "Other required work"),
-        guidance: phase.guidance || "Use this phase to check the listed work, proof, and next step.",
-        deliverable: phase.deliverable || "Finish the work your Program Teacher lists for this phase.",
-        done: phase.done || "Program Teacher marks the listed work approved.",
+        guidance: phase.guidance || "Use this phase to check the listed work, files, and next step.",
+        deliverable: phase.deliverable || "Finish the work your teacher lists for this phase.",
+        done: phase.done || "Your teacher marks the listed work done.",
         checklist: Array.isArray(phase.checklist) ? phase.checklist : [],
         rows: [],
         completeCount: 0,
@@ -13471,14 +13511,14 @@ function studentBookletPhaseInfo(value, fallbackLabel = "") {
   return {
     key,
     label: label || "Other required work",
-    guidance: "Use this phase to check the listed work, proof, and next step.",
-    deliverable: "Finish the work your Program Teacher lists for this phase.",
+    guidance: "Use this phase to check the listed work, file, and next step.",
+    deliverable: "Finish the work your teacher lists for this phase.",
     checklist: [
       "Open the listed item",
-      "Add proof that matches it",
-      "Wait for Program Teacher approval",
+      "Add the file or link that matches it",
+      "Wait for your teacher",
     ],
-    done: "Program Teacher marks the listed work approved.",
+    done: "Your teacher marks the listed work done.",
   };
 }
 
@@ -13499,12 +13539,12 @@ function studentPrimaryActionFromStep(step = null, overrides = {}) {
 
 function studentPrimaryCommandCopy(action = {}, summary = {}) {
   const status = normalizeStatus(action.status || action.submissionStatus);
-  if (status === "revision_requested") return "open the item that needs changes, fix the exact Program Teacher note, attach corrected proof if needed, then send your updated work.";
-  if (["submitted", "under_review", "pending_review"].includes(status)) return "check the sent work once, then wait for Program Teacher approval before starting another phase.";
-  if (status === "draft" || status === "missing" || summary?.missingRequiredCount) return "open this checklist item, complete the work, attach proof, and send it to your Program Teacher for review.";
-  if (["provider_unavailable", "failed", "expired", "expiring_soon"].includes(status)) return studentInstructionCopy(action.detail || "ask staff for final-file help before closeout.");
-  if (summary?.requirementsTotal && !summary?.missingRequiredCount && !summary?.waitingForReviewCount && !summary?.revisionRequestedCount) return "follow the next approved item shown on this page.";
-  return "check your checklist and ask your Program Teacher before skipping ahead.";
+  if (status === "revision_requested") return "Read your feedback. Fix your work. Turn it in again.";
+  if (["submitted", "under_review", "pending_review"].includes(status)) return "View what you turned in. Wait for your teacher.";
+  if (status === "draft" || status === "missing" || summary?.missingRequiredCount) return "Open this item. Finish the work. Add a file or link if needed.";
+  if (["provider_unavailable", "failed", "expired", "expiring_soon"].includes(status)) return studentInstructionCopy(action.detail || "Ask staff for final-file help.");
+  if (summary?.requirementsTotal && !summary?.missingRequiredCount && !summary?.waitingForReviewCount && !summary?.revisionRequestedCount) return "You are caught up right now.";
+  return "Check your work. Ask your teacher before skipping ahead.";
 }
 
 function studentArchivePrimaryNextAction(body = null) {
@@ -13600,18 +13640,18 @@ function isStudentRequirementComplete(status) {
 function studentRequirementApprovalGateText(item = {}) {
   const status = normalizeStatus(item?.submissionStatus || item?.status || item?.progressStatus);
   if (["approved", "archived", "complete", "completed"].includes(status)) {
-    return "Approved for next steps. Continue with the next assigned item.";
+    return "Done. Continue with the next assigned item.";
   }
   if (["submitted", "under_review", "pending_review"].includes(status)) {
-    return "Wait here. Your Program Teacher must approve this item before next steps.";
+    return "Wait here. Your teacher checks this item before next steps.";
   }
   if (status === "revision_requested") {
-    return "Revise this item, send it again, then wait for Program Teacher approval before next steps.";
+    return "Fix this item. Turn it in again. Wait for your teacher.";
   }
   if (status === "blocked") {
-    return "Ask your Program Teacher what is blocking this item before next steps.";
+    return "Ask your teacher what to fix before you keep going.";
   }
-  return "Do this item, add proof if needed, then send it to your Program Teacher for review before next steps.";
+  return "Do this item. Add a file or link if needed. Turn it in for review.";
 }
 
 function renderStudentRequirementRow(item, feedback = [], detailState = defaultStudentRequirementDetailState(), evidence = [], historyState = defaultStudentFeedbackHistoryState()) {
@@ -13639,12 +13679,12 @@ function renderStudentRequirementRow(item, feedback = [], detailState = defaultS
         ${qualityPrompt ? `<p class="workspace-muted workspace-student-requirement-nudge" data-student-requirement-quality="true">Try this: ${escapeHtml(qualityPrompt)}</p>` : ""}
         <p>${escapeHtml(phaseMeta)}</p>
         <p class="workspace-muted" data-student-requirement-due="true">${escapeHtml(studentDueText(item))}</p>
-        <p class="workspace-muted" data-student-requirement-next="true">${escapeHtml(studentInstructionCopy(item?.nextAction || "Ask your Program Teacher what to do next."))}</p>
+        <p class="workspace-muted" data-student-requirement-next="true">${escapeHtml(studentInstructionCopy(item?.nextAction || "Ask your teacher what to do next."))}</p>
         <p class="workspace-student-requirement-gate" data-student-requirement-approval-gate="true">${escapeHtml(approvalGate)}</p>
       </div>
       <div class="workspace-row-actions">
-        ${submissionId ? `<span class="workspace-site-context-badge" data-student-requirement-evidence="true">${escapeHtml(evidenceCount)} proof item${evidenceCount === 1 ? "" : "s"}</span>` : ""}
-        ${version > 0 ? `<span class="workspace-site-context-badge" data-student-requirement-version="true">Version ${escapeHtml(version)}</span>` : ""}
+        ${submissionId ? `<span class="workspace-site-context-badge" data-student-requirement-evidence="true">${escapeHtml(evidenceCount)} file${evidenceCount === 1 ? "" : "s"}</span>` : ""}
+        ${version > 0 ? `<span class="workspace-site-context-badge" data-student-requirement-version="true">Turned in #${escapeHtml(version)}</span>` : ""}
         ${requirementId ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-requirement-action="toggle-detail" data-student-requirement-id="${escapeHtml(requirementId)}" aria-expanded="${selected ? "true" : "false"}" aria-controls="${escapeHtml(detailDomId)}" aria-label="${escapeHtml(`${detailActionLabel}: ${studentRequirementActionLabel(item)}`)}">${escapeHtml(detailActionLabel)}</button>` : ""}
         ${renderStudentRequirementAction(item, evidenceCount)}
         ${studentStatusPill(item?.status || "missing")}
@@ -13718,29 +13758,29 @@ function renderStudentRequirementDetail(item, latestFeedback = null, evidenceRow
       </div>
       <div class="workspace-student-requirement-detail-grid">
         ${renderStudentRequirementDetailFact("Status", status)}
-        ${renderStudentRequirementDetailFact("Booklet phase", phase.label)}
+        ${renderStudentRequirementDetailFact("Project part", phase.label)}
         ${renderStudentRequirementDetailFact("Phase goal", phase.deliverable)}
         ${renderStudentRequirementDetailFact("Include", phaseChecklist.join("; "))}
         ${renderStudentRequirementDetailFact("Done when", phase.done)}
         ${renderStudentRequirementDetailFact("Due date", studentDueText(item))}
-        ${renderStudentRequirementDetailFact("Proof added", `${evidenceCount} ${pluralize(evidenceCount, "item")} attached`)}
-        ${renderStudentRequirementDetailFact("Sent work", version > 0 ? `Version ${version}: ${submissionStatus}` : "Not sent yet")}
+        ${renderStudentRequirementDetailFact("Files added", `${evidenceCount} ${pluralize(evidenceCount, "file")} attached`)}
+        ${renderStudentRequirementDetailFact("Turned in", version > 0 ? `#${version}: ${submissionStatus}` : "Not turned in yet")}
         ${renderStudentRequirementDetailFact("Now", progressStatus)}
         ${renderStudentRequirementDetailFact("Next step", studentInstructionCopy(item?.nextAction || "Ask your Program Teacher what to do next."))}
-        ${renderStudentRequirementDetailFact("Approval gate", approvalGate)}
+        ${renderStudentRequirementDetailFact("Teacher check", approvalGate)}
       </div>
       ${renderStudentRequirementSendPath(item, latestFeedback, evidenceRows)}
       ${renderStudentRequirementReadyChecklist(item, latestFeedback, evidenceRows)}
       ${latestFeedback ? `
         <article class="workspace-mini-row" data-student-requirement-feedback="true">
-          <span>Latest Program Teacher feedback</span>
+          <span>Latest teacher feedback</span>
           <small>${escapeHtml(latestFeedback.message || "Program Teacher feedback was recorded for this work.")}</small>
           <small>${escapeHtml(latestFeedback.authorName || "Program Teacher")} / ${escapeHtml(formatDate(latestFeedback.createdAt))}</small>
         </article>
       ` : `
         <article class="workspace-mini-row" data-student-requirement-feedback-empty="true">
-          <span>No Program Teacher feedback for this item yet.</span>
-          <small>Feedback meant for you will appear after your Program Teacher reviews or comments on this work.</small>
+          <span>No teacher feedback for this item yet.</span>
+          <small>Feedback will appear after your teacher reviews this work.</small>
         </article>
       `}
       ${submissionId ? `
@@ -13754,7 +13794,7 @@ function renderStudentRequirementDetail(item, latestFeedback = null, evidenceRow
       ${evidenceRows.length ? `
         <div>
           <h4>Files and links already added</h4>
-          <p class="workspace-muted">These are the files and links already attached to this work.</p>
+          <p class="workspace-muted">These files and links show this work.</p>
         </div>
         <div class="workspace-list" data-student-requirement-evidence-list="true">
           ${evidenceRows.map(renderStudentRequirementEvidenceRow).join("")}
@@ -13778,27 +13818,27 @@ function renderStudentRequirementSendPath(item = {}, latestFeedback = null, evid
       id: "finish",
       title: needsRevision ? "Fix the note first" : "Finish this item",
       detail: needsRevision
-        ? (latestFeedback?.message || "Read the Program Teacher note and make the exact change on this item.")
+        ? (latestFeedback?.message || "Read the teacher note and make the exact change.")
         : `This item helps finish ${phaseGoal}. Finish the work described here before sending it.`,
       tone: needsRevision ? "warning" : "student",
     },
     {
       id: "proof",
-      title: evidenceCount ? "Proof is attached" : "Add matching proof",
+      title: evidenceCount ? "File or link added" : "Add a matching file or link",
       detail: evidenceCount
-        ? `${evidenceCount} proof ${pluralize(evidenceCount, "item")} is attached to this checklist item.`
-        : "Add a link or file that shows this exact work, not another phase or old draft.",
+        ? `${evidenceCount} ${pluralize(evidenceCount, "file or link", "files or links")} is attached to this item.`
+        : "Add a link or file that shows this exact work.",
       tone: evidenceCount ? "ready" : "warning",
     },
     {
       id: "send",
-      title: approved ? "Approved" : waitingForReview ? "Wait for review" : actionState.canSubmit ? actionState.label : "Not ready to send",
+      title: approved ? "Done" : waitingForReview ? "Ask your teacher" : actionState.canSubmit ? actionState.label : "Not ready",
       detail: approved
         ? "Use this approval to continue with the next assigned item."
         : waitingForReview
-          ? "Your Program Teacher owns the next decision. Do not send another version unless they ask."
+          ? "Your teacher is checking this work. Do not turn it in again unless they ask."
           : actionState.canSubmit
-            ? "Send only after the work and proof match this item."
+            ? "Turn it in only after the work and file match this item."
             : actionState.reason,
       tone: approved || actionState.canSubmit ? "ready" : waitingForReview ? "teacher" : "quiet",
     },
@@ -13806,8 +13846,8 @@ function renderStudentRequirementSendPath(item = {}, latestFeedback = null, evid
   return `
     <section class="workspace-student-send-path" data-student-send-path="true" aria-label="Before you send this item">
       <div>
-        <strong>Before you send this item</strong>
-        <p>${escapeHtml(`Stay on this checklist item until the work, proof, and Program Teacher note all match. Phase goal: ${phaseGoal}`)}</p>
+        <strong>Before you turn it in</strong>
+        <p>${escapeHtml(`Stay on this item until the work, file, and teacher note all match. Goal: ${phaseGoal}`)}</p>
       </div>
       <div class="workspace-student-send-path-grid">
         ${cards.map((card) => `
@@ -13828,31 +13868,31 @@ function renderStudentRequirementReadyChecklist(item = {}, latestFeedback = null
   const needsRevision = status === "revision_requested";
   const checks = [
     {
-      label: "Right checklist item selected",
-      detail: item?.submissionId ? "This proof and submission are tied to this work item." : "Start or select this work item before sending proof.",
+      label: "Right item selected",
+      detail: item?.submissionId ? "This file or link is tied to this work item." : "Start or select this work item before adding a file.",
       state: item?.submissionId ? "ready" : "blocked",
     },
     {
-      label: "Proof attached",
-      detail: evidenceCount ? `${evidenceCount} proof ${pluralize(evidenceCount, "item")} attached.` : "Add a proof link or file before sending for review.",
+      label: "File or link added",
+      detail: evidenceCount ? `${evidenceCount} ${pluralize(evidenceCount, "file or link", "files or links")} added.` : "Add a file or link before turning in this work.",
       state: evidenceCount ? "ready" : "blocked",
     },
     {
-      label: "Program Teacher feedback checked",
+      label: "Teacher feedback checked",
       detail: needsRevision
-        ? (latestFeedback?.message || "Open Program Teacher Feedback and confirm the exact requested change.")
+        ? (latestFeedback?.message || "Open Feedback and check the exact change.")
         : "No feedback to fix is blocking this item right now.",
       state: needsRevision && !latestFeedback ? "needs_review" : "ready",
     },
     {
-      label: "Ready to send",
-      detail: actionState.canSubmit ? `Use ${actionState.label} when the proof matches this item.` : actionState.reason,
+      label: "Ready to turn in",
+      detail: actionState.canSubmit ? `Use ${actionState.label} when the file matches this item.` : actionState.reason,
       state: actionState.canSubmit ? "ready" : "blocked",
     },
   ];
   return `
     <section class="workspace-student-ready-checklist" data-student-ready-checklist="true" data-student-ready-checklist-state="${escapeHtml(actionState.canSubmit ? "ready" : "blocked")}">
-      <strong>Ready to send?</strong>
+      <strong>Ready to turn in?</strong>
       <div>
         ${checks.map((check) => `
           <article data-student-ready-check="${escapeHtml(check.state)}">
@@ -13904,18 +13944,18 @@ function renderEvidenceActions(item, options = {}) {
   }
   const downloadUrl = item.source_kind === "google_drive_file" ? cleanWorkspaceEvidenceDownloadUrl(item.downloadUrl) : "";
   if (downloadUrl) {
-    actions.push(`<a class="workspace-link-button workspace-link-button-small" data-evidence-download="file" href="${escapeHtml(downloadUrl)}" aria-label="Download proof file: ${escapeHtml(actionLabel)}">Download file</a>`);
+    actions.push(`<a class="workspace-link-button workspace-link-button-small" data-evidence-download="file" href="${escapeHtml(downloadUrl)}" aria-label="Download file: ${escapeHtml(actionLabel)}">Download file</a>`);
   }
   const externalUrl = item.source_kind === "external_link" ? cleanWorkspaceHttpsUrl(item.externalUrl) : "";
   if (externalUrl) {
-    actions.push(`<a class="workspace-link-button workspace-link-button-small" data-evidence-link="external" href="${escapeHtml(externalUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Open proof link: ${escapeHtml(actionLabel)}">Open proof link</a>`);
+    actions.push(`<a class="workspace-link-button workspace-link-button-small" data-evidence-link="external" href="${escapeHtml(externalUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Open work link: ${escapeHtml(actionLabel)}">Open work link</a>`);
   }
   return actions;
 }
 
 function evidenceActionLabel(item = {}) {
-  const label = String(item.title || item.requirementTitle || "proof").trim().replace(/\s+/g, " ");
-  return label ? label.slice(0, 120) : "proof";
+  const label = String(item.title || item.requirementTitle || "file").trim().replace(/\s+/g, " ");
+  return label ? label.slice(0, 120) : "file";
 }
 
 function cleanWorkspaceEvidenceDownloadUrl(value) {
@@ -13929,8 +13969,8 @@ function renderStudentRequirementEvidenceRow(item) {
   const reviewStatus = item.review_status || "pending_review";
   return `
     <article class="workspace-mini-row" data-student-requirement-evidence-item="true">
-      <span>${escapeHtml(item.title || "Proof item")}</span>
-      <small>${escapeHtml(evidenceSourceLabel(item.source_kind))} / ${escapeHtml(statusText(item.artifact_type || "proof"))}</small>
+      <span>${escapeHtml(item.title || "File or link")}</span>
+      <small>${escapeHtml(evidenceSourceLabel(item.source_kind))} / ${escapeHtml(statusText(item.artifact_type || "file"))}</small>
       <small data-proof-review-status="true">${escapeHtml(createdAt)} / ${escapeHtml(studentEvidenceReviewStatusCopy(reviewStatus))}</small>
       ${actions.length ? `<div class="workspace-row-actions">${actions.join("")}</div>` : ""}
     </article>
@@ -13967,11 +14007,11 @@ function studentSubmissionActionState(item = {}) {
       visible: true,
       canSubmit: false,
       submissionId,
-      label: "Add proof",
-      reason: "Add at least one proof link or file before sending this item for review.",
+      label: "Upload",
+      reason: "Add at least one file or link before turning in this item.",
     };
   }
-  const label = status === "revision_requested" ? "Send updated work" : "Send for review";
+  const label = status === "revision_requested" ? "Turn in again" : "Turn in";
   return {
     visible: true,
     canSubmit: true,
@@ -13990,14 +14030,14 @@ function studentDueText(item, fallback = "Due date: Not available yet") {
 
 function renderStudentFeedbackPanel(feedback = [], summary = {}, historyState = defaultStudentFeedbackHistoryState()) {
   const rows = Array.isArray(feedback) ? feedback : [];
-  const countLabel = `${rows.length} Program Teacher note${rows.length === 1 ? "" : "s"}`;
+  const countLabel = `${rows.length} teacher note${rows.length === 1 ? "" : "s"}`;
   return `
     <section class="workspace-dashboard-card workspace-student-feedback-panel" data-student-feedback-panel="true" data-student-feedback-history="true" data-student-feedback-count="${escapeHtml(rows.length)}" aria-labelledby="studentFeedbackTitle">
       <div class="workspace-card-head">
         <div>
-          <p class="workspace-kicker">Program Teacher feedback</p>
-          <h2 id="studentFeedbackTitle">Program Teacher Feedback</h2>
-          <p>${escapeHtml(rows.length ? `Showing the latest ${countLabel} meant for you. Open a note to see what happened and what to do next.` : "Program Teacher review notes meant for you will appear here.")}</p>
+          <p class="workspace-kicker">Feedback</p>
+          <h2 id="studentFeedbackTitle">Feedback</h2>
+          <p>${escapeHtml(rows.length ? `Showing the latest ${countLabel}. Open a note to see what to do next.` : "Teacher notes will appear here.")}</p>
         </div>
       </div>
       ${renderStudentFeedbackPanelBody(feedback, summary, historyState)}
@@ -14029,13 +14069,13 @@ function renderStudentRevisionLane(rows = []) {
   return `
     <section class="workspace-student-revision-lane" data-student-revision-lane="true" data-student-revision-lane-count="${escapeHtml(revisionRows.length)}">
       <div>
-        <strong>Fix revisions first</strong>
-        <p>${escapeHtml(`Start with ${first.requirementTitle || "the first item that needs changes"}. New phase work waits until this is approved.`)}</p>
+        <strong>Fix changes first</strong>
+        <p>${escapeHtml(`Start with ${first.requirementTitle || "the first item that needs changes"}. Wait for approval before new phase work.`)}</p>
       </div>
       <ol>
-        <li>Read the Program Teacher note.</li>
-        <li>Fix the matching work and proof.</li>
-        <li>Send the revision, then wait for Program Teacher approval.</li>
+        <li>Read the teacher note.</li>
+        <li>Fix the matching work and file.</li>
+        <li>Turn it in again. Then wait for your teacher.</li>
       </ol>
     </section>
   `;
@@ -14046,14 +14086,14 @@ function renderStudentFeedbackInboxGuide(rows = [], summary = {}) {
   const headline = counts.revisionRequested
     ? `${counts.revisionRequested} note${counts.revisionRequested === 1 ? "" : "s"} ${counts.revisionRequested === 1 ? "needs" : "need"} your action first.`
     : counts.waiting
-      ? "Read Program Teacher notes, then wait for the next recorded decision."
+      ? "Read teacher notes. Then wait."
       : counts.approved
         ? "Approved notes show what is done and can be used next."
         : "Program Teacher feedback will appear here after review.";
   const nextMove = counts.revisionRequested
-    ? "Open the matching work, make the requested change, attach corrected proof if needed, then send your updated work."
+    ? "Open the matching work. Make the requested change. Add a corrected file if needed."
     : summary?.waitingForReviewCount
-      ? "You are done for now on waiting items. Your Program Teacher owns the next decision."
+      ? "You are done for now on waiting items. Your teacher checks them next."
       : summary?.missingRequiredCount
         ? "Use the checklist for your next unfinished item."
         : "Check the checklist or ask your Program Teacher before starting a new phase.";
@@ -14065,7 +14105,7 @@ function renderStudentFeedbackInboxGuide(rows = [], summary = {}) {
       </div>
       <div class="workspace-student-feedback-inbox-counts" aria-label="Feedback inbox counts">
         <span><b>${escapeHtml(counts.revisionRequested)}</b> action</span>
-        <span><b>${escapeHtml(counts.waiting)}</b> Program Teacher note</span>
+        <span><b>${escapeHtml(counts.waiting)}</b> new note</span>
         <span><b>${escapeHtml(counts.approved)}</b> approved</span>
       </div>
     </section>
@@ -14109,7 +14149,7 @@ function studentFeedbackFilterOptions(rows = []) {
   return [
     { value: "all", label: "All notes", count: counts.all },
     { value: "revision_requested", label: "Needs changes", count: counts.revision_requested },
-    { value: "under_review", label: "Program Teacher notes", count: counts.under_review },
+    { value: "under_review", label: "New feedback", count: counts.under_review },
     { value: "approved", label: "Approved", count: counts.approved },
   ];
 }
@@ -14123,10 +14163,10 @@ function studentFeedbackFilterKey(value) {
 }
 
 function studentFeedbackFilterLabel(value) {
-  if (value === "revision_requested") return "Feedback that needs changes";
-  if (value === "under_review") return "Program Teacher notes";
-  if (value === "approved") return "Approved feedback";
-  return "All Program Teacher feedback";
+  if (value === "revision_requested") return "Needs changes";
+  if (value === "under_review") return "New feedback";
+  if (value === "approved") return "Old feedback";
+  return "All feedback";
 }
 
 function filterStudentFeedbackRows(rows = [], filterKey = "all") {
@@ -14140,8 +14180,8 @@ function renderStudentFeedbackEmptyState(summary = {}, filterKey = "all", totalR
   if (!totalRows) {
     return `
       <article class="workspace-empty-state-card" data-student-feedback-empty="true">
-        <strong>${escapeHtml(summary.revisionRequestedCount ? "No feedback details are available here yet." : "No Program Teacher feedback yet.")}</strong>
-        <p>${escapeHtml(summary.revisionRequestedCount ? "Check the submission list below and ask your Program Teacher what to revise." : "Feedback will appear here after your Program Teacher reviews or comments on your work.")}</p>
+        <strong>${escapeHtml(summary.revisionRequestedCount ? "No feedback details are available here yet." : "No feedback yet.")}</strong>
+        <p>${escapeHtml(summary.revisionRequestedCount ? "Check Turned in and ask your teacher what to fix." : "Feedback will appear here after your teacher reviews your work.")}</p>
       </article>
     `;
   }
@@ -14149,19 +14189,19 @@ function renderStudentFeedbackEmptyState(summary = {}, filterKey = "all", totalR
   const copy = {
     revision_requested: {
       title: "No feedback needs changes right now.",
-      detail: "Show all notes or check Work You Sent In for anything still waiting for review.",
+      detail: "Show all notes or check Turned in for anything still waiting for review.",
     },
     under_review: {
-      title: "No general Program Teacher notes are listed right now.",
-      detail: "Show all notes or approved feedback for your recent work.",
+      title: "No new feedback is listed right now.",
+      detail: "Show all feedback or old feedback.",
     },
     approved: {
       title: "No approved feedback is listed yet.",
-      detail: "Approved notes will appear here after your Program Teacher marks sent work complete.",
+      detail: "Old feedback appears after your teacher marks work done.",
     },
     all: {
-      title: "No Program Teacher feedback yet.",
-      detail: "Feedback will appear here after your Program Teacher reviews or comments on your work.",
+      title: "No feedback yet.",
+      detail: "Feedback will appear here after your teacher reviews your work.",
     },
   };
   const selectedCopy = copy[activeFilter] || copy.all;
@@ -14183,14 +14223,14 @@ function renderStudentFeedbackRow(item, historyState = defaultStudentFeedbackHis
     <article class="workspace-row workspace-student-feedback-row" data-student-feedback-item="${escapeHtml(item.id || "")}">
       <div>
         <strong>${escapeHtml(item.requirementTitle || "Senior Project work")}</strong>
-        <p>${escapeHtml(item.message || "Program Teacher feedback was recorded for this work.")}</p>
+        <p>${escapeHtml(item.message || "Your teacher left feedback for this work.")}</p>
         ${submissionMeta ? `<p class="workspace-muted" data-student-feedback-context="true">${escapeHtml(submissionMeta)}</p>` : ""}
         <p class="workspace-student-feedback-gate" data-student-feedback-approval-gate="true">${escapeHtml(approvalGate)}</p>
         <p class="workspace-muted">${escapeHtml(item.authorName || "Program Teacher")} / ${escapeHtml(formatDate(item.createdAt))}</p>
       </div>
       <div class="workspace-row-actions">
         ${submissionId ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-feedback-action="open-history" data-student-feedback-origin="feedback" data-student-feedback-submission-id="${escapeHtml(submissionId)}">${escapeHtml(isSelected ? "Refresh work history" : "View work history")}</button>` : ""}
-        ${needsRevision ? `<button class="workspace-button workspace-button-small workspace-button-secondary" type="button" data-student-support-action="focus-submissions" data-student-support-filter="revision_requested">Open work to fix</button>` : ""}
+        ${needsRevision ? `<button class="workspace-button workspace-button-small workspace-button-secondary" type="button" data-student-support-action="focus-submissions" data-student-support-filter="revision_requested">Fix work</button>` : ""}
         ${studentStatusPill(item.status || "under_review")}
       </div>
       ${renderStudentRevisionHelper(item)}
@@ -14206,11 +14246,11 @@ function renderStudentRevisionHelper(item = {}) {
   return `
     <section class="workspace-student-revision-helper" data-student-revision-helper="true">
       <div>
-        <strong>Program Teacher asked</strong>
-        <p>${escapeHtml(item?.message || "Review the Program Teacher feedback for this item.")}</p>
+        <strong>Teacher asked</strong>
+        <p>${escapeHtml(item?.message || "Read the teacher feedback for this item.")}</p>
       </div>
       <div>
-        <strong>Your fix checklist</strong>
+        <strong>Your fix list</strong>
         <ol>
           ${checklist.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}
         </ol>
@@ -14222,27 +14262,27 @@ function renderStudentRevisionHelper(item = {}) {
 function studentRevisionChecklist(message = "") {
   const note = String(message || "").trim().replace(/\s+/g, " ");
   const firstStep = note
-    ? `Fix the Program Teacher note: ${note.slice(0, 140)}${note.length > 140 ? "..." : ""}`
-    : "Read the Program Teacher note and identify the exact change.";
+    ? `Fix this note: ${note.slice(0, 140)}${note.length > 140 ? "..." : ""}`
+    : "Read the teacher note. Find the exact change.";
   return [
     firstStep,
-    "Update the matching work and proof, not a different item.",
-    "Send the revision, then wait for Program Teacher approval before next steps.",
+    "Update the matching work and file.",
+    "Turn it in again. Then wait for your teacher.",
   ];
 }
 
 function studentFeedbackApprovalGateText(item = {}) {
   const status = normalizeStatus(item?.submissionStatus || item?.status);
   if (["approved", "archived", "complete", "completed"].includes(status)) {
-    return "Approved for next steps. Use this Program Teacher approval to continue with the next assigned item.";
+    return "Done. Use this approval for the next assigned item.";
   }
   if (["submitted", "under_review", "reviewing", "pending_review"].includes(status)) {
-    return "Wait here. Your Program Teacher must approve this work before next steps.";
+    return "Wait here. Your teacher checks this work before next steps.";
   }
   if (["revision_requested", "needs_revision"].includes(status)) {
-    return "Fix this feedback item, send your updated work, then wait for Program Teacher approval.";
+    return "Fix this work. Turn it in again. Then wait for your teacher.";
   }
-  return "Read this note, update your work if needed, and ask your Program Teacher before skipping ahead.";
+  return "Read this note. Update your work if needed. Ask your teacher before skipping ahead.";
 }
 
 function studentFeedbackSelectionMatches(historyState, submissionId, source = "feedback") {
@@ -14261,7 +14301,7 @@ function studentRequirementSubmissionIdForId(requirements = [], requirementId = 
 function studentFeedbackSubmissionMeta(item) {
   const parts = [];
   const version = safeNumber(item?.submissionVersion);
-  if (version > 0) parts.push(`Version ${version}`);
+  if (version > 0) parts.push(`Turned in #${version}`);
   if (item?.submissionStatus) parts.push(`Now: ${studentStatusText(item.submissionStatus)}`);
   return parts.join(" / ");
 }
@@ -14281,8 +14321,8 @@ function renderStudentFeedbackTimeline(historyState = defaultStudentFeedbackHist
         <h3>Work history unavailable</h3>
         ${renderProblemState({
           reason: "We could not load this work history right now.",
-          owner: "Program Teacher",
-          nextAction: "Try again later or ask your Program Teacher which version to update.",
+          owner: "Teacher",
+          nextAction: "Try again later or ask your teacher which turn-in to update.",
         })}
       </section>
     `;
@@ -14306,9 +14346,9 @@ function renderStudentFeedbackTimeline(historyState = defaultStudentFeedbackHist
       ${renderStudentVersionCompare(versions, history.submission?.version)}
       ${hasTimeline ? `
         <div class="workspace-student-feedback-timeline-grid">
-          ${renderStudentTimelineList("Sent versions", versions, "No sent versions are listed yet.", (row) => renderStudentVersionTimelineItem(row, history.submission?.version))}
+          ${renderStudentTimelineList("Turned in", versions, "No turned-in work is listed yet.", (row) => renderStudentVersionTimelineItem(row, history.submission?.version))}
           ${renderStudentTimelineList("What changed", statusHistory, "No changes are listed yet.", renderStudentStatusTimelineItem)}
-          ${renderStudentTimelineList("Program Teacher notes", noteRows, "No Program Teacher notes are listed yet.", renderStudentNoteTimelineItem)}
+          ${renderStudentTimelineList("Teacher notes", noteRows, "No teacher notes are listed yet.", renderStudentNoteTimelineItem)}
         </div>
       ` : `<div class="workspace-empty">No work history is available for this item yet.</div>`}
     </section>
@@ -14317,16 +14357,16 @@ function renderStudentFeedbackTimeline(historyState = defaultStudentFeedbackHist
 
 function renderStudentTimelineActionGuide(history = {}, versions = [], statusHistory = [], noteRows = []) {
   const currentStatus = normalizeStatus(history?.submission?.status || statusHistory[0]?.to_status || statusHistory[0]?.toStatus || "");
-  const teacherAsked = noteRows[0]?.feedback || noteRows[0]?.body || "No Program Teacher note is listed yet.";
+  const teacherAsked = noteRows[0]?.feedback || noteRows[0]?.body || "No teacher note is listed yet.";
   const latestVersion = latestStudentTimelineVersion(versions);
   const changedText = latestVersion
-    ? `Latest sent version: Version ${safeNumber(latestVersion.version)} with ${studentTimelineEvidenceCount(latestVersion)} proof item${studentTimelineEvidenceCount(latestVersion) === 1 ? "" : "s"}.`
-    : "No submitted version is listed yet.";
+    ? `Latest turn-in: #${safeNumber(latestVersion.version)} with ${studentTimelineEvidenceCount(latestVersion)} file${studentTimelineEvidenceCount(latestVersion) === 1 ? "" : "s"}.`
+    : "No turned-in work is listed yet.";
   const nextMove = studentTimelineNextMove(currentStatus);
   return `
     <section class="workspace-student-timeline-guide" data-student-timeline-guide="true">
       <article>
-        <strong>Program Teacher asked</strong>
+        <strong>Teacher asked</strong>
         <p>${escapeHtml(teacherAsked)}</p>
       </article>
       <article>
@@ -14347,10 +14387,10 @@ function renderStudentVersionCompare(versions = [], currentVersion = 0) {
   const previous = previousStudentTimelineVersion(versions, current.version);
   return `
     <section class="workspace-student-version-compare" data-student-version-compare="true">
-      <strong>Sent work check</strong>
+      <strong>Turned-in work check</strong>
       <div>
-        <span>Newest sent work: ${escapeHtml(studentTimelineVersionSummary(current))}</span>
-        <span>Previous: ${escapeHtml(previous ? studentTimelineVersionSummary(previous) : "No previous version listed")}</span>
+        <span>Newest turned-in work: ${escapeHtml(studentTimelineVersionSummary(current))}</span>
+        <span>Previous: ${escapeHtml(previous ? studentTimelineVersionSummary(previous) : "No previous turn-in listed")}</span>
       </div>
     </section>
   `;
@@ -14383,7 +14423,7 @@ function studentTimelineVersionSummary(row = {}) {
   const version = safeNumber(row?.version);
   const evidenceCount = studentTimelineEvidenceCount(row);
   const submittedAt = row?.submittedAt || row?.submitted_at;
-  return `${version ? `Version ${version}` : "Version"} / ${evidenceCount} proof item${evidenceCount === 1 ? "" : "s"} / ${formatDate(submittedAt)}`;
+  return `${version ? `#${version}` : "Turn-in"} / ${evidenceCount} file${evidenceCount === 1 ? "" : "s"} / ${formatDate(submittedAt)}`;
 }
 
 function studentTimelineEvidenceCount(row = {}) {
@@ -14392,18 +14432,18 @@ function studentTimelineEvidenceCount(row = {}) {
 
 function studentTimelineNextMove(status = "") {
   const normalized = normalizeStatus(status);
-  if (["revision_requested", "needs_revision"].includes(normalized)) return "Fix the Program Teacher note, send your updated work, then wait for Program Teacher approval.";
-  if (["submitted", "under_review", "reviewing", "pending_review"].includes(normalized)) return "Wait here. Your Program Teacher owns the next decision.";
-  if (["approved", "complete", "completed", "archived"].includes(normalized)) return "Approved for next steps. Use the next assigned item.";
-  return "Use the newest Program Teacher note and ask your Program Teacher before skipping ahead.";
+  if (["revision_requested", "needs_revision"].includes(normalized)) return "Fix the teacher note. Turn in your updated work. Then wait.";
+  if (["submitted", "under_review", "reviewing", "pending_review"].includes(normalized)) return "Wait here. Your teacher checks it next.";
+  if (["approved", "complete", "completed", "archived"].includes(normalized)) return "Done for next steps. Use the next assigned item.";
+  return "Use the newest teacher note. Ask your teacher before skipping ahead.";
 }
 
 function renderStudentFeedbackTimelineSummary(history = {}, versions = [], statusHistory = [], noteRows = []) {
   const currentVersion = safeNumber(history?.submission?.version);
   const facts = [];
-  if (currentVersion > 0) facts.push({ label: "Newest sent work", value: `Version ${currentVersion}` });
-  facts.push({ label: "Sent versions", value: `${versions.length}` });
-  facts.push({ label: "Program Teacher notes", value: `${noteRows.length}` });
+  if (currentVersion > 0) facts.push({ label: "Newest turn-in", value: `#${currentVersion}` });
+  facts.push({ label: "Turned in", value: `${versions.length}` });
+  facts.push({ label: "Teacher notes", value: `${noteRows.length}` });
   facts.push({ label: "What changed", value: `${statusHistory.length}` });
   return `
     <div class="workspace-student-feedback-timeline-summary" data-student-feedback-timeline-summary="true">
@@ -14433,13 +14473,13 @@ function renderStudentVersionTimelineItem(row, currentVersion = 0) {
   const isCurrentVersion = version > 0 && version === safeNumber(currentVersion);
   const detailParts = [
     statusText(row?.status || "submitted"),
-    evidenceCount ? `${evidenceCount} proof item${evidenceCount === 1 ? "" : "s"}` : "No proof saved",
+    evidenceCount ? `${evidenceCount} file${evidenceCount === 1 ? "" : "s"}` : "No file saved",
     formatDate(row?.submittedAt || row?.submitted_at),
   ];
-  if (isCurrentVersion) detailParts.push("Newest sent work");
+  if (isCurrentVersion) detailParts.push("Newest turned-in work");
   return `
     <article class="workspace-mini-row" data-student-feedback-version="${escapeHtml(version || "")}" data-student-feedback-current-version="${isCurrentVersion ? "true" : "false"}">
-      <span>${escapeHtml(version ? `Version ${version} submitted` : "Version submitted")}</span>
+      <span>${escapeHtml(version ? `Turned in #${version}` : "Turned in")}</span>
       <small>${escapeHtml(detailParts.join(" / "))}</small>
     </article>
   `;
@@ -14457,8 +14497,8 @@ function renderStudentStatusTimelineItem(row) {
 }
 
 function renderStudentNoteTimelineItem(row) {
-  const message = row?.feedback || row?.body || "Program Teacher note recorded.";
-  const author = row?.reviewer_name || row?.reviewerName || row?.author_name || row?.authorName || "Program Teacher";
+  const message = row?.feedback || row?.body || "Teacher note saved.";
+  const author = row?.reviewer_name || row?.reviewerName || row?.author_name || row?.authorName || "Teacher";
   const createdAt = row?.created_at || row?.createdAt;
   const noteType = studentFeedbackTimelineNoteType(row);
   return `
@@ -14487,8 +14527,8 @@ function studentFeedbackTimelineNoteType(row = {}) {
 }
 
 function studentFeedbackTimelineNoteLabel(row = {}) {
-  if (row?.decision) return `Program Teacher review: ${statusText(row.decision)}`;
-  return "Program Teacher note";
+  if (row?.decision) return `Teacher review: ${statusText(row.decision)}`;
+  return "Teacher note";
 }
 
 function renderStudentProgressDetails(summary, dashboard) {
@@ -14541,7 +14581,7 @@ function renderStudentSupportMap(summary = {}, dashboard = {}) {
   const cards = [
     {
       id: "program-teacher",
-      title: "Ask your Program Teacher",
+      title: "Ask your teacher",
       detail: revisionCount
         ? "Use this when feedback asks for changes, a phase is blocked, or you are not sure what to fix first."
         : missingCount
@@ -14554,8 +14594,8 @@ function renderStudentSupportMap(summary = {}, dashboard = {}) {
       id: "mentor",
       title: mentorAssigned ? "Ask your mentor" : "Ask who can mentor you",
       detail: mentorAssigned
-        ? "Use mentor help for ideas, practice, and project thinking. Program Teacher approval still controls phase movement."
-        : "Ask your Program Teacher who can help with mentor questions until a mentor is listed here.",
+        ? "Use mentor help for ideas, practice, and project thinking. Your teacher still controls phase movement."
+        : "Ask your teacher who can help with mentor questions until a mentor is listed here.",
       actionHtml: `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-support-action="focus-requirements">${escapeHtml(mentorAssigned ? "Open checklist" : "Open required work")}</button>`,
       tone: mentorAssigned ? "mentor" : "quiet",
     },
@@ -14563,8 +14603,8 @@ function renderStudentSupportMap(summary = {}, dashboard = {}) {
       id: "account",
       title: "Use Account for sign-in only",
       detail: waitingCount && !revisionCount
-        ? "Do not change proof while work is waiting for review unless your Program Teacher asks."
-        : "Password or sign-in problems belong in Account. Proof, feedback, and deadlines stay in My Work.",
+        ? "Do not change files while work is waiting for review unless your teacher asks."
+        : "Password or sign-in problems belong in Account. Files, feedback, and deadlines stay in My Work.",
       actionHtml: `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="security">Open Account</button>`,
       tone: "quiet",
     },
@@ -14585,7 +14625,7 @@ function renderStudentSupportMap(summary = {}, dashboard = {}) {
 function renderStudentSubmissionsPanelBody(submissions = [], filteredSubmissions = [], feedback = [], activeSubmissionFilter = "all") {
   return `
     <div>
-      <p class="workspace-muted">${escapeHtml(submissions.length ? `Showing the latest ${submissions.length} item${submissions.length === 1 ? "" : "s"} you have started or sent.` : "Your sent work will appear here after you start project work.")}</p>
+      <p class="workspace-muted">${escapeHtml(submissions.length ? `Showing the latest ${submissions.length} item${submissions.length === 1 ? "" : "s"} you have started or turned in.` : "Your turned-in work will appear here after you start project work.")}</p>
       ${renderStudentSubmissionActionSummary(submissions)}
       ${renderStudentSubmissionStatusGuide(submissions, activeSubmissionFilter)}
       ${submissions.length > 1 || activeSubmissionFilter !== "all" ? renderStudentSubmissionFilters(submissions, activeSubmissionFilter) : ""}
@@ -14608,7 +14648,7 @@ function renderStudentSubmissionStatusGuide(submissions = [], activeSubmissionFi
       id: "draft",
       title: "Draft",
       detail: counts.draft
-        ? "Finish the work, attach matching proof, then send it for Program Teacher review."
+        ? "Finish this work. Add a matching file or link. Turn it in for review."
         : "No draft work is waiting for you right now.",
       tone: counts.draft ? "student" : "quiet",
       count: counts.draft,
@@ -14618,8 +14658,8 @@ function renderStudentSubmissionStatusGuide(submissions = [], activeSubmissionFi
       id: "submitted",
       title: "Waiting for review",
       detail: counts.waiting
-        ? "Your Program Teacher owns the next decision. Do not send another version unless they ask."
-        : "Nothing is waiting for Program Teacher review right now.",
+        ? "Your teacher checks this next. Do not turn in another version unless they ask."
+        : "Nothing is waiting for teacher review right now.",
       tone: counts.waiting ? "teacher" : "quiet",
       count: counts.waiting,
       action: "Show waiting work",
@@ -14628,7 +14668,7 @@ function renderStudentSubmissionStatusGuide(submissions = [], activeSubmissionFi
       id: "revision_requested",
       title: "Needs changes",
       detail: counts.revision
-        ? "Fix the Program Teacher note, update the matching proof if needed, then send your updated work."
+        ? "Read the teacher note. Fix the work. Update the matching file or link if needed. Turn it in again."
         : "No work to fix is waiting for you right now.",
       tone: counts.revision ? "warning" : "quiet",
       count: counts.revision,
@@ -14639,17 +14679,17 @@ function renderStudentSubmissionStatusGuide(submissions = [], activeSubmissionFi
       title: "Approved",
       detail: counts.approved
         ? "This work is complete for now. Use it for the next assigned item, presentation, or final files."
-        : "Approved work appears here after your Program Teacher marks sent work complete.",
+        : "Done work appears here after your teacher checks it.",
       tone: counts.approved ? "ready" : "quiet",
       count: counts.approved,
       action: "Show approved work",
     },
   ];
   return `
-    <section class="workspace-student-submission-status-guide" data-student-submission-status-guide="true" aria-label="What sent-work statuses mean">
+    <section class="workspace-student-submission-status-guide" data-student-submission-status-guide="true" aria-label="What turned-in statuses mean">
       <div>
-        <strong>What sent-work statuses mean</strong>
-        <p>${escapeHtml("Use these cards to decide whether to keep working, wait, fix a revision, or move on.")}</p>
+        <strong>What Turned in labels mean</strong>
+        <p>${escapeHtml("Use these cards to decide whether to keep working, wait, fix work, or move on.")}</p>
       </div>
       <div class="workspace-student-submission-status-grid">
         ${cards.map((card) => `
@@ -14673,18 +14713,18 @@ function renderStudentSubmissionActionSummary(submissions = []) {
   const rows = Array.isArray(submissions) ? submissions : [];
   const counts = studentSubmissionStatusCounts(rows);
   const guidance = counts.revision
-    ? "Do work that needs changes first. Update the matching work, attach corrected proof if needed, then send your updated work."
+    ? "Do work that needs changes first. Update the matching work. Add a corrected file or link if needed. Turn it in again."
     : counts.waiting
-      ? "Done for now on waiting items. Your Program Teacher owns the next decision."
+      ? "Done for now on waiting items. Your teacher checks them next."
     : counts.draft
-      ? "Finish draft items, add proof, then send them for review."
+      ? "Finish draft items. Add files or links. Turn them in for review."
     : counts.approved
       ? "Approved work shows what is complete and ready to use for next steps."
-      : "Started work will appear here after your Program Teacher assigns it.";
+      : "Started work will appear here after your teacher adds it.";
   return `
     <section class="workspace-student-submission-summary" data-student-submission-summary="true">
       <strong>${escapeHtml(guidance)}</strong>
-      <div class="workspace-student-submission-counts" aria-label="Sent work status counts">
+      <div class="workspace-student-submission-counts" aria-label="Turned in status counts">
         <span><b>${escapeHtml(counts.revision)}</b> fix</span>
         <span><b>${escapeHtml(counts.waiting)}</b> wait</span>
         <span><b>${escapeHtml(counts.draft)}</b> draft</span>
@@ -14721,7 +14761,7 @@ function renderStudentFilesPanelBody(evidence = []) {
       ${renderStudentProofReceipt(rows)}
       ${groups.length
         ? groups.map(renderStudentEvidenceGroup).join("")
-        : `<div class="workspace-empty">Proof will appear here after you attach a link or upload a file. Open a checklist item or the proof tools when you are ready to add your work.</div>`}
+        : `<div class="workspace-empty">Files and links will appear here after you add them to your work.</div>`}
     </div>
   `;
 }
@@ -14741,26 +14781,26 @@ function renderStudentFilesReviewGuide(evidence = []) {
     }, "Open checklist item")
     : renderStudentDisclosureOpenButton("requirements", "Open checklist");
   const reviewTitle = needsFixCount
-    ? "Proof needs a correction"
+    ? "File needs changes"
     : waitingCount
       ? "Waiting for review"
       : approvedCount
-        ? "Proof has approval"
+        ? "File is approved"
         : "Check review status";
   const reviewDetail = needsFixCount
-    ? `${needsFixCount} proof ${pluralize(needsFixCount, "item")} needs a Program Teacher correction path.`
+    ? `${needsFixCount} ${pluralize(needsFixCount, "file or link", "files or links")} need changes from your teacher.`
     : waitingCount
-      ? `${waitingCount} proof ${pluralize(waitingCount, "item")} is saved, but still waiting for Program Teacher review.`
+      ? `${waitingCount} ${pluralize(waitingCount, "file or link", "files or links")} saved. Wait for your teacher.`
       : approvedCount
-        ? `${approvedCount} proof ${pluralize(approvedCount, "item")} is approved. Keep using the next assigned item.`
-        : "Use the row status below to see what your Program Teacher has reviewed.";
+        ? `${approvedCount} ${pluralize(approvedCount, "file or link", "files or links")} approved. Keep using the next assigned item.`
+        : "Use the row status below to see what your teacher has reviewed.";
   const cards = [
     {
       id: "match",
-      title: "Match proof to a checklist item",
+      title: "Match file to work",
       detail: unmatchedCount
-        ? `${unmatchedCount} proof ${pluralize(unmatchedCount, "item")} is not matched to a checklist item yet. Ask your Program Teacher before using it for a phase.`
-        : `All ${rows.length} proof ${pluralize(rows.length, "item")} below is grouped by checklist item.`,
+        ? `${unmatchedCount} ${pluralize(unmatchedCount, "file or link", "files or links")} are not matched to work yet. Ask your teacher before using them.`
+        : `${rows.length} ${pluralize(rows.length, "file or link", "files or links")} grouped by work item.`,
       actionHtml: checklistAction,
       tone: unmatchedCount ? "warning" : "ready",
     },
@@ -14773,17 +14813,17 @@ function renderStudentFilesReviewGuide(evidence = []) {
     },
     {
       id: "correct",
-      title: "Need to change proof?",
-      detail: "Add corrected proof to the right item. Tell your Program Teacher which old proof should be ignored.",
-      actionHtml: renderStudentDisclosureOpenButton("evidence", "Open proof tools"),
+      title: "Need to change a file?",
+      detail: "Add the corrected file to the right item. Tell your teacher which old file to ignore.",
+      actionHtml: renderStudentDisclosureOpenButton("evidence", "Upload"),
       tone: "student",
     },
   ];
   return `
-    <section class="workspace-student-files-review" data-student-files-review="true" aria-label="How to check saved proof">
+    <section class="workspace-student-files-review" data-student-files-review="true" aria-label="How to check saved files and links">
       <div>
-        <strong>Check saved proof</strong>
-        <p>${escapeHtml("Files and links are proof, not approval. Use this screen to confirm proof is attached to the right checklist item before you move on.")}</p>
+        <strong>Check saved files</strong>
+        <p>${escapeHtml("Files and links show your work. They are not approval. Check that each file is on the right item.")}</p>
       </div>
       <div class="workspace-student-files-review-grid">
         ${cards.map((card) => `
@@ -14806,14 +14846,14 @@ function renderStudentProofReceipt(evidence = []) {
   const matchedEvidence = studentProofReceiptMatchedEvidence(receipt, evidence);
   const matchedTitle = matchedEvidence?.requirementTitle || receipt.requirementTitle || "selected checklist item";
   const requirementId = cleanDirectoryFilter(receipt.requirementId || matchedEvidence?.requirementId || "");
-  const proofLabel = receipt.proofKind === "link" ? "Proof link" : "Uploaded file";
-  const fileLabel = receipt.fileName || receipt.title || "Proof";
+  const proofLabel = receipt.proofKind === "link" ? "Work link" : "Uploaded file";
+  const fileLabel = receipt.fileName || receipt.title || "File";
   const savedAt = receipt.savedAt ? formatDate(receipt.savedAt) : "just now";
   return `
     <section class="workspace-student-proof-receipt" data-student-proof-receipt="true" data-student-proof-receipt-kind="${escapeHtml(receipt.proofKind || "proof")}" data-student-proof-receipt-matched="${matchedEvidence ? "true" : "pending"}" data-student-proof-receipt-submission-id="${escapeHtml(receipt.submissionId || "")}" data-student-proof-receipt-requirement-id="${escapeHtml(requirementId)}">
       <div class="workspace-student-proof-receipt-head">
         <div>
-          <span>Proof saved</span>
+          <span>File saved</span>
           <strong>Confirm it is on the right checklist item</strong>
           <p>${escapeHtml(`${proofLabel} saved for ${matchedTitle}.`)}</p>
           <p class="workspace-muted">${escapeHtml(`${fileLabel} / ${savedAt}`)}</p>
@@ -14824,27 +14864,27 @@ function renderStudentProofReceipt(evidence = []) {
         ${renderStudentProofReceiptCard({
           id: "matching-item",
           owner: "Student check",
-          title: "Open the matching checklist item",
-          detail: "Confirm this proof appears on the work item you meant to update.",
-          action: "Open checklist item",
+          title: "Open the matching work",
+          detail: "Confirm this file appears on the work item you meant to update.",
+          action: "Open work",
           actionType: requirementId ? "open-checklist" : "open-files",
           tone: "ready",
         })}
         ${renderStudentProofReceiptCard({
           id: "wrong-item",
           owner: "Correction path",
-          title: "Wrong item? Add corrected proof",
-          detail: "Leave this proof alone, add the corrected proof to the right item, then tell your Program Teacher which one to ignore.",
-          action: "Open proof tools",
+          title: "Wrong item? Add the right file",
+          detail: "Leave this file alone. Add the correct file to the right item. Tell your teacher which one to ignore.",
+          action: "Upload",
           actionType: "correct-proof",
           tone: "warning",
         })}
         ${renderStudentProofReceiptCard({
           id: "send-review",
           owner: "Next step",
-          title: "Send the work for review",
-          detail: "Use Work You Sent In or the checklist item when all required proof is attached.",
-          action: "Open sent work",
+          title: "Turn in the work",
+          detail: "Use Turned in or the work item when all required files are attached.",
+          action: "View turned in",
           actionType: "open-submissions",
           tone: "student",
         })}
@@ -14852,19 +14892,19 @@ function renderStudentProofReceipt(evidence = []) {
           id: "approval-gate",
           owner: "Program Teacher",
           title: "Approval still comes later",
-          detail: "Proof is saved, but next steps wait until a Program Teacher records approval.",
-          action: "Stay in files",
+          detail: "The file is saved. Wait for your teacher before next steps.",
+          action: "Stay in Files",
           actionType: "open-files",
           tone: "teacher",
         })}
       </div>
       <div class="workspace-student-proof-receipt-footer">
-        <p class="workspace-muted" data-student-proof-receipt-gate="true">Proof is saved, but this item is not approved for next steps until a Program Teacher reviews it.</p>
+        <p class="workspace-muted" data-student-proof-receipt-gate="true">The file is saved. This item is not done until your teacher reviews it.</p>
         <div class="workspace-student-proof-receipt-checks">
-          <span>1. Confirm this proof is on the right checklist item.</span>
-          <span>2. If it is wrong, add the proof to the correct item.</span>
-          <span>3. Send the item for review when all required proof is attached.</span>
-          <span>4. Wait for Program Teacher approval before moving to the next Senior Project step.</span>
+          <span>1. Confirm this file is on the right item.</span>
+          <span>2. If it is wrong, add the file to the correct item.</span>
+          <span>3. Turn in the item when all required files are attached.</span>
+          <span>4. Wait for your teacher before the next step.</span>
         </div>
       </div>
     </section>
@@ -14902,7 +14942,7 @@ function groupStudentEvidenceByRequirement(rows = []) {
   for (const row of Array.isArray(rows) ? rows : []) {
     const requirementId = cleanDirectoryFilter(row?.requirementId || "");
     const submissionId = cleanDirectoryFilter(row?.submissionId || "");
-    const title = String(row?.requirementTitle || "").trim() || "Proof not matched to a checklist item";
+  const title = String(row?.requirementTitle || "").trim() || "File not matched to a work item";
     const key = requirementId || submissionId || `unassigned:${title}`;
     if (!byKey.has(key)) {
       const group = { key, title, rows: [] };
@@ -14917,15 +14957,15 @@ function groupStudentEvidenceByRequirement(rows = []) {
 function renderStudentEvidenceGroup(group = {}) {
   const rows = Array.isArray(group?.rows) ? group.rows : [];
   return `
-    <section class="workspace-student-file-group" data-student-file-group="true" data-student-file-group-title="${escapeHtml(group?.title || "Proof")}" data-student-file-group-count="${escapeHtml(rows.length)}">
+    <section class="workspace-student-file-group" data-student-file-group="true" data-student-file-group-title="${escapeHtml(group?.title || "Files")}" data-student-file-group-count="${escapeHtml(rows.length)}">
       <div class="workspace-student-file-group-head">
         <div>
-          <h3>${escapeHtml(group?.title || "Proof")}</h3>
-          <p class="workspace-muted">${escapeHtml(`${rows.length} proof item${rows.length === 1 ? "" : "s"} attached to this work.`)}</p>
+          <h3>${escapeHtml(group?.title || "Files")}</h3>
+          <p class="workspace-muted">${escapeHtml(`${rows.length} ${pluralize(rows.length, "file or link", "files or links")} attached to this work.`)}</p>
         </div>
-        <span class="workspace-site-context-badge">${escapeHtml(rows.length)} proof</span>
+        <span class="workspace-site-context-badge">${escapeHtml(rows.length)} file${rows.length === 1 ? "" : "s"}</span>
       </div>
-      <p class="workspace-muted" data-student-proof-recovery="true">Wrong item? Add the corrected proof to the right checklist item, then tell your Program Teacher in the feedback note or next check-in.</p>
+      <p class="workspace-muted" data-student-proof-recovery="true">Wrong item? Add the corrected file to the right item. Then tell your teacher.</p>
       <div class="workspace-list">
         ${rows.map(renderEvidenceRow).join("")}
       </div>
@@ -14981,7 +15021,7 @@ function renderStudentSupportActions(summary, dashboard) {
           : "all";
     buttons.push(`
       <button class="workspace-link-button workspace-link-button-small" type="button" data-student-support-action="focus-submissions" data-student-support-filter="${escapeHtml(submissionFilter)}">
-        ${escapeHtml(summary?.revisionRequestedCount ? "Open sent work" : summary?.waitingForReviewCount ? "Check sent work" : "Show sent work")}
+        ${escapeHtml(summary?.revisionRequestedCount ? "Open Turned in" : summary?.waitingForReviewCount ? "Check Turned in" : "Show Turned in")}
       </button>
     `);
   }
@@ -15038,15 +15078,15 @@ function renderEvidenceForms(submissions, requirements = []) {
   return `
     ${renderStudentStorageFallbackMap(rows, archiveBody)}
     <section class="workspace-student-proof-guide" data-student-proof-guide="true">
-      <strong>Add proof in this order</strong>
+      <strong>Add a file or link</strong>
       <ol>
-        <li>Choose the exact work item the proof belongs to.</li>
-        <li>Add a clear proof title so your Program Teacher knows what to review.</li>
+        <li>Choose the exact work item.</li>
+        <li>Add a clear title so your teacher knows what to review.</li>
         <li>Attach a secure link or upload the file.</li>
-        <li>Open the matching checklist item, press Send for review, then wait for Program Teacher approval.</li>
+        <li>Open the matching item. Turn it in when it is ready.</li>
       </ol>
-      <p class="workspace-muted">If you choose the wrong work item, add the corrected proof to the right item and tell your Program Teacher which proof should be ignored.</p>
-      <p class="workspace-muted" data-student-upload-fallback="true">If uploads are not working, attach a secure proof link first so your Program Teacher still has something to review.</p>
+      <p class="workspace-muted">If you choose the wrong work item, add the corrected file to the right item. Tell your teacher which file to ignore.</p>
+      <p class="workspace-muted" data-student-upload-fallback="true">If uploads are not working, add a secure link first so your teacher can review your work.</p>
     </section>
     <div class="workspace-panel">
       <h3>Attach a link</h3>
@@ -15058,19 +15098,19 @@ function renderEvidenceForms(submissions, requirements = []) {
           </label>
           ${renderStudentProofGuideList(rows, requirements, "link", linkGuideId)}
           <label class="workspace-label">
-            Work type
+            Type
             <select class="workspace-select" name="artifactType">
               ${artifactTypeOptions()}
             </select>
           </label>
           <label class="workspace-label workspace-label-wide">
-            Proof title
+            Link title
             <input class="workspace-input" name="title" autocomplete="off" maxlength="160" required>
           </label>
           <label class="workspace-label workspace-label-wide">
-            Proof link
+            Work link
             <input class="workspace-input" name="url" type="url" inputmode="url" autocomplete="off" maxlength="${WORKSPACE_PROOF_LINK_MAX_LENGTH}" aria-describedby="workspaceProofLinkHelp" required>
-            <span id="workspaceProofLinkHelp" class="workspace-muted">Use a direct https:// proof link under 2,048 characters. Do not use sign-in, password reset, verification, or credential collection pages.</span>
+            <span id="workspaceProofLinkHelp" class="workspace-muted">Use a direct https:// link under 2,048 characters. Do not use sign-in, password reset, verification, or credential collection pages.</span>
           </label>
         </div>
         <div class="workspace-form-actions">
@@ -15088,7 +15128,7 @@ function renderEvidenceForms(submissions, requirements = []) {
           </label>
           ${renderStudentProofGuideList(rows, requirements, "file", fileGuideId)}
           <label class="workspace-label">
-            Work type
+            Type
             <select class="workspace-select" name="artifactType">
               ${artifactTypeOptions()}
             </select>
@@ -15116,8 +15156,8 @@ function renderViewAsStudentProofPreview(submissions = [], requirements = []) {
   const rows = Array.isArray(submissions) ? submissions : [];
   return `
     <section class="workspace-view-as-proof-preview" data-view-as-student-proof-preview="true">
-      <strong>Proof tools hidden in preview</strong>
-      <p>Students see proof upload and link tools here. Staff preview keeps those controls hidden so no proof, submission, or file state can change.</p>
+      <strong>File tools hidden in preview</strong>
+      <p>Students see upload and link tools here. Staff preview keeps those controls hidden so no file or work state can change.</p>
       ${rows.length ? `
         <div class="workspace-list">
           ${rows.slice(0, 5).map((submission) => {
@@ -15130,7 +15170,7 @@ function renderViewAsStudentProofPreview(submissions = [], requirements = []) {
             `;
           }).join("")}
         </div>
-      ` : `<div class="workspace-empty">No student proof tools are available because no started work is visible.</div>`}
+      ` : `<div class="workspace-empty">No student file tools are available because no started work is visible.</div>`}
     </section>
   `;
 }
@@ -15146,7 +15186,7 @@ function renderStudentStorageFallbackMap(submissions = [], archiveBody = null) {
       owner: "Student",
       metric: rows.length ? `${rows.length} item${rows.length === 1 ? "" : "s"}` : "No item",
       title: "Choose the exact work item",
-      detail: "Proof only helps when it is attached to the matching checklist item.",
+      detail: "A file or link only helps when it is attached to the matching work item.",
       tone: "student",
       action: "Show proof guide",
       focus: "proof-guide",
@@ -15155,8 +15195,8 @@ function renderStudentStorageFallbackMap(submissions = [], archiveBody = null) {
       id: "link-first",
       owner: "If uploads are blocked",
       metric: "Link first",
-      title: "Use a secure proof link first",
-      detail: "If uploads are not working, attach a secure HTTPS link so your Program Teacher can still review.",
+      title: "Use a secure link first",
+      detail: "If uploads are not working, add a secure HTTPS link so your teacher can still review.",
       tone: storageState.status === "ready" ? "link" : "warning",
       action: "Open link form",
       focus: "link-form",
@@ -15176,7 +15216,7 @@ function renderStudentStorageFallbackMap(submissions = [], archiveBody = null) {
       owner: "Upload status",
       metric: uploadStatus === "idle" ? "Waiting" : `${uploadLabelForState(uploadStatus)} / ${uploadProgress}%`,
       title: "Read upload status",
-      detail: "If upload status turns red, add a secure proof link before trying again.",
+      detail: "If upload status turns red, add a secure link before trying again.",
       tone: uploadStatus === "failed" ? "danger" : uploadStatus === "complete" ? "ready" : "quiet",
       action: "Show status",
       focus: "upload-status",
@@ -15186,7 +15226,7 @@ function renderStudentStorageFallbackMap(submissions = [], archiveBody = null) {
       owner: "Program Teacher",
       metric: "Tell staff",
       title: "Tell your Program Teacher what happened",
-      detail: "If storage blocks the file, share the proof link and explain that the file upload did not finish.",
+      detail: "If storage blocks the file, share the link and explain that the file upload did not finish.",
       tone: "teacher",
       action: "Open help",
       focus: "support",
@@ -15196,7 +15236,7 @@ function renderStudentStorageFallbackMap(submissions = [], archiveBody = null) {
       owner: "Staff support",
       metric: "Final files",
       title: "Staff handle final-file downloads",
-      detail: "Staff fix download setup problems. Keep finishing checklist proof with links or existing proof.",
+      detail: "Staff fix download setup problems. Keep finishing work with links or files already saved.",
       tone: storageState.status === "provider_unavailable" ? "warning" : "staff",
       action: "Open final files",
       section: "archive",
@@ -15207,8 +15247,8 @@ function renderStudentStorageFallbackMap(submissions = [], archiveBody = null) {
     <section class="workspace-student-storage-fallback-map" data-student-storage-fallback-map="true" data-student-storage-state="${escapeHtml(storageState.status)}" aria-labelledby="studentStorageFallbackTitle">
       <div class="workspace-student-storage-fallback-head">
         <div>
-          <span>Proof options</span>
-          <h3 id="studentStorageFallbackTitle">Attach proof without getting stuck</h3>
+          <span>File options</span>
+          <h3 id="studentStorageFallbackTitle">Add files without getting stuck</h3>
           <p>${escapeHtml(storageState.summary)}</p>
         </div>
         ${studentStatusPill(storageState.status === "provider_unavailable" ? "needs_staff_action" : storageState.status)}
@@ -15230,8 +15270,8 @@ function studentStorageFallbackState(archiveBody = null, upload = uploadState) {
       status: "provider_unavailable",
       label: "Staff setup needed",
       tone: "warning",
-      summary: "Use a proof link first when uploads or final-file downloads are not ready.",
-      detail: "File uploads and final downloads may not be ready here. Use secure proof links for checklist work while staff fixes download setup.",
+      summary: "Use a secure link first when uploads or final-file downloads are not ready.",
+      detail: "File uploads and final downloads may not be ready here. Use secure links while staff fixes download setup.",
     };
   }
   if ((upload?.state || "") === "failed") {
@@ -15239,8 +15279,8 @@ function studentStorageFallbackState(archiveBody = null, upload = uploadState) {
       status: "failed",
       label: "Upload problem",
       tone: "danger",
-      summary: "The last upload needs attention, so save a reviewable proof link before retrying.",
-      detail: "The last file upload needs attention. Attach a proof link before retrying so review can continue.",
+      summary: "The last upload needs attention. Save a reviewable link before retrying.",
+      detail: "The last file upload needs attention. Add a link before retrying so review can continue.",
     };
   }
   if (!archiveBody) {
@@ -15248,16 +15288,16 @@ function studentStorageFallbackState(archiveBody = null, upload = uploadState) {
       status: "checking",
       label: "Checking uploads",
       tone: "quiet",
-      summary: "Proof links work while this screen checks whether uploads are ready.",
-      detail: "Upload status is still loading. Start with a secure proof link if you need to keep moving.",
+      summary: "Links work while this screen checks whether uploads are ready.",
+      detail: "Upload status is still loading. Start with a secure link if you need to keep moving.",
     };
   }
   return {
     status: "ready",
     label: "Uploads ready",
     tone: "ready",
-    summary: "Use the link form for web proof and the upload form when a file is the clearest proof.",
-    detail: "File uploads are ready. Use uploads for files, and use secure proof links when the work already lives online.",
+    summary: "Use the link form for online work and the upload form for files.",
+    detail: "File uploads are ready. Use uploads for files. Use secure links when the work already lives online.",
   };
 }
 
@@ -15327,14 +15367,14 @@ function studentProofGuideForSubmission(submission = {}, requirements = []) {
   const description = String(requirement?.description || submission?.description || "").trim();
   const qualityPrompt = String(requirement?.qualityPrompt || requirement?.quality_prompt || submission?.qualityPrompt || "").trim();
   const phase = studentBookletPhaseInfo(requirement?.phase || requirement?.phaseLabel || "", requirement?.phaseLabel || "");
-  const nextAction = studentInstructionCopy(requirement?.nextAction || submission?.nextAction || "Attach proof that clearly matches this work item.");
+  const nextAction = studentInstructionCopy(requirement?.nextAction || submission?.nextAction || "Attach a file or link that clearly matches this work item.");
   return {
     title,
-    description: description || `Use proof that clearly shows the work for ${title} is complete or ready for review.`,
+    description: description || `Use a file or link that clearly shows the work for ${title} is ready for review.`,
     qualityPrompt,
     phaseLabel: phase.label || "Current work",
-    phaseGoal: phase.deliverable || "Finish the work your Program Teacher lists for this phase.",
-    phaseDone: phase.done || "Program Teacher marks the listed work approved.",
+    phaseGoal: phase.deliverable || "Finish the work your teacher lists for this phase.",
+    phaseDone: phase.done || "Your teacher marks the listed work approved.",
     phaseChecklist: Array.isArray(phase.checklist) ? phase.checklist : [],
     statusLabel: studentStatusText(submission?.status || requirement?.submissionStatus || requirement?.status || "draft"),
     nextAction,
@@ -15359,13 +15399,13 @@ function renderStudentProofGuide(submission = {}, requirements = [], selectedSub
   return `
     <article class="workspace-student-proof-guide" data-student-proof-guide="${escapeHtml(submissionId)}" data-student-proof-guide-selected="${selected ? "true" : "false"}" ${selected ? "" : "hidden"}>
       <div class="workspace-student-proof-guide-head">
-        <span>What counts as proof</span>
-        <strong>${escapeHtml(`What counts as proof for ${guide.title}`)}</strong>
+        <span>What to add</span>
+        <strong>${escapeHtml(`What file or link to add for ${guide.title}`)}</strong>
       </div>
-      <p class="workspace-student-proof-phase-goal" data-student-proof-phase-goal="true"><strong>This proof should help finish:</strong> ${escapeHtml(guide.phaseGoal)}</p>
+      <p class="workspace-student-proof-phase-goal" data-student-proof-phase-goal="true"><strong>This file should help finish:</strong> ${escapeHtml(guide.phaseGoal)}</p>
       <p>${escapeHtml(guide.description)}</p>
       ${guide.phaseChecklist.length ? `<p class="workspace-muted" data-student-proof-phase-include="true"><strong>Include:</strong> ${escapeHtml(guide.phaseChecklist.join("; "))}</p>` : ""}
-      ${guide.qualityPrompt ? `<p class="workspace-muted" data-student-proof-guide-quality="true">Before you attach it: ${escapeHtml(guide.qualityPrompt)}</p>` : ""}
+      ${guide.qualityPrompt ? `<p class="workspace-muted" data-student-proof-guide-quality="true">Before you add it: ${escapeHtml(studentInstructionCopy(guide.qualityPrompt))}</p>` : ""}
       <div class="workspace-student-proof-guide-facts">
         <span><b>Phase</b>${escapeHtml(guide.phaseLabel)}</span>
         <span><b>Status</b>${escapeHtml(guide.statusLabel)}</span>
@@ -15379,9 +15419,9 @@ function renderStudentProofGuide(submission = {}, requirements = [], selectedSub
 function renderStudentEvidenceEmptyState() {
   return `
     <article class="workspace-empty-state-card" data-student-evidence-empty="true">
-      <strong>No proof can be uploaded yet.</strong>
-      <p>First open What to Work On Next and start the item your Program Teacher assigned. Upload tools appear here after that item exists.</p>
-      <p class="workspace-muted">If no item appears, ask your Program Teacher which Senior Project step should be assigned before you upload proof.</p>
+      <strong>No file can be uploaded yet.</strong>
+      <p>First open Current work and start the item your teacher assigned. Upload tools appear here after that item exists.</p>
+      <p class="workspace-muted">If no item appears, ask your teacher which Senior Project step should be assigned before you upload a file.</p>
     </article>
   `;
 }
@@ -15397,7 +15437,7 @@ function renderUploadStatus() {
     ? `<button class="workspace-button workspace-button-secondary" type="button" data-upload-action="retry">Retry upload</button>`
     : "";
   const linkFallback = state === "failed"
-    ? `<p class="workspace-muted" data-upload-link-fallback="true" data-upload-fallback-priority="link-first">Need to keep moving? Attach the proof as a secure link above first, then tell your Program Teacher the file upload did not finish. Retry only if staff says file uploads are ready.</p>`
+    ? `<p class="workspace-muted" data-upload-link-fallback="true" data-upload-fallback-priority="link-first">Need to keep moving? Add the work as a secure link above first. Then tell your teacher the file upload did not finish. Retry only if staff says file uploads are ready.</p>`
     : "";
 
   return `
@@ -15406,7 +15446,7 @@ function renderUploadStatus() {
         <span class="workspace-upload-status-label">${escapeHtml(uploadLabelForState(state))}</span>
         <span class="workspace-upload-status-percent">${progress}%</span>
       </div>
-      <div class="workspace-upload-meter" role="progressbar" aria-label="Evidence upload progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}" data-upload-progress="${progress}">
+      <div class="workspace-upload-meter" role="progressbar" aria-label="File upload progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}" data-upload-progress="${progress}">
         <span style="width: ${progress}%"></span>
       </div>
       <p class="workspace-upload-message" data-upload-message>${escapeHtml(message)}</p>
@@ -15430,11 +15470,11 @@ function uploadLabelForState(state) {
 function uploadMessageForState(state) {
   if (state === "selected") return "File selected. Press Upload file when you are ready.";
   if (state === "preparing") return "Preparing your file for upload.";
-  if (state === "uploading") return "Uploading your proof file.";
+  if (state === "uploading") return "Uploading your file.";
   if (state === "verifying") return "Checking that the upload finished safely.";
-  if (state === "complete") return "Your file was received and added to your proof.";
+  if (state === "complete") return "Your file was received and added to your work.";
   if (state === "failed") return "The upload did not finish. Review the message and try again if available.";
-  return "Choose a file to upload as proof.";
+  return "Choose a file to upload.";
 }
 
 function clampUploadProgress(value) {
@@ -17582,7 +17622,7 @@ function renderSecuritySupportGuide({ globalAdmin = false, canManageUsers = fals
           </article>
           <article>
             <span>Proof or feedback issue</span>
-            <small>Use My Work for project proof and Program Teacher feedback. This Account screen only changes sign-in settings.</small>
+            <small>Use My Work for project files and teacher feedback. This Account screen only changes sign-in settings.</small>
           </article>
         </div>
       </section>
@@ -19775,7 +19815,7 @@ function handleStudentProofReceiptAction(event) {
       submissions: true,
     };
     requestStudentSectionFocus("submissions");
-    renderAppShell("Opening Work You Sent In so you can send or check this item.", "success");
+    renderAppShell("Opening Turned in so you can turn in or check this item.", "success");
     return;
   }
   studentDisclosureState = {
@@ -19959,7 +19999,7 @@ async function handleStudentSubmissionAction(event) {
   if (action !== "submit" || busy) return;
   busy = true;
   button.disabled = true;
-  renderAppShell("Sending your work to the Program Teacher for review...");
+  renderAppShell("Sending your work to your teacher for review...");
   const result = await settleApi(apiJson(`/api/submissions/${encodeURIComponent(submissionId)}/submit`, {
     method: "POST",
   }));
@@ -19968,7 +20008,7 @@ async function handleStudentSubmissionAction(event) {
     renderAppShell(messageForStudentSubmissionError(result.body?.error || result.error, result.status), "error");
     return;
   }
-  await loadWorkspaceData("Your work was sent to the Program Teacher. Wait for approval before starting the next step.");
+  await loadWorkspaceData("Your work was turned in. Wait for your teacher before the next step.");
 }
 
 function setStudentSubmissionFilter(value) {
@@ -19987,7 +20027,7 @@ function setStudentSubmissionFilter(value) {
   }
   activeSection = "studentWork";
   const message = studentSubmissionFilter === "all"
-    ? "Showing all sent work."
+    ? "Showing all turned-in work."
     : `Showing ${studentSubmissionFilterLabel(studentSubmissionFilter)}.`;
   renderAppShell(message, "success");
 }
@@ -20002,7 +20042,7 @@ function focusEvidenceFormsForSubmission(submissionId) {
   pendingStudentEvidenceSubmissionId = normalizedSubmissionId;
   requestStudentSectionFocus("evidence");
   activeSection = "studentWork";
-  renderAppShell("Proof tools opened.", "success");
+    renderAppShell("File tools opened.", "success");
 }
 
 async function openStudentFeedbackHistory(submissionId, source = "feedback") {
@@ -21014,7 +21054,7 @@ function renderStudentPresentationDayPlan(slots = [], dashboard = {}) {
       tone: "student",
       label: "During",
       title: "Show the work you finished",
-      detail: "Use your approved outline and project proof from My Work. Do not use Presentation to replace missing proof.",
+      detail: "Use your approved outline and project file from My Work. Do not use Presentation to replace missing files.",
       actionHtml: "",
     },
     {
@@ -21061,17 +21101,17 @@ function renderStudentPresentationGuide(slots = [], dashboard = {}) {
       id: "studentPresentationPhaseGoal",
       kicker: "Phase 3A deliverable",
       title: "What presentation day finishes",
-      detail: "This screen helps with your presentation. It does not replace missing checklist proof or Program Teacher approval.",
+      detail: "This screen helps with your presentation. It does not replace missing checklist files or your teacher check.",
       currentLabel: "Presentation screen",
       dataAttrs: 'data-student-presentation-phase-goal="true"',
     })}
     ${renderTaskFinishChecklist("student-presentation", "Before presentation day", [
       ["Know when and where", timeCopy, focus.scheduledFor ? "ready" : "needs_review"],
       ["Check your outline", `Outline status: ${outlineStatus}. Fix outline feedback before presentation day.`, normalizeStatus(focus.outlineStatus) === "approved" ? "ready" : "needs_review"],
-      ["Bring project proof", "Your approved outline and project proof should match the checklist work in My Work.", "context"],
+      ["Bring project file", "Your approved outline and project file should match the checklist work in My Work.", "context"],
       ["After you present", dashboard.checkInNeeded ? "Staff still need to finish check-in for a checked-out presentation row." : "Completion or check-in status appears here after presentation day.", dashboard.checkInNeeded ? "needs_review" : "context"],
     ], {
-      detail: "Presentation is about showing your work. It does not replace missing checklist proof or Program Teacher approval.",
+      detail: "Presentation is about showing your work. It does not replace missing checklist files or your teacher check.",
       badge: "Presentation checks",
       state: dashboard.checkInNeeded ? "needs_review" : dashboard.outlinePending || dashboard.pendingSchedule ? "pending" : "ready",
     })}
@@ -21402,15 +21442,15 @@ function renderStudentArchiveFinishChecklist(body = {}) {
       ? [
           ["Read the staff-support message", guidance.detail || "Staff need to fix your final-file download.", "needs_staff_action"],
           ["Do not retry from this screen", "This student view does not create a new download request.", "blocked"],
-          ["Use the checklist below", "If a final check asks for proof, use a proof link when uploads are not working.", "context"],
+          ["Use the checklist below", "If a final check asks for a file, use a secure link when uploads are not working.", "context"],
         ]
       : [
           ["Start with the first missing check", "Use What to Finish Before Download before asking for final files.", "ready"],
-          ["Match proof to the check", "Add proof only when the check below says it is missing or needs attention.", "needs_review"],
+          ["Match file to the check", "Add a file or link only when the check below says it is missing or needs attention.", "needs_review"],
           ["Wait for staff to prepare the download", "A download appears only after staff prepares the final files.", "context"],
         ];
   return renderTaskFinishChecklist("student-final-files", "Before you save final files", items, {
-    detail: "Use these checks before downloading, asking staff for final files, or adding final-file proof.",
+    detail: "Use these checks before downloading, asking staff for final files, or adding a final-file link.",
     badge: "Final-file checks",
     state: guidance.status,
   });
@@ -21492,7 +21532,7 @@ function studentArchiveGuidance(body) {
     return {
       status: "ready",
       title: "Final checks are ready",
-      detail: `${progressText} Ask your Program Teacher or administrator to prepare your May 5 download.`,
+      detail: `${progressText} Ask your teacher or school staff to prepare your May 5 download.`,
       owner: "Staff support",
       when: "Your checklist is ready for staff review.",
     };
@@ -21502,16 +21542,16 @@ function studentArchiveGuidance(body) {
     return {
       status: "provider_unavailable",
       title: "Staff need to finish download setup",
-      detail: `${progressText} Downloads are not ready yet, but your checklist can still be reviewed with proof links or existing proof.`,
+      detail: `${progressText} Downloads are not ready yet, but your checklist can still be reviewed with secure links or existing files.`,
       owner: "Staff support",
-      when: "Use proof links for checklist work; staff own download setup.",
+      when: "Use secure links for checklist work. Staff own download setup.",
     };
   }
 
   return {
     status: archiveStatus,
     title: "Review your final checklist",
-    detail: `${progressText} Use the checklist below to see what is ready and what still needs proof or Program Teacher review.`,
+    detail: `${progressText} Use the checklist below to see what is ready and what still needs a file or teacher review.`,
     owner: "Your action",
     when: "Start with any check that is not ready.",
   };
@@ -21537,7 +21577,7 @@ function archiveGuidanceDetailForCheck(check) {
   if (check.status === "in_progress") {
     return studentInstructionCopy(`${message} Add or update proof if your Program Teacher asked for more.`);
   }
-  return studentInstructionCopy(`${message} Add the missing work or ask your Program Teacher what to attach.`);
+  return studentInstructionCopy(`${message} Add the missing work or ask your teacher what to add.`);
 }
 
 function renderArchiveCheckRow(check) {
@@ -21665,8 +21705,8 @@ async function attachEvidenceLink(event) {
       renderAppShell(messageForEvidenceError(body?.error, response.status), "error");
       return;
     }
-    await loadWorkspaceData("Proof link attached. Your Program Teacher can now review it.");
-    openStudentProofReceipt("Proof link attached. Files list opened so you can confirm it is on the right work item.", {
+    await loadWorkspaceData("Work link saved. Your teacher can now review it.");
+    openStudentProofReceipt("Work link saved. Files list opened so you can confirm it is on the right work item.", {
       proofKind: "link",
       submissionId: values.submissionId,
       title: values.title,
@@ -21679,8 +21719,8 @@ async function attachEvidenceLink(event) {
 }
 
 function validateEvidenceLinkValues(values = {}) {
-  if (!String(values.submissionId || "").trim()) return "Choose the work item this proof link belongs to.";
-  if (!String(values.title || "").trim()) return "Add a short title for this proof link.";
+  if (!String(values.submissionId || "").trim()) return "Choose the work item this link belongs to.";
+  if (!String(values.title || "").trim()) return "Add a short title for this link.";
   const linkProblem = evidenceLinkValidationProblem(values.url);
   if (linkProblem) return messageForEvidenceError(linkProblem);
   return "";
@@ -21861,12 +21901,12 @@ async function runEvidenceUploadAttempt(attempt, form) {
     updateUploadState({
       state: "complete",
       progress: 100,
-      message: "Your file was received and added to your proof.",
+      message: "Your file was received and added to your work.",
       fileName: attempt.file.name || "Selected file",
       fileSize: attempt.file.size || 0,
       retryReady: false,
     });
-    await loadWorkspaceData("Your file was received and added to your Senior Project proof.");
+    await loadWorkspaceData("Your file was received and added to your work.");
     openStudentProofReceipt("Your file was received. Files list opened so you can confirm it is on the right work item.", {
       proofKind: "file",
       submissionId: attempt.submissionId,
@@ -21888,7 +21928,7 @@ async function runEvidenceUploadAttempt(attempt, form) {
   }
 }
 
-function openStudentProofReceipt(message = "Proof saved. Files list opened.", receipt = {}) {
+function openStudentProofReceipt(message = "File saved. Files list opened.", receipt = {}) {
   studentProofReceiptState = normalizeStudentProofReceipt(receipt);
   studentDisclosureState = {
     ...studentDisclosureState,
@@ -22006,7 +22046,7 @@ function workspaceUploadTypeMessage() {
 }
 
 function workspaceUploadBlockedSignatureMessage() {
-  return "This file cannot be uploaded safely. Choose the original PDF, image, text file, spreadsheet, presentation, or document, or attach a proof link instead.";
+  return "This file cannot be uploaded safely. Choose the original PDF, image, text file, spreadsheet, presentation, or document, or attach a secure link instead.";
 }
 
 function canRetryUploadFailure(error, status) {
@@ -22377,11 +22417,11 @@ function studentSidebarNextStepText(dashboard = {}) {
 
   if (summary.revisionRequestedCount) {
     return title
-      ? `Fix ${title} first, then send it back for Program Teacher review.`
-      : "Fix feedback first, then send it back for Program Teacher review.";
+      ? `Fix ${title} first, then turn it in again.`
+      : "Fix feedback first, then turn it in again.";
   }
   if (summary.waitingForReviewCount) {
-    return "Check what you sent, then wait for Program Teacher approval before starting the next phase.";
+    return "Check what you turned in, then wait for your teacher before starting the next phase.";
   }
   if (summary.missingRequiredCount) {
     return title
@@ -23453,14 +23493,31 @@ function safeNumber(value) {
 function studentInstructionCopy(value, fallback = "") {
   let text = String(value || fallback || "").trim();
   if (!text) return "";
-  text = replaceStandaloneTeacherPhrase(text, "teacher review", "Program Teacher review");
-  text = replaceStandaloneTeacherPhrase(text, "teacher feedback", "Program Teacher feedback");
   return text
-    .replace(/\byour program teachers\b/gi, "your Program Teachers")
-    .replace(/\byour program teacher\b/gi, "your Program Teacher")
-    .replace(/\bprogram teachers\b/gi, "Program Teachers")
-    .replace(/\bprogram teacher\b/gi, "Program Teacher")
-    .replace(/\byour teacher\b/gi, "your Program Teacher");
+    .replace(/\bsent work\b/gi, "turned-in work")
+    .replace(/\bsend your updated work\b/gi, "turn it in again")
+    .replace(/\bsend it back\b/gi, "turn it in again")
+    .replace(/\bsend it for\b/gi, "turn it in for")
+    .replace(/\bsend them for\b/gi, "turn them in for")
+    .replace(/\bsend this work for\b/gi, "turn this work in for")
+    .replace(/\bsend work for\b/gi, "turn in work for")
+    .replace(/\bsend work\b/gi, "turn in work")
+    .replace(/\bsend it\b/gi, "turn it in")
+    .replace(/\bsend them\b/gi, "turn them in")
+    .replace(/\battach corrected proof\b/gi, "add a corrected file or link")
+    .replace(/\battach matching proof\b/gi, "add a matching file or link")
+    .replace(/\battach the ([^,.]+?) proof\b/gi, "add the $1 file or link")
+    .replace(/\battach proof\b/gi, "add a file or link")
+    .replace(/\badd proof\b/gi, "add a file or link")
+    .replace(/\bproof link\b/gi, "work link")
+    .replace(/\bproof links\b/gi, "work links")
+    .replace(/\bproof files\b/gi, "files")
+    .replace(/\bproof file\b/gi, "file")
+    .replace(/\bproof\b/gi, "file or link")
+    .replace(/\byour program teachers\b/gi, "your teachers")
+    .replace(/\byour program teacher\b/gi, "your teacher")
+    .replace(/\bprogram teachers\b/gi, "teachers")
+    .replace(/\bprogram teacher\b/gi, "teacher");
 }
 
 function replaceStandaloneTeacherPhrase(text, phrase, replacement) {
@@ -23495,8 +23552,8 @@ function renderSubmissionRow(submission, feedback = [], historyState = defaultSt
     <article class="workspace-row workspace-student-submission-row" data-student-submission-row="${escapeHtml(submissionId || "true")}">
       <div>
         <strong>${escapeHtml(submission.requirement_title || "Senior Project work")}</strong>
-        <p>Sent work: Version ${escapeHtml(submission.version || 1)}. Updated ${escapeHtml(formatDate(submission.updated_at))}.</p>
-        ${latestFeedback ? `<p class="workspace-muted" data-submission-feedback="true">Latest Program Teacher feedback: ${escapeHtml(latestFeedback.message || "Program Teacher feedback was recorded for this work.")}</p>` : ""}
+        <p>Turned in: #${escapeHtml(submission.version || 1)}. Updated ${escapeHtml(formatDate(submission.updated_at))}.</p>
+        ${latestFeedback ? `<p class="workspace-muted" data-submission-feedback="true">Latest teacher feedback: ${escapeHtml(latestFeedback.message || "Your teacher left feedback for this work.")}</p>` : ""}
         <p class="workspace-muted" data-student-submission-next-owner="true">Next move: ${escapeHtml(owner)}</p>
         <p class="workspace-student-submission-gate" data-student-submission-approval-gate="true">${escapeHtml(approvalGate)}</p>
       </div>
@@ -23511,25 +23568,25 @@ function renderSubmissionRow(submission, feedback = [], historyState = defaultSt
 
 function studentSubmissionNextOwner(submission = {}) {
   const status = studentSubmissionFilterKey(submission?.status);
-  if (status === "revision_requested") return "You revise this item, then send it back.";
-  if (status === "submitted") return "Program Teacher reviews and approves or requests revision.";
+  if (status === "revision_requested") return "Fix this item, then turn it in again.";
+  if (status === "submitted") return "Your teacher checks it next.";
   if (status === "approved") return "Approved for next steps. Keep this as completed work.";
-  if (status === "draft") return "You finish the work and add proof.";
-  return "Ask your Program Teacher what should happen next.";
+  if (status === "draft") return "You finish the work and add a file or link.";
+  return "Ask your teacher what should happen next.";
 }
 
 function studentSubmissionApprovalGateText(submission = {}) {
   const status = normalizeStatus(submission?.status);
   if (["approved", "archived", "complete", "completed"].includes(status)) {
-    return "Approved for next steps. Use this approval to continue with the next assigned item.";
+    return "Done. Use this approval to continue with the next assigned item.";
   }
   if (["submitted", "under_review", "reviewing", "pending_review"].includes(status)) {
-    return "Wait here. Your Program Teacher must approve this sent work before next steps.";
+    return "Wait here. Your teacher checks this work before next steps.";
   }
   if (["revision_requested", "needs_revision"].includes(status)) {
-    return "Fix this sent work, send your updated work, then wait for Program Teacher approval.";
+    return "Fix this work. Turn it in again. Then wait for your teacher.";
   }
-  return "Finish this work, attach proof if needed, then send it to your Program Teacher for review.";
+  return "Finish this work. Add a file or link if needed. Then turn it in.";
 }
 
 function renderStudentSubmissionFilters(rows = [], activeFilter = "all") {
@@ -23580,7 +23637,7 @@ function studentSubmissionFilterLabel(value) {
   if (value === "submitted") return "work waiting for review";
   if (value === "revision_requested") return "work that needs changes";
   if (value === "approved") return "approved work";
-  return "all work you sent in";
+  return "all turned-in work";
 }
 
 function filterStudentSubmissionRows(rows = [], filterKey = "all") {
@@ -23595,7 +23652,7 @@ function renderStudentSubmissionEmptyState(filterKey = "all", totalRows = 0) {
     return `
       <article class="workspace-empty-state-card" data-student-submission-empty="true" data-student-submission-empty-filter="none">
         <strong>No work has been started yet.</strong>
-        <p>Next person responsible: your Program Teacher adds the first work item; you start when it appears here.</p>
+        <p>Next person responsible: your teacher adds the first work item. You start when it appears here.</p>
       </article>
     `;
   }
@@ -23615,7 +23672,7 @@ function renderStudentSubmissionEmptyState(filterKey = "all", totalRows = 0) {
     },
     approved: {
       title: "No approved work is listed yet.",
-      detail: "Approved work will appear here after your Program Teacher marks sent work complete.",
+      detail: "Done work will appear here after your teacher checks it.",
     },
     all: {
       title: "No work has been started yet.",
@@ -23645,8 +23702,8 @@ function renderEvidenceRow(item) {
   return `
     <article class="workspace-row" data-student-proof-row="true">
       <div>
-        <strong>${escapeHtml(item.title || "Proof item")}</strong>
-        <p>${escapeHtml(evidenceSourceLabel(item.source_kind))} / ${escapeHtml(statusText(item.artifact_type || "proof"))}</p>
+        <strong>${escapeHtml(item.title || "File or link")}</strong>
+        <p>${escapeHtml(evidenceSourceLabel(item.source_kind))} / ${escapeHtml(statusText(item.artifact_type || "file"))}</p>
         ${item.requirementTitle ? `<p class="workspace-muted">Checklist item: ${escapeHtml(item.requirementTitle)}</p>` : ""}
         <p class="workspace-muted" data-proof-review-status="true">${escapeHtml(reviewCopy)}</p>
       </div>
@@ -23660,17 +23717,17 @@ function renderEvidenceRow(item) {
 
 function studentEvidenceReviewStatusCopy(status) {
   const normalized = normalizeStatus(status);
-  if (["approved", "complete", "completed"].includes(normalized)) return "Program Teacher review: approved proof.";
-  if (["revision_requested", "needs_revision"].includes(normalized)) return "Program Teacher review: proof needs a correction.";
-  if (["rejected", "blocked"].includes(normalized)) return "Program Teacher review: ask what to replace before using this proof.";
-  return "Program Teacher review: waiting for approval.";
+  if (["approved", "complete", "completed"].includes(normalized)) return "Teacher review: approved file.";
+  if (["revision_requested", "needs_revision"].includes(normalized)) return "Teacher review: file needs changes.";
+  if (["rejected", "blocked"].includes(normalized)) return "Teacher review: ask what to replace before using this file.";
+  return "Teacher review: waiting.";
 }
 
 function evidenceSourceLabel(value) {
   if (value === "google_drive_file") return "Uploaded file";
   if (value === "external_link") return "Linked work";
   if (value === "generated_export") return "Exported package";
-  return "Proof item";
+  return "File or link";
 }
 
 function statusPill(status) {
@@ -23905,19 +23962,19 @@ const ROLE_WORKING_PROFILES = {
         id: "proof",
         step: "3",
         tone: "proof",
-        title: "Attach proof to the exact item",
-        detail: "Use a proof link or file only on the checklist item it belongs to.",
+        title: "Add files to the exact item",
+        detail: "Use a file or link only on the checklist item it belongs to.",
         section: "student",
-        action: "Open proof tools",
+        action: "Open files",
       },
       {
         id: "wait",
         step: "4",
         tone: "teacher",
-        title: "Wait after sending work",
-        detail: "Program Teacher approval opens the next step. If revision is requested, fix that item first.",
+        title: "Wait after turning in work",
+        detail: "Your teacher opens the next step. If changes are requested, fix that item first.",
         section: "student",
-        action: "Open sent work",
+        action: "Open Turned in",
       },
     ],
     see: [
@@ -23927,7 +23984,7 @@ const ROLE_WORKING_PROFILES = {
     ],
     do: [
       "Open My Work to follow the current phase goal and work on the next item.",
-      "Add proof with an upload or link when your Program Teacher asks for it.",
+      "Add a file or link when your teacher asks for it.",
       "Read feedback, fix work, send it again, prepare for presentation, and save final files by May 5.",
     ],
     limits: [
@@ -23935,7 +23992,7 @@ const ROLE_WORKING_PROFILES = {
       "You do not manage accounts, mentors, schedules for other people, or staff-only reports.",
     ],
     actions: [
-      { section: "student", label: "Open My Work", detail: "Current phase goal, next item, feedback, and proof." },
+      { section: "student", label: "Open My Work", detail: "Current phase goal, next item, feedback, and files." },
       { section: "presentation", label: "Open Presentation", detail: "Time, room, outline status, and what to bring." },
       { section: "archive", label: "Open Final Files", detail: "What to finish and what to save by May 5." },
       { section: "security", label: "Open Account", detail: "Your password and signed-in sessions." },
@@ -26844,26 +26901,26 @@ function workspaceStateForAuthError(error) {
 }
 
 function messageForEvidenceError(error, status) {
-  if (error === "invalid_https_evidence_url") return "Use a full HTTPS link for your proof, beginning with https://, under 2,048 characters, and without usernames or passwords.";
-  if (error === "unsafe_evidence_url") return "Use a direct proof link, not a sign-in, password, verification, or credential collection page.";
+  if (error === "invalid_https_evidence_url") return "Use a full HTTPS link, beginning with https://, under 2,048 characters, and without usernames or passwords.";
+  if (error === "unsafe_evidence_url") return "Use a direct work link, not a sign-in, password, verification, or credential collection page.";
   if (error === "missing_submission_id" || status === 404) return "We could not find that work. Refresh and try again.";
-  if (status === 403) return "This account cannot add proof to that work.";
-  if (status === 401) return "Sign in again before adding proof.";
-  return "We could not attach that proof link. Check the information and try again.";
+  if (status === 403) return "This account cannot add a link to that work.";
+  if (status === 401) return "Sign in again before adding a file or link.";
+  return "We could not save that link. Check the information and try again.";
 }
 
 function messageForStudentSubmissionError(error, status) {
-  if (error === "submission_missing_evidence") return "Add at least one proof link or file, then press Send for review again so the Program Teacher has work to approve.";
-  if (error === "submission_not_submittable" || status === 409) return "This work is not ready to send. Open the matching checklist item, follow the next step shown there, then try again.";
+  if (error === "submission_missing_evidence") return "Add at least one file or link. Then press Turn in again.";
+  if (error === "submission_not_submittable" || status === 409) return "This work is not ready to turn in. Open the matching item, follow the next step shown there, then try again.";
   if (error === "missing_submission_id" || status === 404) return "We could not find that work. Refresh and try again.";
-  if (status === 403) return "This account cannot send that work for review.";
-  if (status === 401) return "Sign in again before sending work for review.";
-  return "We could not send this work for review. Try again or ask your Program Teacher for help.";
+  if (status === 403) return "This account cannot turn in that work.";
+  if (status === 401) return "Sign in again before turning in work.";
+  return "We could not turn in this work. Try again or ask your teacher for help.";
 }
 
 function messageForUploadError(error, status) {
   if (error === "drive_config_missing" || error === "drive_credentials_missing" || status === 503) {
-    return "We could not upload this file yet because file uploads are not ready here. Try a proof link or contact your instructor.";
+    return "We could not upload this file yet because file uploads are not ready here. Try a secure link or contact your teacher.";
   }
   if (error === "missing_file") return "Choose a file before uploading.";
   if (error === "empty_file") return "The selected file is empty. Choose a file with content and try again.";
@@ -26873,9 +26930,9 @@ function messageForUploadError(error, status) {
   if (error === "drive_token_exchange_failed" || error === "drive_provider_error" || error === "drive_upload_failed" || status === 502) {
     return "The upload service could not receive the file. Try again or contact your instructor.";
   }
-  if (error === "rate_limited" || status === 429) return "Too many file uploads happened in a short time. Wait a few minutes, then try again or use a proof link.";
+  if (error === "rate_limited" || status === 429) return "Too many file uploads happened in a short time. Wait a few minutes, then try again or use a secure link.";
   if (status === 403) return "This account cannot upload for that work.";
-  if (status === 401) return "Sign in again before uploading proof.";
+  if (status === 401) return "Sign in again before uploading a file.";
   return "We could not upload this file. Try again or contact your instructor.";
 }
 
