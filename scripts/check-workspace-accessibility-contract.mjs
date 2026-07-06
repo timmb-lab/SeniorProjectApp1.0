@@ -30,6 +30,8 @@ if (!String(packageJson.scripts?.["check:workspace-accessibility"] || "").includ
 assertMatches("workspaceHtml", /<main[^>]+id="workspaceMain"[^>]*>/, "workspace must keep a main landmark");
 assertMatches("workspaceJs", /aria-label="\$\{workspaceNavCollapsed \? "Open menu" : "Close menu"\}"/, "nav collapse button needs dynamic aria-label");
 assertMatches("workspaceJs", /aria-pressed="\$\{workspaceNavCollapsed \? "true" : "false"\}"/, "nav collapse button needs aria-pressed state");
+assertMatches("workspaceJs", /const adminActionMenuLabel = `\$\{label\} menu for \$\{workspaceSectionTitle\(id\)\}`[\s\S]*aria-label="\$\{escapeHtml\(adminActionMenuLabel\)\}"/, "admin action menu summaries need section-aware aria labels");
+assertMatches("workspaceJs", /const adminMoreMenuLabel = `\$\{label\} actions for \$\{safeContext \|\| "row"\}`[\s\S]*aria-label="\$\{escapeHtml\(adminMoreMenuLabel\)\}"/, "admin row more menus need row-context aria labels");
 assertMatches("workspaceJs", /handleWorkspaceKeydown[\s\S]*Escape[\s\S]*closeWorkspaceMenu\(\)/, "Escape key should close the workspace rail");
 assertMatches("workspaceJs", /data-workspace-disclosure-action="toggle"[\s\S]*aria-expanded="\$\{open \? "true" : "false"\}"/, "disclosure toggles must expose aria-expanded");
 assertIncludes("workspaceJs", "aria-live=\"polite\"", "status and preview regions should announce changes politely");

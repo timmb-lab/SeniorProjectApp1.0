@@ -2419,6 +2419,7 @@ body[data-page="workspace"],
   line-height: 1.1;
   list-style: none;
   padding: 0.42rem 0.68rem;
+  touch-action: manipulation;
 }
 
 .workspace-admin-action-menu > summary::-webkit-details-marker,
@@ -2434,6 +2435,15 @@ body[data-page="workspace"],
 .workspace-admin-issue-details > summary:focus-visible {
   outline: 0;
   box-shadow: var(--focus-ring);
+}
+
+.workspace-admin-action-menu[open] > summary,
+.workspace-admin-more-menu[open] > summary,
+.workspace-csv-help-disclosure[open] > summary,
+.workspace-admin-issue-details[open] > summary {
+  border-color: color-mix(in srgb, var(--workspace-primary) 44%, var(--border-soft));
+  background: color-mix(in srgb, var(--surface-card) 88%, var(--workspace-primary) 12%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--workspace-primary) 28%, transparent);
 }
 
 .workspace-admin-action-menu-body,

@@ -51,11 +51,13 @@ requirePattern("half-width drawer has sticky visible close control", tablet, /\.
 requirePattern("half-width header wraps user controls", tablet, /\.workspace-user\s*\{[\s\S]*?flex-wrap:\s*wrap;[\s\S]*?justify-content:\s*flex-start;/);
 requirePattern("half-width email text cannot stretch layout", tablet, /\.workspace-user-text\s*\{[\s\S]*?flex:\s*1 1 auto;[\s\S]*?max-width:\s*100%;/);
 requirePattern("half-width main content stays in viewport", tablet, /\.workspace-main\s*\{[\s\S]*?grid-column:\s*1 \/ -1;[\s\S]*?max-width:\s*100%;/);
+requirePattern("tablet admin action menus become inline", tablet, /\.workspace-admin-action-menu-body\s*\{[\s\S]*?position:\s*static;[\s\S]*?width:\s*100%;/);
 
 requirePattern("phone controls stretch for tap targets", phone, /\.workspace-button,[\s\S]*?\.workspace-site-switcher select\s*\{[\s\S]*?width:\s*100%;/);
 requirePattern("phone content keeps viewport width", phone, /\.workspace-content\s*\{[\s\S]*?width:\s*100%;[\s\S]*?padding-inline:\s*0\.75rem;/);
 requirePattern("phone student rows stack", phone, /\.workspace-student-requirement-row\s*\{[\s\S]*?grid-template-columns:\s*1fr;/);
 requirePattern("phone feedback rows stack", phone, /\.workspace-student-feedback-row\s*\{[\s\S]*?grid-template-columns:\s*1fr;/);
+requirePattern("phone admin action menus stretch", phone, /\.workspace-admin-action-menu,[\s\S]*?\.workspace-admin-more-menu,[\s\S]*?\.workspace-admin-action-menu > summary,[\s\S]*?\.workspace-admin-more-menu > summary,[\s\S]*?\.workspace-csv-help-disclosure > summary,[\s\S]*?\.workspace-admin-issue-details > summary,[\s\S]*?\.workspace-admin-action-menu-item,[\s\S]*?\.workspace-admin-more-menu \.workspace-link-button\s*\{[\s\S]*?width:\s*100%;/);
 
 const criticalMobileSurfaces = [
   ["student first next action", /data-student-command-line="true"[\s\S]*Do this now:/],

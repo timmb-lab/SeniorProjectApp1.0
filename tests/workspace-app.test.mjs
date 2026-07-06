@@ -7181,6 +7181,7 @@ test("workspace wide admin console keeps operations readable and source actions 
   assert.match(workspaceCss, /\.workspace-admin-operations-grid \.workspace-metric-tile\s*\{[\s\S]*min-height:\s*132px;/);
   assert.match(workspaceCss, /\.workspace-admin-page-header-actions\s*\{[\s\S]*justify-content:\s*flex-end;/);
   assert.match(workspaceCss, /\.workspace-admin-action-menu-body\s*\{[\s\S]*position:\s*absolute;/);
+  assert.match(workspaceCss, /\.workspace-admin-action-menu\[open\] > summary,[\s\S]*\.workspace-admin-issue-details\[open\] > summary\s*\{[\s\S]*border-color:/);
   assert.match(workspaceCss, /\.workspace-admin-filter-bar\s*\{[\s\S]*grid-template-columns:/);
   assert.equal(adminReadableWidthForViewport(1920), 1560);
 
@@ -7280,11 +7281,11 @@ test("admin console surfaces setup reasons across overview people students and r
   vm.runInContext('activeSection = "adminStudents"; adminPeopleView = "manage-students"; renderAppShell();', context);
   const students = workspaceRoot.innerHTML;
   assert.match(students, /data-admin-page-header="true" data-admin-page-section="adminStudents"/);
-  assert.match(students, /data-admin-action-menu="adminStudents"[\s\S]*Import students[\s\S]*Download student template/);
+  assert.match(students, /data-admin-action-menu="adminStudents"[\s\S]*aria-label="Actions menu for Students"[\s\S]*Import students[\s\S]*Download student template/);
   assert.match(students, /data-admin-student-setup-summary="true"[\s\S]*Students loaded[\s\S]*Roster fields[\s\S]*Mentor gaps[\s\S]*Viewer gaps/);
   assert.match(students, /data-admin-student-first-action="[^"]+"[\s\S]*(Review first|Current roster state)/);
   assert.match(students, /data-manage-student-row="student-needs-setup" data-manage-student-setup="needs-review"/);
-  assert.match(students, /data-admin-more-menu="student-student-needs-setup"[\s\S]*More[\s\S]*View as Student[\s\S]*Manage assignments/);
+  assert.match(students, /data-admin-more-menu="student-student-needs-setup"[\s\S]*aria-label="More actions for No Year Student"[\s\S]*More[\s\S]*View as Student[\s\S]*Manage assignments/);
   assert.match(students, /data-admin-setup-flag="profile"[\s\S]*Missing cohort\/year/);
   assert.match(students, /data-admin-setup-flag="mentor"[\s\S]*No mentor/);
   assert.match(students, /data-admin-setup-flag="viewer"[\s\S]*No viewer/);
@@ -7306,11 +7307,11 @@ test("admin console surfaces setup reasons across overview people students and r
   vm.runInContext('activeSection = "adminPeople"; adminPeopleView = "manage-staff"; renderAppShell();', context);
   const people = workspaceRoot.innerHTML;
   assert.match(people, /data-admin-page-header="true" data-admin-page-section="adminPeople"/);
-  assert.match(people, /data-admin-action-menu="adminPeople"[\s\S]*Import staff[\s\S]*Download staff template/);
+  assert.match(people, /data-admin-action-menu="adminPeople"[\s\S]*aria-label="Actions menu for People"[\s\S]*Import staff[\s\S]*Download staff template/);
   assert.match(people, /data-admin-staff-setup-summary="true"[\s\S]*Staff loaded[\s\S]*Needs setup[\s\S]*Scope gaps/);
   assert.match(people, /data-admin-staff-first-action="[^"]+"[\s\S]*(Review first|Current staff state)/);
   assert.match(people, /data-manage-staff-row="mentor-no-scope" data-manage-staff-setup="needs-review"/);
-  assert.match(people, /data-admin-more-menu="staff-mentor-no-scope"[\s\S]*More[\s\S]*Manage assignments/);
+  assert.match(people, /data-admin-more-menu="staff-mentor-no-scope"[\s\S]*aria-label="More actions for Orphan Mentor"[\s\S]*More[\s\S]*Manage assignments/);
   assert.doesNotMatch(people, /data-admin-more-menu="staff-mentor-no-scope"[\s\S]*View recent changes/);
   assert.match(people, /data-admin-setup-flag="email"[\s\S]*Missing email/);
   assert.match(people, /data-admin-setup-flag="mentor-scope"[\s\S]*No mentor students/);

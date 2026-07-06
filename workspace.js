@@ -5788,9 +5788,10 @@ function adminActionsForSection(section = activeSection) {
 function renderAdminActionMenu({ id = "admin", actions = [], label = "Actions" } = {}) {
   const safeActions = (Array.isArray(actions) ? actions : []).filter(Boolean);
   if (!safeActions.length) return "";
+  const adminActionMenuLabel = `${label} menu for ${workspaceSectionTitle(id)}`;
   return `
     <details class="workspace-admin-action-menu" data-admin-action-menu="${escapeHtml(id)}">
-      <summary>${escapeHtml(label)}</summary>
+      <summary aria-label="${escapeHtml(adminActionMenuLabel)}">${escapeHtml(label)}</summary>
       <div class="workspace-admin-action-menu-body">
         ${safeActions.map((action) => renderAdminActionControl(action, "workspace-admin-action-menu-item", "menu")).join("")}
       </div>
@@ -5856,12 +5857,14 @@ function renderAdminFilterSelect(filter = {}) {
   `;
 }
 
-function renderAdminMoreMenu({ id = "row", actions = [], label = "More" } = {}) {
+function renderAdminMoreMenu({ id = "row", actions = [], label = "More", contextLabel = "" } = {}) {
   const safeActions = (Array.isArray(actions) ? actions : []).filter(Boolean);
   if (!safeActions.length) return "";
+  const safeContext = String(contextLabel || id || "row").replace(/[-_]+/g, " ").trim();
+  const adminMoreMenuLabel = `${label} actions for ${safeContext || "row"}`;
   return `
     <details class="workspace-row-more-menu workspace-admin-more-menu" data-admin-more-menu="${escapeHtml(id)}">
-      <summary>${escapeHtml(label)}</summary>
+      <summary aria-label="${escapeHtml(adminMoreMenuLabel)}">${escapeHtml(label)}</summary>
       <div class="workspace-row-more-menu-body">
         ${safeActions.map((action) => renderAdminActionControl(action, "workspace-link-button workspace-link-button-small", "row-more")).join("")}
       </div>
@@ -18511,7 +18514,11 @@ function renderManageStudentRow(student = {}) {
       <div class="workspace-row-actions">
         ${availableSectionIdsForAnyMode().has("students") ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(student.userId || "")}">View student</button>` : ""}
         ${statusPill(setupFlags.length ? "needs_review" : "active")}
-        ${renderAdminMoreMenu({ id: `student-${student.userId || "row"}`, actions: moreActions })}
+        ${renderAdminMoreMenu({
+          id: `student-${student.userId || "row"}`,
+          actions: moreActions,
+          contextLabel: student.displayName || "Student",
+        })}
       </div>
     </article>
   `;
@@ -18567,6 +18574,7 @@ function renderManageStaffScreen() {
                 ${statusPill(setupFlags.length ? "needs_review" : "active")}
                 ${renderAdminMoreMenu({
                   id: `staff-${account.userId || "row"}`,
+                  contextLabel: account.displayName || "Staff account",
                   actions: [
                     { label: "Manage assignments", peopleView: "assignments" },
                     availableSectionIdsForAnyMode().has("audit") ? { label: "View recent changes", section: "audit" } : null,
