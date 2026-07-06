@@ -2911,7 +2911,7 @@ test("site dashboard top-risk detail stays in dashboard context", async () => {
   );
   assert.match(workspaceRoot.innerHTML, /Missing Mentor Demo 001/);
   assert.match(workspaceRoot.innerHTML, /Back to Site Dashboard/);
-  assert.match(workspaceRoot.innerHTML, /Return to Site Dashboard when you finish with this record\./);
+  assert.match(workspaceRoot.innerHTML, /Return to Site Dashboard when you finish with this student\./);
   assert.ok(
     fetchLog.some((entry) => entry === "/api/site/students/demo-student-101?siteId=site-desert-valley-high"),
     "expected dashboard detail request to preserve the current site id",
@@ -3814,9 +3814,10 @@ test("workspace opens real student detail, loads timeline, and preserves directo
   assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="status"[\s\S]*Revision requested/);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="step"[\s\S]*proposal/);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="coverage"[\s\S]*No active mentor/);
-  assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="attention"[\s\S]*Missing mentor/);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="action"[\s\S]*Use this row for context, then share the student name with authorized staff/);
-  assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="access"[\s\S]*Read-only context/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-detail-case-item="attention"|data-student-detail-case-item="access"/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-simple-status="needs_changes"[\s\S]*Needs changes/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-primary-action="view-work"[\s\S]*View work/);
   assert.match(workspaceRoot.innerHTML, /Overview/);
   assert.match(workspaceRoot.innerHTML, /Work/);
   assert.match(workspaceRoot.innerHTML, /Feedback/);
@@ -3826,13 +3827,14 @@ test("workspace opens real student detail, loads timeline, and preserves directo
   assert.match(workspaceRoot.innerHTML, /id="studentDetailTab-evidence"[\s\S]*data-student-detail-tab="evidence"[\s\S]*aria-selected="false"[\s\S]*aria-controls="studentDetailPanel-evidence"/);
   assert.match(workspaceRoot.innerHTML, /id="studentDetailPanel-overview" role="tabpanel" aria-labelledby="studentDetailTab-overview" tabindex="0" data-student-detail-section="overview"/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /Reviews &amp; Comments|data-student-detail-tab="summary"|data-student-detail-tab="progress"/);
-  assert.match(workspaceRoot.innerHTML, /Latest Feedback/);
+  assert.match(workspaceRoot.innerHTML, /What this student needs next/);
+  assert.match(workspaceRoot.innerHTML, /Recent update/);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-feedback="latest"/);
-  assert.match(workspaceRoot.innerHTML, /Student-visible note/);
+  assert.match(workspaceRoot.innerHTML, /Program Teacher review/);
   assert.match(workspaceRoot.innerHTML, /Use the rubric to tighten the next draft/);
   assert.match(workspaceRoot.innerHTML, /workspace-status-pill/);
   assert.match(workspaceRoot.innerHTML, /Back to Students/);
-  assert.match(workspaceRoot.innerHTML, /Return to the filtered student list when you finish with this record\./);
+  assert.match(workspaceRoot.innerHTML, /Return to the filtered student list when you finish with this student\./);
   assert.match(workspaceRoot.innerHTML, /value="Revision Loop Demo"/);
   assert.match(workspaceRoot.innerHTML, /Offset 50 \/ Limit 50/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-review-decision|data-mentor-assignment|data-archive-retry|Request revision|Assign mentor|Archive retry|Download file|Download archive/);
@@ -3851,7 +3853,7 @@ test("workspace opens real student detail, loads timeline, and preserves directo
   assert.match(workspaceRoot.innerHTML, /data-student-detail-section="timeline"/);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-timeline-filters="true"/);
   assert.match(workspaceRoot.innerHTML, /Showing all activity/);
-  assert.match(workspaceRoot.innerHTML, /Timeline event/);
+  assert.match(workspaceRoot.innerHTML, /Recent activity/);
   assert.match(workspaceRoot.innerHTML, /Proof added/);
   assert.match(workspaceRoot.innerHTML, /value="Revision Loop Demo"/);
   let timelineFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/students/demo-student-101/timeline?"));
@@ -3962,33 +3964,33 @@ test("student detail handles missing real-data fields conservatively", async () 
   assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="status"[\s\S]*Pending/);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="step"[\s\S]*Current step not confirmed yet/);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="coverage"[\s\S]*No active mentor/);
-  assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="access"[\s\S]*Authorized staff context/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-detail-case-item="access"|data-student-detail-case-item="attention"/);
   assert.match(workspaceRoot.innerHTML, /Work item total is not confirmed yet/);
   assert.match(workspaceRoot.innerHTML, /Progress percent not confirmed yet \/ Current stage not confirmed yet/);
   assert.match(workspaceRoot.innerHTML, /workspace-status-pill pending/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /0 of 0 work items done|0% complete \/ proposal|undefined|Invalid Date|\[object Object\]/);
 
   vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "work" } } })', context);
-  assert.match(workspaceRoot.innerHTML, /No sent work is available for this student/);
+  assert.match(workspaceRoot.innerHTML, /No submitted work is available for this student yet/);
   assert.match(workspaceRoot.innerHTML, /No mentor assignment history is available for this student/);
   assert.match(workspaceRoot.innerHTML, /No mentor meetings are available for this student/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /undefined|Invalid Date|\[object Object\]/);
 
   vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "feedback" } } })', context);
   assert.match(workspaceRoot.innerHTML, /Senior Project work/);
-  assert.match(workspaceRoot.innerHTML, /Review recorded/);
-  assert.match(workspaceRoot.innerHTML, /Reviewer \/ Date not recorded/);
+  assert.match(workspaceRoot.innerHTML, /Feedback saved/);
+  assert.match(workspaceRoot.innerHTML, /Reviewer \/ Date not available/);
   assert.match(workspaceRoot.innerHTML, /No student-visible or staff-only notes are available for this student/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /undefined|Invalid Date|Not set|\[object Object\]/);
 
   vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "evidence" } } })', context);
-  assert.match(workspaceRoot.innerHTML, /No evidence records are available for this student/);
+  assert.match(workspaceRoot.innerHTML, /No files are uploaded for this student yet/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /undefined|Invalid Date|\[object Object\]/);
 
   vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "timeline" } } })', context);
-  assert.match(workspaceRoot.innerHTML, /Timeline event/);
-  assert.match(workspaceRoot.innerHTML, /Timeline event recorded/);
-  assert.match(workspaceRoot.innerHTML, /Timeline \/ Date not recorded/);
+  assert.match(workspaceRoot.innerHTML, /Activity update/);
+  assert.match(workspaceRoot.innerHTML, /Activity saved/);
+  assert.match(workspaceRoot.innerHTML, /Activity \/ Date not available/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /Unknown|undefined|Invalid Date|Not set|\[object Object\]/);
 });
 
@@ -6878,8 +6880,8 @@ test("mentor dashboard assigned students open detail and meeting history without
   assert.match(workspaceRoot.innerHTML, /data-mentor-meeting-form="true"/);
   assert.match(workspaceRoot.innerHTML, /name="purpose"/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-meeting-purpose-guide="true"/);
-  assert.match(workspaceRoot.innerHTML, /Record meeting/);
-  assert.match(workspaceRoot.innerHTML, /Only actively assigned mentors can record meetings for their assigned students/);
+  assert.match(workspaceRoot.innerHTML, /Save meeting/);
+  assert.match(workspaceRoot.innerHTML, /Only actively assigned mentors can save meetings for their assigned students/);
   assert.match(workspaceRoot.innerHTML, /Confirm a make-up check-in before presentation practice/);
   assert.match(workspaceRoot.innerHTML, /Linked work: Senior Project Proposal Draft \(version 3, Revision requested\)/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /submission-101/);

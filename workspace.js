@@ -7492,38 +7492,47 @@ function renderSiteStudentDetailSurface(directory) {
   const student = detail.student || {};
   const activeTab = cleanStudentDetailTab(state.activeTab) || "overview";
   const riskFlags = Array.isArray(student.riskFlags) ? student.riskFlags : [];
+  const plan = studentDetailCasePlan(detail, scope);
+  const plainStatus = studentDetailPlainStatus(detail, plan);
+  const primaryAction = studentDetailPrimaryAction(detail, scope, plainStatus);
   return `
     <aside id="siteStudentDetailPanel" class="workspace-detail-drawer" data-student-detail-panel="true" data-student-detail-state="ready" data-student-detail-id="${escapeHtml(student.studentId || state.studentId)}" aria-labelledby="siteStudentDetailTitle" tabindex="-1">
       <div class="workspace-detail-panel">
         <div class="workspace-card-head workspace-student-detail-header" data-student-detail-header="true">
           <div>
-            <p class="workspace-kicker">Student detail</p>
+            <p class="workspace-kicker">Student</p>
             <h2 id="siteStudentDetailTitle">${escapeHtml(student.displayName || title)}</h2>
-            <p class="workspace-muted">${escapeHtml(student.email || "")}</p>
+            <p class="workspace-muted" data-student-detail-context-line="true">${escapeHtml(studentDetailContextLine(student, scope, directory))}</p>
+            ${student.email ? `<p class="workspace-muted">${escapeHtml(student.email)}</p>` : ""}
             <p class="workspace-muted" data-student-detail-return-context="${escapeHtml(returnCopy.sectionId)}">${escapeHtml(returnCopy.hint)}</p>
+            <div class="workspace-student-detail-status-row" data-student-detail-status-summary="true">
+              <span class="workspace-student-detail-status ${escapeHtml(plainStatus.tone)}" data-student-detail-simple-status="${escapeHtml(plainStatus.state)}">${escapeHtml(plainStatus.label)}</span>
+              <span>${escapeHtml(plainStatus.detail)}</span>
+            </div>
           </div>
-          <div class="workspace-row-actions">
-            ${renderViewAsStudentAction(student.studentId || state.studentId, student.displayName || title, { sourceSection: state.sourceSection || "students" })}
+          <div class="workspace-row-actions workspace-student-detail-actions">
+            <button class="workspace-button workspace-button-primary workspace-button-small" type="button" data-student-detail-tab="${escapeHtml(primaryAction.tab)}" data-student-detail-primary-action="${escapeHtml(primaryAction.id)}">
+              ${escapeHtml(primaryAction.label)}
+            </button>
+            <details class="workspace-row-more-menu workspace-student-detail-more-actions" data-student-detail-more-actions="true">
+              <summary>More</summary>
+              <div class="workspace-row-more-menu-list">
+                ${renderViewAsStudentAction(student.studentId || state.studentId, student.displayName || title, { sourceSection: state.sourceSection || "students" })}
+                <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="close">${escapeHtml(returnCopy.buttonLabel)}</button>
+              </div>
+            </details>
             <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="close">${escapeHtml(returnCopy.buttonLabel)}</button>
           </div>
         </div>
         <div class="workspace-chip-row workspace-student-detail-facts" data-student-detail-facts="true">
           <span class="workspace-site-context-badge" data-student-detail-site="${escapeHtml(scope.siteName || directory.scope?.siteName || "Selected school")}">${escapeHtml(scope.siteName || directory.scope?.siteName || "Selected school")}</span>
           <span class="workspace-site-context-badge" data-student-detail-program="${escapeHtml(student.programName || "Unassigned")}">${escapeHtml(student.programName || "Unassigned")}</span>
-          <span class="workspace-site-context-badge" data-student-detail-cohort="${escapeHtml(student.cohortName || "No cohort")}">${escapeHtml(student.cohortName || "No cohort")}</span>
+          ${student.cohortName ? `<span class="workspace-site-context-badge" data-student-detail-cohort="${escapeHtml(student.cohortName)}">${escapeHtml(student.cohortName)}</span>` : `<span class="workspace-site-context-badge" data-student-detail-cohort="No cohort">No cohort</span>`}
           <span class="workspace-site-context-badge" data-student-detail-year="${escapeHtml(student.graduationYear || "")}">${escapeHtml(studentRosterProfileText(student))}</span>
-          ${student.mentorName ? `<span class="workspace-site-context-badge">Mentor: ${escapeHtml(student.mentorName)}</span>` : ""}
-          ${student.viewerName ? `<span class="workspace-site-context-badge">Viewer: ${escapeHtml(student.viewerName)}</span>` : ""}
           ${scope.readOnly ? `<span class="workspace-chip" data-workspace-mode="read-only">Read-only viewer</span>` : ""}
         </div>
-        <div class="workspace-chip-row">
-          ${statusPill(student.status || "draft")}
-          ${statusPill(student.presentationStatus || "missing")}
-          ${statusPill(student.archiveStatus || "missing")}
-          ${student.storyBucket ? `<span class="workspace-story-chip">${escapeHtml(storyLabel(student.storyBucket))}</span>` : ""}
-          ${riskFlags.length ? riskFlags.map((flag) => `<span class="workspace-risk-chip">${escapeHtml(riskLabel(flag))}</span>`).join("") : `<span class="workspace-risk-chip">Low risk</span>`}
-        </div>
-        ${renderStudentDetailCasePlan(detail, scope)}
+        ${renderStudentDetailMoreContext(detail, scope, riskFlags)}
+        ${renderStudentDetailCasePlan(detail, scope, plan)}
         ${scope.readOnly ? `
           <section class="workspace-read-only-banner" data-student-detail-read-only="true" data-workspace-mode="read-only">
             <span class="workspace-chip workspace-role-chip">Read-only</span>
@@ -7572,6 +7581,94 @@ function studentDetailPanelAttrs(tabId = "overview", alias = "") {
   return `id="${escapeHtml(studentDetailPanelId(tabId))}" role="tabpanel" aria-labelledby="${escapeHtml(studentDetailTabId(tabId))}" tabindex="0" data-student-detail-section="${escapeHtml(tabId)}"${aliasAttr}`;
 }
 
+function studentDetailContextLine(student = {}, scope = {}, directory = {}) {
+  const parts = [
+    student.programName,
+    student.cohortName,
+    student.graduationYear ? `Class of ${student.graduationYear}` : "",
+  ].map((part) => String(part || "").trim()).filter(Boolean);
+  if (parts.length) return parts.join(" - ");
+  return scope.siteName || directory.scope?.siteName || "Selected school";
+}
+
+function studentDetailPlainStatus(detail = {}, plan = null) {
+  const student = detail.student || {};
+  const progress = detail.progress || {};
+  const latestSubmission = latestStudentDetailSubmission(detail);
+  const latestReview = latestStudentDetailReview(detail);
+  const decision = normalizeStatus(latestReview?.decision || latestReview?.status || student.reviewStatus || "");
+  const status = normalizeStatus(latestSubmission?.status || student.latestSubmissionStatus || student.status || progress.status || "");
+  const flags = studentDetailAttentionFlags(detail);
+  if (decision === "revision_requested" || status === "revision_requested") {
+    return {
+      state: "needs_changes",
+      label: "Needs changes",
+      detail: "Student should read feedback, fix the work, and send it again.",
+      tone: "warning",
+    };
+  }
+  if (status === "submitted" || status === "under_review" || decision === "under_review") {
+    return {
+      state: "needs_review",
+      label: "Needs review",
+      detail: "Work is waiting for a Program Teacher decision.",
+      tone: "review",
+    };
+  }
+  if (flags.some((flag) => ["missing_evidence", "evidence_missing", "missing_work"].includes(flag.key)) || normalizeStatus(student.evidenceStatus) === "missing") {
+    return {
+      state: "missing_work",
+      label: "Missing work",
+      detail: "Student needs to add the missing file or proof.",
+      tone: "danger",
+    };
+  }
+  if (status === "approved" || status === "complete" || decision === "approved") {
+    return {
+      state: "on_track",
+      label: "On track",
+      detail: "No urgent review item is open right now.",
+      tone: "ready",
+    };
+  }
+  const fallback = plan?.currentStatus || statusText(status || "pending");
+  return {
+    state: "no_status",
+    label: fallback === "Pending" ? "No status yet" : fallback,
+    detail: "No current review status is confirmed yet.",
+    tone: "quiet",
+  };
+}
+
+function studentDetailPrimaryAction(detail = {}, scope = {}, plainStatus = {}) {
+  if (scope.readOnly) return { id: "view-work", label: "View work", tab: "work" };
+  if (plainStatus.state === "needs_changes") return { id: "open-feedback", label: "Open feedback", tab: "feedback" };
+  if (plainStatus.state === "needs_review") return { id: "open-work", label: "Open work", tab: "work" };
+  if (plainStatus.state === "missing_work") return { id: "check-files", label: "Check files", tab: "evidence" };
+  return { id: "view-work", label: "View work", tab: "work" };
+}
+
+function renderStudentDetailMoreContext(detail = {}, scope = {}, riskFlags = []) {
+  const student = detail.student || {};
+  const presentation = detail.presentation || {};
+  const archive = detail.archive || {};
+  const chips = [
+    student.mentorName ? `<span class="workspace-site-context-badge">Mentor: ${escapeHtml(student.mentorName)}</span>` : "",
+    student.viewerName ? `<span class="workspace-site-context-badge">Viewer: ${escapeHtml(student.viewerName)}</span>` : "",
+    statusPill(student.status || "draft"),
+    statusPill(presentation.status || student.presentationStatus || "missing"),
+    statusPill(archive.status || student.archiveStatus || "missing"),
+    student.storyBucket ? `<span class="workspace-story-chip">${escapeHtml(storyLabel(student.storyBucket))}</span>` : "",
+    riskFlags.length ? riskFlags.map((flag) => `<span class="workspace-risk-chip">${escapeHtml(riskLabel(flag))}</span>`).join("") : `<span class="workspace-risk-chip">No urgent risk shown</span>`,
+  ].filter(Boolean).join("");
+  return `
+    <details class="workspace-student-detail-more-context" data-student-detail-more-context="true">
+      <summary>More student details</summary>
+      <div class="workspace-chip-row">${chips}</div>
+    </details>
+  `;
+}
+
 function renderStudentDetailTab(detail, activeTab, state) {
   if (activeTab === "work") return renderStudentDetailWork(detail);
   if (activeTab === "evidence") return renderStudentDetailEvidence(detail);
@@ -7586,43 +7683,30 @@ function renderStudentDetailSummary(detail) {
   const progress = detail.progress || {};
   const latestFeedback = latestStudentDetailFeedback(detail);
   const progressFacts = studentDetailProgressFacts(progress);
+  const plan = studentDetailCasePlan(detail, detail.scope || {});
+  const approval = studentDetailPhaseApprovalStatus(detail);
   return `
     <section class="workspace-detail-section" ${studentDetailPanelAttrs("overview", "summary")}>
-      <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
-        ${renderDashboardCard("Current Story", "Assigned record view", `
-          <p>${escapeHtml(student.nextAction || "Continue normal capstone monitoring.")}</p>
-          <div class="workspace-chip-row">
-            <span class="workspace-site-context-badge">${escapeHtml(safeNumber(student.evidenceCount))} evidence item${safeNumber(student.evidenceCount) === 1 ? "" : "s"}</span>
-            <span class="workspace-site-context-badge">${escapeHtml(safeNumber(student.reviewCount))} reviews</span>
-            <span class="workspace-site-context-badge">${escapeHtml(safeNumber(student.commentCount))} comments</span>
-          </div>
-        `)}
-        ${renderDashboardCard("Mentor", mentor.active ? "Assigned student support" : "Coverage needed", `
-          <strong>${escapeHtml(mentor.active ? mentor.mentorName || "Assigned mentor" : "No active mentor")}</strong>
-          <p>${escapeHtml(mentor.nextAction || "Continue mentor support.")}</p>
-          ${statusPill(mentor.active ? "approved" : "blocked")}
-        `)}
-        ${renderDashboardCard("Latest Feedback", latestFeedback.kind, `
-          <div data-student-detail-feedback="latest">
-            <strong>${escapeHtml(latestFeedback.title)}</strong>
-            <p>${escapeHtml(latestFeedback.text)}</p>
-            <p class="workspace-muted">${escapeHtml(latestFeedback.meta)}</p>
-            ${statusPill(latestFeedback.status)}
-          </div>
-        `)}
-        ${renderStudentDetailApprovalStatusCard(detail)}
-        ${renderDashboardCard("Progress", "Progress summary", `
-          <p>${escapeHtml(progressFacts.workItemsText)}</p>
-          <p>${escapeHtml(`${progressFacts.percentText} / ${progressFacts.stageText}`)}</p>
-          ${statusPill(progress.blockedReasons?.length ? "blocked" : progressFacts.hasConfirmedTotals ? "ready" : "pending")}
-        `)}
-        ${renderDashboardCard("Visibility", "Protected student record", `
-          <p>Details are limited to this school assignment and private file identifiers stay hidden.</p>
-          <p class="workspace-muted">Review workflow controls remain in the Program Teacher queue.</p>
-          ${statusPill("configured")}
-        `)}
+      <div class="workspace-student-detail-overview" data-student-detail-overview="true">
+        ${renderStudentDetailOverviewItem("next", "Start here", "What this student needs next", plan.nextAction || student.nextAction || "Open Work and check the current step.", plan.owner)}
+        ${renderStudentDetailOverviewItem("step", "Current step", plan.currentStep || "Current step not confirmed yet", approval.detail, approval.label)}
+        ${renderStudentDetailOverviewItem("feedback", "Recent update", latestFeedback.title, latestFeedback.text, latestFeedback.meta, { attrs: 'data-student-detail-feedback="latest"', status: latestFeedback.status })}
+        ${renderStudentDetailOverviewItem("support", "Staff support", mentor.active ? mentor.mentorName || "Assigned mentor" : "No active mentor", mentor.nextAction || "Check whether this student needs staff support.", mentor.active ? "Mentor assigned" : "Coverage needed", { status: mentor.active ? "approved" : "blocked" })}
+        ${renderStudentDetailOverviewItem("progress", "Progress", progressFacts.workItemsText, `${progressFacts.percentText} / ${progressFacts.stageText}`, "", { status: progress.blockedReasons?.length ? "blocked" : progressFacts.hasConfirmedTotals ? "ready" : "pending" })}
       </div>
     </section>
+  `;
+}
+
+function renderStudentDetailOverviewItem(id, kicker, title, detail = "", meta = "", options = {}) {
+  return `
+    <article class="workspace-student-detail-overview-item" data-student-detail-overview-item="${escapeHtml(id)}" ${options.attrs || ""}>
+      <span>${escapeHtml(kicker)}</span>
+      <strong>${escapeHtml(title || "Not confirmed yet")}</strong>
+      ${detail ? `<p>${escapeHtml(detail)}</p>` : ""}
+      ${meta ? `<small>${escapeHtml(meta)}</small>` : ""}
+      ${options.status ? statusPill(options.status) : ""}
+    </article>
   `;
 }
 
@@ -7643,12 +7727,18 @@ function studentDetailProgressFacts(progress = {}) {
 }
 
 function studentDetailDateLabel(value) {
-  return value ? formatDate(value) : "Date not recorded";
+  return value ? formatDate(value) : "Date not available";
+}
+
+function studentDetailFileTypeLabel(value) {
+  const normalized = normalizeStatus(value || "file");
+  if (!normalized || normalized.includes("artifact") || normalized === "evidence") return "File";
+  return statusText(normalized);
 }
 
 function renderStudentDetailApprovalStatusCard(detail = {}) {
   const approval = studentDetailPhaseApprovalStatus(detail);
-  return renderDashboardCard("Phase Approval", "Manual checkpoint", `
+  return renderDashboardCard("Next-step approval", "Program Teacher check", `
     <div data-student-detail-phase-approval="true" data-student-detail-phase-approval-state="${escapeHtml(approval.state)}">
       <strong>${escapeHtml(approval.label)}</strong>
       <p>${escapeHtml(approval.detail)}</p>
@@ -7670,8 +7760,8 @@ function studentDetailPhaseApprovalStatus(detail = {}) {
     return {
       state: "approved",
       label: "Approved for next steps",
-      detail: `${stage} has a manual approval signal.`,
-      nextAction: "Student can move to the next approved step after Program Teacher approval is recorded.",
+      detail: `${stage} has Program Teacher approval.`,
+      nextAction: "Student can move to the next approved step after Program Teacher approval is saved.",
     };
   }
   if (decision === "revision_requested" || status === "revision_requested") {
@@ -7723,7 +7813,7 @@ function latestStudentDetailFeedback(detail) {
     ...reviews.map((row) => ({
       kind: "Program Teacher review",
       title: row.requirementTitle || "Senior Project work",
-      text: row.feedback || row.nextAction || "Review recorded.",
+      text: row.feedback || row.nextAction || "Feedback saved.",
       actor: row.reviewerName || "Reviewer",
       occurredAt: row.createdAt || "",
       status: row.decision || "under_review",
@@ -7731,7 +7821,7 @@ function latestStudentDetailFeedback(detail) {
     ...comments.map((row) => ({
       kind: studentDetailCommentKind(row.visibility),
       title: row.authorName || "Staff",
-      text: row.body || "Comment recorded.",
+      text: row.body || "Comment saved.",
       actor: row.authorName || "Staff",
       occurredAt: row.createdAt || "",
       status: row.visibility || "configured",
@@ -7748,9 +7838,9 @@ function latestStudentDetailFeedback(detail) {
   if (!item) {
     return {
       kind: "Visible feedback",
-      title: "No feedback recorded yet",
-      text: "No visible review or comment has been recorded for this student yet.",
-      meta: "Use the timeline or review queue when new feedback is added.",
+      title: "No feedback yet",
+      text: "No visible review or comment has been saved for this student yet.",
+      meta: "Use Timeline or Review Work when new feedback is added.",
       status: "configured",
     };
   }
@@ -7768,6 +7858,7 @@ function renderStudentDetailWork(detail) {
   return `
     <section class="workspace-detail-section" ${studentDetailPanelAttrs("work", "progress submissions mentor presentation archive")}>
       ${renderStudentDetailProgress(detail)}
+      ${renderStudentDetailMissingWork(detail)}
       ${renderStudentDetailSubmissions(detail)}
       ${renderStudentDetailMentor(detail)}
       <div class="workspace-detail-grid">
@@ -7784,7 +7875,7 @@ function renderStudentDetailProgress(detail) {
   const progressFacts = studentDetailProgressFacts(progress);
   return `
     <section class="workspace-detail-section" data-student-detail-section="progress">
-      ${renderDashboardCard("Progress", "Current stage and next action", `
+      ${renderDashboardCard("Current work", "Current step and next action", `
         <p>${escapeHtml(progressFacts.workItemsText)}</p>
         <p>${escapeHtml(progress.nextAction || "Continue the next capstone milestone.")}</p>
         <div class="workspace-chip-row">
@@ -7794,7 +7885,7 @@ function renderStudentDetailProgress(detail) {
       `)}
       ${blockedReasons.length ? `
         <div class="workspace-empty-state-card">
-          <strong>Blocked reasons</strong>
+          <strong>What is getting in the way</strong>
           <div class="workspace-chip-row">${blockedReasons.map((reason) => `<span class="workspace-risk-chip">${escapeHtml(riskLabel(reason))}</span>`).join("")}</div>
         </div>
       ` : ""}
@@ -7802,13 +7893,30 @@ function renderStudentDetailProgress(detail) {
   `;
 }
 
+function renderStudentDetailMissingWork(detail) {
+  const flags = studentDetailAttentionFlags(detail).filter((flag) => ["missing_evidence", "evidence_missing", "missing_work", "behind"].includes(flag.key));
+  const rows = flags.length ? flags : [{
+    label: "No missing work shown right now",
+    detail: "Open Feedback or Timeline if you need more context.",
+  }];
+  return renderStudentDetailList("Missing work", "Files or work still needed", rows, "No missing work shown right now.", (row) => `
+    <article class="workspace-row">
+      <div>
+        <strong>${escapeHtml(row.label || "Missing work")}</strong>
+        <p>${escapeHtml(row.detail || "Check the current work and feedback before following up.")}</p>
+      </div>
+      ${statusPill(flags.length ? "blocked" : "ready")}
+    </article>
+  `, { sectionId: "missing-work" });
+}
+
 function renderStudentDetailSubmissions(detail) {
   const rows = Array.isArray(detail.submissions) ? detail.submissions : [];
-  return renderStudentDetailList("Work Sent In", "Newest sent work", rows, "No sent work is available for this student.", (row) => `
+  return renderStudentDetailList("Submitted work", "Newest work students sent in", rows, "No submitted work is available for this student yet.", (row) => `
     <article class="workspace-row">
       <div>
         <strong>${escapeHtml(row.requirementTitle || "Senior Project work")}</strong>
-        <p>Version ${escapeHtml(row.version || 1)} / ${escapeHtml(row.evidenceCount || 0)} evidence item${safeNumber(row.evidenceCount) === 1 ? "" : "s"}</p>
+        <p>Version ${escapeHtml(row.version || 1)} / ${escapeHtml(row.evidenceCount || 0)} file${safeNumber(row.evidenceCount) === 1 ? "" : "s"} attached</p>
         <p class="workspace-muted">${escapeHtml(row.nextAction || "")}</p>
       </div>
       ${statusPill(row.status || "draft")}
@@ -7820,11 +7928,11 @@ function renderStudentDetailEvidence(detail) {
   const rows = Array.isArray(detail.evidence) ? detail.evidence : [];
   return `
     <section class="workspace-detail-section" ${studentDetailPanelAttrs("evidence")}>
-      ${renderStudentDetailList("Evidence", "Evidence records", rows, "No evidence records are available for this student.", (row) => `
+      ${renderStudentDetailList("Files uploaded", "Files and review status", rows, "No files are uploaded for this student yet.", (row) => `
     <article class="workspace-row">
       <div>
-        <strong>${escapeHtml(row.title || "Evidence")}</strong>
-        <p>${escapeHtml(row.artifactType || "evidence")} / ${escapeHtml(statusText(row.sourceKind || "evidence"))}</p>
+        <strong>${escapeHtml(row.title || "Uploaded file")}</strong>
+        <p>${escapeHtml(studentDetailFileTypeLabel(row.artifactType))} / ${escapeHtml(studentDetailFileTypeLabel(row.sourceKind))}</p>
         <p class="workspace-muted">${row.externalUrl ? escapeHtml(row.externalUrl) : "File details are protected."}</p>
       </div>
       <div class="workspace-row-actions">
@@ -7837,16 +7945,14 @@ function renderStudentDetailEvidence(detail) {
   `;
 }
 
-function renderStudentDetailCasePlan(detail = {}, scope = {}) {
-  const plan = studentDetailCasePlan(detail, scope);
+function renderStudentDetailCasePlan(detail = {}, scope = {}, preparedPlan = null) {
+  const plan = preparedPlan || studentDetailCasePlan(detail, scope);
   return `
     <section class="workspace-student-detail-case-plan" data-student-detail-case-plan="true" data-student-detail-case-read-only="${plan.readOnly ? "true" : "false"}" aria-label="Student case-management snapshot">
-      ${renderStudentDetailCasePlanItem("Current status", plan.currentStatus, "status")}
+      ${renderStudentDetailCasePlanItem("Status", plan.currentStatus, "status")}
       ${renderStudentDetailCasePlanItem("Current step", plan.currentStep, "step")}
-      ${renderStudentDetailCasePlanItem("Coverage", plan.coverage, "coverage")}
-      ${renderStudentDetailCasePlanItem("Attention", plan.attention, "attention")}
+      ${renderStudentDetailCasePlanItem("Staff support", plan.coverage, "coverage")}
       ${renderStudentDetailCasePlanItem("Do next", plan.nextAction, "action", plan.owner)}
-      ${renderStudentDetailCasePlanItem("Access", plan.access, "access")}
     </section>
   `;
 }
@@ -7927,13 +8033,16 @@ function renderStudentDetailReviews(detail) {
   const reviews = Array.isArray(detail.reviews) ? detail.reviews : [];
   const comments = Array.isArray(detail.comments) ? detail.comments : [];
   const commentMode = studentDetailCommentVisibilityMode(detail);
+  const needsChanges = reviews.filter((row) => normalizeStatus(row.decision || row.status) === "revision_requested");
+  const otherReviews = reviews.filter((row) => normalizeStatus(row.decision || row.status) !== "revision_requested");
+  const orderedReviews = [...needsChanges, ...otherReviews];
   return `
     <section class="workspace-detail-section" ${studentDetailPanelAttrs("feedback", "reviews")}>
-      ${renderStudentDetailList("Reviews", "Program Teacher feedback history", reviews, "No review records are available for this student.", (row) => `
+      ${renderStudentDetailList("Recent feedback", needsChanges.length ? "Needs changes first" : "Program Teacher feedback", orderedReviews, "No feedback yet for this student.", (row) => `
         <article class="workspace-row">
           <div>
             <strong>${escapeHtml(row.requirementTitle || "Senior Project work")}</strong>
-            <p>${escapeHtml(row.feedback || "Review recorded.")}</p>
+            <p>${escapeHtml(row.feedback || "Feedback saved.")}</p>
             <p class="workspace-muted">${escapeHtml(row.reviewerName || "Reviewer")} / ${escapeHtml(studentDetailDateLabel(row.createdAt))}</p>
           </div>
           ${statusPill(row.decision || "under_review")}
@@ -7944,7 +8053,7 @@ function renderStudentDetailReviews(detail) {
         <article class="workspace-row">
           <div>
             <strong>${escapeHtml(row.authorName || "Staff")}</strong>
-            <p>${escapeHtml(row.body || "Comment recorded.")}</p>
+            <p>${escapeHtml(row.body || "Comment saved.")}</p>
             <p class="workspace-muted">${escapeHtml(studentDetailDateLabel(row.createdAt))}</p>
           </div>
           ${statusPill(row.visibility || "configured")}
@@ -7984,7 +8093,7 @@ function renderStudentDetailMentor(detail) {
         <article class="workspace-row">
           <div>
             <strong>${escapeHtml(row.mentorName || "Mentor")}</strong>
-            <p>${escapeHtml(row.notes || row.nextAction || "Meeting recorded.")}</p>
+            <p>${escapeHtml(row.notes || row.nextAction || "Meeting saved.")}</p>
             ${renderMentorMeetingLinkedWork(row)}
             <p class="workspace-muted">${escapeHtml(studentDetailDateLabel(row.heldAt || row.scheduledFor || row.createdAt))}</p>
           </div>
@@ -8045,8 +8154,8 @@ function renderMentorMeetingForm(detail, mentor = {}) {
         Meeting notes
         <textarea name="notes" rows="4" maxlength="1200" required></textarea>
       </label>
-      <p class="workspace-muted" data-mentor-meeting-purpose-guide="true">Choose the purpose first, then write the exact follow-up the student agreed to. Only actively assigned mentors can record meetings for their assigned students.</p>
-      <button class="workspace-button workspace-button-primary" type="submit" data-mentor-meeting-action="record">Record meeting</button>
+      <p class="workspace-muted" data-mentor-meeting-purpose-guide="true">Choose the purpose first, then write the exact follow-up the student agreed to. Only actively assigned mentors can save meetings for their assigned students.</p>
+      <button class="workspace-button workspace-button-primary" type="submit" data-mentor-meeting-action="record">Save meeting</button>
     </form>
   `;
 }
@@ -8200,14 +8309,14 @@ function renderStudentDetailArchive(detail) {
   const studentId = detail.student?.studentId || detail.scope?.studentId || "";
   return `
     <section class="workspace-detail-section" data-student-detail-section="archive">
-      ${renderDashboardCard("Archive", "Closeout package status", `
+      ${renderDashboardCard("Final files", "Closeout file status", `
         <p>${escapeHtml(archive.nextAction || "Prepare final-file readiness checks when the student reaches closeout.")}</p>
         <div class="workspace-chip-row">
           ${statusPill(archive.status || "missing")}
           ${statusPill(archive.exportStatus || "not_requested")}
           <span class="workspace-site-context-badge">Protected file details</span>
         </div>
-        <p class="workspace-muted">${escapeHtml(safeNumber(archive.artifactCount))} file record${safeNumber(archive.artifactCount) === 1 ? "" : "s"} in the latest archive summary.</p>
+        <p class="workspace-muted">${escapeHtml(safeNumber(archive.artifactCount))} final file${safeNumber(archive.artifactCount) === 1 ? "" : "s"} in the latest summary.</p>
         ${permissions.canViewArchiveOperations ? studentDetailOperationsButton(studentId) : ""}
       `)}
     </section>
@@ -8229,7 +8338,7 @@ function renderStudentDetailTimeline(detail, state) {
     : Array.isArray(detail.timelinePreview)
       ? detail.timelinePreview
       : [];
-  const title = timelineBody ? "Timeline" : "Timeline Preview";
+  const title = timelineBody ? "Recent activity" : "Recent activity preview";
   const selectedType = cleanStudentDetailTimelineType(state.timelineType || "");
   return `
     <section class="workspace-detail-section" ${studentDetailPanelAttrs("timeline")}>
@@ -8255,12 +8364,12 @@ function renderStudentDetailTimeline(detail, state) {
           })}
         </div>
       ` : ""}
-      ${renderStudentDetailList(title, "Recent activity", events, "No timeline events are available for this student.", (event) => `
+      ${renderStudentDetailList(title, "Newest updates first", events, "No activity yet for this student.", (event) => `
         <article class="workspace-row">
           <div>
-            <strong>${escapeHtml(event.title || (event.type ? statusText(event.type) : "Timeline event"))}</strong>
-            <p>${escapeHtml(event.summary || "Timeline event recorded.")}</p>
-            <p class="workspace-muted">${escapeHtml(event.type ? statusText(event.type) : "Timeline")} / ${escapeHtml(studentDetailDateLabel(event.occurredAt))}</p>
+            <strong>${escapeHtml(event.title || (event.type ? statusText(event.type) : "Activity update"))}</strong>
+            <p>${escapeHtml(event.summary || "Activity saved.")}</p>
+            <p class="workspace-muted">${escapeHtml(event.type ? statusText(event.type) : "Activity")} / ${escapeHtml(studentDetailDateLabel(event.occurredAt))}</p>
           </div>
           ${statusPill(event.status || "configured")}
         </article>
@@ -8274,7 +8383,7 @@ function renderStudentDetailTimelineFilters(selectedType = "", loaded = false) {
     <div class="workspace-active-filter-summary" data-student-detail-timeline-filters="true">
       <div>
         <strong>${escapeHtml(selectedType ? `Showing ${studentDetailTimelineTypeLabel(selectedType).toLowerCase()}` : "Showing all activity")}</strong>
-        <p>${escapeHtml(loaded ? "Timeline filters use the authorized student timeline route." : "Open a filter to load matching student activity.")}</p>
+        <p>${escapeHtml(loaded ? "These filters use the authorized student activity route." : "Open a filter to load matching student activity.")}</p>
       </div>
       <div class="workspace-quick-actions" role="group" aria-label="Timeline filters">
         ${STUDENT_DETAIL_TIMELINE_TYPES.map(([value, label]) => `
@@ -8287,10 +8396,11 @@ function renderStudentDetailTimelineFilters(selectedType = "", loaded = false) {
   `;
 }
 
-function renderStudentDetailList(title, detail, rows, emptyText, rowRenderer) {
+function renderStudentDetailList(title, detail, rows, emptyText, rowRenderer, options = {}) {
   const safeRows = Array.isArray(rows) ? rows : [];
+  const sectionAttr = options.sectionId ? ` data-student-detail-section="${escapeHtml(options.sectionId)}"` : "";
   return `
-    <section class="workspace-dashboard-card">
+    <section class="workspace-dashboard-card"${sectionAttr}>
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">${escapeHtml(detail)}</p>
@@ -20743,10 +20853,10 @@ function studentDetailReturnCopy(sourceSection) {
     label,
     buttonLabel: `Back to ${label}`,
     hint: sectionId === "overview"
-      ? "Return to Today when you finish with this record."
+      ? "Return to Today when you finish with this student."
       : sectionId === "students"
-      ? "Return to the filtered student list when you finish with this record."
-      : `Return to ${label} when you finish with this record.`,
+      ? "Return to the filtered student list when you finish with this student."
+      : `Return to ${label} when you finish with this student.`,
   };
 }
 
