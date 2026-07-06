@@ -93,7 +93,7 @@ const WORKSPACE_POSTURE_CHIPS = [
   "Student progress",
   "Private proof",
   "Mentor coverage",
-  "Review queue",
+  "Review work",
   "Presentation readiness",
 ];
 const STATUS_CLASS_BY_STATUS = {
@@ -1618,8 +1618,8 @@ function roleCommandTrailItems(primaryRole, roles = roleIds(currentUser), isAdmi
   }
   if (roles.has("program_teacher")) {
     return [
-      { step: "1", title: "Review turned-in work", detail: "Open submitted or revision work before browsing lower-priority summaries.", section: "teacher", preset: "submitted", actionLabel: "Open review", tone: "teacher" },
-      { step: "2", title: "Find stuck students", detail: "Use Program Dashboard to locate proof, mentor, revision, or readiness blockers.", section: "programDashboard", actionLabel: "Open program", tone: "warning" },
+      { step: "1", title: "Review work students sent in", detail: "Open waiting work or work that needs changes before browsing lower-priority summaries.", section: "teacher", preset: "submitted", actionLabel: "Open review", tone: "teacher" },
+      { step: "2", title: "Find stuck students", detail: "Use Program Dashboard to locate proof, mentor, changes, or readiness blockers.", section: "programDashboard", actionLabel: "Open program", tone: "warning" },
       { step: "3", title: "Fix roster gaps only when needed", detail: "Use Admin Console People & Access when the student or mentor roster is wrong.", mode: "admin", actionLabel: "Open console", tone: "quiet" },
     ];
   }
@@ -1707,11 +1707,11 @@ function roleCommandNextAction(primaryRole, roles = roleIds(currentUser), isAdmi
   }
   if (roles.has("program_teacher")) {
     return {
-      title: "Review submitted work",
-      detail: "Open the Review Queue first when students are waiting on feedback.",
+      title: "Review work students sent in",
+      detail: "Open Review Work first when students are waiting on feedback.",
       section: "teacher",
       preset: "submitted",
-      label: "Open Review Queue",
+      label: "Open Review Work",
     };
   }
   if (roles.has("mentor")) {
@@ -1931,7 +1931,7 @@ function renderAdminConsoleUnavailableNotice() {
 function renderWorkspaceSectionUnavailableNotice(sectionId = "") {
   const title = workspaceSectionTitle(sectionId);
   const details = {
-    teacher: "submitted student work and program teacher review records",
+    teacher: "work students sent in",
     operations: "site presentation, final-file, and readiness worklists",
     mentorAssignments: "assigned site mentor coverage records",
     students: "student directory records",
@@ -1959,7 +1959,7 @@ function workspaceSectionTitle(sectionId = "") {
     mentorDashboard: "Mentor Dashboard",
     mentor: "Mentor students",
     programDashboard: "Program dashboard",
-    teacher: "Program Teacher review queue",
+    teacher: "Review Work",
     mentorAssignments: "Mentor assignments",
     operations: "Operations readiness",
     presentation: "Presentation schedule",
@@ -3663,10 +3663,10 @@ function screenOrientationFor(sectionId = "overview", primaryRole = primaryRoleF
       notFor: "Do not manage global or school account access here.",
     },
     teacher: {
-      title: "Review Queue",
-      useFor: "Review one submitted or revision item at a time.",
-      start: "Select one row, then check proof and history.",
-      notFor: "Do not approve missing proof or batch approve.",
+      title: "Review Work",
+      useFor: "Review work students sent in.",
+      start: "Start with waiting work, then open one student row.",
+      notFor: "Do not approve missing work or handle several students at once.",
     },
     mentorAssignments: {
       title: "Mentor Assignments",
@@ -3744,7 +3744,7 @@ function roleStartActions(primaryRole = primaryRoleForUser(currentUser), roles =
   if (primaryRole === "program_teacher" || roles.has("program_teacher")) {
     return [
       { label: "Open Program Dashboard", section: "programDashboard" },
-      { label: "Review submitted work", section: "teacher", preset: "submitted" },
+      { label: "Review work", section: "teacher", preset: "submitted" },
       { label: "Find missing proof", section: "students", preset: "missing-evidence-students" },
     ];
   }
@@ -3781,7 +3781,7 @@ function screenOrientationActionCandidates(sectionId = "overview", primaryRole =
     profile: roleStartActions(primaryRole, roles),
     siteDashboard: [
       { label: "Find missing mentors", section: "students", preset: "missing-mentors" },
-      { label: "Review submitted work", section: "teacher", preset: "submitted" },
+      { label: "Review work", section: "teacher", preset: "submitted" },
       { label: "Review final-file failures", section: "operations", preset: "archive-failed" },
     ],
     programs: [
@@ -3815,7 +3815,7 @@ function screenOrientationActionCandidates(sectionId = "overview", primaryRole =
       { label: "Open Account", section: "security" },
     ],
     programDashboard: [
-      { label: "Review submitted work", section: "teacher", preset: "submitted" },
+      { label: "Review work", section: "teacher", preset: "submitted" },
       { label: "Review revisions", section: "teacher", preset: "revision-requested" },
       { label: "Find missing proof", section: "students", preset: "missing-evidence-students" },
     ],
@@ -3863,7 +3863,7 @@ function screenOrientationActionCandidates(sectionId = "overview", primaryRole =
     audit: [
       { label: "Recent activity", section: "audit" },
       { label: "Student dashboard activity", section: "audit", auditAction: "student_dashboard_viewed", auditEntityType: "student_dashboard" },
-      { label: "Review queue activity", section: "audit", auditAction: "review_queue_viewed", auditEntityType: "review_queue" },
+      { label: "Review work activity", section: "audit", auditAction: "review_queue_viewed", auditEntityType: "review_queue" },
     ],
     archiveExports: [
       { label: "Failed packages", section: "archiveExports", preset: "failed-exports" },
@@ -3978,7 +3978,7 @@ function screenLanguageTermsFor(sectionId = "overview", primaryRole = primaryRol
     student: [
       ["Current phase deliverable", "The main thing this phase must finish before you move on."],
       ["Proof", "The file, link, or note that shows one checklist item is complete."],
-      ["Program Teacher approval", "The manual review gate that decides whether submitted work is accepted or needs revision."],
+      ["Program Teacher approval", "The manual review step that decides whether waiting work is accepted or needs changes."],
     ],
     archive: [
       ["Final files", primaryRole === "student" ? "The Senior Project files you need to save before school account access closes." : "The finished Senior Project package prepared for end-of-year handoff."],
@@ -4122,7 +4122,7 @@ function screenActionImpactsFor(sectionId = "overview", primaryRole = primaryRol
     students: [
       ["Search and filters", "These narrow the directory and update the shareable view.", "safe"],
       ["Open student", "Opening a student loads the detail panel for one allowed record.", "route"],
-      ["No review save", "Program Teacher review decisions are saved from Review Queue, not from the directory list.", "context"],
+      ["No review save", "Program Teacher review decisions are saved from Review Work, not from the directory list.", "context"],
     ],
     student: [
       ["Open current item", "Open the checklist item for the current phase before adding proof or sending work.", "safe"],
@@ -4147,10 +4147,10 @@ function screenActionImpactsFor(sectionId = "overview", primaryRole = primaryRol
     programDashboard: [
       ["Review shortcuts", "Review-first rows open the queue or student detail for scoped students.", "route"],
       ["Summary rows", "Program summary rows do not approve, reject, or request revision.", "safe"],
-      ["Decision point", "Use Review Queue after checking proof and history when a decision is needed.", "context"],
+      ["Decision point", "Use Review Work after checking proof and history when a decision is needed.", "context"],
     ],
     teacher: [
-      ["Filters", "Queue filters only change which rows are visible.", "safe"],
+      ["Filters", "Review filters only change which rows are visible.", "safe"],
       ["Select row", "Selecting a row opens proof, history, and the decision area for that item.", "route"],
       ["Save decision", "The decision form records the Program Teacher outcome when your role is allowed to decide.", "changes"],
     ],
@@ -4296,11 +4296,11 @@ function screenVisibilityNotesFor(sectionId = "overview", primaryRole = primaryR
     ],
     programDashboard: [
       ["Assigned students", "Program Teachers see cohort and review signals for students within their allowed program area.", "staff"],
-      ["Program Teacher work", "Review queues and risk lists are for school staff responsible for project approval.", "context"],
+      ["Program Teacher work", "Review work and risk lists are for school staff responsible for project approval.", "context"],
       ["No global account details", "This screen does not show password, global audit, or unrelated school account data.", "private"],
     ],
     teacher: [
-      ["Program Teacher reviewers", "Review Queue items are visible to Program Teachers and authorized school staff for the student.", "staff"],
+      ["Program Teacher reviewers", "Review Work items are visible to Program Teachers and authorized school staff for the student.", "staff"],
       ["Student-visible feedback", "Approval and revision feedback can be read by the student after the decision is saved.", "shared"],
       ["Staff-only notes", "Internal review context stays for staff follow-up and is not a student message.", "private"],
     ],
@@ -4446,8 +4446,8 @@ function screenStartRequirementsFor(sectionId = "overview", primaryRole = primar
     ],
     programDashboard: [
       ["Review risks first", "Start with review and cohort risk rows before browsing lower-priority summaries.", "check"],
-      ["Choose source list", "Open Review Queue or Student Directory when a row needs detail.", "source"],
-      ["Use queue for decisions", "Save approval or revision decisions only from the Review Queue.", "source"],
+      ["Choose source list", "Open Review Work or Students when a row needs detail.", "source"],
+      ["Use Review Work for decisions", "Save approval or revision decisions only from Review Work.", "source"],
     ],
     teacher: [
       ["Select one row", "Choose one review item before reading proof, history, or the decision area.", "choose"],
@@ -4572,7 +4572,7 @@ function screenDoneSignalsFor(sectionId = "overview", primaryRole = primaryRoleF
     students: [
       ["List narrowed", "Search, filters, or saved views show the student group you meant to review.", "complete"],
       ["One record opened", "A student detail panel opens when private detail or history is needed.", "route"],
-      ["Decision work routed", "Review decisions remain in Review Queue instead of the directory.", "safe"],
+      ["Decision work routed", "Review decisions remain in Review Work instead of the directory.", "safe"],
     ],
     student: [
       ["Phase item updated", "The current phase item shows the new proof count, waiting review state, revision message, or approval status.", "complete"],
@@ -4592,16 +4592,16 @@ function screenDoneSignalsFor(sectionId = "overview", primaryRole = primaryRoleF
     mentor: [
       ["Meeting saved", "The assigned student's meeting history shows the new result or follow-up note.", "saved"],
       ["Next support named", "The follow-up note says what the mentor or student should do next.", "complete"],
-      ["Review left separate", "Program Teacher approval still belongs in Review Queue.", "safe"],
+      ["Review left separate", "Program Teacher approval still belongs in Review Work.", "safe"],
     ],
     programDashboard: [
-      ["Risk path chosen", "Each urgent program signal has a Review Queue or Student Directory path.", "route"],
+      ["Risk path chosen", "Each urgent program signal has a Review Work or Students path.", "route"],
       ["Cohort checked", "You have checked the assigned student group before leaving the dashboard.", "complete"],
-      ["Decision saved elsewhere", "Approval or revision work stays in Review Queue.", "safe"],
+      ["Decision saved elsewhere", "Approval or revision work stays in Review Work.", "safe"],
     ],
     teacher: [
       ["Decision saved", "The selected review item shows the saved Program Teacher decision or follow-up message.", "saved"],
-      ["Queue updated", "Filters, row status, or the selected row update after the decision is saved.", "complete"],
+      ["Review list updated", "Filters, row status, or the selected row update after the decision is saved.", "complete"],
       ["Student next step clear", "Student-facing feedback is ready after the saved decision is visible in the selected item.", "complete"],
     ],
     mentorAssignments: [
@@ -4734,7 +4734,7 @@ function availableWorkspaceSections(user = currentUser) {
   }
   if (roles.has("program_teacher")) {
     add("students", "Students", "Program-scoped student rows");
-    add("teacher", "Reviews", "Submitted work waiting for feedback");
+    add("teacher", "Reviews", "Work waiting for review");
     add("programDashboard", "Program Dashboard", "Your students and review needs", { hidden: true });
     add("operations", "Operations", "Presentation, mentor, and final-file blockers", { hidden: true });
     add("presentation", "Presentation", "Schedule, outline, and day-of status", { hidden: true });
@@ -6241,14 +6241,14 @@ function renderSiteDashboardActionMap(dashboard = {}, readOnly = false) {
       tone: reviewTotal ? "review" : "ready",
       owner: "Program Teacher",
       count: reviewTotal ? `${reviewTotal} review` : "Clear",
-      title: reviewTotal ? "Route review work" : "No review queue blocker",
+      title: reviewTotal ? "Route review work" : "No review work waiting",
       detail: reviewTotal
         ? `${submitted} submitted and ${revisions} revision ${pluralize(revisions, "record")} need Program Teacher attention.`
         : "No submitted or revision-requested count is waiting in the school summary.",
-      source: readOnly ? "Monitoring list" : "Review Queue source",
+      source: readOnly ? "Monitoring list" : "Review Work",
       actionSection: reviewAction.section,
       actionPreset: reviewAction.preset,
-      actionLabel: reviewTotal ? reviewAction.actionLabel : "Open queue",
+      actionLabel: reviewTotal ? reviewAction.actionLabel : "Open Review Work",
     },
     {
       id: "proof",
@@ -6359,7 +6359,7 @@ function renderSiteAdminFirstDayChecklist(dashboard = {}) {
         : `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="students" data-section-preset="missing-mentors">View missing mentors</button>`,
     },
     {
-      label: "3. Review submitted work",
+      label: "3. Review work",
       detail: safeNumber(summary.submissionsSubmitted)
         ? `${safeNumber(summary.submissionsSubmitted)} submitted ${pluralize(summary.submissionsSubmitted, "item")} waiting for Program Teacher review.`
         : "No submitted work is waiting in the dashboard summary.",
@@ -6945,7 +6945,7 @@ function studentDirectoryRowHelperLabel(helper = "") {
 function studentDirectoryRowNextStep(action = "") {
   return String(action || "")
     .replace(/\bOpen Mentor Assignments and assign coverage before the next check-in\./g, "Assign a mentor before the next check-in.")
-    .replace(/\bOpen the Review Queue, check proof and history, then record one decision\./g, "Review the work and leave one decision.")
+    .replace(/\bOpen Review Work, check proof and history, then record one decision\./g, "Review the work and leave one decision.")
     .replace(/\bStudent revises the matching item; Program Teacher reviews only after it is sent again\./g, "Ask the student to fix the work and send it again.")
     .replace(/\bStudent adds proof to the matching checklist item before review can move forward\./g, "Ask the student to add the missing work.")
     .replace(/\bOpen Operations or Presentation readiness and confirm the outline or schedule blocker\./g, "Check the presentation plan or schedule.")
@@ -7103,7 +7103,7 @@ function studentDirectoryRowGuidance(student = {}, readOnly = false) {
   if (submission === "submitted" || review === "needs_review") {
     return {
       owner: "Program Teacher",
-      nextAction: "Open the Review Queue, check proof and history, then record one decision.",
+      nextAction: "Open Review Work, check proof and history, then record one decision.",
     };
   }
   if (submission === "revision_requested" || review === "needs_revision") {
@@ -7282,7 +7282,7 @@ function studentDirectoryEmptyStateCopy(filters = {}, options = {}, emptyState =
       heading: "No students are missing work here",
       reason: "No students with missing work match these filters.",
       owner,
-      nextAction: "Clear filters or check the Review Queue for submitted work.",
+      nextAction: "Clear filters or check Review Work for submitted work.",
     };
   }
   if (filters.reviewStatus === "needs_review" || filters.progressStatus === "needs_review") {
@@ -7290,7 +7290,7 @@ function studentDirectoryEmptyStateCopy(filters = {}, options = {}, emptyState =
       heading: "No matching students need review",
       reason: "No students with submitted work awaiting review match these filters.",
       owner,
-      nextAction: "Clear filters or open the Review Queue.",
+      nextAction: "Clear filters or open Review Work.",
     };
   }
   if (filters.status === "submitted") {
@@ -7298,7 +7298,7 @@ function studentDirectoryEmptyStateCopy(filters = {}, options = {}, emptyState =
       heading: "No matching submitted work",
       reason: "No students with submitted work match these filters.",
       owner,
-      nextAction: "Clear filters or check the Review Queue for broader review work.",
+      nextAction: "Clear filters or check Review Work for broader review work.",
     };
   }
   if (filters.status === "revision_requested") {
@@ -7306,7 +7306,7 @@ function studentDirectoryEmptyStateCopy(filters = {}, options = {}, emptyState =
       heading: "No matching revision follow-up",
       reason: "No students needing revision follow-up match these filters.",
       owner,
-      nextAction: "Clear filters or check the Review Queue for current revision work.",
+      nextAction: "Clear filters or check Review Work for current revision work.",
     };
   }
   if (filters.risk === "high") {
@@ -8416,7 +8416,7 @@ function renderSiteContextBlock(dashboard) {
         <span class="workspace-site-context-badge">${escapeHtml(siteAccessModeLabel(scope))}</span>
         <span class="workspace-site-context-badge">No student messaging</span>
       </div>
-      <p class="workspace-muted" data-site-selection-persistence="true">This selected school carries across Dashboard, Students, Review Queue, Mentor Assignments, Operations, Programs, and Users & Access when your role can open them.</p>
+      <p class="workspace-muted" data-site-selection-persistence="true">This selected school carries across Dashboard, Students, Review Work, Mentor Assignments, Operations, Programs, and Users & Access when your role can open them.</p>
       ${accessibleSites.length > 1 ? `
         <p class="workspace-muted">
           ${safeNumber(accessibleSites.length)} accessible site${accessibleSites.length === 1 ? "" : "s"} are available.
@@ -8438,8 +8438,8 @@ function renderSitePermissionRules(dashboard) {
   const reviewQueueCopy = permissions.canViewReviewQueue
     ? readOnly
       ? "You can review submitted work context; decisions stay with assigned Program Teachers."
-      : "Review queue visibility is available for this site."
-    : "Review queue action remains with assigned staff.";
+      : "Review work visibility is available for this site."
+    : "Review work action remains with assigned staff.";
   return `
     <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
       <article class="workspace-empty-state-card">
@@ -8803,7 +8803,7 @@ function renderProgramTeacherReviewFirstList(dashboard = {}) {
           <h2>Review First</h2>
           <p>${escapeHtml(visibleRows.length ? "Manual approvals and revision requests control student next steps." : "No submitted work is waiting in this dashboard slice.")}</p>
         </div>
-        ${availableSectionIdsForAnyMode().has("teacher") ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="teacher" data-section-preset="submitted">Open Review Queue</button>` : ""}
+        ${availableSectionIdsForAnyMode().has("teacher") ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="teacher" data-section-preset="submitted">Open Review Work</button>` : ""}
       </div>
       <div class="workspace-list">
         ${visibleRows.length ? visibleRows.map((row) => renderProgramTeacherReviewFirstRow(row)).join("") : `
@@ -9766,7 +9766,7 @@ function renderOperationsRoleActionGuide(body = {}, dashboard = {}) {
   const summary = body.summary || {};
   const actions = isProgramTeacher
     ? [
-        ["Review submitted work", "Approve next steps or request revision in the Review Queue.", "teacher", "submitted"],
+        ["Review work", "Approve next steps or request changes in Review Work.", "teacher", "submitted"],
         ["Resolve proof gaps", "Tell the student exactly which proof belongs with the current phase work.", "operations", "evidence-missing"],
         ["Clarify presentation readiness", "Use presentation and outline signals for staff follow-up.", "operations", "presentation-pending"],
       ]
@@ -15343,11 +15343,11 @@ function formatBytes(bytes) {
 
 function renderTeacherSection() {
   if (!hasSiteReviewQueueRole(roleIds(currentUser))) {
-    return renderPermissionDeniedSection("Program Teacher review queue", "submitted student work");
+    return renderPermissionDeniedSection("Review Work", "work students sent in");
   }
   const result = currentData.reviewQueue;
   if (result?.status === 403) {
-    return renderPermissionDeniedSection("Program Teacher review queue", "submitted student work");
+    return renderPermissionDeniedSection("Review Work", "work students sent in");
   }
   if (result?.status === 409 && result.body?.selectionRequired) {
     return renderReviewQueueSelectionRequired(result.body);
@@ -15367,46 +15367,24 @@ function renderTeacherSection() {
     <section class="workspace-command-center workspace-review-queue" aria-labelledby="reviewQueueTitle">
       <div class="workspace-section-heading">
         <div>
-          <p class="workspace-kicker">Program Teacher review queue</p>
-          <h1 id="reviewQueueTitle">Review Queue</h1>
-          <p>
-            Submitted work, revision follow-up, protected proof, and Program Teacher review for assigned records.
-            No student messaging.
-          </p>
+          <p class="workspace-kicker">Teacher reviews</p>
+          <h1 id="reviewQueueTitle">Review Work</h1>
+          <p>Work students sent in will appear here.</p>
         </div>
         <div class="workspace-site-context">
           <span class="workspace-site-context-badge">${escapeHtml(scope.siteName || "Selected school")}</span>
           <span class="workspace-site-context-badge">${escapeHtml(scope.schoolYear || "School year")}</span>
-          ${readOnly ? `<span class="workspace-site-context-badge">Read-only</span>` : `<span class="workspace-site-context-badge">Program Teacher decisions enabled</span>`}
+          ${readOnly ? `<span class="workspace-site-context-badge">Read-only</span>` : `<span class="workspace-site-context-badge">Can review work</span>`}
         </div>
       </div>
       ${renderApiNotice(result)}
       ${readOnly ? `
         <section class="workspace-read-only-banner" data-review-queue-read-only="true">
-          <strong>Read-only review queue</strong>
-          <p>This view is for review context. Approval, revision request, and comment decisions stay with assigned Program Teachers.</p>
+          <strong>Read-only reviews</strong>
+          <p>You can inspect this work, but only assigned Program Teachers can save feedback or decisions.</p>
         </section>
       ` : ""}
-      ${renderFirstUseGuide("review-queue", "Review one submitted item at a time", [
-        ["Start with decision order", "Use the queue guide and filters to find proof-ready, missing-proof, or revision work."],
-        ["Select one row", "History, proof counts, and student impact load in the right panel after selection."],
-        ["Check the manual gate", "Approval is for next steps only when proof and history support it."],
-        ["Save exactly one decision", "Approve, request revision, or add comment-only feedback. Read-only viewers stop at context."],
-      ], {
-        detail: "This queue is intentionally one-row-at-a-time so approval, revision, and comments do not blur together.",
-        badge: readOnly ? "Context only" : "Decision path",
-      })}
-      <div class="workspace-metric-grid">
-        ${renderMetricTile("Submitted", summary.submitted, "Ready for Program Teacher review", "teacher")}
-        ${renderMetricTile("Needs Revision", summary.revisionRequested, "Open revision loops", "warning")}
-        ${renderMetricTile("Proof Attached", summary.evidenceAttached, "Private proof summaries", "admin", "teacher", { label: "Review rows", preset: "evidence-attached-review" })}
-        ${renderMetricTile("Proof Missing", summary.evidenceMissing, "Confirm proof before approval", safeNumber(summary.evidenceMissing) ? "warning" : "mentor", "teacher", { label: "Review rows", preset: "evidence-missing-review" })}
-        ${renderMetricTile("High Risk", summary.highRisk, "Prioritize follow-up", safeNumber(summary.highRisk) ? "danger" : "admin", "teacher", { label: "Review rows", preset: "high-risk" })}
-        ${renderMetricTile("Stale Activity", summary.overdueOrStale, "Check-ins may be needed", safeNumber(summary.overdueOrStale) ? "warning" : "admin", "teacher", { label: "Review rows", preset: "stale-review" })}
-        ${renderMetricTile("Missing Mentor", summary.noMentor, "Needs mentor coverage", safeNumber(summary.noMentor) ? "warning" : "mentor", "teacher", { label: "Review rows", preset: "missing-mentor-review" })}
-      </div>
-      ${renderReviewQueueActionMap(queue, summary, filters, readOnly)}
-      ${renderReviewQueueDecisionGuide(queue, summary)}
+      ${renderReviewQueueStartHere(queue, summary, filters, readOnly)}
       ${renderReviewQueueFilters(body)}
       ${renderReviewQueueActiveFilters(filters, body?.filterOptions || {})}
       ${renderReviewQueueShareLink(body)}
@@ -15421,8 +15399,8 @@ function renderTeacherSection() {
         <section class="workspace-dashboard-card">
           <div class="workspace-card-head">
             <div>
-              <h2>Submitted work</h2>
-              <p>${safeNumber(pagination.returned)} shown of ${safeNumber(pagination.filteredTotal)} matching records</p>
+              <h2>Work waiting for review</h2>
+              <p>${safeNumber(pagination.returned)} shown of ${safeNumber(pagination.filteredTotal)} matching items</p>
             </div>
             <span class="workspace-chip">${safeNumber(pagination.total)} available</span>
           </div>
@@ -15430,21 +15408,167 @@ function renderTeacherSection() {
             <div class="workspace-list">
               ${queue.map((item) => renderReviewQueueRow(item, selectedId, permissions)).join("")}
             </div>
-            <div class="workspace-directory-pagination" aria-label="Review queue pagination">
+            <div class="workspace-directory-pagination" aria-label="Review work pagination">
               <button class="workspace-button workspace-button-secondary" type="button" data-review-queue-action="previous-page" ${safeNumber(pagination.offset) <= 0 ? "disabled" : ""}>Previous</button>
               <span>${safeNumber(pagination.offset) + 1}-${safeNumber(pagination.offset) + safeNumber(pagination.returned)} of ${safeNumber(pagination.filteredTotal)}</span>
               <button class="workspace-button workspace-button-secondary" type="button" data-review-queue-action="next-page" ${(safeNumber(pagination.offset) + safeNumber(pagination.returned)) >= safeNumber(pagination.filteredTotal) ? "disabled" : ""}>Next</button>
             </div>
           ` : `
-            <section class="workspace-empty-state-card" data-review-queue-empty="true">
-              <h2>${escapeHtml(emptyState?.heading || (hasActiveReviewQueueFilters(filters) ? "No matching review work" : "No review work waiting"))}</h2>
-              ${renderProblemState(emptyState)}
-              ${renderReviewQueueEmptyGuide(emptyState, filters)}
-            </section>
+            ${renderReviewQueueEmptyCard(emptyState, filters)}
           `}
         </section>
         ${renderReviewSubmissionPanel(selected, body)}
       </div>
+    </section>
+  `;
+}
+
+function renderReviewQueueStartHere(queue = [], summary = {}, filters = {}, readOnly = false) {
+  const rows = Array.isArray(queue) ? queue : [];
+  const submittedRows = rows.filter((row) => normalizeStatus(row.status) === "submitted");
+  const revisionRows = rows.filter((row) => normalizeStatus(row.status) === "revision_requested");
+  const missingWorkRows = submittedRows.filter((row) => safeNumber(row.evidenceCount) <= 0);
+  const highPriorityRows = rows.filter((row) => safeNumber(row.riskScore) >= 7 || (Array.isArray(row.riskFlags) && row.riskFlags.some((flag) => ["high", "stale"].includes(normalizeStatus(flag)))));
+  const presentationRows = rows.filter((row) => normalizeStatus(row.storyBucket) === "presentation_pending");
+  const finalReviewRows = rows.filter((row) => normalizeStatus(row.storyBucket) === "archive_ready");
+  const actions = [
+    {
+      id: "waiting",
+      label: "Waiting for review",
+      value: safeNumber(summary.submitted ?? submittedRows.length),
+      detail: readOnly ? "Work you can inspect." : "Work students sent in.",
+      preset: "submitted",
+      action: readOnly ? "Read feedback" : "Review",
+      tone: "teacher",
+    },
+    {
+      id: "needs-changes",
+      label: "Needs changes",
+      value: safeNumber(summary.revisionRequested ?? revisionRows.length),
+      detail: "Students are fixing this work.",
+      preset: "revision-requested",
+      action: "Read feedback",
+      tone: "warning",
+    },
+    {
+      id: "missing-work",
+      label: "Missing work",
+      value: safeNumber(summary.evidenceMissing ?? missingWorkRows.length),
+      detail: "Ask for the missing proof before approving.",
+      preset: "evidence-missing-review",
+      action: "Show missing work",
+      tone: "warning",
+    },
+    {
+      id: "ready-to-present",
+      label: "Ready to present",
+      value: safeNumber(summary.presentationPending ?? presentationRows.length),
+      detail: "Presentation work needs a check.",
+      preset: "presentation-pending-students",
+      action: "View students",
+      tone: "ready",
+      section: "students",
+    },
+    {
+      id: "final-review",
+      label: "Ready for final review",
+      value: safeNumber(summary.archiveReady ?? finalReviewRows.length),
+      detail: "Final work needs a last check.",
+      preset: "archive-ready-students",
+      action: "View students",
+      tone: "ready",
+      section: "students",
+    },
+    {
+      id: "high-priority",
+      label: "Needs help soon",
+      value: safeNumber(summary.highRisk ?? highPriorityRows.length),
+      detail: "Start here when a student may be stuck.",
+      preset: "high-risk",
+      action: "Show students",
+      tone: "danger",
+    },
+  ];
+  const activeId = reviewQueueStartActionActiveId(filters);
+  const visibleActions = actions
+    .filter((action) => action.value > 0 || action.id === activeId)
+    .slice(0, 4);
+  const totalWaiting = actions.reduce((total, action) => total + safeNumber(action.value), 0);
+  const summaryLine = totalWaiting
+    ? [
+        `${safeNumber(summary.submitted ?? submittedRows.length)} waiting`,
+        `${safeNumber(summary.revisionRequested ?? revisionRows.length)} need changes`,
+        `${safeNumber(summary.evidenceMissing ?? missingWorkRows.length)} missing work`,
+        `${safeNumber(summary.highRisk ?? highPriorityRows.length)} need help soon`,
+      ]
+    : ["You are caught up for now."];
+  if (!visibleActions.length) {
+    return `
+      <section class="workspace-review-start workspace-review-start-caught-up" data-review-work-start="true" data-review-work-caught-up="true">
+        <div>
+          <p class="workspace-kicker">Start Here</p>
+          <h2>No work is waiting for review right now.</h2>
+          <p>You are caught up for now.</p>
+        </div>
+        <button class="workspace-button workspace-button-secondary" type="button" data-section="students">View students</button>
+      </section>
+    `;
+  }
+  return `
+    <section class="workspace-review-start" data-review-work-start="true" data-review-work-active="${escapeHtml(activeId)}">
+      <div class="workspace-review-start-head">
+        <div>
+          <p class="workspace-kicker">Start Here</p>
+          <h2>Choose the work to review first</h2>
+          <p>Use the list below after choosing a group.</p>
+        </div>
+        <div class="workspace-review-summary-strip" data-review-work-summary="true">
+          ${summaryLine.map((line) => `<span>${escapeHtml(line)}</span>`).join("")}
+        </div>
+      </div>
+      <div class="workspace-review-start-grid">
+        ${visibleActions.map((action) => renderReviewQueueStartAction(action, activeId)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function reviewQueueStartActionActiveId(filters = {}) {
+  if (filters.risk === "high") return "high-priority";
+  if (filters.evidenceStatus === "missing") return "missing-work";
+  if (filters.status === "revision_requested") return "needs-changes";
+  if (filters.status === "submitted") return "waiting";
+  return "all";
+}
+
+function renderReviewQueueStartAction(action = {}, activeId = "all") {
+  const active = activeId === action.id;
+  const section = action.section || "teacher";
+  return `
+    <article class="workspace-review-start-action ${escapeHtml(action.tone || "quiet")}" data-review-start-action="${escapeHtml(action.id || "")}" data-current-filter="${active ? "true" : "false"}">
+      <div>
+        <span>${escapeHtml(action.label || "Review work")}</span>
+        <strong>${escapeHtml(`${safeNumber(action.value)} ${safeNumber(action.value) === 1 ? "item" : "items"}`)}</strong>
+        <p>${escapeHtml(action.detail || "")}</p>
+      </div>
+      <button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(section)}" data-section-preset="${escapeHtml(action.preset || "submitted")}" aria-pressed="${active ? "true" : "false"}">
+        ${escapeHtml(active ? "Viewing this group" : action.action || "Open")}
+      </button>
+    </article>
+  `;
+}
+
+function renderReviewQueueEmptyCard(emptyState = {}, filters = {}) {
+  const filtered = hasActiveReviewQueueFilters(filters);
+  return `
+    <section class="workspace-empty-state-card" data-review-queue-empty="true">
+      <h2>${escapeHtml(emptyState?.heading || (filtered ? "No matching work" : "No work is waiting for review right now."))}</h2>
+      <p>${escapeHtml(emptyState?.reason || (filtered ? "No work matches these filters." : "No work is waiting for review right now."))}</p>
+      <div class="workspace-row-actions">
+        ${filtered ? `<button class="workspace-button workspace-button-secondary" type="button" data-review-queue-action="reset-filters">Clear filters</button>` : ""}
+        <button class="workspace-button workspace-button-secondary" type="button" data-section="students">View students</button>
+      </div>
+      ${renderReviewQueueEmptyGuide(emptyState, filters)}
     </section>
   `;
 }
@@ -15468,7 +15592,7 @@ function renderReviewQueueDecisionGuide(queue = [], summary = {}) {
         <strong>Program Teacher decision order</strong>
         <p>${escapeHtml(nextMove)}</p>
       </div>
-      <div class="workspace-review-decision-counts" aria-label="Review queue decision counts">
+      <div class="workspace-review-decision-counts" aria-label="Review work decision counts">
         <span><b>${escapeHtml(safeNumber(summary.readyToReview ?? readyRows.length))}</b> proof-ready</span>
         <span><b>${escapeHtml(missingProofRows.length || safeNumber(summary.evidenceMissing))}</b> missing proof</span>
         <span><b>${escapeHtml(revisionRows.length || safeNumber(summary.revisionRequested))}</b> revision follow-up</span>
@@ -15577,9 +15701,9 @@ function renderReviewQueueSelectionRequired(body = {}) {
   const sites = body.accessibleSites || [];
   return `
     <section class="workspace-card workspace-error-card" data-workspace-state="review-queue-site-selection-required" data-review-queue-empty-guide="site-selection">
-      <p class="workspace-kicker">Program Teacher review queue</p>
-      <h2>Select a site before opening the Review Queue</h2>
-      <p>This account can review more than one school. Choose the school workspace before loading submitted work and Program Teacher follow-up.</p>
+      <p class="workspace-kicker">Review Work</p>
+      <h2>Select a school before opening Review Work</h2>
+      <p>This account can review more than one school. Choose the school workspace before loading work students sent in.</p>
       <div class="workspace-chip-row">
         ${sites.map((site) => `
           <button class="workspace-link-button workspace-link-button-small" type="button" data-site-switch-id="${escapeHtml(site.siteId || "")}">
@@ -15600,13 +15724,14 @@ function renderReviewQueueShareLink(body = {}) {
   const href = reviewQueueShareHref(body);
   if (!href) return "";
   return `
-    <section class="workspace-review-share-link" data-review-queue-share="true">
+    <details class="workspace-review-share-link" data-review-queue-share="true">
+      <summary>Share</summary>
       <div>
-        <strong>Share this exact queue view</strong>
-        <p>Send this link to another authorized Program Teacher or school admin. They will see only records their role can access.</p>
+        <strong>Share this view</strong>
+        <p>Send this link to another authorized Program Teacher or school admin. They will see only work their role can access.</p>
       </div>
       <a class="workspace-link-button workspace-link-button-small" data-review-queue-share-link="true" href="${escapeHtml(href)}">Copy queue link</a>
-    </section>
+    </details>
   `;
 }
 
@@ -15641,17 +15766,17 @@ function renderReviewQueueEmptyGuide(emptyState = {}, filters = {}) {
   const steps = filtered
     ? [
         "1. Clear one filter or use Clear filters.",
-        "2. Check Students if you need a student-level search.",
-        "3. Return here when submitted work is visible for a Program Teacher decision.",
+        "2. Check Students if you need to find one learner.",
+        "3. Return here when new work is ready to review.",
       ]
     : [
-        "1. No Program Teacher decision is waiting in this queue.",
+        "1. No teacher review is waiting here.",
         "2. Open Students only if you need context on a specific learner.",
-        "3. Keep monitoring new submissions; phase movement still requires manual Program Teacher approval.",
+        "3. New work will appear here when students send it in.",
       ];
   return `
     <section class="workspace-review-empty-guide" data-review-queue-empty-guide="${escapeHtml(category)}">
-      <strong>${escapeHtml(filtered ? "Filtered queue is empty" : "Queue is clear")}</strong>
+      <strong>${escapeHtml(filtered ? "No work matches these filters" : "You are caught up for now")}</strong>
       <ol>
         ${steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}
       </ol>
@@ -15660,18 +15785,52 @@ function renderReviewQueueEmptyGuide(emptyState = {}, filters = {}) {
   `;
 }
 
+function reviewQueueStatusText(value) {
+  const normalized = normalizeStatus(value);
+  if (["submitted", "under_review", "pending_review", "needs_review"].includes(normalized)) return "Waiting for review";
+  if (["revision_requested", "revision_needed", "needs_revision"].includes(normalized)) return "Needs changes";
+  if (["approved", "reviewed", "complete", "completed"].includes(normalized)) return "Done";
+  return studentStatusText(value);
+}
+
+function reviewQueueStatusPill(status) {
+  const normalized = normalizeStatus(status);
+  const statusClass = statusClassFor(status);
+  return `<span class="workspace-status-pill ${escapeHtml(statusClass)}" data-status="${escapeHtml(normalized)}">${escapeHtml(reviewQueueStatusText(status))}</span>`;
+}
+
+function reviewQueueKindLabel(value) {
+  const labels = {
+    model_excellent: "Strong example",
+    missing_mentor: "Missing mentor",
+    awaiting_review: "Waiting for review",
+    revision_requested: "Needs changes",
+    presentation_pending: "Ready to present",
+    archive_ready: "Ready for final review",
+    archive_failed: "Final files need help",
+    high_risk: "Needs help soon",
+    rich_timeline: "Has feedback history",
+  };
+  const normalized = normalizeStatus(value);
+  return labels[normalized] || reviewQueueStatusText(value);
+}
+
 function renderReviewQueueFilters(body) {
   const filters = body?.filters || reviewQueueFilters || defaultReviewQueueFilters();
   const options = body?.filterOptions || {};
   const programs = options.programs || [];
   return `
-    <form id="reviewQueueFilterForm" class="workspace-filter-bar" data-review-queue-filters="true">
+    <form id="reviewQueueFilterForm" class="workspace-filter-bar workspace-review-filter-bar" data-review-queue-filters="true">
+      <label>
+        <span>Search</span>
+        <input name="search" type="search" value="${escapeHtml(filters.search || "")}">
+      </label>
       <label>
         <span>Status</span>
         <select name="status">
-          <option value="" ${!filters.status ? "selected" : ""}>Submitted and revision</option>
+          <option value="" ${!filters.status ? "selected" : ""}>All review work</option>
           ${(options.statuses || ["submitted", "revision_requested", "approved"]).map((status) => `
-            <option value="${escapeHtml(status)}" ${filters.status === status ? "selected" : ""}>${escapeHtml(statusText(status))}</option>
+            <option value="${escapeHtml(status)}" ${filters.status === status ? "selected" : ""}>${escapeHtml(reviewQueueStatusText(status))}</option>
           `).join("")}
         </select>
       </label>
@@ -15686,42 +15845,43 @@ function renderReviewQueueFilters(body) {
           `).join("")}
         </select>
       </label>
-      <label>
-        <span>Story</span>
-        <select name="story">
-          <option value="" ${!filters.story ? "selected" : ""}>Any story</option>
-          ${(options.storyBuckets || []).map((story) => `
-            <option value="${escapeHtml(story)}" ${filters.story === story ? "selected" : ""}>${escapeHtml(storyLabel(story))}</option>
-          `).join("")}
-        </select>
-      </label>
-      <label>
-        <span>Risk</span>
-        <select name="risk">
-          ${(options.risks || ["any", "high", "medium", "low", "stale", "no_mentor"]).map((risk) => `
-            <option value="${escapeHtml(risk)}" ${(filters.risk || "any") === risk ? "selected" : ""}>${escapeHtml(riskLabel(risk))}</option>
-          `).join("")}
-        </select>
-      </label>
-      <label>
-        <span>Evidence</span>
-        <select name="evidenceStatus">
-          <option value="" ${!filters.evidenceStatus ? "selected" : ""}>Any proof status</option>
-          ${(options.evidenceStatuses || ["attached", "missing"]).map((status) => `
-            <option value="${escapeHtml(status)}" ${filters.evidenceStatus === status ? "selected" : ""}>${escapeHtml(evidenceStatusFilterLabel(status))}</option>
-          `).join("")}
-        </select>
-      </label>
-      <label>
-        <span>Search</span>
-        <input name="search" type="search" value="${escapeHtml(filters.search || "")}">
-      </label>
-      <label>
-        <span>Page size</span>
-        <select name="limit">
-          ${[25, 50, 100].map((limit) => `<option value="${limit}" ${safeNumber(filters.limit) === limit ? "selected" : ""}>${limit}</option>`).join("")}
-        </select>
-      </label>
+      <details class="workspace-advanced-filters" data-review-work-more-filters="true">
+        <summary>More filters</summary>
+        <div class="workspace-review-more-filter-grid">
+          <label>
+            <span>Kind</span>
+            <select name="story">
+              <option value="" ${!filters.story ? "selected" : ""}>Any kind</option>
+              ${(options.storyBuckets || []).map((story) => `
+                <option value="${escapeHtml(story)}" ${filters.story === story ? "selected" : ""}>${escapeHtml(reviewQueueKindLabel(story))}</option>
+              `).join("")}
+            </select>
+          </label>
+          <label>
+            <span>Needs help</span>
+            <select name="risk">
+              ${(options.risks || ["any", "high", "medium", "low", "stale", "no_mentor"]).map((risk) => `
+                <option value="${escapeHtml(risk)}" ${(filters.risk || "any") === risk ? "selected" : ""}>${escapeHtml(riskFilterLabel(risk))}</option>
+              `).join("")}
+            </select>
+          </label>
+          <label>
+            <span>Work</span>
+            <select name="evidenceStatus">
+              <option value="" ${!filters.evidenceStatus ? "selected" : ""}>Any work status</option>
+              ${(options.evidenceStatuses || ["attached", "missing"]).map((status) => `
+                <option value="${escapeHtml(status)}" ${filters.evidenceStatus === status ? "selected" : ""}>${escapeHtml(studentWorkStatusFilterLabel(status))}</option>
+              `).join("")}
+            </select>
+          </label>
+          <label>
+            <span>Page size</span>
+            <select name="limit">
+              ${[25, 50, 100].map((limit) => `<option value="${limit}" ${safeNumber(filters.limit) === limit ? "selected" : ""}>${limit}</option>`).join("")}
+            </select>
+          </label>
+        </div>
+      </details>
       <button class="workspace-button workspace-button-primary" type="submit">Apply filters</button>
       <button class="workspace-button workspace-button-secondary" type="button" data-review-queue-action="reset-filters">Clear filters</button>
     </form>
@@ -15730,15 +15890,15 @@ function renderReviewQueueFilters(body) {
 
 function renderReviewQueueActiveFilters(filters = {}, options = {}) {
   const chips = [];
-  if (filters.status) chips.push(activeFilterChip("Status", statusText(filters.status)));
+  if (filters.status) chips.push(activeFilterChip("Status", reviewQueueStatusText(filters.status)));
   if (filters.programId) chips.push(activeFilterChip("Program", programLabel(options.programs, filters.programId)));
-  if (filters.story) chips.push(activeFilterChip("Story", storyLabel(filters.story)));
-  if (filters.risk && filters.risk !== "any") chips.push(activeFilterChip("Risk", riskLabel(filters.risk)));
-  if (filters.evidenceStatus) chips.push(activeFilterChip("Evidence", evidenceStatusFilterLabel(filters.evidenceStatus)));
+  if (filters.story) chips.push(activeFilterChip("Kind", reviewQueueKindLabel(filters.story)));
+  if (filters.risk && filters.risk !== "any") chips.push(activeFilterChip("Needs help", riskFilterLabel(filters.risk)));
+  if (filters.evidenceStatus) chips.push(activeFilterChip("Work", studentWorkStatusFilterLabel(filters.evidenceStatus)));
   if (filters.search) chips.push(activeFilterChip("Search", filters.search));
   if (safeNumber(filters.limit) !== 50) chips.push(activeFilterChip("Page size", filters.limit));
   if (safeNumber(filters.offset) > 0) chips.push(activeFilterChip("Offset", filters.offset));
-  return renderActiveFilterSummary("Review queue", chips, 'data-review-queue-action="reset-filters"');
+  return renderActiveFilterSummary("Review work", chips, 'data-review-queue-action="reset-filters"');
 }
 
 function reviewQueueEmptyState(body, filters = {}) {
@@ -15748,59 +15908,59 @@ function reviewQueueEmptyState(body, filters = {}) {
     return {
       heading: filteredCopy.heading,
       reason: filteredCopy.reason,
-      owner: "Assigned review staff.",
+      owner: "Teacher review team.",
       nextAction: filteredCopy.nextAction,
     };
   }
   return {
-    heading: "No review work waiting",
-    reason: "No submitted or revision-requested work is waiting in this review queue right now.",
-    owner: "Assigned review staff.",
-    nextAction: "Open Students for context or keep monitoring new submissions.",
+    heading: "No work is waiting for review right now.",
+    reason: "No work is waiting for review right now.",
+    owner: "Teacher review team.",
+    nextAction: "View students or wait for new work.",
   };
 }
 
 function reviewQueueFilteredEmptyStateCopy(filters = {}, options = {}) {
   if (filters.evidenceStatus === "missing") {
     return {
-      heading: "No matching proof follow-up",
-      reason: "No submitted or revision-requested work without attached proof matches these filters.",
-      nextAction: "Clear the proof filter or check Operations Proof Missing for broader readiness follow-up.",
+      heading: "No matching missing work",
+      reason: "No work missing proof matches these filters.",
+      nextAction: "Clear the work filter or check Students for a broader search.",
     };
   }
   if (filters.evidenceStatus === "attached") {
     return {
-      heading: "No matching proof-ready reviews",
-      reason: "No submitted or revision-requested work with attached proof matches these filters.",
-      nextAction: "Clear the proof filter or adjust status and risk filters.",
+      heading: "No matching work with proof",
+      reason: "No work with attached proof matches these filters.",
+      nextAction: "Clear the work filter or adjust status and help filters.",
     };
   }
   if (filters.status === "submitted") {
     return {
-      heading: "No matching submitted work",
-      reason: "No submitted work waiting for Program Teacher review matches these filters.",
-      nextAction: "Clear filters or check Needs Revision for work already returned to students.",
+      heading: "No matching work waiting for review",
+      reason: "No work waiting for review matches these filters.",
+      nextAction: "Clear filters or check Needs changes.",
     };
   }
   if (filters.status === "revision_requested") {
     return {
-      heading: "No matching revision follow-up",
-      reason: "No work needing revision follow-up matches these filters.",
-      nextAction: "Clear filters or check Submitted for newly sent work.",
+      heading: "No matching work needing changes",
+      reason: "No work needing changes matches these filters.",
+      nextAction: "Clear filters or check Waiting for review.",
     };
   }
   if (filters.status === "approved") {
     return {
-      heading: "No matching approved work",
-      reason: "No approved review records match these filters.",
-      nextAction: "Clear filters to return to submitted and revision work.",
+      heading: "No matching done work",
+      reason: "No done review work matches these filters.",
+      nextAction: "Clear filters to return to review work.",
     };
   }
   if (filters.risk && filters.risk !== "any") {
     return {
-      heading: `No matching ${riskLabel(filters.risk).toLowerCase()} review work`,
-      reason: `No ${riskLabel(filters.risk).toLowerCase()} review work matches these filters.`,
-      nextAction: "Clear the risk filter or adjust status, evidence, and program filters.",
+      heading: `No matching ${riskFilterLabel(filters.risk).toLowerCase()} work`,
+      reason: `No ${riskFilterLabel(filters.risk).toLowerCase()} work matches these filters.`,
+      nextAction: "Clear the help filter or adjust status, work, and program filters.",
     };
   }
   if (filters.programId) {
@@ -15812,9 +15972,9 @@ function reviewQueueFilteredEmptyStateCopy(filters = {}, options = {}) {
   }
   if (filters.story) {
     return {
-      heading: "No matching story review work",
-      reason: `No ${storyLabel(filters.story).toLowerCase()} review work matches these filters.`,
-      nextAction: "Clear the story filter or adjust status and risk filters.",
+      heading: "No matching kind of work",
+      reason: `No ${reviewQueueKindLabel(filters.story).toLowerCase()} work matches these filters.`,
+      nextAction: "Clear the kind filter or adjust status and help filters.",
     };
   }
   if (filters.search) {
@@ -15826,8 +15986,8 @@ function reviewQueueFilteredEmptyStateCopy(filters = {}, options = {}) {
   }
   return {
     heading: "No matching review work",
-    reason: "No submitted or revision-requested work matches these filters.",
-    nextAction: "Clear filters to return to review work assigned to this view.",
+    reason: "No review work matches these filters.",
+    nextAction: "Clear filters to return to review work.",
   };
 }
 
@@ -15845,19 +16005,23 @@ function hasActiveReviewQueueFilters(filters = {}) {
 }
 
 function reviewQueueRowActionLabel(item, permissions = {}) {
-  if (permissions.canReview && item?.status === "submitted") return "Open review";
-  if (permissions.canReview) return "Open follow-up";
-  return "Open row";
+  const status = normalizeStatus(item?.status);
+  if (!permissions.canReview) return "Read feedback";
+  if (status === "submitted") return "Review";
+  if (status === "revision_requested" || status === "approved") return "Read feedback";
+  return "Open";
 }
 
 function reviewQueueRowActionHint(item, permissions = {}) {
-  if (permissions.canReview && item?.status === "submitted") {
-    return "Open this row to load history and Program Teacher decisions.";
+  const status = normalizeStatus(item?.status);
+  if (!permissions.canReview) return "Open this row to read feedback and context.";
+  if (status === "submitted") {
+    return "Open this row to review the work and feedback history.";
   }
-  if (permissions.canReview) {
-    return "Open this row to load history and follow-up context.";
+  if (status === "revision_requested") {
+    return "Open this row to read feedback while the student fixes the work.";
   }
-  return "Open this row to view protected history and student context.";
+  return "Open this row for review context.";
 }
 
 function reviewQueueDecisionAvailability(item = {}) {
@@ -15905,24 +16069,24 @@ function reviewQueueDecisionAvailable(item = {}, decision = "") {
 }
 
 function reviewQueueRowDecisionHint(item = {}, permissions = {}) {
-  if (!permissions.canReview) return "Context only. Assigned Program Teachers record approval, revision, or comment decisions.";
+  if (!permissions.canReview) return "Read feedback here. Assigned Program Teachers save decisions.";
   const availability = reviewQueueDecisionAvailability(item);
-  if (availability.guidance) return availability.guidance;
   const status = normalizeStatus(item?.status);
   const evidenceCount = safeNumber(item?.evidenceCount);
   if (status === "submitted" && evidenceCount > 0) {
-    return "Decision needed: active proof is attached. Review history, then approve next steps or request revision.";
+    return "Review the work, check proof, then save clear feedback.";
   }
   if (status === "submitted") {
-    return "Hold approval: proof is missing. Confirm the right proof before approving next steps.";
+    return "Ask for the missing proof before approving.";
   }
   if (status === "revision_requested") {
-    return "Student action needed: wait for the revised submission before recording another Program Teacher decision.";
+    return "The student needs to fix this before another review.";
   }
   if (status === "approved") {
-    return "Approved archive: use this row for context, not a new decision.";
+    return "This work is done. Read feedback or open the student for context.";
   }
-  return "Open the row to inspect history before deciding what should happen next.";
+  if (availability.guidance) return availability.guidance;
+  return "Open the row to read history before choosing the next step.";
 }
 
 function reviewQueueRowDecisionState(item = {}, permissions = {}) {
@@ -15942,37 +16106,43 @@ function renderReviewQueueRow(item, selectedId, permissions = {}) {
   const actionLabel = reviewQueueRowActionLabel(item, permissions);
   const actionHint = reviewQueueRowActionHint(item, permissions);
   const decisionState = reviewQueueRowDecisionState(item, permissions);
-  const ownerAction = reviewQueueRowOwnerAction(item, permissions);
   return `
-    <article class="workspace-student-row ${selected ? "is-selected" : ""}" data-review-submission-id="${escapeHtml(item.submissionId || "")}" data-review-row-state="${selected ? "selected" : "available"}" data-review-decision-state="${escapeHtml(decisionState)}">
-      <div class="workspace-student-card">
+    <article class="workspace-student-row workspace-review-work-row ${selected ? "is-selected" : ""}" data-review-submission-id="${escapeHtml(item.submissionId || "")}" data-review-row-state="${selected ? "selected" : "available"}" data-review-decision-state="${escapeHtml(decisionState)}">
+      <div class="workspace-review-work-row-main">
         <div>
+          <span>Student</span>
           <strong>${escapeHtml(item.studentName || "Student")}</strong>
-          <p>${escapeHtml(item.requirementTitle || "Senior Project work")}</p>
-          <p class="workspace-muted">${escapeHtml(item.programName || "Unassigned")} / version ${safeNumber(item.version)} / updated ${escapeHtml(formatDate(item.updatedAt))}</p>
+          <small>${escapeHtml(item.programName || "Unassigned")}</small>
         </div>
-        <div class="workspace-row-meta">
-          ${statusPill(item.status)}
-          ${item.storyBucket ? `<span class="workspace-story-chip">${escapeHtml(storyLabel(item.storyBucket))}</span>` : ""}
-          ${renderRiskChips(item.riskFlags || [])}
-          <span>${safeNumber(item.evidenceCount)} proof item${safeNumber(item.evidenceCount) === 1 ? "" : "s"}</span>
-          <span>${safeNumber(item.reviewCount)} reviews</span>
-          <span>${safeNumber(item.commentCount)} comments</span>
+        <div>
+          <span>What they sent</span>
+          <strong>${escapeHtml(item.requirementTitle || "Senior Project work")}</strong>
+          <small>Version ${safeNumber(item.version) || 1}</small>
+        </div>
+        <div>
+          <span>Status</span>
+          ${reviewQueueStatusPill(item.status)}
+          ${item.storyBucket ? `<small>${escapeHtml(reviewQueueKindLabel(item.storyBucket))}</small>` : ""}
+        </div>
+        <div>
+          <span>Last update</span>
+          <strong>${escapeHtml(formatDate(item.updatedAt))}</strong>
+          <small>${safeNumber(item.evidenceCount)} proof ${safeNumber(item.evidenceCount) === 1 ? "item" : "items"}</small>
         </div>
       </div>
       <div class="workspace-row-actions">
-        <p>${escapeHtml(item.nextAction || "Review status and context.")}</p>
-        <div class="workspace-owner-action" data-review-row-owner-action="true" data-review-row-owner="${escapeHtml(ownerAction.owner)}">
-          <span>Owner: ${escapeHtml(ownerAction.owner)}</span>
-          <small>Do next: ${escapeHtml(ownerAction.nextAction)}</small>
-        </div>
-        ${renderRiskExplanation(item.riskFlags || [], { includeLow: false })}
         <p class="workspace-review-row-decision" data-review-row-decision-hint="true">${escapeHtml(reviewQueueRowDecisionHint(item, permissions))}</p>
-        <p class="workspace-muted">${escapeHtml(selected ? "Selected row. History and available actions are loaded on the right." : actionHint)}</p>
-        <button class="workspace-link-button workspace-link-button-small" type="button" data-review-queue-action="select" data-review-submission-id="${escapeHtml(item.submissionId || "")}" data-review-row-action-label="${escapeHtml(actionLabel.toLowerCase().replace(/\s+/g, "-"))}">
-          ${escapeHtml(selected ? "Selected row" : actionLabel)}
+        <p class="workspace-muted">${escapeHtml(selected ? "This work is open. Feedback and actions are shown beside the list." : actionHint)}</p>
+        <button class="workspace-button workspace-button-primary workspace-button-small" type="button" data-review-queue-action="select" data-review-submission-id="${escapeHtml(item.submissionId || "")}" data-review-row-action-label="${escapeHtml(actionLabel.toLowerCase().replace(/\s+/g, "-"))}">
+          ${escapeHtml(selected ? "Open" : actionLabel)}
         </button>
-        ${renderViewAsStudentAction(item.studentId, item.studentName, { sourceSection: "teacher" })}
+        <details class="workspace-row-more-menu" data-review-row-more-menu="true">
+          <summary>More</summary>
+          <div>
+            <button class="workspace-link-button workspace-link-button-small" type="button" data-review-queue-action="open-student" data-review-student-id="${escapeHtml(item.studentId || "")}">Open student</button>
+            ${renderViewAsStudentAction(item.studentId, item.studentName, { sourceSection: "teacher" })}
+          </div>
+        </details>
       </div>
     </article>
   `;
@@ -16002,7 +16172,7 @@ function reviewQueueRowOwnerAction(item = {}, permissions = {}) {
   if (status === "revision_requested") {
     return {
       owner: "Student",
-      nextAction: "Wait for a submitted revision; use history only for support context.",
+      nextAction: "Wait for the student to fix the work; use history only for support context.",
     };
   }
   if (status === "approved") {
@@ -16012,7 +16182,7 @@ function reviewQueueRowOwnerAction(item = {}, permissions = {}) {
     };
   }
   return {
-    owner: "Assigned review staff",
+    owner: "Teacher review team",
     nextAction: "Open the row and confirm the status before guiding the student.",
   };
 }
@@ -16051,7 +16221,7 @@ function renderReviewSubmissionPanel(selected, body) {
         <h2>Loading submission</h2>
         ${renderProblemState({
           reason: "Review history is loading.",
-          owner: "Review queue.",
+          owner: "Review Work.",
           nextAction: "Keep the selected row open.",
         })}
       </section>
@@ -16071,23 +16241,22 @@ function renderReviewSubmissionPanel(selected, body) {
       `;
     }
     return `
-      <section class="workspace-dashboard-card workspace-review-panel" data-review-panel-state="empty">
-        <h2>Select a submission</h2>
+        <section class="workspace-dashboard-card workspace-review-panel" data-review-panel-state="empty">
+        <h2>Select work to review</h2>
         ${renderProblemState({
           reason: "No review row is selected.",
-          owner: "Assigned review staff.",
-            nextAction: "Open a submitted row to load Program Teacher decisions, or open a revision row to review history and follow-up context.",
+          owner: "Teacher review team.",
+            nextAction: "Open work that is waiting for review, or read feedback for work that needs changes.",
         })}
       </section>
     `;
   }
   const canDecide = permissions.canReview && selected.status === "submitted";
-  const selectedDecisionAvailability = reviewQueueDecisionAvailability(selected);
   const selectedGuidance = !permissions.canReview
     ? "This row is read-only here. Use history and student detail for context."
     : canDecide
-      ? selectedDecisionAvailability.guidance
-      : `${statusText(selected.status)} is follow-up only here. Use history and student detail for context.`;
+      ? reviewQueueRowDecisionHint(selected, permissions)
+      : `${reviewQueueStatusText(selected.status)} is follow-up only here. Use history and student detail for context.`;
   return `
     <section class="workspace-dashboard-card workspace-review-panel" data-review-panel-state="ready" data-review-selected-submission="${escapeHtml(selected.submissionId || "")}">
       <div class="workspace-card-head">
@@ -16095,11 +16264,11 @@ function renderReviewSubmissionPanel(selected, body) {
           <h2>${escapeHtml(selected.studentName || "Student")}</h2>
           <p>${escapeHtml(selected.requirementTitle || "Senior Project work")}</p>
         </div>
-        ${statusPill(selected.status)}
+        ${reviewQueueStatusPill(selected.status)}
       </div>
       <div class="workspace-detail-grid">
         <span class="workspace-site-context-badge">${escapeHtml(selected.programName || "Unassigned")}</span>
-        <span class="workspace-site-context-badge">${safeNumber(selected.evidenceCount)} private proof</span>
+        <span class="workspace-site-context-badge">${safeNumber(selected.evidenceCount)} proof ${safeNumber(selected.evidenceCount) === 1 ? "item" : "items"}</span>
         <span class="workspace-site-context-badge">${safeNumber(selected.reviewCount)} reviews</span>
         <span class="workspace-site-context-badge">${safeNumber(selected.commentCount)} comments</span>
       </div>
@@ -16107,7 +16276,7 @@ function renderReviewSubmissionPanel(selected, body) {
       <p class="workspace-muted" data-review-selected-guidance="true">${escapeHtml(selectedGuidance)}</p>
       <div class="workspace-row-actions">
         <button class="workspace-link-button workspace-link-button-small" type="button" data-review-queue-action="open-student" data-review-student-id="${escapeHtml(selected.studentId || "")}">
-          View student detail
+          Open student
         </button>
         ${renderViewAsStudentAction(selected.studentId, selected.studentName, { sourceSection: "teacher" })}
       </div>
@@ -16123,11 +16292,11 @@ function renderReviewSubmissionPanel(selected, body) {
       ${renderReviewDecisionRubric(selected, canDecide, permissions)}
       ${canDecide ? renderReviewDecisionForm(selected) : `
         <section class="workspace-empty-state-card" data-review-mutation-disabled="true">
-          <h2>No Program Teacher decision available for this row</h2>
+          <h2>No review action available for this row</h2>
           ${renderProblemState({
-            reason: permissions.canReview ? `Program Teacher decisions are only available while work is submitted for review. This row is currently ${statusText(selected.status).toLowerCase()}.` : "This workspace is read-only for review decisions.",
-            owner: permissions.canReview ? "Assigned Program Teacher." : "Assigned review staff.",
-            nextAction: permissions.canReview ? "Use the history and student detail for context, or open submitted work from this queue when a decision is needed." : "Use this queue for context; assigned Program Teachers handle decisions.",
+            reason: permissions.canReview ? `Review actions are only available while work is waiting for review. This row is currently ${reviewQueueStatusText(selected.status).toLowerCase()}.` : "This workspace is read-only for review decisions.",
+            owner: permissions.canReview ? "Assigned Program Teacher." : "Teacher review team.",
+            nextAction: permissions.canReview ? "Use the history and student detail for context, or open work that is waiting for review." : "Use this queue for context; assigned Program Teachers handle decisions.",
           })}
         </section>
       `}
@@ -16143,14 +16312,14 @@ function renderReviewSelectedSummary(selected = {}, canDecide = false, permissio
       <div>
         <p class="workspace-kicker">Selected row</p>
         <strong>${escapeHtml(selected.requirementTitle || "Senior Project work")}</strong>
-        <span>${escapeHtml(selected.programName || "Unassigned")} / version ${safeNumber(selected.version)} / ${escapeHtml(statusText(selected.status))}</span>
+        <span>${escapeHtml(selected.programName || "Unassigned")} / version ${safeNumber(selected.version)} / ${escapeHtml(reviewQueueStatusText(selected.status))}</span>
       </div>
       <div class="workspace-review-selected-summary-facts">
         <span><b>${safeNumber(selected.evidenceCount)}</b> proof</span>
         <span><b>${safeNumber(selected.reviewCount)}</b> reviews</span>
         <span><b>${safeNumber(selected.commentCount)}</b> comments</span>
       </div>
-      <p>${escapeHtml(canDecide ? "One saved decision updates the student's next-step signal." : ownerAction.nextAction)}</p>
+      <p>${escapeHtml(canDecide ? "One saved decision updates the student's next step." : ownerAction.nextAction)}</p>
     </section>
   `;
 }
@@ -16177,10 +16346,10 @@ function renderReviewProofQualityChecklist(selected = {}, history = {}, canDecid
       state: historyCount ? "context" : "needs_review",
     },
     {
-      label: "Decision matches gate",
+      label: "Decision matches work",
       detail: permissions.canReview && canDecide && approvalAvailable
-        ? "Approval, revision, and comment-only are available; choose exactly one."
-        : "Use revision or comment-only context until the row is submitted with proof.",
+        ? "Approval, changes, and comment-only are available; choose exactly one."
+        : "Use changes or comment-only context until the student sends work with proof.",
       state: permissions.canReview && canDecide && approvalAvailable ? "ready" : "blocked",
     },
   ];
@@ -16206,8 +16375,8 @@ function renderReviewDecisionChecklist(selected = {}, history = {}, canDecide = 
   const comments = reviewHistoryCommentCounts(history?.comments || []);
   const checks = [
     {
-      label: "Submitted row selected",
-      detail: status === "submitted" ? "This row is open for a Program Teacher decision." : `${statusText(status)} rows are context or follow-up only.`,
+      label: "Waiting work selected",
+      detail: status === "submitted" ? "This row is open for a teacher decision." : `${reviewQueueStatusText(status)} rows are context or follow-up only.`,
       state: status === "submitted" ? "ready" : "blocked",
     },
     {
@@ -16222,7 +16391,7 @@ function renderReviewDecisionChecklist(selected = {}, history = {}, canDecide = 
     },
     {
       label: "Student note clear",
-      detail: comments.studentVisible ? "Student-visible context exists; make the next saved note specific." : "Write the exact approval or revision step before saving.",
+      detail: comments.studentVisible ? "Student-visible context exists; make the next saved note specific." : "Write the exact approval or change needed before saving.",
       state: comments.studentVisible ? "context" : "needs_review",
     },
   ];
@@ -16248,7 +16417,7 @@ function renderReviewMissingProofHold(selected = {}, canDecide = false) {
   return `
     <section class="workspace-review-proof-hold" data-review-missing-proof-hold="true">
       <strong>Approval is locked because proof is missing</strong>
-      <p>Request a revision or add a comment asking for the exact proof. Do not approve next steps until the evidence count is no longer zero.</p>
+      <p>Ask for changes or add a comment asking for the exact proof. Do not approve next steps until proof is attached.</p>
     </section>
   `;
 }
@@ -16259,19 +16428,19 @@ function renderReviewSubmissionRecovery(selected = {}, history = {}, permissions
   const copy = status === "revision_requested"
     ? {
         state: "revision-open",
-        title: "Student revision is still pending",
-        detail: "Use student detail and history for context if the student is stuck. Approval waits until the student sends a submitted revision.",
+        title: "Student changes are still pending",
+        detail: "Use student detail and history for context if the student is stuck. Approval waits until the student sends updated work.",
       }
     : status === "submitted" && reviewCount
       ? {
           state: "resubmitted",
-          title: "New submitted version is ready",
+          title: "New version is ready",
           detail: "Compare the latest work against the prior review before approving next steps.",
         }
       : {
           state: status || "context",
           title: permissions.canReview ? "Decision recovery path" : "Read-only recovery context",
-          detail: permissions.canReview ? "Use the selected status and history to decide whether this is approval, revision, or comment-only context." : "Assigned Program Teachers handle the next saved decision.",
+          detail: permissions.canReview ? "Use the selected status and history to decide whether this is approval, changes, or comment-only context." : "Assigned Program Teachers handle the next saved decision.",
         };
   return `
     <section class="workspace-review-recovery" data-review-submission-recovery="true" data-review-submission-recovery-state="${escapeHtml(copy.state)}">
@@ -16286,8 +16455,8 @@ function renderReviewDecisionRubric(selected = {}, canDecide = false, permission
   const approvalAvailable = reviewQueueDecisionAvailable(selected, "approved");
   const rows = [
     ["Approve next steps", "Use only when active proof is attached, the work meets the phase ask, and the student can move forward.", canDecide && approvalAvailable ? "ready" : "blocked"],
-    ["Request revision", "Use when the student must fix this phase before moving ahead. Say exactly what to change.", permissions.canReview && status === "submitted" ? "ready" : "context"],
-    ["Add comment only", "Use for clarification or support. It does not change the student's approval gate.", permissions.canReview ? "context" : "blocked"],
+    ["Request changes", "Use when the student must fix this phase before moving ahead. Say exactly what to change.", permissions.canReview && status === "submitted" ? "ready" : "context"],
+    ["Add comment only", "Use for clarification or support. It does not change the student's approval step.", permissions.canReview ? "context" : "blocked"],
   ];
   return `
     <section class="workspace-review-decision-rubric" data-review-decision-rubric="true">
@@ -16318,11 +16487,11 @@ function renderReviewDecisionReadiness(selected = {}, history = {}, canDecide = 
       </div>
       <div class="workspace-review-readiness-grid">
         ${renderReviewReadinessFact("Proof", evidenceCount ? `${evidenceCount} attached` : "Missing proof", evidenceCount ? "ready" : "blocked")}
-        ${renderReviewReadinessFact("Current status", statusText(status || selected.status), status === "submitted" ? "ready" : "context")}
+        ${renderReviewReadinessFact("Current status", reviewQueueStatusText(status || selected.status), status === "submitted" ? "ready" : "context")}
         ${renderReviewReadinessFact("Previous reviews", `${reviewCount}`, reviewCount ? "context" : "quiet")}
         ${renderReviewReadinessFact("Student-visible notes", `${commentCounts.studentVisible}`, commentCounts.studentVisible ? "context" : "quiet")}
         ${renderReviewReadinessFact("Staff-only notes", `${commentCounts.staffOnly}`, commentCounts.staffOnly ? "context" : "quiet")}
-        ${renderReviewReadinessFact("Manual gate", canDecide ? "Program Teacher decision controls next steps" : "Decision not available here", canDecide ? "ready" : "blocked")}
+        ${renderReviewReadinessFact("Manual review", canDecide ? "Teacher decision controls next steps" : "Decision not available here", canDecide ? "ready" : "blocked")}
       </div>
     </section>
   `;
@@ -16342,7 +16511,7 @@ function reviewDecisionReadinessCopy(selected = {}, canDecide = false, permissio
     return {
       state: "read-only",
       title: "Read-only context",
-      detail: "Use this panel for context. Assigned Program Teachers record approval, revision, or comment decisions.",
+      detail: "Use this panel for context. Assigned Program Teachers record approval, changes, or comment decisions.",
     };
   }
   const status = normalizeStatus(selected.status);
@@ -16358,14 +16527,14 @@ function reviewDecisionReadinessCopy(selected = {}, canDecide = false, permissio
     return {
       state: "proof-missing",
       title: "Proof check needed before approval",
-      detail: "This work is submitted, but active proof is missing. Request revision or ask for proof before approving next steps.",
+      detail: "This work is waiting for review, but active proof is missing. Ask for changes or ask for proof before approving next steps.",
     };
   }
   if (status === "revision_requested") {
     return {
       state: "student-action",
-      title: "Student revision is still open",
-      detail: "The student owns the next change. Use student detail and history for context; approval waits for a submitted revision.",
+      title: "Student changes are still open",
+      detail: "The student owns the next change. Use student detail and history for context; approval waits for updated work.",
     };
   }
   return {
@@ -16376,7 +16545,7 @@ function reviewDecisionReadinessCopy(selected = {}, canDecide = false, permissio
 }
 
 function renderReviewNextStepCheckpoint(selected, canDecide, permissions = {}) {
-  const status = statusText(selected?.status || "submitted");
+  const status = reviewQueueStatusText(selected?.status || "submitted");
   const canReview = Boolean(permissions.canReview);
   const approvalAvailable = reviewQueueDecisionAvailable(selected, "approved");
   const steps = canDecide
@@ -16384,22 +16553,22 @@ function renderReviewNextStepCheckpoint(selected, canDecide, permissions = {}) {
       ? [
         ["Check proof and history", "Open the student detail if mentor, timeline, or phase context is needed before deciding."],
         ["Approve next steps only when ready", "Choose approval when this work is complete enough for the student to move forward."],
-        ["Request revision to hold the phase", "Choose revision when the student should fix this phase before moving ahead."],
+        ["Request changes to hold the phase", "Choose changes when the student should fix this phase before moving ahead."],
       ]
       : [
-        ["Confirm active proof first", "Approval stays locked until proof is attached to this submitted work."],
-        ["Request revision or add a comment", "Tell the student exactly what proof to attach or clarify before approval."],
+        ["Confirm active proof first", "Approval stays locked until proof is attached to this work."],
+        ["Request changes or add a comment", "Tell the student exactly what proof to attach or clarify before approval."],
         ["Approve only after proof appears", "Return to approval after this row shows active proof and the work meets the phase ask."],
       ]
     : canReview
       ? [
           ["Use this as follow-up context", `${status} work is not open for a new decision from this row.`],
-          ["Open submitted work for decisions", "Only submitted work exposes approval, revision, and comment decisions."],
-          ["Keep the phase signal clear", "Use student detail and review history before telling the student to move ahead."],
+          ["Open waiting work for decisions", "Only work waiting for review exposes approval, changes, and comment decisions."],
+          ["Keep the next step clear", "Use student detail and review history before telling the student to move ahead."],
         ]
       : [
           ["Read the review context", "This account can view the row but cannot record a Program Teacher decision here."],
-          ["Send students to assigned staff", "Program Teachers record approval or revision decisions from their review queue."],
+          ["Send students to assigned staff", "Program Teachers record approval or change decisions from Review Work."],
           ["Keep next steps consistent", "Students should wait for recorded approval before starting the next phase."],
         ];
   return `
@@ -16427,24 +16596,24 @@ function renderReviewStudentImpactPreview(selected = {}, canDecide = false) {
     ? approvalAvailable
       ? [
         ["Approve next steps", "Student sees approved for next steps and can continue with the next assigned item.", "approved"],
-        ["Request revision", "Student stays in this phase, sees the feedback, fixes the work, and sends a revision.", "revision_requested"],
-        ["Add comment only", "Adds context without changing the student status or approval gate.", "under_review"],
+        ["Request changes", "Student stays in this phase, sees the feedback, fixes the work, and sends it again.", "revision_requested"],
+        ["Add comment only", "Adds context without changing the student status or approval step.", "under_review"],
       ]
       : [
-        ["Approval locked", "Student still waits here because active proof is missing from the submitted work.", "pending_review"],
-        ["Request revision", "Student sees exactly what proof or change is needed before approval.", "revision_requested"],
-        ["Add comment only", "Adds support context without changing the student's approval gate.", "under_review"],
+        ["Approval locked", "Student still waits here because active proof is missing from this work.", "pending_review"],
+        ["Request changes", "Student sees exactly what proof or change is needed before approval.", "revision_requested"],
+        ["Add comment only", "Adds support context without changing the student's approval step.", "under_review"],
       ]
     : status === "revision_requested"
       ? [
-          ["Current student state", "Student sees needs revision and should fix the feedback before moving ahead.", "revision_requested"],
-          ["Program Teacher option here", "Use history and student detail for context until a new submitted revision appears.", "under_review"],
-          ["Next approval gate", "Approval appears only after submitted work is ready for a Program Teacher decision.", "submitted"],
+          ["Current student state", "Student sees needs changes and should fix the feedback before moving ahead.", "revision_requested"],
+          ["Program Teacher option here", "Use history and student detail for context until the student sends work again.", "under_review"],
+          ["Next approval step", "Approval appears only after work is ready for a Program Teacher decision.", "submitted"],
         ]
       : [
-          ["Current row state", `${statusText(selected.status)} rows are context here.`, status || "context"],
+          ["Current row state", `${reviewQueueStatusText(selected.status)} rows are context here.`, status || "context"],
           ["Student next step", "Use student detail and review history before giving direction outside the queue.", "under_review"],
-          ["Manual gate", "Recorded Program Teacher decisions keep phase movement clear for the student.", "approved"],
+          ["Manual review", "Recorded Program Teacher decisions keep phase movement clear for the student.", "approved"],
         ];
   return `
     <section class="workspace-review-impact-preview" data-review-student-impact-preview="true">
@@ -16452,7 +16621,7 @@ function renderReviewStudentImpactPreview(selected = {}, canDecide = false) {
       <div class="workspace-review-impact-grid">
         ${impactRows.map(([title, detail, state]) => `
           <article data-review-impact-state="${escapeHtml(normalizeStatus(state))}">
-            ${statusPill(state)}
+            ${reviewQueueStatusPill(state)}
             <h3>${escapeHtml(title)}</h3>
             <p>${escapeHtml(detail)}</p>
           </article>
@@ -16469,7 +16638,7 @@ function renderReviewHistorySummary(historyResult, history) {
         <h2>Review history unavailable</h2>
         ${renderProblemState({
           reason: "The review history could not load for this submission.",
-          owner: "Review queue.",
+          owner: "Review Work.",
           nextAction: "Refresh the queue or confirm this submission still belongs to your assigned review list.",
         })}
       </section>
@@ -16550,26 +16719,26 @@ function renderReviewDecisionForm(selected) {
     <form id="reviewDecisionForm" class="workspace-review-feedback" data-review-decision-form="true" data-review-approval-blocked="${approvalBlocked ? "missing-proof" : "false"}" data-review-approval-blocked-reason="${escapeHtml(approvalBlocked ? availability.approvalBlockedReason : "")}">
       <section class="workspace-review-decision-helper" data-review-decision-helper="true">
         <strong>Before saving</strong>
-        <p>${escapeHtml(approvalBlocked ? "Choose revision or comment-only until active proof is attached. Approval opens only after the submitted work has active proof." : "Choose one decision. Approval opens the student's next-step signal; revision holds the current phase; comment-only adds context without changing status.")}</p>
+        <p>${escapeHtml(approvalBlocked ? "Choose changes or comment-only until active proof is attached. Approval opens only after this work has active proof." : "Choose one decision. Approval opens the student's next step; changes hold the current phase; comment-only adds context without changing status.")}</p>
         <p class="workspace-muted" data-review-comment-only-non-gating="true">Comment-only is not approval. Students still wait for a recorded approval before moving phases.</p>
       </section>
       <label>
         <span>Student-visible feedback</span>
         <textarea name="feedback" rows="5" maxlength="800" aria-describedby="reviewDecisionFeedbackHelp"></textarea>
       </label>
-      <p id="reviewDecisionFeedbackHelp" class="workspace-muted">Write the exact approval note or revision step the student should see.</p>
+      <p id="reviewDecisionFeedbackHelp" class="workspace-muted">Write the exact approval note or change the student should see.</p>
       ${approvalBlocked ? `
         <section class="workspace-review-inline-proof-hold" data-review-decision-inline-proof-hold="true">
           <strong>Approval remains locked here</strong>
-          <p>${escapeHtml(availability.approvalBlockedReason === "missing_evidence" ? "Active proof is missing from this submitted work. Use Request revision or Add comment only until proof appears." : "This row is not ready for approval from the current state.")}</p>
+          <p>${escapeHtml(availability.approvalBlockedReason === "missing_evidence" ? "Active proof is missing from this work. Use Request changes or Add comment only until proof appears." : "This row is not ready for approval from the current state.")}</p>
         </section>
       ` : ""}
       <div class="workspace-row-actions">
         <button class="workspace-button workspace-button-primary" type="submit" name="decision" value="approved" data-review-decision="approved" ${approvalBlocked ? 'disabled aria-disabled="true" data-review-decision-blocked="missing-proof"' : ""}>${escapeHtml(approvalBlocked ? "Approval locked: proof needed" : "Approve next steps")}</button>
-        <button class="workspace-button workspace-button-secondary" type="submit" name="decision" value="revision_requested" data-review-decision="revision_requested" ${revisionBlocked ? 'disabled aria-disabled="true" data-review-decision-blocked="not-available"' : ""}>Request revision</button>
+        <button class="workspace-button workspace-button-secondary" type="submit" name="decision" value="revision_requested" data-review-decision="revision_requested" ${revisionBlocked ? 'disabled aria-disabled="true" data-review-decision-blocked="not-available"' : ""}>Request changes</button>
         <button class="workspace-button workspace-button-secondary" type="submit" name="decision" value="comment_only" data-review-decision="comment_only" ${commentBlocked ? 'disabled aria-disabled="true" data-review-decision-blocked="not-available"' : ""}>Add comment only</button>
       </div>
-      <p class="workspace-muted">Saved decisions refresh this queue and update the student's approval signal.</p>
+      <p class="workspace-muted">Saved decisions refresh this queue and update the student's next step.</p>
       <p class="workspace-muted" data-review-decision-storage-note="true">Feedback text is saved as review history. Private proof file details stay hidden.</p>
       <input type="hidden" name="submissionId" value="${escapeHtml(selected.submissionId || "")}">
     </form>
@@ -16892,8 +17061,8 @@ function renderSiteReadinessActionMap(operationsBody = {}, dashboard = {}, admin
       owner: "Program Teachers",
       count: "Review",
       title: "Route review work",
-      detail: "Submitted and revision decisions still belong in Review Queue, not this report.",
-      source: "Review Queue",
+      detail: "Submitted and revision decisions still belong in Review Work, not this report.",
+      source: "Review Work",
       section: "teacher",
       preset: "submitted",
       actionLabel: "Open reviews",
@@ -19802,7 +19971,7 @@ async function applyReviewQueueFilters(event) {
   reviewQueueState = defaultReviewQueueState();
   activeSection = "teacher";
   syncReviewQueueUrlState();
-  await loadReviewQueueResult("Review queue filters applied.");
+  await loadReviewQueueResult("Review work filters applied.");
 }
 
 async function applyMentorAssignmentFilters(event) {
@@ -20093,7 +20262,7 @@ async function handleReviewQueueAction(event) {
     reviewQueueState = defaultReviewQueueState();
     activeSection = "teacher";
     syncReviewQueueUrlState({ clearFilters: true });
-    await loadReviewQueueResult("Review queue filters reset.");
+    await loadReviewQueueResult("Review work filters reset.");
     return;
   }
   if (action === "previous-page" || action === "next-page") {
@@ -20109,7 +20278,7 @@ async function handleReviewQueueAction(event) {
     reviewQueueState = defaultReviewQueueState();
     activeSection = "teacher";
     syncReviewQueueUrlState();
-    await loadReviewQueueResult("Review queue page updated.");
+    await loadReviewQueueResult("Review work page updated.");
   }
 }
 
@@ -20208,7 +20377,7 @@ async function loadReviewQueueResult(message = "", options = {}) {
     });
     return;
   }
-  renderAppShell(result.ok ? (message || "Review queue loaded.") : "Review queue unavailable.", result.ok ? "success" : "error");
+  renderAppShell(result.ok ? (message || "Review work loaded.") : "Review work unavailable.", result.ok ? "success" : "error");
 }
 
 async function restoreReviewQueueSelectionFromCurrentRows(options = {}) {
@@ -20562,7 +20731,7 @@ function studentDetailReturnCopy(sourceSection) {
     overview: "Today",
     siteDashboard: "Site Dashboard",
     students: "Students",
-    teacher: "Review Queue",
+    teacher: "Review Work",
     mentorAssignments: "Mentor Assignments",
     mentorDashboard: "Mentor Dashboard",
     programDashboard: "Program Dashboard",
@@ -22083,7 +22252,7 @@ function nextStepText() {
   if (roles.has("administration")) return "Review assigned school students, readiness, presentation, progress dashboards, and access needs.";
   if (hasGlobalAdminRole(roles)) return "Review platform setup and multisite readiness available to this account.";
   if (roles.has("viewer")) return "Review assigned students in read-only mode.";
-  if (roles.has("program_teacher")) return "Review submitted work and follow up where students need feedback.";
+  if (roles.has("program_teacher")) return "Review work students sent in and follow up where students need feedback.";
   if (roles.has("mentor")) return "Check assigned students before mentor meetings and presentation preparation.";
   if (roles.has("misc_admin")) return "Review aggregate readiness without opening individual student records.";
   return "Ask your instructor to confirm your workspace role.";
@@ -22402,7 +22571,7 @@ function renderSiteRecentActivity(rows = []) {
       detail: "New submissions, proof, and Program Teacher feedback will appear here without exposing private details.",
       reason: "No recent activity rows are available for the selected school.",
       owner: "Assigned school staff",
-      nextAction: "Use Students, Review Queue, or Operations when you need to inspect a specific workflow.",
+      nextAction: "Use Students, Review Work, or Operations when you need to inspect a specific workflow.",
       actions: [
         { label: "Open students", section: "students" },
         { label: "Open review", section: "teacher", preset: "submitted" },
@@ -23768,7 +23937,7 @@ const ROLE_WORKING_PROFILES = {
         detail: "Open this first when students are waiting for approval, revision notes, or comment-only feedback.",
         section: "teacher",
         preset: "submitted",
-        action: "Open Review Queue",
+        action: "Open Review Work",
         tone: "primary",
       },
       {
@@ -23805,7 +23974,7 @@ const ROLE_WORKING_PROFILES = {
       "Student proof, mentor, presentation, and final-file signals when they affect your students.",
     ],
     do: [
-      "Start with Review Queue when students have turned in work.",
+      "Start with Review Work when students have turned in work.",
       "Use Program Dashboard when you want the shortest list of students who need help.",
       "Open Students when you know the student's name.",
       "Use Users & Access only when the student or mentor roster is wrong.",
@@ -23815,7 +23984,7 @@ const ROLE_WORKING_PROFILES = {
       "You do not manage other teacher, School Admin, Site Admin, or Global Admin accounts.",
     ],
     actions: [
-      { section: "teacher", preset: "submitted", label: "Open Review Queue", detail: "Approve work, request revision, or leave feedback." },
+      { section: "teacher", preset: "submitted", label: "Open Review Work", detail: "Approve work, request revision, or leave feedback." },
       { section: "programDashboard", label: "Open Program Dashboard", detail: "Students who need your attention first." },
       { section: "students", label: "Open Students", detail: "Search one student by name." },
       { section: "operations", label: "Open Operations", detail: "Presentation, mentor, and final-file blockers." },
@@ -24552,7 +24721,7 @@ async function handleWorkspaceUrlPopState() {
     return;
   }
   if (state.hasReviewQueueState && currentUser && hasSiteReviewQueueRole(roles)) {
-    await loadReviewQueueResult(state.hasSiteStudentDetailState ? "Student detail link restored." : "Review queue link restored.", { syncUrl: false });
+    await loadReviewQueueResult(state.hasSiteStudentDetailState ? "Student detail link restored." : "Review work link restored.", { syncUrl: false });
     return;
   }
   if (state.hasSiteStudentState && currentUser && hasSiteStudentDirectoryRole(roles)) {

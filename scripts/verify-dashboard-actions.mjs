@@ -219,7 +219,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /siteDashboard: \[[\s\S]*label: "Find missing mentors", section: "students", preset: "missing-mentors"[\s\S]*label: "Review submitted work", section: "teacher", preset: "submitted"[\s\S]*label: "Review final-file failures", section: "operations", preset: "archive-failed"/,
+  /siteDashboard: \[[\s\S]*label: "Find missing mentors", section: "students", preset: "missing-mentors"[\s\S]*label: "Review work", section: "teacher", preset: "submitted"[\s\S]*label: "Review final-file failures", section: "operations", preset: "archive-failed"/,
   "Site Dashboard orientation suggestions must use existing Student Directory, Review Queue, and Operations filters",
 );
 assertMatches(
@@ -234,7 +234,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /audit: \[[\s\S]*label: "Student dashboard activity", section: "audit", auditAction: "student_dashboard_viewed", auditEntityType: "student_dashboard"[\s\S]*label: "Review queue activity", section: "audit", auditAction: "review_queue_viewed", auditEntityType: "review_queue"/,
+  /audit: \[[\s\S]*label: "Student dashboard activity", section: "audit", auditAction: "student_dashboard_viewed", auditEntityType: "student_dashboard"[\s\S]*label: "Review work activity", section: "audit", auditAction: "review_queue_viewed", auditEntityType: "review_queue"/,
   "Audit orientation suggestions must use the existing filtered audit route",
 );
 
@@ -492,8 +492,8 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function renderTeacherSection\([\s\S]*renderMetricTile\("High Risk"[\s\S]*"teacher", \{ label: "Review rows", preset: "high-risk" \}\)/,
-  "Review Queue High Risk metric must open the existing high-risk Review Queue filter",
+  /function renderReviewQueueStartHere\([\s\S]*id: "high-priority"[\s\S]*preset: "high-risk"/,
+  "Review Work Start Here high-priority action must open the existing high-risk Review Queue filter",
 );
 assertMatches(
   "workspaceJs",
@@ -502,8 +502,8 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function renderTeacherSection\([\s\S]*renderMetricTile\("Stale Activity"[\s\S]*"teacher", \{ label: "Review rows", preset: "stale-review" \}\)/,
-  "Review Queue Stale Activity metric must open the existing stale Review Queue filter",
+  /function renderReviewQueueFilters\([\s\S]*name="risk"[\s\S]*"stale"[\s\S]*riskFilterLabel/,
+  "Review Work advanced filters must keep the existing stale Review Queue filter reachable",
 );
 assertMatches(
   "workspaceJs",
@@ -512,8 +512,8 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function renderTeacherSection\([\s\S]*renderMetricTile\("Missing Mentor"[\s\S]*"teacher", \{ label: "Review rows", preset: "missing-mentor-review" \}\)/,
-  "Review Queue Missing Mentor metric must open the existing no-mentor Review Queue filter",
+  /function renderReviewQueueFilters\([\s\S]*name="risk"[\s\S]*"no_mentor"[\s\S]*riskFilterLabel/,
+  "Review Work advanced filters must keep the existing no-mentor Review Queue filter reachable",
 );
 assertMatches(
   "workspaceJs",
@@ -522,8 +522,8 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function renderTeacherSection\([\s\S]*renderMetricTile\("Proof Attached"[\s\S]*"teacher", \{ label: "Review rows", preset: "evidence-attached-review" \}\)/,
-  "Review Queue Proof Attached metric must open the existing evidence-attached Review Queue filter",
+  /function renderReviewQueueFilters\([\s\S]*name="evidenceStatus"[\s\S]*"attached"[\s\S]*studentWorkStatusFilterLabel/,
+  "Review Work advanced filters must keep the existing evidence-attached Review Queue filter reachable",
 );
 assertMatches(
   "workspaceJs",
@@ -532,8 +532,8 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function renderTeacherSection\([\s\S]*renderMetricTile\("Proof Missing"[\s\S]*"teacher", \{ label: "Review rows", preset: "evidence-missing-review" \}\)/,
-  "Review Queue Proof Missing metric must open the existing evidence-missing Review Queue filter",
+  /function renderReviewQueueStartHere\([\s\S]*id: "missing-work"[\s\S]*preset: "evidence-missing-review"/,
+  "Review Work Start Here missing-work action must open the existing evidence-missing Review Queue filter",
 );
 assertMatches(
   "workspaceJs",
@@ -803,7 +803,7 @@ assertMatches(
 );
 
 assertMatches("workspaceJs", /function renderReadOnlyBanner\(\)[\s\S]*Read-only workspace/, "viewer read-only banner must remain visible");
-assertMatches("workspaceJs", /data-review-queue-read-only="true"[\s\S]*No Program Teacher decision available for this row/, "read-only review queue must not expose mutation actions as available");
+assertMatches("workspaceJs", /data-review-queue-read-only="true"[\s\S]*No review action available for this row/, "read-only review queue must not expose mutation actions as available");
 assertMatches("workspaceJs", /data-mentor-assignment-controls-hidden="true"[\s\S]*Assignment changes unavailable/, "read-only mentor coverage must hide assignment controls");
 assertMatches("workspaceJs", /data-operations-read-only="true"[\s\S]*Read-only operations worklists/, "operations read-only state must remain explicit");
 

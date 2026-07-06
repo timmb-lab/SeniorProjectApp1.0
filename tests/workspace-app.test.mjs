@@ -1017,7 +1017,7 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
     "Student progress",
     "Private proof",
     "Mentor coverage",
-    "Review queue",
+    "Review work",
     "Presentation readiness",
     "Staff Workspace",
     "My Capstone",
@@ -1055,7 +1055,7 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
   assert.match(workspaceJs, /Students can see their booklet phases, add proof, send work for review, read feedback, and prepare for presentations/);
   assert.match(signInBlock, /renderWorkspaceLandingHero\(\)/);
   assert.doesNotMatch(signInBlock, /renderProductHeader\(/);
-  assert.doesNotMatch(signInBlock, /Student progress|Private proof|Mentor coverage|Review queue|Presentation readiness/);
+  assert.doesNotMatch(signInBlock, /Student progress|Private proof|Mentor coverage|Review work|Presentation readiness/);
   assert.match(appShellBlock, /renderProductHeader\(\{[\s\S]*context: headerContext,[\s\S]*readOnly: roles\.has\("viewer"\)/);
   assert.match(appShellBlock, /renderScreenGuidance\(activeSection, guidancePrimaryRole, guidanceRoles, sections\)/);
   assert.match(screenGuidanceBlock, /renderScreenOrientation\(sectionId, primaryRole, roles, sections\)/);
@@ -1081,7 +1081,7 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
     "Start here",
     "Not for",
     "See what to do next, what this phase must finish, and what proof or feedback needs action.",
-    "Review one submitted or revision item at a time.",
+    "Review work students sent in.",
     "Create or change access only after school access is clear.",
     "Review access, roles, assignments, and recent changes while staying redacted.",
     "Suggested next clicks",
@@ -1090,7 +1090,7 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
     "Before creating this account",
     "Before final-file handoff",
     "Program Teacher approval",
-    "The manual review gate that decides whether submitted work is accepted or needs revision.",
+    "The manual review step that decides whether waiting work is accepted or needs changes.",
     "Saved filter",
     "A ready-made view that narrows the directory to one kind of follow-up.",
     "Redacted",
@@ -1115,7 +1115,7 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
     "The selected review item shows the saved Program Teacher decision or follow-up message.",
     "Current access shows the intended person, role, and school, program, cohort, or student.",
     "Filters point to the action, person, or record pattern you needed to investigate.",
-    "Review submitted work",
+    "Review work",
     "Find missing mentors",
   ]) {
     assert.ok(workspaceJs.includes(screenGuideCopy), `missing screen orientation copy: ${screenGuideCopy}`);
@@ -1322,7 +1322,7 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(siteDashboard, /First-day setup/);
   assert.match(siteDashboard, /data-screen-orientation-actions="true"/);
   assert.match(siteDashboard, /data-screen-orientation-action="true"[\s\S]*data-section="students" data-section-preset="missing-mentors"[\s\S]*Find missing mentors/);
-  assert.match(siteDashboard, /data-section="teacher" data-section-preset="submitted"[\s\S]*Review submitted work/);
+  assert.match(siteDashboard, /data-section="teacher" data-section-preset="submitted"[\s\S]*Review work/);
   assert.match(siteDashboard, /data-section="operations" data-section-preset="archive-failed"[\s\S]*Review final-file failures/);
   assert.match(siteDashboard, /data-admin-console-active-section="siteDashboard"/);
   assert.match(siteDashboard, /mentor coverage/i);
@@ -1512,7 +1512,7 @@ test("workspace explains what clicks do before users act", async () => {
   const teacher = await renderWorkspaceWithFetch(profileRoutesForRole("program_teacher"), "teacher");
   assert.match(teacher, /data-screen-action-impact-guide="teacher"/);
   assert.match(teacher, /data-action-impact="filters" data-action-impact-state="safe"/);
-  assert.match(teacher, /Queue filters only change which rows are visible\./);
+  assert.match(teacher, /Review filters only change which rows are visible\./);
   assert.match(teacher, /data-action-impact="select-row" data-action-impact-state="route"/);
   assert.match(teacher, /Selecting a row opens proof, history, and the decision area for that item\./);
   assert.match(teacher, /data-action-impact="save-decision" data-action-impact-state="changes"/);
@@ -1539,7 +1539,7 @@ test("workspace explains who can see screen information", async () => {
   const teacher = await renderWorkspaceWithFetch(profileRoutesForRole("program_teacher"), "teacher");
   assert.match(teacher, /data-screen-visibility-guide="teacher"/);
   assert.match(teacher, /data-visibility-note="program-teacher-reviewers" data-visibility-note-state="staff"/);
-  assert.match(teacher, /Review Queue items are visible to Program Teachers and authorized school staff for the student\./);
+  assert.match(teacher, /Review Work items are visible to Program Teachers and authorized school staff for the student\./);
   assert.match(teacher, /data-visibility-note="student-visible-feedback" data-visibility-note-state="shared"/);
   assert.match(teacher, /Approval and revision feedback can be read by the student after the decision is saved\./);
   assert.match(teacher, /data-visibility-note="staff-only-notes" data-visibility-note-state="private"/);
@@ -2671,7 +2671,7 @@ test("global admin recent audit rows open filtered audit activity", async () => 
   assert.match(workspaceRoot.innerHTML, /data-screen-orientation-actions="true"/);
   assert.match(workspaceRoot.innerHTML, /data-section="audit"[\s\S]*Recent activity/);
   assert.match(workspaceRoot.innerHTML, /data-section="audit" data-audit-action="student_dashboard_viewed" data-audit-entity-type="student_dashboard"[\s\S]*Student dashboard activity/);
-  assert.match(workspaceRoot.innerHTML, /data-section="audit" data-audit-action="review_queue_viewed" data-audit-entity-type="review_queue"[\s\S]*Review queue activity/);
+  assert.match(workspaceRoot.innerHTML, /data-section="audit" data-audit-action="review_queue_viewed" data-audit-entity-type="review_queue"[\s\S]*Review work activity/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-overview="true"/);
   assert.match(workspaceRoot.innerHTML, /Access Review/);
   assert.match(workspaceRoot.innerHTML, /Role Assignments/);
@@ -3550,7 +3550,7 @@ test("workspace renders route-connected student directory with filters and real 
   }, "students");
   assert.match(filteredSubmittedEmpty, /No matching submitted work/);
   assert.match(filteredSubmittedEmpty, /No students with submitted work match these filters/);
-  assert.match(filteredSubmittedEmpty, /check the Review Queue for broader review work/);
+  assert.match(filteredSubmittedEmpty, /check Review Work for broader review work/);
   assert.doesNotMatch(filteredSubmittedEmpty, /No student records match these filters|No students match these filters/);
 
   const filteredArchiveEmpty = await renderWorkspaceWithFetch({
@@ -4239,75 +4239,62 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
 
   assert.match(teacher, /data-section="teacher"/);
   assert.match(teacher, /data-screen-orientation-section="teacher"/);
-  assert.match(teacher, /Review one submitted or revision item at a time/);
-  assert.match(teacher, /Select one row, then check proof and history/);
-  assert.match(teacher, /Do not approve missing proof or batch approve/);
+  assert.match(teacher, /Review work students sent in/);
+  assert.match(teacher, /Start with waiting work, then open one student row/);
+  assert.match(teacher, /Do not approve missing work or handle several students at once/);
   assert.match(teacher, /data-screen-orientation-actions="true"/);
-  assert.match(teacher, /data-section="teacher" data-section-preset="submitted"[\s\S]*Needs review/);
-  assert.match(teacher, /data-section="teacher" data-section-preset="revision-requested"[\s\S]*Revision follow-up/);
-  assert.match(teacher, /data-section="teacher" data-section-preset="evidence-attached-review"[\s\S]*Proof attached/);
-  assert.match(teacher, /Program Teacher review queue/);
-  assert.match(teacher, /Submitted work, revision follow-up/);
-  assert.match(teacher, /protected proof/);
-  assert.match(teacher, /assigned records/);
-  assert.match(teacher, /Program Teacher review/);
-  assert.match(teacher, /No student messaging/);
+  assert.match(teacher, /Review Work/);
+  assert.match(teacher, /Work students sent in will appear here/);
+  assert.match(teacher, /Can review work/);
   assert.match(teacher, /workspace-review-queue/);
   assert.match(teacher, /workspace-filter-bar/);
   assert.doesNotMatch(teacher, /Teacher intervention/);
-  assert.match(teacher, /data-first-use-guide="review-queue"/);
-  assert.match(teacher, /Review one submitted item at a time/);
-  assert.match(teacher, /Start with decision order/);
-  assert.match(teacher, /Save exactly one decision/);
-  assert.match(teacher, /data-section="teacher" data-section-preset="evidence-attached-review">Review rows/);
-  assert.match(teacher, /data-section="teacher" data-section-preset="evidence-missing-review">Review rows/);
-  assert.match(teacher, /data-section="teacher" data-section-preset="high-risk">Review rows/);
-  assert.match(teacher, /data-section="teacher" data-section-preset="stale-review">Review rows/);
-  assert.match(teacher, /data-section="teacher" data-section-preset="missing-mentor-review">Review rows/);
-  assert.match(teacher, /data-review-decision-guide="true"/);
-  assert.match(teacher, /Program Teacher decision order/);
-  assert.match(teacher, /Start with proof-ready submitted work\. Approve only when the proof and history support next steps/);
-  assert.match(teacher, /1<\/b> proof-ready/);
-  assert.match(teacher, /0<\/b> missing proof/);
-  assert.match(teacher, /1<\/b> revision follow-up/);
-  assert.match(teacher, /1<\/b> high risk/);
-  assert.match(teacher, /data-review-action-map="true"/);
-  assert.match(teacher, /data-review-action-map-active="all"/);
-  assert.match(teacher, /Where to review next/);
-  assert.match(teacher, /Choose one review lane/);
-  assert.match(teacher, /Use this map before scanning rows or changing filters/);
-  assert.match(teacher, /data-review-action-map-card="submitted"[\s\S]*Submitted decisions[\s\S]*1 waiting[\s\S]*data-section="teacher" data-section-preset="submitted"/);
-  assert.match(teacher, /data-review-action-map-card="proof-ready"[\s\S]*Proof-ready[\s\S]*1 ready[\s\S]*data-section="teacher" data-section-preset="evidence-attached-review"/);
-  assert.match(teacher, /data-review-action-map-card="missing-proof"[\s\S]*Missing proof[\s\S]*0 hold[\s\S]*approval stays locked until proof appears/);
-  assert.match(teacher, /data-review-action-map-card="revision"[\s\S]*Revision follow-up[\s\S]*1 open[\s\S]*data-section="teacher" data-section-preset="revision-requested"/);
-  assert.match(teacher, /data-review-action-map-card="high-risk"[\s\S]*High risk[\s\S]*1 flagged[\s\S]*data-section="teacher" data-section-preset="high-risk"/);
-  assert.match(teacher, /workspace-student-row is-selected/);
+  assert.match(teacher, /data-review-work-start="true"/);
+  assert.match(teacher, /Start Here/);
+  assert.match(teacher, /Choose the work to review first/);
+  assert.match(teacher, /1 waiting/);
+  assert.match(teacher, /1 need changes/);
+  assert.match(teacher, /0 missing work/);
+  assert.match(teacher, /1 need help soon/);
+  assert.match(teacher, /data-review-start-action="waiting"[\s\S]*Waiting for review[\s\S]*1 item[\s\S]*data-section="teacher" data-section-preset="submitted"[\s\S]*Review/);
+  assert.match(teacher, /data-review-start-action="needs-changes"[\s\S]*Needs changes[\s\S]*1 item[\s\S]*data-section="teacher" data-section-preset="revision-requested"[\s\S]*Read feedback/);
+  assert.match(teacher, /data-review-start-action="high-priority"[\s\S]*Needs help soon[\s\S]*1 item[\s\S]*data-section="teacher" data-section-preset="high-risk"[\s\S]*Show students/);
+  assert.match(teacher, /Search[\s\S]*name="search"/);
+  assert.match(teacher, /All review work/);
+  assert.match(teacher, /More filters/);
+  assert.match(teacher, /Kind[\s\S]*Ready to present[\s\S]*Ready for final review/);
+  assert.match(teacher, /Needs help[\s\S]*Missing mentor/);
+  assert.match(teacher, /Work[\s\S]*Missing work/);
+  assert.match(teacher, /data-review-queue-share="true"[\s\S]*<summary>Share<\/summary>/);
+  assert.doesNotMatch(teacher, /data-first-use-guide="review-queue"|data-review-action-map="true"|Choose one review lane|Submitted decisions|Proof-ready|Owner:|queue signal|next-step signal|Manual gate|approval gate|Request revision/);
+  assert.match(teacher, /workspace-student-row workspace-review-work-row is-selected/);
+  assert.match(teacher, /workspace-review-work-row/);
   assert.match(teacher, /data-review-row-state="selected"/);
   assert.match(teacher, /data-review-decision-state="decision-ready"/);
-  assert.match(teacher, /workspace-status-pill submitted/);
-  assert.match(teacher, /workspace-story-chip/);
-  assert.match(teacher, /workspace-risk-chip/);
-  assert.match(teacher, /Why this row is highlighted: Submitted work is still waiting for Program Teacher review\. Recent activity has slowed and may need staff follow-up\./);
+  assert.match(teacher, /Student[\s\S]*Revision Loop Demo 001/);
+  assert.match(teacher, /What they sent[\s\S]*Project proposal/);
+  assert.match(teacher, /Status[\s\S]*Waiting for review/);
+  assert.match(teacher, /Last update[\s\S]*3 proof items/);
+  assert.match(teacher, /data-review-row-more-menu="true"[\s\S]*More[\s\S]*Open student/);
   assert.match(teacher, /data-review-row-decision-hint="true"/);
-  assert.match(teacher, /Decision needed: active proof is attached\. Review history, then approve next steps or request revision\./);
-  assert.match(teacher, /Student action needed: wait for the revised submission before recording another Program Teacher decision\./);
-  assert.match(teacher, /Selected row\. History and available actions are loaded on the right\./);
-  assert.match(teacher, /Decision needed: active proof is attached\. Review history, then approve next steps or request revision\./);
+  assert.match(teacher, /Review the work, check proof, then save clear feedback/);
+  assert.match(teacher, /The student needs to fix this before another review/);
+  assert.match(teacher, /This work is open\. Feedback and actions are shown beside the list/);
   assert.match(teacher, /data-review-decision-readiness="true"/);
   assert.match(teacher, /Ready for a manual Program Teacher decision/);
   assert.match(teacher, /data-review-selected-summary="true"/);
   assert.match(teacher, /data-review-selected-summary-state="decision-ready"/);
-  assert.match(teacher, /Selected row[\s\S]*Project proposal[\s\S]*Information Technology \/ version 2 \/ Submitted/);
+  assert.match(teacher, /Selected row[\s\S]*Project proposal[\s\S]*Information Technology \/ version 2 \/ Waiting for review/);
   assert.match(teacher, /3<\/b> proof[\s\S]*1<\/b> reviews[\s\S]*2<\/b> comments/);
-  assert.match(teacher, /One saved decision updates the student&#039;s next-step signal/);
+  assert.match(teacher, /One saved decision updates the student&#039;s next step/);
   assert.match(teacher, /Proof[\s\S]*3 attached/);
-  assert.match(teacher, /Manual gate[\s\S]*Program Teacher decision controls next steps/);
+  assert.match(teacher, /Manual review[\s\S]*Teacher decision controls next steps/);
   assert.match(teacher, /data-review-proof-quality-checklist="true"/);
   assert.match(teacher, /data-review-proof-quality-state="ready"/);
   assert.match(teacher, /Correct work item[\s\S]*Project proposal is the row being reviewed/);
   assert.match(teacher, /Active proof visible[\s\S]*3 proof items are attached to this row/);
   assert.match(teacher, /History checked[\s\S]*1 prior review record is available for comparison/);
-  assert.match(teacher, /Decision matches gate[\s\S]*Approval, revision, and comment-only are available; choose exactly one/);
+  assert.match(teacher, /Decision matches work[\s\S]*Approval, changes, and comment-only are available; choose exactly one/);
   assert.match(teacher, /data-review-decision-checklist="true"/);
   assert.match(teacher, /Approve next steps checklist/);
   assert.match(teacher, /data-review-submission-recovery="true"/);
@@ -4315,12 +4302,12 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(teacher, /Approval controls the student&#039;s next steps/);
   assert.match(teacher, /Check proof and history/);
   assert.match(teacher, /Approve next steps only when ready/);
-  assert.match(teacher, /Request revision to hold the phase/);
+  assert.match(teacher, /Request changes to hold the phase/);
   assert.match(teacher, /data-review-student-impact-preview="true"/);
   assert.match(teacher, /What the student sees after this decision/);
   assert.match(teacher, /Student sees approved for next steps and can continue with the next assigned item/);
-  assert.match(teacher, /Student stays in this phase, sees the feedback, fixes the work, and sends a revision/);
-  assert.match(teacher, /Adds context without changing the student status or approval gate/);
+  assert.match(teacher, /Student stays in this phase, sees the feedback, fixes the work, and sends it again/);
+  assert.match(teacher, /Adds context without changing the student status or approval step/);
   assert.match(teacher, /data-review-queue-action="open-student"/);
   assert.match(teacher, /data-review-history-section="true"/);
   assert.match(teacher, /data-review-comment-visibility-summary="true"/);
@@ -4332,12 +4319,12 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(teacher, /data-review-decision="revision_requested"/);
   assert.match(teacher, /data-review-decision="comment_only"/);
   assert.match(teacher, /data-review-decision-helper="true"/);
-  assert.match(teacher, /Approval opens the student&#039;s next-step signal; revision holds the current phase; comment-only adds context without changing status/);
+  assert.match(teacher, /Approval opens the student&#039;s next step; changes hold the current phase; comment-only adds context without changing status/);
   assert.match(teacher, /data-review-decision-rubric="true"/);
   assert.match(teacher, /data-review-comment-only-non-gating="true"/);
   assert.match(teacher, /Student-visible feedback/);
   assert.match(teacher, /<textarea name="feedback"[\s\S]*aria-describedby="reviewDecisionFeedbackHelp"/);
-  assert.match(teacher, /Write the exact approval note or revision step the student should see\./);
+  assert.match(teacher, /Write the exact approval note or change the student should see\./);
   assert.match(teacher, /data-review-decision-storage-note="true"/);
   assert.match(teacher, /Private proof file details stay hidden/);
   assert.doesNotMatch(teacher, /Bounded teacher comment|Private staff planning note/);
@@ -4376,8 +4363,8 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   `);
   assert.match(viewer, /data-workspace-mode="read-only"/);
   assert.match(viewer, /data-workspace-state="permission-denied"/);
-  assert.match(viewer, /Access to Program Teacher review queue is limited/);
-  assert.match(viewer, /submitted student work/);
+  assert.match(viewer, /Access to Review Work is limited/);
+  assert.match(viewer, /work students sent in/);
   assert.doesNotMatch(viewer, /data-review-decision="approved"|data-review-decision="revision_requested"|data-review-decision="comment_only"|<textarea name="feedback"/);
 
   const { context, workspaceRoot, fetchLog, window } = await createWorkspaceContextWithFetch({
@@ -4442,7 +4429,7 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
     'workspace-review-layout',
     "review queue detail should render before the review worklist layout",
   );
-  assert.match(workspaceRoot.innerHTML, /Submitted work/);
+  assert.match(workspaceRoot.innerHTML, /Work waiting for review/);
   assert.deepEqual(
     JSON.parse(vm.runInContext('JSON.stringify({ activeSection, sourceSection: siteStudentDetailState.sourceSection })', context)),
     { activeSection: "teacher", sourceSection: "teacher" },
@@ -4534,7 +4521,7 @@ test("workspace guides multi-site staff to choose a school before opening the Re
   }, "teacher");
 
   assert.match(reviewQueue, /data-workspace-state="review-queue-site-selection-required"/);
-  assert.match(reviewQueue, /Select a site before opening the Review Queue/);
+  assert.match(reviewQueue, /Select a school before opening Review Work/);
   assert.match(reviewQueue, /data-site-switch-id="site-desert-valley-high"/);
   assert.match(reviewQueue, /data-site-switch-id="site-canyon-ridge-career"/);
   assert.match(reviewQueue, /Choose a site from the Current site menu/);
@@ -4578,16 +4565,14 @@ test("workspace clarifies Review Queue row actions and follow-up-only selected r
     },
   }, "teacher");
 
-  assert.match(rowActions, /Open review/);
-  assert.match(rowActions, /Open follow-up/);
-  assert.match(rowActions, /Open this row to load history and Program Teacher decisions\./);
-  assert.match(rowActions, /Open this row to load history and follow-up context\./);
-  assert.match(rowActions, /Open a submitted row to load Program Teacher decisions, or open a revision row to review history and follow-up context\./);
-  assert.match(rowActions, /data-review-row-owner-action="true"/);
-  assert.match(rowActions, /Owner: Program Teacher/);
-  assert.match(rowActions, /Select the row, check proof and history, then record one decision/);
-  assert.match(rowActions, /Owner: Student/);
-  assert.match(rowActions, /Wait for a submitted revision; use history only for support context/);
+  assert.match(rowActions, /data-review-row-action-label="review"/);
+  assert.match(rowActions, /data-review-row-action-label="read-feedback"/);
+  assert.match(rowActions, /Open this row to review the work and feedback history\./);
+  assert.match(rowActions, /Open this row to read feedback while the student fixes the work\./);
+  assert.match(rowActions, /Open work that is waiting for review, or read feedback for work that needs changes\./);
+  assert.match(rowActions, /data-review-row-more-menu="true"/);
+  assert.match(rowActions, /More[\s\S]*Open student/);
+  assert.doesNotMatch(rowActions, /data-review-row-owner-action|Owner:/);
 
   const missingProofHistory = {
     ...reviewHistoryFixture(),
@@ -4663,21 +4648,21 @@ test("workspace clarifies Review Queue row actions and follow-up-only selected r
   `);
 
   assert.match(missingProofSelected, /data-review-missing-proof-hold="true"/);
-  assert.match(missingProofSelected, /data-review-action-map-card="missing-proof"[\s\S]*Missing proof[\s\S]*1 hold/);
+  assert.match(missingProofSelected, /data-review-start-action="missing-work"[\s\S]*Missing work[\s\S]*1 item/);
   assert.match(missingProofSelected, /data-review-selected-summary="true"/);
   assert.match(missingProofSelected, /data-review-proof-quality-checklist="true"/);
   assert.match(missingProofSelected, /data-review-proof-quality-state="blocked"/);
   assert.match(missingProofSelected, /Active proof visible[\s\S]*No active proof is attached; approval must stay locked/);
-  assert.match(missingProofSelected, /Decision matches gate[\s\S]*Use revision or comment-only context until the row is submitted with proof/);
+  assert.match(missingProofSelected, /Decision matches work[\s\S]*Use changes or comment-only context until the student sends work with proof/);
   assert.match(missingProofSelected, /data-review-approval-blocked="missing-proof"/);
   assert.match(missingProofSelected, /data-review-approval-blocked-reason="missing_evidence"/);
   assert.match(missingProofSelected, /data-review-decision-inline-proof-hold="true"/);
   assert.match(missingProofSelected, /Approval remains locked here/);
-  assert.match(missingProofSelected, /Active proof is missing from this submitted work\. Use Request revision or Add comment only until proof appears/);
+  assert.match(missingProofSelected, /Active proof is missing from this work\. Use Request changes or Add comment only until proof appears/);
   assert.match(missingProofSelected, /data-review-decision="approved" disabled aria-disabled="true" data-review-decision-blocked="missing-proof"/);
   assert.match(missingProofSelected, /Approval locked: proof needed/);
-  assert.match(missingProofSelected, /Choose revision or comment-only until active proof is attached/);
-  assert.match(missingProofSelected, /Approval locked: active proof is missing/);
+  assert.match(missingProofSelected, /Choose changes or comment-only until active proof is attached/);
+  assert.match(missingProofSelected, /Ask for the missing proof before approving/);
   assert.match(missingProofSelected, /data-review-decision="revision_requested"/);
   assert.match(missingProofSelected, /data-review-decision="comment_only"/);
 
@@ -4726,10 +4711,10 @@ test("workspace clarifies Review Queue row actions and follow-up-only selected r
     };
   `);
 
-  assert.match(revisionSelected, /Revision requested is follow-up only here\. Use history and student detail for context\./);
-  assert.match(revisionSelected, /No Program Teacher decision available for this row/);
-  assert.match(revisionSelected, /This row is currently revision requested\./i);
-  assert.match(revisionSelected, /open submitted work from this queue when a decision is needed/i);
+  assert.match(revisionSelected, /Needs changes is follow-up only here\. Use history and student detail for context\./);
+  assert.match(revisionSelected, /No review action available for this row/);
+  assert.match(revisionSelected, /This row is currently needs changes\./i);
+  assert.match(revisionSelected, /open work that is waiting for review/i);
 });
 
 test("workspace renders Review Queue empty and history states with assigned-work language", async () => {
@@ -4773,10 +4758,9 @@ test("workspace renders Review Queue empty and history states with assigned-work
     },
   }, "teacher");
 
-  assert.match(filteredEmpty, /No matching approved work/);
-  assert.match(filteredEmpty, /No approved review records match these filters/);
-  assert.match(filteredEmpty, /Assigned review staff/);
-  assert.match(filteredEmpty, /Clear filters to return to submitted and revision work/);
+  assert.match(filteredEmpty, /No matching done work/);
+  assert.match(filteredEmpty, /No done review work matches these filters/);
+  assert.match(filteredEmpty, /Clear filters to return to review work/);
   assert.doesNotMatch(filteredEmpty, /No review rows match|No review items match|assigned access|Program Teacher or site staff/);
 
   const evidenceMissingEmpty = await renderWorkspaceWithFetch({
@@ -4823,12 +4807,12 @@ test("workspace renders Review Queue empty and history states with assigned-work
     },
   }, "teacher");
 
-  assert.match(evidenceMissingEmpty, /No matching proof follow-up/);
-  assert.match(evidenceMissingEmpty, /No submitted or revision-requested work without attached proof matches these filters/);
-  assert.match(evidenceMissingEmpty, /Clear the proof filter or check Operations Proof Missing/);
+  assert.match(evidenceMissingEmpty, /No matching missing work/);
+  assert.match(evidenceMissingEmpty, /No work missing proof matches these filters/);
+  assert.match(evidenceMissingEmpty, /Clear the work filter or check Students/);
   assert.match(evidenceMissingEmpty, /data-review-queue-empty-guide="filtered"/);
-  assert.match(evidenceMissingEmpty, /Filtered queue is empty/);
-  assert.doesNotMatch(evidenceMissingEmpty, /No submitted or revision-requested work matches these filters/);
+  assert.match(evidenceMissingEmpty, /No work matches these filters/);
+  assert.doesNotMatch(evidenceMissingEmpty, /No submitted or revision-requested work matches these filters|Filtered queue is empty/);
 
   const revisionEmpty = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -4874,9 +4858,9 @@ test("workspace renders Review Queue empty and history states with assigned-work
     },
   }, "teacher");
 
-  assert.match(revisionEmpty, /No matching revision follow-up/);
-  assert.match(revisionEmpty, /No work needing revision follow-up matches these filters/);
-  assert.match(revisionEmpty, /Clear filters or check Submitted for newly sent work/);
+  assert.match(revisionEmpty, /No matching work needing changes/);
+  assert.match(revisionEmpty, /No work needing changes matches these filters/);
+  assert.match(revisionEmpty, /Clear filters or check Waiting for review/);
   assert.doesNotMatch(revisionEmpty, /No submitted or revision-requested work matches these filters/);
 
   const unfilteredEmpty = await renderWorkspaceWithFetch({
@@ -4910,11 +4894,10 @@ test("workspace renders Review Queue empty and history states with assigned-work
     },
   }, "teacher");
 
-  assert.match(unfilteredEmpty, /No review work waiting/);
-  assert.match(unfilteredEmpty, /No submitted or revision-requested work is waiting in this review queue right now/);
-  assert.match(unfilteredEmpty, /Open Students for context or keep monitoring new submissions/);
+  assert.match(unfilteredEmpty, /No work is waiting for review right now/);
+  assert.match(unfilteredEmpty, /View students/);
   assert.match(unfilteredEmpty, /data-review-queue-empty-guide="all-done"/);
-  assert.match(unfilteredEmpty, /Queue is clear/);
+  assert.match(unfilteredEmpty, /You are caught up for now/);
   assert.doesNotMatch(unfilteredEmpty, /No review rows match|assigned access/);
 
   const noHistory = {
@@ -5025,9 +5008,9 @@ test("workspace applies Review Queue URL filters safely and syncs filter URLs", 
   assert.equal(fetched.searchParams.has("offset"), false);
   assert.match(workspaceRoot.innerHTML, /data-section="teacher"/);
   assert.match(workspaceRoot.innerHTML, /Active filters/);
-  assert.match(workspaceRoot.innerHTML, /Revision requested/);
-  assert.match(workspaceRoot.innerHTML, /Stale activity/);
-  assert.match(workspaceRoot.innerHTML, /Proof attached/);
+  assert.match(workspaceRoot.innerHTML, /Needs changes/);
+  assert.match(workspaceRoot.innerHTML, /No recent activity/);
+  assert.match(workspaceRoot.innerHTML, /Work attached/);
   assert.match(workspaceRoot.innerHTML, /proposal scope/);
   assert.match(workspaceRoot.innerHTML, /Clear filters/);
   assert.match(workspaceRoot.innerHTML, /data-review-queue-share-link="true"/);
@@ -6964,7 +6947,7 @@ test("workspace gates review queue visibility and refresh behavior by role", () 
   assert.match(workspaceJs, /function hasSiteReviewQueueRole\(roles\)/);
   assert.match(reviewRoleHelperBlock, /"platform_admin",\s+"global_admin",\s+"admin",\s+"site_admin",\s+"program_teacher"/);
   assert.doesNotMatch(reviewRoleHelperBlock, /"viewer"|"administration"|"mentor"|"student"|"misc_admin"/);
-  assert.match(availableSectionsBlock, /add\("teacher", "Reviews", "Submitted work waiting for feedback"\)/);
+  assert.match(availableSectionsBlock, /add\("teacher", "Reviews", "Work waiting for review"\)/);
   assert.match(availableSectionsBlock, /add\("teacher", "Reviews", "Submitted work and follow-up"\)/);
   assert.match(loadWorkspaceDataBlock, /hasSiteReviewQueueRole\(roles\).*\/api\/site\/review-queue/s);
   assert.match(workspaceJs, /function submitReviewDecision/);
@@ -9629,7 +9612,7 @@ test("workspace renders safe Google Workspace SSO and local sign-in states", asy
   assert.match(enabled, /School workspace/);
   assert.doesNotMatch(enabled, /Continue with Google Workspace/);
   assert.doesNotMatch(enabled, /workspace-product-header/);
-  assert.doesNotMatch(enabled, /Student progress|Private proof|Mentor coverage|Review queue|Presentation readiness/);
+  assert.doesNotMatch(enabled, /Student progress|Private proof|Mentor coverage|Review work|Presentation readiness/);
   assert.doesNotMatch(enabled, /Approved fallback access|Local account sign in/);
   assert.doesNotMatch(enabled, /Database-backed MVP|Cloudflare target|Audit-sensitive admin|Senior Capstone Product/);
   assert.doesNotMatch(enabled, /client_secret|access_token|refresh_token|id_token/i);

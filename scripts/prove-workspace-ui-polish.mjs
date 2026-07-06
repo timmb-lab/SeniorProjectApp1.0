@@ -559,7 +559,7 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?section=teacher&siteId=site-desert-valley-high"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
-    expected: ["Review Queue", "Submitted work, revision follow-up", "Program Teacher decisions enabled", "Review one submitted item at a time", "Program Teacher decision order"],
+    expected: ["Review Work", "Work students sent in will appear here", "Can review work", "START HERE", "Choose the work to review first"],
     absent: ["Teacher intervention"],
     proves: "Staff Reviews exposes role-aware review queues, decision order, filters, selected-row context, and student detail links.",
   },

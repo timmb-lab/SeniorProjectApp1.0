@@ -64,7 +64,7 @@ const majorSections = [
   ["Admin audit", "renderAdminAuditSection"],
   ["Admin command center", "renderAdminOverviewSection"],
   ["Student workspace", "renderStudentSection"],
-  ["Review queue", "renderTeacherSection"],
+  ["Review Work", "renderTeacherSection"],
   ["Mentor students", "renderMentorSection"],
   ["Readiness report", "renderAggregateReadinessDashboard"],
   ["Site readiness report", "renderSiteReadinessDashboard"],
