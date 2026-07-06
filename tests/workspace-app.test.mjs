@@ -3351,47 +3351,43 @@ test("workspace renders route-connected student directory with filters and real 
   assert.match(siteAdmin, /Students: Site student rows/);
   assert.match(siteAdmin, /workspace-student-directory/);
   assertMarkupOrder(siteAdmin, "workspace-student-directory", "Screen guide", "student directory should appear before helper guide");
+  assert.match(siteAdmin, /Find a student or start with work that needs attention\./);
+  assert.match(siteAdmin, /Only students at this school are shown\./);
   assert.match(siteAdmin, /workspace-filter-bar/);
   assert.match(siteAdmin, /workspace-directory-summary/);
   assert.match(siteAdmin, /2 of 250 students shown/);
   assert.match(siteAdmin, /250 total available/);
-  assert.match(siteAdmin, /data-section="students" data-section-preset="missing-mentors">View students/);
-  assert.match(siteAdmin, /data-section="students" data-section-preset="submitted-students">View students/);
-  assert.match(siteAdmin, /data-section="students" data-section-preset="revision-students">View students/);
-  assert.match(siteAdmin, /data-section="students" data-section-preset="presentation-pending-students">View students/);
-  assert.match(siteAdmin, /data-section="students" data-section-preset="archive-ready-students">View students/);
-  assert.match(siteAdmin, /data-section="students" data-section-preset="archive-failed-students">View students/);
-  assert.match(siteAdmin, /data-section="students" data-section-preset="high-risk-students">View students/);
-  assert.match(siteAdmin, /data-student-directory-action-map="true"/);
-  assert.match(siteAdmin, /Jump directly to the roster slice that matches the next staff move/);
-  assert.match(siteAdmin, /data-student-directory-action-card="all"[\s\S]*aria-pressed="true"[\s\S]*Viewing lane/);
-  assert.match(siteAdmin, /data-student-directory-action-card="missing-mentor"[\s\S]*Owner: Site Admin or Program Teacher/);
-  assert.match(siteAdmin, /data-student-directory-action-card="missing-evidence"[\s\S]*Owner: Student and Program Teacher/);
-  assert.match(siteAdmin, /data-student-directory-action-card="review-needed"[\s\S]*data-section="students" data-section-preset="needs-review-students"/);
-  assert.match(siteAdmin, /data-student-directory-action-card="high-risk"[\s\S]*Owner: School team/);
-  assert.match(siteAdmin, /data-student-directory-action-card="mentor-meeting"[\s\S]*data-section="students" data-section-preset="mentor-meeting-follow-up-students"/);
-  assert.match(siteAdmin, /data-student-directory-action-card="final-files-blocked"[\s\S]*Resolve export or storage blockers/);
+  assert.match(siteAdmin, /data-student-directory-start-here="true"/);
+  assert.match(siteAdmin, /Start Here/);
+  assert.match(siteAdmin, /Review work waiting for you/);
+  assert.match(siteAdmin, /Help students who need changes/);
+  assert.match(siteAdmin, /Find students missing work/);
+  assert.equal((siteAdmin.match(/data-student-directory-start-action=/g) || []).length, 3);
+  assert.match(siteAdmin, /data-student-directory-start-action="review"[\s\S]*data-section="students" data-section-preset="needs-review-students"/);
+  assert.match(siteAdmin, /data-student-directory-start-action="changes"[\s\S]*data-section="students" data-section-preset="revision-students"/);
+  assert.match(siteAdmin, /data-student-directory-start-action="missing-work"[\s\S]*data-section="students" data-section-preset="missing-evidence-students"/);
   assert.match(siteAdmin, /data-student-directory-saved-filters="true"/);
-  assert.match(siteAdmin, /data-section="students" data-section-preset="submitted-students"[\s\S]*Needs approval/);
-  assert.match(siteAdmin, /data-section="students" data-section-preset="missing-evidence-students"[\s\S]*Evidence missing/);
-  assert.match(siteAdmin, /data-section="students" data-section-preset="mentor-meeting-follow-up-students"[\s\S]*Mentor meeting/);
-  assert.match(siteAdmin, /data-section="students" data-section-preset="archive-failed-students"[\s\S]*Final files blocked/);
+  assert.match(siteAdmin, /Simple filters/);
+  assert.match(siteAdmin, /data-section="students" data-section-preset="all-students"[\s\S]*All/);
+  assert.match(siteAdmin, /data-section="students" data-section-preset="needs-review-students"[\s\S]*Needs Review/);
+  assert.match(siteAdmin, /data-section="students" data-section-preset="revision-students"[\s\S]*Needs Changes/);
+  assert.match(siteAdmin, /data-section="students" data-section-preset="missing-evidence-students"[\s\S]*Missing Work/);
+  assert.match(siteAdmin, /data-section="students" data-section-preset="archive-ready-students"[\s\S]*Ready/);
+  assert.match(siteAdmin, /data-section="students" data-section-preset="missing-mentors"[\s\S]*Missing Mentor/);
+  assert.match(siteAdmin, /More filters/);
   assert.match(siteAdmin, /workspace-student-row/);
-  assert.match(siteAdmin, /workspace-student-card/);
+  assert.doesNotMatch(siteAdmin, /workspace-student-card/);
   assert.match(siteAdmin, /Missing Mentor Demo 001/);
-  assert.match(siteAdmin, /workspace-story-chip/);
   assert.match(siteAdmin, /Missing mentor/);
-  assert.match(siteAdmin, /workspace-risk-chip/);
-  assert.match(siteAdmin, /No mentor/);
+  assert.match(siteAdmin, /Final files need help/);
   assert.match(siteAdmin, /data-student-directory-row-guidance="true"/);
-  assert.match(siteAdmin, /Owner: Site Admin or Program Teacher/);
-  assert.match(siteAdmin, /Open Mentor Assignments and assign coverage before the next check-in/);
-  assert.match(siteAdmin, /Owner: Site Admin/);
-  assert.match(siteAdmin, /Open Operations final-file rows and resolve the export or storage blocker/);
-  assert.match(siteAdmin, /workspace-status-pill revision_requested/);
-  assert.match(siteAdmin, /Assigned records only/);
+  assert.match(siteAdmin, /Who can help: Site staff or teacher/);
+  assert.match(siteAdmin, /Next step: Assign a mentor before the next check-in/);
+  assert.match(siteAdmin, /Next step: Fix the final file problem before closeout/);
+  assert.doesNotMatch(siteAdmin, /Action map|Open lane|Viewing lane|Assigned records only|queue signal|support signal|Owner:/i);
   assert.doesNotMatch(siteAdmin, /<strong>Private proof<\/strong>|Protected access/);
   assert.match(siteAdmin, /Open Student/);
+  assert.match(siteAdmin, /data-student-row-more-menu="true"[\s\S]*More[\s\S]*View as Student/);
   assert.match(siteAdmin, /data-site-student-action="view-detail"/);
   assert.match(siteAdmin, /data-student-detail-id="demo-student-101"/);
   assert.match(siteAdmin, /Remove student/);
@@ -3465,6 +3461,22 @@ test("workspace renders route-connected student directory with filters and real 
   assert.match(teacher, />Information Technology \(45\)</);
   assert.doesNotMatch(teacher, /Culinary/);
 
+  const caughtUpDirectory = siteStudentsFixture({ total: 0, filteredTotal: 0, students: [] });
+  caughtUpDirectory.summary = {
+    studentsTotal: 0,
+    filteredTotal: 0,
+    noMentor: 0,
+    submitted: 0,
+    revisionRequested: 0,
+    onTrack: 0,
+    evidenceMissing: 0,
+    needsReview: 0,
+    readyComplete: 0,
+    presentationPending: 0,
+    archiveReady: 0,
+    archiveFailed: 0,
+    highRisk: 0,
+  };
   const empty = await renderWorkspaceWithFetch({
     "/api/auth/me": {
       status: 200,
@@ -3484,15 +3496,20 @@ test("workspace renders route-connected student directory with filters and real 
     },
     "/api/site/students": {
       status: 200,
-      body: siteStudentsFixture({ filteredTotal: 0, students: [] }),
+      body: caughtUpDirectory,
     },
   }, "students");
+  assert.match(empty, /data-student-directory-caught-up="true"/);
+  assert.match(empty, /No students need attention right now/);
+  assert.match(empty, /You are caught up/);
+  assert.match(empty, /data-section="students" data-section-preset="all-students"[\s\S]*View all students/);
+  assert.equal((empty.match(/data-student-directory-start-action=/g) || []).length, 0);
   assert.match(empty, /data-student-directory-empty="true"/);
   assert.match(empty, /workspace-problem-state/);
-  assert.match(empty, /No student records are visible right now/);
-  assert.match(empty, /Reason/);
-  assert.match(empty, /Owner/);
-  assert.match(empty, /Next action/);
+  assert.match(empty, /Why:/);
+  assert.match(empty, /Who can help:/);
+  assert.match(empty, /Next step:/);
+  assert.doesNotMatch(empty, /Action map|Open lane|Viewing lane|Assigned records only|Owner:/i);
 
   const filteredSubmittedEmpty = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -3580,7 +3597,7 @@ test("workspace renders route-connected student directory with filters and real 
   assert.doesNotMatch(filteredArchiveEmpty, /No student records match these filters|No students match these filters/);
 });
 
-test("student directory summary tiles apply real directory filters", async () => {
+test("student directory Start Here actions apply real directory filters", async () => {
   const { context, fetchLog, window, workspaceRoot } = await createWorkspaceContextWithFetch({
     "/api/auth/me": {
       status: 200,
@@ -3691,8 +3708,8 @@ test("student directory summary tiles apply real directory filters", async () =>
   studentUrl = new URL(studentFetch, "https://workspace.example");
   assert.equal(studentUrl.searchParams.get("archiveStatus"), "failed");
   assert.match(window.location.href, /archiveStatus=failed/);
-  assert.match(workspaceRoot.innerHTML, /data-student-directory-action-card="final-files-blocked"[\s\S]*data-current-filter="true"/);
-  assert.match(workspaceRoot.innerHTML, /data-student-directory-action-card="final-files-blocked"[\s\S]*aria-pressed="true"[\s\S]*Viewing lane/);
+  assert.match(workspaceRoot.innerHTML, /data-student-directory-start-action="final-files-help"[\s\S]*data-current-filter="true"/);
+  assert.match(workspaceRoot.innerHTML, /data-student-directory-start-action="final-files-help"[\s\S]*aria-pressed="true"[\s\S]*Viewing this group/);
 });
 
 test("workspace opens real student detail, loads timeline, and preserves directory state", async () => {
@@ -3797,7 +3814,7 @@ test("workspace opens real student detail, loads timeline, and preserves directo
   assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="status"[\s\S]*Revision requested/);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="step"[\s\S]*proposal/);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="coverage"[\s\S]*No active mentor/);
-  assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="attention"[\s\S]*No mentor/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="attention"[\s\S]*Missing mentor/);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="action"[\s\S]*Use this row for context, then share the student name with authorized staff/);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-case-item="access"[\s\S]*Read-only context/);
   assert.match(workspaceRoot.innerHTML, /Overview/);

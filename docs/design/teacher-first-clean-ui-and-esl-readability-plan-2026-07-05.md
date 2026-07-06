@@ -4,6 +4,21 @@ Date: 2026-07-05
 
 Scope: Stage 00 planning pass for the teacher-first clean GUI and student-ready simplicity round. This document changes no runtime behavior. It is the practical contract for simplifying normal Student, Staff Workspace, and Admin Console screens without weakening RBAC, scope checks, or the real-student pilot NO-GO boundary.
 
+## Space-Saving UI Addendum
+
+Progressive disclosure is required for this round. Normal teacher, student, and admin screens should show the main action first, the main list or queue second, and move secondary controls into predictable menus, tabs, disclosures, or drawers.
+
+Required patterns:
+
+- Use dropdown filters for status, program, cohort, mentor, review, setup issue, and activity filters instead of always-visible card walls.
+- Use a `More` menu for secondary row actions. Student roster rows should keep `Open` visible and move secondary actions such as `View as Student`, timeline, assignment, export, or copy-link actions behind `More` when supported.
+- Use collapsible sections for setup details, old feedback, past submissions, timeline history, advanced filters, import instructions, audit details, report methodology, and optional help text.
+- Use tabs or segmented controls to prevent giant vertical pages in Student Detail, Admin Console, Student pages, and Staff Workspace.
+- Use compact summary strips or a calm caught-up message instead of many zero-count cards.
+- Keep long help text behind `What does this mean?`, `How imports work`, `CSV columns`, or similar expandable labels.
+
+A screen fails this round if filters take more space than the work list, every possible category is visible at once, row actions clutter the list, or mobile shows chrome/control panels before useful content. A screen passes when the main action is obvious, secondary tools are tucked away, zero-count noise is hidden or summarized, and the first viewport is readable for a non-technical teacher.
+
 ## 1. Current State Summary
 
 Repository state captured before edits:

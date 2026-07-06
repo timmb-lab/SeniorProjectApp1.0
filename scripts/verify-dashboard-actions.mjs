@@ -57,12 +57,18 @@ const allowedSections = new Set([
   "mentor",
   "programDashboard",
   "teacher",
+  "staffReports",
   "mentorAssignments",
   "operations",
   "presentation",
   "adminDashboard",
   "readiness",
   "adminUsers",
+  "adminPeople",
+  "adminStudents",
+  "adminAssignments",
+  "adminImports",
+  "adminReports",
   "audit",
   "archiveExports",
   "security",
@@ -301,13 +307,13 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function renderSiteStudentDirectorySection\([\s\S]*renderMetricTile\("Submitted"[\s\S]*"students", \{ label: "View students", preset: "submitted-students" \}\)/,
-  "Student Directory Submitted summary must expose a real submitted filter action",
+  /function renderStudentDirectoryStartHere\([\s\S]*id: "review"[\s\S]*preset: "needs-review-students"/,
+  "Student Directory Start Here review action must expose a real review filter action",
 );
 assertMatches(
   "workspaceJs",
-  /function renderSiteStudentDirectorySection\([\s\S]*renderMetricTile\("High Risk"[\s\S]*"students", \{ label: "View students", preset: "high-risk-students" \}\)/,
-  "Student Directory High Risk summary must expose a real high-risk filter action",
+  /function renderStudentDirectoryStartHere\([\s\S]*id: "needs-help-soon"[\s\S]*preset: "high-risk-students"/,
+  "Student Directory Start Here help-soon action must expose a real high-risk filter action",
 );
 assertMatches(
   "workspaceJs",
@@ -751,7 +757,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function handleSiteStudentAction\([\s\S]*?const sourceSection = activeSection === "adminDashboard" \|\| activeSection === "programDashboard" \|\| activeSection === "siteDashboard"[\s\S]*?openSiteStudentDetail\(event\.currentTarget\?\.dataset\?\.studentDetailId \|\| "", \{ sourceSection \}\)/,
+  /function handleSiteStudentAction\([\s\S]*?const requestedSource = cleanWorkspaceSection\(event\.currentTarget\?\.dataset\?\.studentDetailSourceSection \|\| ""\)[\s\S]*?const sourceSection = requestedSource \|\| \(activeSection === "adminDashboard" \|\| activeSection === "programDashboard" \|\| activeSection === "siteDashboard"[\s\S]*?openSiteStudentDetail\(event\.currentTarget\?\.dataset\?\.studentDetailId \|\| "", \{ sourceSection \}\)/,
   "Admin, Program Teacher, and Site Dashboard student-detail actions must keep their dashboard as the detail source",
 );
 assertMatches(

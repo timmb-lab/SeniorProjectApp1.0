@@ -6623,6 +6623,7 @@ function renderSiteStudentDirectorySection() {
   const students = Array.isArray(directory.students) ? directory.students : [];
   const filters = directory.filters || {};
   const readOnly = Boolean(scope.readOnly);
+  const scopeLabel = studentDirectoryScopeLabel(scope, readOnly);
 
   return `
     <section class="workspace-command-center workspace-student-directory" aria-labelledby="siteStudentsTitle">
@@ -6631,29 +6632,16 @@ function renderSiteStudentDirectorySection() {
         <div>
           <p class="workspace-kicker">Students</p>
           <h1 id="siteStudentsTitle">Students</h1>
-          <p>
-            Search the students this account can access, then open one record for the current blocker,
-            work history, feedback, evidence, and timeline.
-          </p>
+          <p>Find a student or start with work that needs attention.</p>
         </div>
         <div class="workspace-command-hero-grid">
           ${statusPill(readOnly ? "configured" : "approved")}
-          <span class="workspace-chip">Assigned records only</span>
+          <span class="workspace-chip">${escapeHtml(scopeLabel)}</span>
         </div>
       </div>
       ${readOnly ? renderReadOnlyBanner() : ""}
-      <div class="workspace-dashboard-grid">
-        ${renderMetricTile("Students", summary.studentsTotal, `${safeNumber(pagination.returned)} shown now`, "admin")}
-        ${renderMetricTile("No Mentor", summary.noMentor, "Needs mentor coverage", safeNumber(summary.noMentor) ? "warning" : "mentor", "students", { label: "View students", preset: "missing-mentors" })}
-        ${renderMetricTile("Submitted", summary.submitted, "Program Teacher review queue signal", "teacher", "students", { label: "View students", preset: "submitted-students" })}
-        ${renderMetricTile("Needs Revision", summary.revisionRequested, "Program Teacher follow-up", safeNumber(summary.revisionRequested) ? "warning" : "student", "students", { label: "View students", preset: "revision-students" })}
-        ${renderMetricTile("Presentation Pending", summary.presentationPending, "Readiness follow-up", "teacher", "students", { label: "View students", preset: "presentation-pending-students" })}
-        ${renderMetricTile("Final Files Ready", summary.archiveReady, "Closeout candidates", "mentor", "students", { label: "View students", preset: "archive-ready-students" })}
-        ${renderMetricTile("Final Files Failed", summary.archiveFailed, "Export follow-up", safeNumber(summary.archiveFailed) ? "danger" : "admin", "students", { label: "View students", preset: "archive-failed-students" })}
-        ${renderMetricTile("High Risk", summary.highRisk, "Prioritize outreach", safeNumber(summary.highRisk) ? "danger" : "admin", "students", { label: "View students", preset: "high-risk-students" })}
-      </div>
-      ${renderStudentDirectoryActionMap(directory)}
-      ${renderStudentDirectorySavedFilterChips(summary)}
+      ${renderStudentDirectoryStartHere(directory)}
+      ${renderStudentDirectorySavedFilterChips(directory)}
       ${renderStudentDirectoryFilterBar(directory)}
       ${renderStudentDirectoryActiveFilters(filters, directory.filterOptions || {})}
       ${renderStudentDirectoryResultSummary(directory)}
@@ -6663,133 +6651,307 @@ function renderSiteStudentDirectorySection() {
   `;
 }
 
-function renderStudentDirectoryActionMap(directory = {}) {
+function studentDirectoryScopeLabel(scope = {}, readOnly = false) {
+  const role = normalizeStatus(scope.role || "");
+  if (readOnly) return "Read-only view.";
+  if (role === "program_teacher") return "Only students in your program are shown.";
+  if (role === "mentor" || role === "viewer") return "Only your students are shown.";
+  if (scope.siteName) return "Only students at this school are shown.";
+  return "Only students you can view are shown.";
+}
+
+function renderStudentDirectoryStartHere(directory = {}) {
   const summary = directory.summary || {};
   const students = Array.isArray(directory.students) ? directory.students : [];
   const filters = directory.filters || {};
-  const totalCount = safeNumber(summary.studentsTotal ?? directory.pagination?.total ?? directory.pagination?.filteredTotal);
-  const lanes = [
+  const permissions = directory.permissions || {};
+  const canSeeSetup = Boolean(permissions.canManageMentorAssignments);
+  const actions = [
     {
-      id: "all",
-      label: "All students",
-      count: totalCount,
-      detail: "Start with the full assigned roster before narrowing the work.",
-      owner: "Site team",
-      preset: "all-students",
-      tone: "neutral",
-    },
-    {
-      id: "missing-mentor",
-      label: "Missing mentor",
-      count: studentDirectoryMapCount(summary, students, ["noMentor", "missingMentor", "studentsNoMentor"], (student) => Boolean(student?.hasActiveMentor) === false || !cleanDirectoryFilter(student?.mentorUserId || "")),
-      detail: "Assign or confirm active mentor coverage before the next check-in.",
-      owner: "Site Admin or Program Teacher",
-      preset: "missing-mentors",
-      tone: "mentor",
-    },
-    {
-      id: "missing-evidence",
-      label: "Evidence missing",
-      count: studentDirectoryMapCount(summary, students, ["evidenceMissing", "missingEvidence"], (student) => normalizeStatus(student?.evidenceStatus) === "missing"),
-      detail: "Find students who still need to attach evidence for Program Teacher review.",
-      owner: "Student and Program Teacher",
-      preset: "missing-evidence-students",
-      tone: "evidence",
-    },
-    {
-      id: "review-needed",
-      label: "Review needed",
+      id: "review",
+      label: "Review work waiting for you",
       count: studentDirectoryMapCount(summary, students, ["needsReview", "submitted"], (student) => normalizeStatus(student?.reviewStatus) === "needs_review" || normalizeStatus(student?.latestSubmissionStatus) === "submitted"),
-      detail: "Open the students whose work is waiting on a Program Teacher decision.",
-      owner: "Program Teacher",
+      detail: "Open students whose work is ready for a teacher decision.",
       preset: "needs-review-students",
       tone: "teacher",
     },
     {
-      id: "revision",
-      label: "Revision follow-up",
+      id: "changes",
+      label: "Help students who need changes",
       count: studentDirectoryMapCount(summary, students, ["revisionRequested", "needsRevision"], (student) => normalizeStatus(student?.latestSubmissionStatus) === "revision_requested" || normalizeStatus(student?.reviewStatus) === "needs_revision"),
-      detail: "Help students close the loop after requested revisions.",
-      owner: "Program Teacher",
+      detail: "Find students who need to fix and send work again.",
       preset: "revision-students",
       tone: "warning",
     },
     {
-      id: "high-risk",
-      label: "High risk",
-      count: studentDirectoryMapCount(summary, students, ["highRisk"], (student) => normalizeStatus(student?.risk) === "high" || normalizeStatus(student?.riskLevel) === "high" || (Array.isArray(student?.riskFlags) && student.riskFlags.includes("high"))),
-      detail: "Prioritize outreach for students with the highest support signal.",
-      owner: "School team",
-      preset: "high-risk-students",
-      tone: "danger",
-    },
-    {
-      id: "mentor-meeting",
-      label: "Mentor meeting",
-      count: studentDirectoryMapCount(summary, students, ["mentorMeetingFollowUp", "missingMentorMeeting"], (student) => normalizeStatus(student?.mentorMeetingStatus) === "not_recorded" || normalizeStatus(student?.progressStatus) === "mentor_meeting_follow_up"),
-      detail: "Find students who need a meeting recorded or followed up.",
-      owner: "Mentor",
-      preset: "mentor-meeting-follow-up-students",
-      tone: "mentor",
+      id: "missing-work",
+      label: "Find students missing work",
+      count: studentDirectoryMapCount(summary, students, ["evidenceMissing", "missingEvidence"], (student) => normalizeStatus(student?.evidenceStatus) === "missing"),
+      detail: "Open students who need to add the work a teacher must review.",
+      preset: "missing-evidence-students",
+      tone: "evidence",
     },
     {
       id: "presentation",
-      label: "Presentation",
+      label: "Check students ready for presentation",
       count: studentDirectoryMapCount(summary, students, ["presentationPending"], (student) => normalizeStatus(student?.presentationStatus) === "pending"),
-      detail: "Move students toward scheduled, checked-in presentation readiness.",
-      owner: "Program Teacher",
+      detail: "See who needs help before presentation day.",
       preset: "presentation-pending-students",
       tone: "presentation",
     },
     {
-      id: "final-files-ready",
-      label: "Final files ready",
+      id: "missing-mentor",
+      label: "Find students missing a mentor",
+      count: canSeeSetup ? studentDirectoryMapCount(summary, students, ["noMentor", "missingMentor", "studentsNoMentor"], (student) => Boolean(student?.hasActiveMentor) === false || !cleanDirectoryFilter(student?.mentorUserId || "")) : 0,
+      detail: "Assign or confirm mentor support.",
+      preset: "missing-mentors",
+      tone: "mentor",
+    },
+    {
+      id: "final-files-help",
+      label: "Help with final files",
+      count: studentDirectoryMapCount(summary, students, ["archiveFailed"], (student) => normalizeStatus(student?.archiveStatus) === "failed"),
+      detail: "Open students whose final files need staff help.",
+      preset: "archive-failed-students",
+      tone: "blocked",
+    },
+    {
+      id: "ready",
+      label: "Ready for final review",
       count: studentDirectoryMapCount(summary, students, ["archiveReady", "readyComplete"], (student) => normalizeStatus(student?.archiveStatus) === "ready" || normalizeStatus(student?.progressStatus) === "ready_complete"),
-      detail: "Review closeout candidates before final archive handoff.",
-      owner: "Site Admin",
+      detail: "See students who are close to done.",
       preset: "archive-ready-students",
       tone: "ready",
     },
     {
-      id: "final-files-blocked",
-      label: "Final files blocked",
-      count: studentDirectoryMapCount(summary, students, ["archiveFailed"], (student) => normalizeStatus(student?.archiveStatus) === "failed"),
-      detail: "Resolve export or storage blockers before closeout stalls.",
-      owner: "Site Admin",
-      preset: "archive-failed-students",
-      tone: "blocked",
+      id: "needs-help-soon",
+      label: "Needs help soon",
+      count: studentDirectoryMapCount(summary, students, ["highRisk"], (student) => normalizeStatus(student?.risk) === "high" || normalizeStatus(student?.riskLevel) === "high" || (Array.isArray(student?.riskFlags) && student.riskFlags.includes("high"))),
+      detail: "Start with students who need staff attention soon.",
+      preset: "high-risk-students",
+      tone: "danger",
     },
   ];
-  const liveLaneCount = lanes.filter((lane) => safeNumber(lane.count) > 0).length;
+  const nonzeroActions = actions.filter((action) => safeNumber(action.count) > 0);
+  const activeAction = actions.find((action) => studentDirectoryPresetMatchesFilters(action.preset, filters));
+  const visibleActions = [
+    ...(activeAction && safeNumber(activeAction.count) > 0 ? [activeAction] : []),
+    ...nonzeroActions.filter((action) => action.id !== activeAction?.id),
+  ].slice(0, 3);
+  const hasActions = visibleActions.length > 0;
   return `
-    <section class="workspace-student-directory-action-map" data-student-directory-action-map="true" aria-label="Student Directory action map">
-      <div class="workspace-student-directory-action-map-head">
+    <section class="workspace-student-directory-start" data-student-directory-start-here="true" aria-labelledby="studentDirectoryStartTitle">
+      <div class="workspace-student-directory-start-head">
         <div>
-          <strong>Action map</strong>
-          <p>Jump directly to the roster slice that matches the next staff move.</p>
+          <strong id="studentDirectoryStartTitle">Start Here</strong>
+          <p>${hasActions ? "Pick one group, then open the first student who needs attention." : "No students need attention right now."}</p>
         </div>
-        <span class="workspace-chip">${liveLaneCount} live lane${liveLaneCount === 1 ? "" : "s"}</span>
+        <button class="workspace-link-button workspace-link-button-small" type="button" data-section="students" data-section-preset="all-students">
+          View all students
+        </button>
       </div>
-      <div class="workspace-student-directory-action-map-list">
-        ${lanes.map((lane) => {
-          const active = studentDirectoryPresetMatchesFilters(lane.preset, filters);
+      ${hasActions ? `
+        <div class="workspace-student-directory-start-list">
+          ${visibleActions.map((action) => {
+            const active = studentDirectoryPresetMatchesFilters(action.preset, filters);
+            return `
+              <article class="workspace-student-directory-start-row" data-student-directory-start-action="${escapeHtml(action.id)}" data-tone="${escapeHtml(action.tone)}" data-current-filter="${active ? "true" : "false"}">
+                <div class="workspace-student-directory-start-card-head">
+                  <strong>${escapeHtml(action.label)}</strong>
+                  <span>${safeNumber(action.count)}</span>
+                </div>
+                <p>${escapeHtml(action.detail)}</p>
+                <button class="workspace-button workspace-button-small" type="button" data-section="students" data-section-preset="${escapeHtml(action.preset)}" aria-pressed="${active ? "true" : "false"}">
+                  ${active ? "Viewing this group" : "View students"}
+                </button>
+              </article>
+            `;
+          }).join("")}
+        </div>
+      ` : `
+        <div class="workspace-student-directory-caught-up" data-student-directory-caught-up="true">
+          <strong>You are caught up.</strong>
+          <p>Search for a student or view the full list when you need someone specific.</p>
+        </div>
+      `}
+    </section>
+  `;
+}
+
+function renderStudentDirectorySavedFilterChips(directory = {}) {
+  const summary = directory.summary || {};
+  const filters = directory.filters || {};
+  const permissions = directory.permissions || {};
+  const canSeeSetup = Boolean(permissions.canManageMentorAssignments);
+  const simpleFilters = [
+    {
+      label: "All",
+      detail: `${safeNumber(summary.studentsTotal ?? directory.pagination?.total ?? directory.pagination?.filteredTotal)} students`,
+      preset: "all-students",
+    },
+    {
+      label: "Needs Review",
+      detail: safeNumber(summary.needsReview ?? summary.submitted) ? `${safeNumber(summary.needsReview ?? summary.submitted)} waiting` : "Waiting for review",
+      preset: "needs-review-students",
+    },
+    {
+      label: "Needs Changes",
+      detail: safeNumber(summary.revisionRequested ?? summary.needsRevision) ? `${safeNumber(summary.revisionRequested ?? summary.needsRevision)} students` : "Needs changes",
+      preset: "revision-students",
+    },
+    {
+      label: "Missing Work",
+      detail: safeNumber(summary.evidenceMissing ?? summary.missingEvidence) ? `${safeNumber(summary.evidenceMissing ?? summary.missingEvidence)} students` : "Missing work",
+      preset: "missing-evidence-students",
+    },
+    {
+      label: "Ready",
+      detail: safeNumber(summary.archiveReady ?? summary.readyComplete) ? `${safeNumber(summary.archiveReady ?? summary.readyComplete)} students` : "Ready for review",
+      preset: "archive-ready-students",
+    },
+    ...(canSeeSetup ? [{
+      label: "Missing Mentor",
+      detail: safeNumber(summary.noMentor ?? summary.missingMentor) ? `${safeNumber(summary.noMentor ?? summary.missingMentor)} students` : "Needs mentor",
+      preset: "missing-mentors",
+    }] : []),
+  ];
+  return `
+    <section class="workspace-saved-filter-chips" data-student-directory-saved-filters="true" aria-label="Simple student filters">
+      <strong>Simple filters</strong>
+      <div class="workspace-chip-row">
+        ${simpleFilters.map((filter) => {
+          const active = studentDirectoryPresetMatchesFilters(filter.preset, filters);
           return `
-            <article class="workspace-student-directory-action-row" data-student-directory-action-card="${escapeHtml(lane.id)}" data-tone="${escapeHtml(lane.tone)}" data-current-filter="${active ? "true" : "false"}">
-              <div class="workspace-student-directory-action-card-head">
-                <strong>${escapeHtml(lane.label)}</strong>
-                <span>${safeNumber(lane.count)}</span>
-              </div>
-              <p>${escapeHtml(lane.detail)}</p>
-              <small>Owner: ${escapeHtml(lane.owner)}</small>
-              <button class="workspace-button workspace-button-small" type="button" data-section="students" data-section-preset="${escapeHtml(lane.preset)}" aria-pressed="${active ? "true" : "false"}">
-                ${active ? "Viewing lane" : "Open lane"}
-              </button>
-            </article>
+            <button class="workspace-link-button workspace-link-button-small" type="button" data-section="students" data-section-preset="${escapeHtml(filter.preset)}" aria-pressed="${active ? "true" : "false"}">
+              ${escapeHtml(filter.label)} <span>${escapeHtml(filter.detail)}</span>
+            </button>
           `;
         }).join("")}
       </div>
     </section>
   `;
+}
+
+function renderStudentDirectoryFilterBar(directory) {
+  const filters = directory.filters || {};
+  const options = directory.filterOptions || {};
+  return `
+    <details class="workspace-advanced-filters" data-student-directory-advanced-filters="true">
+      <summary>More filters</summary>
+      <form class="workspace-filter-bar" id="siteStudentFilterForm" data-student-directory-filters="active">
+        <label class="workspace-label">
+          <span>Search</span>
+          <input class="workspace-input" name="search" value="${escapeHtml(filters.search || "")}" autocomplete="off" maxlength="80">
+        </label>
+        <label class="workspace-label">
+          <span>Program</span>
+          <select class="workspace-select" name="programId">
+            ${renderProgramFilterOptions(options.programs, filters.programId)}
+          </select>
+        </label>
+        <label class="workspace-label">
+          <span>Status</span>
+          <select class="workspace-select" name="status">
+            ${renderValueOptions(options.statuses || [], filters.status || "", "Any status", statusText)}
+          </select>
+        </label>
+        <label class="workspace-label">
+          <span>Progress</span>
+          <select class="workspace-select" name="progressStatus">
+            ${renderValueOptions(options.progressStatuses || [], filters.progressStatus || "", "Any progress", progressStatusFilterLabel)}
+          </select>
+        </label>
+        <label class="workspace-label">
+          <span>Work</span>
+          <select class="workspace-select" name="evidenceStatus">
+            ${renderValueOptions(options.evidenceStatuses || [], filters.evidenceStatus || "", "Any work", studentWorkStatusFilterLabel)}
+          </select>
+        </label>
+        <label class="workspace-label">
+          <span>Review</span>
+          <select class="workspace-select" name="reviewStatus">
+            ${renderValueOptions(options.reviewStatuses || [], filters.reviewStatus || "", "Any review", reviewStatusFilterLabel)}
+          </select>
+        </label>
+        <label class="workspace-checkbox-label">
+          <input type="checkbox" name="noMentor" value="true" ${filters.noMentor ? "checked" : ""}>
+          Missing mentor
+        </label>
+        <label class="workspace-label">
+          <span>Needs help</span>
+          <select class="workspace-select" name="risk">
+            ${renderValueOptions(options.risks || [], filters.risk || "any", "Any help need", riskFilterLabel)}
+          </select>
+        </label>
+        <label class="workspace-label">
+          <span>Story</span>
+          <select class="workspace-select" name="story">
+            ${renderValueOptions(options.storyBuckets || [], filters.story || "", "Any story", storyLabel)}
+          </select>
+        </label>
+        <label class="workspace-label">
+          <span>Presentation</span>
+          <select class="workspace-select" name="presentationStatus">
+            ${renderValueOptions(options.presentationStatuses || [], filters.presentationStatus || "any", "Any presentation", presentationStatusFilterLabel)}
+          </select>
+        </label>
+        <label class="workspace-label">
+          <span>Final files</span>
+          <select class="workspace-select" name="archiveStatus">
+            ${renderValueOptions(options.archiveStatuses || [], filters.archiveStatus || "any", "Any final files", archiveStatusFilterLabel)}
+          </select>
+        </label>
+        ${filters.cohortId ? `<input name="cohortId" type="hidden" value="${escapeHtml(filters.cohortId)}">` : ""}
+        <input name="offset" type="hidden" value="${escapeHtml(filters.offset || 0)}">
+        <input name="limit" type="hidden" value="${escapeHtml(filters.limit || 50)}">
+        <div class="workspace-row-actions">
+          <button class="workspace-button workspace-button-primary" type="submit">Apply filters</button>
+          <button class="workspace-button workspace-button-secondary" type="button" data-site-student-action="reset-filters">Clear filters</button>
+        </div>
+      </form>
+    </details>
+  `;
+}
+
+function studentDirectoryRowStatus(student = {}) {
+  const flags = Array.isArray(student.riskFlags) ? student.riskFlags.map(normalizeStatus) : [];
+  const progress = normalizeStatus(student.progressStatus || "");
+  const submission = normalizeStatus(student.latestSubmissionStatus || student.status || "");
+  const review = normalizeStatus(student.reviewStatus || "");
+  const proof = normalizeStatus(student.evidenceStatus || "");
+  const presentation = normalizeStatus(student.presentationStatus || "");
+  const archive = normalizeStatus(student.archiveStatus || "");
+  if (student.hasActiveMentor === false || flags.includes("no_mentor") || progress === "missing_mentor") return "Missing mentor.";
+  if (submission === "submitted" || review === "needs_review") return "Work is waiting for review.";
+  if (submission === "revision_requested" || review === "needs_revision") return "Needs changes.";
+  if (proof === "missing" || progress === "missing_evidence") return "Missing work.";
+  if (presentation === "pending") return "Ready for presentation check.";
+  if (archive === "failed" || archive === "provider_unavailable") return "Final files need help.";
+  if (archive === "ready" || progress === "ready_complete") return "Ready for final review.";
+  if (flags.includes("high")) return "Needs help soon.";
+  return "On track.";
+}
+
+function studentDirectoryRowHelperLabel(helper = "") {
+  const value = String(helper || "").trim();
+  if (!value) return "Assigned staff";
+  return value
+    .replace(/^Site Admin\b/g, "Site staff")
+    .replace(/\bProgram Teacher\b/g, "teacher")
+    .replace(/\bAssigned staff\b/g, "assigned staff")
+    .replace(/\bStudent\b/g, "student");
+}
+
+function studentDirectoryRowNextStep(action = "") {
+  return String(action || "")
+    .replace(/\bOpen Mentor Assignments and assign coverage before the next check-in\./g, "Assign a mentor before the next check-in.")
+    .replace(/\bOpen the Review Queue, check proof and history, then record one decision\./g, "Review the work and leave one decision.")
+    .replace(/\bStudent revises the matching item; Program Teacher reviews only after it is sent again\./g, "Ask the student to fix the work and send it again.")
+    .replace(/\bStudent adds proof to the matching checklist item before review can move forward\./g, "Ask the student to add the missing work.")
+    .replace(/\bOpen Operations or Presentation readiness and confirm the outline or schedule blocker\./g, "Check the presentation plan or schedule.")
+    .replace(/\bOpen Operations final-file rows and resolve the export or storage blocker\./g, "Fix the final file problem before closeout.")
+    .replace(/\brecord\b/gi, "profile")
+    .replace(/\bblocker\b/gi, "problem");
 }
 
 function studentDirectoryMapCount(summary = {}, students = [], keys = [], predicate = null) {
@@ -6824,43 +6986,6 @@ function hasActiveSiteStudentDirectoryFilter(filters = {}) {
   return false;
 }
 
-function renderStudentDirectorySavedFilterChips(summary = {}) {
-  const filters = [
-    {
-      label: "Needs approval",
-      detail: safeNumber(summary.submitted) ? `${safeNumber(summary.submitted)} submitted` : "Submitted work",
-      preset: "submitted-students",
-    },
-    {
-      label: "Evidence missing",
-      detail: safeNumber(summary.missingEvidence ?? summary.evidenceMissing) ? `${safeNumber(summary.missingEvidence ?? summary.evidenceMissing)} missing evidence` : "Missing evidence",
-      preset: "missing-evidence-students",
-    },
-    {
-      label: "Mentor meeting",
-      detail: safeNumber(summary.mentorMeetingFollowUp) ? `${safeNumber(summary.mentorMeetingFollowUp)} follow-up` : "Meeting follow-up",
-      preset: "mentor-meeting-follow-up-students",
-    },
-    {
-      label: "Final files blocked",
-      detail: safeNumber(summary.archiveFailed) ? `${safeNumber(summary.archiveFailed)} failed` : "Final-file blockers",
-      preset: "archive-failed-students",
-    },
-  ];
-  return `
-    <section class="workspace-saved-filter-chips" data-student-directory-saved-filters="true">
-      <strong>Saved filters</strong>
-      <div class="workspace-chip-row">
-        ${filters.map((filter) => `
-          <button class="workspace-link-button workspace-link-button-small" type="button" data-section="students" data-section-preset="${escapeHtml(filter.preset)}">
-            ${escapeHtml(filter.label)} <span>${escapeHtml(filter.detail)}</span>
-          </button>
-        `).join("")}
-      </div>
-    </section>
-  `;
-}
-
 function renderSiteDirectorySelectionRequired(body = {}) {
   const sites = body.accessibleSites || [];
   return `
@@ -6884,111 +7009,132 @@ function renderSiteDirectorySelectionRequired(body = {}) {
   `;
 }
 
-function renderStudentDirectoryOperatingPosture(readOnly) {
+function renderStudentRows(students = [], readOnly = false, permissions = {}, scope = {}) {
   return `
-    <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
-      <article class="workspace-empty-state-card">
-        <strong>Private proof</strong>
-        <span>Rows show proof counts while storage details remain hidden.</span>
-        ${statusPill("configured")}
-      </article>
-      <article class="workspace-empty-state-card">
-        <strong>Assigned records only</strong>
-        <span>${readOnly ? "Viewer access is read-only for assigned site records." : "This view is limited to assigned site or program records."}</span>
-        ${statusPill(readOnly ? "configured" : "approved")}
-      </article>
-      <article class="workspace-empty-state-card">
-        <strong>Protected access</strong>
-        <span>Directory access is reviewed without exposing private file details.</span>
-        ${statusPill("approved")}
-      </article>
-      <article class="workspace-empty-state-card">
-        <strong>Program Teacher follow-up</strong>
-        <span>No student messaging is provided; follow-up stays with assigned staff workflows.</span>
-        ${statusPill("pending")}
-      </article>
+    <div class="workspace-student-list" aria-label="Student directory rows">
+      ${students.map((student) => renderStudentRow(student, readOnly, permissions, scope)).join("")}
     </div>
   `;
 }
 
-function renderStudentDirectoryFilterBar(directory) {
-  const filters = directory.filters || {};
-  const options = directory.filterOptions || {};
+function renderStudentRow(student, readOnly = false, permissions = {}, scope = {}) {
+  const canRemoveStudent = !readOnly && permissions.canManageSiteUsers && student.studentId && scope.siteId;
+  const guidance = studentDirectoryRowGuidance(student, readOnly);
+  const helper = studentDirectoryRowHelperLabel(guidance.owner);
+  const nextStep = studentDirectoryRowNextStep(guidance.nextAction);
+  const moreMenu = renderStudentDirectoryRowMoreMenu(student, readOnly, canRemoveStudent, scope);
   return `
-    <form class="workspace-filter-bar" id="siteStudentFilterForm" data-student-directory-filters="active">
-      <label class="workspace-label">
-        <span>Search</span>
-        <input class="workspace-input" name="search" value="${escapeHtml(filters.search || "")}" autocomplete="off" maxlength="80">
-      </label>
-      <label class="workspace-label">
-        <span>Program</span>
-        <select class="workspace-select" name="programId">
-          ${renderProgramFilterOptions(options.programs, filters.programId)}
-        </select>
-      </label>
-      <label class="workspace-label">
-        <span>Status</span>
-        <select class="workspace-select" name="status">
-          ${renderValueOptions(options.statuses || [], filters.status || "", "Any status", statusText)}
-        </select>
-      </label>
-      <label class="workspace-label">
-        <span>Progress</span>
-        <select class="workspace-select" name="progressStatus">
-          ${renderValueOptions(options.progressStatuses || [], filters.progressStatus || "", "Any progress", progressStatusFilterLabel)}
-        </select>
-      </label>
-      <label class="workspace-label">
-        <span>Evidence</span>
-        <select class="workspace-select" name="evidenceStatus">
-          ${renderValueOptions(options.evidenceStatuses || [], filters.evidenceStatus || "", "Any evidence", evidenceStatusFilterLabel)}
-        </select>
-      </label>
-      <label class="workspace-label">
-        <span>Review</span>
-        <select class="workspace-select" name="reviewStatus">
-          ${renderValueOptions(options.reviewStatuses || [], filters.reviewStatus || "", "Any review", reviewStatusFilterLabel)}
-        </select>
-      </label>
-      <label class="workspace-label">
-        <span>Risk</span>
-        <select class="workspace-select" name="risk">
-          ${renderValueOptions(options.risks || [], filters.risk || "any", "Any risk", riskLabel)}
-        </select>
-      </label>
-      <label class="workspace-label">
-        <span>Story bucket</span>
-        <select class="workspace-select" name="story">
-          ${renderValueOptions(options.storyBuckets || [], filters.story || "", "Any story", storyLabel)}
-        </select>
-      </label>
-      <label class="workspace-label">
-        <span>Presentation</span>
-        <select class="workspace-select" name="presentationStatus">
-          ${renderValueOptions(options.presentationStatuses || [], filters.presentationStatus || "any", "Any presentation", statusText)}
-        </select>
-      </label>
-      <label class="workspace-label">
-        <span>Archive</span>
-        <select class="workspace-select" name="archiveStatus">
-          ${renderValueOptions(options.archiveStatuses || [], filters.archiveStatus || "any", "Any archive", statusText)}
-        </select>
-      </label>
-      <label class="workspace-label workspace-checkbox-label">
-        <input name="noMentor" type="checkbox" value="true" ${filters.noMentor ? "checked" : ""}>
-        <span>No mentor</span>
-      </label>
-      ${filters.cohortId ? `<input name="cohortId" type="hidden" value="${escapeHtml(filters.cohortId)}">` : ""}
-      <input name="offset" type="hidden" value="${escapeHtml(filters.offset || 0)}">
-      <input name="limit" type="hidden" value="${escapeHtml(filters.limit || 50)}">
-      <div class="workspace-form-actions">
-        <button class="workspace-button workspace-button-primary" type="submit">Apply filters</button>
-        <button class="workspace-button workspace-button-secondary" type="button" data-site-student-action="reset-filters">Clear filters</button>
+    <article class="workspace-student-row" data-staff-student-row="true">
+      <div>
+        <strong>${escapeHtml(student.displayName || "Student")}</strong>
+        <p>${escapeHtml(studentDirectoryRowStatus(student))}</p>
+        <p class="workspace-muted">${escapeHtml(student.programName || "Unassigned")} / ${escapeHtml(student.cohortName || "No cohort")}</p>
       </div>
-    </form>
+      <div>
+        <span class="workspace-muted">Last update</span>
+        <strong>${escapeHtml(formatDate(student.lastActivityAt))}</strong>
+        <p class="workspace-muted">Mentor: ${escapeHtml(student.hasActiveMentor ? (student.mentorName || "Assigned") : "Missing mentor")}</p>
+      </div>
+      <div class="workspace-owner-action" data-student-directory-row-guidance="true" data-student-directory-owner="${escapeHtml(guidance.owner)}">
+        <span>Who can help: ${escapeHtml(helper)}</span>
+        <small>Next step: ${escapeHtml(nextStep)}</small>
+      </div>
+      <div class="workspace-row-actions">
+        <button class="workspace-link-button workspace-link-button-small" type="button" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(student.studentId || "")}" data-student-detail-source-section="students">
+          Open Student
+        </button>
+        ${moreMenu}
+        ${readOnly ? `<span class="workspace-chip" data-workspace-mode="read-only">Read-only</span>` : ""}
+      </div>
+    </article>
   `;
 }
 
+function renderStudentDirectoryRowMoreMenu(student, readOnly = false, canRemoveStudent = false, scope = {}) {
+  const viewAsStudentAction = renderViewAsStudentAction(student.studentId, student.displayName, { sourceSection: "students" });
+  const removalForm = canRemoveStudent ? `
+        <form class="workspace-inline-action-form" data-site-student-remove-form="true" data-site-student-id="${escapeHtml(student.studentId || "")}">
+          <input type="hidden" name="siteId" value="${escapeHtml(scope.siteId || "")}">
+          ${renderDestructiveActionConfirmation({
+            id: "student-remove",
+            label: "I reviewed what student removal does for this student.",
+            detail: "This archives the school membership, keeps project history, and may disable sign-in if no other school access remains.",
+          })}
+          <label class="workspace-label">
+            Admin note
+            <input class="workspace-input" name="adminNote" maxlength="500" required>
+          </label>
+          <button class="workspace-button workspace-button-secondary" type="submit">Remove student</button>
+        </form>
+      ` : "";
+  const actions = [viewAsStudentAction, removalForm].filter((action) => String(action || "").trim());
+  if (!actions.length) return "";
+  return `
+    <details class="workspace-row-more-menu" data-student-row-more-menu="true">
+      <summary>More</summary>
+      <div class="workspace-row-more-menu-body">
+        ${actions.join("")}
+      </div>
+    </details>
+  `;
+}
+
+function studentDirectoryRowGuidance(student = {}, readOnly = false) {
+  const flags = Array.isArray(student.riskFlags) ? student.riskFlags.map(normalizeStatus) : [];
+  const progress = normalizeStatus(student.progressStatus || "");
+  const submission = normalizeStatus(student.latestSubmissionStatus || student.status || "");
+  const review = normalizeStatus(student.reviewStatus || "");
+  const proof = normalizeStatus(student.evidenceStatus || "");
+  const presentation = normalizeStatus(student.presentationStatus || "");
+  const archive = normalizeStatus(student.archiveStatus || "");
+  const fallback = String(student.nextAction || "").trim() || "Open student detail and confirm the current problem.";
+  if (readOnly) {
+    return {
+      owner: "Assigned staff",
+      nextAction: "Use this row for context, then share the student name with authorized staff.",
+    };
+  }
+  if (student.hasActiveMentor === false || flags.includes("no_mentor") || progress === "missing_mentor") {
+    return {
+      owner: "Site Admin or Program Teacher",
+      nextAction: "Open Mentor Assignments and assign coverage before the next check-in.",
+    };
+  }
+  if (submission === "submitted" || review === "needs_review") {
+    return {
+      owner: "Program Teacher",
+      nextAction: "Open the Review Queue, check proof and history, then record one decision.",
+    };
+  }
+  if (submission === "revision_requested" || review === "needs_revision") {
+    return {
+      owner: "Student with Program Teacher support",
+      nextAction: "Student revises the matching item; Program Teacher reviews only after it is sent again.",
+    };
+  }
+  if (proof === "missing" || progress === "missing_evidence") {
+    return {
+      owner: "Student",
+      nextAction: "Student adds proof to the matching checklist item before review can move forward.",
+    };
+  }
+  if (presentation === "pending" || presentation === "missing") {
+    return {
+      owner: "Program Teacher or site staff",
+      nextAction: "Open Operations or Presentation readiness and confirm the outline or schedule blocker.",
+    };
+  }
+  if (archive === "failed" || archive === "provider_unavailable") {
+    return {
+      owner: "Site Admin",
+      nextAction: "Open Operations final-file rows and resolve the export or storage blocker.",
+    };
+  }
+  return {
+    owner: "Assigned staff",
+    nextAction: fallback,
+  };
+}
 function renderStudentDirectoryActiveFilters(filters = {}, options = {}) {
   const chips = [];
   if (filters.search) chips.push(activeFilterChip("Search", filters.search));
@@ -6998,10 +7144,10 @@ function renderStudentDirectoryActiveFilters(filters = {}, options = {}) {
   if (filters.progressStatus) chips.push(activeFilterChip("Progress", progressStatusFilterLabel(filters.progressStatus)));
   if (filters.evidenceStatus) chips.push(activeFilterChip("Evidence", evidenceStatusFilterLabel(filters.evidenceStatus)));
   if (filters.reviewStatus) chips.push(activeFilterChip("Review", reviewStatusFilterLabel(filters.reviewStatus)));
-  if (filters.risk && filters.risk !== "any") chips.push(activeFilterChip("Risk", riskLabel(filters.risk)));
+  if (filters.risk && filters.risk !== "any") chips.push(activeFilterChip("Needs help", riskFilterLabel(filters.risk)));
   if (filters.story) chips.push(activeFilterChip("Story", storyLabel(filters.story)));
   if (filters.presentationStatus && filters.presentationStatus !== "any") chips.push(activeFilterChip("Presentation", statusText(filters.presentationStatus)));
-  if (filters.archiveStatus && filters.archiveStatus !== "any") chips.push(activeFilterChip("Archive", statusText(filters.archiveStatus)));
+  if (filters.archiveStatus && filters.archiveStatus !== "any") chips.push(activeFilterChip("Final files", archiveStatusFilterLabel(filters.archiveStatus)));
   if (filters.noMentor) chips.push(activeFilterChip("Mentor", "Missing mentor assignment"));
   if (safeNumber(filters.limit) !== 50) chips.push(activeFilterChip("Page size", filters.limit));
   if (safeNumber(filters.offset) > 0) chips.push(activeFilterChip("Offset", filters.offset));
@@ -7055,140 +7201,6 @@ function renderStudentDirectoryResultSummary(directory) {
   `;
 }
 
-function renderStudentRows(students = [], readOnly = false, permissions = {}, scope = {}) {
-  return `
-    <div class="workspace-student-list" aria-label="Student directory rows">
-      ${students.map((student) => renderStudentRow(student, readOnly, permissions, scope)).join("")}
-    </div>
-  `;
-}
-
-function renderStudentRow(student, readOnly = false, permissions = {}, scope = {}) {
-  const riskFlags = Array.isArray(student.riskFlags) ? student.riskFlags : [];
-  const canRemoveStudent = !readOnly && permissions.canManageSiteUsers && student.studentId && scope.siteId;
-  const guidance = studentDirectoryRowGuidance(student, readOnly);
-  return `
-    <article class="workspace-student-row workspace-student-card" data-staff-student-row="true">
-      <div>
-        <strong>${escapeHtml(student.displayName || "Student")}</strong>
-        <p>${escapeHtml(student.email || "")}</p>
-        <p class="workspace-muted">${escapeHtml(student.programName || "Unassigned")} / ${escapeHtml(student.cohortName || "No cohort")}</p>
-        <p class="workspace-muted">${escapeHtml(studentRosterProfileText(student))}</p>
-        <div class="workspace-chip-row">
-          ${student.storyBucket ? `<span class="workspace-story-chip">${escapeHtml(storyLabel(student.storyBucket))}</span>` : `<span class="workspace-story-chip">Standard monitoring</span>`}
-          ${riskFlags.length
-            ? riskFlags.map((flag) => `<span class="workspace-risk-chip">${escapeHtml(riskLabel(flag))}</span>`).join("")
-            : `<span class="workspace-risk-chip">Low risk</span>`}
-        </div>
-      </div>
-      <div>
-        <span class="workspace-muted">Mentor</span>
-        <strong>${escapeHtml(student.hasActiveMentor ? (student.mentorName || "Assigned") : "No mentor")}</strong>
-        <p class="workspace-muted">${escapeHtml(student.viewerName ? `Viewer: ${student.viewerName}` : "Viewer: unassigned")}</p>
-        <p>${escapeHtml(student.nextAction || "Continue normal capstone monitoring.")}</p>
-      </div>
-      <div>
-        <span class="workspace-muted">Progress</span>
-        <strong>${escapeHtml(safeNumber(student.progressPercent))}%</strong>
-        <p>${escapeHtml(progressStatusFilterLabel(student.progressStatus || ""))}</p>
-        <p class="workspace-muted">Last activity ${escapeHtml(formatDate(student.lastActivityAt))}</p>
-      </div>
-      <div class="workspace-owner-action" data-student-directory-row-guidance="true" data-student-directory-owner="${escapeHtml(guidance.owner)}">
-        <span>Owner: ${escapeHtml(guidance.owner)}</span>
-        <small>Do next: ${escapeHtml(guidance.nextAction)}</small>
-      </div>
-      <div class="workspace-row-actions">
-        ${statusPill(student.latestSubmissionStatus || "draft")}
-        ${statusPill(student.evidenceStatus || "missing")}
-        ${statusPill(student.reviewStatus || "not_reviewed")}
-        ${statusPill(student.presentationStatus || "missing")}
-        ${statusPill(student.archiveStatus || "missing")}
-      </div>
-      <div class="workspace-row-actions">
-        <span class="workspace-site-context-badge">${escapeHtml(safeNumber(student.evidenceCount))} evidence</span>
-        <span class="workspace-site-context-badge">${escapeHtml(safeNumber(student.reviewCount))} reviews</span>
-        <button class="workspace-link-button workspace-link-button-small" type="button" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(student.studentId || "")}" data-student-detail-source-section="students">
-          Open Student
-        </button>
-        ${renderViewAsStudentAction(student.studentId, student.displayName, { sourceSection: "students" })}
-        ${readOnly ? `<span class="workspace-chip" data-workspace-mode="read-only">Read-only</span>` : ""}
-      </div>
-      ${canRemoveStudent ? `
-        <form class="workspace-inline-action-form" data-site-student-remove-form="true" data-site-student-id="${escapeHtml(student.studentId || "")}">
-          <input type="hidden" name="siteId" value="${escapeHtml(scope.siteId || "")}">
-          ${renderDestructiveActionConfirmation({
-            id: "student-remove",
-            label: "I reviewed what student removal does for this student.",
-            detail: "This archives the school membership, keeps project history, and may disable sign-in if no other school access remains.",
-          })}
-          <label class="workspace-label">
-            Admin note
-            <input class="workspace-input" name="adminNote" maxlength="500" required>
-          </label>
-          <button class="workspace-button workspace-button-secondary" type="submit">Remove student</button>
-        </form>
-      ` : ""}
-    </article>
-  `;
-}
-
-function studentDirectoryRowGuidance(student = {}, readOnly = false) {
-  const flags = Array.isArray(student.riskFlags) ? student.riskFlags.map(normalizeStatus) : [];
-  const progress = normalizeStatus(student.progressStatus || "");
-  const submission = normalizeStatus(student.latestSubmissionStatus || student.status || "");
-  const review = normalizeStatus(student.reviewStatus || "");
-  const proof = normalizeStatus(student.evidenceStatus || "");
-  const presentation = normalizeStatus(student.presentationStatus || "");
-  const archive = normalizeStatus(student.archiveStatus || "");
-  const fallback = String(student.nextAction || "").trim() || "Open student detail and confirm the current blocker.";
-  if (readOnly) {
-    return {
-      owner: "Assigned staff",
-      nextAction: "Use this row for context, then share the student name with authorized staff.",
-    };
-  }
-  if (student.hasActiveMentor === false || flags.includes("no_mentor") || progress === "missing_mentor") {
-    return {
-      owner: "Site Admin or Program Teacher",
-      nextAction: "Open Mentor Assignments and assign coverage before the next check-in.",
-    };
-  }
-  if (submission === "submitted" || review === "needs_review") {
-    return {
-      owner: "Program Teacher",
-      nextAction: "Open the Review Queue, check proof and history, then record one decision.",
-    };
-  }
-  if (submission === "revision_requested" || review === "needs_revision") {
-    return {
-      owner: "Student with Program Teacher support",
-      nextAction: "Student revises the matching item; Program Teacher reviews only after it is sent again.",
-    };
-  }
-  if (proof === "missing" || progress === "missing_evidence") {
-    return {
-      owner: "Student",
-      nextAction: "Student adds proof to the matching checklist item before review can move forward.",
-    };
-  }
-  if (presentation === "pending" || presentation === "missing") {
-    return {
-      owner: "Program Teacher or site staff",
-      nextAction: "Open Operations or Presentation readiness and confirm the outline or schedule blocker.",
-    };
-  }
-  if (archive === "failed" || archive === "provider_unavailable") {
-    return {
-      owner: "Site Admin",
-      nextAction: "Open Operations final-file rows and resolve the export or storage blocker.",
-    };
-  }
-  return {
-    owner: "Assigned staff",
-    nextAction: fallback,
-  };
-}
-
 function renderStudentDirectoryEmptyState(directory) {
   const emptyState = directory.emptyState || {};
   const filters = directory.filters || {};
@@ -7197,11 +7209,11 @@ function renderStudentDirectoryEmptyState(directory) {
   return `
     <section class="workspace-empty-state-card" data-student-directory-empty="true">
       <strong>${escapeHtml(copy.heading)}</strong>
-      ${renderProblemState({
-        reason: copy.reason,
-        owner: copy.owner,
-        nextAction: copy.nextAction,
-      })}
+      <div class="workspace-problem-state workspace-student-directory-empty-guidance">
+        <span>Why: ${escapeHtml(copy.reason)}</span>
+        <span>Who can help: ${escapeHtml(studentDirectoryRowHelperLabel(copy.owner))}</span>
+        <span>Next step: ${escapeHtml(studentDirectoryRowNextStep(copy.nextAction))}</span>
+      </div>
     </section>
   `;
 }
@@ -7227,10 +7239,10 @@ function studentDirectoryEmptyStateCopy(filters = {}, options = {}, emptyState =
   const owner = emptyState.owner || "Assigned staff or site administrator.";
   if (!hasActiveStudentDirectoryFilters(filters)) {
     return {
-      heading: "No student records are visible right now",
-      reason: emptyState.reason || "No student records are visible in this view.",
+      heading: "No students need attention right now",
+      reason: emptyState.reason || "No students are currently in this list.",
       owner,
-      nextAction: emptyState.nextAction || "Check the assigned school or program.",
+      nextAction: emptyState.nextAction || "View all students or check the school or program assignment.",
     };
   }
   if (filters.noMentor) {
@@ -7244,7 +7256,7 @@ function studentDirectoryEmptyStateCopy(filters = {}, options = {}, emptyState =
   if (filters.progressStatus === "on_track") {
     return {
       heading: "No matching on-track students",
-      reason: "No students without urgent support signals match these filters.",
+      reason: "No students without urgent help needs match these filters.",
       owner,
       nextAction: "Clear filters or review the full student list.",
     };
@@ -7252,7 +7264,7 @@ function studentDirectoryEmptyStateCopy(filters = {}, options = {}, emptyState =
   if (filters.progressStatus === "behind") {
     return {
       heading: "No matching support list",
-      reason: "No students with high-risk or stale-activity signals match these filters.",
+      reason: "No students who need help soon or have stale activity match these filters.",
       owner,
       nextAction: "Clear filters or check Missing Proof and Missing Mentor separately.",
     };
@@ -7267,8 +7279,8 @@ function studentDirectoryEmptyStateCopy(filters = {}, options = {}, emptyState =
   }
   if (filters.evidenceStatus === "missing" || filters.progressStatus === "missing_evidence") {
     return {
-      heading: "No matching missing-proof students",
-      reason: "No students without attached proof match these filters.",
+      heading: "No students are missing work here",
+      reason: "No students with missing work match these filters.",
       owner,
       nextAction: "Clear filters or check the Review Queue for submitted work.",
     };
@@ -7299,8 +7311,8 @@ function studentDirectoryEmptyStateCopy(filters = {}, options = {}, emptyState =
   }
   if (filters.risk === "high") {
     return {
-      heading: "No matching high-risk students",
-      reason: "No high-risk students match these filters for this school.",
+      heading: "No students need help soon here",
+      reason: "No students in this group need urgent help.",
       owner,
       nextAction: "Clear filters or continue monitoring the full student list.",
     };
@@ -23452,6 +23464,25 @@ function riskLabel(value) {
   return labels[normalized] || statusText(value);
 }
 
+function riskFilterLabel(value) {
+  const labels = {
+    any: "Any help need",
+    high: "Needs help soon",
+    medium: "May need help",
+    low: "Doing okay",
+    stale: "No recent activity",
+    no_mentor: "Missing mentor",
+    missing_evidence: "Missing work",
+    mentor_meeting: "Mentor meeting",
+    awaiting_review: "Waiting for review",
+    revision_requested: "Needs changes",
+    presentation_pending: "Presentation pending",
+    archive_failed: "Final files need help",
+  };
+  const normalized = normalizeStatus(value);
+  return labels[normalized] || statusText(value);
+}
+
 function riskExplanation(value) {
   const labels = {
     high: "Progress has multiple blockers or a strong risk signal.",
@@ -23476,6 +23507,13 @@ function evidenceStatusFilterLabel(value) {
   return statusText(value || "Any proof status");
 }
 
+function studentWorkStatusFilterLabel(value) {
+  const normalized = normalizeStatus(value);
+  if (normalized === "attached") return "Work attached";
+  if (normalized === "missing") return "Missing work";
+  return statusText(value || "Any work");
+}
+
 function reviewStatusFilterLabel(value) {
   const normalized = normalizeStatus(value);
   if (normalized === "needs_review") return "Needs review";
@@ -23497,6 +23535,26 @@ function progressStatusFilterLabel(value) {
   if (normalized === "mentor_meeting_follow_up") return "Mentor meeting follow-up";
   if (normalized === "ready_complete") return "Ready / complete";
   return statusText(value || "Any progress");
+}
+
+function presentationStatusFilterLabel(value) {
+  const normalized = normalizeStatus(value);
+  if (normalized === "any") return "Any presentation";
+  if (normalized === "pending") return "Ready to present";
+  if (normalized === "scheduled") return "Scheduled";
+  if (normalized === "completed") return "Presented";
+  if (normalized === "missing") return "Missing presentation";
+  return statusText(value || "Any presentation");
+}
+
+function archiveStatusFilterLabel(value) {
+  const normalized = normalizeStatus(value);
+  if (normalized === "any") return "Any final files";
+  if (normalized === "ready") return "Ready to finish";
+  if (normalized === "complete") return "Finished";
+  if (normalized === "failed") return "Final files need help";
+  if (normalized === "missing") return "Missing final files";
+  return statusText(value || "Any final files");
 }
 
 function categoryLabel(value) {
