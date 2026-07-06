@@ -2443,7 +2443,7 @@ function percentLabel(value) {
 
 function renderAdminSetupIssues(issues = []) {
   return `
-    <section class="workspace-card workspace-admin-setup-list" data-admin-console-setup-list="true" aria-labelledby="adminSetupIssuesTitle">
+    <section class="workspace-card workspace-admin-setup-list" data-admin-console-setup-list="true" data-admin-needs-setup-list="true" aria-labelledby="adminSetupIssuesTitle">
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Needs Setup</p>
@@ -2453,18 +2453,7 @@ function renderAdminSetupIssues(issues = []) {
       </div>
       ${issues.length ? `
         <div class="workspace-list">
-          ${issues.map((issue) => `
-            <article class="workspace-admin-setup-row ${escapeHtml(issue.tone || "quiet")}" data-admin-console-setup-issue="${escapeHtml(issue.id || "issue")}">
-              <div>
-                <strong>${escapeHtml(issue.title || "Setup issue")}</strong>
-                <p>${escapeHtml(issue.detail || "Review this setup issue.")}</p>
-              </div>
-              <div class="workspace-row-actions">
-                ${statusPill(issue.tone === "danger" ? "failed" : "needs_review")}
-                ${issue.section ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(issue.section)}">${escapeHtml(issue.action || "Open")}</button>` : ""}
-              </div>
-            </article>
-          `).join("")}
+          ${issues.map((issue) => renderAdminIssueRow(issue)).join("")}
         </div>
       ` : `
         <article class="workspace-empty-state-card" data-admin-console-setup-empty="true">
@@ -2486,9 +2475,33 @@ function renderAdminSetupIssues(issues = []) {
   `;
 }
 
+function renderAdminIssueRow(issue = {}) {
+  const count = safeNumber(issue.count);
+  const detailsId = `admin-issue-${cleanDirectoryFilter(issue.id || "issue") || "issue"}`;
+  return `
+    <article class="workspace-admin-setup-row workspace-admin-issue-row ${escapeHtml(issue.tone || "quiet")}" data-admin-console-setup-issue="${escapeHtml(issue.id || "issue")}" data-admin-issue-row="true" data-admin-issue-count="${escapeHtml(String(count))}">
+      <div>
+        <strong>${escapeHtml(issue.title || "Setup issue")}</strong>
+        <p>${escapeHtml(issue.detail || "Review this setup issue.")}</p>
+        <details class="workspace-admin-issue-details" data-admin-issue-details="${escapeHtml(issue.id || "issue")}" id="${escapeHtml(detailsId)}">
+          <summary>Show details</summary>
+          <div>
+            <p>${escapeHtml(issue.longDetail || issue.detail || "Review this setup issue, then open the linked setup screen.")}</p>
+            <span class="workspace-muted">${escapeHtml(count ? `${count} ${pluralize(count, "record")} to check` : "No active records to check")}</span>
+          </div>
+        </details>
+      </div>
+      <div class="workspace-row-actions">
+        ${statusPill(issue.tone === "danger" ? "failed" : "needs_review")}
+        ${issue.section ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(issue.section)}">${escapeHtml(issue.action || "Fix setup")}</button>` : ""}
+      </div>
+    </article>
+  `;
+}
+
 function renderAdminHealthSummary(rows = []) {
   return `
-    <section class="workspace-card workspace-admin-health-summary" data-admin-console-health="true" aria-labelledby="adminHealthTitle">
+    <section class="workspace-card workspace-admin-health-summary" data-admin-console-health="true" data-admin-report-summary-strip="true" aria-labelledby="adminHealthTitle">
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Health Summary</p>
@@ -5483,13 +5496,13 @@ function renderAdminReportsSection() {
   const model = adminConsoleOperationsModel(capabilities);
   return `
     <section class="workspace-admin-reports" data-admin-reports="true" aria-labelledby="adminReportsTitle">
-      <div class="workspace-card-head">
-        <div>
-          <p class="workspace-kicker">Admin Console</p>
-          <h2 id="adminReportsTitle">Operational Reports</h2>
-          <p class="workspace-muted">Roster, review, setup, and readiness counts for the current view.</p>
-        </div>
-      </div>
+      ${renderAdminSectionHeader({
+        kicker: "Reports",
+        title: "Operational Reports",
+        id: "adminReportsTitle",
+        detail: "Roster, review, setup, and readiness counts for the current view.",
+        badge: "Report-safe fields",
+      })}
       <div class="workspace-admin-console-metrics">
         ${renderAdminConsoleMetrics(capabilities)}
       </div>
@@ -5607,15 +5620,180 @@ function renderAdminConsoleImportsSection() {
 }
 
 function renderAdminSectionHeader({ kicker = "Admin Console", title = "Section", id = "", detail = "", badge = "" } = {}) {
+  const primary = adminPrimaryActionForSection(activeSection);
+  const actions = adminActionsForSection(activeSection);
+  return renderAdminPageHeader({ kicker, title, id, detail, badge, primary, actions });
+}
+
+function renderAdminPageHeader({ kicker = "Admin Console", title = "Section", id = "", detail = "", badge = "", primary = null, actions = [] } = {}) {
   return `
-    <div class="workspace-admin-section-header">
+    <div class="workspace-admin-section-header workspace-admin-page-header" data-admin-page-header="true" data-admin-page-section="${escapeHtml(activeSection || "overview")}">
       <div>
         <p class="workspace-kicker">${escapeHtml(kicker)}</p>
         <h2 ${id ? `id="${escapeHtml(id)}"` : ""}>${escapeHtml(title)}</h2>
         <p>${escapeHtml(detail)}</p>
       </div>
-      ${badge ? `<span class="workspace-site-context-badge">${escapeHtml(badge)}</span>` : ""}
+      <div class="workspace-admin-page-header-actions">
+        ${badge ? `<span class="workspace-site-context-badge">${escapeHtml(badge)}</span>` : ""}
+        ${primary ? renderAdminActionControl(primary, "workspace-button workspace-button-primary workspace-button-small", "primary") : ""}
+        ${renderAdminActionMenu({ id: activeSection || "overview", actions })}
+      </div>
     </div>
+  `;
+}
+
+function adminPrimaryActionForSection(section = activeSection) {
+  const sections = availableSectionIdsForAnyMode();
+  const map = {
+    adminPeople: sections.has("adminPeople") ? { label: "Add staff", section: "adminPeople", peopleView: "add-staff" } : null,
+    adminStudents: sections.has("adminStudents") ? { label: "Add student", section: "adminStudents", peopleView: "add-student" } : null,
+    adminAssignments: { label: "Assign mentor", section: "adminAssignments" },
+    adminImports: { label: "Upload CSV", section: "adminImports", peopleView: "import-students" },
+    adminReports: { label: "View setup issues", section: "overview" },
+    audit: { label: "Review access", section: "audit" },
+    programs: { label: "Manage program", section: "programs" },
+  };
+  return map[section] || null;
+}
+
+function adminActionsForSection(section = activeSection) {
+  const sections = availableSectionIdsForAnyMode();
+  const canImports = sections.has("adminImports");
+  const canReports = sections.has("adminReports");
+  const canAudit = sections.has("audit");
+  const canPrograms = sections.has("programs");
+  const studentTemplate = csvTemplateForKind("students");
+  const staffTemplate = csvTemplateForKind("staff");
+  const studentTemplateHref = `data:text/csv;charset=utf-8,${encodeURIComponent(studentTemplate)}`;
+  const staffTemplateHref = `data:text/csv;charset=utf-8,${encodeURIComponent(staffTemplate)}`;
+  const common = [
+    canReports ? { label: "View reports", section: "adminReports" } : null,
+    canAudit ? { label: "Review access", section: "audit" } : null,
+  ];
+  const map = {
+    adminPeople: [
+      canImports ? { label: "Import staff", section: "adminImports", peopleView: "import-staff" } : null,
+      { label: "Download staff template", href: staffTemplateHref, download: "capstone-staff-template.csv" },
+      ...common,
+    ],
+    adminStudents: [
+      canImports ? { label: "Import students", section: "adminImports", peopleView: "import-students" } : null,
+      { label: "Download student template", href: studentTemplateHref, download: "capstone-students-template.csv" },
+      sections.has("adminAssignments") ? { label: "Assign mentor", section: "adminAssignments" } : null,
+      ...common,
+    ],
+    adminAssignments: [
+      canReports ? { label: "Review missing coverage", section: "adminReports" } : null,
+      canAudit ? { label: "View access review", section: "audit" } : null,
+      canPrograms ? { label: "Manage programs", section: "programs" } : null,
+    ],
+    adminImports: [
+      { label: "Download student template", href: studentTemplateHref, download: "capstone-students-template.csv" },
+      { label: "Download staff template", href: staffTemplateHref, download: "capstone-staff-template.csv" },
+      { label: "Import students", section: "adminImports", peopleView: "import-students" },
+      { label: "Import staff", section: "adminImports", peopleView: "import-staff" },
+      ...common,
+    ],
+    adminReports: [
+      { label: "Review roster summary", section: "adminReports" },
+      { label: "Review setup issues", section: "overview" },
+      canAudit ? { label: "View audit", section: "audit" } : null,
+    ],
+    audit: [
+      canReports ? { label: "View reports", section: "adminReports" } : null,
+      sections.has("adminPeople") ? { label: "Open People", section: "adminPeople" } : null,
+      sections.has("adminAssignments") ? { label: "Open Assignments", section: "adminAssignments" } : null,
+    ],
+    programs: [
+      sections.has("adminAssignments") ? { label: "View program teacher gaps", section: "adminAssignments" } : null,
+      canReports ? { label: "Review programs summary", section: "adminReports" } : null,
+      canAudit ? { label: "View audit", section: "audit" } : null,
+    ],
+  };
+  return (map[section] || common).filter(Boolean);
+}
+
+function renderAdminActionMenu({ id = "admin", actions = [], label = "Actions" } = {}) {
+  const safeActions = (Array.isArray(actions) ? actions : []).filter(Boolean);
+  if (!safeActions.length) return "";
+  return `
+    <details class="workspace-admin-action-menu" data-admin-action-menu="${escapeHtml(id)}">
+      <summary>${escapeHtml(label)}</summary>
+      <div class="workspace-admin-action-menu-body">
+        ${safeActions.map((action) => renderAdminActionControl(action, "workspace-admin-action-menu-item", "menu")).join("")}
+      </div>
+    </details>
+  `;
+}
+
+function renderAdminActionControl(action = {}, className = "workspace-button workspace-button-secondary", location = "menu") {
+  if (action.html) return action.html;
+  const label = action.label || "Open";
+  const dataAttrs = [
+    `data-admin-action-menu-item="${escapeHtml(location)}"`,
+    action.id ? `data-admin-action-id="${escapeHtml(action.id)}"` : "",
+    action.peopleView ? `data-admin-people-view="${escapeHtml(action.peopleView)}"` : "",
+    action.focus ? `data-users-access-focus="${escapeHtml(action.focus)}"` : "",
+  ].filter(Boolean).join(" ");
+  if (action.href) {
+    return `<a class="${escapeHtml(className)}" href="${escapeHtml(action.href)}" ${action.download ? `download="${escapeHtml(action.download)}"` : ""} ${dataAttrs}>${escapeHtml(label)}</a>`;
+  }
+  if (action.section) {
+    return `<button class="${escapeHtml(className)}" type="button" data-section="${escapeHtml(action.section)}" ${dataAttrs}>${escapeHtml(label)}</button>`;
+  }
+  if (action.peopleView) {
+    return `<button class="${escapeHtml(className)}" type="button" data-people-view-target="${escapeHtml(action.peopleView)}" ${dataAttrs}>${escapeHtml(label)}</button>`;
+  }
+  return `<span class="workspace-summary-badge" ${dataAttrs}>${escapeHtml(label)}</span>`;
+}
+
+function renderAdminFilterBar({ id = "admin", searchLabel = "Search", filters = [], moreFilters = [], resetAction = null } = {}) {
+  const safeFilters = (Array.isArray(filters) ? filters : []).filter(Boolean);
+  const safeMoreFilters = (Array.isArray(moreFilters) ? moreFilters : []).filter(Boolean);
+  return `
+    <form class="workspace-filter-bar workspace-admin-filter-bar" data-admin-filter-bar="${escapeHtml(id)}" aria-label="${escapeHtml(`${searchLabel} filters`)}">
+      <label class="workspace-label">
+        ${escapeHtml(searchLabel)}
+        <input class="workspace-input" name="search" type="search" autocomplete="off" aria-label="${escapeHtml(searchLabel)}">
+      </label>
+      ${safeFilters.map(renderAdminFilterSelect).join("")}
+      ${safeMoreFilters.length ? `
+        <details class="workspace-advanced-filters workspace-admin-advanced-filters" data-admin-advanced-filters="${escapeHtml(id)}">
+          <summary>More filters</summary>
+          <div class="workspace-admin-more-filter-grid">
+            ${safeMoreFilters.map(renderAdminFilterSelect).join("")}
+          </div>
+        </details>
+      ` : ""}
+      <div class="workspace-filter-actions">
+        ${resetAction ? renderAdminActionControl(resetAction, "workspace-button workspace-button-secondary workspace-button-small", "filter-reset") : `<button class="workspace-button workspace-button-secondary workspace-button-small" type="reset">Reset</button>`}
+      </div>
+    </form>
+  `;
+}
+
+function renderAdminFilterSelect(filter = {}) {
+  const options = Array.isArray(filter.options) ? filter.options : [];
+  return `
+    <label class="workspace-label">
+      ${escapeHtml(filter.label || "Filter")}
+      <select class="workspace-select" name="${escapeHtml(filter.name || "filter")}" data-admin-filter-select="${escapeHtml(filter.name || "filter")}">
+        ${options.map((option) => `<option value="${escapeHtml(option.value ?? option)}">${escapeHtml(option.label ?? option)}</option>`).join("")}
+      </select>
+    </label>
+  `;
+}
+
+function renderAdminMoreMenu({ id = "row", actions = [], label = "More" } = {}) {
+  const safeActions = (Array.isArray(actions) ? actions : []).filter(Boolean);
+  if (!safeActions.length) return "";
+  return `
+    <details class="workspace-row-more-menu workspace-admin-more-menu" data-admin-more-menu="${escapeHtml(id)}">
+      <summary>${escapeHtml(label)}</summary>
+      <div class="workspace-row-more-menu-body">
+        ${safeActions.map((action) => renderAdminActionControl(action, "workspace-link-button workspace-link-button-small", "row-more")).join("")}
+      </div>
+    </details>
   `;
 }
 
@@ -18067,6 +18245,10 @@ function renderManageStudentRow(student = {}) {
   const profileText = studentRosterProfileText(student);
   const assignmentText = studentAssignmentStatusText(student);
   const setupFlags = adminStudentSetupFlags(student, assignments);
+  const moreActions = [
+    renderViewAsStudentAction(student.userId, student.displayName, { sourceSection: "adminUsers" }) ? { html: renderViewAsStudentAction(student.userId, student.displayName, { sourceSection: "adminUsers" }) } : null,
+    availableSectionIdsForAnyMode().has("adminAssignments") ? { label: "Manage assignments", section: "adminAssignments" } : null,
+  ].filter(Boolean);
   return `
     <article class="workspace-row" data-manage-student-row="${escapeHtml(student.userId || "")}" data-manage-student-setup="${escapeHtml(setupFlags.length ? "needs-review" : "ready")}">
       <div>
@@ -18078,8 +18260,8 @@ function renderManageStudentRow(student = {}) {
       </div>
       <div class="workspace-row-actions">
         ${availableSectionIdsForAnyMode().has("students") ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(student.userId || "")}">View student</button>` : ""}
-        ${renderViewAsStudentAction(student.userId, student.displayName, { sourceSection: "adminUsers" })}
         ${statusPill(setupFlags.length ? "needs_review" : "active")}
+        ${renderAdminMoreMenu({ id: `student-${student.userId || "row"}`, actions: moreActions })}
       </div>
     </article>
   `;
@@ -18130,8 +18312,15 @@ function renderManageStaffScreen() {
                 ${renderAdminSetupFlagChips(setupFlags)}
               </div>
               <div class="workspace-row-actions">
-                <button class="workspace-link-button workspace-link-button-small" type="button" data-people-view-target="assignments">Manage assignments</button>
+                <button class="workspace-link-button workspace-link-button-small" type="button" data-people-view-target="assignments">Manage</button>
                 ${statusPill(setupFlags.length ? "needs_review" : "active")}
+                ${renderAdminMoreMenu({
+                  id: `staff-${account.userId || "row"}`,
+                  actions: [
+                    { label: "Manage assignments", peopleView: "assignments" },
+                    availableSectionIdsForAnyMode().has("audit") ? { label: "View recent changes", section: "audit" } : null,
+                  ].filter(Boolean),
+                })}
               </div>
             </article>
           `;
@@ -18454,12 +18643,15 @@ function renderCsvImportStepper(kind = "students") {
 function renderCsvTemplateDocumentation(kind = "students") {
   const contract = csvTemplateContractForKind(kind);
   return `
-    <section class="workspace-csv-template-doc" data-csv-template-doc="${escapeHtml(kind)}">
-      <strong>Template columns</strong>
+    <details class="workspace-csv-template-doc workspace-csv-help-disclosure" data-csv-template-doc="${escapeHtml(kind)}" data-csv-help-disclosure="${escapeHtml(kind)}">
+      <summary>CSV help</summary>
+      <div class="workspace-csv-help-body">
+        <strong>Template columns</strong>
       ${renderCsvTemplateColumnGroups(kind)}
       ${renderCsvTemplateExample(kind)}
       <p class="workspace-muted">${escapeHtml(contract.scopeNote)} ${escapeHtml(contract.validationNote)}</p>
-    </section>
+      </div>
+    </details>
   `;
 }
 

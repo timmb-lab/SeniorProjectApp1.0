@@ -7177,6 +7177,9 @@ test("workspace wide admin console keeps operations readable and source actions 
   assert.match(workspaceCss, /\.workspace-admin-console-content\s*\{[\s\S]*grid-template-columns:\s*minmax\(188px,\s*220px\) minmax\(0,\s*1560px\);[\s\S]*justify-content:\s*center;/);
   assert.match(workspaceCss, /\.workspace-admin-command-center\s*\{[\s\S]*max-width:\s*100%;/);
   assert.match(workspaceCss, /\.workspace-admin-operations-grid \.workspace-metric-tile\s*\{[\s\S]*min-height:\s*132px;/);
+  assert.match(workspaceCss, /\.workspace-admin-page-header-actions\s*\{[\s\S]*justify-content:\s*flex-end;/);
+  assert.match(workspaceCss, /\.workspace-admin-action-menu-body\s*\{[\s\S]*position:\s*absolute;/);
+  assert.match(workspaceCss, /\.workspace-admin-filter-bar\s*\{[\s\S]*grid-template-columns:/);
   assert.equal(adminReadableWidthForViewport(1920), 1560);
 
   const wideContext = await createWorkspaceContextWithFetch(profileRoutesForRole("global_admin"), {
@@ -7254,6 +7257,9 @@ test("admin console surfaces setup reasons across overview people students and r
 
   const overview = workspaceRoot.innerHTML;
   assert.match(overview, /data-admin-console-overview="true"/);
+  assert.match(overview, /data-admin-needs-setup-list="true"/);
+  assert.match(overview, /data-admin-issue-row="true"[\s\S]*data-admin-issue-details="student-program"[\s\S]*Show details/);
+  assert.match(overview, /data-admin-report-summary-strip="true"/);
   assert.match(overview, /data-admin-setup-readiness="true"/);
   assert.match(overview, /Student program missing/);
   assert.match(overview, /Roster profile incomplete/);
@@ -7266,19 +7272,34 @@ test("admin console surfaces setup reasons across overview people students and r
 
   vm.runInContext('activeSection = "adminStudents"; adminPeopleView = "manage-students"; renderAppShell();', context);
   const students = workspaceRoot.innerHTML;
+  assert.match(students, /data-admin-page-header="true" data-admin-page-section="adminStudents"/);
+  assert.match(students, /data-admin-action-menu="adminStudents"[\s\S]*Import students[\s\S]*Download student template/);
   assert.match(students, /data-manage-student-row="student-needs-setup" data-manage-student-setup="needs-review"/);
+  assert.match(students, /data-admin-more-menu="student-student-needs-setup"[\s\S]*More[\s\S]*View as Student[\s\S]*Manage assignments/);
   assert.match(students, /data-admin-setup-flag="profile"[\s\S]*Missing cohort\/year/);
   assert.match(students, /data-admin-setup-flag="mentor"[\s\S]*No mentor/);
   assert.match(students, /data-admin-setup-flag="viewer"[\s\S]*No viewer/);
 
   vm.runInContext('activeSection = "adminPeople"; adminPeopleView = "manage-staff"; renderAppShell();', context);
   const people = workspaceRoot.innerHTML;
+  assert.match(people, /data-admin-page-header="true" data-admin-page-section="adminPeople"/);
+  assert.match(people, /data-admin-action-menu="adminPeople"[\s\S]*Import staff[\s\S]*Download staff template/);
   assert.match(people, /data-manage-staff-row="mentor-no-scope" data-manage-staff-setup="needs-review"/);
+  assert.match(people, /data-admin-more-menu="staff-mentor-no-scope"[\s\S]*More[\s\S]*Manage assignments/);
+  assert.doesNotMatch(people, /data-admin-more-menu="staff-mentor-no-scope"[\s\S]*View recent changes/);
   assert.match(people, /data-admin-setup-flag="email"[\s\S]*Missing email/);
   assert.match(people, /data-admin-setup-flag="mentor-scope"[\s\S]*No mentor students/);
 
+  vm.runInContext('activeSection = "adminImports"; adminPeopleView = "import-students"; renderAppShell();', context);
+  const imports = workspaceRoot.innerHTML;
+  assert.match(imports, /data-admin-action-menu="adminImports"[\s\S]*Download student template[\s\S]*Download staff template/);
+  assert.match(imports, /data-csv-help-disclosure="students"[\s\S]*CSV help[\s\S]*Template columns/);
+
   vm.runInContext('activeSection = "adminReports"; renderAppShell();', context);
   const reports = workspaceRoot.innerHTML;
+  assert.match(reports, /data-admin-page-header="true" data-admin-page-section="adminReports"/);
+  assert.match(reports, /data-admin-action-menu="adminReports"[\s\S]*Review roster summary[\s\S]*Review setup issues/);
+  assert.doesNotMatch(reports, /data-admin-action-menu="adminReports"[\s\S]*View audit/);
   assert.match(reports, /data-admin-setup-readiness="true"/);
   assert.match(reports, /Operational coverage summary/);
   assert.match(reports, /Setup\/import issues/);

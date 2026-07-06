@@ -2164,6 +2164,116 @@ body[data-page="workspace"],
   color: var(--abc-muted);
 }
 
+.workspace-admin-page-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.48rem;
+  flex-wrap: wrap;
+  min-width: min(100%, 22rem);
+}
+
+.workspace-admin-action-menu,
+.workspace-admin-more-menu {
+  position: relative;
+}
+
+.workspace-admin-action-menu > summary,
+.workspace-admin-more-menu > summary,
+.workspace-csv-help-disclosure > summary,
+.workspace-admin-issue-details > summary {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-control);
+  background: #fff;
+  color: var(--workspace-primary);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 900;
+  line-height: 1.1;
+  list-style: none;
+  padding: 0.42rem 0.68rem;
+}
+
+.workspace-admin-action-menu > summary::-webkit-details-marker,
+.workspace-admin-more-menu > summary::-webkit-details-marker,
+.workspace-csv-help-disclosure > summary::-webkit-details-marker,
+.workspace-admin-issue-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.workspace-admin-action-menu > summary:focus-visible,
+.workspace-admin-more-menu > summary:focus-visible,
+.workspace-csv-help-disclosure > summary:focus-visible,
+.workspace-admin-issue-details > summary:focus-visible {
+  outline: 0;
+  box-shadow: var(--focus-ring);
+}
+
+.workspace-admin-action-menu-body,
+.workspace-admin-more-menu .workspace-row-more-menu-body {
+  display: grid;
+  gap: 0.42rem;
+  min-width: 13rem;
+}
+
+.workspace-admin-action-menu-body {
+  position: absolute;
+  top: calc(100% + 0.42rem);
+  right: 0;
+  z-index: 8;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-card);
+  background: #fff;
+  box-shadow: 0 18px 48px rgba(23, 32, 38, 0.16);
+  padding: 0.58rem;
+}
+
+.workspace-admin-action-menu-item,
+.workspace-admin-more-menu .workspace-link-button {
+  justify-content: flex-start;
+  width: 100%;
+  text-align: left;
+  white-space: normal;
+}
+
+.workspace-admin-filter-bar {
+  grid-template-columns: minmax(13rem, 1.35fr) repeat(2, minmax(10rem, 1fr)) auto;
+}
+
+.workspace-admin-advanced-filters {
+  grid-column: 1 / -1;
+}
+
+.workspace-admin-more-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.65rem;
+  margin-top: 0.65rem;
+}
+
+.workspace-admin-issue-details {
+  margin-top: 0.55rem;
+}
+
+.workspace-admin-issue-details > summary {
+  min-height: 32px;
+  color: var(--abc-charcoal);
+  font-size: 0.78rem;
+  padding: 0.34rem 0.56rem;
+}
+
+.workspace-admin-issue-details > div,
+.workspace-csv-help-body {
+  display: grid;
+  gap: 0.42rem;
+  margin-top: 0.52rem;
+}
+
 .workspace-admin-template-shelf {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -10095,12 +10205,23 @@ button.workspace-metric-tile,
   .workspace-admin-console-header,
   .workspace-admin-console-metrics,
   .workspace-admin-console-grid,
-  .workspace-admin-section-header {
+  .workspace-admin-section-header,
+  .workspace-admin-filter-bar {
     grid-template-columns: 1fr;
   }
 
   .workspace-admin-console-header {
     display: grid;
+  }
+
+  .workspace-admin-page-header-actions {
+    justify-content: flex-start;
+  }
+
+  .workspace-admin-action-menu-body {
+    position: static;
+    min-width: 0;
+    width: 100%;
   }
 
   .workspace-site-switcher {
@@ -10437,6 +10558,7 @@ button.workspace-metric-tile,
   .workspace-student-screen-header,
   .workspace-student-section-head,
   .workspace-admin-console-header,
+  .workspace-admin-page-header-actions,
   .workspace-admin-setup-row,
   .workspace-admin-setup-readiness-row,
   .workspace-card-head,
@@ -10482,6 +10604,17 @@ button.workspace-metric-tile,
   }
 
   .workspace-admin-setup-row .workspace-button {
+    width: 100%;
+  }
+
+  .workspace-admin-action-menu,
+  .workspace-admin-more-menu,
+  .workspace-admin-action-menu > summary,
+  .workspace-admin-more-menu > summary,
+  .workspace-csv-help-disclosure > summary,
+  .workspace-admin-issue-details > summary,
+  .workspace-admin-action-menu-item,
+  .workspace-admin-more-menu .workspace-link-button {
     width: 100%;
   }
 
