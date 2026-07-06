@@ -5002,6 +5002,69 @@ body[data-page="workspace"],
   gap: 0.55rem;
 }
 
+.workspace-csv-import-readiness {
+  display: grid;
+  grid-template-columns: minmax(13rem, 0.8fr) minmax(0, 1.4fr);
+  gap: 0.65rem;
+  align-items: stretch;
+  border: 1px solid var(--border-soft);
+  border-left: 5px solid var(--abc-teal);
+  border-radius: var(--radius-card);
+  background: #fff;
+  padding: 0.72rem;
+}
+
+.workspace-csv-import-readiness.errors {
+  border-left-color: var(--abc-gold);
+  background: color-mix(in srgb, var(--abc-soft-gold) 30%, white);
+}
+
+.workspace-csv-import-readiness.ready {
+  border-left-color: var(--abc-green);
+}
+
+.workspace-csv-import-readiness p,
+.workspace-csv-import-readiness strong {
+  margin: 0;
+}
+
+.workspace-csv-import-readiness strong {
+  color: var(--abc-ink);
+}
+
+.workspace-csv-import-readiness p {
+  color: var(--abc-muted);
+  line-height: 1.35;
+}
+
+.workspace-csv-import-readiness-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.workspace-csv-import-readiness-grid article {
+  display: grid;
+  gap: 0.18rem;
+  min-width: 0;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-control);
+  background: rgba(255, 255, 255, 0.82);
+  padding: 0.55rem;
+}
+
+.workspace-csv-import-readiness-grid span {
+  color: var(--abc-muted);
+  font-size: 0.72rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.workspace-csv-import-readiness-grid small {
+  color: var(--abc-charcoal);
+  line-height: 1.32;
+}
+
 .workspace-csv-template-doc code,
 .workspace-admin-template-shelf code {
   border: 1px solid var(--border-soft);
@@ -10577,7 +10640,9 @@ button.workspace-metric-tile,
   .workspace-student-row,
   .workspace-student-row[data-staff-student-row="true"],
   .workspace-review-queue .workspace-student-row,
-  .workspace-student-card {
+  .workspace-student-card,
+  .workspace-csv-import-readiness,
+  .workspace-csv-import-readiness-grid {
     grid-template-columns: 1fr;
   }
 

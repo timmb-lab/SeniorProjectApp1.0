@@ -18831,6 +18831,7 @@ function renderCsvImportScreen(kind = "students", options = {}) {
       </div>
       ${renderCsvImportStepper(safeKind)}
       ${renderCsvTemplateDocumentation(safeKind)}
+      ${renderCsvImportReadinessPanel(safeKind, state)}
       <form class="workspace-form workspace-csv-import-form" data-csv-import-form="true" data-csv-import-kind="${escapeHtml(safeKind)}">
         <div class="workspace-form-section">
           <p class="workspace-kicker">1. Upload CSV</p>
@@ -18857,6 +18858,37 @@ function renderCsvImportScreen(kind = "students", options = {}) {
         </div>
       </form>
       ${renderCsvImportPreview(safeKind, state)}
+    </section>
+  `;
+}
+
+function renderCsvImportReadinessPanel(kind = "students", state = defaultAdminCsvImportKindState(kind)) {
+  const safeKind = kind === "staff" ? "staff" : "students";
+  const errors = Array.isArray(state.errors) ? state.errors : [];
+  const summary = state.summary || defaultAdminCsvSummary();
+  const status = !state.previewed ? "waiting" : errors.length ? "errors" : "ready";
+  const steps = [
+    ["Template", safeKind === "staff" ? "Use the staff template columns and role values." : "Use the student template columns before adding mentor or viewer emails."],
+    ["Preview", errors.length ? `${errors.length} row ${pluralize(errors.length, "error")} must be fixed.` : state.previewed ? `${safeNumber(summary.validRows)} valid row${safeNumber(summary.validRows) === 1 ? "" : "s"} in the latest preview.` : "Preview has not run in this browser session."],
+    ["Confirm", status === "ready" ? "Confirm imports only valid previewed rows." : "Do not confirm until errors are fixed and preview is clean."],
+  ];
+  return `
+    <section class="workspace-csv-import-readiness ${escapeHtml(status)}" data-csv-import-readiness="${escapeHtml(safeKind)}" data-csv-import-readiness-state="${escapeHtml(status)}" aria-label="${escapeHtml(`${safeKind} import readiness`)}">
+      <div>
+        <p class="workspace-kicker">Import readiness</p>
+        <strong>${escapeHtml(status === "waiting" ? "Preview required before import" : status === "errors" ? "Fix preview errors before import" : "Preview is ready for confirmation")}</strong>
+        <p>${escapeHtml(status === "ready"
+          ? "Only valid new rows will be sent to the import API."
+          : "Preview protects the roster and account table before any row is saved.")}</p>
+      </div>
+      <div class="workspace-csv-import-readiness-grid">
+        ${steps.map(([label, detail]) => `
+          <article>
+            <span>${escapeHtml(label)}</span>
+            <small>${escapeHtml(detail)}</small>
+          </article>
+        `).join("")}
+      </div>
     </section>
   `;
 }

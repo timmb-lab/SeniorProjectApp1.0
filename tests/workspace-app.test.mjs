@@ -7317,6 +7317,9 @@ test("admin console surfaces setup reasons across overview people students and r
   const imports = workspaceRoot.innerHTML;
   assert.match(imports, /data-admin-action-menu="adminImports"[\s\S]*Download student template[\s\S]*Download staff template/);
   assert.match(imports, /data-csv-help-disclosure="students"[\s\S]*CSV help[\s\S]*Template columns/);
+  assert.match(imports, /data-csv-import-readiness="students" data-csv-import-readiness-state="errors"/);
+  assert.match(imports, /Fix preview errors before import[\s\S]*Template[\s\S]*Preview[\s\S]*Confirm/);
+  assert.match(imports, /1 row error must be fixed/);
 
   vm.runInContext('activeSection = "adminReports"; renderAppShell();', context);
   const reports = workspaceRoot.innerHTML;
