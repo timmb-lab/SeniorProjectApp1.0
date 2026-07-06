@@ -34,6 +34,16 @@ for (const [file, marker] of Object.entries(libraryGuards)) {
   if (!text.includes(marker)) fail(`${file}: delegated mutation helper must call ${marker}`);
 }
 
+const adminUserImport = readFileSync(path.join(repoRoot, "functions/api/admin/users/import.ts"), "utf8");
+for (const [marker, message] of [
+  ["const methodError = requirePost(request);", "admin user import must enforce same-origin POST before reading JSON"],
+  ["const actorAccess = await loadEffectiveAccess(env, caller);", "admin user import must load effective scoped access"],
+  ["if (!canUseUserImport(actorAccess))", "admin user import must reject actors outside the allowed admin roles"],
+  ["canActorCreateRole(env, caller, roleId", "admin user import must validate each requested role against actor scope"],
+]) {
+  if (!adminUserImport.includes(marker)) fail(`functions/api/admin/users/import.ts: ${message}`);
+}
+
 for (const file of listSourceFiles(path.join(functionsRoot, "api"))) {
   const relative = normalize(file);
   const text = readFileSync(file, "utf8");

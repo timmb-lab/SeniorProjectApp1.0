@@ -7336,6 +7336,41 @@ test("admin console surfaces setup reasons across overview people students and r
   assert.match(reports, /Setup\/import issues/);
 });
 
+test("admin console menus filters and mutation entry points stay role scoped", async () => {
+  assert.match(workspaceJs, /function renderAdminFilterBar[\s\S]*data-admin-filter-bar="\$\{escapeHtml\(id\)\}" aria-label="\$\{escapeHtml\(`\$\{searchLabel\} filters`\)\}"/);
+  assert.match(workspaceJs, /function renderAdminActionControl[\s\S]*data-admin-action-menu-item="\$\{escapeHtml\(location\)\}"/);
+
+  const globalReports = await renderWorkspaceWithFetch(profileRoutesForRole("global_admin"), "adminReports", 'activeWorkspaceMode = "admin";', {
+    url: "https://workspace.example/workspace.html?mode=admin&section=adminReports",
+  });
+  assert.match(globalReports, /data-admin-action-menu="adminReports"[\s\S]*data-section="audit"[\s\S]*View audit/);
+  assert.match(globalReports, /aria-label="Actions menu for Reports"/);
+
+  const siteReports = await renderWorkspaceWithFetch(profileRoutesForRole("site_admin"), "adminReports", 'activeWorkspaceMode = "admin";', {
+    url: "https://workspace.example/workspace.html?mode=admin&section=adminReports&siteId=site-desert-valley-high",
+  });
+  assert.match(siteReports, /data-admin-action-menu="adminReports"[\s\S]*Review roster summary[\s\S]*Review setup issues/);
+  assert.doesNotMatch(siteReports, /data-admin-action-menu="adminReports"[\s\S]*View audit/);
+  assert.doesNotMatch(siteReports, /data-section="audit"/);
+
+  const siteStudents = await renderWorkspaceWithFetch(profileRoutesForRole("site_admin"), "adminStudents", 'activeWorkspaceMode = "admin"; adminPeopleView = "manage-students";', {
+    url: "https://workspace.example/workspace.html?mode=admin&section=adminStudents&siteId=site-desert-valley-high",
+  });
+  assert.match(siteStudents, /data-admin-action-menu="adminStudents"[\s\S]*Import students[\s\S]*Download student template/);
+  assert.match(siteStudents, /data-admin-more-menu="student-demo-student-101"[\s\S]*View as Student[\s\S]*Manage assignments/);
+  assert.doesNotMatch(siteStudents, /data-admin-more-menu="student-demo-student-101"[\s\S]*View recent changes/);
+
+  for (const roleId of ["viewer", "student"]) {
+    const blocked = await renderWorkspaceWithFetch(profileRoutesForRole(roleId), "adminImports", 'activeWorkspaceMode = "admin"; adminPeopleView = "import-students";', {
+      url: "https://workspace.example/workspace.html?mode=admin&section=adminImports",
+    });
+    assert.doesNotMatch(blocked, /data-admin-action-menu="/, `${roleId} should not see admin action menus`);
+    assert.doesNotMatch(blocked, /data-admin-filter-bar="/, `${roleId} should not see admin filters`);
+    assert.doesNotMatch(blocked, /data-admin-action="import-users"/, `${roleId} should not see admin import mutations`);
+    assert.doesNotMatch(blocked, /data-csv-import-kind="students"/, `${roleId} should not see student import forms`);
+  }
+});
+
 test("admin console empty and failed data states stay actionable without raw output", async () => {
   const accessAssignments = siteAccessAssignmentsFixture();
   accessAssignments.users.students = accessAssignments.users.students.map((student) => ({
