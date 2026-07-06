@@ -9618,69 +9618,72 @@ function renderMentorDashboardSection() {
   };
   const activeFilter = cleanMentorDashboardFilter(mentorDashboardFilter);
   const filteredAssigned = filterMentorDashboardStudents(assigned, activeFilter);
+  const visibleAssigned = filteredAssigned.length ? filteredAssigned : assigned;
+  const focusStudent = visibleAssigned[0] || null;
+  const mentorDetailDirectory = {
+    students: assigned.map((row) => ({
+      studentId: row.studentId,
+      displayName: row.studentName,
+    })),
+  };
+  const mentorDetailSurface = siteStudentDetailState?.sourceSection === "mentorDashboard"
+    ? renderSiteStudentDetailSurface(mentorDetailDirectory)
+    : "";
+  const mentorSecondaryContent = assigned.length ? `
+    ${renderMentorDashboardFilters(assigned, activeFilter)}
+    ${renderMentorDashboardSortControls(assigned, activeSort)}
+    ${renderMentorDashboardQueueGuide(assigned, activeFilter)}
+    ${filteredAssigned.length ? `
+      ${renderDashboardCard("Assigned Students", mentorDashboardFilterKicker(activeFilter), renderMentorStudentCards(filteredAssigned))}
+    ` : `
+      ${renderDashboardCard("Assigned Students", mentorDashboardFilterKicker(activeFilter), renderMentorDashboardFilterEmptyState(activeFilter))}
+    `}
+  ` : `
+    <section class="workspace-dashboard-card workspace-empty" data-workspace-state="no-active-assignment">
+      <strong>No students are assigned to you yet</strong>
+      <span>Mentor students</span>
+      No students are assigned to this mentor account yet.
+      ${renderProblemState({
+        reason: "No active students are assigned to this account yet.",
+        owner: "Project coordinator or site administrator.",
+        nextAction: "Confirm the mentor assignment, then refresh this workspace.",
+      })}
+    </section>
+  `;
+
+  if (mentorDetailSurface) {
+    return `
+      <section class="workspace-command-center workspace-mentor-dashboard workspace-mentor-detail-screen" data-mentor-dashboard-detail-screen="true">
+        ${mentorDetailSurface}
+        <details class="workspace-mentor-dashboard-secondary" data-mentor-dashboard-secondary="true">
+          <summary>Show assigned students</summary>
+          ${mentorSecondaryContent}
+        </details>
+      </section>
+    `;
+  }
+
   return `
-    <section class="workspace-command-center">
+    <section class="workspace-command-center workspace-mentor-dashboard" data-mentor-dashboard-flow="true">
       <div class="workspace-command-hero">
         <div>
-          <p class="workspace-kicker">Mentor Dashboard</p>
+          <p class="workspace-kicker">Mentor workspace</p>
           <h1>Assigned Student Focus</h1>
-          <p>Only actively assigned students appear here, with evidence, meeting, and presentation signals.</p>
+          <p>Start with one assigned student, ask one useful question, then record the next check-in.</p>
         </div>
         <div class="workspace-command-hero-grid">
           <span class="workspace-chip">${escapeHtml(statusText(body.scope || "mentor_assigned"))}</span>
           <span class="workspace-chip">${safeNumber(summary.assignedCount)} assigned</span>
         </div>
       </div>
-      ${renderFirstUseGuide("mentor-dashboard", "Help the assigned student who needs you first", [
-        ["Use the focus order", "Revision comes before missed meetings, then presentation readiness, then regular check-ins."],
-        ["Open the meeting plan", "Start with the suggested question and compare it to the latest Program Teacher signal."],
-        ["Open student detail when needed", "Use detail for context only for students actively assigned to you."],
-        ["Record the next check-in", "Save meeting purpose, status, and the exact follow-up after the student conversation."],
-      ], {
-        detail: "Mentor tools support students without changing Program Teacher approval decisions.",
-        badge: "Mentor path",
-      })}
-      <div class="workspace-dashboard-grid">
-        ${renderMetricTile("Assigned", summary.assignedCount, "Active student assignments", "mentor", "", {
-          actionHtml: assigned.length ? renderMentorDashboardMetricAction("all", "Show all") : "",
-        })}
-        ${renderMetricTile("Needs Revision", summary.needsRevision, "Revision follow-up", "warning", "", {
-          actionHtml: assigned.length ? renderMentorDashboardMetricAction("revision", "Focus list") : "",
-        })}
-        ${renderMetricTile("Meetings", summary.missingMeeting, "Need meeting attention", "warning", "", {
-          actionHtml: assigned.length ? renderMentorDashboardMetricAction("meeting", "Focus list") : "",
-        })}
-        ${renderMetricTile("Presentations", summary.presentationPending, "Pending readiness", "teacher", "", {
-          actionHtml: assigned.length ? renderMentorDashboardMetricAction("presentation", "Focus list") : "",
-        })}
-      </div>
-      ${assigned.length ? renderMentorDashboardActionMap(assigned, filteredAssigned, activeFilter) : ""}
-      ${assigned.length ? renderMentorDashboardFilters(assigned, activeFilter) : ""}
-      ${assigned.length ? renderMentorDashboardSortControls(assigned, activeSort) : ""}
-      ${assigned.length ? renderMentorDashboardQueueGuide(assigned, activeFilter) : ""}
-      ${assigned.length ? renderMentorNextMeetingPlan(filteredAssigned.length ? filteredAssigned : assigned, activeFilter) : ""}
-      ${siteStudentDetailState?.sourceSection === "mentorDashboard" ? renderSiteStudentDetailSurface({
-        students: assigned.map((row) => ({
-          studentId: row.studentId,
-          displayName: row.studentName,
-        })),
-      }) : ""}
-      ${assigned.length && filteredAssigned.length ? `
-        ${renderDashboardCard("Assigned Students", mentorDashboardFilterKicker(activeFilter), renderMentorStudentCards(filteredAssigned))}
-      ` : assigned.length ? `
-        ${renderDashboardCard("Assigned Students", mentorDashboardFilterKicker(activeFilter), renderMentorDashboardFilterEmptyState(activeFilter))}
-      ` : `
-        <section class="workspace-dashboard-card workspace-empty" data-workspace-state="no-active-assignment">
-          <strong>No students are assigned to you yet</strong>
-          <span>Mentor students</span>
-          No students are assigned to this mentor account yet.
-          ${renderProblemState({
-            reason: "No active students are assigned to this account yet.",
-            owner: "Project coordinator or site administrator.",
-            nextAction: "Confirm the mentor assignment, then refresh this workspace.",
-          })}
-        </section>
-      `}
+      ${focusStudent ? renderMentorDashboardFocusedStudent(focusStudent, activeFilter, assigned.length) : mentorSecondaryContent}
+      ${focusStudent ? renderMentorNextMeetingPlan([focusStudent], activeFilter) : ""}
+      ${assigned.length ? `
+        <details class="workspace-mentor-dashboard-secondary" data-mentor-dashboard-secondary="true">
+          <summary>Show filters and other students</summary>
+          ${mentorSecondaryContent}
+        </details>
+      ` : ""}
     </section>
   `;
 }
@@ -23783,6 +23786,54 @@ function renderScopedStudentList(rows = []) {
         </article>
       `).join("")}
     </div>
+  `;
+}
+
+function renderMentorDashboardFocusedStudent(row = {}, activeFilter = "all", totalAssigned = 0) {
+  const attention = Array.isArray(row.needsAttention) ? row.needsAttention : [];
+  const priority = mentorDashboardPriority(row, attention);
+  const question = mentorDashboardSuggestedQuestion(row, attention);
+  const nextStep = mentorDashboardNextStep(row, attention);
+  const studentId = cleanDirectoryFilter(row.studentId || "");
+  const filterLabel = mentorDashboardFilterKicker(activeFilter);
+  return `
+    <section class="workspace-dashboard-card workspace-mentor-focus-flow" data-mentor-dashboard-focus-flow="true" data-mentor-dashboard-active-queue="${escapeHtml(activeFilter)}">
+      <div class="workspace-card-head workspace-mentor-focus-head">
+        <div>
+          <p class="workspace-kicker">Start here</p>
+          <h2>${escapeHtml(row.studentName || "Assigned student")}</h2>
+          <p>${escapeHtml(`${priority.label}: ${priority.detail}`)}</p>
+        </div>
+        <div class="workspace-row-actions">
+          <span class="workspace-chip">${escapeHtml(filterLabel)}</span>
+          <span class="workspace-chip">${escapeHtml(totalAssigned)} assigned</span>
+        </div>
+      </div>
+      <div class="workspace-mentor-focus-question" data-mentor-dashboard-question="true">
+        <span>Ask next</span>
+        <strong>${escapeHtml(question)}</strong>
+      </div>
+      <p class="workspace-muted" data-mentor-dashboard-next-step="true">${escapeHtml(nextStep)}</p>
+      ${studentId ? `
+        <div class="workspace-row-actions workspace-mentor-focus-actions">
+          <button class="workspace-button workspace-button-primary" type="button" data-mentor-dashboard-action="open-meetings" data-mentor-dashboard-student-id="${escapeHtml(studentId)}">
+            Open meeting plan
+          </button>
+          <button class="workspace-link-button workspace-link-button-small" type="button" data-mentor-dashboard-action="open-student" data-mentor-dashboard-student-id="${escapeHtml(studentId)}">
+            Open student detail
+          </button>
+        </div>
+      ` : ""}
+      <details class="workspace-mentor-focus-context" data-mentor-dashboard-focus-context="true">
+        <summary>Show why this student is first</summary>
+        <div class="workspace-chip-row workspace-mentor-compact-chips" data-mentor-dashboard-compact-signals="true">
+          ${statusPill(row.submissionStatus || "not_started")}
+          ${attention.slice(0, 3).map((item) => `<span class="workspace-story-chip">${escapeHtml(statusText(item))}</span>`).join("")}
+          ${safeNumber(row.evidenceCount) ? `<span class="workspace-site-context-badge">${escapeHtml(safeNumber(row.evidenceCount))} evidence</span>` : ""}
+        </div>
+        ${isMentorDashboardRevisionSinceLastMeeting(row) ? `<p class="workspace-muted" data-mentor-revision-since-meeting="true">Revision since last meeting: compare the Program Teacher request with the newest proof before the next check-in.</p>` : ""}
+      </details>
+    </section>
   `;
 }
 

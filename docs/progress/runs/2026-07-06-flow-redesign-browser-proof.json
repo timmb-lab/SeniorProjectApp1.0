@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:59304",
+  "baseUrl": "http://127.0.0.1:63184",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-06T22:22:48.374Z",
-  "completedAt": "2026-07-06T22:27:08.742Z",
+  "startedAt": "2026-07-06T22:42:21.502Z",
+  "completedAt": "2026-07-06T22:46:45.643Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:59304",
+    "baseUrl": "http://127.0.0.1:63184",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-07-06-flow-redesign",
@@ -310,6 +310,76 @@
       "activeNav": [
         "Home\n        Today\n        Students needing attention"
       ]
+    },
+    {
+      "id": "47-mentor-dashboard-flow",
+      "label": "Mentor dashboard flow",
+      "persona": "Mentor focused dashboard",
+      "role": "mentor",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace.html?section=mentorDashboard",
+      "screenshot": "docs/sales/screenshots/2026-07-06-flow-redesign/47-mentor-dashboard-flow.png",
+      "expected": [
+        "Assigned Student Focus",
+        "ASK NEXT",
+        "Open meeting plan",
+        "Open student detail",
+        "Show filters and other students"
+      ],
+      "proves": "Mentor Dashboard starts with one assigned student, one coaching question, and secondary filters collapsed.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "adminSetupList": false,
+        "adminSetupReadiness": false,
+        "adminQuickActions": false,
+        "adminStudents": false,
+        "adminAssignments": false,
+        "adminImports": false,
+        "adminPrograms": false,
+        "adminReports": false,
+        "adminAudit": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
+        "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false
+      },
+      "heading": "Mentor Dashboard",
+      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Ready Mentor ROLE AF Ari Field mentor001@demo-staff.capstone.test Today Students needing attention STUDENTS Students Assigned student rows Reports Progress and setup summary SCREEN GUIDE Mentor Dashboard Terms, click effects, visibility, start checks, and done signals MENTOR WORKSPACE Assigned Student Focus Start with one assigned student, ask one useful question, then record the next check-in. mentor assigned 9 assigned START HERE Faye Redwick Needs me first: Revision is open. Check what changed since the last mentor conversation. Needs me first 9 assigned ASK NEXT What exactly did your Program Teacher ask you to change, and what proof ",
+      "activeNav": []
     },
     {
       "id": "05-viewer-read-only-workspace",

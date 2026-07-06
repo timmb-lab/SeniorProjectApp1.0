@@ -177,6 +177,62 @@ Blockers:
 
 Block type: active checkpoint.
 
+## 2026-07-06 15:50 PT - Stage 04 Mentor Dashboard Flow Checkpoint
+
+Current SHA before Stage 04 mentor commit: `c73a8238e2a9b227bdd9ed6896035e10215f7624`
+
+Files changed:
+
+- `workspace.js`
+- `workspace.css`
+- `tests/workspace-app.test.mjs`
+- `scripts/prove-workspace-ui-polish.mjs`
+- `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- `docs/sales/screenshots/2026-07-06-flow-redesign/47-mentor-dashboard-flow.png`
+- `docs/progress/runs/2026-07-06-12h-flow-redesign-progress-log.md`
+
+Tests and checks run:
+
+- `node --check workspace.js`
+- `node --check scripts\prove-workspace-ui-polish.mjs`
+- `node --test tests\workspace-app.test.mjs` - 114/114 passed
+- `git diff --check`
+- `npm run prove:workspace-ui-polish` with `WORKSPACE_UI_POLISH_SCREENSHOT_DIR=docs/sales/screenshots/2026-07-06-flow-redesign` and `WORKSPACE_UI_POLISH_MANIFEST_PATH=docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- `npm run check:workspace-mobile`
+- `npm run check:workspace-accessibility`
+- `npm run verify:permission-matrix`
+- `npm run check:pilot-readiness`
+
+Screenshot/proof status:
+
+- Manifest: `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- Screenshot count: 47
+- Screenshot verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Failures: 0
+- Manually inspected: `docs/sales/screenshots/2026-07-06-flow-redesign/47-mentor-dashboard-flow.png`
+- Boundary: local fake-account UI proof only. Real-student production status remains `NOT_CLAIMED_READY`.
+
+Finished:
+
+- Replaced the dedicated Mentor Dashboard first view with one assigned student, one coaching question, and one primary meeting-plan action.
+- Removed the visible mentor action-map and metric-grid first impression from the Mentor Dashboard route.
+- Moved filters, sorting, queue counts, and other assigned students into a closed secondary disclosure.
+- Added browser proof coverage for the dedicated Mentor Dashboard flow with a new `47-mentor-dashboard-flow.png` screenshot.
+- Updated tests to require the focused mentor flow and reject the old mentor action map in rendered output.
+
+Remaining:
+
+- Stage 06 viewer read-only flow still needs the broader Students-directory cleanup outside the opened detail screen.
+- Stage 08/09 broader control-panel artifact cleanup remains for Admin Console student/setup/report/security surfaces and any remaining dashboard-style pages.
+- Real-student pilot remains `NO_GO_REAL_STUDENT_PILOT` pending required manual/policy evidence.
+
+Blockers:
+
+- None for this stage.
+- The all-day 12-hour minimum is not complete and must not be claimed complete.
+
+Block type: checkpoint.
+
 ## 2026-07-06 14:14 PT - Stage 04/08 Staff Shell Cleanup Checkpoint
 
 Current SHA before Stage 04/08 commit: `f8835f2591332d1f3f7a2b6d861393b5e09acf91`

@@ -87,6 +87,18 @@ const SCREENSHOT_PLAN = [
     proves: "Mentor starts from assigned-student support, not broad admin tools.",
   },
   {
+    id: "47-mentor-dashboard-flow",
+    label: "Mentor dashboard flow",
+    persona: "Mentor focused dashboard",
+    authRole: "mentor",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?section=mentorDashboard"),
+    viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Assigned Student Focus", "ASK NEXT", "Open meeting plan", "Open student detail", "Show filters and other students"],
+    absent: ["Choose one mentor action", "Use this map before scanning every assigned student row", "Admin Console"],
+    proves: "Mentor Dashboard starts with one assigned student, one coaching question, and secondary filters collapsed.",
+  },
+  {
     id: "05-viewer-read-only-workspace",
     label: "Viewer read-only workspace",
     persona: "Viewer",

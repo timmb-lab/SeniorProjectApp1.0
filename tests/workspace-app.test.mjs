@@ -6749,15 +6749,20 @@ test("mentor dashboard assigned students open detail and meeting history without
 
   vm.runInContext('activeSection = "mentorDashboard"; renderAppShell();', context);
   assert.match(workspaceRoot.innerHTML, /Assigned Student Focus/);
+  assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-flow="true"/);
+  assert.match(workspaceRoot.innerHTML, /Start with one assigned student, ask one useful question, then record the next check-in/);
+  assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-focus-flow="true"/);
   assert.match(workspaceRoot.innerHTML, /Needs me first/);
-  assert.match(workspaceRoot.innerHTML, /data-first-use-guide="mentor-dashboard"/);
-  assert.match(workspaceRoot.innerHTML, /Help the assigned student who needs you first/);
-  assert.match(workspaceRoot.innerHTML, /Use the focus order/);
-  assert.match(workspaceRoot.innerHTML, /Record the next check-in/);
+  assert.match(workspaceRoot.innerHTML, /Ask next/);
+  assert.match(workspaceRoot.innerHTML, /What exactly did your Program Teacher ask you to change/);
+  assert.match(workspaceRoot.innerHTML, /Open meeting plan/);
+  assert.match(workspaceRoot.innerHTML, /Open student detail/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-first-use-guide="mentor-dashboard"|data-mentor-action-map="true"|Choose one mentor action|Use this map before scanning every assigned student row/);
   assert.ok(
     workspaceRoot.innerHTML.indexOf("Zoe Needs Help") < workspaceRoot.innerHTML.indexOf("Avery On Track"),
     "mentor dashboard should show attention-needed students before on-track students",
   );
+  assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-secondary="true"/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-filters="true"/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-sort-controls="true"/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-sort="priority" aria-pressed="true"/);
@@ -6765,17 +6770,6 @@ test("mentor dashboard assigned students open detail and meeting history without
   assert.match(workspaceRoot.innerHTML, /Revision since check-in \(1\)/);
   assert.match(workspaceRoot.innerHTML, /Meeting due \(1\)/);
   assert.match(workspaceRoot.innerHTML, /Presentation risk \(1\)/);
-  assert.match(workspaceRoot.innerHTML, /data-mentor-action-map="true"/);
-  assert.match(workspaceRoot.innerHTML, /data-mentor-action-map-active-filter="all"/);
-  assert.match(workspaceRoot.innerHTML, /Where to help next/);
-  assert.match(workspaceRoot.innerHTML, /Choose one mentor action/);
-  assert.match(workspaceRoot.innerHTML, /Use this map before scanning every assigned student row/);
-  assert.match(workspaceRoot.innerHTML, /data-mentor-action-map-card="focus"[\s\S]*Next conversation[\s\S]*Zoe Needs Help[\s\S]*Ask next: What exactly did your Program Teacher ask you to change/);
-  assert.match(workspaceRoot.innerHTML, /data-mentor-action-map-card="focus"[\s\S]*data-mentor-dashboard-action="open-meetings"[\s\S]*data-mentor-dashboard-student-id="demo-student-101"/);
-  assert.match(workspaceRoot.innerHTML, /data-mentor-action-map-card="revision"[\s\S]*Revision follow-up[\s\S]*1 student[\s\S]*Compare the Program Teacher request with proof added after the last check-in/);
-  assert.match(workspaceRoot.innerHTML, /data-mentor-action-map-card="meeting"[\s\S]*Meeting follow-up[\s\S]*1 due[\s\S]*Focus meetings/);
-  assert.match(workspaceRoot.innerHTML, /data-mentor-action-map-card="presentation"[\s\S]*Presentation readiness[\s\S]*1 risk[\s\S]*Focus presentations/);
-  assert.match(workspaceRoot.innerHTML, /data-mentor-action-map-card="steady" data-current-filter="true"[\s\S]*Regular support[\s\S]*1 steady[\s\S]*Viewing/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-queue-guide="true"/);
   assert.match(workspaceRoot.innerHTML, /Today&#039;s mentor queue: Needs me first/);
   assert.match(workspaceRoot.innerHTML, /Start with revision follow-up, then meeting due, then presentation risk/);
@@ -6787,10 +6781,6 @@ test("mentor dashboard assigned students open detail and meeting history without
   assert.match(workspaceRoot.innerHTML, /Revision changed since the last mentor check-in\. Compare the Program Teacher request with the new proof/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-collapsed-revision="true"/);
   assert.match(workspaceRoot.innerHTML, /Details include revision changes since the last mentor check-in/);
-  assert.match(workspaceRoot.innerHTML, /Assigned[\s\S]*data-mentor-dashboard-action="filter"[\s\S]*data-mentor-dashboard-filter="all"[\s\S]*Show all/);
-  assert.match(workspaceRoot.innerHTML, /Needs Revision[\s\S]*data-mentor-dashboard-action="filter"[\s\S]*data-mentor-dashboard-filter="revision"[\s\S]*Focus list/);
-  assert.match(workspaceRoot.innerHTML, /Meetings[\s\S]*data-mentor-dashboard-action="filter"[\s\S]*data-mentor-dashboard-filter="meeting"[\s\S]*Focus list/);
-  assert.match(workspaceRoot.innerHTML, /Presentations[\s\S]*data-mentor-dashboard-action="filter"[\s\S]*data-mentor-dashboard-filter="presentation"[\s\S]*Focus list/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-summary="true"/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-compact-signals="true"/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-no-action-today="true"/);
@@ -6835,8 +6825,8 @@ test("mentor dashboard assigned students open detail and meeting history without
   `, context);
 
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-filter="presentation" aria-pressed="true"/);
-  assert.match(workspaceRoot.innerHTML, /data-mentor-action-map-active-filter="presentation"/);
-  assert.match(workspaceRoot.innerHTML, /data-mentor-action-map-card="presentation" data-current-filter="true"[\s\S]*Viewing/);
+  assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-focus-flow="true" data-mentor-dashboard-active-queue="presentation"/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-mentor-action-map="true"/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-active-queue="presentation"/);
   assert.match(workspaceRoot.innerHTML, /Presentation risk/);
   assert.match(workspaceRoot.innerHTML, /Start with outline approval and presentation scheduling risk/);
