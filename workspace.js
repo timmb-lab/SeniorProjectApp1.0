@@ -16133,9 +16133,7 @@ function renderTeacherSection() {
         </section>
       ` : ""}
       ${renderReviewQueueStartHere(queue, summary, filters, readOnly)}
-      ${renderReviewQueueFilters(body)}
       ${renderReviewQueueActiveFilters(filters, body?.filterOptions || {})}
-      ${renderReviewQueueShareLink(body)}
       ${siteStudentDetailState?.sourceSection === "teacher" ? renderSiteStudentDetailSurface({
         students: queue.map((row) => ({
           studentId: row.studentId,
@@ -16143,7 +16141,8 @@ function renderTeacherSection() {
         })),
         scope,
       }) : ""}
-      <div class="workspace-review-layout">
+      <div class="workspace-review-layout workspace-review-flow-layout" data-review-flow-layout="true">
+        ${renderReviewSubmissionPanel(selected, body)}
         <section class="workspace-dashboard-card">
           <div class="workspace-card-head">
             <div>
@@ -16165,8 +16164,9 @@ function renderTeacherSection() {
             ${renderReviewQueueEmptyCard(emptyState, filters)}
           `}
         </section>
-        ${renderReviewSubmissionPanel(selected, body)}
       </div>
+      ${renderReviewQueueFilters(body)}
+      ${renderReviewQueueShareLink(body)}
     </section>
   `;
 }
@@ -16268,15 +16268,26 @@ function renderReviewQueueStartHere(queue = [], summary = {}, filters = {}, read
         <div>
           <p class="workspace-kicker">Start Here</p>
           <h2>Choose the work to review first</h2>
-          <p>Use the list below after choosing a group.</p>
-        </div>
-        <div class="workspace-review-summary-strip" data-review-work-summary="true">
-          ${summaryLine.map((line) => `<span>${escapeHtml(line)}</span>`).join("")}
+          <p>Pick one row from the list, then make one decision.</p>
         </div>
       </div>
-      <div class="workspace-review-start-grid">
-        ${visibleActions.map((action) => renderReviewQueueStartAction(action, activeId)).join("")}
+      <div class="workspace-review-start-grid workspace-review-start-primary" data-review-start-primary="true">
+        ${renderReviewQueueStartAction(visibleActions.find((action) => action.id === activeId) || visibleActions[0], activeId)}
       </div>
+      ${visibleActions.length > 1 ? `
+        <details class="workspace-review-secondary-groups" data-review-start-secondary-groups="true">
+          <summary>Show other review groups</summary>
+          <div class="workspace-review-summary-strip" data-review-work-summary="true">
+            ${summaryLine.map((line) => `<span>${escapeHtml(line)}</span>`).join("")}
+          </div>
+          <div class="workspace-review-start-grid">
+            ${visibleActions
+              .filter((action) => action.id !== (visibleActions.find((candidate) => candidate.id === activeId) || visibleActions[0])?.id)
+              .map((action) => renderReviewQueueStartAction(action, activeId))
+              .join("")}
+          </div>
+        </details>
+      ` : ""}
     </section>
   `;
 }
@@ -16568,71 +16579,74 @@ function renderReviewQueueFilters(body) {
   const options = body?.filterOptions || {};
   const programs = options.programs || [];
   return `
-    <form id="reviewQueueFilterForm" class="workspace-filter-bar workspace-review-filter-bar" data-review-queue-filters="true" data-teacher-first-component="DropdownFilterBar">
-      <label>
-        <span>Search</span>
-        <input name="search" type="search" value="${escapeHtml(filters.search || "")}">
-      </label>
-      <label>
-        <span>Status</span>
-        <select name="status">
-          <option value="" ${!filters.status ? "selected" : ""}>All review work</option>
-          ${(options.statuses || ["submitted", "revision_requested", "approved"]).map((status) => `
-            <option value="${escapeHtml(status)}" ${filters.status === status ? "selected" : ""}>${escapeHtml(reviewQueueStatusText(status))}</option>
-          `).join("")}
-        </select>
-      </label>
-      <label>
-        <span>Program</span>
-        <select name="programId">
-          <option value="" ${!filters.programId ? "selected" : ""}>All visible programs</option>
-          ${programs.map((program) => `
-            <option value="${escapeHtml(program.programId)}" ${filters.programId === program.programId ? "selected" : ""}>
-              ${escapeHtml(program.programName)} (${safeNumber(program.queueCount)})
-            </option>
-          `).join("")}
-        </select>
-      </label>
-      <details class="workspace-advanced-filters" data-review-work-more-filters="true" data-teacher-first-component="AdvancedFiltersDrawer">
-        <summary>More filters</summary>
-        <div class="workspace-review-more-filter-grid">
-          <label>
-            <span>Kind</span>
-            <select name="story">
-              <option value="" ${!filters.story ? "selected" : ""}>Any kind</option>
-              ${(options.storyBuckets || []).map((story) => `
-                <option value="${escapeHtml(story)}" ${filters.story === story ? "selected" : ""}>${escapeHtml(reviewQueueKindLabel(story))}</option>
-              `).join("")}
-            </select>
-          </label>
-          <label>
-            <span>Needs help</span>
-            <select name="risk">
-              ${(options.risks || ["any", "high", "medium", "low", "stale", "no_mentor"]).map((risk) => `
-                <option value="${escapeHtml(risk)}" ${(filters.risk || "any") === risk ? "selected" : ""}>${escapeHtml(riskFilterLabel(risk))}</option>
-              `).join("")}
-            </select>
-          </label>
-          <label>
-            <span>Work</span>
-            <select name="evidenceStatus">
-              <option value="" ${!filters.evidenceStatus ? "selected" : ""}>Any work status</option>
-              ${(options.evidenceStatuses || ["attached", "missing"]).map((status) => `
-                <option value="${escapeHtml(status)}" ${filters.evidenceStatus === status ? "selected" : ""}>${escapeHtml(studentWorkStatusFilterLabel(status))}</option>
-              `).join("")}
-            </select>
-          </label>
-          <label>
-            <span>Page size</span>
-            <select name="limit">
-              ${[25, 50, 100].map((limit) => `<option value="${limit}" ${safeNumber(filters.limit) === limit ? "selected" : ""}>${limit}</option>`).join("")}
-            </select>
-          </label>
-        </div>
-      </details>
-      <button class="workspace-button workspace-button-primary" type="submit">Apply filters</button>
-      <button class="workspace-button workspace-button-secondary" type="button" data-review-queue-action="reset-filters">Clear filters</button>
-    </form>
+    <details class="workspace-review-filter-disclosure" data-review-filter-disclosure="true">
+      <summary>Filters</summary>
+      <form id="reviewQueueFilterForm" class="workspace-filter-bar workspace-review-filter-bar" data-review-queue-filters="true" data-teacher-first-component="DropdownFilterBar">
+        <label>
+          <span>Search</span>
+          <input name="search" type="search" value="${escapeHtml(filters.search || "")}">
+        </label>
+        <label>
+          <span>Status</span>
+          <select name="status">
+            <option value="" ${!filters.status ? "selected" : ""}>All review work</option>
+            ${(options.statuses || ["submitted", "revision_requested", "approved"]).map((status) => `
+              <option value="${escapeHtml(status)}" ${filters.status === status ? "selected" : ""}>${escapeHtml(reviewQueueStatusText(status))}</option>
+            `).join("")}
+          </select>
+        </label>
+        <label>
+          <span>Program</span>
+          <select name="programId">
+            <option value="" ${!filters.programId ? "selected" : ""}>All visible programs</option>
+            ${programs.map((program) => `
+              <option value="${escapeHtml(program.programId)}" ${filters.programId === program.programId ? "selected" : ""}>
+                ${escapeHtml(program.programName)} (${safeNumber(program.queueCount)})
+              </option>
+            `).join("")}
+          </select>
+        </label>
+        <details class="workspace-advanced-filters" data-review-work-more-filters="true" data-teacher-first-component="AdvancedFiltersDrawer">
+          <summary>More filters</summary>
+          <div class="workspace-review-more-filter-grid">
+            <label>
+              <span>Kind</span>
+              <select name="story">
+                <option value="" ${!filters.story ? "selected" : ""}>Any kind</option>
+                ${(options.storyBuckets || []).map((story) => `
+                  <option value="${escapeHtml(story)}" ${filters.story === story ? "selected" : ""}>${escapeHtml(reviewQueueKindLabel(story))}</option>
+                `).join("")}
+              </select>
+            </label>
+            <label>
+              <span>Needs help</span>
+              <select name="risk">
+                ${(options.risks || ["any", "high", "medium", "low", "stale", "no_mentor"]).map((risk) => `
+                  <option value="${escapeHtml(risk)}" ${(filters.risk || "any") === risk ? "selected" : ""}>${escapeHtml(riskFilterLabel(risk))}</option>
+                `).join("")}
+              </select>
+            </label>
+            <label>
+              <span>Work</span>
+              <select name="evidenceStatus">
+                <option value="" ${!filters.evidenceStatus ? "selected" : ""}>Any work status</option>
+                ${(options.evidenceStatuses || ["attached", "missing"]).map((status) => `
+                  <option value="${escapeHtml(status)}" ${filters.evidenceStatus === status ? "selected" : ""}>${escapeHtml(studentWorkStatusFilterLabel(status))}</option>
+                `).join("")}
+              </select>
+            </label>
+            <label>
+              <span>Page size</span>
+              <select name="limit">
+                ${[25, 50, 100].map((limit) => `<option value="${limit}" ${safeNumber(filters.limit) === limit ? "selected" : ""}>${limit}</option>`).join("")}
+              </select>
+            </label>
+          </div>
+        </details>
+        <button class="workspace-button workspace-button-primary" type="submit">Apply filters</button>
+        <button class="workspace-button workspace-button-secondary" type="button" data-review-queue-action="reset-filters">Clear filters</button>
+      </form>
+    </details>
   `;
 }
 
@@ -16965,6 +16979,7 @@ function renderReviewSubmissionPanel(selected, body) {
   const historyResult = reviewQueueState.historyResult;
   const history = unwrap(historyResult);
   const selectionNotice = String(reviewQueueState.selectionNotice || "").trim();
+  const firstRow = Array.isArray(body?.queue) ? body.queue[0] : null;
   if (reviewQueueState.loadingHistory) {
     return `
       <section class="workspace-dashboard-card workspace-review-panel" data-review-panel-state="loading">
@@ -16991,13 +17006,17 @@ function renderReviewSubmissionPanel(selected, body) {
       `;
     }
     return `
-        <section class="workspace-dashboard-card workspace-review-panel" data-review-panel-state="empty">
-        <h2>Select work to review</h2>
-        ${renderProblemState({
-          reason: "No review row is selected.",
-          owner: "Teacher review team.",
-            nextAction: "Open work that is waiting for review, or read feedback for work that needs changes.",
-        })}
+      <section class="workspace-dashboard-card workspace-review-panel workspace-review-panel-empty" data-review-panel-state="empty">
+        <p class="workspace-kicker">Next</p>
+        <h2>Select one work item</h2>
+        <p>Open one row from the list, review what the student sent, then save one clear decision.</p>
+        ${firstRow ? `
+          <button class="workspace-button workspace-button-primary" type="button" data-review-queue-action="select" data-review-submission-id="${escapeHtml(firstRow.submissionId || "")}">
+            Open first work
+          </button>
+        ` : `
+          <p class="workspace-muted">No review rows are visible right now.</p>
+        `}
       </section>
     `;
   }

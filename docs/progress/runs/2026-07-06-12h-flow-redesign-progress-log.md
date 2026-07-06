@@ -174,6 +174,61 @@ Blockers:
 
 Block type: active checkpoint.
 
+## 2026-07-06 14:39 PT - Stage 05 Review Queue Flow Checkpoint
+
+Current SHA before Stage 05 commit: `8a55374e3ac17751c16dfab0ff2c4d0f19ff19d9`
+
+Files changed:
+
+- `workspace.js`
+- `workspace.css`
+- `tests/workspace-app.test.mjs`
+- `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- `docs/sales/screenshots/2026-07-06-flow-redesign/40-staff-reviews.png`
+- `docs/progress/runs/2026-07-06-12h-flow-redesign-progress-log.md`
+
+Tests and checks run:
+
+- `node --check workspace.js`
+- `node --test tests\workspace-app.test.mjs` - 114/114 passed
+- `npm run prove:workspace-ui-polish` with `WORKSPACE_UI_POLISH_SCREENSHOT_DIR=docs/sales/screenshots/2026-07-06-flow-redesign` and `WORKSPACE_UI_POLISH_MANIFEST_PATH=docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- `git diff --check`
+- `npm run check:workspace-mobile`
+- `npm run check:workspace-accessibility`
+- `npm run verify:permission-matrix`
+- `npm run check:pilot-readiness`
+
+Screenshot/proof status:
+
+- Manifest: `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- Screenshot count: 46
+- Screenshot verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Failures: 0
+- Boundary: local fake-account UI proof only. Real-student production status remains `NOT_CLAIMED_READY`.
+
+Finished:
+
+- Reordered Review Work so the teacher sees Start Here, then one selected-work prompt, then the row list.
+- Reduced Start Here from multiple visible lane cards to one primary review group with secondary groups collapsed.
+- Moved Review Queue filters into a closed `Filters` disclosure below the work flow.
+- Replaced the old selected-work empty problem state with plain wording and a single "Open first work" action.
+- Kept role-scoped review mutations and Viewer/read-only behavior intact.
+- Updated Review Queue tests for the new one-item prompt and refreshed the proof screenshot.
+
+Remaining:
+
+- Stage 04 detail continuation should simplify mentor/student detail action density after opening a student.
+- Stage 07 Admin Console still needs a guided setup issue-to-fix-to-confirmation pass.
+- Stage 08/09 visual polish should continue reducing detail-page chips, badges, and dense secondary sections.
+- Real-student pilot remains `NO_GO_REAL_STUDENT_PILOT` pending required manual/policy evidence.
+
+Blockers:
+
+- None for this stage.
+- The all-day 12-hour minimum is not complete and must not be claimed complete.
+
+Block type: checkpoint.
+
 ## 2026-07-06 14:23 PT - Stage 04/05 Secondary Controls Checkpoint
 
 Current SHA before Stage 04/05 continuation commit: `165620a4812dbca2bf2c13b33e8948c96fba4044`

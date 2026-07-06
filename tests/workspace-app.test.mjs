@@ -4592,7 +4592,8 @@ test("workspace clarifies Review Queue row actions and follow-up-only selected r
   assert.match(rowActions, /data-review-row-action-label="read-feedback"/);
   assert.match(rowActions, /Open this row to review the work and feedback history\./);
   assert.match(rowActions, /Open this row to read feedback while the student fixes the work\./);
-  assert.match(rowActions, /Open work that is waiting for review, or read feedback for work that needs changes\./);
+  assert.match(rowActions, /Open one row from the list, review what the student sent, then save one clear decision\./);
+  assert.match(rowActions, /data-review-queue-action="select" data-review-submission-id="submission-review-001"[\s\S]*Open first work/);
   assert.match(rowActions, /data-review-row-more-menu="true"/);
   assert.match(rowActions, /More[\s\S]*Open student/);
   assert.doesNotMatch(rowActions, /data-review-row-owner-action|Owner:/);

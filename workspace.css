@@ -10082,6 +10082,10 @@ body[data-page="workspace"],
   grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
 }
 
+.workspace-review-start-primary {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .workspace-review-start-action {
   display: grid;
   align-content: space-between;
@@ -10134,6 +10138,49 @@ body[data-page="workspace"],
   box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--workspace-primary) 22%, transparent);
 }
 
+.workspace-review-secondary-groups,
+.workspace-review-filter-disclosure {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--surface-page) 66%, white);
+  padding: 0.65rem;
+}
+
+.workspace-review-secondary-groups > summary,
+.workspace-review-filter-disclosure > summary {
+  color: var(--abc-green);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.workspace-review-secondary-groups[open],
+.workspace-review-filter-disclosure[open] {
+  background: #fff;
+  box-shadow: var(--shadow-row);
+}
+
+.workspace-review-secondary-groups[open] > summary,
+.workspace-review-filter-disclosure[open] > summary {
+  margin-bottom: 0.65rem;
+}
+
+.workspace-review-secondary-groups {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.workspace-review-secondary-groups .workspace-review-summary-strip {
+  justify-content: flex-start;
+}
+
+.workspace-review-filter-disclosure {
+  padding: 0.72rem;
+}
+
+.workspace-review-filter-disclosure .workspace-review-filter-bar {
+  margin-top: 0.65rem;
+}
+
 .workspace-review-filter-bar .workspace-advanced-filters {
   grid-column: 1 / -1;
   margin-bottom: 0;
@@ -10148,6 +10195,10 @@ body[data-page="workspace"],
   grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.85fr);
   gap: var(--space-card);
   align-items: start;
+}
+
+.workspace-review-flow-layout {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .workspace-review-queue .workspace-student-row {
