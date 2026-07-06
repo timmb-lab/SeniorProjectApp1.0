@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:54142",
+  "baseUrl": "http://127.0.0.1:62967",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-06T21:34:18.504Z",
-  "completedAt": "2026-07-06T21:38:37.463Z",
+  "startedAt": "2026-07-06T22:01:59.218Z",
+  "completedAt": "2026-07-06T22:06:17.677Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:54142",
+    "baseUrl": "http://127.0.0.1:62967",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-07-06-flow-redesign",
@@ -2820,7 +2820,7 @@
         "finalFiles": false
       },
       "heading": "Overview",
-      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS ADMIN CONSOLE Overview Setup issues and quick actions ADMIN CONSOLE Admin Overview What setup, people, assignments, imports, programs, reports, or access issues need attention? Site START HERE Do this first Open the first setup blocker before using broader reports or exports. Site NEXT SETUP MOVE Mentor coverage missing 38 students need active mentor coverage. Open assignments STEP 1 Student roster setup 200 profile, 200 program, 38 mentor, 197 viewer gaps. 200 to resolve Open students STEP 2 Staff role and scope 40 staff rows have role and assignment scope visible here. No active blocker O",
+      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS ADMIN CONSOLE Overview Setup issues and quick actions ADMIN CONSOLE Admin Overview What setup, people, assignments, imports, programs, reports, or access issues need attention? Site START HERE Do this first Open the first setup blocker before using broader reports or exports. Site NEXT SETUP MOVE Mentor coverage missing 38 students need active mentor coverage. Open assignments After the setup screen is fixed, return here and refresh. This item leaves the list when the loaded records confirm it. Show setup checklist NEEDS SETUP What to fix first 5 issues Show all setup issues SETUP CHECKLIST",
       "activeNav": [
         "Admin Console",
         "Home\n        Overview\n        Setup issues and quick actions"

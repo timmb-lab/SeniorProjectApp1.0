@@ -229,6 +229,63 @@ Blockers:
 
 Block type: checkpoint.
 
+## 2026-07-06 15:06 PT - Stage 07 Admin Overview Flow Checkpoint
+
+Current SHA before Stage 07 commit: `f5b93e20468ee0666c3da7c11f6cbac571288a2d`
+
+Files changed:
+
+- `workspace.js`
+- `workspace.css`
+- `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- `docs/sales/screenshots/2026-07-06-flow-redesign/01-admin-console-global-admin-desktop.png`
+- `docs/sales/screenshots/2026-07-06-flow-redesign/09-admin-console-half-screen.png`
+- `docs/sales/screenshots/2026-07-06-flow-redesign/32-admin-console-site-admin-overview.png`
+- `docs/sales/screenshots/2026-07-06-flow-redesign/37-mobile-admin-overview.png`
+- `docs/progress/runs/2026-07-06-12h-flow-redesign-progress-log.md`
+
+Tests and checks run:
+
+- `node --check workspace.js`
+- `node --test tests\workspace-app.test.mjs` - 114/114 passed
+- `npm run prove:workspace-ui-polish` with `WORKSPACE_UI_POLISH_SCREENSHOT_DIR=docs/sales/screenshots/2026-07-06-flow-redesign` and `WORKSPACE_UI_POLISH_MANIFEST_PATH=docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- `git diff --check`
+- `npm run check:workspace-mobile`
+- `npm run check:workspace-accessibility`
+- `npm run verify:permission-matrix`
+- `npm run check:pilot-readiness`
+
+Screenshot/proof status:
+
+- Manifest: `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- Screenshot count: 46
+- Screenshot verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Failures: 0
+- Boundary: local fake-account UI proof only. Real-student production status remains `NOT_CLAIMED_READY`.
+
+Finished:
+
+- Simplified Admin Overview to one visible setup move before broader setup details.
+- Moved the setup checklist lanes into a closed "Show setup checklist" disclosure while preserving `data-admin-setup-first-lanes` coverage.
+- Moved the full setup issue list into a closed "Show all setup issues" disclosure.
+- Collapsed the setup readiness rows behind a setup-checklist disclosure so health and follow-up content no longer start as a wall of cards.
+- Added a plain confirmation cue: return and refresh after fixing the setup screen, and the item leaves when loaded records confirm it.
+- Preserved Admin Console scope controls, section actions, RBAC boundaries, and no-go pilot readiness.
+
+Remaining:
+
+- Mentor/student detail views still need a one-action/next-student pass to reduce chips, tabs, and dense secondary details.
+- Admin Reports and Assignments still show metric/card walls and need a later visual simplification pass.
+- Normal admin pages still carry left-rail access context; that should be moved cautiously after another RBAC-focused proof slice.
+- Real-student pilot remains `NO_GO_REAL_STUDENT_PILOT` pending required manual/policy evidence.
+
+Blockers:
+
+- None for this stage.
+- The all-day 12-hour minimum is not complete and must not be claimed complete.
+
+Block type: active checkpoint.
+
 ## 2026-07-06 14:23 PT - Stage 04/05 Secondary Controls Checkpoint
 
 Current SHA before Stage 04/05 continuation commit: `165620a4812dbca2bf2c13b33e8948c96fba4044`

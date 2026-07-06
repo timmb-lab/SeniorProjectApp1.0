@@ -2079,17 +2079,21 @@ function renderAdminSetupFirstPanel(model = {}, capabilities = adminConsoleCapab
         </div>
         ${renderAdminActionControl(action, "workspace-button workspace-button-primary workspace-button-small", "setup-first")}
       </article>
-      <div class="workspace-admin-setup-first-grid" data-admin-setup-first-lanes="true">
-        ${verificationRows.map((row, index) => `
-          <article data-admin-setup-first-lane="${escapeHtml(row.id || `lane-${index + 1}`)}" data-admin-setup-first-lane-state="${escapeHtml(row.tone || "ready")}">
-            <span>${escapeHtml(`Step ${index + 1}`)}</span>
-            <strong>${escapeHtml(row.label || "Setup lane")}</strong>
-            <p>${escapeHtml(row.detail || "Review this setup lane.")}</p>
-            <small>${escapeHtml(safeNumber(row.count) ? `${safeNumber(row.count)} to resolve` : "No active blocker")}</small>
-            ${row.section ? renderAdminActionControl({ label: row.action || "Open", section: row.section }, "workspace-link-button workspace-link-button-small", "setup-lane") : ""}
-          </article>
-        `).join("")}
-      </div>
+      <p class="workspace-muted" data-admin-setup-confirmation-cue="true">After the setup screen is fixed, return here and refresh. This item leaves the list when the loaded records confirm it.</p>
+      <details class="workspace-admin-supporting-disclosure" data-admin-setup-first-lanes-disclosure="true">
+        <summary>Show setup checklist</summary>
+        <div class="workspace-admin-setup-first-grid" data-admin-setup-first-lanes="true">
+          ${verificationRows.map((row, index) => `
+            <article data-admin-setup-first-lane="${escapeHtml(row.id || `lane-${index + 1}`)}" data-admin-setup-first-lane-state="${escapeHtml(row.tone || "ready")}">
+              <span>${escapeHtml(`Step ${index + 1}`)}</span>
+              <strong>${escapeHtml(row.label || "Setup lane")}</strong>
+              <p>${escapeHtml(row.detail || "Review this setup lane.")}</p>
+              <small>${escapeHtml(safeNumber(row.count) ? `${safeNumber(row.count)} to resolve` : "No active blocker")}</small>
+              ${row.section ? renderAdminActionControl({ label: row.action || "Open", section: row.section }, "workspace-link-button workspace-link-button-small", "setup-lane") : ""}
+            </article>
+          `).join("")}
+        </div>
+      </details>
     </section>
   `;
 }
@@ -2516,9 +2520,12 @@ function renderAdminSetupIssues(issues = []) {
         <span class="workspace-summary-badge">${escapeHtml(String(issues.length))} issue${issues.length === 1 ? "" : "s"}</span>
       </div>
       ${issues.length ? `
-        <div class="workspace-list">
-          ${issues.map((issue) => renderAdminIssueRow(issue)).join("")}
-        </div>
+        <details class="workspace-admin-issue-disclosure" data-admin-issue-list-disclosure="true">
+          <summary>Show all setup issues</summary>
+          <div class="workspace-list">
+            ${issues.map((issue) => renderAdminIssueRow(issue)).join("")}
+          </div>
+        </details>
       ` : `
         <article class="workspace-empty-state-card" data-admin-console-setup-empty="true">
           <strong>No setup issues found.</strong>
@@ -2589,27 +2596,27 @@ function renderAdminSetupReadinessPanel(rows = []) {
   const safeRows = Array.isArray(rows) ? rows : [];
   return `
     <section class="workspace-card workspace-admin-setup-readiness" data-admin-setup-readiness="true" aria-labelledby="adminSetupReadinessTitle">
-      <div class="workspace-card-head">
-        <div>
-          <p class="workspace-kicker">Setup Checklist</p>
-          <h3 id="adminSetupReadinessTitle">Setup work to review</h3>
+      <details class="workspace-admin-supporting-disclosure" data-admin-setup-readiness-disclosure="true">
+        <summary>
+          <span class="workspace-kicker">Setup Checklist</span>
+          <strong id="adminSetupReadinessTitle">Setup work to review</strong>
+        </summary>
+        <div class="workspace-admin-setup-readiness-list">
+          ${safeRows.map((row) => `
+            <article class="workspace-admin-setup-readiness-row ${escapeHtml(row.tone || "quiet")}" data-admin-setup-readiness-row="${escapeHtml(row.id || "row")}">
+              <div>
+                <span>${escapeHtml(row.label || "Setup item")}</span>
+                <strong>${escapeHtml(String(safeNumber(row.count)))}</strong>
+                <p>${escapeHtml(row.detail || "Review this setup item.")}</p>
+                ${row.sample?.length ? `<small>${escapeHtml(row.sample.join(" / "))}</small>` : ""}
+              </div>
+              <button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(row.section || "adminDashboard")}">
+                ${escapeHtml(row.action || "Open")}
+              </button>
+            </article>
+          `).join("")}
         </div>
-      </div>
-      <div class="workspace-admin-setup-readiness-list">
-        ${safeRows.map((row) => `
-          <article class="workspace-admin-setup-readiness-row ${escapeHtml(row.tone || "quiet")}" data-admin-setup-readiness-row="${escapeHtml(row.id || "row")}">
-            <div>
-              <span>${escapeHtml(row.label || "Setup item")}</span>
-              <strong>${escapeHtml(String(safeNumber(row.count)))}</strong>
-              <p>${escapeHtml(row.detail || "Review this setup item.")}</p>
-              ${row.sample?.length ? `<small>${escapeHtml(row.sample.join(" / "))}</small>` : ""}
-            </div>
-            <button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(row.section || "adminDashboard")}">
-              ${escapeHtml(row.action || "Open")}
-            </button>
-          </article>
-        `).join("")}
-      </div>
+      </details>
     </section>
   `;
 }
