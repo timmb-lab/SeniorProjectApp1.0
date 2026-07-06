@@ -4,6 +4,7 @@ import test from "node:test";
 
 const blueprintPath = "docs/design/next-major-round-polish-and-pilot-blueprint-2026-07-04.md";
 const yugeBlueprintPath = "docs/design/yuge-max-next-round-blueprint-2026-07-05.md";
+const teacherFirstPlanPath = "docs/design/teacher-first-clean-ui-and-esl-readability-plan-2026-07-05.md";
 
 function read(path) {
   return readFileSync(path, "utf8").replace(/^\uFEFF/, "");
@@ -141,5 +142,85 @@ test("YUGE MAX blueprint preserves staged execution and readiness caveats", () =
     "Unauthorized/misc",
   ]) {
     assert.match(text, new RegExp(`\\| ${escapeRegex(role)} \\|`));
+  }
+});
+
+test("teacher-first clean UI plan preserves readability contracts and vocabulary rules", () => {
+  assert.equal(existsSync(teacherFirstPlanPath), true);
+  const text = read(teacherFirstPlanPath);
+
+  for (const heading of [
+    "## 1. Current State Summary",
+    "## 2. What Improved In Previous Rounds",
+    "## 3. What Still Feels Confusing",
+    "## 4. Screens That Must Change First",
+    "## 5. Banned Vocabulary List",
+    "## 6. Preferred Vocabulary List",
+    "## 7. Teacher Personas",
+    "## 8. Student Personas",
+    "## 9. Screen Contracts For Teacher-Facing Pages",
+    "## 10. Screen Contracts For Student-Facing Pages",
+    "## 11. Screen Contracts For Admin Pages",
+    "## 12. Visual Simplification Rules",
+    "## 13. Mobile Simplification Rules",
+    "## 14. Testing And Proof Plan",
+    "## 15. Stop Conditions",
+  ]) {
+    assert.match(text, new RegExp(escapeRegex(heading)));
+  }
+
+  for (const phrase of [
+    "Action Map, lane, owner, and signal wording must not be visible in normal teacher workflow screens.",
+    "Student = What do I do next?",
+    "Teacher/staff = Which students need attention?",
+    "Admin = What setup or operations need fixing?",
+    "Real-student pilot readiness remains honestly `NO-GO`.",
+    "Start Here with only useful nonzero actions",
+    "No students need attention right now. View all students.",
+    "No work is waiting for review right now.",
+    "You are caught up right now.",
+    "The first mobile viewport must show useful content and one obvious action.",
+  ]) {
+    assert.match(text, new RegExp(escapeRegex(phrase), "i"));
+  }
+
+  for (const banned of [
+    "Action map",
+    "lane",
+    "owner",
+    "signal",
+    "assigned records only",
+    "scoped records",
+    "role proof",
+    "fake pilot",
+    "hydration",
+    "mutation",
+    "RBAC",
+    "high risk",
+    "final files failed",
+    "Showing 0 of 0",
+    "what this role can do",
+    "permissions enforced",
+  ]) {
+    assert.match(text, new RegExp(escapeRegex(banned), "i"));
+  }
+
+  for (const preferred of [
+    "Start here",
+    "Review work",
+    "Help students",
+    "Missing work",
+    "Needs changes",
+    "Waiting for review",
+    "Ready for presentation",
+    "Open student",
+    "Search students",
+    "Download template",
+    "What to do next",
+    "Continue my work",
+    "Fix and resubmit",
+    "No feedback yet",
+  ]) {
+    assert.match(text, new RegExp(escapeRegex(preferred), "i"));
   }
 });
