@@ -356,9 +356,9 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?mode=workspace&section=overview"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
-    expected: ["Staff Workspace", "Global Admin Workspace", "Start with one group, then open one student.", "Open Admin Console"],
+    expected: ["Staff Workspace", "Global Admin Workspace", "Start with one group, then open one student.", "Tools"],
     absent: ["Need setup or access work?", "Role context"],
-    proves: "Global Admin workspace defaults to queues while preserving the explicit Admin Console switch.",
+    proves: "Global Admin workspace defaults to queues while keeping Admin Console access behind the secondary tools menu.",
   },
   {
     id: "28-student-detail-evidence",

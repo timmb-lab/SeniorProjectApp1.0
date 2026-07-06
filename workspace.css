@@ -936,6 +936,69 @@ body[data-page="workspace"],
   min-width: 0;
 }
 
+.workspace-topbar-tools {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.workspace-topbar-tools > summary {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.72rem;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-control);
+  background: #fff;
+  color: var(--abc-charcoal);
+  font-weight: 900;
+  cursor: pointer;
+  list-style: none;
+  box-shadow: var(--shadow-soft);
+}
+
+.workspace-topbar-tools > summary::-webkit-details-marker {
+  display: none;
+}
+
+.workspace-topbar-tools > summary::after {
+  content: "v";
+  color: var(--abc-muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.workspace-topbar-tools[open] > summary {
+  border-color: var(--abc-blue);
+  box-shadow: 0 0 0 3px rgba(43, 106, 177, 0.14);
+}
+
+.workspace-topbar-tools-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.45rem);
+  z-index: 18;
+  width: min(92vw, 32rem);
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-card);
+  background: #fff;
+  box-shadow: var(--shadow-elevated);
+}
+
+.workspace-topbar-tools-panel .workspace-topbar-search {
+  min-width: 0;
+  max-width: none;
+  width: 100%;
+}
+
+.workspace-topbar-tools-panel .workspace-mode-switch {
+  justify-self: start;
+}
+
 .workspace-topbar-search {
   display: grid;
   gap: 0.28rem;
@@ -10494,6 +10557,7 @@ button.workspace-metric-tile,
   .workspace-brand,
   .workspace-topbar-area,
   .workspace-topbar-center,
+  .workspace-topbar-tools,
   .workspace-mode-switch,
   .workspace-topbar-search,
   .workspace-user {
@@ -10519,6 +10583,14 @@ button.workspace-metric-tile,
   .workspace-topbar-search {
     max-width: none;
     min-width: 0;
+  }
+
+  .workspace-topbar-tools > summary {
+    width: 100%;
+  }
+
+  .workspace-topbar-tools-panel {
+    width: min(92vw, 34rem);
   }
 
   .workspace-topbar-search label,
@@ -11144,6 +11216,16 @@ button.workspace-metric-tile,
   .workspace-user .workspace-topbar-center {
     grid-column: 1 / -1;
     grid-template-columns: 1fr;
+  }
+
+  .workspace-topbar-tools-panel {
+    position: fixed;
+    left: 0.72rem;
+    right: 0.72rem;
+    top: 4.75rem;
+    width: auto;
+    max-height: calc(100vh - 5.5rem);
+    overflow: auto;
   }
 
   .workspace-account-menu {

@@ -1158,11 +1158,11 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   const statusMarkup = statusMessage && !(tone === "success" && statusMessage === defaultReadyMessage)
     ? statusHtml(statusMessage, tone)
     : "";
-  const topbarContextControls = [
+  const topbarContextControls = renderWorkspaceTopbarContextControls([
     renderSiteSwitcherControl(),
     renderWorkspaceStudentSearchControl(roles),
     renderWorkspaceModeSwitch(consoleCapabilities),
-  ].filter(Boolean).join("");
+  ], { isAdminConsole });
   workspaceMain.innerHTML = `
     <section class="workspace-app" data-primary-role="${escapeHtml(primaryRole)}" data-app-mode="${escapeHtml(activeWorkspaceMode)}" data-experience="${escapeHtml(experience)}" data-nav-state="${workspaceNavCollapsed ? "collapsed" : "expanded"}" data-view-as-student="${viewingAsStudent ? "active" : "inactive"}">
       <header class="workspace-topbar" data-topbar-density="compact">
@@ -1269,6 +1269,22 @@ function sectionLabelForTopbar(sections = [], sectionId = activeSection) {
   const section = sections.find((item) => item.id === sectionId && !item.hidden);
   if (!section) return "Ready";
   return section.label || sectionShortLabel(section);
+}
+
+function renderWorkspaceTopbarContextControls(controls = [], options = {}) {
+  const items = controls.filter(Boolean);
+  if (!items.length) return "";
+  if (options.isAdminConsole) return items.join("");
+  return `
+    <details class="workspace-topbar-tools" data-workspace-topbar-tools="true">
+      <summary aria-label="Open workspace tools">
+        <span>Tools</span>
+      </summary>
+      <div class="workspace-topbar-tools-panel">
+        ${items.join("")}
+      </div>
+    </details>
+  `;
 }
 
 function renderWorkspaceModeSwitch(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
@@ -4950,10 +4966,8 @@ function renderStaffWorkspaceTodaySection() {
         </div>
         <div class="workspace-row-actions">
           ${renderStaffPrimaryAction(model)}
-          ${adminConsoleCapabilitiesFor(currentUser).canSee ? `<button class="workspace-button workspace-button-secondary" type="button" data-workspace-mode-target="admin">Open Admin Console</button>` : ""}
         </div>
       </div>
-      ${model.readOnly ? renderReadOnlyBanner() : ""}
       ${renderStaffWorkspaceStartHere(model, primaryQueue)}
       ${renderStaffNoAssignmentState(model)}
       <div class="workspace-staff-attention-layout workspace-staff-flow-layout" data-staff-flow-layout="true">

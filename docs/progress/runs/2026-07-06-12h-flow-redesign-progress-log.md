@@ -174,6 +174,62 @@ Blockers:
 
 Block type: active checkpoint.
 
+## 2026-07-06 14:23 PT - Stage 04/05 Secondary Controls Checkpoint
+
+Current SHA before Stage 04/05 continuation commit: `165620a4812dbca2bf2c13b33e8948c96fba4044`
+
+Files changed:
+
+- `workspace.js`
+- `workspace.css`
+- `scripts/prove-workspace-ui-polish.mjs`
+- `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- `docs/sales/screenshots/2026-07-06-flow-redesign/`
+- `docs/progress/runs/2026-07-06-12h-flow-redesign-progress-log.md`
+
+Tests and checks run:
+
+- `node --check workspace.js`
+- `node --check scripts\prove-workspace-ui-polish.mjs`
+- `node --test tests\workspace-app.test.mjs` - 114/114 passed
+- `npm run prove:workspace-ui-polish` with `WORKSPACE_UI_POLISH_SCREENSHOT_DIR=docs/sales/screenshots/2026-07-06-flow-redesign` and `WORKSPACE_UI_POLISH_MANIFEST_PATH=docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- `git diff --check`
+- `npm run check:workspace-mobile`
+- `npm run check:workspace-accessibility`
+- `npm run verify:permission-matrix`
+- `npm run check:pilot-readiness`
+
+Screenshot/proof status:
+
+- Manifest: `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- Screenshot count: 46
+- Screenshot verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Failures: 0
+- Boundary: local fake-account UI proof only. Real-student production status remains `NOT_CLAIMED_READY`.
+
+Finished:
+
+- Moved non-admin Workspace search and mode switching into a closed topbar `Tools` disclosure so staff screens do not open with secondary controls.
+- Removed the extra "Open Admin Console" button from the Staff Workspace hero action row; Admin Console access remains available through the tools menu and admin mode switch.
+- Moved viewer read-only guidance below the main staff worklist flow by removing the duplicate first-viewport banner inside Staff Workspace Today.
+- Added responsive CSS for the new tools disclosure to keep it bounded on desktop, half-screen, and phone layouts.
+- Updated proof expectations for Global Admin Workspace to require the new secondary `Tools` affordance instead of a first-viewport Admin Console button.
+- Manually inspected Program Teacher, Viewer, Global Admin Workspace, and Mobile Mentor screenshots after proof generation.
+
+Remaining:
+
+- Stage 05 should simplify the Review Queue screen itself: fewer visible filters, one selected student/work item, and one decision path.
+- Stage 04 detail continuation should simplify mentor/student detail action density after opening a student.
+- Stage 07 Admin Console still needs a guided setup issue-to-fix-to-confirmation pass.
+- Real-student pilot remains `NO_GO_REAL_STUDENT_PILOT` pending required manual/policy evidence.
+
+Blockers:
+
+- None for this stage.
+- The all-day 12-hour minimum is not complete and must not be claimed complete.
+
+Block type: active checkpoint.
+
 ## 2026-07-06 13:44 PT - Stage 02/03 Checkpoint Block
 
 Current SHA before Stage 02/03 commit: `da2026e2e16954bbe112ef9d649cb157b4d04023`
