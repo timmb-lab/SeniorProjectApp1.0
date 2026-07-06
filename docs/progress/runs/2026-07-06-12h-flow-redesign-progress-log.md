@@ -5,6 +5,64 @@ Branch: `main`
 Prompt: flow-first UI/UX rebirth
 Scope: SeniorProjectApp only; `C:\Curriculum` is out of scope.
 
+## 2026-07-06 16:24 PT - Stage 06 Viewer Students Flow Checkpoint
+
+Current SHA before Stage 06 viewer commit: `6905419764ee64b3580866cce07a1d91383a0d52`
+
+Files changed:
+
+- `workspace.js`
+- `workspace.css`
+- `tests/workspace-app.test.mjs`
+- `scripts/prove-workspace-ui-polish.mjs`
+- `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- `docs/sales/screenshots/2026-07-06-flow-redesign/14-viewer-read-only-detail-click.png`
+- `docs/sales/screenshots/2026-07-06-flow-redesign/39-viewer-students-directory.png`
+- `docs/sales/screenshots/2026-07-06-flow-redesign/46-mobile-viewer-students.png`
+- `docs/progress/runs/2026-07-06-12h-flow-redesign-progress-log.md`
+
+Tests and checks run:
+
+- `node --check workspace.js`
+- `node --check scripts\prove-workspace-ui-polish.mjs`
+- `node --test tests\workspace-app.test.mjs` - 114/114 passed
+- `npm run prove:workspace-ui-polish` with `WORKSPACE_UI_POLISH_SCREENSHOT_DIR=docs/sales/screenshots/2026-07-06-flow-redesign` and `WORKSPACE_UI_POLISH_MANIFEST_PATH=docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- `git diff --check`
+- `npm run check:workspace-mobile`
+- `npm run check:workspace-accessibility`
+- `npm run verify:permission-matrix`
+- `npm run check:pilot-readiness` - preserved `NO_GO_REAL_STUDENT_PILOT` with five required manual proof manifests still missing
+
+Screenshot/proof status:
+
+- Manifest: `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- Screenshot count: 47
+- Screenshot verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Failures: 0
+- Manually inspected `39-viewer-students-directory.png` and `46-mobile-viewer-students.png`; both now open with the student flow instead of the current-site/read-only explanation wall.
+- Boundary: local fake-account UI proof only. Real-student production status remains `NOT_CLAIMED_READY`.
+
+Finished:
+
+- Rebuilt the Viewer Students route so the first screen starts with "Students", one simple instruction, a start group, and student rows.
+- Moved viewer read-only rules and search/filter controls into collapsed details below the student flow.
+- Removed the first-viewport current-site summary from Viewer Students while preserving the scoped read-only boundary marker.
+- Suppressed the shell-level read-only escalation banner only on the Students route; other viewer contexts keep the guidance.
+- Updated tests and screenshot proof expectations so Viewer Students must show the student flow before read-only rules and must not show the old current-site/explanation wall.
+
+Remaining:
+
+- Stage 08/09 still needs broader Admin Console cleanup for Students, Reports, Audit/Security, Users & Access, and other dense operational screens.
+- Some refreshed viewer screenshots changed because the shared shell banner behavior changed; the proof manifest remains green.
+- Real-student pilot remains `NO_GO_REAL_STUDENT_PILOT` pending required manual/policy evidence.
+
+Blockers:
+
+- None for this stage.
+- The all-day 12-hour minimum is not complete and must not be claimed complete.
+
+Block type: active checkpoint.
+
 ## 2026-07-06 12:05 PT - Stage 00 Active Work Block
 
 Current SHA: `7b8a51088e09108f16f70f0dbf758e0d74884d95`

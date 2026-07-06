@@ -9892,7 +9892,8 @@ body[data-page="workspace"],
 
 .workspace-student-directory-return-list,
 .workspace-student-detail-supporting-details,
-.workspace-student-detail-case-details {
+.workspace-student-detail-case-details,
+.workspace-viewer-readonly-rules {
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-card);
   background: #fff;
@@ -9901,12 +9902,14 @@ body[data-page="workspace"],
 
 .workspace-student-directory-return-list summary,
 .workspace-student-detail-supporting-details summary,
-.workspace-student-detail-case-details summary {
+.workspace-student-detail-case-details summary,
+.workspace-viewer-readonly-rules summary {
   cursor: pointer;
   font-weight: 950;
 }
 
-.workspace-student-directory-return-list > :not(summary) {
+.workspace-student-directory-return-list > :not(summary),
+.workspace-viewer-readonly-rules > :not(summary) {
   margin-top: 0.8rem;
 }
 

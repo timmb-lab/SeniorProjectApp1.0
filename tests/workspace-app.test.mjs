@@ -3440,8 +3440,17 @@ test("workspace renders route-connected student directory with filters and real 
     },
   }, "students");
   assert.match(viewer, /data-workspace-mode="read-only"/);
+  assert.match(viewer, /data-viewer-directory-flow="true"/);
+  assert.doesNotMatch(viewer, /data-current-site-summary="true"/);
   assert.match(viewer, /Read-only workspace/);
+  assert.match(viewer, /Read-only rules/);
   assert.match(viewer, /data-read-only-boundary-list="viewer"/);
+  assertMarkupOrder(
+    viewer,
+    'data-student-directory-start-here="true"',
+    'data-read-only-boundary-list="viewer"',
+    "viewer Students should show the student flow before read-only rules",
+  );
   assert.match(viewer, /You can[\s\S]*Open assigned student records/);
   assert.match(viewer, /You cannot[\s\S]*Edit records/);
   assert.match(viewer, /Read-only/);

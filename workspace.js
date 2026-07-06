@@ -1154,6 +1154,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     ? ""
     : isAdminConsole ? renderAdminConsoleActiveSection() : renderActiveSection();
   const activeSectionBeforeGuidance = activeSectionFirst || isAdminConsole;
+  const shellReadOnlyBanner = !isAdminConsole && activeSection === "students" ? "" : renderReadOnlyBanner();
   const defaultReadyMessage = readyMessageForCurrentExperience();
   const statusMarkup = statusMessage && !(tone === "success" && statusMessage === defaultReadyMessage)
     ? statusHtml(statusMessage, tone)
@@ -1214,7 +1215,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
           ${sectionUnavailableNotice}
           ${activeSectionBeforeGuidance ? activeSectionMarkup : ""}
           ${activeSectionBeforeGuidance ? "" : screenGuidance}
-          ${renderReadOnlyBanner()}
+          ${shellReadOnlyBanner}
           ${activeSectionBeforeGuidance ? screenGuidance : activeSectionMarkup}
         </div>
       </div>
@@ -6421,7 +6422,7 @@ function renderAccessBoundarySummary() {
   `;
 }
 
-function renderReadOnlyBanner() {
+function renderReadOnlyBanner({ includeEscalation = true } = {}) {
   const roles = roleIds(currentUser);
   if (roles.has("viewer")) {
     return `
@@ -6441,7 +6442,7 @@ function renderReadOnlyBanner() {
           </dl>
         </div>
       </section>
-      ${renderReadOnlyEscalationGuide("viewer")}
+      ${includeEscalation ? renderReadOnlyEscalationGuide("viewer") : ""}
     `;
   }
   if (!isReadOnlyAdministrationUser(currentUser)) return "";
@@ -6450,7 +6451,7 @@ function renderReadOnlyBanner() {
       <span class="workspace-chip workspace-role-chip" data-role-id="administration">School Admin</span>
       <p>Read-only monitoring workspace. You can review assigned student records, presentation readiness, and closeout status for this school. Ask a Global Admin to confirm this account's school access if account-management controls are missing.</p>
     </section>
-    ${renderReadOnlyEscalationGuide("administration")}
+    ${includeEscalation ? renderReadOnlyEscalationGuide("administration") : ""}
   `;
 }
 
@@ -7183,13 +7184,20 @@ function renderSiteStudentDirectorySection() {
   const scopeLabel = studentDirectoryScopeLabel(scope, readOnly);
   const detailSource = cleanWorkspaceSection(siteStudentDetailState?.sourceSection || "") || "students";
   const showFocusedStudentDetail = Boolean(siteStudentDetailState?.studentId) && detailSource === "students";
-  const directoryListContent = `
-    ${renderStudentDirectoryStartHere(directory)}
+  const directoryFilterContent = `
     ${renderStudentDirectorySavedFilterChips(directory)}
     ${renderStudentDirectoryFilterBar(directory)}
     ${renderStudentDirectoryActiveFilters(filters, directory.filterOptions || {})}
     ${renderStudentDirectoryResultSummary(directory)}
+  `;
+  const directoryRowsContent = `
+    ${renderSiteStudentDetailSurface(directory)}
     ${students.length ? renderStudentRows(students, readOnly, directory.permissions || {}, scope) : renderStudentDirectoryEmptyState(directory)}
+  `;
+  const directoryListContent = `
+    ${renderStudentDirectoryStartHere(directory)}
+    ${directoryFilterContent}
+    ${directoryRowsContent}
   `;
 
   if (showFocusedStudentDetail) {
@@ -7200,6 +7208,34 @@ function renderSiteStudentDirectorySection() {
           <summary>Show student list</summary>
           ${readOnly ? renderReadOnlyBanner() : ""}
           ${directoryListContent}
+        </details>
+      </section>
+    `;
+  }
+
+  if (readOnly) {
+    return `
+      <section class="workspace-command-center workspace-student-directory workspace-viewer-directory-flow" data-viewer-directory-flow="true" aria-labelledby="siteStudentsTitle">
+        <div class="workspace-command-hero workspace-viewer-directory-hero">
+          <div>
+            <p class="workspace-kicker">Students</p>
+            <h1 id="siteStudentsTitle">Students</h1>
+            <p>Find a student by picking one group, then open one record to read context.</p>
+          </div>
+          <div class="workspace-command-hero-grid">
+            <span class="workspace-chip">Read-only</span>
+            <span class="workspace-chip">${escapeHtml(scope.siteName || "Assigned school")}</span>
+          </div>
+        </div>
+        ${renderStudentDirectoryStartHere(directory)}
+        ${directoryRowsContent}
+        <details class="workspace-viewer-readonly-rules" data-viewer-readonly-rules="true">
+          <summary>Read-only rules</summary>
+          ${renderReadOnlyBanner({ includeEscalation: false })}
+        </details>
+        <details class="workspace-student-directory-return-list" data-student-directory-secondary-controls="true">
+          <summary>Search and filters</summary>
+          ${directoryFilterContent}
         </details>
       </section>
     `;
@@ -7219,8 +7255,6 @@ function renderSiteStudentDirectorySection() {
           <span class="workspace-chip">${escapeHtml(scopeLabel)}</span>
         </div>
       </div>
-      ${readOnly ? renderReadOnlyBanner() : ""}
-      ${renderSiteStudentDetailSurface(directory)}
       ${directoryListContent}
     </section>
   `;

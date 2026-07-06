@@ -547,8 +547,8 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?section=students&siteId=site-desert-valley-high"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
-    expected: ["Students", "Find a student or start with work that needs attention.", "Start Here", "Read-only"],
-    absent: ["Admin Console", "Remove student", "Manage Site Access"],
+    expected: ["Students", "Find a student by picking one group", "Start Here", "Read-only rules"],
+    absent: ["Admin Console", "Remove student", "Manage Site Access", "CURRENT SITE", "When you need someone to act"],
     proves: "Viewer Students shows scoped read-only roster search, plain filters, and detail actions without admin controls.",
   },
   {
@@ -559,8 +559,8 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?section=students&siteId=site-desert-valley-high"),
     viewport: { width: 390, height: 844, deviceScaleFactor: 2, mobile: true },
-    expected: ["Students", "Find a student or start with work that needs attention.", "Read-only"],
-    absent: ["Admin Console", "Remove student", "Manage Site Access"],
+    expected: ["Students", "Find a student by picking one group", "Read-only rules"],
+    absent: ["Admin Console", "Remove student", "Manage Site Access", "CURRENT SITE", "When you need someone to act"],
     proves: "Viewer Students keeps read-only student context readable on phone width.",
   },
   {

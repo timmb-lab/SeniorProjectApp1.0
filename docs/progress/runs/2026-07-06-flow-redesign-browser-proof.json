@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:63184",
+  "baseUrl": "http://127.0.0.1:59676",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-06T22:42:21.502Z",
-  "completedAt": "2026-07-06T22:46:45.643Z",
+  "startedAt": "2026-07-06T23:17:06.387Z",
+  "completedAt": "2026-07-06T23:21:30.094Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:63184",
+    "baseUrl": "http://127.0.0.1:59676",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-07-06-flow-redesign",
@@ -1016,6 +1016,7 @@
       "textSample": "Skip to workspace Menu SC Capstone App Admin Console Ready Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ACCESS Site Admin Site School tools for the assigned school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management Imports CSV templates and preview Reports Roster and operational health MODE School tools for the assigned school. Student detail loaded. ADM",
       "activeNav": [
         "Admin Console",
+        "Overview",
         "Overview"
       ]
     },
@@ -1088,6 +1089,7 @@
       "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Students Tools Viewer READ-ONLY VV Valeria Viewer viewer.desert-valley-high@demo-staff.capstone.test Today Students needing attention Students Assigned read-only student records Reports Progress and setup summary Student detail loaded. STUDENT Model Excellent Demo 01 IT - DEMO_SEED Desert Valley High School Class of 2027 student001@demo-student.capstone.test Return to the filtered student list when you finish with this student. On track No urgent review item is open right now. View work More Student details START HERE What this student needs next Use this row for context, then share the student name with authorized staff. Assigned staff ",
       "activeNav": [
         "Students\n        Students\n        Assigned read-only student records",
+        "Overview",
         "Overview"
       ]
     },
@@ -2093,6 +2095,7 @@
       "activeNav": [
         "Workspace",
         "Students\n        Students\n        Site student rows",
+        "Evidence",
         "Evidence"
       ]
     },
@@ -2309,6 +2312,7 @@
       "activeNav": [
         "Workspace",
         "Students\n        Students\n        Site student rows",
+        "Overview",
         "Overview"
       ]
     },
@@ -2455,6 +2459,7 @@
       "activeNav": [
         "Workspace",
         "Students\n        Students\n        Site student rows",
+        "Evidence",
         "Evidence"
       ]
     },
@@ -3057,9 +3062,9 @@
       "screenshot": "docs/sales/screenshots/2026-07-06-flow-redesign/39-viewer-students-directory.png",
       "expected": [
         "Students",
-        "Find a student or start with work that needs attention.",
+        "Find a student by picking one group",
         "Start Here",
-        "Read-only"
+        "Read-only rules"
       ],
       "proves": "Viewer Students shows scoped read-only roster search, plain filters, and detail actions without admin controls.",
       "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
@@ -3106,8 +3111,8 @@
         "intentionalEmptyState": false,
         "finalFiles": false
       },
-      "heading": "Desert Valley High School / 2026-2027",
-      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Students Tools Viewer READ-ONLY VV Valeria Viewer viewer.desert-valley-high@demo-staff.capstone.test Today Students needing attention Students Assigned read-only student records Reports Progress and setup summary CURRENT SITE Desert Valley High School / 2026-2027 Configured Desert Valley School District Viewer Read-only viewer No student messaging This selected school carries across Dashboard, Students, Review Work, Mentor Assignments, Operations, Programs, and Users & Access when your role can open them. STUDENTS Students Find a student or start with work that needs attention. Configured Read-only view. Viewer Read-only workspace. You c",
+      "heading": "Students",
+      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Students Tools Viewer READ-ONLY VV Valeria Viewer viewer.desert-valley-high@demo-staff.capstone.test Today Students needing attention Students Assigned read-only student records Reports Progress and setup summary STUDENTS Students Find a student by picking one group, then open one record to read context. Read-only Desert Valley High School Start Here Pick one group, then open the first student who needs attention. View all students Ready for final review 3 See students who are close to done. View students Model Excellent Demo 01 On track. IT / DEMO_SEED Desert Valley High School Class of 2027 Last update May 18, 9:00 AM Mentor: Ari Field",
       "activeNav": [
         "Students\n        Students\n        Assigned read-only student records"
       ]
@@ -3128,8 +3133,8 @@
       "screenshot": "docs/sales/screenshots/2026-07-06-flow-redesign/46-mobile-viewer-students.png",
       "expected": [
         "Students",
-        "Find a student or start with work that needs attention.",
-        "Read-only"
+        "Find a student by picking one group",
+        "Read-only rules"
       ],
       "proves": "Viewer Students keeps read-only student context readable on phone width.",
       "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
@@ -3176,8 +3181,8 @@
         "intentionalEmptyState": false,
         "finalFiles": false
       },
-      "heading": "Desert Valley High School / 2026-2027",
-      "textSample": "Skip to workspace Menu SC Capstone App Tools Viewer VV CURRENT SITE Desert Valley High School / 2026-2027 Configured Desert Valley School District Viewer Read-only viewer No student messaging STUDENTS Students Find a student or start with work that needs attention. Configured Read-only view. Viewer Read-only workspace. You can open assigned student records for context, then share concerns with the Program Teacher or site staff. YOU CAN Open assigned student records and read status, files, presentation, and final-file context. YOU CANNOT Edit records, approve work, assign mentors, import accounts, schedule presentations, or change access. When you need someone to act Student seems stuck Notif",
+      "heading": "Students",
+      "textSample": "Skip to workspace Menu SC Capstone App Tools Viewer VV STUDENTS Students Find a student by picking one group, then open one record to read context. Read-only Desert Valley High School Start Here Pick one group, then open the first student who needs attention. View all students Ready for final review 3 See students who are close to done. View students Model Excellent Demo 01 On track. IT / DEMO_SEED Desert Valley High School Class of 2027 Last update May 18, 9:00 AM Mentor: Ari Field Who can help: assigned staff Next step: Use this row for context, then share the student name with authorized staff. Open Student More Read-only Model Excellent Demo 02 On track. IT / DEMO_SEED Desert Valley High",
       "activeNav": [
         "Students\n        Students\n        Assigned read-only student records"
       ]
@@ -3326,6 +3331,8 @@
         "Workspace",
         "Students\n        Students\n        Site student rows",
         "Timeline",
+        "All activity",
+        "Timeline",
         "All activity"
       ]
     },
@@ -3396,6 +3403,7 @@
       "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS Student detail loaded. ADMIN CONSOLE Students Legacy scoped student directory STUDENT High Risk Demo 01 Culinary - DEMO_SEED Desert Valley High School Class of 2027 student059@demo-student.capstone.test Return to the filtered student list when you finish with this student. Needs changes Student should read feedback, fix the work, and send it again. Open feedback More Student details START HERE What this student needs next Open Mentor Assignments and assign coverage before the next check-in. Site Admin or Program Teacher Show plan details Overview Work Feedback Evidence Timeline Show current",
       "activeNav": [
         "Admin Console",
+        "Overview",
         "Overview"
       ]
     }
