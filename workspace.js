@@ -7181,6 +7181,29 @@ function renderSiteStudentDirectorySection() {
   const filters = directory.filters || {};
   const readOnly = Boolean(scope.readOnly);
   const scopeLabel = studentDirectoryScopeLabel(scope, readOnly);
+  const detailSource = cleanWorkspaceSection(siteStudentDetailState?.sourceSection || "") || "students";
+  const showFocusedStudentDetail = Boolean(siteStudentDetailState?.studentId) && detailSource === "students";
+  const directoryListContent = `
+    ${renderStudentDirectoryStartHere(directory)}
+    ${renderStudentDirectorySavedFilterChips(directory)}
+    ${renderStudentDirectoryFilterBar(directory)}
+    ${renderStudentDirectoryActiveFilters(filters, directory.filterOptions || {})}
+    ${renderStudentDirectoryResultSummary(directory)}
+    ${students.length ? renderStudentRows(students, readOnly, directory.permissions || {}, scope) : renderStudentDirectoryEmptyState(directory)}
+  `;
+
+  if (showFocusedStudentDetail) {
+    return `
+      <section class="workspace-command-center workspace-student-directory workspace-student-detail-screen" data-student-directory-detail-screen="true" aria-label="Student detail">
+        ${renderSiteStudentDetailSurface(directory)}
+        <details class="workspace-student-directory-return-list" data-student-directory-return-controls="true">
+          <summary>Show student list</summary>
+          ${readOnly ? renderReadOnlyBanner() : ""}
+          ${directoryListContent}
+        </details>
+      </section>
+    `;
+  }
 
   return `
     <section class="workspace-command-center workspace-student-directory" aria-labelledby="siteStudentsTitle">
@@ -7197,13 +7220,8 @@ function renderSiteStudentDirectorySection() {
         </div>
       </div>
       ${readOnly ? renderReadOnlyBanner() : ""}
-      ${renderStudentDirectoryStartHere(directory)}
-      ${renderStudentDirectorySavedFilterChips(directory)}
-      ${renderStudentDirectoryFilterBar(directory)}
-      ${renderStudentDirectoryActiveFilters(filters, directory.filterOptions || {})}
-      ${renderStudentDirectoryResultSummary(directory)}
       ${renderSiteStudentDetailSurface(directory)}
-      ${students.length ? renderStudentRows(students, readOnly, directory.permissions || {}, scope) : renderStudentDirectoryEmptyState(directory)}
+      ${directoryListContent}
     </section>
   `;
 }
@@ -8054,6 +8072,13 @@ function renderSiteStudentDetailSurface(directory) {
   const plan = studentDetailCasePlan(detail, scope);
   const plainStatus = studentDetailPlainStatus(detail, plan);
   const primaryAction = studentDetailPrimaryAction(detail, scope, plainStatus);
+  const profileFacts = `
+    <span class="workspace-site-context-badge" data-student-detail-site="${escapeHtml(scope.siteName || directory.scope?.siteName || "Selected school")}">${escapeHtml(scope.siteName || directory.scope?.siteName || "Selected school")}</span>
+    <span class="workspace-site-context-badge" data-student-detail-program="${escapeHtml(student.programName || "Unassigned")}">${escapeHtml(student.programName || "Unassigned")}</span>
+    ${student.cohortName ? `<span class="workspace-site-context-badge" data-student-detail-cohort="${escapeHtml(student.cohortName)}">${escapeHtml(student.cohortName)}</span>` : `<span class="workspace-site-context-badge" data-student-detail-cohort="No cohort">No cohort</span>`}
+    <span class="workspace-site-context-badge" data-student-detail-year="${escapeHtml(student.graduationYear || "")}">${escapeHtml(studentRosterProfileText(student))}</span>
+    ${scope.readOnly ? `<span class="workspace-chip" data-workspace-mode="read-only">Read-only viewer</span>` : ""}
+  `;
   return `
     <aside id="siteStudentDetailPanel" class="workspace-detail-drawer" data-student-detail-panel="true" data-student-detail-state="ready" data-student-detail-id="${escapeHtml(student.studentId || state.studentId)}" aria-labelledby="siteStudentDetailTitle" tabindex="-1">
       <div class="workspace-detail-panel">
@@ -8085,18 +8110,11 @@ function renderSiteStudentDetailSurface(directory) {
             })}
           </div>
         </div>
-        <div class="workspace-chip-row workspace-student-detail-facts" data-student-detail-facts="true">
-          <span class="workspace-site-context-badge" data-student-detail-site="${escapeHtml(scope.siteName || directory.scope?.siteName || "Selected school")}">${escapeHtml(scope.siteName || directory.scope?.siteName || "Selected school")}</span>
-          <span class="workspace-site-context-badge" data-student-detail-program="${escapeHtml(student.programName || "Unassigned")}">${escapeHtml(student.programName || "Unassigned")}</span>
-          ${student.cohortName ? `<span class="workspace-site-context-badge" data-student-detail-cohort="${escapeHtml(student.cohortName)}">${escapeHtml(student.cohortName)}</span>` : `<span class="workspace-site-context-badge" data-student-detail-cohort="No cohort">No cohort</span>`}
-          <span class="workspace-site-context-badge" data-student-detail-year="${escapeHtml(student.graduationYear || "")}">${escapeHtml(studentRosterProfileText(student))}</span>
-          ${scope.readOnly ? `<span class="workspace-chip" data-workspace-mode="read-only">Read-only viewer</span>` : ""}
-        </div>
-        ${renderStudentDetailMoreContext(detail, scope, riskFlags)}
+        ${renderStudentDetailMoreContext(detail, scope, riskFlags, profileFacts)}
         ${renderStudentDetailCasePlan(detail, scope, plan)}
         ${scope.readOnly ? `
           <section class="workspace-read-only-banner" data-student-detail-read-only="true" data-workspace-mode="read-only">
-            <span class="workspace-chip workspace-role-chip">Read-only</span>
+            <span class="workspace-chip workspace-role-chip">Read-only viewer</span>
             <p>You can view this student for context, but approvals, assignments, evidence changes, and access changes stay with authorized staff.</p>
           </section>
         ` : ""}
@@ -8209,7 +8227,7 @@ function studentDetailPrimaryAction(detail = {}, scope = {}, plainStatus = {}) {
   return { id: "view-work", label: "View work", tab: "work" };
 }
 
-function renderStudentDetailMoreContext(detail = {}, scope = {}, riskFlags = []) {
+function renderStudentDetailMoreContext(detail = {}, scope = {}, riskFlags = [], profileFacts = "") {
   const student = detail.student || {};
   const presentation = detail.presentation || {};
   const archive = detail.archive || {};
@@ -8224,7 +8242,8 @@ function renderStudentDetailMoreContext(detail = {}, scope = {}, riskFlags = [])
   ].filter(Boolean).join("");
   return `
     <details class="workspace-student-detail-more-context" data-student-detail-more-context="true">
-      <summary>More student details</summary>
+      <summary>Student details</summary>
+      ${profileFacts ? `<div class="workspace-chip-row workspace-student-detail-facts" data-student-detail-facts="true">${profileFacts}</div>` : ""}
       <div class="workspace-chip-row">${chips}</div>
     </details>
   `;
@@ -8247,14 +8266,17 @@ function renderStudentDetailSummary(detail) {
   const plan = studentDetailCasePlan(detail, detail.scope || {});
   const approval = studentDetailPhaseApprovalStatus(detail);
   return `
-    <section class="workspace-detail-section" ${studentDetailPanelAttrs("overview", "summary")}>
-      <div class="workspace-student-detail-overview" data-student-detail-overview="true">
+    <section class="workspace-detail-section workspace-student-detail-overview-screen" ${studentDetailPanelAttrs("overview", "summary")}>
+      <details class="workspace-student-detail-supporting-details" data-student-detail-overview="true">
+        <summary>Show current step, recent update, and progress</summary>
+        <div class="workspace-student-detail-overview">
         ${renderStudentDetailOverviewItem("next", "Start here", "What this student needs next", plan.nextAction || student.nextAction || "Open Work and check the current step.", plan.owner)}
         ${renderStudentDetailOverviewItem("step", "Current step", plan.currentStep || "Current step not confirmed yet", approval.detail, approval.label)}
         ${renderStudentDetailOverviewItem("feedback", "Recent update", latestFeedback.title, latestFeedback.text, latestFeedback.meta, { attrs: 'data-student-detail-feedback="latest"', status: latestFeedback.status })}
         ${renderStudentDetailOverviewItem("support", "Staff support", mentor.active ? mentor.mentorName || "Assigned mentor" : "No active mentor", mentor.nextAction || "Check whether this student needs staff support.", mentor.active ? "Mentor assigned" : "Coverage needed", { status: mentor.active ? "approved" : "blocked" })}
         ${renderStudentDetailOverviewItem("progress", "Progress", progressFacts.workItemsText, `${progressFacts.percentText} / ${progressFacts.stageText}`, "", { status: progress.blockedReasons?.length ? "blocked" : progressFacts.hasConfirmedTotals ? "ready" : "pending" })}
-      </div>
+        </div>
+      </details>
     </section>
   `;
 }
@@ -8509,12 +8531,23 @@ function renderStudentDetailEvidence(detail) {
 function renderStudentDetailCasePlan(detail = {}, scope = {}, preparedPlan = null) {
   const plan = preparedPlan || studentDetailCasePlan(detail, scope);
   return `
-    <section class="workspace-student-detail-case-plan" data-student-detail-case-plan="true" data-student-detail-case-read-only="${plan.readOnly ? "true" : "false"}" aria-label="Student next steps">
-      ${renderStudentDetailCasePlanItem("Status", plan.currentStatus, "status")}
-      ${renderStudentDetailCasePlanItem("Current step", plan.currentStep, "step")}
-      ${renderStudentDetailCasePlanItem("Staff support", plan.coverage, "coverage")}
-      ${renderStudentDetailCasePlanItem("Next step", plan.nextAction, "action", plan.owner)}
+    <section class="workspace-student-detail-next-action" data-student-detail-next-action="true" aria-label="Student next step">
+      <div>
+        <p class="workspace-kicker">Start here</p>
+        <h3>What this student needs next</h3>
+        <p>${escapeHtml(plan.nextAction || "Open Work and check the current step.")}</p>
+        ${plan.owner ? `<small>${escapeHtml(plan.owner)}</small>` : ""}
+      </div>
     </section>
+    <details class="workspace-student-detail-case-details" data-student-detail-case-details="true">
+      <summary>Show plan details</summary>
+      <div class="workspace-student-detail-case-plan" data-student-detail-case-plan="true" data-student-detail-case-read-only="${plan.readOnly ? "true" : "false"}" aria-label="Student next steps">
+        ${renderStudentDetailCasePlanItem("Status", plan.currentStatus, "status")}
+        ${renderStudentDetailCasePlanItem("Current step", plan.currentStep, "step")}
+        ${renderStudentDetailCasePlanItem("Staff support", plan.coverage, "coverage")}
+        ${renderStudentDetailCasePlanItem("Next step", plan.nextAction, "action", plan.owner)}
+      </div>
+    </details>
   `;
 }
 

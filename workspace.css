@@ -9829,6 +9829,30 @@ body[data-page="workspace"],
   scroll-margin-top: 6rem;
 }
 
+.workspace-student-detail-screen {
+  gap: var(--space-card);
+}
+
+.workspace-student-directory-return-list,
+.workspace-student-detail-supporting-details,
+.workspace-student-detail-case-details {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-card);
+  background: #fff;
+  padding: 0.68rem 0.82rem;
+}
+
+.workspace-student-directory-return-list summary,
+.workspace-student-detail-supporting-details summary,
+.workspace-student-detail-case-details summary {
+  cursor: pointer;
+  font-weight: 950;
+}
+
+.workspace-student-directory-return-list > :not(summary) {
+  margin-top: 0.8rem;
+}
+
 .workspace-detail-drawer:focus {
   outline: none;
   box-shadow: var(--focus-ring), var(--shadow-card);
@@ -9927,10 +9951,48 @@ body[data-page="workspace"],
   margin-top: 0.55rem;
 }
 
+.workspace-student-detail-next-action {
+  border: 1px solid color-mix(in srgb, var(--workspace-primary) 18%, var(--border-soft));
+  border-left: 5px solid var(--workspace-primary);
+  border-radius: var(--radius-card);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--workspace-soft) 72%, white), #fff);
+  padding: 0.9rem 1rem;
+}
+
+.workspace-student-detail-next-action h3,
+.workspace-student-detail-next-action p,
+.workspace-student-detail-next-action small {
+  margin: 0;
+}
+
+.workspace-student-detail-next-action h3 {
+  color: var(--text-main);
+  font-size: 1.12rem;
+  line-height: 1.22;
+}
+
+.workspace-student-detail-next-action p {
+  margin-top: 0.38rem;
+  color: var(--abc-charcoal);
+  line-height: 1.45;
+}
+
+.workspace-student-detail-next-action small {
+  display: block;
+  margin-top: 0.28rem;
+  color: var(--text-muted);
+  font-weight: 850;
+}
+
 .workspace-student-detail-overview {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
+}
+
+.workspace-student-detail-supporting-details .workspace-student-detail-overview,
+.workspace-student-detail-case-details .workspace-student-detail-case-plan {
+  margin-top: 0.7rem;
 }
 
 .workspace-student-detail-overview-item {
