@@ -27,6 +27,18 @@ These paths are intentionally absent until each proof is actually performed and 
 | SSO or managed-local credential delivery approval | `docs/progress/runs/real-student-pilot-credential-delivery-approval.json` | `MANUAL_PROOF_REQUIRED` | Yes | SSO cannot create or use Global Admin; Global Admin local account remains separate. |
 | Archive/download proof, if in pilot scope | `docs/progress/runs/real-student-pilot-archive-download-evidence.json` | `FUTURE_PILOT_ITEM` | Only if archive/download is in first pilot scope | `student_archive_manifest_download` must pass hosted proof before the workflow is claimed. |
 
+## Admin Console Evidence View Use
+
+The Admin Console can support proof packet review, but it is not itself a proof manifest. Use it as a guided inspection surface only:
+
+1. Open Overview to capture loaded setup gaps and confirm the first setup blocker.
+2. Open People, Students, Assignments, and Programs to inspect scoped staff, roster, coverage, and program setup signals.
+3. Open Imports to capture template/preview/error readiness with fake or sanitized rows only.
+4. Open Reports to capture authorized denominators, report-safe export boundaries, and unknown-state caveats.
+5. Open Audit to capture redacted access-review signals and anomaly groupings.
+
+Every screenshot or note from this admin evidence view must say: fake-account/admin triage context only; does not replace `docs/progress/runs/real-student-pilot-role-scope-proof.json`, `docs/progress/runs/real-student-pilot-roster-validation-evidence.json`, `docs/progress/runs/real-student-pilot-backup-restore-rehearsal-evidence.json`, `docs/progress/runs/real-student-pilot-privacy-support-retention-approval.json`, or `docs/progress/runs/real-student-pilot-credential-delivery-approval.json`.
+
 ## Role-Scoped Pilot Account Proof Plan
 
 Run this only after the school approves pilot-shaped accounts and the credential path. Use fake/synthetic rows until approval exists; never use real records as the first proof attempt.

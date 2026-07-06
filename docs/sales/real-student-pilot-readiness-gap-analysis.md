@@ -48,6 +48,20 @@ npm run check:pilot-readiness
 - Legacy synthetic hosted sales-demo seed status `LEGACY_SYNTHETIC_HOSTED_SEED_UNAVAILABLE_NON_BLOCKING` is not a blocker for canonical hosted fake-account demo readiness.
 - fake `.test` proof limitations: fake accounts and fake data prove hosted click-around and selected role boundaries only. They do not prove school approval, legal/privacy acceptance, real account delivery, real roster correctness, backup/restore readiness, or full production readiness.
 
+## Admin Console Pilot Evidence View
+
+The Admin Console overhaul adds an operator-facing evidence view for setup triage only. Overview, People, Students, Assignments, Programs, Imports, Reports, and Audit now point admins toward loaded setup gaps, scoped rows, preview errors, report denominators, and redacted audit signals. This helps a pilot owner see what evidence still needs to be gathered.
+
+This evidence view does **not** change the pilot decision. It does not replace any required manifest, approval, or hosted/manual proof. In particular:
+
+- Overview setup-first cards can identify missing roster, mentor, viewer, program, import, or staff-scope signals in the loaded view, but they are not real-roster validation evidence.
+- People, Students, Assignments, and Programs summarize scoped setup gaps, but they do not prove approved pilot accounts, role-scope walkthroughs, SSO, or managed-local credential delivery.
+- Imports show template, preview, and row-error readiness, but they do not approve a real student roster or real credential path.
+- Reports show current authorized denominators and report-safe export boundaries, but exports remain scoped report evidence only.
+- Audit shows redacted access-review signals, but audit triage is not privacy/support/retention approval and is not backup/restore evidence.
+
+The admin-side evidence view should be cited as supporting context in a future proof packet only after the required manual/policy manifests are present. Until then, `NO_GO_REAL_STUDENT_PILOT` remains the correct decision.
+
 ## Pilot Readiness Matrix
 
 | Area | Current state | Evidence | Real-student blocker? | Acceptance criteria | Proof command or manual proof needed | Owner/dependency if known |

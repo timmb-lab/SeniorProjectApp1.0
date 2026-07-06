@@ -58,6 +58,9 @@ test("real-student pilot readiness matrix preserves no-go and exact proof catego
   assert.match(doc, /backup\/restore rehearsal/);
   assert.match(doc, /role-scoped pilot-account proof/);
   assert.match(doc, /fake `\.test` proof limitations/);
+  assert.match(doc, /Admin Console Pilot Evidence View/);
+  assert.match(doc, /NO_GO_REAL_STUDENT_PILOT/);
+  assert.match(doc, /This evidence view does \*\*not\*\* change the pilot decision/);
 
   assert.match(
     doc,
@@ -136,6 +139,9 @@ test("real-student pilot readiness matrix preserves no-go and exact proof catego
     "Archive/Download Acceptance Criteria",
     "no raw Drive IDs",
     "audit/logging",
+    "Admin Console Evidence View Use",
+    "fake-account/admin triage context only",
+    "does not replace `docs/progress/runs/real-student-pilot-role-scope-proof.json`",
   ]) {
     assert.match(proofPlan, new RegExp(escapeRegex(phrase)));
   }
