@@ -548,6 +548,7 @@ test("workspace defaults to workflow landings instead of role profiles", async (
   }
   assert.doesNotMatch(student, /data-workspace-mode-switch="true"/);
   assert.doesNotMatch(studentText, /Admin Console|Staff Workspace|working profile|Role context|Demo boundary/);
+  assert.doesNotMatch(studentText, /My Capstone ready\./);
   assert.match(studentText, /My Capstone/);
   assert.match(studentText, /What to do next/);
 
@@ -565,6 +566,7 @@ test("workspace defaults to workflow landings instead of role profiles", async (
     assert.match(markup, /data-experience="staff-workspace"/, `${roleId} staff experience`);
     assert.match(markup, /aria-label="Staff Workspace navigation"/, `${roleId} staff nav label`);
     assert.match(text, /Staff Workspace|Which students need attention today\?|Read-only access/, `${roleId} workflow question`);
+    assert.doesNotMatch(text, /Staff Workspace ready\./, `${roleId} suppresses default ready banner`);
     assert.doesNotMatch(text, /working profile|Role context|Demo boundary|What this role can manage or monitor/, `${roleId} no role-proof landing`);
     for (const label of expectedLabels) {
       assert.match(markup, new RegExp(`title="${escapeRegExp(label)}"`), `${roleId} nav includes ${label}`);
@@ -691,9 +693,19 @@ test("workspace keeps staff admin tools out of the regular Workspace shell and s
   assert.match(siteAdminWorkspace, /data-staff-workspace-today="true"/);
   assert.match(siteAdminWorkspace, /data-staff-attention-model="true"/);
   assert.match(siteAdminWorkspace, /data-staff-start-here="true"/);
+  assert.match(siteAdminWorkspace, /data-staff-flow-layout="true"/);
+  assert.match(siteAdminWorkspace, /data-staff-primary-list="true"/);
+  assert.match(siteAdminWorkspace, /data-staff-primary-queue="(needs-review|needs-help|missing-setup|recent|on-track)"/);
+  assert.match(siteAdminWorkspace, /data-staff-primary-start-action="true"/);
+  assert.match(siteAdminWorkspace, /data-staff-secondary-flow="true"/);
   assert.match(siteAdminWorkspace, /data-teacher-first-component="CompactSummaryStrip"/);
-  assert.match(siteAdminWorkspace, /Who needs attention today\?/);
+  assert.match(siteAdminWorkspace, /Start with one group, then open one student\./);
+  assert.match(siteAdminWorkspace, /Show counts and other groups/);
   assert.match(siteAdminWorkspace, /Open Student/);
+  assert.ok(
+    siteAdminWorkspace.indexOf('data-staff-primary-list="true"') < siteAdminWorkspace.indexOf('data-staff-secondary-flow="true"'),
+    "staff primary list renders before secondary counts and groups",
+  );
   assert.doesNotMatch(siteAdminWorkspace, /data-workspace-admin-console-handoff="true"|Need setup or access work\?/);
   assert.doesNotMatch(visibleText(siteAdminWorkspace), /Management lives in Admin Console|working profile|Role context|Demo boundary/);
   assert.doesNotMatch(siteAdminWorkspace, /workspace-admin-console-content|data-admin-section="users"|data-site-programs-section="true"/);
@@ -713,6 +725,7 @@ test("workspace keeps staff admin tools out of the regular Workspace shell and s
   assert.match(workspaceCss, /@media \(max-width: 900px\)[\s\S]*\.workspace-mode-switch/);
   assert.match(cssMediaBlock(900), /\.workspace-staff-attention-layout[\s\S]*grid-template-columns: 1fr/);
   assert.match(workspaceCss, /@media \(max-width: 620px\)[\s\S]*\.workspace-mode-switch/);
+  assert.match(cssMediaBlock(620), /\.workspace-app\[data-experience="staff-workspace"\] \.workspace-posture-chips[\s\S]*display: none/);
 });
 
 test("workspace main role landings stay free of proof-dashboard copy", async () => {

@@ -1154,6 +1154,10 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     ? ""
     : isAdminConsole ? renderAdminConsoleActiveSection() : renderActiveSection();
   const activeSectionBeforeGuidance = activeSectionFirst || isAdminConsole;
+  const defaultReadyMessage = readyMessageForCurrentExperience();
+  const statusMarkup = statusMessage && !(tone === "success" && statusMessage === defaultReadyMessage)
+    ? statusHtml(statusMessage, tone)
+    : "";
   const topbarContextControls = [
     renderSiteSwitcherControl(),
     renderWorkspaceStudentSearchControl(roles),
@@ -1202,7 +1206,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
         </aside>
         <div class="workspace-main ${isAdminConsole ? "workspace-admin-console-main" : ""}">
           ${renderViewAsStudentBanner()}
-          ${statusMessage ? statusHtml(statusMessage, tone) : ""}
+          ${statusMarkup}
           ${isAdminConsole ? renderAdminConsoleHeader(consoleCapabilities, sections) : renderProductHeader({
             eyebrow: studentExperience ? "My Capstone" : "",
             title: headerTitle,
@@ -4939,15 +4943,15 @@ function renderOverviewSection() {
 
 function renderStaffWorkspaceTodaySection() {
   const model = staffWorkspaceAttentionModel();
-  const roles = model.roles;
   const todayTitle = staffWorkspaceTitle(model);
+  const primaryQueue = staffWorkspacePrimaryQueue(model);
   return `
     <section class="workspace-workflow-landing workspace-staff-today" data-staff-workspace-today="true" data-staff-attention-model="true" aria-labelledby="staffWorkspaceTodayTitle">
       <div class="workspace-card-head workspace-staff-today-head">
         <div>
           <p class="workspace-kicker">Staff Workspace</p>
           <h2 id="staffWorkspaceTodayTitle">${escapeHtml(todayTitle)}</h2>
-          <p class="workspace-muted">Who needs attention today?</p>
+          <p class="workspace-muted">Start with one group, then open one student.</p>
         </div>
         <div class="workspace-row-actions">
           ${renderStaffPrimaryAction(model)}
@@ -4955,15 +4959,14 @@ function renderStaffWorkspaceTodaySection() {
         </div>
       </div>
       ${model.readOnly ? renderReadOnlyBanner() : ""}
-      ${renderStaffWorkspaceStartHere(model)}
-      ${renderStaffCompactSummaryStrip(model)}
+      ${renderStaffWorkspaceStartHere(model, primaryQueue)}
       ${renderStaffNoAssignmentState(model)}
-      <div class="workspace-staff-attention-layout">
-        <div class="workspace-staff-attention-grid" aria-label="Staff attention queues">
-          ${staffWorkspaceQueueDefinitions().map((queue) => renderStaffAttentionQueue(model, queue)).join("")}
+      <div class="workspace-staff-attention-layout workspace-staff-flow-layout" data-staff-flow-layout="true">
+        <div class="workspace-staff-attention-grid workspace-staff-primary-list" data-staff-primary-list="true" aria-label="Main staff worklist">
+          ${renderStaffAttentionQueue(model, primaryQueue, { primary: true, limit: 6 })}
         </div>
-        ${renderStaffTodayScopePanel(model)}
       </div>
+      ${renderStaffWorkspaceSecondaryDetails(model, primaryQueue)}
       ${siteStudentDetailState?.sourceSection === "overview" ? renderSiteStudentDetailSurface({
         students: model.detailRows,
         scope: model.scope,
@@ -5256,6 +5259,41 @@ function renderStaffCompactSummaryStrip(model = {}) {
   `;
 }
 
+function staffWorkspacePrimaryQueue(model = {}) {
+  const definitions = staffWorkspaceQueueDefinitions();
+  const urgentQueue = definitions.find((queue) => queue.id !== "on-track" && staffWorkspaceQueueRows(model.rows || [], queue.id).length > 0);
+  if (urgentQueue) return urgentQueue;
+  return definitions.find((queue) => staffWorkspaceQueueRows(model.rows || [], queue.id).length > 0)
+    || definitions.find((queue) => queue.id === "on-track")
+    || definitions[0];
+}
+
+function staffWorkspaceStartActionForQueue(model = {}, queue = {}) {
+  const actions = staffWorkspaceStartHereActions(model);
+  const queueToAction = {
+    "needs-review": "review-work",
+    "needs-help": "needs-changes",
+    "missing-setup": "missing-work",
+    recent: "all-students",
+    "on-track": "all-students",
+  };
+  const preferredActionId = queueToAction[queue.id] || "all-students";
+  return actions.find((action) => action.id === preferredActionId)
+    || actions.find((action) => action.alwaysShow)
+    || actions[0]
+    || null;
+}
+
+function staffWorkspaceStartLabelForQueue(queue = {}, action = {}) {
+  if (!action?.alwaysShow || queue.id === "on-track") return action?.label || queue.title || "Open students";
+  return {
+    "needs-review": "Open students to review",
+    "needs-help": "Open students needing help",
+    "missing-setup": "Open missing setup",
+    recent: "Open recent students",
+  }[queue.id] || action.label || queue.title || "Open students";
+}
+
 function staffWorkspaceStartHereActions(model = {}) {
   const counts = model.counts || {};
   const sections = availableSectionIdsForAnyMode();
@@ -5305,34 +5343,37 @@ function staffWorkspaceStartHereActions(model = {}) {
   return actions.filter((action) => action.visible && (action.alwaysShow || safeNumber(action.count) > 0)).slice(0, 4);
 }
 
-function renderStaffWorkspaceStartHere(model = {}) {
-  const actions = staffWorkspaceStartHereActions(model);
-  const urgentActions = actions.filter((action) => !action.alwaysShow);
-  const caughtUp = !urgentActions.length;
+function renderStaffWorkspaceStartHere(model = {}, primaryQueue = staffWorkspacePrimaryQueue(model)) {
+  const action = staffWorkspaceStartActionForQueue(model, primaryQueue);
+  const primaryRows = staffWorkspaceQueueRows(model.rows || [], primaryQueue.id);
+  const caughtUp = !staffWorkspaceQueueDefinitions().some((queue) => queue.id !== "on-track" && staffWorkspaceQueueRows(model.rows || [], queue.id).length > 0);
+  const title = caughtUp ? "You are caught up for now" : `Start with ${primaryQueue.title.toLowerCase()}`;
+  const detail = caughtUp
+    ? "No urgent group is open in this view. Use Students when you need a specific student."
+    : "Open one student from the list below before changing filters or checking reports.";
   return `
     <section class="workspace-staff-start-here" data-teacher-first-component="StartHerePanel" data-staff-start-here="true" aria-labelledby="staffStartHereTitle">
       <div class="workspace-staff-start-here-head">
         <div>
           <p class="workspace-kicker">Start Here</p>
-          <h3 id="staffStartHereTitle">${caughtUp ? "You are caught up for now" : "Pick one student group first"}</h3>
-          <p>${caughtUp ? "No urgent student group is open in this view. Search or open the roster when you need a specific student." : "Choose the most useful group, then open one student before changing filters."}</p>
+          <h3 id="staffStartHereTitle">${escapeHtml(title)}</h3>
+          <p>${escapeHtml(detail)}</p>
         </div>
-        ${renderStaffPrimaryAction(model)}
       </div>
-      <div class="workspace-staff-start-here-list">
-        ${actions.map((action) => `
-          <article class="workspace-staff-start-here-row" data-staff-start-action="${escapeHtml(action.id)}">
+      ${action ? `
+        <div class="workspace-staff-start-here-list">
+          <article class="workspace-staff-start-here-row workspace-staff-start-here-row-primary" data-staff-start-action="${escapeHtml(action.id)}" data-staff-primary-start-action="true">
             <div>
-              <strong>${escapeHtml(action.label)}</strong>
-              <p>${escapeHtml(action.detail)}</p>
+              <strong>${escapeHtml(staffWorkspaceStartLabelForQueue(primaryQueue, action))}</strong>
+              <p>${escapeHtml(primaryQueue.detail || action.detail)}</p>
             </div>
-            <span>${escapeHtml(safeNumber(action.count))}</span>
+            <span>${escapeHtml(primaryRows.length || safeNumber(action.count))}</span>
             <button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(action.section)}" ${action.preset ? `data-section-preset="${escapeHtml(action.preset)}"` : ""}>
               ${escapeHtml(action.action)}
             </button>
           </article>
-        `).join("")}
-      </div>
+        </div>
+      ` : ""}
     </section>
   `;
 }
@@ -5372,11 +5413,13 @@ function renderStaffNoAssignmentState(model = {}) {
   `;
 }
 
-function renderStaffAttentionQueue(model = {}, queue = {}) {
+function renderStaffAttentionQueue(model = {}, queue = {}, options = {}) {
   const rows = staffWorkspaceQueueRows(model.rows || [], queue.id);
   if (!rows.length && queue.id !== "on-track") return "";
+  const limit = Math.max(1, safeNumber(options.limit || 4));
+  const visibleRows = rows.slice(0, limit);
   return `
-    <section class="workspace-staff-queue" data-staff-attention-queue="${escapeHtml(queue.id)}" aria-labelledby="staffQueue-${escapeHtml(queue.id)}">
+    <section class="workspace-staff-queue ${options.primary ? "workspace-staff-queue-primary" : "workspace-staff-queue-secondary"}" data-staff-attention-queue="${escapeHtml(queue.id)}" ${options.primary ? `data-staff-primary-queue="${escapeHtml(queue.id)}"` : `data-staff-secondary-queue="${escapeHtml(queue.id)}"`} aria-labelledby="staffQueue-${escapeHtml(queue.id)}">
       <div class="workspace-staff-queue-head">
         <div>
           <h3 id="staffQueue-${escapeHtml(queue.id)}">${escapeHtml(queue.title)}</h3>
@@ -5386,12 +5429,34 @@ function renderStaffAttentionQueue(model = {}, queue = {}) {
       </div>
       <div class="workspace-staff-queue-list">
         ${rows.length
-          ? rows.slice(0, 4).map((row) => renderStaffQueueStudentRow(row, queue.id, model)).join("")
+          ? visibleRows.map((row) => renderStaffQueueStudentRow(row, queue.id, model)).join("")
           : `<article class="workspace-staff-queue-empty"><strong>${escapeHtml(queue.empty)}</strong></article>`}
       </div>
-      ${rows.length > 4 ? `<p class="workspace-muted">${escapeHtml(rows.length - 4)} more ${escapeHtml(queue.title.toLowerCase())} rows remain in Students.</p>` : ""}
+      ${rows.length > limit ? `<p class="workspace-muted">${escapeHtml(rows.length - limit)} more ${escapeHtml(queue.title.toLowerCase())} rows remain in Students.</p>` : ""}
     </section>
   `;
+}
+
+function renderStaffWorkspaceSecondaryDetails(model = {}, primaryQueue = staffWorkspacePrimaryQueue(model)) {
+  const otherQueues = staffWorkspaceQueueDefinitions()
+    .filter((queue) => queue.id !== primaryQueue.id)
+    .filter((queue) => staffWorkspaceQueueRows(model.rows || [], queue.id).length > 0)
+    .map((queue) => renderStaffAttentionQueue(model, queue, { limit: 2 }))
+    .join("");
+  const bodyHtml = `
+    <div class="workspace-staff-secondary-flow" data-staff-secondary-details="true">
+      ${renderStaffCompactSummaryStrip(model)}
+      ${renderStaffTodayScopePanel(model)}
+      ${otherQueues ? `<div class="workspace-staff-secondary-queues" aria-label="Other student groups">${otherQueues}</div>` : ""}
+    </div>
+  `;
+  return renderTeacherFirstDisclosure({
+    id: "staff-counts-and-groups",
+    summary: "Show counts and other groups",
+    bodyHtml,
+    className: "workspace-staff-secondary-disclosure",
+    dataAttrs: 'data-staff-secondary-flow="true"',
+  });
 }
 
 function renderStaffQueueStudentRow(row = {}, queueId = "", model = {}) {

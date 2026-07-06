@@ -51,3 +51,68 @@ Blockers:
 - The 12-hour wall-clock requirement cannot be honestly marked complete in this initial block.
 
 Block type: active work.
+
+## 2026-07-06 12:42 PT - Stage 01 Checkpoint Block
+
+Current SHA before Stage 01 commit: `6dc83fe3a9fe9fc302b11e8d61108a3ea2e8802d`
+
+Files changed:
+
+- `workspace.js`
+- `workspace.css`
+- `tests/workspace-app.test.mjs`
+- `scripts/prove-workspace-ui-polish.mjs`
+- `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- `docs/sales/screenshots/2026-07-06-flow-redesign/`
+- `docs/progress/runs/2026-07-06-12h-flow-redesign-progress-log.md`
+
+Tests and checks run:
+
+- `node --check workspace.js`
+- `node --check scripts\prove-workspace-ui-polish.mjs`
+- `node --test tests\workspace-app.test.mjs` - 114/114 passed
+- `npm run check:workspace-mobile`
+- `npm run check:workspace-accessibility`
+- `npm run verify:permission-matrix`
+- `npm run verify:mutation-origin`
+- `npm run verify:workspace-navigation`
+- `npm run check:pilot-readiness` - preserved `NO_GO_REAL_STUDENT_PILOT`
+- `npm run typecheck`
+- `npm test` - 501 passed, 4 skipped, 0 failed
+- `npm run check`
+- `git diff --check`
+- `npm run prove:workspace-ui-polish` with `WORKSPACE_UI_POLISH_SCREENSHOT_DIR=docs/sales/screenshots/2026-07-06-flow-redesign` and `WORKSPACE_UI_POLISH_MANIFEST_PATH=docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+
+Screenshot/proof status:
+
+- New manifest: `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- New screenshots: `docs/sales/screenshots/2026-07-06-flow-redesign/`
+- Screenshot count: 46
+- Screenshot verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Failures: 0
+- Boundary: local fake-account UI proof only. Real-student production status remains `NOT_CLAIMED_READY`.
+
+Finished:
+
+- Converted Staff Workspace Today from a multi-queue dashboard wall into a focused start-to-primary-list flow.
+- Picked one primary staff queue from the existing scoped rows and rendered that list first.
+- Moved counts, scope context, and other groups into a collapsed "Show counts and other groups" detail.
+- Removed the duplicate Start Here primary button.
+- Suppressed default ready banners while keeping loading, action, and error feedback.
+- Compact mobile staff product-header chrome by hiding posture chip clusters on phone widths.
+- Updated the local screenshot proof expectations to match the new flow-first copy.
+- Manually inspected Program Teacher desktop and Mentor mobile screenshots after proof generation.
+
+Remaining:
+
+- This is not the full 12-hour rebirth. Student, Admin, Viewer, and deeper detail flows still need later staged passes.
+- The mobile staff screen is substantially calmer, but the next major pass should continue reducing top chrome and moving role/access context out of the first viewport.
+- Hosted proof was not run in this block.
+- Real-student pilot remains `NO_GO_REAL_STUDENT_PILOT` pending required manual/policy evidence.
+
+Blockers:
+
+- None for this stage.
+- The all-day 12-hour minimum is not complete and must not be claimed complete.
+
+Block type: break/checkpoint.
