@@ -2020,11 +2020,60 @@ function renderAdminConsoleOverviewSection(capabilities = adminConsoleCapabiliti
         ${capabilities.readOnly ? `<span class="workspace-read-only-chip">Read-only</span>` : `<span class="workspace-site-context-badge">${escapeHtml(capabilities.scope.label)}</span>`}
       </div>
       <div class="workspace-admin-console-overview-layout">
+        ${renderAdminSetupFirstPanel(model, capabilities)}
         ${renderAdminSetupIssues(model.setupIssues)}
         ${renderAdminSetupReadinessPanel(model.setupReadiness)}
         ${renderAdminHealthSummary(model.health)}
         ${renderAdminQuickActions(model.quickActions)}
         ${renderAdminRecentActivity(model.recentActivity)}
+      </div>
+    </section>
+  `;
+}
+
+function renderAdminSetupFirstPanel(model = {}, capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  const setupIssues = Array.isArray(model.setupIssues) ? model.setupIssues : [];
+  const readinessRows = Array.isArray(model.setupReadiness) ? model.setupReadiness : [];
+  const nextIssue = setupIssues[0] || null;
+  const fallbackSection = capabilities.sectionIds?.has("adminReports") ? "adminReports" : "overview";
+  const action = nextIssue
+    ? { label: nextIssue.action || "Open setup", section: nextIssue.section || "overview" }
+    : { label: fallbackSection === "adminReports" ? "Review reports" : "Review overview", section: fallbackSection };
+  const state = nextIssue ? nextIssue.tone || "warning" : "ready";
+  const nextTitle = nextIssue?.title || "No setup blocker is first in line";
+  const nextDetail = nextIssue?.detail || "The loaded roster, assignment, program, import, and report signals do not show a first setup issue.";
+  const verificationRows = readinessRows
+    .slice()
+    .sort((a, b) => safeNumber(b.count) - safeNumber(a.count))
+    .slice(0, 4);
+  return `
+    <section class="workspace-card workspace-admin-setup-first" data-admin-setup-first-panel="true" data-admin-setup-first-state="${escapeHtml(state)}" aria-labelledby="adminSetupFirstTitle">
+      <div class="workspace-admin-setup-first-head">
+        <div>
+          <p class="workspace-kicker">Start Here</p>
+          <h3 id="adminSetupFirstTitle">Do this first</h3>
+          <p class="workspace-muted">${escapeHtml(capabilities.readOnly ? "Read-only accounts can inspect the setup state without changing records." : "Open the first setup blocker before using broader reports or exports.")}</p>
+        </div>
+        <span class="workspace-summary-badge">${escapeHtml(capabilities.scope?.label || "Allowed records")}</span>
+      </div>
+      <article class="workspace-admin-next-setup-action ${escapeHtml(state)}" data-admin-next-setup-action="${escapeHtml(nextIssue?.id || "clear")}">
+        <div>
+          <span>${escapeHtml(nextIssue ? "Next setup move" : "Current setup state")}</span>
+          <strong>${escapeHtml(nextTitle)}</strong>
+          <p>${escapeHtml(nextDetail)}</p>
+        </div>
+        ${renderAdminActionControl(action, "workspace-button workspace-button-primary workspace-button-small", "setup-first")}
+      </article>
+      <div class="workspace-admin-setup-first-grid" data-admin-setup-first-lanes="true">
+        ${verificationRows.map((row, index) => `
+          <article data-admin-setup-first-lane="${escapeHtml(row.id || `lane-${index + 1}`)}" data-admin-setup-first-lane-state="${escapeHtml(row.tone || "ready")}">
+            <span>${escapeHtml(`Step ${index + 1}`)}</span>
+            <strong>${escapeHtml(row.label || "Setup lane")}</strong>
+            <p>${escapeHtml(row.detail || "Review this setup lane.")}</p>
+            <small>${escapeHtml(safeNumber(row.count) ? `${safeNumber(row.count)} to resolve` : "No active blocker")}</small>
+            ${row.section ? renderAdminActionControl({ label: row.action || "Open", section: row.section }, "workspace-link-button workspace-link-button-small", "setup-lane") : ""}
+          </article>
+        `).join("")}
       </div>
     </section>
   `;

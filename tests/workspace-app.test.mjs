@@ -7257,6 +7257,11 @@ test("admin console surfaces setup reasons across overview people students and r
 
   const overview = workspaceRoot.innerHTML;
   assert.match(overview, /data-admin-console-overview="true"/);
+  assert.match(overview, /data-admin-setup-first-panel="true" data-admin-setup-first-state="warning"/);
+  assert.match(overview, /Do this first/);
+  assert.match(overview, /data-admin-next-setup-action="mentor-coverage"[\s\S]*Mentor coverage missing[\s\S]*data-section="adminAssignments"[\s\S]*Open assignments/);
+  assert.match(overview, /data-admin-setup-first-lanes="true"[\s\S]*data-admin-setup-first-lane="students"[\s\S]*Student roster setup/);
+  assert.match(overview, /data-admin-setup-first-lane="imports"[\s\S]*Student CSV: 0 valid \/ 1 to fix/);
   assert.match(overview, /data-admin-needs-setup-list="true"/);
   assert.match(overview, /data-admin-issue-row="true"[\s\S]*data-admin-issue-details="student-program"[\s\S]*Show details/);
   assert.match(overview, /data-admin-report-summary-strip="true"/);
