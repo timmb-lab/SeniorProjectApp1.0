@@ -224,12 +224,12 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /teacher: \[[\s\S]*label: "Needs review", section: "teacher", preset: "submitted"[\s\S]*label: "Revision follow-up", section: "teacher", preset: "revision-requested"[\s\S]*label: "Proof attached", section: "teacher", preset: "evidence-attached-review"/,
+  /teacher: \[[\s\S]*label: "Needs review", section: "teacher", preset: "submitted"[\s\S]*label: "Revision follow-up", section: "teacher", preset: "revision-requested"[\s\S]*label: "Files attached", section: "teacher", preset: "evidence-attached-review"/,
   "Review Queue orientation suggestions must use existing Review Queue filters",
 );
 assertMatches(
   "workspaceJs",
-  /operations: \[[\s\S]*label: "Presentation follow-up", section: "operations", preset: "presentation-pending"[\s\S]*label: "Final-file failures", section: "operations", preset: "archive-failed"[\s\S]*label: "Missing proof", section: "operations", preset: "evidence-missing"/,
+  /operations: \[[\s\S]*label: "Presentation follow-up", section: "operations", preset: "presentation-pending"[\s\S]*label: "Final-file failures", section: "operations", preset: "archive-failed"[\s\S]*label: "Missing work", section: "operations", preset: "evidence-missing"/,
   "Operations orientation suggestions must use existing Operations filters",
 );
 assertMatches(
@@ -572,7 +572,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /operationsRankedNextActions\([\s\S]*label: "Review final-file failures"[\s\S]*preset: "archive-failed"/,
+  /operationsRankedNextActions\([\s\S]*label: "Review final-file issues"[\s\S]*preset: "archive-failed"/,
   "Operations Archive Failed metric must open the existing archive-failed worklist filter",
 );
 assertMatches(
@@ -652,7 +652,7 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /operationsBlockerBars\([\s\S]*label: "Proof missing"[\s\S]*preset: "evidence-missing"[\s\S]*operationsRankedNextActions\([\s\S]*label: "Resolve missing proof rows"[\s\S]*preset: "evidence-missing"/,
+  /operationsBlockerBars\([\s\S]*label: "Missing work"[\s\S]*preset: "evidence-missing"[\s\S]*operationsRankedNextActions\([\s\S]*label: "Find missing work rows"[\s\S]*preset: "evidence-missing"/,
   "Operations Evidence Missing metric must open the existing evidence-missing worklist filter",
 );
 assertMatches(

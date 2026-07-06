@@ -690,7 +690,8 @@ test("workspace keeps staff admin tools out of the regular Workspace shell and s
   assert.match(siteAdminWorkspace, /data-experience="staff-workspace"/);
   assert.match(siteAdminWorkspace, /data-staff-workspace-today="true"/);
   assert.match(siteAdminWorkspace, /data-staff-attention-model="true"/);
-  assert.match(siteAdminWorkspace, /data-staff-attention-queue="needs-review"/);
+  assert.match(siteAdminWorkspace, /data-staff-start-here="true"/);
+  assert.match(siteAdminWorkspace, /data-teacher-first-component="CompactSummaryStrip"/);
   assert.match(siteAdminWorkspace, /Who needs attention today\?/);
   assert.match(siteAdminWorkspace, /Open Student/);
   assert.doesNotMatch(siteAdminWorkspace, /data-workspace-admin-console-handoff="true"|Need setup or access work\?/);
@@ -746,7 +747,7 @@ test("workspace reports render accessible shared report bars with mobile fallbac
   assert.match(adminReports, /data-admin-reports="true"/);
   assert.match(adminReports, /data-admin-report-summary="true"/);
   assert.match(adminReports, /data-admin-report-row="roster"[\s\S]*aria-valuemax="100"[\s\S]*aria-valuetext="/);
-  assert.match(adminReports, /data-admin-report-row="mentor"[\s\S]*Denominator: \d+ students in scope/);
+  assert.match(adminReports, /data-admin-report-row="mentor"[\s\S]*Denominator: \d+ students in this view/);
   assert.match(adminReports, /data-admin-report-row="issues"[\s\S]*Setup\/import issues/);
   assert.match(adminReports, /data-report-bars="true"/);
   assert.match(adminReports, /data-report-export-panel="admin"/);
@@ -1016,7 +1017,7 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
   for (const copy of [
     "School workspace",
     "Student progress",
-    "Private proof",
+    "Private files",
     "Mentor coverage",
     "Review work",
     "Presentation readiness",
@@ -1056,7 +1057,7 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
   assert.match(workspaceJs, /Students can see their booklet phases, add files or links, turn in work, read feedback, and prepare for presentations/);
   assert.match(signInBlock, /renderWorkspaceLandingHero\(\)/);
   assert.doesNotMatch(signInBlock, /renderProductHeader\(/);
-  assert.doesNotMatch(signInBlock, /Student progress|Private proof|Mentor coverage|Review work|Presentation readiness/);
+  assert.doesNotMatch(signInBlock, /Student progress|Private files|Mentor coverage|Review work|Presentation readiness/);
   assert.match(appShellBlock, /renderProductHeader\(\{[\s\S]*context: headerContext,[\s\S]*readOnly: roles\.has\("viewer"\)/);
   assert.match(appShellBlock, /renderScreenGuidance\(activeSection, guidancePrimaryRole, guidanceRoles, sections\)/);
   assert.match(screenGuidanceBlock, /renderScreenOrientation\(sectionId, primaryRole, roles, sections\)/);
@@ -1109,7 +1110,7 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
     "Temporary setup passwords are sensitive handoffs and should only be shared through the school-approved process.",
     "Rows hide private student, work, account, and file details until a source screen is opened with allowed access.",
     "Have the exact file or link ready before adding it or turning in work.",
-    "Review proof and history before saving a Program Teacher decision.",
+    "Review work and history before saving a Program Teacher decision.",
     "Have the setup handoff and admin note ready before creating or importing accounts.",
     "Set action, person, or record filters before investigating the log.",
     "The current phase item shows the new file count, waiting review state, feedback message, or Done status.",
@@ -1262,7 +1263,7 @@ test("workspace student search landing opens the Student Directory with scoped s
 
   assert.match(workspaceRoot.innerHTML, /data-workspace-student-search="true"/);
   assert.match(workspaceRoot.innerHTML, /Find a student/);
-  assert.match(workspaceRoot.innerHTML, /Uses the current Student Directory scope and permissions\./);
+  assert.match(workspaceRoot.innerHTML, /Uses the current Student Directory filters and access\./);
 
   await vm.runInContext('openWorkspaceStudentSearch("Missing Mentor Demo")', context);
 
@@ -1329,7 +1330,7 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(siteDashboard, /mentor coverage/i);
   assert.match(siteDashboard, /data-rail-access-summary="compact"/);
   assert.match(siteDashboard, /data-active-role-badge="true"[\s\S]*data-role-identity="site_admin"/);
-  assert.match(siteDashboard, /data-rail-access-summary="compact"[\s\S]*Site Admin[\s\S]*Site-scoped tools for the assigned school/);
+  assert.match(siteDashboard, /data-rail-access-summary="compact"[\s\S]*Site Admin[\s\S]*School tools for the assigned school/);
   assert.doesNotMatch(siteDashboard, /site:site-desert-valley-high|Global scope|role scope|total in scope/);
   assert.doesNotMatch(siteDashboard, /Database-backed MVP|Cloudflare target|Audit-sensitive admin|Senior Capstone Product/);
   assert.match(siteDashboard, /workspace-site-context-badge/);
@@ -1346,23 +1347,23 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(siteDashboard, /data-site-admin-first-day-checklist="true"/);
   assert.match(siteDashboard, /First-day setup checklist/);
   assert.match(siteDashboard, /data-first-use-guide="site-dashboard"/);
-  assert.match(siteDashboard, /Run the school workspace from this dashboard/);
+  assert.match(siteDashboard, /Run the school workspace from this overview/);
   assert.match(siteDashboard, /Open the most urgent tile/);
-  assert.match(siteDashboard, /Route the owner/);
+  assert.match(siteDashboard, /Choose the right team/);
   assert.match(siteDashboard, /data-site-action-map="true"/);
   assert.match(siteDashboard, /Where to start at this school/);
   assert.match(siteDashboard, /Current school: Desert Valley High School/);
-  assert.match(siteDashboard, /data-site-action-map-card="setup"[\s\S]*School Admin[\s\S]*1 setup[\s\S]*Fix the first setup gap[\s\S]*Start with mentor coverage/);
+  assert.match(siteDashboard, /data-site-action-map-card="setup"[\s\S]*School team[\s\S]*1 setup[\s\S]*Fix the first setup gap[\s\S]*Start with mentor coverage/);
   assert.match(siteDashboard, /data-site-action-map-card="mentor"[\s\S]*Site staff[\s\S]*17 missing[\s\S]*Assign mentor coverage[\s\S]*data-section="mentorAssignments" data-section-preset="no-mentor"[\s\S]*Open coverage/);
   assert.match(siteDashboard, /data-site-action-map-card="review"[\s\S]*Program Teacher[\s\S]*84 review[\s\S]*Route review work[\s\S]*data-section="teacher" data-section-preset="revision-requested"[\s\S]*Open revisions/);
-  assert.match(siteDashboard, /data-site-action-map-card="proof"[\s\S]*Student \+ reviewer[\s\S]*1 risk[\s\S]*Check proof blockers[\s\S]*data-section="students" data-section-preset="high-risk-students"[\s\S]*Open high risk/);
-  assert.match(siteDashboard, /data-site-action-map-card="operations"[\s\S]*Site operations[\s\S]*15 ops[\s\S]*Finish operations follow-up[\s\S]*data-section="operations" data-section-preset="archive-failed"[\s\S]*Open failures/);
-  assert.match(siteDashboard, /data-site-action-map-card="all-clear"[\s\S]*School team[\s\S]*101 signals[\s\S]*Return here after the first blocker/);
+  assert.match(siteDashboard, /data-site-action-map-card="proof"[\s\S]*Student and teacher[\s\S]*1 need help[\s\S]*Check students needing help[\s\S]*data-section="students" data-section-preset="high-risk-students"[\s\S]*Open high priority/);
+  assert.match(siteDashboard, /data-site-action-map-card="operations"[\s\S]*Site staff[\s\S]*15 ops[\s\S]*Finish operations follow-up[\s\S]*data-section="operations" data-section-preset="archive-failed"[\s\S]*Open failures/);
+  assert.match(siteDashboard, /data-site-action-map-card="all-clear"[\s\S]*School team[\s\S]*101 items[\s\S]*Return here after the first issue/);
   assert.match(siteDashboard, /data-section="mentorAssignments" data-section-preset="no-mentor">Assign mentors/);
   assert.match(siteDashboard, /Submitted/);
   assert.match(siteDashboard, /Needs Revision/);
-  assert.match(siteDashboard, /Proof/);
-  assert.match(siteDashboard, /Proof[\s\S]*Summary only/);
+  assert.match(siteDashboard, /Files/);
+  assert.match(siteDashboard, /Files[\s\S]*Summary only/);
   assert.match(siteDashboard, /Recent Activity[\s\S]*Summary only/);
   assert.match(siteDashboard, /Presentations/);
   assert.match(siteDashboard, /Final Files/);
@@ -1372,7 +1373,7 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(siteDashboard, /Final-file exports failed/);
   assert.match(siteDashboard, /data-workspace-disclosure-panel="dashboard:siteDashboard"/);
   assert.match(siteDashboard, /aria-expanded="false"/);
-  assert.doesNotMatch(siteDashboard, /Program Breakdown|Top Risk Students|View load|data-site-student-action="view-detail"/);
+  assert.doesNotMatch(siteDashboard, /Program Breakdown|Students Needing Help|View load|data-site-student-action="view-detail"/);
 
   openWorkspaceDisclosure(context, "dashboard", "siteDashboard");
   const expandedSiteDashboard = workspaceRoot.innerHTML;
@@ -1569,9 +1570,9 @@ test("workspace explains what users need before starting a screen", async () => 
   const teacher = await renderWorkspaceWithFetch(profileRoutesForRole("program_teacher"), "teacher");
   assert.match(teacher, /data-screen-start-guide="teacher"/);
   assert.match(teacher, /data-start-requirement="select-one-row" data-start-requirement-state="choose"/);
-  assert.match(teacher, /Choose one review item before reading proof, history, or the decision area\./);
-  assert.match(teacher, /data-start-requirement="proof-and-history" data-start-requirement-state="check"/);
-  assert.match(teacher, /Review proof and history before saving a Program Teacher decision\./);
+  assert.match(teacher, /Choose one review item before reading work, history, or the decision area\./);
+  assert.match(teacher, /data-start-requirement="work-and-history" data-start-requirement-state="check"/);
+  assert.match(teacher, /Review work and history before saving a Program Teacher decision\./);
 
   const adminUsers = await renderWorkspaceWithFetch(profileRoutesForRole("site_admin"), "adminUsers");
   assert.match(adminUsers, /data-screen-start-guide="adminUsers"/);
@@ -2680,7 +2681,7 @@ test("global admin recent audit rows open filtered audit activity", async () => 
   assert.match(workspaceRoot.innerHTML, /Potential Issues/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-first-use-guide="audit"/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map="true"/);
-  assert.match(workspaceRoot.innerHTML, /Choose one redacted audit lane/);
+  assert.match(workspaceRoot.innerHTML, /Choose one audit filter/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map-card="recent"[\s\S]*Global admin[\s\S]*1 event[\s\S]*Start with latest changes[\s\S]*data-section="audit"[\s\S]*Show recent/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map-card="review-decisions"[\s\S]*Program Teacher lead[\s\S]*0 decisions[\s\S]*Confirm review decisions[\s\S]*data-audit-entity-type="review"[\s\S]*Open reviews/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-saved-filters="true"/);
@@ -2841,17 +2842,17 @@ test("global admin audit URL state restores filtered activity", async () => {
   assert.equal(blockedFileUrl.searchParams.get("action"), "evidence_upload_blocked_signature");
   assert.equal(blockedFileUrl.searchParams.get("entityType"), "submission");
   assert.match(workspaceRoot.innerHTML, /Filtered by submission \/ evidence upload blocked signature/);
-  assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map-card="blocked-evidence"[\s\S]*1 block[\s\S]*Review blocked evidence safely[\s\S]*data-audit-action="evidence_upload_blocked_signature"[\s\S]*data-audit-entity-type="submission"[\s\S]*aria-pressed="true"[\s\S]*Viewing/);
+  assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map-card="blocked-evidence"[\s\S]*1 item[\s\S]*Review file upload issues safely[\s\S]*data-audit-action="evidence_upload_blocked_signature"[\s\S]*data-audit-entity-type="submission"[\s\S]*aria-pressed="true"[\s\S]*Viewing/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-saved-filter="blocked-file-uploads"[\s\S]*aria-pressed="true"/);
   assert.match(workspaceRoot.innerHTML, /evidence upload blocked signature/i);
   assert.doesNotMatch(workspaceRoot.innerHTML, /student:secret|password-reset|drive_file_id|driveFileId/i);
 
   await vm.runInContext('openWorkspaceSection({ dataset: { section: "audit" } })', context);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map-card="recent"[\s\S]*4 events[\s\S]*Start with latest changes/);
-  assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map-card="blocked-evidence"[\s\S]*2 blocks[\s\S]*Review blocked evidence safely/);
+  assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map-card="blocked-evidence"[\s\S]*2 items[\s\S]*Review file upload issues safely/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map-card="review-decisions"[\s\S]*1 decision[\s\S]*Confirm review decisions/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map-card="session-pressure" data-admin-audit-action-owner="Account support" data-current-filter="false"/);
-  assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map-card="session-pressure"[\s\S]*Account support[\s\S]*0 signals[\s\S]*Summary only/);
+  assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map-card="session-pressure"[\s\S]*Account support[\s\S]*0 items[\s\S]*Summary only/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-anomaly="blocked-evidence-attempts" data-admin-audit-anomaly-state="needs-review"/);
   assert.match(workspaceRoot.innerHTML, /Blocked evidence attempts[\s\S]*2/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-saved-filter="blocked-proof-links"[\s\S]*evidence link blocked unsafe url/i);
@@ -2884,9 +2885,9 @@ test("site dashboard top-risk detail stays in dashboard context", async () => {
 
   vm.runInContext('activeSection = "siteDashboard"; renderAppShell();', context);
   assert.match(workspaceRoot.innerHTML, /data-workspace-disclosure-panel="dashboard:siteDashboard"/);
-  assert.doesNotMatch(workspaceRoot.innerHTML, /Top Risk Students/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /Students Needing Help/);
   openWorkspaceDisclosure(context, "dashboard", "siteDashboard");
-  assert.match(workspaceRoot.innerHTML, /Top Risk Students/);
+  assert.match(workspaceRoot.innerHTML, /Students Needing Help/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /workspace-detail-drawer/);
 
   await vm.runInContext(`
@@ -4277,10 +4278,10 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(teacher, /Student[\s\S]*Revision Loop Demo 001/);
   assert.match(teacher, /What they sent[\s\S]*Project proposal/);
   assert.match(teacher, /Status[\s\S]*Waiting for review/);
-  assert.match(teacher, /Last update[\s\S]*3 proof items/);
+  assert.match(teacher, /Last update[\s\S]*3 files attached/);
   assert.match(teacher, /data-review-row-more-menu="true"[\s\S]*More[\s\S]*Open student/);
   assert.match(teacher, /data-review-row-decision-hint="true"/);
-  assert.match(teacher, /Review the work, check proof, then save clear feedback/);
+  assert.match(teacher, /Review the work, check files, then save clear feedback/);
   assert.match(teacher, /The student needs to fix this before another review/);
   assert.match(teacher, /This work is open\. Feedback and actions are shown beside the list/);
   assert.match(teacher, /data-review-decision-readiness="true"/);
@@ -4288,14 +4289,14 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(teacher, /data-review-selected-summary="true"/);
   assert.match(teacher, /data-review-selected-summary-state="decision-ready"/);
   assert.match(teacher, /Selected row[\s\S]*Project proposal[\s\S]*Information Technology \/ version 2 \/ Waiting for review/);
-  assert.match(teacher, /3<\/b> proof[\s\S]*1<\/b> reviews[\s\S]*2<\/b> comments/);
+  assert.match(teacher, /3<\/b> files[\s\S]*1<\/b> reviews[\s\S]*2<\/b> comments/);
   assert.match(teacher, /One saved decision updates the student&#039;s next step/);
-  assert.match(teacher, /Proof[\s\S]*3 attached/);
+  assert.match(teacher, /Files[\s\S]*3 attached/);
   assert.match(teacher, /Manual review[\s\S]*Teacher decision controls next steps/);
   assert.match(teacher, /data-review-proof-quality-checklist="true"/);
   assert.match(teacher, /data-review-proof-quality-state="ready"/);
   assert.match(teacher, /Correct work item[\s\S]*Project proposal is the row being reviewed/);
-  assert.match(teacher, /Active proof visible[\s\S]*3 proof items are attached to this row/);
+  assert.match(teacher, /Files are attached[\s\S]*3 files are attached to this row/);
   assert.match(teacher, /History checked[\s\S]*1 prior review record is available for comparison/);
   assert.match(teacher, /Decision matches work[\s\S]*Approval, changes, and comment-only are available; choose exactly one/);
   assert.match(teacher, /data-review-decision-checklist="true"/);
@@ -4303,7 +4304,7 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(teacher, /data-review-submission-recovery="true"/);
   assert.match(teacher, /data-review-next-step-checkpoint="true"/);
   assert.match(teacher, /Approval controls the student&#039;s next steps/);
-  assert.match(teacher, /Check proof and history/);
+  assert.match(teacher, /Check work and history/);
   assert.match(teacher, /Approve next steps only when ready/);
   assert.match(teacher, /Request changes to hold the phase/);
   assert.match(teacher, /data-review-student-impact-preview="true"/);
@@ -4329,7 +4330,7 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(teacher, /<textarea name="feedback"[\s\S]*aria-describedby="reviewDecisionFeedbackHelp"/);
   assert.match(teacher, /Write the exact approval note or change the student should see\./);
   assert.match(teacher, /data-review-decision-storage-note="true"/);
-  assert.match(teacher, /Private proof file details stay hidden/);
+  assert.match(teacher, /Private file details stay hidden/);
   assert.doesNotMatch(teacher, /Bounded teacher comment|Private staff planning note/);
 
   const viewer = await renderWorkspaceWithFetch({
@@ -4655,17 +4656,17 @@ test("workspace clarifies Review Queue row actions and follow-up-only selected r
   assert.match(missingProofSelected, /data-review-selected-summary="true"/);
   assert.match(missingProofSelected, /data-review-proof-quality-checklist="true"/);
   assert.match(missingProofSelected, /data-review-proof-quality-state="blocked"/);
-  assert.match(missingProofSelected, /Active proof visible[\s\S]*No active proof is attached; approval must stay locked/);
-  assert.match(missingProofSelected, /Decision matches work[\s\S]*Use changes or comment-only context until the student sends work with proof/);
+  assert.match(missingProofSelected, /Files are attached[\s\S]*No file or link is attached; approval must stay locked/);
+  assert.match(missingProofSelected, /Decision matches work[\s\S]*Use changes or comment-only context until the student sends work with a file or link/);
   assert.match(missingProofSelected, /data-review-approval-blocked="missing-proof"/);
   assert.match(missingProofSelected, /data-review-approval-blocked-reason="missing_evidence"/);
   assert.match(missingProofSelected, /data-review-decision-inline-proof-hold="true"/);
   assert.match(missingProofSelected, /Approval remains locked here/);
-  assert.match(missingProofSelected, /Active proof is missing from this work\. Use Request changes or Add comment only until proof appears/);
-  assert.match(missingProofSelected, /data-review-decision="approved" disabled aria-disabled="true" data-review-decision-blocked="missing-proof"/);
-  assert.match(missingProofSelected, /Approval locked: proof needed/);
-  assert.match(missingProofSelected, /Choose changes or comment-only until active proof is attached/);
-  assert.match(missingProofSelected, /Ask for the missing proof before approving/);
+  assert.match(missingProofSelected, /The needed work is missing from this row\. Use Request changes or Add comment only until a file or link appears/);
+  assert.match(missingProofSelected, /data-review-decision="approved" disabled aria-disabled="true" data-review-decision-blocked="missing-work"/);
+  assert.match(missingProofSelected, /Approval locked: work needed/);
+  assert.match(missingProofSelected, /Choose changes or comment-only until the needed work is attached/);
+  assert.match(missingProofSelected, /Ask for the missing work before approving/);
   assert.match(missingProofSelected, /data-review-decision="revision_requested"/);
   assert.match(missingProofSelected, /data-review-decision="comment_only"/);
 
@@ -4811,7 +4812,7 @@ test("workspace renders Review Queue empty and history states with assigned-work
   }, "teacher");
 
   assert.match(evidenceMissingEmpty, /No matching missing work/);
-  assert.match(evidenceMissingEmpty, /No work missing proof matches these filters/);
+  assert.match(evidenceMissingEmpty, /No work missing files matches these filters/);
   assert.match(evidenceMissingEmpty, /Clear the work filter or check Students/);
   assert.match(evidenceMissingEmpty, /data-review-queue-empty-guide="filtered"/);
   assert.match(evidenceMissingEmpty, /No work matches these filters/);
@@ -5949,33 +5950,33 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
 
   assert.match(siteAdmin, /data-section="operations"/);
   assert.match(siteAdmin, /Operations/);
-  assert.match(siteAdmin, /Operations command center/);
+  assert.match(siteAdmin, /<p class="workspace-kicker">Operations<\/p>/);
   assert.match(siteAdmin, /data-screen-orientation-section="operations"/);
-  assert.match(siteAdmin, /Triage presentation, final-file, and readiness blockers/);
+  assert.match(siteAdmin, /Triage presentation, final-file, and readiness issues/);
   assert.match(siteAdmin, /Use the ranked actions before opening longer worklists/);
   assert.match(siteAdmin, /Do not mark completion from this summary/);
   assert.match(siteAdmin, /data-screen-orientation-actions="true"/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="presentation-pending"[\s\S]*Presentation follow-up/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-failed"[\s\S]*Final-file failures/);
-  assert.match(siteAdmin, /data-section="operations" data-section-preset="evidence-missing"[\s\S]*Missing proof/);
-  assert.match(siteAdmin, /School operations dashboard/);
+  assert.match(siteAdmin, /data-section="operations" data-section-preset="evidence-missing"[\s\S]*Missing work/);
+  assert.match(siteAdmin, /School operations/);
   assert.match(siteAdmin, /School follow-up worklists/);
   assert.match(siteAdmin, /workspace-operations-readiness/);
   assert.match(siteAdmin, /data-operations-action-map="true"/);
-  assert.match(siteAdmin, /Operations lane map/);
-  assert.match(siteAdmin, /Work one operations lane first/);
+  assert.match(siteAdmin, /Operations start list/);
+  assert.match(siteAdmin, /Work one setup item first/);
   assert.match(siteAdmin, /Desert Valley High School \/ 2025-2026/);
   assert.match(siteAdmin, /data-operations-action-map-card="final-files"[\s\S]*Site Admin[\s\S]*5 failed[\s\S]*Fix failed final files first[\s\S]*data-section="operations" data-section-preset="archive-failed"[\s\S]*Open failures/);
-  assert.match(siteAdmin, /data-operations-action-map-card="storage"[\s\S]*Site Admin[\s\S]*1 setup[\s\S]*Confirm storage setup[\s\S]*data-section="operations" data-section-preset="archive-provider-unavailable"[\s\S]*Open setup blockers/);
-  assert.match(siteAdmin, /data-operations-action-map-card="proof"[\s\S]*Student \+ Program Teacher[\s\S]*7 missing[\s\S]*Route missing proof[\s\S]*data-section="operations" data-section-preset="evidence-missing"[\s\S]*Open proof rows/);
+  assert.match(siteAdmin, /data-operations-action-map-card="storage"[\s\S]*Site Admin[\s\S]*1 setup[\s\S]*Confirm storage setup[\s\S]*data-section="operations" data-section-preset="archive-provider-unavailable"[\s\S]*Open setup issues/);
+  assert.match(siteAdmin, /data-operations-action-map-card="proof"[\s\S]*Student and Program Teacher[\s\S]*7 missing[\s\S]*Find missing work[\s\S]*data-section="operations" data-section-preset="evidence-missing"[\s\S]*Open missing work/);
   assert.match(siteAdmin, /data-operations-action-map-card="presentation"[\s\S]*Program Teacher or site staff[\s\S]*16 follow-up[\s\S]*Clarify presentation readiness[\s\S]*data-section="operations" data-section-preset="presentation-attention"[\s\S]*Open presentation/);
   assert.match(siteAdmin, /data-operations-action-map-card="staff-action"[\s\S]*Assigned staff[\s\S]*15 action[\s\S]*Work ranked staff actions[\s\S]*data-section="operations" data-section-preset="needs-attention"[\s\S]*Open actions/);
-  assert.match(siteAdmin, /data-operations-action-map-card="source-screens"[\s\S]*School team[\s\S]*49 signals[\s\S]*Return after the first blocker[\s\S]*data-section="operations" data-section-preset="stale-activity"[\s\S]*Open stale rows/);
+  assert.match(siteAdmin, /data-operations-action-map-card="source-screens"[\s\S]*School team[\s\S]*49 items[\s\S]*Return after the first issue[\s\S]*data-section="operations" data-section-preset="stale-activity"[\s\S]*Open stale rows/);
   assert.match(siteAdmin, /workspace-filter-bar/);
   assert.match(siteAdmin, /data-readiness-score-card="true"/);
   assert.match(siteAdmin, /Readiness score/);
   assert.match(siteAdmin, /Stage distribution/);
-  assert.match(siteAdmin, /Top blocker categories/);
+  assert.match(siteAdmin, /Top issue categories/);
   assert.match(siteAdmin, /Top next actions/);
   assert.match(siteAdmin, /Priority worklist/);
   assert.match(siteAdmin, /data-operations-compact-worklist="true"/);
@@ -5990,7 +5991,7 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /Who can help: Site Admin/);
   assert.match(siteAdmin, /Open failed final-file rows, check student detail, then use the approved export flow/);
   assert.match(siteAdmin, /Who can help: Student with Program Teacher follow-up/);
-  assert.match(siteAdmin, /Tell the student which proof belongs with the current phase work/);
+  assert.match(siteAdmin, /Tell the student exactly which file or link belongs with the current phase work/);
   assert.equal((siteAdmin.match(/<article class="workspace-dashboard-kpi/g) || []).length, 6);
   assert.doesNotMatch(siteAdmin, /workspace-metric-tile/);
   assert.match(siteAdmin, /Presentation ready/);
@@ -5998,11 +5999,11 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /Outline pending/);
   assert.match(siteAdmin, /Final files ready/);
   assert.match(siteAdmin, /Final files in progress/);
-  assert.match(siteAdmin, /Final files failed/);
+  assert.match(siteAdmin, /Final-file issues/);
   assert.match(siteAdmin, /Storage setup needed/);
   assert.match(siteAdmin, /Needs staff action/);
   assert.match(siteAdmin, /Stale activity/);
-  assert.match(siteAdmin, /Proof missing/);
+  assert.match(siteAdmin, /Missing work/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="presentation-pending">Review rows/);
   assert.match(siteAdmin, /Check-in needed/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="presentation-attention">Review rows/);
@@ -6023,7 +6024,7 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /Storage setup needed/);
   assert.match(siteAdmin, /Storage setup is needed before final-file packages can be prepared/);
   assert.match(siteAdmin, /Final-file export needs staff follow-up/);
-  assert.match(siteAdmin, /Scoped download is available/);
+  assert.match(siteAdmin, /Download is available/);
   assert.match(siteAdmin, /Download window expiring soon/);
   assert.match(siteAdmin, /Download window expired/);
   assert.doesNotMatch(siteAdmin, /drive_config_missing|drive_credentials_missing|drive_token_exchange_failed|drive_provider_error|drive_access_denied/);
@@ -6036,10 +6037,10 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /View risk rows/);
   assert.match(siteAdmin, /View student detail/);
   assert.match(siteAdmin, /status-pill|workspace-status-pill/);
-  assert.match(siteAdmin, /protected student blockers/);
+  assert.match(siteAdmin, /protected student issues/);
   assert.match(siteAdmin, /presentations/);
   assert.match(siteAdmin, /final-file readiness/);
-  assert.match(siteAdmin, /listed owner/);
+  assert.match(siteAdmin, /right next helper/);
   assert.match(siteAdmin, /No student messaging/);
   assert.doesNotMatch(siteAdmin, /data-presentation-action|data-archive-action|data-admin-action="import-users"|<button[^>]*>\s*(?:Archive retry|Retry archive|Schedule presentation|Check out|Check in|Export package)/i);
 
@@ -6086,13 +6087,13 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
     },
   }, "operations");
 
-  assert.match(programTeacherOperations, /Program-scoped operations dashboard/);
+  assert.match(programTeacherOperations, /Program operations/);
   assert.match(programTeacherOperations, /Program follow-up worklists/);
   assert.match(programTeacherOperations, /your assigned students/);
-  assert.match(programTeacherOperations, /review workflows to coordinate follow-up with site staff/i);
+  assert.match(programTeacherOperations, /Review Work to coordinate follow-up with site staff/i);
   assert.match(programTeacherOperations, /data-operations-role-guide="program-teacher"/);
   assert.match(programTeacherOperations, /Program Teacher actions/);
-  assert.match(programTeacherOperations, /Focus on blockers you can solve through feedback, approval, proof, and presentation guidance/);
+  assert.match(programTeacherOperations, /Focus on issues you can solve through feedback, approval, files, and presentation guidance/);
   assert.doesNotMatch(programTeacherOperations, /School follow-up worklists/);
 
   const viewer = await renderWorkspaceWithFetch({
@@ -6185,7 +6186,7 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
     },
   }, "operations");
 
-  assert.match(administrationOperations, /Read-only operations dashboard/);
+  assert.match(administrationOperations, /Read-only operations\. Open student detail/);
   assert.match(administrationOperations, /Read-only operations worklists/);
 
   const { context, workspaceRoot, fetchLog, window } = await createWorkspaceContextWithFetch({
@@ -6937,7 +6938,7 @@ test("workspace gates student directory visibility by role", () => {
   assert.match(workspaceJs, /function hasSiteStudentDirectoryRole\(roles\)/);
   assert.match(workspaceJs, /"platform_admin",\s+"global_admin",\s+"admin",\s+"site_admin",\s+"administration",\s+"viewer",\s+"program_teacher"/);
   assert.match(availableSectionsBlock, /add\("students", "Students", "Site student rows"\)/);
-  assert.match(availableSectionsBlock, /add\("students", "Students", "Program-scoped student rows"\)/);
+  assert.match(availableSectionsBlock, /add\("students", "Students", "Program student rows"\)/);
   assert.match(availableSectionsBlock, /add\("students", "Students", "Assigned read-only student records"\)/);
   assert.match(loadWorkspaceDataBlock, /hasSiteStudentDirectoryRole\(roles\).*\/api\/site\/students/s);
   assert.doesNotMatch(directoryRoleHelperBlock, /"mentor"|"student"|"misc_admin"/);
@@ -9365,7 +9366,7 @@ test("workspace renders role-pending and permission-denied access states", async
   assert.match(viewer, /Read-only viewer/);
   assert.match(viewer, /data-staff-workspace-today="true"/);
   assert.match(viewer, /Viewer Workspace \/ Read-only/);
-  assert.match(viewer, /data-staff-attention-queue="needs-review"/);
+  assert.match(viewer, /data-staff-start-here="true"/);
   assert.match(viewer, /data-staff-queue-student-row="true"/);
   assert.match(viewer, /data-staff-row-case-plan="true"[\s\S]*Who can help: Assigned staff[\s\S]*Next step: Use this row for context, then share the student name with authorized staff/);
   assert.match(viewer, /data-section="students" data-section-preset="all-students"/);
@@ -10168,11 +10169,11 @@ test("workspace renders admin import controls and one-time setup output", async 
   assert.match(adminUsers, /data-users-access-action-map="true"/);
   assert.match(adminUsers, /Do one safe access step first/);
   assert.match(adminUsers, /Desert Valley High School \/ 2025-2026/);
-  assert.match(adminUsers, /data-users-access-action-map-card="scope"[\s\S]*School scope[\s\S]*1 school[\s\S]*Confirm the current school[\s\S]*data-section="siteDashboard"[\s\S]*Review school/);
+  assert.match(adminUsers, /data-users-access-action-map-card="scope"[\s\S]*School[\s\S]*1 school[\s\S]*Confirm the current school[\s\S]*data-section="siteDashboard"[\s\S]*Review school/);
   assert.match(adminUsers, /data-users-access-action-map-card="role"[\s\S]*Smallest role[\s\S]*7 roles[\s\S]*Pick the smallest role[\s\S]*data-users-access-focus="create"[\s\S]*Pick role/);
   assert.match(adminUsers, /data-users-access-action-map-card="current-access"[\s\S]*Current access[\s\S]*4 active[\s\S]*Check active access first[\s\S]*data-users-access-focus="current-access"[\s\S]*Review access/);
   assert.match(adminUsers, /data-users-access-action-map-card="create"[\s\S]*Account setup[\s\S]*Local[\s\S]*Create with handoff ready[\s\S]*data-users-access-focus="preflight"[\s\S]*Open preflight/);
-  assert.match(adminUsers, /data-users-access-action-map-card="assign"[\s\S]*School grants[\s\S]*3 forms[\s\S]*Assign one scope at a time[\s\S]*data-users-access-focus="assignment-forms"[\s\S]*Open forms/);
+  assert.match(adminUsers, /data-users-access-action-map-card="assign"[\s\S]*School grants[\s\S]*3 forms[\s\S]*Assign one area at a time[\s\S]*data-users-access-focus="assignment-forms"[\s\S]*Open forms/);
   assert.match(adminUsers, /data-users-access-action-map-card="remove"[\s\S]*Removal safety[\s\S]*5 removable[\s\S]*Read removal impact first[\s\S]*data-users-access-focus="removal"[\s\S]*Review warning/);
   assert.match(adminUsers, /data-users-access-action-map-card="history"[\s\S]*Access history[\s\S]*2 changes[\s\S]*Review recent changes[\s\S]*data-workspace-disclosure-scope="usersAccess"[\s\S]*data-workspace-disclosure-id="history"[\s\S]*Open changes/);
   assert.match(adminUsers, /data-users-access-action-map-card="role-history"[\s\S]*Role history[\s\S]*0 grants[\s\S]*Review role grants[\s\S]*data-workspace-disclosure-scope="usersAccess"[\s\S]*data-workspace-disclosure-id="roleAssignments"[\s\S]*Open grants/);
@@ -10194,7 +10195,7 @@ test("workspace renders admin import controls and one-time setup output", async 
   assert.match(adminUsers, /Remove account/);
   assert.match(adminUsers, /data-site-access-removal-warning="true"/);
   assert.match(adminUsers, /Before removing access/);
-  assert.match(adminUsers, /does not delete student work, proof, programs, or audit history/);
+  assert.match(adminUsers, /does not delete student work, files, programs, or audit history/);
   assert.match(adminUsers, /data-site-account-remove-impact="true"/);
   assert.doesNotMatch(adminUsers, /Import Account|Import reason|Misc Admin|misc_admin/);
   assert.match(adminUsers, /data-admin-import-result="one-time-setup-passwords"/);
@@ -11364,7 +11365,7 @@ test("workspace keeps admin import setup output memory-only and gates non-admin 
   `, context);
   assert.match(workspaceRoot.innerHTML, /data-people-view="add-student"/);
   assert.match(workspaceRoot.innerHTML, /data-destructive-confirmation="student-create-delivery"/);
-  assert.match(workspaceRoot.innerHTML, /I reviewed the role, school scope, and setup-password delivery process/);
+  assert.match(workspaceRoot.innerHTML, /I reviewed the role, school access, and setup-password delivery process/);
   assert.match(workspaceRoot.innerHTML, /Setup-Display-Only-2026!Aa9/);
 
   vm.runInContext(`

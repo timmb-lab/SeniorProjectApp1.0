@@ -91,7 +91,7 @@ const WORKSPACE_UPLOAD_ALLOWED_MIME_TYPES_BY_EXTENSION = new Map([
 ]);
 const WORKSPACE_POSTURE_CHIPS = [
   "Student progress",
-  "Private proof",
+  "Private files",
   "Mentor coverage",
   "Review work",
   "Presentation readiness",
@@ -918,6 +918,34 @@ function renderProblemState({ reason, owner, nextAction, actions } = {}) {
   `;
 }
 
+function renderTeacherFirstMoreActions({ id = "more", label = "More", actions = [], className = "", dataAttrs = "", ariaLabel = "" } = {}) {
+  const safeActions = (Array.isArray(actions) ? actions : [])
+    .map((action) => String(action || "").trim())
+    .filter(Boolean);
+  if (!safeActions.length) return "";
+  return `
+    <details class="workspace-row-more-menu workspace-teacher-first-more-actions ${escapeHtml(className)}" data-teacher-first-component="MoreActionsMenu" data-more-actions-menu="${escapeHtml(id)}" ${dataAttrs} ${ariaLabel ? `aria-label="${escapeHtml(ariaLabel)}"` : ""}>
+      <summary>${escapeHtml(label || "More")}</summary>
+      <div class="workspace-row-more-menu-body">
+        ${safeActions.join("")}
+      </div>
+    </details>
+  `;
+}
+
+function renderTeacherFirstDisclosure({ id = "details", summary = "Show details", bodyHtml = "", className = "", dataAttrs = "" } = {}) {
+  const body = String(bodyHtml || "").trim();
+  if (!body) return "";
+  return `
+    <details class="workspace-teacher-first-disclosure ${escapeHtml(className)}" data-teacher-first-component="CollapsibleDetails" data-collapsible-details="${escapeHtml(id)}" ${dataAttrs}>
+      <summary>${escapeHtml(summary || "Show details")}</summary>
+      <div class="workspace-teacher-first-disclosure-body">
+        ${body}
+      </div>
+    </details>
+  `;
+}
+
 function renderSignIn(message = "", tone = "neutral", workspaceState = "signed-out", options = {}) {
   const authConfig = authConfigForUi();
   const urlAuthError = authErrorMessageFromLocation();
@@ -1292,7 +1320,7 @@ function workspaceNavGroupFor(sectionId = "", options = {}) {
     return isAdminConsole ? "Operations" : "Dashboards";
   }
   if (["students", "mentor"].includes(sectionId)) return "Students";
-  if (["teacher", "mentorAssignments", "operations", "presentation", "archive", "archiveExports"].includes(sectionId)) return "Review / Proof";
+  if (["teacher", "mentorAssignments", "operations", "presentation", "archive", "archiveExports"].includes(sectionId)) return "Review / Work";
   if (["adminUsers", "programs"].includes(sectionId)) return "People & Access";
   if (["audit", "security"].includes(sectionId)) return "Settings / Security";
   return "General";
@@ -1367,10 +1395,10 @@ function renderWorkspaceRailAccessSummary({ isAdminConsole = false, primaryRole 
 
 function workspaceRailAccessNote(primaryRole = primaryRoleForUser(currentUser), roles = roleIds(currentUser)) {
   if (primaryRole === "student" || roles.has("student")) return "Only your own project work and feedback are visible here.";
-  if (roles.has("viewer")) return "Assigned student records only. Change controls stay hidden.";
+  if (roles.has("viewer")) return "Assigned students only. Change controls stay hidden.";
   if (roles.has("mentor")) return "Start with assigned students, meetings, and presentation prep.";
   if (roles.has("program_teacher")) return "Review work and student support stay inside your assigned program.";
-  if (roles.has("administration")) return "School monitoring only. Elevated account and security work stays scoped.";
+  if (roles.has("administration")) return "School monitoring only. Elevated account and security work stays limited.";
   if (roles.has("site_admin")) return "Site tools stay tied to the selected or assigned school.";
   if (hasGlobalAdminRole(roles)) return "Platform tools live in Admin Console; daily Workspace stays calm.";
   if (roles.has("misc_admin")) return "Aggregate readiness only; student-level operations stay hidden.";
@@ -1475,7 +1503,7 @@ function renderCompactAccessSummary({ identity, mode, readOnly = false, scopeTex
       <summary class="workspace-access-summary-head">
         <span class="workspace-kicker">Access summary</span>
         <strong id="accessSummaryTitle">${escapeHtml(label)}</strong>
-        <small>${escapeHtml(scopeText || "Role-scoped access")}</small>
+        <small>${escapeHtml(scopeText || "Limited role access")}</small>
         <b>${escapeHtml(next?.title || "Open the needed source screen")}</b>
       </summary>
       <div class="workspace-access-summary-body">
@@ -1582,13 +1610,13 @@ function roleCommandTrailItems(primaryRole, roles = roleIds(currentUser), isAdmi
   }
   if (isAdminConsole) {
     const items = [
-      { step: "1", title: "Start with scope", detail: "Confirm the current role, school, and visible records before using a console section.", section: "overview", actionLabel: "Open overview", tone: "ready" },
+      { step: "1", title: "Confirm access", detail: "Confirm the current role, school, and visible records before using a console section.", section: "overview", actionLabel: "Open overview", tone: "ready" },
     ];
     if (capabilities.sectionIds.has("adminUsers")) {
-      items.push({ step: "2", title: "Fix people or access", detail: "Use People & Access for Add Student, Add Staff, CSV preview, and scoped assignments.", section: "adminUsers", actionLabel: "Open access", tone: "student" });
+      items.push({ step: "2", title: "Fix people or access", detail: "Use People & Access for Add Student, Add Staff, CSV preview, and limited assignments.", section: "adminUsers", actionLabel: "Open access", tone: "student" });
     }
     if (studentSection) {
-      items.push({ step: "3", title: "Open student work", detail: "Use the scoped student list or review queue before acting on one record.", section: capabilities.sectionIds.has("teacher") ? "teacher" : studentSection, preset: capabilities.sectionIds.has("teacher") ? "submitted" : "", actionLabel: capabilities.sectionIds.has("teacher") ? "Open review" : "Open students", tone: "teacher" });
+      items.push({ step: "3", title: "Open student work", detail: "Use the student list or review queue before acting on one record.", section: capabilities.sectionIds.has("teacher") ? "teacher" : studentSection, preset: capabilities.sectionIds.has("teacher") ? "submitted" : "", actionLabel: capabilities.sectionIds.has("teacher") ? "Open review" : "Open students", tone: "teacher" });
     }
     if (capabilities.sectionIds.has("audit") || capabilities.sectionIds.has("security")) {
       items.push({ step: "4", title: "Check safety last", detail: "Use Audit or Security only when the question needs elevated context.", section: capabilities.sectionIds.has("audit") ? "audit" : "security", actionLabel: capabilities.sectionIds.has("audit") ? "Open audit" : "Open security", tone: "quiet" });
@@ -1668,8 +1696,8 @@ function roleCommandNextAction(primaryRole, roles = roleIds(currentUser), isAdmi
     const studentSection = consoleStudentSectionId(capabilities);
     if (capabilities.readOnly) {
       return {
-        title: "Monitor assigned records",
-        detail: "Open the scoped student list; mutation controls remain hidden.",
+        title: "Monitor assigned students",
+        detail: "Open the student list; edit controls stay hidden.",
         section: studentSection || "overview",
         label: studentSection ? "Open students" : "Open overview",
       };
@@ -1685,13 +1713,13 @@ function roleCommandNextAction(primaryRole, roles = roleIds(currentUser), isAdmi
     if (capabilities.sectionIds.has("programs")) {
       return {
         title: "Open Programs",
-        detail: "Add, remove, or restore programs only inside the selected site scope.",
+        detail: "Add, remove, or restore programs only inside the selected school.",
         section: "programs",
         label: "Open programs",
       };
     }
     return {
-      title: "Open scoped students",
+      title: "Open assigned students",
       detail: "Use the visible console sections for records this role can access.",
       section: studentSection || "overview",
       label: studentSection ? "Open students" : "Open overview",
@@ -1725,7 +1753,7 @@ function roleCommandNextAction(primaryRole, roles = roleIds(currentUser), isAdmi
   if (roles.has("viewer")) {
     return {
       title: "Open assigned students",
-      detail: "Read scoped student context without changing records.",
+      detail: "Read assigned student context without changing records.",
       section: "students",
       label: "Open students",
     };
@@ -1768,7 +1796,7 @@ function roleCommandConfidenceItems(primaryRole, roles = roleIds(currentUser), i
     },
     {
       id: "scope",
-      label: "Visible scope",
+      label: "What you can see",
       value: roleCommandScopeTitle(primaryRole, roles, isAdminConsole, viewingAsStudent, capabilities),
       detail: roleCommandScopeDetail(primaryRole, roles, isAdminConsole, viewingAsStudent, capabilities),
     },
@@ -1796,7 +1824,7 @@ function roleCommandScopeTitle(primaryRole, roles = roleIds(currentUser), isAdmi
   if (roles.has("program_teacher")) return "Assigned program";
   if (roles.has("administration")) return "Assigned school";
   if (roles.has("site_admin")) return "Assigned site";
-  if (hasGlobalAdminRole(roles)) return "Platform scope";
+  if (hasGlobalAdminRole(roles)) return "Platform access";
   if (roles.has("misc_admin")) return "Aggregate only";
   return "Role pending";
 }
@@ -1821,7 +1849,7 @@ function roleCommandBoundaryTitle(primaryRole, roles = roleIds(currentUser), isA
   if (primaryRole === "student" || roles.has("student")) return "No staff tools";
   if (isAdminConsole && capabilities.readOnly) return "Monitor only";
   if (isAdminConsole && hasGlobalAdminRole(roles)) return "Separated security";
-  if (isAdminConsole) return "Scoped writes";
+  if (isAdminConsole) return "Limited edits";
   return "No hidden elevation";
 }
 
@@ -1829,10 +1857,10 @@ function roleCommandBoundaryText(primaryRole, roles = roleIds(currentUser), isAd
   if (viewingAsStudent) return "No proof, submission, password, review, import, account, or assignment changes can be saved from View as Student.";
   if (roles.has("viewer")) return "Approve, import, assignment, schedule, review, and account controls stay hidden.";
   if (primaryRole === "student" || roles.has("student")) return "Students cannot open staff dashboards, staff preview tools, management consoles, or other student records.";
-  if (isAdminConsole && capabilities.readOnly) return "Console rows are for monitoring only; mutation controls remain hidden.";
+  if (isAdminConsole && capabilities.readOnly) return "Console rows are for monitoring only; edit controls stay hidden.";
   if (isAdminConsole && hasGlobalAdminRole(roles)) return "Local Global Admin security remains separated from school SSO and student workspace activity.";
   if (isAdminConsole) return "Writable controls stay limited to the selected school or program and this role's allowed section.";
-  return "Workspace support actions remain scoped to assigned students, school, program, or account settings.";
+  return "Workspace support actions stay limited to assigned students, school, program, or account settings.";
 }
 
 function switchWorkspaceMode(button) {
@@ -1889,23 +1917,23 @@ function adminConsoleSubtitle(capabilities = adminConsoleCapabilitiesFor(current
   if (capabilities.readOnly) {
     return "Monitor assigned student records without edit, review, assignment, program, import, or account actions.";
   }
-  return "Set up people, assignments, imports, programs, reports, and access review inside this account's allowed scope.";
+  return "Set up people, assignments, imports, programs, reports, and access review inside this account's allowed area.";
 }
 
 function adminConsoleHeaderContext(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
   return [
     capabilities.scope.detail,
-    capabilities.readOnly ? "Read-only" : "Role-scoped actions",
+    capabilities.readOnly ? "Read-only" : "Limited actions",
   ].filter(Boolean);
 }
 
 function adminConsoleRailNote(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
-  if (capabilities.readOnly) return "Read-only monitoring. Mutation controls stay hidden.";
+  if (capabilities.readOnly) return "Read-only monitoring. Edit controls stay hidden.";
   if (capabilities.scope.key === "global") return "Global view. Use site selection when a section needs a school.";
-  if (capabilities.scope.key === "site") return "Site-scoped tools for the assigned school.";
-  if (capabilities.scope.key === "program") return "Program-scoped monitoring and review.";
+  if (capabilities.scope.key === "site") return "School tools for the assigned school.";
+  if (capabilities.scope.key === "program") return "Program monitoring and review.";
   if (capabilities.scope.key === "assigned_students") return "Assigned-student monitoring only.";
-  return "Role-scoped console tools.";
+  return "Limited console tools.";
 }
 
 function adminConsoleCompactScopeLabel(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
@@ -1985,8 +2013,8 @@ function renderAdminConsoleOverviewSection(capabilities = adminConsoleCapabiliti
     <section class="workspace-admin-console-overview" data-admin-console-overview="true" data-admin-console-read-only="${escapeHtml(String(capabilities.readOnly))}">
       <div class="workspace-card-head">
         <div>
-          <p class="workspace-kicker">Console overview</p>
-          <h2>Operations Overview</h2>
+          <p class="workspace-kicker">Admin Console</p>
+          <h2>Admin Overview</h2>
           <p class="workspace-muted">What setup, people, assignments, imports, programs, reports, or access issues need attention?</p>
         </div>
         ${capabilities.readOnly ? `<span class="workspace-read-only-chip">Read-only</span>` : `<span class="workspace-site-context-badge">${escapeHtml(capabilities.scope.label)}</span>`}
@@ -2125,7 +2153,7 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
     } : null,
   ].filter(Boolean);
   const quickActions = [
-    capabilities.sectionIds.has("adminStudents") ? { id: "add-student", title: "Add Student", detail: "Create one student in the current school scope.", section: "adminStudents", peopleView: "add-student", tone: "students" } : null,
+    capabilities.sectionIds.has("adminStudents") ? { id: "add-student", title: "Add Student", detail: "Create one student in the current school.", section: "adminStudents", peopleView: "add-student", tone: "students" } : null,
     capabilities.sectionIds.has("adminPeople") ? { id: "add-staff", title: "Add Staff", detail: "Create one mentor, viewer, Program Teacher, or admin account.", section: "adminPeople", peopleView: "add-staff", tone: "access" } : null,
     capabilities.sectionIds.has("adminAssignments") ? { id: "assign-coverage", title: "Assign Coverage", detail: "Manage mentor, viewer, Program Teacher, and admin coverage.", section: "adminAssignments", tone: "assignments" } : null,
     capabilities.sectionIds.has("adminImports") ? { id: "import-roster", title: "Import CSV", detail: "Download student or staff templates and preview rows.", section: "adminImports", peopleView: "import-students", tone: "imports" } : null,
@@ -2383,7 +2411,7 @@ function adminSetupReadinessRows({
       count: missingProgramTeacherCoverage,
       detail: missingProgramTeacherCoverage
         ? `${missingProgramTeacherCoverage} active ${pluralize(missingProgramTeacherCoverage, "program")} need Program Teacher coverage.`
-        : `${activePrograms.length} active ${pluralize(activePrograms.length, "program")} have Program Teacher coverage or no active gap in the loaded scope.`,
+        : `${activePrograms.length} active ${pluralize(activePrograms.length, "program")} have Program Teacher coverage or no active gap in this view.`,
       sample: [],
       section: "adminAssignments",
       action: "Open assignments",
@@ -2441,11 +2469,11 @@ function renderAdminSetupIssues(issues = []) {
       ` : `
         <article class="workspace-empty-state-card" data-admin-console-setup-empty="true">
           <strong>No setup issues found.</strong>
-          <p>Roster, coverage, programs, imports, and recent admin activity do not show a current setup issue in the loaded scope.</p>
+          <p>Roster, coverage, programs, imports, and recent admin activity do not show a current setup issue in this view.</p>
           ${renderProblemState({
-            reason: "The current admin scope loaded without setup issues that need action.",
+            reason: "The current admin view loaded without setup issues that need action.",
             owner: "Site admin",
-            nextAction: "Refresh after roster, program, or import changes before treating the scope as still clear.",
+            nextAction: "Refresh after roster, program, or import changes before treating this view as still clear.",
             actions: [
               { label: "Refresh workspace", problemAction: "refresh" },
               availableSectionIdsForAnyMode().has("adminReports") ? { label: "Open reports", section: "adminReports" } : null,
@@ -2464,7 +2492,7 @@ function renderAdminHealthSummary(rows = []) {
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Health Summary</p>
-          <h3 id="adminHealthTitle">Current scope health</h3>
+          <h3 id="adminHealthTitle">Current setup health</h3>
         </div>
       </div>
       <div class="workspace-admin-health-grid">
@@ -2536,7 +2564,7 @@ function renderAdminRecentActivity(rows = []) {
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Recent Admin Activity</p>
-          <h3 id="adminRecentActivityTitle">Latest changes in this scope</h3>
+          <h3 id="adminRecentActivityTitle">Latest changes in this view</h3>
         </div>
         ${availableSectionIdsForAnyMode().has("audit") ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="audit">Open audit</button>` : ""}
       </div>
@@ -2552,7 +2580,7 @@ function renderAdminRecentActivity(rows = []) {
       ` : `
         <article class="workspace-empty-state-card" data-admin-recent-activity-empty="true">
           <strong>No recent admin activity found.</strong>
-          <p>No redacted admin changes are available for this loaded scope yet.</p>
+          <p>No redacted admin changes are available for this view yet.</p>
           ${renderProblemState({
             reason: "The recent activity feed loaded with no activity rows.",
             owner: "Site admin",
@@ -3009,7 +3037,7 @@ function renderWorkspaceStudentSearchControl(roles = roleIds(currentUser)) {
         >
         <button class="workspace-button workspace-button-secondary" type="submit" ${disabled ? "disabled" : ""}>Open students</button>
       </div>
-      <small>${escapeHtml(disabled ? "Choose a site first to search student records." : "Uses the current Student Directory scope and permissions.")}</small>
+      <small>${escapeHtml(disabled ? "Choose a site first to search student records." : "Uses the current Student Directory filters and access.")}</small>
     </form>
   `;
 }
@@ -3604,7 +3632,7 @@ function screenOrientationFor(sectionId = "overview", primaryRole = primaryRoleF
   const orientations = {
     overview: {
       title: "Overview",
-      useFor: "See the highest-priority workspace signals for your access.",
+      useFor: "See the highest-priority student work for your access.",
       start: primaryRole === "student" ? "Read Profile, then open My Work." : "Open the first action that matches your job today.",
       notFor: "Do not treat a summary count as a saved record change.",
     },
@@ -3641,7 +3669,7 @@ function screenOrientationFor(sectionId = "overview", primaryRole = primaryRoleF
     archive: {
       title: "Final Files",
       useFor: "Check May 5 final-file readiness and downloads.",
-      start: "Read the blocker or ready state before downloading.",
+      start: "Read the issue or ready state before downloading.",
       notFor: primaryRole === "student" ? "Do not assume files are ready until this screen says your download is ready." : "Do not assume files are ready while staff prep is failed or pending.",
     },
     mentorDashboard: {
@@ -3659,7 +3687,7 @@ function screenOrientationFor(sectionId = "overview", primaryRole = primaryRoleF
     programDashboard: {
       title: "Program Dashboard",
       useFor: "Find your students who need Program Teacher attention.",
-      start: "Start with students who turned in work or are missing proof.",
+      start: "Start with students who turned in work or are missing files.",
       notFor: "Do not manage global or school account access here.",
     },
     teacher: {
@@ -3676,7 +3704,7 @@ function screenOrientationFor(sectionId = "overview", primaryRole = primaryRoleF
     },
     operations: {
       title: "Operations",
-      useFor: "Triage presentation, final-file, and readiness blockers.",
+      useFor: "Triage presentation, final-file, and readiness issues.",
       start: "Use the ranked actions before opening longer worklists.",
       notFor: "Do not mark completion from this summary.",
     },
@@ -3694,9 +3722,9 @@ function screenOrientationFor(sectionId = "overview", primaryRole = primaryRoleF
     },
     readiness: {
       title: "Readiness",
-      useFor: "Review aggregate readiness without exposing private proof.",
-      start: "Check blockers and labels before sharing a summary.",
-      notFor: "Do not use aggregate rows as student-detail proof.",
+      useFor: "Review aggregate readiness without exposing private files.",
+      start: "Check issue labels before sharing a summary.",
+      notFor: "Do not use aggregate rows as student-detail evidence.",
     },
     adminUsers: {
       title: "Users & Access",
@@ -3745,7 +3773,7 @@ function roleStartActions(primaryRole = primaryRoleForUser(currentUser), roles =
     return [
       { label: "Open Program Dashboard", section: "programDashboard" },
       { label: "Review work", section: "teacher", preset: "submitted" },
-      { label: "Find missing proof", section: "students", preset: "missing-evidence-students" },
+      { label: "Find missing work", section: "students", preset: "missing-evidence-students" },
     ];
   }
   if (roles.has("viewer")) {
@@ -3817,12 +3845,12 @@ function screenOrientationActionCandidates(sectionId = "overview", primaryRole =
     programDashboard: [
       { label: "Review work", section: "teacher", preset: "submitted" },
       { label: "Review revisions", section: "teacher", preset: "revision-requested" },
-      { label: "Find missing proof", section: "students", preset: "missing-evidence-students" },
+      { label: "Find missing work", section: "students", preset: "missing-evidence-students" },
     ],
     teacher: [
       { label: "Needs review", section: "teacher", preset: "submitted" },
       { label: "Revision follow-up", section: "teacher", preset: "revision-requested" },
-      { label: "Proof attached", section: "teacher", preset: "evidence-attached-review" },
+      { label: "Files attached", section: "teacher", preset: "evidence-attached-review" },
     ],
     mentorAssignments: [
       { label: "Students without mentors", section: "mentorAssignments", preset: "no-mentor" },
@@ -3832,7 +3860,7 @@ function screenOrientationActionCandidates(sectionId = "overview", primaryRole =
     operations: [
       { label: "Presentation follow-up", section: "operations", preset: "presentation-pending" },
       { label: "Final-file failures", section: "operations", preset: "archive-failed" },
-      { label: "Missing proof", section: "operations", preset: "evidence-missing" },
+      { label: "Missing work", section: "operations", preset: "evidence-missing" },
     ],
     presentation: primaryRole === "student"
       ? [
@@ -4027,7 +4055,7 @@ function screenLanguageTermsFor(sectionId = "overview", primaryRole = primaryRol
     ],
     readiness: [
       ["Aggregate", "A summary across records; it is not a private student-detail view."],
-      ["Private proof", "Student files, links, notes, or protected details that should not be exposed in broad reports."],
+      ["Private files", "Student files, links, notes, or protected details that should not be exposed in broad reports."],
       ["Readiness score", "A directional summary of visible completion and blocker signals."],
     ],
     adminUsers: [
@@ -4252,7 +4280,7 @@ function screenVisibilityNotesFor(sectionId = "overview", primaryRole = primaryR
     overview: [
       ["Your access", "The page only offers screens your signed-in account is allowed to open.", "self"],
       ["Summary only", "Overview numbers summarize work and point to source screens before any protected detail is shown.", "context"],
-      ["Private proof", "Student files, links, notes, and review details stay in the allowed student or review screens.", "private"],
+      ["Private files", "Student files, links, notes, and review details stay in the allowed student or review screens.", "private"],
     ],
     profile: [
       ["You and authorized staff", "Profile details explain your account access for you and staff who manage workspace accounts.", "shared"],
@@ -4262,7 +4290,7 @@ function screenVisibilityNotesFor(sectionId = "overview", primaryRole = primaryR
     siteDashboard: [
       ["School staff view", "This dashboard is for staff allowed to monitor the selected school's capstone work.", "staff"],
       ["Summary counts", "Tiles and rows summarize school follow-up without exposing full private files or notes.", "context"],
-      ["Private proof hidden", "Open the allowed source screen before reading student proof, review detail, or final-file context.", "private"],
+      ["Private files hidden", "Open the allowed source screen before reading student files, review detail, or final-file context.", "private"],
     ],
     programs: [
       ["School setup staff", "Program settings are visible to staff approved to manage the selected school's setup.", "staff"],
@@ -4272,7 +4300,7 @@ function screenVisibilityNotesFor(sectionId = "overview", primaryRole = primaryR
     students: [
       ["Allowed student records", "The directory only lists students your account can monitor or support.", "staff"],
       ["Directory summaries", "Rows show progress and risk signals before private proof or review history is opened.", "context"],
-      ["Private proof stays protected", "Files, links, and detailed notes stay in student detail, review, or download surfaces.", "private"],
+      ["Private files stay protected", "Files, links, and detailed notes stay in student detail, review, or download surfaces.", "private"],
     ],
     student: [
       ["You and your teacher", "This screen is centered on your own Senior Project work and the staff who can review or support it.", "self"],
@@ -4311,7 +4339,7 @@ function screenVisibilityNotesFor(sectionId = "overview", primaryRole = primaryR
     ],
     operations: [
       ["School operations staff", "Operations rows are for staff allowed to coordinate readiness, presentations, and final-file handoff.", "staff"],
-      ["Private proof protected", "Readiness blockers summarize proof or review needs without showing every private artifact.", "private"],
+      ["Private files protected", "Readiness issues summarize file or review needs without showing every private item.", "private"],
       ["Owner handoff", "Owner and next-action labels help route work to the right staff screen.", "context"],
     ],
     presentation: [
@@ -4326,7 +4354,7 @@ function screenVisibilityNotesFor(sectionId = "overview", primaryRole = primaryR
     ],
     readiness: [
       ["Aggregate report", "Readiness reports are summary views across records your account is allowed to monitor.", "context"],
-      ["Private proof hidden", "Broad reports avoid exposing student files, links, and private review notes.", "private"],
+      ["Private files hidden", "Broad reports avoid exposing student files, links, and private review notes.", "private"],
       ["Share only summaries", "Use aggregate numbers for planning and open source screens for protected detail.", "shared"],
     ],
     adminUsers: [
@@ -4450,8 +4478,8 @@ function screenStartRequirementsFor(sectionId = "overview", primaryRole = primar
       ["Use Review Work for decisions", "Save approval or revision decisions only from Review Work.", "source"],
     ],
     teacher: [
-      ["Select one row", "Choose one review item before reading proof, history, or the decision area.", "choose"],
-      ["Proof and history", "Review proof and history before saving a Program Teacher decision.", "check"],
+      ["Select one row", "Choose one review item before reading work, history, or the decision area.", "choose"],
+      ["Work and history", "Review work and history before saving a Program Teacher decision.", "check"],
       ["Choose one outcome", "Decide whether the item is approved, needs revision, or only needs a comment before saving.", "confirm"],
     ],
     mentorAssignments: [
@@ -4460,8 +4488,8 @@ function screenStartRequirementsFor(sectionId = "overview", primaryRole = primar
       ["Add assignment reason", "Write why this student needs this mentor before saving coverage.", "prepare"],
     ],
     operations: [
-      ["Pick blocker type", "Start with the presentation, proof, readiness, or final-file blocker you need to resolve.", "choose"],
-      ["Check listed owner", "Use the owner column to decide who should take the next step.", "check"],
+      ["Pick issue type", "Start with the presentation, file, readiness, or final-file issue you need to resolve.", "choose"],
+      ["Check next helper", "Use the helper shown on the row to decide who should take the next step.", "check"],
       ["Open source screen", "Move to the source screen before making a saved change.", "source"],
     ],
     presentation: [
@@ -4477,7 +4505,7 @@ function screenStartRequirementsFor(sectionId = "overview", primaryRole = primar
     readiness: [
       ["Choose report context", "Confirm which school, program, or aggregate view the report is summarizing.", "choose"],
       ["Use summary planning", "Use aggregate numbers for planning before opening protected detail.", "context"],
-      ["Open source for detail", "Move to the source screen when a readiness blocker needs action.", "source"],
+      ["Open source for detail", "Move to the source screen when a readiness issue needs action.", "source"],
     ],
     adminUsers: [
       ["Confirm person and school", "Know the exact person, school, program, cohort, or student before changing access.", "confirm"],
@@ -4487,7 +4515,7 @@ function screenStartRequirementsFor(sectionId = "overview", primaryRole = primar
     audit: [
       ["Filters first", "Set action, person, or record filters before investigating the log.", "choose"],
       ["Read redacted row", "Use the redacted row to identify the pattern without exposing protected details.", "check"],
-      ["Fix elsewhere", "Open the source screen when an account, proof, review, or file issue needs a change.", "source"],
+      ["Fix elsewhere", "Open the source screen when an account, review, or file issue needs a change.", "source"],
     ],
     archiveExports: [
       ["Filter package status", "Start with failed, in-progress, or complete package filters before opening rows.", "choose"],
@@ -4503,7 +4531,7 @@ function screenStartRequirementsFor(sectionId = "overview", primaryRole = primar
   const requirements = requirementsBySection[sectionId] || requirementsBySection.overview;
   if (primaryRole === "student" && sectionId === "overview") {
     return [
-      ["Start with your task", "Open My Work when you need your checklist, phase deliverable, proof, feedback, or approval status.", "choose"],
+      ["Start with your task", "Open My Work when you need your checklist, phase deliverable, files, feedback, or approval status.", "choose"],
       ...requirements.slice(1, 3),
     ];
   }
@@ -4627,7 +4655,7 @@ function screenDoneSignalsFor(sectionId = "overview", primaryRole = primaryRoleF
     readiness: [
       ["Report interpreted", "The aggregate report shows the planning signal you needed.", "complete"],
       ["Detail routed", "Any blocker needing action has a source screen to open next.", "route"],
-      ["Private proof hidden", "Broad reporting finishes without exposing private proof detail.", "safe"],
+      ["Private files hidden", "Broad reporting finishes without exposing private file detail.", "safe"],
     ],
     adminUsers: [
       ["Access row correct", "Current access shows the intended person, role, and school, program, cohort, or student.", "saved"],
@@ -4733,10 +4761,10 @@ function availableWorkspaceSections(user = currentUser) {
     add("students", "Students", "Assigned read-only student records");
   }
   if (roles.has("program_teacher")) {
-    add("students", "Students", "Program-scoped student rows");
+    add("students", "Students", "Program student rows");
     add("teacher", "Reviews", "Work waiting for review");
     add("programDashboard", "Program Dashboard", "Your students and review needs", { hidden: true });
-    add("operations", "Operations", "Presentation, mentor, and final-file blockers", { hidden: true });
+    add("operations", "Operations", "Presentation, mentor, and final-file issues", { hidden: true });
     add("presentation", "Presentation", "Schedule, outline, and day-of status", { hidden: true });
   }
   if (roles.has("administration")) {
@@ -4827,7 +4855,7 @@ function renderOverviewSection() {
         <article class="workspace-row">
           <div>
             <strong>Capstone status</strong>
-            <p>Review the progress, sent-work, and proof records available to this account.</p>
+            <p>Review the progress, sent-work, and file records available to this account.</p>
           </div>
         </article>
         <article class="workspace-row">
@@ -4865,13 +4893,8 @@ function renderStaffWorkspaceTodaySection() {
         </div>
       </div>
       ${model.readOnly ? renderReadOnlyBanner() : ""}
-      <div class="workspace-staff-summary-strip" data-staff-workspace-summary="true">
-        ${renderStaffSummaryMetric("Needs Review", model.counts.needsReview, "Waiting for feedback", "needs-review")}
-        ${renderStaffSummaryMetric("Needs Help", model.counts.needsHelp, "Changes, meetings, or presentation", "needs-help")}
-        ${renderStaffSummaryMetric("Missing Setup", model.counts.missingSetup, "Mentor, work, or final files", "missing-setup")}
-        ${renderStaffSummaryMetric("Recently Updated", model.counts.recent, "Latest activity in scope", "recent")}
-        ${renderStaffSummaryMetric("Visible Students", model.counts.total, model.scopeLabel, "total")}
-      </div>
+      ${renderStaffWorkspaceStartHere(model)}
+      ${renderStaffCompactSummaryStrip(model)}
       ${renderStaffNoAssignmentState(model)}
       <div class="workspace-staff-attention-layout">
         <div class="workspace-staff-attention-grid" aria-label="Staff attention queues">
@@ -5139,10 +5162,10 @@ function staffWorkspaceQueueRows(rows = [], queueId = "") {
 
 function staffWorkspaceScopeLabel(roles, scope = {}) {
   if (roles.has("mentor")) return "Assigned mentor students";
-  if (roles.has("program_teacher")) return scope.programName || scope.siteName || "Program scope";
-  if (roles.has("viewer")) return scope.siteName ? `${scope.siteName} read-only` : "Assigned read-only scope";
+  if (roles.has("program_teacher")) return scope.programName || scope.siteName || "Assigned program";
+  if (roles.has("viewer")) return scope.siteName ? `${scope.siteName} read-only` : "Assigned read-only students";
   if (hasGlobalAdminRole(roles)) return "All accessible schools";
-  return scope.siteName || "Assigned school scope";
+  return scope.siteName || "Assigned school";
 }
 
 function renderStaffSummaryMetric(label, value, detail, key) {
@@ -5152,6 +5175,103 @@ function renderStaffSummaryMetric(label, value, detail, key) {
       <strong>${escapeHtml(safeNumber(value))}</strong>
       <small>${escapeHtml(detail)}</small>
     </article>
+  `;
+}
+
+function renderStaffCompactSummaryStrip(model = {}) {
+  const counts = model.counts || {};
+  const items = [
+    { label: "Needs Review", value: counts.needsReview, detail: "Waiting for feedback", key: "needs-review" },
+    { label: "Needs Help", value: counts.needsHelp, detail: "Changes, meetings, or presentation", key: "needs-help" },
+    { label: "Missing Setup", value: counts.missingSetup, detail: "Mentor, work, or final files", key: "missing-setup" },
+    { label: "Recently Updated", value: counts.recent, detail: "Latest activity you can see", key: "recent" },
+  ].filter((item) => safeNumber(item.value) > 0);
+  items.push({ label: "Visible Students", value: counts.total, detail: model.scopeLabel, key: "total" });
+  return `
+    <div class="workspace-staff-summary-strip workspace-compact-summary-strip" data-teacher-first-component="CompactSummaryStrip" data-staff-workspace-summary="true">
+      ${items.map((item) => renderStaffSummaryMetric(item.label, item.value, item.detail, item.key)).join("")}
+    </div>
+  `;
+}
+
+function staffWorkspaceStartHereActions(model = {}) {
+  const counts = model.counts || {};
+  const sections = availableSectionIdsForAnyMode();
+  const actions = [
+    {
+      id: "review-work",
+      label: "Review work waiting for you",
+      detail: "Start with student work that needs feedback.",
+      count: counts.needsReview,
+      section: "teacher",
+      preset: "submitted",
+      action: "Review",
+      visible: sections.has("teacher"),
+    },
+    {
+      id: "needs-changes",
+      label: "Help students who need changes",
+      detail: "Open students who may need a quick teacher check.",
+      count: counts.needsHelp,
+      section: "students",
+      preset: "revision-students",
+      action: "Help student",
+      visible: sections.has("students"),
+    },
+    {
+      id: "missing-work",
+      label: "Check missing work",
+      detail: "Find students who still need to add reviewable work.",
+      count: counts.missingSetup,
+      section: "students",
+      preset: "missing-evidence-students",
+      action: "Find students",
+      visible: sections.has("students"),
+    },
+    {
+      id: "all-students",
+      label: "Open all students",
+      detail: "Use the roster when you need a specific student.",
+      count: counts.total,
+      section: sections.has("students") ? "students" : "mentor",
+      preset: "all-students",
+      action: "Open",
+      visible: sections.has("students") || sections.has("mentor"),
+      alwaysShow: true,
+    },
+  ];
+  return actions.filter((action) => action.visible && (action.alwaysShow || safeNumber(action.count) > 0)).slice(0, 4);
+}
+
+function renderStaffWorkspaceStartHere(model = {}) {
+  const actions = staffWorkspaceStartHereActions(model);
+  const urgentActions = actions.filter((action) => !action.alwaysShow);
+  const caughtUp = !urgentActions.length;
+  return `
+    <section class="workspace-staff-start-here" data-teacher-first-component="StartHerePanel" data-staff-start-here="true" aria-labelledby="staffStartHereTitle">
+      <div class="workspace-staff-start-here-head">
+        <div>
+          <p class="workspace-kicker">Start Here</p>
+          <h3 id="staffStartHereTitle">${caughtUp ? "You are caught up for now" : "Pick one student group first"}</h3>
+          <p>${caughtUp ? "No urgent student group is open in this view. Search or open the roster when you need a specific student." : "Choose the most useful group, then open one student before changing filters."}</p>
+        </div>
+        ${renderStaffPrimaryAction(model)}
+      </div>
+      <div class="workspace-staff-start-here-list">
+        ${actions.map((action) => `
+          <article class="workspace-staff-start-here-row" data-staff-start-action="${escapeHtml(action.id)}">
+            <div>
+              <strong>${escapeHtml(action.label)}</strong>
+              <p>${escapeHtml(action.detail)}</p>
+            </div>
+            <span>${escapeHtml(safeNumber(action.count))}</span>
+            <button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(action.section)}" ${action.preset ? `data-section-preset="${escapeHtml(action.preset)}"` : ""}>
+              ${escapeHtml(action.action)}
+            </button>
+          </article>
+        `).join("")}
+      </div>
+    </section>
   `;
 }
 
@@ -5192,6 +5312,7 @@ function renderStaffNoAssignmentState(model = {}) {
 
 function renderStaffAttentionQueue(model = {}, queue = {}) {
   const rows = staffWorkspaceQueueRows(model.rows || [], queue.id);
+  if (!rows.length && queue.id !== "on-track") return "";
   return `
     <section class="workspace-staff-queue" data-staff-attention-queue="${escapeHtml(queue.id)}" aria-labelledby="staffQueue-${escapeHtml(queue.id)}">
       <div class="workspace-staff-queue-head">
@@ -5218,13 +5339,19 @@ function renderStaffQueueStudentRow(row = {}, queueId = "", model = {}) {
   const studentName = row.displayName || row.studentName || "Student";
   const context = [row.programName, row.cohortName].filter(Boolean).join(" / ") || model.scopeLabel || "Assigned program or cohort";
   const casePlan = studentDirectoryRowGuidance(row, Boolean(model.readOnly));
+  const moreMenu = row.studentId ? renderTeacherFirstMoreActions({
+    id: `staff-${row.studentId || queueId}`,
+    actions: [renderViewAsStudentAction(row.studentId, studentName, { sourceSection: "overview" })],
+    dataAttrs: 'data-staff-row-more-menu="true"',
+    ariaLabel: `More actions for ${studentName}`,
+  }) : "";
   return `
     <article class="workspace-staff-student-row" data-staff-queue-student-row="true" data-staff-queue-kind="${escapeHtml(queueId)}" data-student-id="${escapeHtml(row.studentId || "")}">
       <div>
         <strong>${escapeHtml(studentName)}</strong>
         <p class="workspace-muted">${escapeHtml(context)}</p>
         <p>${escapeHtml(supportingText)}</p>
-        <div class="workspace-owner-action workspace-owner-action-inline" data-staff-row-case-plan="true" data-staff-row-owner="${escapeHtml(casePlan.owner)}">
+        <div class="workspace-owner-action workspace-owner-action-inline" data-staff-row-case-plan="true" data-staff-row-helper="${escapeHtml(casePlan.owner)}">
           <span>Who can help: ${escapeHtml(casePlan.owner)}</span>
           <small>Next step: ${escapeHtml(casePlan.nextAction)}</small>
         </div>
@@ -5240,7 +5367,7 @@ function renderStaffQueueStudentRow(row = {}, queueId = "", model = {}) {
           <button class="workspace-link-button workspace-link-button-small" type="button" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(row.studentId)}" data-student-detail-source-section="overview">
             Open Student
           </button>
-          ${renderViewAsStudentAction(row.studentId, studentName, { sourceSection: "overview" })}
+          ${moreMenu}
         ` : `<span class="workspace-summary-badge">No detail route</span>`}
       </div>
     </article>
@@ -5255,8 +5382,8 @@ function renderStaffTodayScopePanel(model = {}) {
     ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="students" data-section-preset="all-students">Open Students</button>`
     : "";
   return `
-    <aside class="workspace-staff-scope-panel" aria-label="Current staff scope">
-      <p class="workspace-kicker">Current scope</p>
+    <aside class="workspace-staff-scope-panel" aria-label="Current staff view">
+      <p class="workspace-kicker">Current view</p>
       <h3>${escapeHtml(model.scopeLabel)}</h3>
       <p>Start with the first populated group, open one student, then use Students or Reports only when the urgent rows are clear.</p>
       <div class="workspace-chip-row">
@@ -5301,7 +5428,7 @@ function renderStaffReportsSection() {
       label: "Missing work/setup",
       value: setupSignalCount,
       max: reportMax,
-      detail: "Presentation, mentor, or final-file follow-up in this scope.",
+      detail: "Presentation, mentor, or final-file follow-up in this view.",
       tone: setupSignalCount ? "warning" : "ready",
       dataAttrs: `data-staff-report-row="missing-work-setup"`,
     },
@@ -5312,7 +5439,7 @@ function renderStaffReportsSection() {
         <div>
           <p class="workspace-kicker">Reports</p>
           <h1 id="staffReportsTitle">Student Progress Reports</h1>
-          <p>Use simple counts to spot review, setup, and readiness work inside this account's allowed scope.</p>
+          <p>Use simple counts to spot review, setup, and readiness work inside this account's allowed area.</p>
         </div>
       </div>
       <div class="workspace-admin-console-metrics" data-staff-report-metrics="true">
@@ -5331,7 +5458,7 @@ function renderStaffReportsSection() {
       })}
       ${renderReportExportPanel({
         id: "staff",
-        title: "Scoped CSV downloads",
+        title: "CSV downloads",
         detail: "Downloads use only rows already loaded for this role and omit internal ids, storage ids, passwords, and admin notes.",
         exports: staffReportExportSpecs(),
       })}
@@ -5360,7 +5487,7 @@ function renderAdminReportsSection() {
         <div>
           <p class="workspace-kicker">Admin Console</p>
           <h2 id="adminReportsTitle">Operational Reports</h2>
-          <p class="workspace-muted">Roster, review, setup, and readiness counts for the current scope.</p>
+          <p class="workspace-muted">Roster, review, setup, and readiness counts for the current view.</p>
         </div>
       </div>
       <div class="workspace-admin-console-metrics">
@@ -5371,7 +5498,7 @@ function renderAdminReportsSection() {
       ${renderReportExportPanel({
         id: "admin",
         title: "Admin CSV downloads",
-        detail: "Exports are generated from the current authorized admin scope and include only report-safe fields.",
+        detail: "Exports are generated from the current authorized admin view and include only report-safe fields.",
         exports: adminReportExportSpecs(model),
       })}
       ${availableSectionIdsForAnyMode().has("readiness") ? renderReadinessSection() : ""}
@@ -5396,8 +5523,8 @@ function renderAdminConsolePeopleSection() {
         kicker: "People",
         title: "Staff Directory",
         id: "adminPeopleTitle",
-        detail: "Add and manage staff, mentors, viewers, Program Teachers, School Admins, and Site Admins inside the current scope.",
-        badge: options.canCreateGlobal ? "Global people access" : "School-scoped people access",
+        detail: "Add and manage staff, mentors, viewers, Program Teachers, School Admins, and Site Admins inside the current view.",
+        badge: options.canCreateGlobal ? "Global people access" : "School people access",
       })}
       ${renderPeopleManagementNav(screens.filter((screen) => screen.group === "Staff" || screen.id === "assignments"), adminPeopleView)}
       ${renderPeopleManagementScopeSummary(roleChoices, options)}
@@ -5423,7 +5550,7 @@ function renderAdminConsoleStudentsSection() {
         kicker: "Students",
         title: "Student Roster Setup",
         id: "adminStudentsTitle",
-        detail: "Review roster profile, school/program placement, mentor and viewer signals, then add one scoped student when needed.",
+        detail: "Review roster profile, school/program placement, mentor and viewer signals, then add one student when needed.",
         badge: "Roster setup",
       })}
       ${renderPeopleManagementNav(screens.filter((screen) => screen.group === "Students" || screen.id === "assignments"), adminPeopleView)}
@@ -5444,8 +5571,8 @@ function renderAdminConsoleAssignmentsSection() {
         kicker: "Assignments",
         title: "Coverage and Access Assignments",
         id: "adminAssignmentsTitle",
-        detail: "Put missing coverage first, then use the scoped assignment forms already allowed for this role.",
-        badge: "Scoped forms",
+        detail: "Put missing coverage first, then use the assignment forms already allowed for this role.",
+        badge: "Limited forms",
       })}
       ${renderAdminAssignmentCoverageSummary()}
       ${renderAssignmentsPeopleScreen()}
@@ -5465,7 +5592,7 @@ function renderAdminConsoleImportsSection() {
         kicker: "Imports",
         title: "Student and Staff Imports",
         id: "adminImportsTitle",
-        detail: "Download the supported CSV template, preview validation, fix errors, then confirm only valid scoped rows.",
+        detail: "Download the supported CSV template, preview validation, fix errors, then confirm only valid rows.",
         badge: "CSV preview",
       })}
       ${renderAdminImportTemplateShelf()}
@@ -5561,7 +5688,7 @@ function renderAdminImportTemplateShelf() {
 function renderAdminOperationalReportSummary(report = {}) {
   const rows = [
     { id: "roster", label: "Roster completeness", value: report.rosterCompletenessPercent, max: 100, valueLabel: percentLabel(report.rosterCompletenessPercent), detail: `Denominator: ${safeNumber(report.rosterCompletenessDenominator)} loaded roster rows`, tone: "student", dataAttrs: `data-admin-report-row="roster"` },
-    { id: "mentor", label: "Mentor coverage", value: report.mentorCoveragePercent, max: 100, valueLabel: percentLabel(report.mentorCoveragePercent), detail: `Denominator: ${safeNumber(report.mentorCoverageDenominator)} students in scope`, tone: "mentor", dataAttrs: `data-admin-report-row="mentor"` },
+    { id: "mentor", label: "Mentor coverage", value: report.mentorCoveragePercent, max: 100, valueLabel: percentLabel(report.mentorCoveragePercent), detail: `Denominator: ${safeNumber(report.mentorCoverageDenominator)} students in this view`, tone: "mentor", dataAttrs: `data-admin-report-row="mentor"` },
     { id: "viewer", label: "Viewer coverage", value: report.viewerCoveragePercent, max: 100, valueLabel: percentLabel(report.viewerCoveragePercent), detail: `Denominator: ${safeNumber(report.viewerCoverageDenominator)} loaded roster rows`, tone: "ready", dataAttrs: `data-admin-report-row="viewer"` },
     { id: "program", label: "Program coverage", value: report.programCoveragePercent, max: 100, valueLabel: percentLabel(report.programCoveragePercent), detail: `Denominator: ${safeNumber(report.programCoverageDenominator)} active programs`, tone: "teacher", dataAttrs: `data-admin-report-row="program"` },
     { id: "progress", label: "Progress follow-up", value: safeNumber(report.reviewFollowUp), max: Math.max(safeNumber(report.studentTotal), safeNumber(report.reviewFollowUp), 1), detail: "Submitted and revision-requested records", tone: safeNumber(report.reviewFollowUp) ? "warning" : "ready", dataAttrs: `data-admin-report-row="progress"` },
@@ -5571,7 +5698,7 @@ function renderAdminOperationalReportSummary(report = {}) {
     id: "adminReportSummaryTitle",
     kicker: "Reports",
     title: "Operational coverage summary",
-    detail: "Roster completeness, mentor/viewer/program coverage, review status, setup, and import issues for the current scope.",
+    detail: "Roster completeness, mentor/viewer/program coverage, review status, setup, and import issues for the current view.",
     rows,
     className: "workspace-admin-report-summary",
     dataAttrs: `data-admin-report-summary="true"`,
@@ -5612,7 +5739,7 @@ function renderReportExportRow(spec = {}) {
     <article class="workspace-report-export-row" data-report-export-card="${escapeHtml(spec.id || "report")}">
       <div>
         <strong>${escapeHtml(spec.title || "Report export")}</strong>
-        <p>${escapeHtml(spec.detail || "Download a scoped report CSV.")}</p>
+        <p>${escapeHtml(spec.detail || "Download this report CSV.")}</p>
         <small data-report-export-fields="${escapeHtml(spec.id || "report")}">Fields: ${escapeHtml(headers.join(", "))}</small>
       </div>
       <div class="workspace-row-actions">
@@ -5891,7 +6018,7 @@ function renderReadOnlyBanner() {
           <dl class="workspace-read-only-boundary-list" data-read-only-boundary-list="viewer">
             <div>
               <dt>You can</dt>
-              <dd>Open assigned student records and read status, proof, presentation, and final-file context.</dd>
+              <dd>Open assigned student records and read status, files, presentation, and final-file context.</dd>
             </div>
             <div>
               <dt>You cannot</dt>
@@ -6081,13 +6208,13 @@ function renderSiteDashboardSection() {
     <section class="workspace-command-center" aria-labelledby="siteDashboardTitle">
       ${renderSiteDashboardSummary(dashboard)}
       ${renderSiteAdminFirstDayChecklist(dashboard)}
-      ${renderFirstUseGuide("site-dashboard", readOnly ? "Monitor the school without changing records" : "Run the school workspace from this dashboard", [
+      ${renderFirstUseGuide("site-dashboard", readOnly ? "Monitor the school without changing records" : "Run the school workspace from this overview", [
         ["Check first-day setup", "Confirm students, mentors, submitted work, and programs before using the rest of the school workspace."],
         ["Open the most urgent tile", "Use No Mentor, Submitted, Presentations, or Final Files to jump to the exact worklist."],
-        ["Use details for context", "Open dashboard details only after the first-screen metrics tell you where to look."],
-        ["Route the owner", readOnly ? "Share the matching student or operations list with authorized staff." : "Send review work to Program Teachers, mentor gaps to assignment staff, and final-file blockers to site staff."],
+        ["Use details for context", "Open details only after the first-screen counts tell you where to look."],
+        ["Choose the right team", readOnly ? "Share the matching student or operations list with authorized staff." : "Send review work to Program Teachers, mentor gaps to assignment staff, and final-file problems to site staff."],
       ], {
-        detail: readOnly ? "This view helps leadership monitor without exposing edit controls." : "This view turns school-level signals into the next staff action.",
+        detail: readOnly ? "This view helps leadership monitor without exposing edit controls." : "This view turns school-level counts into the next staff action.",
         badge: readOnly ? "Monitor path" : "Site path",
       })}
       ${readOnly ? renderReadOnlyMonitoringOverview(dashboard.summary || {}, scope) : ""}
@@ -6101,7 +6228,7 @@ function renderSiteDashboardSection() {
         ${renderMetricTile("Final Files", archiveTotal, `${safeNumber(summary.exportsFailed)} failed`, safeNumber(summary.exportsFailed) ? "danger" : "admin", "operations", { label: "Review", preset: "archive-failed" })}
       </div>
       ${renderSummaryStrip([
-        { label: "Proof", value: safeNumber(summary.evidenceArtifacts), detail: "Summary only; open student detail for proof records.", tone: "mentor", concept: "Missing Proof" },
+        { label: "Files", value: safeNumber(summary.evidenceArtifacts), detail: "Summary only; open student detail for file records.", tone: "mentor", concept: "Missing Work" },
         {
           label: "Recent Activity",
           value: safeNumber(summary.recentActivityCount),
@@ -6125,16 +6252,16 @@ function renderSiteDashboardSection() {
         scope: "dashboard",
         id: "siteDashboard",
         kicker: "Dashboard details",
-        title: "Operational Detail Panels",
-        summary: "Program, status, mentor, presentation, final-file, and access-boundary details stay available without crowding the first screen.",
-        openLabel: "Open dashboard details",
-        closeLabel: "Hide dashboard details",
+        title: "More School Details",
+        summary: "Program, status, mentor, presentation, final-file, and access details stay available without crowding the first screen.",
+        openLabel: "Show details",
+        closeLabel: "Hide details",
         bodyHtml: `
           ${renderSitePermissionRules(dashboard)}
           <div class="workspace-dashboard-grid workspace-dashboard-grid-two workspace-dashboard-secondary-grid">
             ${renderDashboardCard("Program Breakdown", "Students by program", renderProgramBreakdown(dashboard.programBreakdown))}
             ${renderDashboardCard("Status Breakdown", "Student status", renderStatusBreakdown(dashboard.statusBreakdown))}
-            ${renderDashboardCard("Top Risk Students", "Priority student signals", renderSiteTopRiskStudents(dashboard.topRiskStudents))}
+            ${renderDashboardCard("Students Needing Help", "Priority students", renderSiteTopRiskStudents(dashboard.topRiskStudents))}
             ${renderDashboardCard("Mentor Coverage", "Mentor assignment load", renderMentorCoverage(dashboard.mentorCoverage, summary))}
             ${renderDashboardCard("Recent Activity", "Latest student updates", renderSiteRecentActivity(dashboard.recentActivity))}
             ${renderDashboardCard("Presentation Snapshot", "Readiness and day-of status", renderSnapshotRows(dashboard.presentationSnapshot, "presentation"))}
@@ -6211,12 +6338,12 @@ function renderSiteDashboardActionMap(dashboard = {}, readOnly = false) {
     {
       id: "setup",
       tone: setupGaps.length ? "warning" : "ready",
-      owner: "School Admin",
+      owner: "School team",
       count: setupGaps.length ? `${setupGaps.length} setup` : "Ready",
       title: setupGaps.length ? "Fix the first setup gap" : "Setup is ready",
       detail: setupGaps.length
         ? `Start with ${setupGap.label}; finish setup before trusting the rest of the dashboard.`
-        : "Roster, programs, Program Teacher coverage, and mentor coverage signals are present.",
+        : "Roster, programs, Program Teacher coverage, and mentor coverage are present.",
       source: `${scope.siteName || "Current school"} setup`,
       actionSection: setupGap?.section || "students",
       actionPreset: setupGap?.preset || "all-students",
@@ -6253,21 +6380,21 @@ function renderSiteDashboardActionMap(dashboard = {}, readOnly = false) {
     {
       id: "proof",
       tone: riskCount ? "danger" : "proof",
-      owner: "Student + reviewer",
-      count: riskCount ? `${riskCount} risk` : `${safeNumber(summary.evidenceArtifacts)} proof`,
-      title: riskCount ? "Check proof blockers" : "Proof stays summary-safe",
+      owner: "Student and teacher",
+      count: riskCount ? `${riskCount} need help` : `${safeNumber(summary.evidenceArtifacts)} files`,
+      title: riskCount ? "Check students needing help" : "Files stay summary-safe",
       detail: riskCount
-        ? `${riskCount} high-risk ${pluralize(riskCount, "student")} need staff to confirm proof, status, and owner before the next handoff.`
-        : "Private proof is counted here without exposing files; use the student list only when proof follow-up is needed.",
-      source: "Private proof signal",
+        ? `${riskCount} high-priority ${pluralize(riskCount, "student")} need staff to confirm work, status, and the next helper.`
+        : "Private files are counted here without exposing details; use the student list only when file follow-up is needed.",
+      source: "Private file summary",
       actionSection: "students",
       actionPreset: riskCount ? "high-risk-students" : "missing-evidence-students",
-      actionLabel: riskCount ? "Open high risk" : "Find missing proof",
+      actionLabel: riskCount ? "Open high priority" : "Find missing work",
     },
     {
       id: "operations",
       tone: failedExports ? "danger" : (operationsTotal ? "operations" : "ready"),
-      owner: "Site operations",
+      owner: "Site staff",
       count: operationsTotal ? `${operationsTotal} ops` : "Clear",
       title: operationsTotal ? "Finish operations follow-up" : "Operations look clear",
       detail: operationsTotal
@@ -6282,11 +6409,11 @@ function renderSiteDashboardActionMap(dashboard = {}, readOnly = false) {
       id: "all-clear",
       tone: allClear ? "ready" : "quiet",
       owner: "School team",
-      count: allClear ? "All clear" : `${blockerCount} ${pluralize(blockerCount, "signal")}`,
-      title: allClear ? "All clear for routine follow-up" : "Return here after the first blocker",
+      count: allClear ? "All clear" : `${blockerCount} ${pluralize(blockerCount, "item")}`,
+      title: allClear ? "All clear for routine follow-up" : "Return here after the first issue",
       detail: allClear
-        ? "No setup, mentor, review, proof, presentation, or final-file blocker is visible right now."
-        : "Handle the strongest lane first, then come back before expanding dashboard details.",
+        ? "No setup, mentor, review, file, presentation, or final-file problem is visible right now."
+        : "Handle the strongest item first, then come back before expanding details.",
       source: `${scope.siteName || "Current school"} / ${scope.schoolYear || "school year"}`,
       actionSection: "students",
       actionPreset: "all-students",
@@ -6295,12 +6422,12 @@ function renderSiteDashboardActionMap(dashboard = {}, readOnly = false) {
   ];
 
   return `
-    <section class="workspace-site-action-map" data-site-action-map="true" aria-label="Site dashboard action map">
+    <section class="workspace-site-action-map" data-site-action-map="true" aria-label="School start list">
       <div class="workspace-site-action-map-head">
         <div>
-          <p class="workspace-kicker">${readOnly ? "Monitoring map" : "School action map"}</p>
+          <p class="workspace-kicker">${readOnly ? "Monitoring list" : "School start list"}</p>
           <h2>Where to start at this school</h2>
-          <p>Pick one owner lane before opening the long dashboard details.</p>
+          <p>Pick one item before opening the longer details.</p>
         </div>
         <span class="workspace-chip">Current school: ${escapeHtml(scope.siteName || "Assigned school")}</span>
       </div>
@@ -6317,13 +6444,13 @@ function renderSiteDashboardActionMapCard(card = {}) {
     ? ` data-section-preset="${escapeHtml(card.actionPreset)}"`
     : "";
   return `
-    <article class="workspace-site-action-map-card ${escapeHtml(card.tone || "quiet")}" data-site-action-map-card="${escapeHtml(card.id || "action")}" data-site-action-owner="${escapeHtml(card.owner || "School team")}">
+    <article class="workspace-site-action-map-card ${escapeHtml(card.tone || "quiet")}" data-site-action-map-card="${escapeHtml(card.id || "action")}" data-site-action-team="${escapeHtml(card.owner || "School team")}">
       <div>
         <div class="workspace-site-action-map-meta">
           <span>${escapeHtml(card.owner || "School team")}</span>
           <b>${escapeHtml(card.count || "0")}</b>
         </div>
-        <strong>${escapeHtml(card.title || "Review this lane")}</strong>
+        <strong>${escapeHtml(card.title || "Review this item")}</strong>
         <p>${escapeHtml(card.detail || "Use the source screen before taking action.")}</p>
         ${card.source ? `<small>${escapeHtml(card.source)}</small>` : ""}
       </div>
@@ -6464,7 +6591,7 @@ function renderSiteProgramsSection() {
         ` : `
           <article class="workspace-empty-state-card" data-site-programs-empty="active">
             <strong>No programs are active for this school yet.</strong>
-            <p>Add an active program below so this school can use program-scoped worklists and assignments.</p>
+            <p>Add an active program below so this school can use program worklists and assignments.</p>
           </article>
         `}
       </div>
@@ -6502,7 +6629,7 @@ function renderSiteProgramsSection() {
         })}
         ${renderSiteProgramForm("remove", "Remove program", activePrograms, {
           emptyTitle: "No active programs can be removed right now.",
-          emptyDetail: "Add a program first if this school needs program-scoped setup.",
+          emptyDetail: "Add a program first if this school needs program setup.",
           guidance: "Choose Remove only for a current program listed above. This turns off the school mapping and keeps historical records intact.",
           submitLabel: "Remove program",
         })}
@@ -6524,7 +6651,7 @@ function renderSiteProgramsSetupFlow(activePrograms = [], availablePrograms = []
     <section class="workspace-site-programs-setup-flow" data-site-programs-setup-flow="true">
       <div>
         <strong>Program setup order</strong>
-        <p>Do this before using program-scoped review queues, student lists, or Program Teacher access.</p>
+        <p>Do this before using program review queues, student lists, or Program Teacher access.</p>
       </div>
       <div class="workspace-site-programs-setup-grid">
         ${rows.map(([label, detail, state]) => `
@@ -6836,25 +6963,26 @@ function renderStudentDirectoryFilterBar(directory) {
   const filters = directory.filters || {};
   const options = directory.filterOptions || {};
   return `
-    <details class="workspace-advanced-filters" data-student-directory-advanced-filters="true">
-      <summary>More filters</summary>
-      <form class="workspace-filter-bar" id="siteStudentFilterForm" data-student-directory-filters="active">
-        <label class="workspace-label">
-          <span>Search</span>
-          <input class="workspace-input" name="search" value="${escapeHtml(filters.search || "")}" autocomplete="off" maxlength="80">
-        </label>
-        <label class="workspace-label">
-          <span>Program</span>
-          <select class="workspace-select" name="programId">
-            ${renderProgramFilterOptions(options.programs, filters.programId)}
-          </select>
-        </label>
-        <label class="workspace-label">
-          <span>Status</span>
-          <select class="workspace-select" name="status">
-            ${renderValueOptions(options.statuses || [], filters.status || "", "Any status", statusText)}
-          </select>
-        </label>
+    <form class="workspace-filter-bar workspace-student-directory-filter-bar" id="siteStudentFilterForm" data-student-directory-filters="active" data-teacher-first-component="DropdownFilterBar">
+      <label class="workspace-label">
+        <span>Search students</span>
+        <input class="workspace-input" name="search" value="${escapeHtml(filters.search || "")}" autocomplete="off" maxlength="80">
+      </label>
+      <label class="workspace-label">
+        <span>Status</span>
+        <select class="workspace-select" name="status">
+          ${renderValueOptions(options.statuses || [], filters.status || "", "Any status", statusText)}
+        </select>
+      </label>
+      <label class="workspace-label">
+        <span>Program</span>
+        <select class="workspace-select" name="programId">
+          ${renderProgramFilterOptions(options.programs, filters.programId)}
+        </select>
+      </label>
+      <details class="workspace-advanced-filters" data-student-directory-advanced-filters="true" data-teacher-first-component="AdvancedFiltersDrawer">
+        <summary>More filters</summary>
+        <div class="workspace-review-more-filter-grid workspace-student-directory-more-filter-grid">
         <label class="workspace-label">
           <span>Progress</span>
           <select class="workspace-select" name="progressStatus">
@@ -6901,15 +7029,16 @@ function renderStudentDirectoryFilterBar(directory) {
             ${renderValueOptions(options.archiveStatuses || [], filters.archiveStatus || "any", "Any final files", archiveStatusFilterLabel)}
           </select>
         </label>
-        ${filters.cohortId ? `<input name="cohortId" type="hidden" value="${escapeHtml(filters.cohortId)}">` : ""}
-        <input name="offset" type="hidden" value="${escapeHtml(filters.offset || 0)}">
-        <input name="limit" type="hidden" value="${escapeHtml(filters.limit || 50)}">
-        <div class="workspace-row-actions">
-          <button class="workspace-button workspace-button-primary" type="submit">Apply filters</button>
-          <button class="workspace-button workspace-button-secondary" type="button" data-site-student-action="reset-filters">Clear filters</button>
         </div>
-      </form>
-    </details>
+      </details>
+      ${filters.cohortId ? `<input name="cohortId" type="hidden" value="${escapeHtml(filters.cohortId)}">` : ""}
+      <input name="offset" type="hidden" value="${escapeHtml(filters.offset || 0)}">
+      <input name="limit" type="hidden" value="${escapeHtml(filters.limit || 50)}">
+      <div class="workspace-row-actions workspace-filter-actions">
+        <button class="workspace-button workspace-button-primary" type="submit">Apply filters</button>
+        <button class="workspace-button workspace-button-secondary" type="button" data-site-student-action="reset-filters">Clear filters</button>
+      </div>
+    </form>
   `;
 }
 
@@ -6946,8 +7075,10 @@ function studentDirectoryRowNextStep(action = "") {
   return String(action || "")
     .replace(/\bOpen Mentor Assignments and assign coverage before the next check-in\./g, "Assign a mentor before the next check-in.")
     .replace(/\bOpen Review Work, check proof and history, then record one decision\./g, "Review the work and leave one decision.")
+    .replace(/\bOpen Review Work, check work and history, then record one decision\./g, "Review the work and leave one decision.")
     .replace(/\bStudent revises the matching item; Program Teacher reviews only after it is sent again\./g, "Ask the student to fix the work and send it again.")
     .replace(/\bStudent adds proof to the matching checklist item before review can move forward\./g, "Ask the student to add the missing work.")
+    .replace(/\bStudent adds work to the matching checklist item before review can move forward\./g, "Ask the student to add the missing work.")
     .replace(/\bOpen Operations or Presentation readiness and confirm the outline or schedule blocker\./g, "Check the presentation plan or schedule.")
     .replace(/\bOpen Operations final-file rows and resolve the export or storage blocker\./g, "Fix the final file problem before closeout.")
     .replace(/\brecord\b/gi, "profile")
@@ -7035,7 +7166,7 @@ function renderStudentRow(student, readOnly = false, permissions = {}, scope = {
         <strong>${escapeHtml(formatDate(student.lastActivityAt))}</strong>
         <p class="workspace-muted">Mentor: ${escapeHtml(student.hasActiveMentor ? (student.mentorName || "Assigned") : "Missing mentor")}</p>
       </div>
-      <div class="workspace-owner-action" data-student-directory-row-guidance="true" data-student-directory-owner="${escapeHtml(guidance.owner)}">
+      <div class="workspace-owner-action" data-student-directory-row-guidance="true" data-student-directory-helper="${escapeHtml(guidance.owner)}">
         <span>Who can help: ${escapeHtml(helper)}</span>
         <small>Next step: ${escapeHtml(nextStep)}</small>
       </div>
@@ -7069,14 +7200,12 @@ function renderStudentDirectoryRowMoreMenu(student, readOnly = false, canRemoveS
       ` : "";
   const actions = [viewAsStudentAction, removalForm].filter((action) => String(action || "").trim());
   if (!actions.length) return "";
-  return `
-    <details class="workspace-row-more-menu" data-student-row-more-menu="true">
-      <summary>More</summary>
-      <div class="workspace-row-more-menu-body">
-        ${actions.join("")}
-      </div>
-    </details>
-  `;
+  return renderTeacherFirstMoreActions({
+    id: `student-row-${student.studentId || "student"}`,
+    actions,
+    dataAttrs: 'data-student-row-more-menu="true"',
+    ariaLabel: `More actions for ${student.displayName || "student"}`,
+  });
 }
 
 function studentDirectoryRowGuidance(student = {}, readOnly = false) {
@@ -7103,7 +7232,7 @@ function studentDirectoryRowGuidance(student = {}, readOnly = false) {
   if (submission === "submitted" || review === "needs_review") {
     return {
       owner: "Program Teacher",
-      nextAction: "Open Review Work, check proof and history, then record one decision.",
+      nextAction: "Open Review Work, check work and history, then record one decision.",
     };
   }
   if (submission === "revision_requested" || review === "needs_revision") {
@@ -7115,7 +7244,7 @@ function studentDirectoryRowGuidance(student = {}, readOnly = false) {
   if (proof === "missing" || progress === "missing_evidence") {
     return {
       owner: "Student",
-      nextAction: "Student adds proof to the matching checklist item before review can move forward.",
+      nextAction: "Student adds work to the matching checklist item before review can move forward.",
     };
   }
   if (presentation === "pending" || presentation === "missing") {
@@ -7419,7 +7548,7 @@ function renderSiteStudentDetailSurface(directory) {
           </div>
           <section class="workspace-empty-state-card">
             <strong>Select a site before opening student detail</strong>
-            <p>This student record is protected by school scope. Choose the school workspace before opening the full detail drawer.</p>
+            <p>This student record is protected by school access. Choose the school workspace before opening the full detail drawer.</p>
             <div class="workspace-chip-row">
               ${accessibleSites.map((site) => `
                 <button class="workspace-link-button workspace-link-button-small" type="button" data-site-switch-id="${escapeHtml(site.siteId || "")}">
@@ -7514,14 +7643,16 @@ function renderSiteStudentDetailSurface(directory) {
             <button class="workspace-button workspace-button-primary workspace-button-small" type="button" data-student-detail-tab="${escapeHtml(primaryAction.tab)}" data-student-detail-primary-action="${escapeHtml(primaryAction.id)}">
               ${escapeHtml(primaryAction.label)}
             </button>
-            <details class="workspace-row-more-menu workspace-student-detail-more-actions" data-student-detail-more-actions="true">
-              <summary>More</summary>
-              <div class="workspace-row-more-menu-list">
-                ${renderViewAsStudentAction(student.studentId || state.studentId, student.displayName || title, { sourceSection: state.sourceSection || "students" })}
-                <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="close">${escapeHtml(returnCopy.buttonLabel)}</button>
-              </div>
-            </details>
-            <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="close">${escapeHtml(returnCopy.buttonLabel)}</button>
+            ${renderTeacherFirstMoreActions({
+              id: `student-detail-${student.studentId || state.studentId || "selected"}`,
+              className: "workspace-student-detail-more-actions",
+              actions: [
+                renderViewAsStudentAction(student.studentId || state.studentId, student.displayName || title, { sourceSection: state.sourceSection || "students" }),
+                `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="close">${escapeHtml(returnCopy.buttonLabel)}</button>`,
+              ],
+              dataAttrs: 'data-student-detail-more-actions="true"',
+              ariaLabel: `More actions for ${student.displayName || title}`,
+            })}
           </div>
         </div>
         <div class="workspace-chip-row workspace-student-detail-facts" data-student-detail-facts="true">
@@ -7948,11 +8079,11 @@ function renderStudentDetailEvidence(detail) {
 function renderStudentDetailCasePlan(detail = {}, scope = {}, preparedPlan = null) {
   const plan = preparedPlan || studentDetailCasePlan(detail, scope);
   return `
-    <section class="workspace-student-detail-case-plan" data-student-detail-case-plan="true" data-student-detail-case-read-only="${plan.readOnly ? "true" : "false"}" aria-label="Student case-management snapshot">
+    <section class="workspace-student-detail-case-plan" data-student-detail-case-plan="true" data-student-detail-case-read-only="${plan.readOnly ? "true" : "false"}" aria-label="Student next steps">
       ${renderStudentDetailCasePlanItem("Status", plan.currentStatus, "status")}
       ${renderStudentDetailCasePlanItem("Current step", plan.currentStep, "step")}
       ${renderStudentDetailCasePlanItem("Staff support", plan.coverage, "coverage")}
-      ${renderStudentDetailCasePlanItem("Do next", plan.nextAction, "action", plan.owner)}
+      ${renderStudentDetailCasePlanItem("Next step", plan.nextAction, "action", plan.owner)}
     </section>
   `;
 }
@@ -9589,13 +9720,13 @@ function renderOperationsReadinessSection() {
       ${renderSiteContextBlock(body)}
       <div class="workspace-command-hero">
         <div>
-          <p class="workspace-kicker">Operations command center</p>
+          <p class="workspace-kicker">Operations</p>
           <h1 id="operationsReadinessTitle">Operations</h1>
           <p>${escapeHtml(copy.heroDescription)}</p>
         </div>
         <div class="workspace-command-hero-grid">
           ${statusPill(readOnly ? "configured" : "ready")}
-          <span class="workspace-chip">${escapeHtml(dashboard.total ? `${dashboard.total} visible records` : "No visible records")}</span>
+          <span class="workspace-chip">${escapeHtml(dashboard.total ? `${dashboard.total} visible rows` : "No visible rows")}</span>
         </div>
       </div>
       ${renderApiNotice(result)}
@@ -9608,10 +9739,10 @@ function renderOperationsReadinessSection() {
       ${renderOperationsRoleActionGuide(body, dashboard)}
       <div class="workspace-operations-insight-grid">
         ${renderReadinessScoreCard(dashboard.score, dashboard.total, "Overall readiness score", dashboard.scoreDetail)}
-        ${renderDashboardCard("Stage distribution", "Presentation, archive, and readiness signals", renderStackedDistribution(dashboard.stageDistribution, "Operations stage distribution"))}
-        ${renderDashboardCard("Top blocker categories", "Counts include denominator and percent", renderHorizontalBars(dashboard.blockers, dashboard.total, { emptyLabel: "No blockers found in visible records." }))}
+        ${renderDashboardCard("Stage distribution", "Presentation, archive, and readiness items", renderStackedDistribution(dashboard.stageDistribution, "Operations stage distribution"))}
+        ${renderDashboardCard("Top issue categories", "Counts include denominator and percent", renderHorizontalBars(dashboard.blockers, dashboard.total, { emptyLabel: "No issues found in visible rows." }))}
       </div>
-      ${renderDashboardCard("Top next actions", "Ranked staff follow-up", renderRankedNextActions(dashboard.nextActions, { emptyLabel: "No blocker-driven follow-up is waiting in this view." }))}
+      ${renderDashboardCard("Top next actions", "Ranked staff follow-up", renderRankedNextActions(dashboard.nextActions, { emptyLabel: "No issue-driven follow-up is waiting in this view." }))}
       ${renderOperationsFilters(body)}
       ${renderOperationsActiveFilters(body?.filters || operationsReadinessFilters || defaultOperationsReadinessFilters(), body?.filterOptions || {})}
       ${renderSiteStudentDetailSurface({ students: operationRowsForDetail(body) })}
@@ -9620,7 +9751,7 @@ function renderOperationsReadinessSection() {
           <div>
             <p class="workspace-kicker">Results</p>
             <h2>Showing ${safeNumber(pagination.returned)} of ${safeNumber(pagination.filteredTotal)}</h2>
-            <p class="workspace-muted">Rows are limited to the current school and sorted with blocked or pending attention first.</p>
+            <p class="workspace-muted">Rows are limited to the current school and sorted with urgent or pending attention first.</p>
           </div>
           <span class="workspace-site-context-badge">${safeNumber(pagination.total)} total available</span>
         </div>
@@ -9747,14 +9878,14 @@ function renderOperationsActionMap(body = {}, dashboard = {}) {
   const sourceDetail = `${scope.siteName || "Current school"} / ${scope.schoolYear || "school year"}`;
   const failedExports = safeNumber(summary.archiveFailed || archiveSummary.failed);
   const storageSetup = safeNumber(archiveSummary.providerUnavailable);
-  const missingProof = safeNumber(summary.evidenceMissing);
+  const missingWork = safeNumber(summary.evidenceMissing);
   const presentationFollowUp = safeNumber(summary.presentationPending)
     + safeNumber(summary.outlinePending)
     + safeNumber(presentationSummary.attentionRequired);
   const staffAction = safeNumber(summary.needsAttention) || safeNumber(dashboard.nextActions?.[0]?.count);
   const staleActivity = safeNumber(summary.staleActivity);
   const readySignals = safeNumber(dashboard.readySignals);
-  const totalSignals = failedExports + storageSetup + missingProof + presentationFollowUp + staffAction + staleActivity;
+  const totalItems = failedExports + storageSetup + missingWork + presentationFollowUp + staffAction + staleActivity;
   const cards = [
     {
       id: "final-files",
@@ -9763,7 +9894,7 @@ function renderOperationsActionMap(body = {}, dashboard = {}) {
       count: failedExports ? `${failedExports} failed` : "Clear",
       title: failedExports ? "Fix failed final files first" : "Final-file failures clear",
       detail: failedExports
-        ? "Failed exports can block closeout; confirm student detail before promising downloads."
+        ? "Failed exports can stop closeout; confirm student detail before promising downloads."
         : "No failed final-file export count is visible in this operations view.",
       source: "Final Files source",
       preset: "archive-failed",
@@ -9774,36 +9905,36 @@ function renderOperationsActionMap(body = {}, dashboard = {}) {
       tone: storageSetup ? "danger" : "ready",
       owner: "Site Admin",
       count: storageSetup ? `${storageSetup} setup` : "Configured",
-      title: storageSetup ? "Confirm storage setup" : "Storage blockers clear",
+      title: storageSetup ? "Confirm storage setup" : "Storage setup clear",
       detail: storageSetup
         ? "Storage setup must be ready before final-file packages or download promises are useful."
-        : "No provider-unavailable final-file blocker is visible right now.",
+        : "No provider-unavailable final-file problem is visible right now.",
       source: "Archive provider source",
       preset: "archive-provider-unavailable",
-      actionLabel: storageSetup ? "Open setup blockers" : "Review setup",
+      actionLabel: storageSetup ? "Open setup issues" : "Review setup",
     },
     {
       id: "proof",
-      tone: missingProof ? "warning" : "ready",
-      owner: "Student + Program Teacher",
-      count: missingProof ? `${missingProof} missing` : "Attached",
-      title: missingProof ? "Route missing proof" : "Proof blockers clear",
-      detail: missingProof
-        ? "Tell the student exactly which proof belongs with the current phase before any approval promise."
-        : "No proof-missing readiness count is visible in this view.",
-      source: "Proof readiness source",
+      tone: missingWork ? "warning" : "ready",
+      owner: "Student and Program Teacher",
+      count: missingWork ? `${missingWork} missing` : "Attached",
+      title: missingWork ? "Find missing work" : "Work files attached",
+      detail: missingWork
+        ? "Tell the student exactly which file or link belongs with the current phase before any approval promise."
+        : "No missing-work count is visible in this view.",
+      source: "Work readiness source",
       preset: "evidence-missing",
-      actionLabel: missingProof ? "Open proof rows" : "Review proof",
+      actionLabel: missingWork ? "Open missing work" : "Review work",
     },
     {
       id: "presentation",
       tone: presentationFollowUp ? "presentation" : "ready",
       owner: "Program Teacher or site staff",
       count: presentationFollowUp ? `${presentationFollowUp} follow-up` : "Ready",
-      title: presentationFollowUp ? "Clarify presentation readiness" : "Presentation blockers clear",
+      title: presentationFollowUp ? "Clarify presentation readiness" : "Presentation setup clear",
       detail: presentationFollowUp
         ? "Check schedule, outline, and check-in state before marking presentation readiness complete."
-        : "No pending presentation, outline, or check-in blocker is visible.",
+        : "No pending presentation, outline, or check-in problem is visible.",
       source: "Presentation source",
       preset: safeNumber(presentationSummary.attentionRequired) ? "presentation-attention" : "presentation-pending",
       actionLabel: presentationFollowUp ? "Open presentation" : "Review presentations",
@@ -9815,7 +9946,7 @@ function renderOperationsActionMap(body = {}, dashboard = {}) {
       count: staffAction ? `${staffAction} action` : "Clear",
       title: staffAction ? "Work ranked staff actions" : "No ranked staff action",
       detail: staffAction
-        ? "Use this lane for high-risk or blocked rows when the owner must be confirmed in student detail."
+        ? "Use this item for high-priority rows when the next helper must be confirmed in student detail."
         : "No staff-action row is waiting in the current operations summary.",
       source: "Ranked worklist source",
       preset: "needs-attention",
@@ -9823,26 +9954,26 @@ function renderOperationsActionMap(body = {}, dashboard = {}) {
     },
     {
       id: "source-screens",
-      tone: totalSignals ? "quiet" : "ready",
+      tone: totalItems ? "quiet" : "ready",
       owner: "School team",
-      count: totalSignals ? `${totalSignals} ${pluralize(totalSignals, "signal")}` : `${readySignals} ready`,
-      title: totalSignals ? "Return after the first blocker" : "Routine monitoring",
-      detail: totalSignals
-        ? "Open one filtered source, finish that owner lane, then return before scanning every row."
-        : "No major operations blocker is visible; keep monitoring ready, in-progress, and expiring items.",
+      count: totalItems ? `${totalItems} ${pluralize(totalItems, "item")}` : `${readySignals} ready`,
+      title: totalItems ? "Return after the first issue" : "Routine monitoring",
+      detail: totalItems
+        ? "Open one filtered list, finish that item, then return before scanning every row."
+        : "No major operations problem is visible; keep monitoring ready, in-progress, and expiring items.",
       source: sourceDetail,
       preset: staleActivity ? "stale-activity" : "archive-in-progress",
-      actionLabel: totalSignals ? "Open stale rows" : "Review in progress",
+      actionLabel: totalItems ? "Open stale rows" : "Review in progress",
     },
   ];
 
   return `
-    <section class="workspace-operations-action-map" data-operations-action-map="true" aria-label="Operations action map">
+    <section class="workspace-operations-action-map" data-operations-action-map="true" aria-label="Operations start list">
       <div class="workspace-operations-action-map-head">
         <div>
-          <p class="workspace-kicker">Operations lane map</p>
-          <h2>Work one operations lane first</h2>
-          <p>Pick the strongest blocker, open the filtered source rows, then return here before expanding every detail panel.</p>
+          <p class="workspace-kicker">Operations start list</p>
+          <h2>Work one setup item first</h2>
+          <p>Pick the strongest issue, open the filtered rows, then return here before expanding every detail panel.</p>
         </div>
         <span class="workspace-chip">${escapeHtml(sourceDetail)}</span>
       </div>
@@ -9855,13 +9986,13 @@ function renderOperationsActionMap(body = {}, dashboard = {}) {
 
 function renderOperationsActionMapCard(card = {}) {
   return `
-    <article class="workspace-operations-action-map-card ${escapeHtml(card.tone || "quiet")}" data-operations-action-map-card="${escapeHtml(card.id || "action")}" data-operations-action-owner="${escapeHtml(card.owner || "Assigned staff")}">
+    <article class="workspace-operations-action-map-card ${escapeHtml(card.tone || "quiet")}" data-operations-action-map-card="${escapeHtml(card.id || "action")}" data-operations-action-team="${escapeHtml(card.owner || "Assigned staff")}">
       <div>
         <div class="workspace-operations-action-map-meta">
           <span>${escapeHtml(card.owner || "Assigned staff")}</span>
           <b>${escapeHtml(card.count || "0")}</b>
         </div>
-        <strong>${escapeHtml(card.title || "Review operations lane")}</strong>
+        <strong>${escapeHtml(card.title || "Review operations item")}</strong>
         <p>${escapeHtml(card.detail || "Open the matching source rows before changing any status.")}</p>
         ${card.source ? `<small>${escapeHtml(card.source)}</small>` : ""}
       </div>
@@ -9877,8 +10008,8 @@ function renderOperationsRoleActionGuide(body = {}, dashboard = {}) {
   const actions = isProgramTeacher
     ? [
         ["Review work", "Approve next steps or request changes in Review Work.", "teacher", "submitted"],
-        ["Resolve proof gaps", "Tell the student exactly which proof belongs with the current phase work.", "operations", "evidence-missing"],
-        ["Clarify presentation readiness", "Use presentation and outline signals for staff follow-up.", "operations", "presentation-pending"],
+        ["Find missing work", "Tell the student exactly which file or link belongs with the current phase work.", "operations", "evidence-missing"],
+        ["Clarify presentation readiness", "Use presentation and outline status for staff follow-up.", "operations", "presentation-pending"],
       ]
     : [
         ["Assign coverage", "Use Mentor Assignments when students have no active mentor.", "mentorAssignments", "no-mentor"],
@@ -9890,7 +10021,7 @@ function renderOperationsRoleActionGuide(body = {}, dashboard = {}) {
       <div>
         <strong>${escapeHtml(isProgramTeacher ? "Program Teacher actions" : "Site Admin actions")}</strong>
         <p>${escapeHtml(isProgramTeacher
-          ? "Focus on blockers you can solve through feedback, approval, proof, and presentation guidance."
+          ? "Focus on issues you can solve through feedback, approval, files, and presentation guidance."
           : "Focus on school setup, mentor coverage, accounts, final-file storage, and escalation paths.")}</p>
       </div>
       <div class="workspace-operations-role-grid">
@@ -9902,7 +10033,7 @@ function renderOperationsRoleActionGuide(body = {}, dashboard = {}) {
           </article>
         `).join("")}
       </div>
-      <p class="workspace-muted">Visible blockers: ${escapeHtml(safeNumber(dashboard.total || summary.studentsTotal || summary.studentsActive))} scoped records.</p>
+      <p class="workspace-muted">Visible issues: ${escapeHtml(safeNumber(dashboard.total || summary.studentsTotal || summary.studentsActive))} loaded rows.</p>
     </section>
   `;
 }
@@ -9939,7 +10070,7 @@ function operationsDashboardModel(body = {}) {
     safeNumber(archive.summary?.complete),
   );
   const scoreDetail = total
-    ? "100 minus weighted blockers across visible records."
+    ? "100 minus weighted issues across visible rows."
     : "No visible records to summarize yet.";
   const blockers = operationsBlockerBars(summary, presentation.summary || {}, archive.summary || {}, total);
   const nextActions = operationsRankedNextActions(summary, presentation.summary || {}, archive.summary || {}, total);
@@ -9993,29 +10124,29 @@ function operationsStageDistribution(summary = {}, presentationSummary = {}, arc
     { label: "Presentation pending", value: safeNumber(summary.presentationPending || presentationSummary.pending) + safeNumber(summary.outlinePending), tone: "warning" },
     { label: "Final files ready", value: safeNumber(summary.archiveReady || archiveSummary.ready || archiveSummary.complete), tone: "mentor" },
     { label: "Final files in progress", value: safeNumber(summary.archiveInProgress) + safeNumber(archiveSummary.queued) + safeNumber(archiveSummary.running), tone: "admin" },
-    { label: "Blocked or failed", value: safeNumber(summary.archiveFailed) + safeNumber(archiveSummary.providerUnavailable) + safeNumber(summary.archiveExpired), tone: "danger" },
+    { label: "Needs help or failed", value: safeNumber(summary.archiveFailed) + safeNumber(archiveSummary.providerUnavailable) + safeNumber(summary.archiveExpired), tone: "danger" },
     { label: "Stale or missing", value: safeNumber(summary.staleActivity) + safeNumber(summary.evidenceMissing), tone: "warning" },
   ].filter((item) => safeNumber(item.value) > 0);
 }
 
 function operationsBlockerBars(summary = {}, presentationSummary = {}, archiveSummary = {}, total = 0) {
   return [
-    { label: "Needs staff action", value: safeNumber(summary.needsAttention), tone: "danger", detail: "Blocked, missing, or high-risk rows", preset: "needs-attention" },
+    { label: "Needs staff action", value: safeNumber(summary.needsAttention), tone: "danger", detail: "Missing, failed, or high-priority rows", preset: "needs-attention" },
     { label: "Stale activity", value: safeNumber(summary.staleActivity), tone: "warning", detail: "No recent student progress", preset: "stale-activity" },
-    { label: "Proof missing", value: safeNumber(summary.evidenceMissing), tone: "warning", detail: "Proof or sent-work progress missing", preset: "evidence-missing" },
-    { label: "Final files failed", value: safeNumber(summary.archiveFailed), tone: "danger", detail: "Final-file follow-up needed", preset: "archive-failed" },
-    { label: "Storage setup needed", value: safeNumber(archiveSummary.providerUnavailable), tone: "danger", detail: "Final-file package setup blocked", preset: "archive-provider-unavailable" },
+    { label: "Missing work", value: safeNumber(summary.evidenceMissing), tone: "warning", detail: "File, link, or sent-work progress missing", preset: "evidence-missing" },
+    { label: "Final-file issues", value: safeNumber(summary.archiveFailed), tone: "danger", detail: "Final-file follow-up needed", preset: "archive-failed" },
+    { label: "Storage setup needed", value: safeNumber(archiveSummary.providerUnavailable), tone: "danger", detail: "Final-file package setup needed", preset: "archive-provider-unavailable" },
     { label: "Check-in needed", value: safeNumber(presentationSummary.attentionRequired), tone: "warning", detail: "Checked out but not checked in", preset: "presentation-attention" },
   ].filter((item) => safeNumber(item.value) > 0 || safeNumber(total) === 0);
 }
 
 function operationsRankedNextActions(summary = {}, presentationSummary = {}, archiveSummary = {}, total = 0) {
   const actions = [
-    { label: "Review final-file failures", count: safeNumber(summary.archiveFailed), why: "Failed exports block final-file package readiness.", preset: "archive-failed", tone: "danger" },
+    { label: "Review final-file issues", count: safeNumber(summary.archiveFailed), why: "Failed exports stop final-file package readiness.", preset: "archive-failed", tone: "danger" },
     { label: "Confirm storage setup", count: safeNumber(archiveSummary.providerUnavailable), why: "Storage setup must be ready before final-file packages can run.", preset: "archive-provider-unavailable", tone: "danger" },
     { label: "Refresh expired downloads", count: safeNumber(summary.archiveExpired), why: "Expired windows need staff follow-up before downloads are useful.", preset: "archive-expired", tone: "danger" },
-    { label: "Resolve missing proof rows", count: safeNumber(summary.evidenceMissing), why: "Missing proof blocks readiness and final-file confidence.", preset: "evidence-missing", tone: "warning" },
-    { label: "Review staff-action rows", count: safeNumber(summary.needsAttention), why: "These are the highest-priority readiness blockers.", preset: "needs-attention", tone: "danger" },
+    { label: "Find missing work rows", count: safeNumber(summary.evidenceMissing), why: "Missing work affects readiness and final-file confidence.", preset: "evidence-missing", tone: "warning" },
+    { label: "Review staff-action rows", count: safeNumber(summary.needsAttention), why: "These are the highest-priority readiness issues.", preset: "needs-attention", tone: "danger" },
     { label: "Check stale activity rows", count: safeNumber(summary.staleActivity), why: "Stale records need current staff context.", preset: "stale-activity", tone: "warning" },
     { label: "Review pending outlines", count: safeNumber(summary.outlinePending), why: "Outline status can hold up presentation readiness.", preset: "outline-pending", tone: "warning" },
     { label: "Confirm final-file packages in progress", count: safeNumber(summary.archiveInProgress), why: "Queued or running packages should finish cleanly.", preset: "archive-in-progress", tone: "admin" },
@@ -10023,7 +10154,7 @@ function operationsRankedNextActions(summary = {}, presentationSummary = {}, arc
     { label: "Watch expiring downloads", count: safeNumber(summary.archiveExpiringSoon), why: "Download windows should not quietly expire.", preset: "archive-expiring-soon", tone: "warning" },
   ].filter((action) => safeNumber(action.count) > 0);
   if (!actions.length && safeNumber(total)) {
-    return [{ label: "No blockers found", count: 0, why: "All visible blocker counts are clear.", tone: "mentor" }];
+    return [{ label: "No issues found", count: 0, why: "All visible issue counts are clear.", tone: "mentor" }];
   }
   return actions;
 }
@@ -10039,21 +10170,21 @@ function renderOperationsSummaryDeck(dashboard = {}) {
     {
       label: "Needs staff action",
       value: metricWithPercent(dashboard.blockers.find((item) => item.label === "Needs staff action")?.value || 0, dashboard.total),
-      detail: "Blocked, missing, or high-risk rows",
+      detail: "Missing, failed, or high-priority rows",
       tone: "danger",
       actionHtml: operationsPresetButton("needs-attention"),
     },
     {
-      label: "Final files failed",
-      value: metricWithPercent(dashboard.blockers.find((item) => ["final_files_failed", "archive_failed"].includes(normalizeStatus(item.label)))?.value || 0, dashboard.total),
+      label: "Final-file issues",
+      value: metricWithPercent(dashboard.blockers.find((item) => ["final_file_issues", "archive_failed"].includes(normalizeStatus(item.label)))?.value || 0, dashboard.total),
       detail: "Final-file follow-up",
       tone: "danger",
       actionHtml: operationsPresetButton("archive-failed"),
     },
     {
-      label: "Missing proof",
-      value: metricWithPercent(dashboard.blockers.find((item) => ["proof_missing", "evidence_missing"].includes(normalizeStatus(item.label)))?.value || 0, dashboard.total),
-      detail: "Proof or progress missing",
+      label: "Missing work",
+      value: metricWithPercent(dashboard.blockers.find((item) => ["missing_work", "evidence_missing"].includes(normalizeStatus(item.label)))?.value || 0, dashboard.total),
+      detail: "File, link, or progress missing",
       tone: "warning",
       actionHtml: operationsPresetButton("evidence-missing"),
     },
@@ -10065,7 +10196,7 @@ function renderOperationsSummaryDeck(dashboard = {}) {
       actionHtml: operationsPresetButton("stale-activity"),
     },
     {
-      label: "Ready signals",
+      label: "Ready items",
       value: metricWithPercent(dashboard.readySignals, dashboard.total),
       detail: "Best available ready/complete count",
       tone: "mentor",
@@ -10166,9 +10297,9 @@ function operationsSectionCopy(scope = {}) {
   const role = String(scope.role || "");
   if (role === "program_teacher") {
     return {
-      heroDescription: "Program-scoped operations dashboard. Review presentation, final-file, and readiness blockers for your assigned students, then use student detail and review workflows to coordinate follow-up with site staff.",
+      heroDescription: "Program operations. Review presentation, final-file, and readiness issues for your assigned students, then use student detail and Review Work to coordinate follow-up with site staff.",
       bannerTitle: "Program follow-up worklists",
-      bannerBody: "These worklists stay within your assigned students. Open student detail for blocker context; scheduling, final-file package changes, and account updates stay with site staff.",
+      bannerBody: "These worklists stay within your assigned students. Open student detail for context; scheduling, final-file package changes, and account updates stay with site staff.",
       emptyOwner: "Assigned Program Teacher and site administration.",
       emptyUnfilteredNextAction: "Keep monitoring assigned-student presentation and final-file milestones.",
       emptyFilteredNextAction: "Clear filters or return to the Program Dashboard for broader assigned-student context.",
@@ -10177,9 +10308,9 @@ function operationsSectionCopy(scope = {}) {
   }
   if (role === "administration" || role === "viewer") {
     return {
-      heroDescription: "Read-only operations dashboard. Open student detail for blocker context; status changes stay with authorized staff.",
+      heroDescription: "Read-only operations. Open student detail for context; status changes stay with authorized staff.",
       bannerTitle: "Read-only operations worklists",
-      bannerBody: "These worklists are monitoring-only across protected proof, assigned records, and Program Teacher follow-up. Open student detail for blocker context; status changes stay with authorized staff.",
+      bannerBody: "These worklists are monitoring-only across protected files, assigned students, and Program Teacher follow-up. Open student detail for context; status changes stay with authorized staff.",
       emptyOwner: "Site administration.",
       emptyUnfilteredNextAction: "Continue monitoring ready and in-progress work for this school.",
       emptyFilteredNextAction: "Clear filters or return to the current school overview for broader context.",
@@ -10187,9 +10318,9 @@ function operationsSectionCopy(scope = {}) {
     };
   }
   return {
-    heroDescription: "School operations dashboard. Review presentation, final-file, and readiness blockers across this school, then use student detail and linked worklists to coordinate follow-up.",
+    heroDescription: "School operations. Review presentation, final-file, and readiness issues across this school, then use student detail and linked worklists to coordinate follow-up.",
     bannerTitle: "School follow-up worklists",
-    bannerBody: "These worklists highlight protected student blockers across proof, presentations, and final-file readiness. Open student detail for context and route the next step with the listed owner.",
+    bannerBody: "These worklists highlight protected student issues across files, presentations, and final-file readiness. Open student detail for context and choose the right next helper.",
     emptyOwner: "Site administration.",
     emptyUnfilteredNextAction: "Continue monitoring ready, scheduled, and in-progress work across this school.",
     emptyFilteredNextAction: "Clear filters or open student detail for broader school context.",
@@ -10217,7 +10348,7 @@ function renderReadinessScoreCard(score, total = 0, title = "Readiness score", d
 function renderStackedDistribution(items = [], label = "Status distribution") {
   const rows = (Array.isArray(items) ? items : []).filter((item) => safeNumber(item.value) > 0);
   const total = rows.reduce((sum, item) => sum + safeNumber(item.value), 0);
-  if (!rows.length || !total) return `<div class="workspace-empty">No distribution signals are available for this view.</div>`;
+  if (!rows.length || !total) return `<div class="workspace-empty">No distribution items are available for this view.</div>`;
   return `
     <div class="workspace-stacked-summary" aria-label="${escapeHtml(label)}">
       <div class="workspace-stacked-bar" aria-hidden="true">
@@ -10270,7 +10401,7 @@ function renderRankedNextActions(actions = [], options = {}) {
         <li class="${escapeHtml(action.tone || "")}">
           <div>
             <strong>${escapeHtml(action.count ? `${action.label} (${action.count})` : action.label)}</strong>
-            <p>${escapeHtml(action.why || "Review this operational signal.")}</p>
+            <p>${escapeHtml(action.why || "Review this operations item.")}</p>
             <p class="workspace-owner-action workspace-owner-action-inline" data-operations-ranked-owner="true">
               <span>Who can help: ${escapeHtml(operationsRankedActionOwner(action))}</span>
               <small>Next step: ${escapeHtml(operationsRankedActionNextStep(action))}</small>
@@ -10297,11 +10428,11 @@ function operationsRankedActionNextStep(action = {}) {
   if (preset === "archive_provider_unavailable") return "Confirm storage setup before asking students to use final-file downloads.";
   if (preset === "archive_failed") return "Open failed final-file rows, check student detail, then use the approved export flow.";
   if (preset === "archive_expired") return "Review the expired download window before promising a package is ready.";
-  if (preset === "evidence_missing") return "Tell the student which proof belongs with the current phase work.";
+  if (preset === "evidence_missing") return "Tell the student exactly which file or link belongs with the current phase work.";
   if (preset === "outline_pending") return "Confirm the outline decision before presentation readiness is marked complete.";
   if (preset === "presentation_pending" || preset === "presentation_attention") return "Confirm schedule, outline, and check-in state in the presentation workflow.";
-  if (preset === "stale_activity") return "Open student detail and verify whether the student, mentor, or Program Teacher owns the next touchpoint.";
-  return "Open the filtered operations rows and route each blocker to the listed owner.";
+  if (preset === "stale_activity") return "Open student detail and verify whether the student, mentor, or Program Teacher should take the next step.";
+  return "Open the filtered operations rows and route each issue to the right helper.";
 }
 
 function operationsPresetButton(preset, label = "Review rows") {
@@ -10378,10 +10509,10 @@ function operationsRowNextAction(row = {}, area = "") {
   const presentationStatus = normalizeStatus(row.presentationStatus || row.outlineStatus);
   if (normalizedArea === "archive" && archiveStatus === "failed") return "Open the student detail, confirm final-file requirements, then retry or escalate the export.";
   if (normalizedArea === "archive" && archiveStatus === "provider_unavailable") return "Confirm storage provider setup before students depend on final-file downloads.";
-  if (normalizedArea === "presentation" && ["pending", "missing", "outline_pending"].includes(presentationStatus)) return "Confirm the outline or schedule blocker, then update the presentation readiness row.";
-  if (normalizedArea === "evidence") return "Tell the student exactly which proof is missing before approving next steps.";
+  if (normalizedArea === "presentation" && ["pending", "missing", "outline_pending"].includes(presentationStatus)) return "Confirm the outline or schedule issue, then update the presentation readiness row.";
+  if (normalizedArea === "evidence") return "Tell the student exactly which file or link is missing before approving next steps.";
   if (normalizedArea === "mentor") return "Assign or confirm mentor coverage before the next student check-in.";
-  return "Open student detail, confirm the blocker, then save the next staff action in the matching workflow.";
+  return "Open student detail, confirm the issue, then save the next staff action in the matching workflow.";
 }
 
 function archiveCompactIssue(row = {}) {
@@ -10529,7 +10660,7 @@ function archiveWorklistSupportText(row = {}) {
   if (archiveStatus === "expired") return "Download window expired.";
   if (archiveStatus === "expiring_soon" || row.downloadExpiresSoon) return "Download window expiring soon.";
   if (archiveStatus === "queued" || archiveStatus === "running") return "Final-file package is being prepared.";
-  if (archiveStatus === "complete" && row.downloadReady) return "Scoped download is available.";
+  if (archiveStatus === "complete" && row.downloadReady) return "Download is available.";
   if (archiveStatus === "failed") return "Final-file export needs staff follow-up.";
   if (archiveStatus === "ready") return "Ready for final-file package preparation.";
   return "File details are protected.";
@@ -10810,7 +10941,7 @@ function renderAdminAuditOperationsSummary(events = []) {
       id: "access-review",
       title: "Access Review",
       value: countWhere(/denied|unauthorized|access|assignment/i),
-      detail: "Denied access, assignment, and scope-change rows.",
+      detail: "Denied access, assignment, and school/program change rows.",
     },
     {
       id: "role-assignments",
@@ -10860,7 +10991,7 @@ function renderAdminAuditActionMap(events = [], activeFilters = {}) {
       owner: "Global admin",
       count: `${eventCount} ${pluralize(eventCount, "event")}`,
       title: "Start with latest changes",
-      detail: "Use the unfiltered redacted log when you need the newest platform pattern before choosing a lane.",
+      detail: "Use the unfiltered redacted log when you need the newest pattern before choosing a filter.",
       source: "Recent audit rows",
       actionLabel: "Show recent",
     },
@@ -10892,10 +11023,10 @@ function renderAdminAuditActionMap(events = [], activeFilters = {}) {
       id: "blocked-evidence",
       tone: anomalyById.get("blocked-evidence-attempts")?.count ? "warning" : "quiet",
       owner: "Program Teacher or security admin",
-      count: `${safeNumber(anomalyById.get("blocked-evidence-attempts")?.count)} ${pluralize(anomalyById.get("blocked-evidence-attempts")?.count, "block")}`,
-      title: "Review blocked evidence safely",
+      count: `${safeNumber(anomalyById.get("blocked-evidence-attempts")?.count)} ${pluralize(anomalyById.get("blocked-evidence-attempts")?.count, "item")}`,
+      title: "Review file upload issues safely",
       detail: "Decide whether the student needs file/link help or the pattern needs security follow-up.",
-      source: "Blocked files and links",
+      source: "File and link checks",
       action: "evidence_upload_blocked_signature",
       entityType: "submission",
       actionLabel: "Open blocks",
@@ -10941,8 +11072,8 @@ function renderAdminAuditActionMap(events = [], activeFilters = {}) {
       tone: providerCount ? "warning" : "quiet",
       owner: "Platform setup",
       count: `${providerCount} ${pluralize(providerCount, "setup row")}`,
-      title: "Find provider setup blockers",
-      detail: "Use this when final-file or proof work is blocked because storage is unavailable.",
+      title: "Find provider setup issues",
+      detail: "Use this when final-file or student file work is waiting because storage is unavailable.",
       source: "Provider setup rows",
       action: "student_archive_export_provider_unavailable",
       entityType: "export",
@@ -10952,7 +11083,7 @@ function renderAdminAuditActionMap(events = [], activeFilters = {}) {
       id: "session-pressure",
       tone: anomalyById.get("login-rate")?.count ? "history" : "quiet",
       owner: "Account support",
-      count: `${safeNumber(anomalyById.get("login-rate")?.count)} ${pluralize(anomalyById.get("login-rate")?.count, "signal")}`,
+      count: `${safeNumber(anomalyById.get("login-rate")?.count)} ${pluralize(anomalyById.get("login-rate")?.count, "item")}`,
       title: "Watch sign-in pressure",
       detail: "Treat repeated failures as support or abuse triage before resetting access.",
       source: "Login and rate-limit rows",
@@ -10963,11 +11094,11 @@ function renderAdminAuditActionMap(events = [], activeFilters = {}) {
   ];
 
   return `
-    <section class="workspace-admin-audit-action-map" data-admin-audit-action-map="true" aria-label="Audit action map">
+    <section class="workspace-admin-audit-action-map" data-admin-audit-action-map="true" aria-label="Audit quick filters">
       <div class="workspace-admin-audit-action-map-head">
         <div>
-          <p class="workspace-kicker">Audit action map</p>
-          <h2>Choose one redacted audit lane</h2>
+          <p class="workspace-kicker">Audit quick filters</p>
+          <h2>Choose one audit filter</h2>
           <p>Pick the pattern, open the matching redacted filter, then fix the issue in the source screen.</p>
         </div>
         <span class="workspace-chip">${escapeHtml(adminAuditFilterLabel(activeFilters))}</span>
@@ -15604,7 +15735,7 @@ function renderReviewQueueStartHere(queue = [], summary = {}, filters = {}, read
       id: "missing-work",
       label: "Missing work",
       value: safeNumber(summary.evidenceMissing ?? missingWorkRows.length),
-      detail: "Ask for the missing proof before approving.",
+      detail: "Ask for the missing work before approving.",
       preset: "evidence-missing-review",
       action: "Show missing work",
       tone: "warning",
@@ -15970,7 +16101,7 @@ function renderReviewQueueFilters(body) {
   const options = body?.filterOptions || {};
   const programs = options.programs || [];
   return `
-    <form id="reviewQueueFilterForm" class="workspace-filter-bar workspace-review-filter-bar" data-review-queue-filters="true">
+    <form id="reviewQueueFilterForm" class="workspace-filter-bar workspace-review-filter-bar" data-review-queue-filters="true" data-teacher-first-component="DropdownFilterBar">
       <label>
         <span>Search</span>
         <input name="search" type="search" value="${escapeHtml(filters.search || "")}">
@@ -15995,7 +16126,7 @@ function renderReviewQueueFilters(body) {
           `).join("")}
         </select>
       </label>
-      <details class="workspace-advanced-filters" data-review-work-more-filters="true">
+      <details class="workspace-advanced-filters" data-review-work-more-filters="true" data-teacher-first-component="AdvancedFiltersDrawer">
         <summary>More filters</summary>
         <div class="workspace-review-more-filter-grid">
           <label>
@@ -16074,14 +16205,14 @@ function reviewQueueFilteredEmptyStateCopy(filters = {}, options = {}) {
   if (filters.evidenceStatus === "missing") {
     return {
       heading: "No matching missing work",
-      reason: "No work missing proof matches these filters.",
+      reason: "No work missing files matches these filters.",
       nextAction: "Clear the work filter or check Students for a broader search.",
     };
   }
   if (filters.evidenceStatus === "attached") {
     return {
-      heading: "No matching work with proof",
-      reason: "No work with attached proof matches these filters.",
+      heading: "No matching work with files",
+      reason: "No work with attached files matches these filters.",
       nextAction: "Clear the work filter or adjust status and help filters.",
     };
   }
@@ -16196,7 +16327,7 @@ function reviewQueueDecisionAvailability(item = {}) {
     fallbackCanApprove
       ? "Decision needed: active proof is attached. Review history, then approve next steps or request revision."
       : fallbackCanDecide
-        ? "Approval locked: active proof is missing. Request revision or add comment-only guidance until proof is attached."
+        ? "Approval locked: active work is missing. Request changes or add comment-only guidance until work is attached."
         : status === "revision_requested"
           ? "Student action needed: wait for the revised submission before recording another Program Teacher decision."
           : "Context only: open submitted work when a Program Teacher decision is needed."
@@ -16224,10 +16355,10 @@ function reviewQueueRowDecisionHint(item = {}, permissions = {}) {
   const status = normalizeStatus(item?.status);
   const evidenceCount = safeNumber(item?.evidenceCount);
   if (status === "submitted" && evidenceCount > 0) {
-    return "Review the work, check proof, then save clear feedback.";
+    return "Review the work, check files, then save clear feedback.";
   }
   if (status === "submitted") {
-    return "Ask for the missing proof before approving.";
+    return "Ask for the missing work before approving.";
   }
   if (status === "revision_requested") {
     return "The student needs to fix this before another review.";
@@ -16277,7 +16408,7 @@ function renderReviewQueueRow(item, selectedId, permissions = {}) {
         <div>
           <span>Last update</span>
           <strong>${escapeHtml(formatDate(item.updatedAt))}</strong>
-          <small>${safeNumber(item.evidenceCount)} proof ${safeNumber(item.evidenceCount) === 1 ? "item" : "items"}</small>
+          <small>${safeNumber(item.evidenceCount)} file${safeNumber(item.evidenceCount) === 1 ? "" : "s"} attached</small>
         </div>
       </div>
       <div class="workspace-row-actions">
@@ -16286,13 +16417,15 @@ function renderReviewQueueRow(item, selectedId, permissions = {}) {
         <button class="workspace-button workspace-button-primary workspace-button-small" type="button" data-review-queue-action="select" data-review-submission-id="${escapeHtml(item.submissionId || "")}" data-review-row-action-label="${escapeHtml(actionLabel.toLowerCase().replace(/\s+/g, "-"))}">
           ${escapeHtml(selected ? "Open" : actionLabel)}
         </button>
-        <details class="workspace-row-more-menu" data-review-row-more-menu="true">
-          <summary>More</summary>
-          <div>
-            <button class="workspace-link-button workspace-link-button-small" type="button" data-review-queue-action="open-student" data-review-student-id="${escapeHtml(item.studentId || "")}">Open student</button>
-            ${renderViewAsStudentAction(item.studentId, item.studentName, { sourceSection: "teacher" })}
-          </div>
-        </details>
+        ${renderTeacherFirstMoreActions({
+          id: `review-${item.submissionId || item.studentId || "row"}`,
+          actions: [
+            `<button class="workspace-link-button workspace-link-button-small" type="button" data-review-queue-action="open-student" data-review-student-id="${escapeHtml(item.studentId || "")}">Open student</button>`,
+            renderViewAsStudentAction(item.studentId, item.studentName, { sourceSection: "teacher" }),
+          ],
+          dataAttrs: 'data-review-row-more-menu="true"',
+          ariaLabel: `More actions for ${item.studentName || "review row"}`,
+        })}
       </div>
     </article>
   `;
@@ -16310,13 +16443,13 @@ function reviewQueueRowOwnerAction(item = {}, permissions = {}) {
   if (status === "submitted" && proofCount > 0) {
     return {
       owner: "Program Teacher",
-      nextAction: "Select the row, check proof and history, then record one decision.",
+      nextAction: "Select the row, check work and history, then record one decision.",
     };
   }
   if (status === "submitted") {
     return {
       owner: "Student",
-      nextAction: "Hold approval and ask for the exact proof before recording a next-step decision.",
+      nextAction: "Hold approval and ask for the exact work before recording a next-step decision.",
     };
   }
   if (status === "revision_requested") {
@@ -16418,11 +16551,11 @@ function renderReviewSubmissionPanel(selected, body) {
       </div>
       <div class="workspace-detail-grid">
         <span class="workspace-site-context-badge">${escapeHtml(selected.programName || "Unassigned")}</span>
-        <span class="workspace-site-context-badge">${safeNumber(selected.evidenceCount)} proof ${safeNumber(selected.evidenceCount) === 1 ? "item" : "items"}</span>
+        <span class="workspace-site-context-badge">${safeNumber(selected.evidenceCount)} file${safeNumber(selected.evidenceCount) === 1 ? "" : "s"} attached</span>
         <span class="workspace-site-context-badge">${safeNumber(selected.reviewCount)} reviews</span>
         <span class="workspace-site-context-badge">${safeNumber(selected.commentCount)} comments</span>
       </div>
-      <p>${escapeHtml(selected.nextAction || "Review proof and history.")}</p>
+      <p>${escapeHtml(selected.nextAction || "Review work and history.")}</p>
       <p class="workspace-muted" data-review-selected-guidance="true">${escapeHtml(selectedGuidance)}</p>
       <div class="workspace-row-actions">
         <button class="workspace-link-button workspace-link-button-small" type="button" data-review-queue-action="open-student" data-review-student-id="${escapeHtml(selected.studentId || "")}">
@@ -16465,7 +16598,7 @@ function renderReviewSelectedSummary(selected = {}, canDecide = false, permissio
         <span>${escapeHtml(selected.programName || "Unassigned")} / version ${safeNumber(selected.version)} / ${escapeHtml(reviewQueueStatusText(selected.status))}</span>
       </div>
       <div class="workspace-review-selected-summary-facts">
-        <span><b>${safeNumber(selected.evidenceCount)}</b> proof</span>
+        <span><b>${safeNumber(selected.evidenceCount)}</b> files</span>
         <span><b>${safeNumber(selected.reviewCount)}</b> reviews</span>
         <span><b>${safeNumber(selected.commentCount)}</b> comments</span>
       </div>
@@ -16486,8 +16619,8 @@ function renderReviewProofQualityChecklist(selected = {}, history = {}, canDecid
       state: selected.requirementTitle ? "ready" : "context",
     },
     {
-      label: "Active proof visible",
-      detail: evidenceCount ? `${evidenceCount} proof ${pluralize(evidenceCount, "item")} ${evidenceCount === 1 ? "is" : "are"} attached to this row.` : "No active proof is attached; approval must stay locked.",
+      label: "Files are attached",
+      detail: evidenceCount ? `${evidenceCount} file${evidenceCount === 1 ? "" : "s"} ${evidenceCount === 1 ? "is" : "are"} attached to this row.` : "No file or link is attached; approval must stay locked.",
       state: evidenceCount ? "ready" : "blocked",
     },
     {
@@ -16499,13 +16632,13 @@ function renderReviewProofQualityChecklist(selected = {}, history = {}, canDecid
       label: "Decision matches work",
       detail: permissions.canReview && canDecide && approvalAvailable
         ? "Approval, changes, and comment-only are available; choose exactly one."
-        : "Use changes or comment-only context until the student sends work with proof.",
+        : "Use changes or comment-only context until the student sends work with a file or link.",
       state: permissions.canReview && canDecide && approvalAvailable ? "ready" : "blocked",
     },
   ];
   return `
     <section class="workspace-review-proof-quality" data-review-proof-quality-checklist="true" data-review-proof-quality-state="${escapeHtml(approvalAvailable ? "ready" : "blocked")}">
-      <strong>Proof quality check before deciding</strong>
+      <strong>Work check before deciding</strong>
       <div class="workspace-review-proof-quality-grid">
         ${checks.map((check) => `
           <article data-review-proof-quality-state="${escapeHtml(check.state)}">
@@ -16530,8 +16663,8 @@ function renderReviewDecisionChecklist(selected = {}, history = {}, canDecide = 
       state: status === "submitted" ? "ready" : "blocked",
     },
     {
-      label: "Proof attached",
-      detail: evidenceCount ? `${evidenceCount} proof ${pluralize(evidenceCount, "item")} visible to review.` : "Approval should stay locked until proof is attached or clarified.",
+      label: "Files attached",
+      detail: evidenceCount ? `${evidenceCount} file${evidenceCount === 1 ? "" : "s"} visible to review.` : "Approval should stay locked until a file, link, or clear work sample is attached.",
       state: evidenceCount ? "ready" : "blocked",
     },
     {
@@ -16566,8 +16699,8 @@ function renderReviewMissingProofHold(selected = {}, canDecide = false) {
   if (!canDecide || reviewQueueDecisionAvailable(selected, "approved") || availability.approvalBlockedReason !== "missing_evidence") return "";
   return `
     <section class="workspace-review-proof-hold" data-review-missing-proof-hold="true">
-      <strong>Approval is locked because proof is missing</strong>
-      <p>Ask for changes or add a comment asking for the exact proof. Do not approve next steps until proof is attached.</p>
+      <strong>Approval is locked because work is missing</strong>
+      <p>Ask for changes or add a comment asking for the exact file or link. Do not approve next steps until the work is attached.</p>
     </section>
   `;
 }
@@ -16604,7 +16737,7 @@ function renderReviewDecisionRubric(selected = {}, canDecide = false, permission
   const status = normalizeStatus(selected.status);
   const approvalAvailable = reviewQueueDecisionAvailable(selected, "approved");
   const rows = [
-    ["Approve next steps", "Use only when active proof is attached, the work meets the phase ask, and the student can move forward.", canDecide && approvalAvailable ? "ready" : "blocked"],
+    ["Approve next steps", "Use only when work is attached, the work meets the phase ask, and the student can move forward.", canDecide && approvalAvailable ? "ready" : "blocked"],
     ["Request changes", "Use when the student must fix this phase before moving ahead. Say exactly what to change.", permissions.canReview && status === "submitted" ? "ready" : "context"],
     ["Add comment only", "Use for clarification or support. It does not change the student's approval step.", permissions.canReview ? "context" : "blocked"],
   ];
@@ -16636,7 +16769,7 @@ function renderReviewDecisionReadiness(selected = {}, history = {}, canDecide = 
         <p>${escapeHtml(readiness.detail)}</p>
       </div>
       <div class="workspace-review-readiness-grid">
-        ${renderReviewReadinessFact("Proof", evidenceCount ? `${evidenceCount} attached` : "Missing proof", evidenceCount ? "ready" : "blocked")}
+        ${renderReviewReadinessFact("Files", evidenceCount ? `${evidenceCount} attached` : "Missing work", evidenceCount ? "ready" : "blocked")}
         ${renderReviewReadinessFact("Current status", reviewQueueStatusText(status || selected.status), status === "submitted" ? "ready" : "context")}
         ${renderReviewReadinessFact("Previous reviews", `${reviewCount}`, reviewCount ? "context" : "quiet")}
         ${renderReviewReadinessFact("Student-visible notes", `${commentCounts.studentVisible}`, commentCounts.studentVisible ? "context" : "quiet")}
@@ -16670,14 +16803,14 @@ function reviewDecisionReadinessCopy(selected = {}, canDecide = false, permissio
     return {
       state: "ready",
       title: "Ready for a manual Program Teacher decision",
-      detail: "Active proof is attached. Check history, then approve next steps only if the work is complete enough to move forward.",
+      detail: "Work is attached. Check history, then approve next steps only if the work is complete enough to move forward.",
     };
   }
   if (canDecide && availability.approvalBlockedReason === "missing_evidence") {
     return {
       state: "proof-missing",
-      title: "Proof check needed before approval",
-      detail: "This work is waiting for review, but active proof is missing. Ask for changes or ask for proof before approving next steps.",
+      title: "Work check needed before approval",
+      detail: "This work is waiting for review, but the needed file or link is missing. Ask for changes before approving next steps.",
     };
   }
   if (status === "revision_requested") {
@@ -16701,14 +16834,14 @@ function renderReviewNextStepCheckpoint(selected, canDecide, permissions = {}) {
   const steps = canDecide
     ? approvalAvailable
       ? [
-        ["Check proof and history", "Open the student detail if mentor, timeline, or phase context is needed before deciding."],
+        ["Check work and history", "Open the student detail if mentor, timeline, or phase context is needed before deciding."],
         ["Approve next steps only when ready", "Choose approval when this work is complete enough for the student to move forward."],
         ["Request changes to hold the phase", "Choose changes when the student should fix this phase before moving ahead."],
       ]
       : [
-        ["Confirm active proof first", "Approval stays locked until proof is attached to this work."],
-        ["Request changes or add a comment", "Tell the student exactly what proof to attach or clarify before approval."],
-        ["Approve only after proof appears", "Return to approval after this row shows active proof and the work meets the phase ask."],
+        ["Confirm work first", "Approval stays locked until the file or link is attached to this work."],
+        ["Request changes or add a comment", "Tell the student exactly what file, link, or change is needed before approval."],
+        ["Approve only after work appears", "Return to approval after this row shows attached work and it meets the phase ask."],
       ]
     : canReview
       ? [
@@ -16750,8 +16883,8 @@ function renderReviewStudentImpactPreview(selected = {}, canDecide = false) {
         ["Add comment only", "Adds context without changing the student status or approval step.", "under_review"],
       ]
       : [
-        ["Approval locked", "Student still waits here because active proof is missing from this work.", "pending_review"],
-        ["Request changes", "Student sees exactly what proof or change is needed before approval.", "revision_requested"],
+        ["Approval locked", "Student still waits here because the needed work is missing.", "pending_review"],
+        ["Request changes", "Student sees exactly what file, link, or change is needed before approval.", "revision_requested"],
         ["Add comment only", "Adds support context without changing the student's approval step.", "under_review"],
       ]
     : status === "revision_requested"
@@ -16869,7 +17002,7 @@ function renderReviewDecisionForm(selected) {
     <form id="reviewDecisionForm" class="workspace-review-feedback" data-review-decision-form="true" data-review-approval-blocked="${approvalBlocked ? "missing-proof" : "false"}" data-review-approval-blocked-reason="${escapeHtml(approvalBlocked ? availability.approvalBlockedReason : "")}">
       <section class="workspace-review-decision-helper" data-review-decision-helper="true">
         <strong>Before saving</strong>
-        <p>${escapeHtml(approvalBlocked ? "Choose changes or comment-only until active proof is attached. Approval opens only after this work has active proof." : "Choose one decision. Approval opens the student's next step; changes hold the current phase; comment-only adds context without changing status.")}</p>
+        <p>${escapeHtml(approvalBlocked ? "Choose changes or comment-only until the needed work is attached. Approval opens only after this work has a file or link." : "Choose one decision. Approval opens the student's next step; changes hold the current phase; comment-only adds context without changing status.")}</p>
         <p class="workspace-muted" data-review-comment-only-non-gating="true">Comment-only is not approval. Students still wait for a recorded approval before moving phases.</p>
       </section>
       <label>
@@ -16880,16 +17013,16 @@ function renderReviewDecisionForm(selected) {
       ${approvalBlocked ? `
         <section class="workspace-review-inline-proof-hold" data-review-decision-inline-proof-hold="true">
           <strong>Approval remains locked here</strong>
-          <p>${escapeHtml(availability.approvalBlockedReason === "missing_evidence" ? "Active proof is missing from this work. Use Request changes or Add comment only until proof appears." : "This row is not ready for approval from the current state.")}</p>
+          <p>${escapeHtml(availability.approvalBlockedReason === "missing_evidence" ? "The needed work is missing from this row. Use Request changes or Add comment only until a file or link appears." : "This row is not ready for approval from the current state.")}</p>
         </section>
       ` : ""}
       <div class="workspace-row-actions">
-        <button class="workspace-button workspace-button-primary" type="submit" name="decision" value="approved" data-review-decision="approved" ${approvalBlocked ? 'disabled aria-disabled="true" data-review-decision-blocked="missing-proof"' : ""}>${escapeHtml(approvalBlocked ? "Approval locked: proof needed" : "Approve next steps")}</button>
+        <button class="workspace-button workspace-button-primary" type="submit" name="decision" value="approved" data-review-decision="approved" ${approvalBlocked ? 'disabled aria-disabled="true" data-review-decision-blocked="missing-work"' : ""}>${escapeHtml(approvalBlocked ? "Approval locked: work needed" : "Approve next steps")}</button>
         <button class="workspace-button workspace-button-secondary" type="submit" name="decision" value="revision_requested" data-review-decision="revision_requested" ${revisionBlocked ? 'disabled aria-disabled="true" data-review-decision-blocked="not-available"' : ""}>Request changes</button>
         <button class="workspace-button workspace-button-secondary" type="submit" name="decision" value="comment_only" data-review-decision="comment_only" ${commentBlocked ? 'disabled aria-disabled="true" data-review-decision-blocked="not-available"' : ""}>Add comment only</button>
       </div>
       <p class="workspace-muted">Saved decisions refresh this queue and update the student's next step.</p>
-      <p class="workspace-muted" data-review-decision-storage-note="true">Feedback text is saved as review history. Private proof file details stay hidden.</p>
+      <p class="workspace-muted" data-review-decision-storage-note="true">Feedback text is saved as review history. Private file details stay hidden.</p>
       <input type="hidden" name="submissionId" value="${escapeHtml(selected.submissionId || "")}">
     </form>
   `;
@@ -16917,7 +17050,7 @@ function renderMentorSection() {
           <article class="workspace-row">
             <div>
               <strong>${escapeHtml(item.studentName || "Student")}</strong>
-              <p>${escapeHtml(item.evidenceCount || 0)} proof item${Number(item.evidenceCount || 0) === 1 ? "" : "s"} attached.</p>
+              <p>${escapeHtml(item.evidenceCount || 0)} file${Number(item.evidenceCount || 0) === 1 ? "" : "s"} attached.</p>
             </div>
             ${statusPill(item.submissionStatus || "not_started")}
           </article>
@@ -17700,7 +17833,7 @@ function renderPeopleManagementHub(roleChoices = [], options = {}) {
           <h2>Students, staff, imports, and assignments</h2>
           <p class="workspace-muted">Use the focused screen for the job: add one person, import a roster, confirm current access, or manage assignments.</p>
         </div>
-        <span class="workspace-chip">${escapeHtml(options.canCreateGlobal ? "Global people access" : "School-scoped people access")}</span>
+        <span class="workspace-chip">${escapeHtml(options.canCreateGlobal ? "Global people access" : "School people access")}</span>
       </div>
       ${renderPeopleManagementNav(screens, adminPeopleView)}
       ${renderPeopleManagementScopeSummary(roleChoices, options)}
@@ -17713,12 +17846,12 @@ function peopleManagementScreensForRoles(roles = roleIds(currentUser)) {
   if (!canUsePeopleManagementScreens(roles)) return [];
   return [
     { id: "manage-students", group: "Students", label: "Manage Students", detail: "Review current student accounts and open student context." },
-    { id: "add-student", group: "Students", label: "Add Student", detail: "Create one student account in scope." },
+    { id: "add-student", group: "Students", label: "Add Student", detail: "Create one student account for this school." },
     { id: "manage-staff", group: "Staff", label: "Manage Staff", detail: "Review staff, mentor, viewer, teacher, and admin accounts." },
     { id: "add-staff", group: "Staff", label: "Add Staff", detail: "Create one staff account with the smallest role." },
     { id: "import-students", group: "Imports", label: "Import Students", detail: "Preview and validate a student CSV before saving." },
     { id: "import-staff", group: "Imports", label: "Import Staff", detail: "Preview and validate a staff CSV before saving." },
-    { id: "assignments", group: "Assignments", label: "Assignments", detail: "Use scoped mentor, viewer, Program Teacher, and school-role grants." },
+    { id: "assignments", group: "Assignments", label: "Assignments", detail: "Use limited mentor, viewer, Program Teacher, and school-role grants." },
   ];
 }
 
@@ -17755,7 +17888,7 @@ function renderPeopleManagementScopeSummary(roleChoices = [], options = {}) {
   const scope = unwrap(currentData.accessAssignments)?.scope || currentSiteWorkspaceContext() || {};
   const roleSummary = roleChoices.map((choice) => choice.label).join(", ");
   const rows = [
-    ["Scope", options.canCreateGlobal ? "All schools where the APIs allow access" : scope.siteName || "Selected school only"],
+    ["Access", options.canCreateGlobal ? "All schools where the APIs allow access" : scope.siteName || "Selected school only"],
     ["Allowed roles", roleSummary || "No role choices available"],
     ["Global Admin", hasGlobalAdminRole(roles) ? "Manual local account only" : "Not available from this account"],
   ];
@@ -17789,7 +17922,7 @@ function renderScopedAccountCreationForm(roleChoices = [], options = {}) {
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Users & Access</p>
-          <h2>Add scoped account</h2>
+          <h2>Add account</h2>
           <p class="workspace-muted">Create local accounts only for the roles this workspace is already allowed to manage.</p>
         </div>
         <span class="workspace-chip">${escapeHtml(options.canCreateGlobal ? "Global Admin" : canUseStaffAccessManagement(roles) ? "School staff access" : "Student and mentor access")}</span>
@@ -17880,7 +18013,7 @@ function renderScopedAccountCreationForm(roleChoices = [], options = {}) {
         </div>
         ${renderTaskFinishChecklist("account-create-save", "Before creating this account", [
           ["Smallest role chosen", "Use the lowest access level that lets the person do the job.", "ready"],
-          ["Scope matches the work", "Confirm site, program, cohort, or student access before saving.", "ready"],
+          ["Access matches the work", "Confirm site, program, cohort, or student access before saving.", "ready"],
           ["Setup handoff approved", "Use the school's approved process before creating a local setup password.", "needs_review"],
           ["Audit note explains why", "Write the reason in plain language so another admin can review it later.", "context"],
         ], {
@@ -17890,7 +18023,7 @@ function renderScopedAccountCreationForm(roleChoices = [], options = {}) {
         ${renderDestructiveActionConfirmation({
           id: "admin-import-delivery",
           name: "deliveryConfirmation",
-          label: "I reviewed the role, site/program/student scope, and setup-password delivery process before creating this account.",
+          label: "I reviewed the role, site/program/student access, and setup-password delivery process before creating this account.",
           detail: "Create the account only after the school has an approved way to give the one-time setup password to the user.",
         })}
         <div class="workspace-form-actions">
@@ -17911,7 +18044,7 @@ function renderManageStudentsScreen() {
         <div>
           <p class="workspace-kicker">Manage Students</p>
           <h3>Current student accounts</h3>
-          <p class="workspace-muted">Confirm the student is in scope before opening detail or using View as Student.</p>
+          <p class="workspace-muted">Confirm the student is available to this school before opening detail or using View as Student.</p>
         </div>
         <button class="workspace-button workspace-button-secondary" type="button" data-people-view-target="add-student">Add Student</button>
       </div>
@@ -17921,7 +18054,7 @@ function renderManageStudentsScreen() {
         </div>
       ` : `
         <article class="workspace-empty-state-card" data-manage-students-empty="true">
-          <strong>No scoped students are loaded for this school yet.</strong>
+          <strong>No students are loaded for this school yet.</strong>
           <p>Add a student or choose a site with student access.</p>
         </article>
       `}
@@ -17980,7 +18113,7 @@ function renderManageStaffScreen() {
         <div>
           <p class="workspace-kicker">Manage Staff</p>
           <h3>Current staff and support accounts</h3>
-          <p class="workspace-muted">Review staff scope before changing assignments or removing school access.</p>
+          <p class="workspace-muted">Review staff access before changing assignments or removing school access.</p>
         </div>
         <button class="workspace-button workspace-button-secondary" type="button" data-people-view-target="add-staff">Add Staff</button>
       </div>
@@ -18006,7 +18139,7 @@ function renderManageStaffScreen() {
         </div>
       ` : `
         <article class="workspace-empty-state-card" data-manage-staff-empty="true">
-          <strong>No scoped staff accounts are loaded for this school yet.</strong>
+          <strong>No staff accounts are loaded for this school yet.</strong>
           <p>Add staff or choose a site with staff access.</p>
         </article>
       `}
@@ -18072,7 +18205,7 @@ function renderAddStudentScreen(options = {}) {
               </select>
             </label>
           </div>
-          <p class="workspace-muted">Program stays scoped to this school. Cohort and graduation year save to the student's roster profile.</p>
+          <p class="workspace-muted">Program stays tied to this school. Cohort and graduation year save to the student's roster profile.</p>
         </div>
         <div class="workspace-form-section">
           <p class="workspace-kicker">Optional assignments</p>
@@ -18090,7 +18223,7 @@ function renderAddStudentScreen(options = {}) {
               </select>
             </label>
           </div>
-          <p class="workspace-muted">Selected mentor and viewer access is applied during save when the staff member is already in this school scope.</p>
+          <p class="workspace-muted">Selected mentor and viewer access is applied during save when the staff member is already available to this school.</p>
         </div>
         ${renderAdminPersonSaveFooter("student", options)}
       </form>
@@ -18106,7 +18239,7 @@ function renderAddStaffScreen(roleChoices = [], options = {}) {
         <div>
           <p class="workspace-kicker">Add Staff</p>
           <h3>Add one staff member</h3>
-          <p class="workspace-muted">Choose the smallest role and only the scope this person needs for school operations.</p>
+          <p class="workspace-muted">Choose the smallest role and only the access this person needs for school operations.</p>
         </div>
         <button class="workspace-link-button workspace-link-button-small" type="button" data-people-view-target="manage-staff">Return to Manage Staff</button>
       </div>
@@ -18114,7 +18247,7 @@ function renderAddStaffScreen(roleChoices = [], options = {}) {
         <input type="hidden" name="identityType" value="local">
         ${renderPersonNameEmailFields()}
         <div class="workspace-form-section">
-          <p class="workspace-kicker">Role and scope</p>
+          <p class="workspace-kicker">Role and access</p>
           ${renderAdminRoleQuickPicks(staffChoices, staffChoices[0]?.value || "mentor")}
           <div class="workspace-form-grid">
             <label class="workspace-label">
@@ -18201,7 +18334,7 @@ function renderAdminPersonSaveFooter(kind = "student", options = {}) {
     ${renderDestructiveActionConfirmation({
       id: `${kind}-create-delivery`,
       name: "deliveryConfirmation",
-      label: "I reviewed the role, school scope, and setup-password delivery process before creating this account.",
+      label: "I reviewed the role, school access, and setup-password delivery process before creating this account.",
       detail: "Local setup passwords appear once and must use the school-approved handoff process.",
     })}
     <div class="workspace-form-actions">
@@ -18217,8 +18350,8 @@ function renderAssignmentsPeopleScreen() {
       <div class="workspace-people-screen-head">
         <div>
           <p class="workspace-kicker">Assignments</p>
-          <h3>Scoped access assignments</h3>
-          <p class="workspace-muted">Use the assignment forms below for mentor, viewer, Program Teacher, Administration, and Site Admin scope changes that your role is allowed to make.</p>
+          <h3>Access assignments</h3>
+          <p class="workspace-muted">Use the assignment forms below for mentor, viewer, Program Teacher, Administration, and Site Admin access changes that your role is allowed to make.</p>
         </div>
         <button class="workspace-link-button workspace-link-button-small" type="button" data-users-access-focus="assignment-forms">Open forms</button>
       </div>
@@ -18243,8 +18376,8 @@ function renderCsvImportScreen(kind = "students", options = {}) {
           <p class="workspace-kicker">CSV import</p>
           <h3>${escapeHtml(title)}</h3>
           <p class="workspace-muted">${escapeHtml(safeKind === "staff"
-            ? "Upload staff rows, preview validation, then import only valid scoped accounts."
-            : "Upload student rows, preview validation, then import only valid scoped student accounts.")}</p>
+            ? "Upload staff rows, preview validation, then import only valid accounts."
+            : "Upload student rows, preview validation, then import only valid student accounts.")}</p>
         </div>
         <a class="workspace-button workspace-button-secondary" href="${templateHref}" download="${escapeHtml(safeKind === "staff" ? "capstone-staff-template.csv" : "capstone-students-template.csv")}" data-csv-template-download="${escapeHtml(safeKind)}">Download CSV template</a>
       </div>
@@ -18303,7 +18436,7 @@ function renderCsvImportStepper(kind = "students") {
           <span>2</span>
           <div>
             <strong>Preview validation</strong>
-            <p>Fix errors, skipped rows, and scope mismatches before final import.</p>
+            <p>Fix errors, skipped rows, and access mismatches before final import.</p>
           </div>
         </li>
         <li>
@@ -18365,7 +18498,7 @@ function renderCsvImportPreview(kind = "students", state = defaultAdminCsvImport
           <strong>CSV preview found rows to fix.</strong>
           <p>No account or roster changes are saved from rows with errors. Fix the listed rows, preview again, and import only after valid rows are confirmed.</p>
           ${renderProblemState({
-            reason: "Preview validation found fields, scope, or template columns that cannot be imported safely.",
+            reason: "Preview validation found fields, access, or template columns that cannot be imported safely.",
             owner: "Signed-in admin using the current template",
             nextAction: "Fix the row errors shown below, then run preview again before importing.",
             actions: [
@@ -18387,7 +18520,7 @@ function renderCsvImportPreview(kind = "students", state = defaultAdminCsvImport
           <strong>Ready for final confirmation.</strong>
           <p>${escapeHtml(kind === "students"
             ? "Only valid new student rows will be sent. Previewed mentor/viewer assignments are created during import."
-            : "Only valid new rows will be sent to the scoped account import API.")}</p>
+            : "Only valid new rows will be sent to the account import API.")}</p>
         </article>
       `}
     </section>
@@ -18421,13 +18554,13 @@ function csvTemplateContractForKind(kind = "students") {
       required: ["first_name", "last_name", "email", "site", "program"],
       optional: ["cohort", "graduation_year", "status", "mentor_email", "viewer_email"],
       example: ["Alex", "Student", "alex.student@senior-capstone.test", "Desert Valley High School", "Information Technology", "Class of 2026", "2026", "active", "maya.rivera@senior-capstone.test", "viewer.one@senior-capstone.test"],
-      scopeNote: "Student imports stay inside the selected school scope; mentor_email and viewer_email must already be staff accounts visible in this scope.",
+      scopeNote: "Student imports stay inside the selected school; mentor_email and viewer_email must already be staff accounts visible here.",
       validationNote: "Unsupported columns are blocked so data is not silently ignored.",
     },
     staff: {
       kind: "staff",
       title: "Staff CSV template",
-      detail: "Creates local scoped staff, mentor, viewer, Program Teacher, School Admin, or Site Admin accounts.",
+      detail: "Creates local staff, mentor, viewer, Program Teacher, School Admin, or Site Admin accounts.",
       required: ["first_name", "last_name", "email", "role"],
       optional: ["site", "program", "assigned_student_emails", "status"],
       example: ["Maya", "Rivera", "maya.rivera@senior-capstone.test", "mentor", "Desert Valley High School", "", "alex.student@senior-capstone.test", "active"],
@@ -18490,7 +18623,7 @@ function renderUsersAccessActionMap(roleChoices = [], options = {}) {
     {
       id: "scope",
       tone: scope.siteName ? "ready" : "warning",
-      owner: "School scope",
+      owner: "School",
       count: scope.siteName ? "1 school" : "Choose",
       title: "Confirm the current school",
       detail: "Create, assign, or remove access only after the school context matches the person.",
@@ -18504,8 +18637,8 @@ function renderUsersAccessActionMap(roleChoices = [], options = {}) {
       owner: "Smallest role",
       count: `${safeNumber(roleChoices.length)} ${pluralize(roleChoices.length, "role")}`,
       title: "Pick the smallest role",
-      detail: "Choose the lowest role that lets the person do the job; avoid broad access when scoped access works.",
-      source: options.canCreateGlobal ? "Global role choices" : "Scoped role choices",
+      detail: "Choose the lowest role that lets the person do the job; avoid broad access when a school or program role works.",
+      source: options.canCreateGlobal ? "Global role choices" : "School role choices",
       focus: "create",
       actionLabel: "Pick role",
     },
@@ -18536,7 +18669,7 @@ function renderUsersAccessActionMap(roleChoices = [], options = {}) {
       tone: assignmentFormCount ? "role" : "quiet",
       owner: "School grants",
       count: assignmentFormCount ? `${assignmentFormCount} forms` : "No forms",
-      title: "Assign one scope at a time",
+      title: "Assign one area at a time",
       detail: "Use the matching assignment form for mentor, viewer, Program Teacher, School Admin, or Site Admin access.",
       source: "Assignment forms",
       focus: "assignment-forms",
@@ -18548,7 +18681,7 @@ function renderUsersAccessActionMap(roleChoices = [], options = {}) {
       owner: "Removal safety",
       count: removableCount ? `${removableCount} removable` : "Protected",
       title: "Read removal impact first",
-      detail: "Removal changes school access only; it does not delete student work, proof, programs, or audit history.",
+      detail: "Removal changes school access only; it does not delete student work, files, programs, or audit history.",
       source: "Removal warning",
       focus: "removal",
       actionLabel: "Review warning",
@@ -18580,12 +18713,12 @@ function renderUsersAccessActionMap(roleChoices = [], options = {}) {
   ];
 
   return `
-    <section class="workspace-users-access-action-map" data-users-access-action-map="true" aria-label="Users and access action map">
+    <section class="workspace-users-access-action-map" data-users-access-action-map="true" aria-label="Users and access setup steps">
       <div class="workspace-users-access-action-map-head">
         <div>
-          <p class="workspace-kicker">Access action map</p>
+          <p class="workspace-kicker">Access setup steps</p>
           <h2>Do one safe access step first</h2>
-          <p>Check scope, choose the smallest role, then use the exact source form or history panel.</p>
+          <p>Check the school, choose the smallest role, then use the exact form or history panel.</p>
         </div>
         <span class="workspace-chip">${escapeHtml(scopeLabelText)}</span>
       </div>
@@ -18598,7 +18731,7 @@ function renderUsersAccessActionMap(roleChoices = [], options = {}) {
 
 function renderUsersAccessActionMapCard(card = {}) {
   return `
-    <article class="workspace-users-access-action-map-card ${escapeHtml(card.tone || "quiet")}" data-users-access-action-map-card="${escapeHtml(card.id || "action")}" data-users-access-action-owner="${escapeHtml(card.owner || "Account staff")}">
+    <article class="workspace-users-access-action-map-card ${escapeHtml(card.tone || "quiet")}" data-users-access-action-map-card="${escapeHtml(card.id || "action")}" data-users-access-action-team="${escapeHtml(card.owner || "Account staff")}">
       <div>
         <div class="workspace-users-access-action-map-meta">
           <span>${escapeHtml(card.owner || "Account staff")}</span>
@@ -18662,7 +18795,7 @@ function renderAdminImportPreflight(roleChoices = [], options = {}) {
     <section class="workspace-admin-import-preflight" data-admin-import-preflight="true">
       <div>
         <strong>Before creating an account</strong>
-        <p>Check scope first, then create the account. This helps prevent over-broad access and one-time password mistakes.</p>
+        <p>Check access first, then create the account. This helps prevent over-broad access and one-time password mistakes.</p>
       </div>
       <div>
         ${checks.map(([label, detail]) => `
@@ -19005,7 +19138,7 @@ function renderAdminAccessAssignmentPanel() {
 function renderSiteAccessSafetyNote() {
   return `
     <article class="workspace-empty-state-card workspace-quiet-helper" data-site-access-safety-note="true">
-      <strong>Access changes stay scoped to this school.</strong>
+      <strong>Access changes stay limited to this school.</strong>
       <span>Assign grants or restores access. Remove records an access change for review and does not delete accounts, students, programs, or school records.</span>
     </article>
   `;
@@ -22502,8 +22635,8 @@ function renderReportBars({ id = "workspaceReportBarsTitle", kicker = "Reports",
         </div>
       ` : `
         <article class="workspace-empty-state-card" data-report-empty="true">
-          <strong>No report data is available for this scope yet.</strong>
-          <p>Report rows appear after scoped roster, review, or setup data loads.</p>
+          <strong>No report data is available for this view yet.</strong>
+          <p>Report rows appear after roster, review, or setup data loads.</p>
         </article>
       `}
     </section>

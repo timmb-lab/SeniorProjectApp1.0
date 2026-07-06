@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:60330",
+  "baseUrl": "http://127.0.0.1:63089",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-06T13:29:20.242Z",
-  "completedAt": "2026-07-06T13:35:26.479Z",
+  "startedAt": "2026-07-06T14:24:03.317Z",
+  "completedAt": "2026-07-06T14:30:12.978Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:60330",
+    "baseUrl": "http://127.0.0.1:63089",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-06-30-ui-polish",
@@ -36,12 +36,12 @@
       "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/01-admin-console-global-admin-desktop.png",
       "expected": [
         "Admin Console",
-        "Operations Overview",
+        "Admin Overview",
         "What to fix first",
         "Setup work to review",
         "Open the exact setup screen",
-        "Current scope health",
-        "Latest changes in this scope"
+        "Current setup health",
+        "Latest changes in this view"
       ],
       "proves": "Global Admin sees the operations-first Admin Console overview with setup issues, setup checklist, health, quick actions, and activity.",
       "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
@@ -89,7 +89,7 @@
         "finalFiles": false
       },
       "heading": "Overview",
-      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Overview Current site Choose site Canyon Ridge Career Academy Desert Valley High School East Career & Technical Academy North Valley Technical High School Test High School FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Global Admin ROLE PG Priya Global platform.admin@demo-staff.capstone.test ACCESS Global Admin Entire platform Global view. Use site selection when a section needs a school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program manageme",
+      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Overview Current site Choose site Canyon Ridge Career Academy Desert Valley High School East Career & Technical Academy North Valley Technical High School Test High School FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Global Admin ROLE PG Priya Global platform.admin@demo-staff.capstone.test ACCESS Global Admin Entire platform Global view. Use site selection when a section needs a school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management ",
       "activeNav": [
         "Admin Console",
         "Home\n        Overview\n        Setup issues and quick actions"
@@ -162,7 +162,7 @@
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Today Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test YOUR ACCESS Site Admin Assigned school: Desert Valley High School Site tools stay tied to the selected or assigned school. Today Students needing attention Students Site student rows Reviews Submitted work and follow-up Reports Progress and setup summary NEXT STEP Review site progress, student readiness, mentor coverage, presentation status, and final-file signals available to this accoun",
+      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Today Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test YOUR ACCESS Site Admin Assigned school: Desert Valley High School Site tools stay tied to the selected or assigned school. Today Students needing attention Students Site student rows Reviews Submitted work and follow-up Reports Progress and setup summary NEXT STEP Review site progress, student readiness, mentor coverage, presentation status, and final-file signals available to this account. ",
       "activeNav": [
         "Workspace",
         "Home\n        Today\n        Students needing attention"
@@ -234,7 +234,7 @@
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Today FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Program Teacher ROLE GQ Gray Quinn teacher-it-01@demo-staff.capstone.test YOUR ACCESS Program Teacher Assigned program: IT Review work and student support stay inside your assigned program. Today Students needing attention Students Program-scoped student rows Reviews Work waiting for review Reports Progress and setup summary NEXT STEP Review work students sent in and follow up where students need feedback. Staff Workspace ready. Staff Workspace Program Teacher / Desert Valley High School Student progress Private proof Ment",
+      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Today FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Program Teacher ROLE GQ Gray Quinn teacher-it-01@demo-staff.capstone.test YOUR ACCESS Program Teacher Assigned program: IT Review work and student support stay inside your assigned program. Today Students needing attention Students Program student rows Reviews Work waiting for review Reports Progress and setup summary NEXT STEP Review work students sent in and follow up where students need feedback. Staff Workspace ready. Staff Workspace Program Teacher / Desert Valley High School Student progress Private files Mentor coverag",
       "activeNav": [
         "Workspace",
         "Home\n        Today\n        Students needing attention"
@@ -306,7 +306,7 @@
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Today Mentor ROLE AF Ari Field mentor001@demo-staff.capstone.test YOUR ACCESS Mentor Assigned students Start with assigned students, meetings, and presentation prep. Today Students needing attention STUDENTS Students Assigned student rows Reports Progress and setup summary NEXT STEP Check assigned students before mentor meetings and presentation preparation. Staff Workspace ready. Staff Workspace Mentor / Assigned students Student progress Private proof Mentor coverage Review work Presentation readiness Assigned students STAFF WORKSPACE Mentor Workspace Who needs attention today? Open Student Needs Review 1 Waiting for feedback Needs Hel",
+      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Today Mentor ROLE AF Ari Field mentor001@demo-staff.capstone.test YOUR ACCESS Mentor Assigned students Start with assigned students, meetings, and presentation prep. Today Students needing attention STUDENTS Students Assigned student rows Reports Progress and setup summary NEXT STEP Check assigned students before mentor meetings and presentation preparation. Staff Workspace ready. Staff Workspace Mentor / Assigned students Student progress Private files Mentor coverage Review work Presentation readiness Assigned students STAFF WORKSPACE Mentor Workspace Who needs attention today? Open Student START HERE You are caught up for now No urgen",
       "activeNav": [
         "Home\n        Today\n        Students needing attention"
       ]
@@ -377,7 +377,7 @@
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Today FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Viewer READ-ONLY VV Valeria Viewer viewer.desert-valley-high@demo-staff.capstone.test YOUR ACCESS Viewer Assigned students Assigned student records only. Change controls stay hidden. Today Students needing attention Students Assigned read-only student records Reports Progress and setup summary NEXT STEP Review assigned students in read-only mode. Staff Workspace ready. Staff Workspace Viewer / Desert Valley High School Student progress Private proof Mentor coverage Review work Presentation readiness Desert Valley School District 2026-2027 Read-on",
+      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Today FIND A STUDENT Open students Uses the current Student Directory filters and access. Viewer READ-ONLY VV Valeria Viewer viewer.desert-valley-high@demo-staff.capstone.test YOUR ACCESS Viewer Assigned students Assigned students only. Change controls stay hidden. Today Students needing attention Students Assigned read-only student records Reports Progress and setup summary NEXT STEP Review assigned students in read-only mode. Staff Workspace ready. Staff Workspace Viewer / Desert Valley High School Student progress Private files Mentor coverage Review work Presentation readiness Desert Valley School District 2026-2027 Read-only viewer ",
       "activeNav": [
         "Home\n        Today\n        Students needing attention"
       ]
@@ -609,7 +609,7 @@
       "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/09-admin-console-half-screen.png",
       "expected": [
         "Admin Console",
-        "Operations Overview",
+        "Admin Overview",
         "What to fix first",
         "Setup work to review",
         "Open the exact setup screen"
@@ -660,7 +660,7 @@
         "finalFiles": false
       },
       "heading": "Overview",
-      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Overview Choose site Canyon Ridge Career Academy Desert Valley High School East Career & Technical Academy North Valley Technical High School Test High School Open students Workspace Admin Console Global Admin ROLE PG Priya Global platform.admin@demo-staff.capstone.test Admin Console ready. ADMIN CONSOLE Overview Setup issues and quick actions CONSOLE OVERVIEW Operations Overview What setup, people, assignments, imports, programs, reports, or access issues need attention? Global NEEDS SETUP What to fix first 5 issues Mentor coverage missing 38 students need active mentor coverage. Pending Open assignments Roster profile incomplete 200 stud",
+      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Overview Choose site Canyon Ridge Career Academy Desert Valley High School East Career & Technical Academy North Valley Technical High School Test High School Open students Workspace Admin Console Global Admin ROLE PG Priya Global platform.admin@demo-staff.capstone.test Admin Console ready. ADMIN CONSOLE Overview Setup issues and quick actions ADMIN CONSOLE Admin Overview What setup, people, assignments, imports, programs, reports, or access issues need attention? Global NEEDS SETUP What to fix first 5 issues Mentor coverage missing 38 students need active mentor coverage. Pending Open assignments Roster profile incomplete 200 students nee",
       "activeNav": [
         "Admin Console",
         "Home\n        Overview\n        Setup issues and quick actions"
@@ -731,7 +731,7 @@
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Today Desert Valley High School Only one site Open students Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test Staff Workspace ready. Staff Workspace Site Admin / Desert Valley High School Student progress Private proof Mentor coverage Review work Presentation readiness Desert Valley School District 2026-2027 STAFF WORKSPACE Site Admin Workspace Who needs attention today? Open Student Open Admin Console Needs Review 52 Waiting for feedback Needs Help 50 Changes, meetings, or presentation Missing Setup 250 Mentor, work, or final files Recently Updated 0 Latest activity in scope Visi",
+      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Today Desert Valley High School Only one site Open students Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test Staff Workspace ready. Staff Workspace Site Admin / Desert Valley High School Student progress Private files Mentor coverage Review work Presentation readiness Desert Valley School District 2026-2027 STAFF WORKSPACE Site Admin Workspace Who needs attention today? Open Student Open Admin Console START HERE Pick one student group first Choose the most useful group, then open one student before changing filters. Open Student Review work waiting for you Start with student work",
       "activeNav": [
         "Workspace",
         "Home\n        Today\n        Students needing attention"
@@ -892,7 +892,6 @@
       "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/13-site-admin-student-detail-click.png",
       "expected": [
         "Student",
-        "Back to Students",
         "More",
         "What this student needs next"
       ],
@@ -942,7 +941,7 @@
         "finalFiles": false
       },
       "heading": "Students",
-      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Ready Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ACCESS Site Admin Site Site-scoped tools for the assigned school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management Imports CSV templates and preview Reports Roster and operational health MODE Site-scoped tools for the assigned school. Student detai",
+      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Ready Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ACCESS Site Admin Site School tools for the assigned school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management Imports CSV templates and preview Reports Roster and operational health MODE School tools for the assigned school. Student detail loaded. ADM",
       "activeNav": [
         "Admin Console",
         "Overview"
@@ -965,7 +964,7 @@
       "expected": [
         "Student",
         "Read-only viewer",
-        "Back to Students",
+        "More",
         "View work"
       ],
       "proves": "Viewer can open assigned detail context without mutation controls.",
@@ -1014,7 +1013,7 @@
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Students FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Viewer READ-ONLY VV Valeria Viewer viewer.desert-valley-high@demo-staff.capstone.test YOUR ACCESS Viewer Assigned students Assigned student records only. Change controls stay hidden. Today Students needing attention Students Assigned read-only student records Reports Progress and setup summary NEXT STEP Review assigned students in read-only mode. Student detail loaded. Staff Workspace Viewer / Desert Valley High School Student progress Private proof Mentor coverage Review work Presentation readiness Desert Valley School District 2026-2027 Read",
+      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Students FIND A STUDENT Open students Uses the current Student Directory filters and access. Viewer READ-ONLY VV Valeria Viewer viewer.desert-valley-high@demo-staff.capstone.test YOUR ACCESS Viewer Assigned students Assigned students only. Change controls stay hidden. Today Students needing attention Students Assigned read-only student records Reports Progress and setup summary NEXT STEP Review assigned students in read-only mode. Student detail loaded. Staff Workspace Viewer / Desert Valley High School Student progress Private files Mentor coverage Review work Presentation readiness Desert Valley School District 2026-2027 Read-only view",
       "activeNav": [
         "Students\n        Students\n        Assigned read-only student records",
         "Overview"
@@ -1155,7 +1154,7 @@
         "finalFiles": false
       },
       "heading": "Students",
-      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Ready Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ACCESS Site Admin Site Site-scoped tools for the assigned school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management Imports CSV templates and preview Reports Roster and operational health MODE Site-scoped tools for the assigned school. Exited studen",
+      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Ready Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ACCESS Site Admin Site School tools for the assigned school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management Imports CSV templates and preview Reports Roster and operational health MODE School tools for the assigned school. Exited student view. ADMIN",
       "activeNav": [
         "Admin Console"
       ]
@@ -1226,7 +1225,7 @@
         "finalFiles": false
       },
       "heading": "People",
-      "textSample": "Skip to workspace Menu SC Capstone App Admin Console People Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ACCESS Site Admin Site Site-scoped tools for the assigned school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management Imports CSV templates and preview Reports Roster and operational health MODE Site-scoped tools for the assigned school. Admin Consol",
+      "textSample": "Skip to workspace Menu SC Capstone App Admin Console People Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ACCESS Site Admin Site School tools for the assigned school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management Imports CSV templates and preview Reports Roster and operational health MODE School tools for the assigned school. Admin Console ready. ADMI",
       "activeNav": [
         "Admin Console",
         "People\n        People\n        Staff and account setup",
@@ -1299,7 +1298,7 @@
         "finalFiles": false
       },
       "heading": "Students",
-      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Students Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ACCESS Site Admin Site Site-scoped tools for the assigned school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management Imports CSV templates and preview Reports Roster and operational health MODE Site-scoped tools for the assigned school. Admin Cons",
+      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Students Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ACCESS Site Admin Site School tools for the assigned school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management Imports CSV templates and preview Reports Roster and operational health MODE School tools for the assigned school. Admin Console ready. AD",
       "activeNav": [
         "Admin Console",
         "Students\n        Students\n        Student roster setup",
@@ -1374,7 +1373,7 @@
         "finalFiles": false
       },
       "heading": "Imports",
-      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Imports Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ACCESS Site Admin Site Site-scoped tools for the assigned school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management Imports CSV templates and preview Reports Roster and operational health MODE Site-scoped tools for the assigned school. Admin Conso",
+      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Imports Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ACCESS Site Admin Site School tools for the assigned school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management Imports CSV templates and preview Reports Roster and operational health MODE School tools for the assigned school. Admin Console ready. ADM",
       "activeNav": [
         "Admin Console",
         "Imports\n        Imports\n        CSV templates and preview",
@@ -1514,7 +1513,7 @@
         "finalFiles": false
       },
       "heading": "Students",
-      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Ready Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ACCESS Site Admin Site Site-scoped tools for the assigned school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management Imports CSV templates and preview Reports Roster and operational health MODE Site-scoped tools for the assigned school. Admin Console",
+      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Ready Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ACCESS Site Admin Site School tools for the assigned school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management Imports CSV templates and preview Reports Roster and operational health MODE School tools for the assigned school. Admin Console ready. ADMIN",
       "activeNav": [
         "Admin Console"
       ]
@@ -1875,7 +1874,7 @@
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Today Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Administration ROLE AS Avery School Admin administration.desert-valley-high@demo-staff.capstone.test YOUR ACCESS School Admin Assigned school: Desert Valley High School School monitoring only. Elevated account and security work stays scoped. Today Students needing attention Students School student rows Reports Progress and setup summary NEXT STEP Review assigned school students, readiness, presentation, progress dashboards, and access needs. Staff Workspace ready. Staff ",
+      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Today Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Administration ROLE AS Avery School Admin administration.desert-valley-high@demo-staff.capstone.test YOUR ACCESS School Admin Assigned school: Desert Valley High School School monitoring only. Elevated account and security work stays limited. Today Students needing attention Students School student rows Reports Progress and setup summary NEXT STEP Review assigned school students, readiness, presentation, progress dashboards, and access needs. Staff Workspace ready. Staff Wo",
       "activeNav": [
         "Workspace",
         "Home\n        Today\n        Students needing attention"
@@ -1947,7 +1946,7 @@
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Today Current site Choose site Canyon Ridge Career Academy Desert Valley High School East Career & Technical Academy North Valley Technical High School Test High School FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Global Admin ROLE PG Priya Global platform.admin@demo-staff.capstone.test YOUR ACCESS Global Admin Entire platform Platform tools live in Admin Console; daily Workspace stays calm. Today Students needing attention Students Site student rows Reviews Submitted work and follow-up Reports Progress and setup summary NEXT STEP Review platform setup and multisite readin",
+      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Today Current site Choose site Canyon Ridge Career Academy Desert Valley High School East Career & Technical Academy North Valley Technical High School Test High School FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Global Admin ROLE PG Priya Global platform.admin@demo-staff.capstone.test YOUR ACCESS Global Admin Entire platform Platform tools live in Admin Console; daily Workspace stays calm. Today Students needing attention Students Site student rows Reviews Submitted work and follow-up Reports Progress and setup summary NEXT STEP Review platform setup and multisite readiness",
       "activeNav": [
         "Workspace",
         "Home\n        Today\n        Students needing attention"
@@ -2018,7 +2017,7 @@
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Students Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test YOUR ACCESS Site Admin Assigned school: Desert Valley High School Site tools stay tied to the selected or assigned school. Today Students needing attention Students Site student rows Reviews Submitted work and follow-up Reports Progress and setup summary NEXT STEP Review site progress, student readiness, mentor coverage, presentation status, and final-file signals available to this acc",
+      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Students Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test YOUR ACCESS Site Admin Assigned school: Desert Valley High School Site tools stay tied to the selected or assigned school. Today Students needing attention Students Site student rows Reviews Submitted work and follow-up Reports Progress and setup summary NEXT STEP Review site progress, student readiness, mentor coverage, presentation status, and final-file signals available to this accoun",
       "activeNav": [
         "Workspace",
         "Students\n        Students\n        Site student rows",
@@ -2092,7 +2091,7 @@
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Reports Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test YOUR ACCESS Site Admin Assigned school: Desert Valley High School Site tools stay tied to the selected or assigned school. Today Students needing attention Students Site student rows Reviews Submitted work and follow-up Reports Progress and setup summary NEXT STEP Review site progress, student readiness, mentor coverage, presentation status, and final-file signals available to this acco",
+      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Reports Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test YOUR ACCESS Site Admin Assigned school: Desert Valley High School Site tools stay tied to the selected or assigned school. Today Students needing attention Students Site student rows Reviews Submitted work and follow-up Reports Progress and setup summary NEXT STEP Review site progress, student readiness, mentor coverage, presentation status, and final-file signals available to this account",
       "activeNav": [
         "Workspace",
         "Reports\n        Reports\n        Progress and setup summary"
@@ -2163,7 +2162,7 @@
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Mentor AF Staff Workspace ready. Staff Workspace Mentor / Assigned students Student progress Private proof Mentor coverage Review work Presentation readiness Assigned students STAFF WORKSPACE Mentor Workspace Who needs attention today? Open Student Needs Review 1 Waiting for feedback Needs Help 5 Changes, meetings, or presentation Missing Setup 0 Mentor, work, or final files Recently Updated 0 Latest activity in scope Visible Students 9 Assigned mentor students Needs Review Open submitted work and feedback decisions first. 1 Willa Frostvale Assigned mentor students Check outline and presentation readiness with this student. Who can help: Program Teacher",
+      "textSample": "Skip to workspace Menu SC Capstone App Mentor AF Staff Workspace ready. Staff Workspace Mentor / Assigned students Student progress Private files Mentor coverage Review work Presentation readiness Assigned students STAFF WORKSPACE Mentor Workspace Who needs attention today? Open Student START HERE You are caught up for now No urgent student group is open in this view. Search or open the roster when you need a specific student. Open Student Open all students Use the roster when you need a specific student. 9 Open Needs Review 1 Waiting for feedback Needs Help 5 Changes, meetings, or presentation Visible Students 9 Assigned mentor students Needs Review Open submitted work and feedback decision",
       "activeNav": [
         "Home\n        Today\n        Students needing attention"
       ]
@@ -2186,7 +2185,7 @@
         "Student",
         "Overview",
         "Work",
-        "Back to Students"
+        "More"
       ],
       "proves": "Student Detail remains usable on phone width with the new five-tab shell.",
       "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
@@ -2234,7 +2233,7 @@
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS Student detail loaded. Staff Workspace Site Admin / Desert Valley High School Student progress Private proof Mentor coverage Review work Presentation readiness Desert Valley School District 2026-2027 CURRENT SITE Desert Valley High School / 2026-2027 Approved Desert Valley School District Site Admin School access No student messaging STUDENTS Students Find a student or start with work that needs attention. Approved Only students at this school are shown. Start Here Pick one group, then open the first student who needs attention. View all students Review work waiting for you 52 Open students",
+      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS Student detail loaded. Staff Workspace Site Admin / Desert Valley High School Student progress Private files Mentor coverage Review work Presentation readiness Desert Valley School District 2026-2027 CURRENT SITE Desert Valley High School / 2026-2027 Approved Desert Valley School District Site Admin School access No student messaging STUDENTS Students Find a student or start with work that needs attention. Approved Only students at this school are shown. Start Here Pick one group, then open the first student who needs attention. View all students Review work waiting for you 52 Open students",
       "activeNav": [
         "Workspace",
         "Students\n        Students\n        Site student rows",
@@ -2307,7 +2306,7 @@
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS Staff Workspace ready. Staff Workspace Site Admin / Desert Valley High School Student progress Private proof Mentor coverage Review work Presentation readiness Desert Valley School District 2026-2027 CURRENT SITE Desert Valley High School / 2026-2027 Approved Desert Valley School District Site Admin School access No student messaging STUDENTS Students Find a student or start with work that needs attention. Approved Only students at this school are shown. Start Here Pick one group, then open the first student who needs attention. View all students Review work waiting for you 52 Open students",
+      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS Staff Workspace ready. Staff Workspace Site Admin / Desert Valley High School Student progress Private files Mentor coverage Review work Presentation readiness Desert Valley School District 2026-2027 CURRENT SITE Desert Valley High School / 2026-2027 Approved Desert Valley School District Site Admin School access No student messaging STUDENTS Students Find a student or start with work that needs attention. Approved Only students at this school are shown. Start Here Pick one group, then open the first student who needs attention. View all students Review work waiting for you 52 Open students",
       "activeNav": [
         "Workspace",
         "Students\n        Students\n        Site student rows"
@@ -2380,7 +2379,7 @@
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS Staff Workspace Site Admin / Desert Valley High School Student progress Private proof Mentor coverage Review work Presentation readiness Desert Valley School District 2026-2027 CURRENT SITE Desert Valley High School / 2026-2027 Approved Desert Valley School District Site Admin School access No student messaging STUDENTS Students Find a student or start with work that needs attention. Approved Only students at this school are shown. Start Here Pick one group, then open the first student who needs attention. View all students Review work waiting for you 52 Open students whose work is ready fo",
+      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS Staff Workspace Site Admin / Desert Valley High School Student progress Private files Mentor coverage Review work Presentation readiness Desert Valley School District 2026-2027 CURRENT SITE Desert Valley High School / 2026-2027 Approved Desert Valley School District Site Admin School access No student messaging STUDENTS Students Find a student or start with work that needs attention. Approved Only students at this school are shown. Start Here Pick one group, then open the first student who needs attention. View all students Review work waiting for you 52 Open students whose work is ready fo",
       "activeNav": [
         "Workspace",
         "Students\n        Students\n        Site student rows",
@@ -2403,11 +2402,11 @@
       "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/32-admin-console-site-admin-overview.png",
       "expected": [
         "Admin Console",
-        "Operations Overview",
+        "Admin Overview",
         "What to fix first",
         "Setup work to review",
         "Open the exact setup screen",
-        "Current scope health"
+        "Current setup health"
       ],
       "proves": "Site Admin sees the rebuilt operations overview with setup reasons inside school scope.",
       "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
@@ -2455,7 +2454,7 @@
         "finalFiles": false
       },
       "heading": "Overview",
-      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Overview Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ACCESS Site Admin Site Site-scoped tools for the assigned school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management Imports CSV templates and preview Reports Roster and operational health MODE Site-scoped tools for the assigned school. Admin Cons",
+      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Overview Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ACCESS Site Admin Site School tools for the assigned school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management Imports CSV templates and preview Reports Roster and operational health MODE School tools for the assigned school. Admin Console ready. AD",
       "activeNav": [
         "Admin Console",
         "Home\n        Overview\n        Setup issues and quick actions"
@@ -2527,7 +2526,7 @@
         "finalFiles": false
       },
       "heading": "Assignments",
-      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Assignments Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ACCESS Site Admin Site Site-scoped tools for the assigned school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management Imports CSV templates and preview Reports Roster and operational health MODE Site-scoped tools for the assigned school. Admin C",
+      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Assignments Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ACCESS Site Admin Site School tools for the assigned school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management Imports CSV templates and preview Reports Roster and operational health MODE School tools for the assigned school. Admin Console ready.",
       "activeNav": [
         "Admin Console",
         "Assignments\n        Assignments\n        Mentor, viewer, and program coverage"
@@ -2599,7 +2598,7 @@
         "finalFiles": false
       },
       "heading": "Programs",
-      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Programs Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ACCESS Site Admin Site Site-scoped tools for the assigned school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management Imports CSV templates and preview Reports Roster and operational health MODE Site-scoped tools for the assigned school. Admin Cons",
+      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Programs Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ACCESS Site Admin Site School tools for the assigned school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management Imports CSV templates and preview Reports Roster and operational health MODE School tools for the assigned school. Admin Console ready. AD",
       "activeNav": [
         "Admin Console",
         "Programs\n        Programs\n        Site program management"
@@ -2673,7 +2672,7 @@
         "finalFiles": false
       },
       "heading": "Reports",
-      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Reports Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ACCESS Site Admin Site Site-scoped tools for the assigned school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management Imports CSV templates and preview Reports Roster and operational health MODE Site-scoped tools for the assigned school. Admin Conso",
+      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Reports Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ACCESS Site Admin Site School tools for the assigned school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management Imports CSV templates and preview Reports Roster and operational health MODE School tools for the assigned school. Admin Console ready. ADM",
       "activeNav": [
         "Admin Console",
         "Reports\n        Reports\n        Roster and operational health"
@@ -2746,7 +2745,7 @@
         "finalFiles": false
       },
       "heading": "Audit",
-      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Audit Current site Choose site Canyon Ridge Career Academy Desert Valley High School East Career & Technical Academy North Valley Technical High School Test High School FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Global Admin ROLE PG Priya Global platform.admin@demo-staff.capstone.test ACCESS Global Admin Entire platform Global view. Use site selection when a section needs a school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management ",
+      "textSample": "Skip to workspace Menu SC Capstone App Admin Console Audit Current site Choose site Canyon Ridge Career Academy Desert Valley High School East Career & Technical Academy North Valley Technical High School Test High School FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Global Admin ROLE PG Priya Global platform.admin@demo-staff.capstone.test ACCESS Global Admin Entire platform Global view. Use site selection when a section needs a school. DAILY WORK Overview Setup issues and quick actions People Staff and account setup Students Student roster setup Assignments Mentor, viewer, and program coverage Programs Site program management Imp",
       "activeNav": [
         "Admin Console",
         "Audit\n        Audit\n        Access review and recent changes"
@@ -2768,7 +2767,7 @@
       "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/37-mobile-admin-overview.png",
       "expected": [
         "Admin Console",
-        "Operations Overview",
+        "Admin Overview",
         "What to fix first",
         "Setup work to review",
         "Open the exact setup screen"
@@ -2819,7 +2818,7 @@
         "finalFiles": false
       },
       "heading": "Overview",
-      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS Admin Console ready. ADMIN CONSOLE Overview Setup issues and quick actions CONSOLE OVERVIEW Operations Overview What setup, people, assignments, imports, programs, reports, or access issues need attention? Site NEEDS SETUP What to fix first 5 issues Mentor coverage missing 38 students need active mentor coverage. Pending Open assignments Roster profile incomplete 200 students need cohort, graduation year, or email cleanup. Pending Open students Student program missing 200 students need a program before program views can be trusted. Pending Open students Viewer access unassigned 197 students",
+      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS Admin Console ready. ADMIN CONSOLE Overview Setup issues and quick actions ADMIN CONSOLE Admin Overview What setup, people, assignments, imports, programs, reports, or access issues need attention? Site NEEDS SETUP What to fix first 5 issues Mentor coverage missing 38 students need active mentor coverage. Pending Open assignments Roster profile incomplete 200 students need cohort, graduation year, or email cleanup. Pending Open students Student program missing 200 students need a program before program views can be trusted. Pending Open students Viewer access unassigned 197 students have no",
       "activeNav": [
         "Admin Console",
         "Home\n        Overview\n        Setup issues and quick actions"
@@ -2891,7 +2890,7 @@
         "finalFiles": false
       },
       "heading": "Imports",
-      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS Admin Console ready. ADMIN CONSOLE Imports CSV templates and preview IMPORTS Student and Staff Imports Download the supported CSV template, preview validation, fix errors, then confirm only valid scoped rows. CSV preview Student CSV template Creates local student accounts with school/program placement and optional roster coverage fields. REQUIRED first_name last_name email site program OPTIONAL cohort graduation_year status mentor_email viewer_email EXAMPLE ROW Alex,Student,alex.student@senior-capstone.test,Desert Valley High School,Information Technology,Class of 2026,2026,active,maya.rive",
+      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS Admin Console ready. ADMIN CONSOLE Imports CSV templates and preview IMPORTS Student and Staff Imports Download the supported CSV template, preview validation, fix errors, then confirm only valid rows. CSV preview Student CSV template Creates local student accounts with school/program placement and optional roster coverage fields. REQUIRED first_name last_name email site program OPTIONAL cohort graduation_year status mentor_email viewer_email EXAMPLE ROW Alex,Student,alex.student@senior-capstone.test,Desert Valley High School,Information Technology,Class of 2026,2026,active,maya.rivera@seni",
       "activeNav": [
         "Admin Console",
         "Imports\n        Imports\n        CSV templates and preview",
@@ -2964,7 +2963,7 @@
         "finalFiles": false
       },
       "heading": "Reports",
-      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS Admin Console ready. ADMIN CONSOLE Reports Roster and operational health ADMIN CONSOLE Operational Reports Roster, review, setup, and readiness counts for the current scope. STUDENTS SHOWN 250 Site Open students REVIEW / WORK 52 Submitted or review-related rows Open review SETUP WORK 250 Presentation, mentor, or final-file follow-up Open operations CONSOLE TOOLS 15 Available tools Open SETUP CHECKLIST Setup work to review STUDENT ROSTER SETUP 200 200 profile, 200 program, 38 mentor, 197 viewer gaps. Archive Failed Demo 01: Missing program, Missing cohort/year, No viewer / Archive Failed Dem",
+      "textSample": "Skip to workspace Menu SC Capstone App Desert Valley High School Workspace Admin Console Site Admin SS Admin Console ready. ADMIN CONSOLE Reports Roster and operational health ADMIN CONSOLE Operational Reports Roster, review, setup, and readiness counts for the current view. STUDENTS SHOWN 250 Site Open students REVIEW / WORK 52 Submitted or review-related rows Open review SETUP WORK 250 Presentation, mentor, or final-file follow-up Open operations CONSOLE TOOLS 15 Available tools Open SETUP CHECKLIST Setup work to review STUDENT ROSTER SETUP 200 200 profile, 200 program, 38 mentor, 197 viewer gaps. Archive Failed Demo 01: Missing program, Missing cohort/year, No viewer / Archive Failed Demo",
       "activeNav": [
         "Admin Console",
         "Reports\n        Reports\n        Roster and operational health"
@@ -3036,7 +3035,7 @@
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Students FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Viewer READ-ONLY VV Valeria Viewer viewer.desert-valley-high@demo-staff.capstone.test YOUR ACCESS Viewer Assigned students Assigned student records only. Change controls stay hidden. Today Students needing attention Students Assigned read-only student records Reports Progress and setup summary NEXT STEP Review assigned students in read-only mode. Staff Workspace ready. Staff Workspace Viewer / Desert Valley High School Student progress Private proof Mentor coverage Review work Presentation readiness Desert Valley School District 2026-2027 Read",
+      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Students FIND A STUDENT Open students Uses the current Student Directory filters and access. Viewer READ-ONLY VV Valeria Viewer viewer.desert-valley-high@demo-staff.capstone.test YOUR ACCESS Viewer Assigned students Assigned students only. Change controls stay hidden. Today Students needing attention Students Assigned read-only student records Reports Progress and setup summary NEXT STEP Review assigned students in read-only mode. Staff Workspace ready. Staff Workspace Viewer / Desert Valley High School Student progress Private files Mentor coverage Review work Presentation readiness Desert Valley School District 2026-2027 Read-only view",
       "activeNav": [
         "Students\n        Students\n        Assigned read-only student records"
       ]
@@ -3106,7 +3105,7 @@
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Viewer VV Staff Workspace ready. Staff Workspace Viewer / Desert Valley High School Student progress Private proof Mentor coverage Review work Presentation readiness Desert Valley School District 2026-2027 Read-only viewer CURRENT SITE Desert Valley High School / 2026-2027 Configured Desert Valley School District Viewer Read-only viewer No student messaging STUDENTS Students Find a student or start with work that needs attention. Configured Read-only view. Viewer Read-only workspace. You can open assigned student records for context, then share concerns with the Program Teacher or site staff. YOU CAN Open assigned student records and read status, proof,",
+      "textSample": "Skip to workspace Menu SC Capstone App Viewer VV Staff Workspace ready. Staff Workspace Viewer / Desert Valley High School Student progress Private files Mentor coverage Review work Presentation readiness Desert Valley School District 2026-2027 Read-only viewer CURRENT SITE Desert Valley High School / 2026-2027 Configured Desert Valley School District Viewer Read-only viewer No student messaging STUDENTS Students Find a student or start with work that needs attention. Configured Read-only view. Viewer Read-only workspace. You can open assigned student records for context, then share concerns with the Program Teacher or site staff. YOU CAN Open assigned student records and read status, files,",
       "activeNav": [
         "Students\n        Students\n        Assigned read-only student records"
       ]
@@ -3178,7 +3177,7 @@
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Reviews FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Program Teacher ROLE GQ Gray Quinn teacher-it-01@demo-staff.capstone.test YOUR ACCESS Program Teacher Assigned program: IT Review work and student support stay inside your assigned program. Today Students needing attention Students Program-scoped student rows Reviews Work waiting for review Reports Progress and setup summary NEXT STEP Review work students sent in and follow up where students need feedback. Staff Workspace ready. Staff Workspace Program Teacher / Desert Valley High School Student progress Private proof Me",
+      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Reviews FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Program Teacher ROLE GQ Gray Quinn teacher-it-01@demo-staff.capstone.test YOUR ACCESS Program Teacher Assigned program: IT Review work and student support stay inside your assigned program. Today Students needing attention Students Program student rows Reviews Work waiting for review Reports Progress and setup summary NEXT STEP Review work students sent in and follow up where students need feedback. Staff Workspace ready. Staff Workspace Program Teacher / Desert Valley High School Student progress Private files Mentor cover",
       "activeNav": [
         "Workspace",
         "Review\n        Reviews\n        Work waiting for review"
@@ -3250,7 +3249,7 @@
         "finalFiles": false
       },
       "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Students Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test YOUR ACCESS Site Admin Assigned school: Desert Valley High School Site tools stay tied to the selected or assigned school. Today Students needing attention Students Site student rows Reviews Submitted work and follow-up Reports Progress and setup summary NEXT STEP Review site progress, student readiness, mentor coverage, presentation status, and final-file signals available to this acc",
+      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Students Current site Desert Valley High School Only one site FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test YOUR ACCESS Site Admin Assigned school: Desert Valley High School Site tools stay tied to the selected or assigned school. Today Students needing attention Students Site student rows Reviews Submitted work and follow-up Reports Progress and setup summary NEXT STEP Review site progress, student readiness, mentor coverage, presentation status, and final-file signals available to this accoun",
       "activeNav": [
         "Workspace",
         "Students\n        Students\n        Site student rows",
@@ -3274,7 +3273,7 @@
       "screenshot": "docs/sales/screenshots/2026-06-30-ui-polish/23-student-detail-phone.png",
       "expected": [
         "Student",
-        "Back to Students"
+        "More"
       ],
       "proves": "Scoped student detail remains usable and bounded on phone width.",
       "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
