@@ -1051,3 +1051,60 @@
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES
+
+## Slice 25 - Replace Role Header Meta Copy
+
+- Implementation commit: `50f6dc1` (`Replace role header meta copy`)
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+- User-facing surfaces affected:
+  - Student Today desktop/mobile/half-screen
+  - Mentor Today, Mentor Dashboard, and Mentor assigned-student views
+  - Program Teacher Today, Review Work, and Program Dashboard views
+  - Viewer Today, Students, and Reports views
+  - Site Admin, Administration, and Global Admin Workspace Today/Students/Reports views
+  - Admin Console Overview desktop, half-screen, and mobile
+- Behavior changed:
+  - Visible role headers now use plain work guidance such as `Start with the next action`, `Start with the assigned-student list`, and `Start with one student group`.
+  - Removed visible meta-copy about screens, route-backed tasks, secondary context, decoding the app, and Admin Console construction.
+  - Tests guard the old role-header/meta phrases from returning in rendered student, staff, viewer, teacher, mentor, and admin surfaces.
+- RBAC/data impact: no route, role, read-only boundary, admin section, student data, report export, or mutation logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --test --test-name-pattern "workspace defaults to workflow landings|workspace separates Admin Console mode" tests\workspace-app.test.mjs`: PASS, `2` pass, `0` fail
+  - `node --test --test-name-pattern "workspace defaults to workflow landings|workspace separates Admin Console mode|workspace report exports stay scoped|workspace renders staff report" tests\workspace-app.test.mjs`: PASS, `3` pass, `0` fail
+  - `node --test tests\workspace-app.test.mjs`: PASS, `116` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `npm run verify:functionality-language`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Real work continues before 3PM: YES
+
+## Browser Proof Refresh 18
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `78`
+- Mobile screenshots: `32`
+- Failures: `0`
+- Started: `2026-07-07T19:28:15.660Z`
+- Completed: `2026-07-07T19:35:55.613Z`
+- Technical-language scan:
+  - Screenshot text samples containing `DEMO_SEED` or `seed`: `0`
+  - Screenshot text samples containing `screens now begin`, `route-backed task`, or `Secondary context stays closed`: `0`
+  - Screenshot text samples containing `Teachers move from queue`, `without starting from metrics or system status`, or `Viewer screens are read-only and start`: `0`
+  - Screenshot text samples containing `This view keeps the next action first`, `decode the app`, `Mentor work starts with the assigned student list`, or `Admin Console starts`: `0`
+- Visual spot checks:
+  - `02-workspace-site-admin-desktop.png`: Site Admin Today now says `Start with one student group, one student record, or one report question before opening supporting details`.
+  - `03-program-teacher-workspace.png`: Program Teacher Today now says `Start with the next submitted item, review the student's work, then save a decision`.
+  - `04-mentor-workspace.png` and `30-mobile-mentor-today.png`: Mentor surfaces now say `Start with the assigned-student list` and `Pick one assigned student`.
+  - `05-viewer-read-only-workspace.png`, `39-viewer-students-directory.png`, and `74-viewer-reports-desktop.png`: Viewer surfaces keep read-only guidance without old screen-construction wording.
+  - `01-admin-console-global-admin-desktop.png`, `09-admin-console-half-screen.png`, `32-admin-console-site-admin-overview.png`, and `73-mobile-global-admin-overview.png`: Admin Overview now says `Start with the next setup issue, then open the exact fix and confirm it cleared`.
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES

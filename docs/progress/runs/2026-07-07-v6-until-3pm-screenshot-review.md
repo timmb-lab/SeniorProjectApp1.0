@@ -1,6 +1,6 @@
 # 2026-07-07 V6 Until-3PM Screenshot Review
 
-Status: in progress; refreshed after slices 01-24.
+Status: in progress; refreshed after slices 01-25.
 
 Source artifacts:
 
@@ -190,3 +190,16 @@ Source artifacts:
 - Manifest scan: screenshot text samples containing `Allowed roles`, `Not available from this account`, or `Global Admin Not available`: `0`.
 - Manifest scan: screenshot text samples containing `loaded` or `unloaded`: `0`.
 - Manifest scan: screenshot text samples containing `global scope`: `0`.
+
+## Refresh 18 Spot Checks
+
+- Selected target: role and Admin headers should give plain work guidance instead of describing screen construction or the V6 redesign.
+- `02-workspace-site-admin-desktop.png`: Site Admin Today now says `Start with one student group, one student record, or one report question before opening supporting details`.
+- `03-program-teacher-workspace.png`: Program Teacher Today now says `Start with the next submitted item, review the student's work, then save a decision`.
+- `04-mentor-workspace.png` and `30-mobile-mentor-today.png`: Mentor surfaces now use assigned-student action language without `Mentor work starts with...`.
+- `05-viewer-read-only-workspace.png`, `39-viewer-students-directory.png`, and `74-viewer-reports-desktop.png`: Viewer surfaces keep the read-only boundary without old screen-construction wording.
+- `01-admin-console-global-admin-desktop.png`, `09-admin-console-half-screen.png`, `32-admin-console-site-admin-overview.png`, and `73-mobile-global-admin-overview.png`: Admin Overview now says `Start with the next setup issue, then open the exact fix and confirm it cleared`.
+- Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
+- Manifest scan: screenshot text samples containing `screens now begin`, `route-backed task`, or `Secondary context stays closed`: `0`.
+- Manifest scan: screenshot text samples containing `Teachers move from queue`, `without starting from metrics or system status`, or `Viewer screens are read-only and start`: `0`.
+- Manifest scan: screenshot text samples containing `This view keeps the next action first`, `decode the app`, `Mentor work starts with the assigned student list`, or `Admin Console starts`: `0`.
