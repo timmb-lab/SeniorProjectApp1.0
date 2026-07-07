@@ -789,7 +789,7 @@
   - Admin People desktop route
   - Mobile Admin People route
 - Behavior changed:
-  - Admin People staff-directory copy now says staff are managed for the selected school or allowed global scope.
+  - Admin People staff-directory copy now says staff are managed for the selected school or every school this account can manage.
   - The old visible phrase `inside the current view` is guarded against in the Admin People test.
 - RBAC/data impact: no permission, role choice, scope summary, account mutation, import, assignment, or People navigation logic changed.
 - Focused checks:
@@ -818,8 +818,8 @@
   - Screenshot text samples containing `DEMO_SEED` or `seed`: `0`
   - Screenshot text samples containing `inside the current view`: `0`
 - Visual spot checks:
-  - `17-people-access-landing.png`: Admin People now says staff are managed for the selected school or allowed global scope.
-  - `68-mobile-admin-people.png`: mobile Admin People uses the same selected-school/global-scope copy.
+  - `17-people-access-landing.png`: Admin People now says staff are managed for the selected school or every school this account can manage.
+  - `68-mobile-admin-people.png`: mobile Admin People uses the same selected-school/every-school copy.
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES
@@ -873,6 +873,65 @@
   - `35-admin-reports.png`: Admin Reports now says `Percentages say which students are counted`.
   - `42-mobile-admin-reports.png`: mobile Admin Reports keeps the question-first report flow with counted-students confidence copy.
   - `29-workspace-reports.png` and `74-viewer-reports-desktop.png`: staff and Viewer reports keep the scoped report flow without internal denominator language.
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES
+
+## Slice 22 - Use Visible Language In Admin Setup
+
+- Implementation commit: `a7b1b98` (`Use visible language in admin setup`)
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+  - `scripts/prove-workspace-ui-polish.mjs`
+- User-facing surfaces affected:
+  - Admin Overview desktop and mobile
+  - Admin People desktop and mobile
+  - Admin Students setup summary
+  - Admin Programs coverage panel
+  - Admin Reports confidence notes
+  - Admin Audit and operations empty/support states
+  - Staff report export rows and empty-state helpers
+- Behavior changed:
+  - Replaced visible `loaded` / `unloaded` / `global scope` language with school-facing `visible`, `current`, `available`, and `every school this account can manage` wording.
+  - Admin People staff-directory copy no longer exposes `global scope`.
+  - Admin setup confirmation and Programs coverage now use `current records` / `current assignments`.
+  - Admin Students and People setup summaries now use `Students visible` and `Staff visible`.
+  - Browser proof guard now checks the collapsed Admin Students setup summary against the new `Students visible` label.
+- RBAC/data impact: no role gates, site/program/student scope checks, report export rows, assignment actions, audit filters, or mutation logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --check scripts\prove-workspace-ui-polish.mjs`: PASS
+  - `node --test --test-name-pattern "workspace reports render accessible|admin console surfaces setup reasons|workspace report exports stay scoped" tests\workspace-app.test.mjs`: PASS, `3` pass, `0` fail
+  - `node --test tests\workspace-app.test.mjs`: PASS, `116` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `npm run verify:functionality-language`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Real work continues before 3PM: YES
+
+## Browser Proof Refresh 15
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `78`
+- Mobile screenshots: `32`
+- Failures: `0`
+- Started: `2026-07-07T18:45:24.118Z`
+- Completed: `2026-07-07T18:53:02.864Z`
+- Technical-language scan:
+  - Screenshot text samples containing `DEMO_SEED` or `seed`: `0`
+  - Screenshot text samples containing `loaded` or `unloaded`: `0`
+  - Screenshot text samples containing `global scope`: `0`
+- Visual spot checks:
+  - `17-people-access-landing.png`: Admin People now says `every school this account can manage`.
+  - `37-mobile-admin-overview.png` and `73-mobile-global-admin-overview.png`: Admin Overview setup confirmation now says `current records`.
+  - `71-mobile-admin-programs.png`: Admin Programs now says `No Program Teacher gaps in current assignments`.
+  - `68-mobile-admin-people.png`: mobile Admin People keeps the same school-facing people management copy.
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES

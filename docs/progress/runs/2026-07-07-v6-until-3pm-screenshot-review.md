@@ -1,6 +1,6 @@
 # 2026-07-07 V6 Until-3PM Screenshot Review
 
-Status: in progress; refreshed after slices 01-21.
+Status: in progress; refreshed after slices 01-22.
 
 Source artifacts:
 
@@ -66,8 +66,9 @@ Source artifacts:
 - Report export boundary copy should stay privacy-preserving while avoiding internal phrases such as `current admin view`, `storage links`, and `no IDs`.
 - Admin Imports should read as a CSV preview workflow, not generic import tooling or generic help.
 - Student-detail status and framing should read like a record was opened, not like a backend payload loaded.
-- Admin People should name the selected school or allowed global scope instead of saying `inside the current view`.
+- Admin People should name the selected school or every school this account can manage instead of saying `inside the current view` or `global scope`.
 - Report percentage and chart helper text should say which students or programs are counted instead of exposing the internal `denominator` term.
+- Admin setup, report, audit, and readiness helper text should use visible/current/available language instead of backend-style loaded/unloaded wording.
 
 ## Refresh 02 Spot Checks
 
@@ -145,8 +146,8 @@ Source artifacts:
 
 ## Refresh 13 Spot Checks
 
-- `17-people-access-landing.png`: Admin People now says staff are managed for the selected school or allowed global scope.
-- `68-mobile-admin-people.png`: mobile Admin People uses the same selected-school/global-scope copy.
+- `17-people-access-landing.png`: Admin People now says staff are managed for the selected school or every school this account can manage.
+- `68-mobile-admin-people.png`: mobile Admin People uses the same selected-school/every-school copy.
 - Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
 - Manifest scan: screenshot text samples containing `inside the current view`: `0`.
 
@@ -157,3 +158,13 @@ Source artifacts:
 - `29-workspace-reports.png` and `74-viewer-reports-desktop.png`: staff and Viewer reports keep the scoped report flow without internal denominator wording.
 - Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
 - Manifest scan: screenshot text samples containing `denominator` or `Denominator`: `0`.
+
+## Refresh 15 Spot Checks
+
+- `17-people-access-landing.png`: Admin People now says `every school this account can manage`.
+- `37-mobile-admin-overview.png` and `73-mobile-global-admin-overview.png`: Admin setup confirmation now says the item clears when `current records` confirm it.
+- `71-mobile-admin-programs.png`: Admin Programs now says `No Program Teacher gaps in current assignments`.
+- `68-mobile-admin-people.png`: mobile Admin People keeps the same school-facing people-management language.
+- Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
+- Manifest scan: screenshot text samples containing `loaded` or `unloaded`: `0`.
+- Manifest scan: screenshot text samples containing `global scope`: `0`.
