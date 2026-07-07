@@ -4074,6 +4074,10 @@ body[data-page="workspace"],
   justify-content: flex-start;
 }
 
+.workspace-mentor-preview-note {
+  margin: -0.14rem 0 0;
+}
+
 .workspace-mentor-focus-context,
 .workspace-mentor-dashboard-secondary {
   border: 1px solid var(--border-soft);
@@ -11235,7 +11239,8 @@ button.workspace-metric-tile,
   padding: clamp(0.75rem, 2vw, 1.15rem) 0;
 }
 
-.workspace-v2-primary-surface .workspace-student-screen {
+.workspace-v2-primary-surface .workspace-student-screen,
+.workspace-v2-primary-surface .workspace-mentor-dashboard {
   gap: 0.85rem;
 }
 

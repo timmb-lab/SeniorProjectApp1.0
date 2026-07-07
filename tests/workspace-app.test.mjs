@@ -6825,6 +6825,8 @@ test("mentor dashboard assigned students open detail and meeting history without
   });
 
   vm.runInContext('activeSection = "mentorDashboard"; renderAppShell();', context);
+  assert.match(workspaceRoot.innerHTML, /data-v2-primary-surface="mentor"[\s\S]*data-mentor-dashboard-flow="true"/);
+  assertMarkupOrder(workspaceRoot.innerHTML, 'data-v2-primary-surface="mentor"', 'data-v3-start-state="true"', "mentor dashboard focus should come before shared shell guidance");
   assert.match(workspaceRoot.innerHTML, /Assigned Student Focus/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-flow="true"/);
   assert.match(workspaceRoot.innerHTML, /Start with one assigned student, ask one useful question, then record the next check-in/);
@@ -6834,6 +6836,8 @@ test("mentor dashboard assigned students open detail and meeting history without
   assert.match(workspaceRoot.innerHTML, /What exactly did your Program Teacher ask you to change/);
   assert.match(workspaceRoot.innerHTML, /Open meeting plan/);
   assert.match(workspaceRoot.innerHTML, /Open student detail/);
+  assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-focus-flow="true"[\s\S]*data-view-as-student-action="enter"[\s\S]*data-view-as-student-source-section="mentorDashboard"/);
+  assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-preview-boundary="true"[\s\S]*Preview is read-only and limited to this assigned student/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-first-use-guide="mentor-dashboard"|data-mentor-action-map="true"|Choose one mentor action|Use this map before scanning every assigned student row/);
   assert.ok(
     workspaceRoot.innerHTML.indexOf("Zoe Needs Help") < workspaceRoot.innerHTML.indexOf("Avery On Track"),
@@ -7169,7 +7173,8 @@ test("workspace exposes a real admin site switcher and collapsible navigation", 
   assert.match(workspaceJs, /data-v5-flow-board="\$\{escapeHtml\(boardId\)\}"/);
   assert.match(workspaceCss, /\.workspace-v5-flow-board\s*\{[\s\S]*grid-template-columns:\s*minmax\(15rem,\s*0\.72fr\) minmax\(0,\s*1\.55fr\);/);
   assert.match(workspaceCss, /@media \(max-width: 900px\)[\s\S]*\.workspace-v5-flow-board\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
-  assert.match(workspaceJs, /data-v2-primary-surface="student"/);
+  assert.match(workspaceJs, /primarySectionKind[\s\S]*"student"/);
+  assert.match(workspaceJs, /data-v2-primary-surface="\$\{escapeHtml\(primarySectionKind \|\| "primary"\)\}"/);
   assert.match(workspaceCss, /\.workspace-v2-primary-surface\s*\{[\s\S]*border-top:\s*1px solid var\(--v2-line\);/);
 });
 

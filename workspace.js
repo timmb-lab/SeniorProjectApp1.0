@@ -1163,7 +1163,12 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     renderWorkspaceStudentSearchControl(roles),
     renderWorkspaceModeSwitch(consoleCapabilities),
   ], { isAdminConsole });
-  const primarySectionMarkup = studentExperience && activeSection === "student" && !renderBlockedSectionOnly ? activeSectionMarkup : "";
+  const primarySectionKind = !renderBlockedSectionOnly && studentExperience && activeSection === "student"
+    ? "student"
+    : !renderBlockedSectionOnly && roles.has("mentor") && activeSection === "mentorDashboard"
+      ? "mentor"
+      : "";
+  const primarySectionMarkup = primarySectionKind ? activeSectionMarkup : "";
   const supportMarkup = renderV2SupportPanel({
     activeSectionMarkup: primarySectionMarkup ? "" : activeSectionMarkup,
     screenGuidance,
@@ -1228,6 +1233,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
           blocked: renderBlockedSectionOnly,
           supportMarkup,
           primarySectionMarkup,
+          primarySectionKind,
         })}
       </main>
     </section>
@@ -1339,6 +1345,7 @@ function renderV2ActiveScreen({
   blocked = false,
   supportMarkup = "",
   primarySectionMarkup = "",
+  primarySectionKind = "",
 } = {}) {
   if (blocked) {
     return `
@@ -1353,8 +1360,8 @@ function renderV2ActiveScreen({
     `;
   }
   const model = v2ScreenModel({ isAdminConsole, studentExperience, sectionId, sections, primaryRole, roles });
-  const primarySurfaceMarkup = studentExperience && primarySectionMarkup ? `
-    <div class="workspace-v2-primary-surface" data-v2-primary-surface="student">
+  const primarySurfaceMarkup = primarySectionMarkup ? `
+    <div class="workspace-v2-primary-surface" data-v2-primary-surface="${escapeHtml(primarySectionKind || "primary")}">
       ${primarySectionMarkup}
     </div>
   ` : "";
@@ -24904,7 +24911,9 @@ function renderMentorDashboardFocusedStudent(row = {}, activeFilter = "all", tot
           <button class="workspace-link-button workspace-link-button-small" type="button" data-mentor-dashboard-action="open-student" data-mentor-dashboard-student-id="${escapeHtml(studentId)}">
             Open student detail
           </button>
+          ${renderViewAsStudentAction(studentId, row.studentName, { sourceSection: "mentorDashboard", label: "Preview student view" })}
         </div>
+        <p class="workspace-muted workspace-mentor-preview-note" data-mentor-dashboard-preview-boundary="true">Preview is read-only and limited to this assigned student.</p>
       ` : ""}
       <details class="workspace-mentor-focus-context" data-mentor-dashboard-focus-context="true">
         <summary>Show why this student is first</summary>
