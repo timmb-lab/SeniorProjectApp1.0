@@ -7205,6 +7205,10 @@ test("workspace exposes a real admin site switcher and collapsible navigation", 
   assert.match(workspaceJs, /data-v5-flow-board="\$\{escapeHtml\(boardId\)\}"/);
   assert.match(workspaceCss, /\.workspace-v5-flow-board\s*\{[\s\S]*grid-template-columns:\s*minmax\(15rem,\s*0\.72fr\) minmax\(0,\s*1\.55fr\);/);
   assert.match(workspaceCss, /@media \(max-width: 900px\)[\s\S]*\.workspace-v5-flow-board\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
+  assert.match(workspaceCss, /@media \(max-width: 900px\)[\s\S]*\.workspace-v2-hero h1\s*\{[\s\S]*font-size:\s*2\.55rem;/, "tablet V2 hero should not reuse desktop-scale type");
+  assert.match(workspaceCss, /@media \(max-width: 620px\)[\s\S]*\.workspace-v2-user\s*\{[\s\S]*flex-wrap:\s*nowrap;/, "phone V2 topbar should keep tools, role, and account on one compact row");
+  assert.match(workspaceCss, /@media \(max-width: 620px\)[\s\S]*\.workspace-v2-hero h1\s*\{[\s\S]*font-size:\s*2\.18rem;/, "phone V2 hero should leave room for the role-specific plan");
+  assert.match(workspaceCss, /@media \(max-width: 620px\)[\s\S]*\.workspace-v2-stage\s*\{[\s\S]*padding-top:\s*0\.62rem;/, "phone V2 stage should tighten vertical chrome before the first task");
   assert.match(workspaceJs, /primarySectionKind[\s\S]*"student"/);
   assert.match(workspaceJs, /viewerPrimarySection/);
   assert.match(workspaceJs, /renderViewerReadOnlyTodayPlan/);
