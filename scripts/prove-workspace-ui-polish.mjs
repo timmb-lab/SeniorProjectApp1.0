@@ -1513,7 +1513,7 @@ function expectedMarkersForPlanItem(planItem, pageState = {}) {
     if (section === "adminStudents") return ["Admin flow", "Fix one student record", "Guided setup flow", "Open roster tools"];
     if (section === "adminAssignments") return ["Admin flow", "Assign missing coverage", "Guided setup flow", "Open assignment tools"];
     if (section === "programs") return ["Admin flow", "Set up one school program", "Guided setup flow", "Open program tools"];
-    if (section === "adminImports") return ["Admin flow", "Preview one CSV before saving", "Guided setup flow", "Open import tools"];
+    if (section === "adminImports") return ["Admin flow", "Preview one CSV before saving", "CSV preview flow", "Open CSV checklist"];
     if (section === "adminReports") return ["Admin flow", "Answer one operations question", "Reports answer one operations question", "Open report"];
     if (section === "audit") return ["Admin flow", "Review one change trail", "Audit starts with one trail", "Open audit trail"];
     return ["Admin flow", "Guided setup flow", "Issue, fix, confirmation", "Open setup tools"];

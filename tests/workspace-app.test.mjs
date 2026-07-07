@@ -7668,7 +7668,10 @@ test("admin console surfaces setup reasons across overview people students and r
   vm.runInContext('activeSection = "adminImports"; adminPeopleView = "import-students"; renderAppShell();', context);
   const imports = workspaceRoot.innerHTML;
   assert.match(imports, /data-admin-action-menu="adminImports"[\s\S]*Download student template[\s\S]*Download staff template/);
-  assert.match(imports, /data-csv-help-disclosure="students"[\s\S]*CSV help[\s\S]*Template columns/);
+  assert.match(imports, /data-v5-flow-board="admin-csv-preview-flow"[\s\S]*CSV preview flow[\s\S]*Template, preview, confirmation[\s\S]*Preview rows/);
+  assert.match(imports, /Open CSV checklist/);
+  assert.match(imports, /data-csv-help-disclosure="students"[\s\S]*Template columns and example[\s\S]*Template columns/);
+  assert.doesNotMatch(visibleText(imports), /CSV help|Open import tools/);
   assert.match(imports, /data-csv-import-readiness="students" data-csv-import-readiness-state="errors"/);
   assert.match(imports, /Fix preview errors before import[\s\S]*Template[\s\S]*Preview[\s\S]*Confirm/);
   assert.match(imports, /data-csv-preview-next-action="students" data-csv-preview-next-state="fix-errors"[\s\S]*Fix this row first[\s\S]*Unsupported column: guardian_phone/);

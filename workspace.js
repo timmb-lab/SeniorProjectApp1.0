@@ -1953,25 +1953,25 @@ function v5AdminFlowBoard(sectionId = activeSection, config = {}) {
   const job = config.startState?.job || `admin-${sectionId || "task"}`;
   return {
     id: `${job}-flow`,
-    label: isReports ? "Admin report flow" : isAudit ? "Audit review flow" : "Guided setup flow",
-    title: isReports ? "Reports answer one operations question" : isAudit ? "Audit starts with one trail" : "Issue, fix, confirmation",
-    detail: "Admin Console stays focused on the selected setup job and keeps broader tools behind the active screen.",
+    label: isReports ? "Admin report flow" : isAudit ? "Audit review flow" : isImports ? "CSV preview flow" : "Guided setup flow",
+    title: isReports ? "Reports answer one operations question" : isAudit ? "Audit starts with one trail" : isImports ? "Template, preview, confirmation" : "Issue, fix, confirmation",
+    detail: isImports ? "Imports stay blocked until template, preview, and valid-row confirmation are visible." : "Admin Console stays focused on the selected setup job and keeps broader tools behind the active screen.",
     lanes: [
       {
-        label: "Issue",
-        title: isReports ? "Pick the question" : isAudit ? "Choose the trail" : "Start with the blocker",
+        label: isImports ? "Template" : "Issue",
+        title: isReports ? "Pick the question" : isAudit ? "Choose the trail" : isImports ? "Download the right template" : "Start with the blocker",
         detail: config.startState?.now || "Choose one admin item before opening forms or reports.",
         actions: [v5SupportAction(config.hint || "Open focused tools", true)],
       },
       {
-        label: "Fix",
+        label: isImports ? "Preview" : "Fix",
         title: isImports ? "Preview before saving" : "Open the matching tools",
         detail: config.detail || "Use the one screen tied to the visible issue.",
         actions: [v5SupportAction(config.actionLabel || "Open tools")],
       },
       {
         label: "Confirm",
-        title: isAudit ? "Document follow-up" : "Check the result",
+        title: isAudit ? "Document follow-up" : isImports ? "Confirm only valid rows" : "Check the result",
         detail: config.startState?.confirm || "Return here and confirm the visible result changed.",
         actions: [isReports ? v5SectionAction("Open setup", "overview") : v5SupportAction("Open confirmation")],
       },
@@ -2059,8 +2059,9 @@ function v2AdminScreenModel(sectionId = activeSection, sections = []) {
     adminImports: {
       title: "Preview one CSV before saving",
       detail: "Download the right template, preview validation, fix rows, then confirm only valid records.",
-      action: v2SupportButton("Open import tools"),
+      action: v2SupportButton("Open CSV checklist"),
       hint: "Preview before import",
+      actionLabel: "Preview rows",
       steps: v2PathSteps("Choose template", "Preview rows", "Confirm valid records"),
       startState: {
         job: "admin-csv-preview",
@@ -21018,7 +21019,7 @@ function renderCsvTemplateDocumentation(kind = "students") {
   const contract = csvTemplateContractForKind(kind);
   return `
     <details class="workspace-csv-template-doc workspace-csv-help-disclosure" data-csv-template-doc="${escapeHtml(kind)}" data-csv-help-disclosure="${escapeHtml(kind)}">
-      <summary>CSV help</summary>
+      <summary>Template columns and example</summary>
       <div class="workspace-csv-help-body">
         <strong>Template columns</strong>
       ${renderCsvTemplateColumnGroups(kind)}
