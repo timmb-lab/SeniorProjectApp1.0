@@ -1231,3 +1231,78 @@
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES
+
+## Slice 28 - Add Chromebook Student Proof Coverage
+
+- Implementation commit: `1a08747` (`Add Chromebook student proof coverage`)
+- Files changed:
+  - `scripts/prove-workspace-ui-polish.mjs`
+- User-facing proof surfaces added:
+  - `79-student-today-chromebook.png`
+  - `80-student-my-work-chromebook.png`
+  - `81-student-feedback-chromebook.png`
+  - `82-student-final-checklist-chromebook.png`
+- Behavior changed:
+  - Browser proof now includes four explicit student Chromebook-size desktop browser viewports at `1366x768`.
+  - These cover Student Today, My Work, Feedback, and Final Checklist.
+- RBAC/data impact: proof-plan only; no app behavior, route, role, student data, report export, or mutation logic changed.
+- Focused checks:
+  - `node --check scripts\prove-workspace-ui-polish.mjs`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Direction update from user: nearly all students use Chromebooks; desktop browser proof is now first-class, while mobile remains a regression guardrail.
+- Real work continues before 3PM: YES
+
+## Slice 29 - Tighten Student Chromebook Desktop Hero
+
+- Implementation commit: `5767773` (`Tighten student Chromebook desktop hero`)
+- Files changed:
+  - `workspace.css`
+  - `tests/workspace-app.test.mjs`
+- User-facing surfaces affected:
+  - Student Today at Chromebook-size desktop browser height
+  - Student My Work at Chromebook-size desktop browser height
+  - Student Feedback at Chromebook-size desktop browser height
+  - Student Final Checklist at Chromebook-size desktop browser height
+- Behavior changed:
+  - Added a desktop-width, short-height media rule for student pages: `@media (min-width: 901px) and (max-height: 820px)`.
+  - Student V2 hero spacing, H1 size, primary row margin, and primary-surface padding tighten on Chromebook-height browsers.
+  - Mobile rules are unchanged; mobile remains a regression guardrail rather than the primary optimization target.
+- RBAC/data impact: CSS/layout only; no route, role, read-only boundary, student data, evidence, report export, or mutation logic changed.
+- Focused checks:
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --test --test-name-pattern "workspace uses Phase 6.6 Figma cleanup patterns|workspace defaults to workflow landings|student Today next-step map" tests\workspace-app.test.mjs`: PASS, `3` pass, `0` fail
+  - `node --test tests\workspace-app.test.mjs`: PASS, `116` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `npm run verify:functionality-language`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Direct visual inspection:
+  - `79-student-today-chromebook.png`: Today work card and next-step map are visible in the first viewport.
+  - `80-student-my-work-chromebook.png`: My Work header, status, Continue button, and Current work card are visible in the first viewport.
+  - `81-student-feedback-chromebook.png`: Feedback header, View Work button, and Needs changes card are visible in the first viewport.
+  - `82-student-final-checklist-chromebook.png`: Final Checklist header, Continue My Work button, and first finish-check row are visible in the first viewport.
+- Real work continues before 3PM: YES
+
+## Browser Proof Refresh 21
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `82`
+- Mobile screenshots: `32`
+- Chromebook/student desktop screenshots: `4`
+- Failures: `0`
+- Started: `2026-07-07T20:13:18.201Z`
+- Completed: `2026-07-07T20:21:17.004Z`
+- Technical-language scan:
+  - Screenshot text samples containing `DEMO_SEED` or `seed`: `0`
+- Chromebook proof files:
+  - `79-student-today-chromebook.png`
+  - `80-student-my-work-chromebook.png`
+  - `81-student-feedback-chromebook.png`
+  - `82-student-final-checklist-chromebook.png`
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES

@@ -1,6 +1,6 @@
 # 2026-07-07 V6 Until-3PM Screenshot Review
 
-Status: in progress; refreshed after slices 01-27.
+Status: in progress; refreshed after slices 01-29.
 
 Source artifacts:
 
@@ -230,3 +230,15 @@ Source artifacts:
 - Manifest scan: screenshot text samples containing `source screen, then` or `source screen.`: `0`.
 - Manifest scan: screenshot text samples containing `Student support path`, `Review path`, `Assigned-student path`, `Read-only path`, or `source area`: present.
 - Direction update: future V6 work should prioritize Chromebook/desktop browser needs; mobile proof remains a guardrail.
+
+## Refresh 21 Spot Checks
+
+- Selected target: student Chromebook desktop browser flows should be explicit proof targets, not inferred from phone or wide-desktop screenshots.
+- Added Chromebook-size proof at `1366x768` for Student Today, My Work, Feedback, and Final Checklist.
+- `79-student-today-chromebook.png`: the Today card and next-step map are visible in the first viewport after tightening the student hero.
+- `80-student-my-work-chromebook.png`: My Work header, status, Continue button, and Current work card are visible in the first viewport.
+- `81-student-feedback-chromebook.png`: Feedback header, View Work button, and Needs changes card are visible in the first viewport.
+- `82-student-final-checklist-chromebook.png`: Final Checklist header, Continue My Work button, and first finish-check row are visible in the first viewport.
+- Manifest count: `82` screenshots total, including `32` mobile screenshots and `4` Chromebook/student desktop screenshots.
+- Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
+- Direction update: desktop/Chromebook browser needs are the primary student target from here; mobile screenshots remain regression coverage.
