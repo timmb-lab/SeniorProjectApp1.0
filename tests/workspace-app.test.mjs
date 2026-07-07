@@ -581,6 +581,8 @@ test("workspace defaults to workflow landings instead of role profiles", async (
 
 test("workspace separates Admin Console mode by role and URL state", async () => {
   const studentWorkspace = await renderWorkspaceWithFetch(profileRoutesForRole("student"));
+  assert.match(studentWorkspace, /workspace-v2-app/);
+  assert.match(studentWorkspace, /data-flow-frame="v2-from-scratch"/);
   assert.match(studentWorkspace, /data-experience="student"/);
   assert.match(studentWorkspace, /aria-label="My Capstone navigation"/);
   assert.doesNotMatch(studentWorkspace, /data-workspace-mode-switch="true"/);
@@ -1342,9 +1344,10 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(siteDashboard, /data-section="operations" data-section-preset="archive-failed"[\s\S]*Review final-file failures/);
   assert.match(siteDashboard, /data-admin-console-active-section="siteDashboard"/);
   assert.match(siteDashboard, /mentor coverage/i);
-  assert.match(siteDashboard, /data-rail-access-summary="compact"/);
+  assert.match(siteDashboard, /workspace-v2-app/);
+  assert.match(siteDashboard, /data-v2-support-panel="true"/);
   assert.match(siteDashboard, /data-active-role-badge="true"[\s\S]*data-role-identity="site_admin"/);
-  assert.match(siteDashboard, /data-rail-access-summary="compact"[\s\S]*Site Admin[\s\S]*School tools for the assigned school/);
+  assert.match(siteDashboard, /workspace-v2-screen[\s\S]*Admin flow|workspace-v2-screen[\s\S]*Site Admin/);
   assert.doesNotMatch(siteDashboard, /site:site-desert-valley-high|Global scope|role scope|total in scope/);
   assert.doesNotMatch(siteDashboard, /Database-backed MVP|Cloudflare target|Audit-sensitive admin|Senior Capstone Product/);
   assert.match(siteDashboard, /workspace-site-context-badge/);
@@ -7078,6 +7081,8 @@ test("workspace exposes a real admin site switcher and collapsible navigation", 
   assert.match(workspaceJs, /workspace-menu-icon/);
   assert.match(workspaceJs, /workspace-topbar-start/);
   assert.match(workspaceJs, /workspace-topbar-actions/);
+  assert.match(workspaceJs, /workspace-v2-app/);
+  assert.match(workspaceJs, /data-flow-frame="v2-from-scratch"/);
   assert.match(workspaceJs, /data-nav-state="\$\{workspaceNavCollapsed \? "collapsed" : "expanded"\}"/);
   assert.match(workspaceJs, /function toggleWorkspaceMenu/);
   assert.match(workspaceJs, /function closeWorkspaceMenu/);
@@ -7095,6 +7100,9 @@ test("workspace exposes a real admin site switcher and collapsible navigation", 
   assert.match(workspaceCss, /max-width: none/);
   assert.match(workspaceCss, /\.workspace-app\[data-nav-state="collapsed"\] \.workspace-content[\s\S]*grid-template-columns: minmax\(0, 1fr\)/);
   assert.match(workspaceCss, /\.workspace-app\[data-nav-state="collapsed"\] \.workspace-rail[\s\S]*display: none/);
+  assert.match(workspaceCss, /\.workspace-v2-stage\s*\{[\s\S]*width:\s*min\(1180px,/);
+  assert.match(workspaceCss, /\.workspace-v2-switcher\s*\{[\s\S]*display:\s*flex;/);
+  assert.match(workspaceCss, /\.workspace-v2-support\s*\{[\s\S]*border-top:\s*1px solid var\(--v2-line\);/);
 });
 
 test("workspace half-width drawer and phone drawer stay bounded and keep global admin controls reachable", async () => {
@@ -7167,7 +7175,7 @@ test("workspace half-width drawer and phone drawer stay bounded and keep global 
   const drawerOpen = tabletContext.workspaceRoot.innerHTML;
   assert.match(drawerOpen, /data-nav-state="expanded"/);
   assert.match(drawerOpen, /id="workspaceNavigationRail"/);
-  assert.match(drawerOpen, /id="workspaceRailClose"[\s\S]*Close menu/);
+  assert.match(drawerOpen, /id="workspaceRailClose"[\s\S]*Close/);
   assert.match(drawerOpen, /data-section="adminPeople"[\s\S]*People/);
   assert.match(drawerOpen, /data-section="adminAssignments"[\s\S]*Assignments/);
   assert.equal(tabletContext.documentElements.get("#workspaceRailClose")?.hasEventListener("click"), true);
@@ -7178,7 +7186,7 @@ test("workspace half-width drawer and phone drawer stay bounded and keep global 
   tabletContext.documentElements.get("#workspaceRailClose")?.click();
   assert.match(tabletContext.workspaceRoot.innerHTML, /data-nav-state="collapsed"/);
   assert.match(tabletContext.workspaceRoot.innerHTML, /Admin Console/);
-  assert.match(tabletContext.workspaceRoot.innerHTML, /data-rail-access-summary="compact"/);
+  assert.match(tabletContext.workspaceRoot.innerHTML, /data-v2-support-panel="true"/);
   assert.match(tabletContext.workspaceRoot.innerHTML, /workspace-command-center/);
   assert.match(tabletContext.workspaceRoot.innerHTML, /School-Wide Operations/);
 
@@ -7190,7 +7198,7 @@ test("workspace half-width drawer and phone drawer stay bounded and keep global 
   assert.match(phoneContext.workspaceRoot.innerHTML, /data-nav-state="collapsed"/);
   phoneContext.documentElements.get("#workspaceMenuToggle")?.click();
   assert.match(phoneContext.workspaceRoot.innerHTML, /data-nav-state="expanded"/);
-  assert.match(phoneContext.workspaceRoot.innerHTML, /id="workspaceRailClose"[\s\S]*Close menu/);
+  assert.match(phoneContext.workspaceRoot.innerHTML, /id="workspaceRailClose"[\s\S]*Close/);
   assert.equal(phoneContext.documentElements.get("#workspaceRailClose")?.hasEventListener("click"), true);
   phoneContext.documentElements.get("#workspaceRailClose")?.click();
   assert.match(phoneContext.workspaceRoot.innerHTML, /data-nav-state="collapsed"/);
@@ -7218,8 +7226,10 @@ test("workspace wide admin console keeps operations readable and source actions 
   const markup = wideContext.workspaceRoot.innerHTML;
   assert.match(markup, /data-app-mode="admin"/);
   assert.match(markup, /data-nav-state="expanded"/);
-  assert.match(markup, /data-rail-access-summary="compact"[\s\S]*Global Admin[\s\S]*Global view/);
-  assert.match(markup, /data-rail-access-summary="compact"/);
+  assert.match(markup, /workspace-v2-app/);
+  assert.match(markup, /data-flow-frame="v2-from-scratch"/);
+  assert.match(markup, /data-v2-support-panel="true"/);
+  assert.match(markup, /data-active-role-badge="true"[\s\S]*data-role-identity="global_admin"/);
   assert.match(markup, /data-admin-command-center="true"/);
   assert.match(markup, /data-admin-operations-flow="true"/);
   assert.match(markup, /data-admin-flow-step="students"[\s\S]*Students[\s\S]*Active/);

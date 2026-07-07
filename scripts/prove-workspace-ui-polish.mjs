@@ -1075,14 +1075,71 @@ async function collectPageState(client) {
         problemState: Boolean(document.querySelector("[data-workspace-state='permission-denied'], .workspace-problem-state")),
         intentionalEmptyState: Boolean(document.querySelector("[data-intentional-empty-state], [data-student-directory-empty='true']")),
         finalFiles: Boolean(document.querySelector("[data-archive-dashboard], .workspace-archive-dashboard, [data-student-final-checklist='true']"))
+      },
+      v2: {
+        frame: Boolean(document.querySelector('[data-flow-frame="v2-from-scratch"]')),
+        screen: document.querySelector("[data-v2-screen]")?.getAttribute("data-v2-screen") || "",
+        support: Boolean(document.querySelector("[data-v2-support-panel]"))
       }
     };
   })()`);
 }
 
+function expectedMarkersForPlanItem(planItem, pageState = {}) {
+  if (!pageState.v2?.frame) return planItem.expected || [];
+  const params = new URL(planItem.url, "https://workspace.local").searchParams;
+  const section = params.get("section") || "";
+  const mode = params.get("mode") || "";
+  const id = planItem.id || "";
+  if (pageState.markers?.viewAsBanner) {
+    return ["Viewing as:", "Student path", "Open My Work"];
+  }
+  if (id.includes("student-admin-route-blocked")) {
+    return ["Admin Console is not available for this role", "Student path", "Open My Work"];
+  }
+  if (planItem.authRole === "student") {
+    if (section === "studentWork") return ["Student path", "Finish the next capstone item", "Open current item"];
+    if (section === "studentFeedback") return ["Student path", "Read the note and fix one thing", "Open feedback"];
+    if (section === "studentFinalChecklist") return ["Student path", "Check the final package", "Open final checklist"];
+    return ["Student path", "What do I do next?", "Open My Work"];
+  }
+  if (mode === "admin" || pageState.v2.screen.startsWith("admin-")) {
+    if (pageState.markers?.studentDetailPanel) return ["Admin flow", "Open Ready", "Open tools"];
+    if (section === "adminPeople") return ["Admin flow", "Fix one staff account", "Open staff tools"];
+    if (section === "adminStudents") return ["Admin flow", "Fix one student record", "Open roster tools"];
+    if (section === "adminAssignments") return ["Admin flow", "Assign missing coverage", "Open assignment tools"];
+    if (section === "programs") return ["Admin flow", "Set up one school program", "Open program tools"];
+    if (section === "adminImports") return ["Admin flow", "Preview one CSV before saving", "Open import tools"];
+    if (section === "adminReports") return ["Admin flow", "Answer one operations question", "Open report"];
+    if (section === "audit") return ["Admin flow", "Review one change trail", "Open audit trail"];
+    return ["Admin flow", "Open setup tools"];
+  }
+  if (planItem.authRole === "mentor" || section === "mentorDashboard" || section === "mentor") {
+    return section === "mentor"
+      ? ["Mentor flow", "Work with one assigned student", "Open student detail"]
+      : ["Mentor flow", "Choose the student who needs you next", "Open assigned students"];
+  }
+  if (section === "teacher" || section === "programDashboard") {
+    return section === "teacher"
+      ? ["Teacher review", "Review one student submission", "Open selected work"]
+      : ["Teacher review", "Pick the review that needs attention", "Open review queue"];
+  }
+  if (planItem.authRole === "viewer") {
+    return ["Read-only view", "Check one student or report", "No edit actions"];
+  }
+  if (section === "students") return ["Open one student record", "Open student list", "Open supporting details"];
+  if (section === "staffReports" || section === "readiness") return ["Check one report question", "Open report", "Open supporting details"];
+  return ["Start with the worklist", "Open students", "Open supporting details"];
+}
+
 function checkPage(planItem, pageState) {
   const text = `${pageState.heading || ""}\n${pageState.text || ""}`;
-  const missingExpectedText = planItem.expected.filter((marker) => !text.includes(marker));
+  const expectedMarkers = expectedMarkersForPlanItem(planItem, pageState);
+  const searchableText = pageState.v2?.frame ? text.toLowerCase() : text;
+  const missingExpectedText = expectedMarkers.filter((marker) => {
+    const expected = pageState.v2?.frame ? String(marker).toLowerCase() : marker;
+    return !searchableText.includes(expected);
+  });
   const unexpectedText = (planItem.absent || []).filter((marker) => text.includes(marker));
   const secretMatches = SECRET_PATTERNS.filter((pattern) => pattern.test(text)).map((pattern) => pattern.source);
   const requestedActions = [

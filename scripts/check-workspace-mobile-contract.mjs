@@ -77,7 +77,7 @@ for (const [label, pattern] of criticalMobileSurfaces) {
   requirePattern(label, workspaceJs, pattern);
 }
 
-requirePattern("workspace drawer close button is rendered", workspaceJs, /id="workspaceRailClose"[\s\S]*Close menu/);
+requirePattern("workspace drawer close button is rendered", workspaceJs, /id="workspaceRailClose"[\s\S]*Close/);
 requirePattern("workspace drawer close handler is bound", workspaceJs, /#workspaceRailClose"\)\?\.addEventListener\("click", closeWorkspaceMenu\)/);
 requirePattern("workspace collapses nav by default at half-width desktop", workspaceJs, /window\.matchMedia\("\(max-width: 900px\)"\)\.matches/);
 requirePattern("workspace syncs drawer below wrapped header", workspaceJs, /function syncWorkspaceDrawerOffset\(\)[\s\S]*--workspace-drawer-top/);

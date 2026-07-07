@@ -346,6 +346,100 @@ Blockers:
 
 Block type: break/checkpoint.
 
+## 2026-07-06 18:47 PT - V2 From-Scratch GUI Restart Checkpoint
+
+Trigger:
+
+- User rejected the prior direction as still too close to the old GUI and requested the V2 GUI be started from scratch.
+
+Files currently changed:
+
+- `workspace.js`
+- `workspace.css`
+- `tests/workspace-app.test.mjs`
+- `scripts/prove-workspace-ui-polish.mjs`
+- `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- `docs/sales/screenshots/2026-07-06-flow-redesign/`
+- `docs/progress/runs/2026-07-06-12h-flow-redesign-progress-log.md`
+
+Checks run:
+
+- `node --check workspace.js` - passed
+- `node --check scripts\prove-workspace-ui-polish.mjs` - passed
+- `node --test tests\workspace-app.test.mjs` - 114/114 passed
+- `npm run prove:workspace-ui-polish` - not green yet after V2 proof contract restart; latest manifest verdict `NOT_GREEN` with 35 screenshot text-contract failures.
+
+Visual inspection:
+
+- `01-admin-console-global-admin-desktop.png` now shows a clean V2 stage with one primary setup action, no left rail, no metric wall, and supporting tools collapsed.
+- `06-student-today-desktop.png` now shows a student-first "What do I do next?" path with one primary action and collapsed supporting details.
+- `17-people-access-landing.png`, `33-admin-assignments.png`, and `34-admin-programs.png` now show focused admin flows instead of first-viewport form/card walls.
+- `40-staff-reviews.png` now shows a teacher review flow with queue-to-work-to-decision language.
+
+Known issues for next edit window:
+
+- Proof contract needs case-insensitive matching or uppercase V2 markers because browser `innerText` reflects uppercase styling for labels such as `ADMIN FLOW`, `STUDENT PATH`, and `TEACHER REVIEW`.
+- Mentor Today still maps to the generic staff V2 model; route mentor roles into the mentor flow even on `overview`.
+- View-as-student proof should validate the student V2 path when the staff preview banner is active.
+- Student admin deep-link proof should validate the existing unavailable-console notice plus student path, not a separate blocked V2 screen.
+- Admin student-detail click proof should validate the generic admin support flow or use the current `data-v2-screen` instead of the original route query.
+
+Boundary:
+
+- Local fake-account screenshot proof only. Real-student production status remains `NO_GO_REAL_STUDENT_PILOT`.
+- Checkpoint window is active; no code edits until the next edit window.
+
+## 2026-07-06 19:09 PT - V2 From-Scratch GUI Green Checkpoint
+
+Files changed:
+
+- `workspace.js`
+- `workspace.css`
+- `tests/workspace-app.test.mjs`
+- `scripts/prove-workspace-ui-polish.mjs`
+- `scripts/check-workspace-mobile-contract.mjs`
+- `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- `docs/sales/screenshots/2026-07-06-flow-redesign/`
+- `docs/progress/runs/2026-07-06-12h-flow-redesign-progress-log.md`
+
+Checks run:
+
+- `node --check workspace.js` - passed
+- `node --check scripts\prove-workspace-ui-polish.mjs` - passed
+- `node --test tests\workspace-app.test.mjs` - 114/114 passed
+- `npm run prove:workspace-ui-polish` - passed
+- `git diff --check` - passed with line-ending warnings only
+- `npm run check:workspace-mobile` - passed
+- `npm run check:workspace-accessibility` - passed
+- `npm run verify:permission-matrix` - passed
+- `npm run check:pilot-readiness` - script passed; final decision remains `NO_GO_REAL_STUDENT_PILOT` because required manual proof manifests are missing
+
+Screenshot/proof status:
+
+- Manifest: `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- Screenshot count: 47
+- Screenshot verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Failures: 0
+
+Finished:
+
+- Replaced the desktop app structure with a V2 stage surface: top context bar, horizontal screen switcher, one focused hero action, three-step path, and collapsed supporting tools.
+- Removed the first-viewport left rail, access-summary rail card, dashboard metric wall, and route-level card wall from the V2 screenshots.
+- Routed student, mentor, teacher, viewer, staff, and admin modes through role-specific V2 flow language.
+- Kept existing route-backed forms, lists, permissions, and detail panels available inside closed supporting details so RBAC and real actions remain intact.
+- Updated screenshot proof expectations to validate the V2 frame and role/section flow language instead of old dashboard text.
+- Updated mobile contract wording for the V2 drawer close control.
+
+Remaining:
+
+- Continue route-by-route polish only if screenshots reveal specific V2 copy or spacing issues; do not reintroduce old control-panel surfaces.
+- Real-student pilot remains `NO_GO_REAL_STUDENT_PILOT` pending required manual/policy evidence.
+
+Blockers:
+
+- None for local fake-account V2 GUI proof.
+- Real-student pilot remains blocked by external/manual evidence.
+
 ## 2026-07-06 15:28 PT - Stage 04/08 Student Detail Flow Checkpoint
 
 Current SHA before Stage 04/08 detail commit: `14cc008958e0930b710f751117bd01b68a4066ae`

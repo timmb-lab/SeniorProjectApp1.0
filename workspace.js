@@ -1153,7 +1153,6 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   const activeSectionMarkup = renderBlockedSectionOnly
     ? ""
     : isAdminConsole ? renderAdminConsoleActiveSection() : renderActiveSection();
-  const activeSectionBeforeGuidance = activeSectionFirst || isAdminConsole;
   const shellReadOnlyBanner = !isAdminConsole && activeSection === "students" ? "" : renderReadOnlyBanner();
   const defaultReadyMessage = readyMessageForCurrentExperience();
   const statusMarkup = statusMessage && !(tone === "success" && statusMessage === defaultReadyMessage)
@@ -1164,61 +1163,71 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     renderWorkspaceStudentSearchControl(roles),
     renderWorkspaceModeSwitch(consoleCapabilities),
   ], { isAdminConsole });
+  const supportMarkup = renderV2SupportPanel({
+    activeSectionMarkup,
+    screenGuidance,
+    shellReadOnlyBanner,
+    isAdminConsole,
+    consoleCapabilities,
+    sections,
+    renderBlockedSectionOnly,
+  });
   workspaceMain.innerHTML = `
-    <section class="workspace-app" data-primary-role="${escapeHtml(primaryRole)}" data-app-mode="${escapeHtml(activeWorkspaceMode)}" data-experience="${escapeHtml(experience)}" data-nav-state="${workspaceNavCollapsed ? "collapsed" : "expanded"}" data-view-as-student="${viewingAsStudent ? "active" : "inactive"}">
-      <header class="workspace-topbar" data-topbar-density="compact">
-        <div class="workspace-topbar-start">
-          <button class="workspace-menu-toggle" id="workspaceMenuToggle" type="button" aria-controls="workspaceNavigationRail" aria-expanded="${workspaceNavCollapsed ? "false" : "true"}" aria-pressed="${workspaceNavCollapsed ? "true" : "false"}" aria-label="${workspaceNavCollapsed ? "Open menu" : "Close menu"}">
+    <section class="workspace-app workspace-v2-app" data-flow-frame="v2-from-scratch" data-primary-role="${escapeHtml(primaryRole)}" data-app-mode="${escapeHtml(activeWorkspaceMode)}" data-experience="${escapeHtml(experience)}" data-nav-state="${workspaceNavCollapsed ? "collapsed" : "expanded"}" data-view-as-student="${viewingAsStudent ? "active" : "inactive"}">
+      <header class="workspace-topbar workspace-v2-topbar" data-topbar-density="compact">
+        <div class="workspace-topbar-start workspace-v2-brandline">
+          <button class="workspace-menu-toggle workspace-v2-menu-toggle" id="workspaceMenuToggle" type="button" aria-controls="workspaceNavigationRail" aria-expanded="${workspaceNavCollapsed ? "false" : "true"}" aria-pressed="${workspaceNavCollapsed ? "true" : "false"}" aria-label="${workspaceNavCollapsed ? "Open menu" : "Close menu"}">
             <span class="workspace-menu-icon" aria-hidden="true"><span></span><span></span><span></span></span>
             <span class="workspace-menu-toggle-label">Menu</span>
           </button>
-          <a class="workspace-brand" href="index.html">
+          <a class="workspace-brand workspace-v2-brand" href="index.html">
             <span class="workspace-mark">SC</span>
-            <span class="workspace-abc-motif" aria-hidden="true"><span></span><span></span><span></span></span>
-            <span>${escapeHtml(studentExperience ? "My Capstone" : "Capstone App")}</span>
+            <span>${escapeHtml(studentExperience ? "My Capstone" : "Capstone")}</span>
           </a>
-          <div class="workspace-topbar-area" aria-label="Current area">
+          <div class="workspace-topbar-area workspace-v2-current" aria-label="Current area">
             <strong>${escapeHtml(areaName)}</strong>
             <span>${escapeHtml(sectionLabelForTopbar(sections, activeSection))}</span>
           </div>
         </div>
-        <div class="workspace-user">
-          <div class="workspace-topbar-center">
-            ${topbarContextControls}
-          </div>
+        <div class="workspace-user workspace-v2-user">
+          <details class="workspace-v2-tools" data-v2-tools="true">
+            <summary>Tools</summary>
+            <div class="workspace-topbar-center workspace-v2-tools-panel">
+              ${topbarContextControls}
+            </div>
+          </details>
           ${studentExperience ? "" : renderActiveRoleBadge(primaryRole, { readOnly: viewingAsStudent || roles.has("viewer") || Boolean(isAdminConsole && consoleCapabilities.readOnly) })}
           ${renderWorkspaceAccountMenu(areaName)}
         </div>
       </header>
-      <div class="workspace-content ${isAdminConsole ? "workspace-admin-console-content" : ""}">
-        <aside class="workspace-rail ${isAdminConsole ? "workspace-admin-console-rail" : ""}" id="workspaceNavigationRail" aria-label="${escapeHtml(areaName)} navigation" ${workspaceNavCollapsed ? 'hidden aria-hidden="true"' : ""}>
-          <div class="workspace-rail-drawer-header" data-workspace-rail-drawer-header="true">
-            <strong>${escapeHtml(`${areaName} menu`)}</strong>
-            <button class="workspace-button workspace-button-secondary workspace-button-small workspace-rail-close" id="workspaceRailClose" type="button">Close menu</button>
+      <main class="workspace-v2-stage" data-v2-stage="${escapeHtml(activeSection)}">
+        <aside class="workspace-rail workspace-v2-drawer ${isAdminConsole ? "workspace-admin-console-rail" : ""}" id="workspaceNavigationRail" aria-label="${escapeHtml(areaName)} navigation" ${workspaceNavCollapsed ? 'hidden aria-hidden="true"' : ""}>
+          <div class="workspace-rail-drawer-header workspace-v2-drawer-header" data-workspace-rail-drawer-header="true">
+            <strong>${escapeHtml(`Go to ${areaName}`)}</strong>
+            <button class="workspace-button workspace-button-secondary workspace-button-small workspace-rail-close" id="workspaceRailClose" type="button">Close</button>
           </div>
-          ${isAdminConsole ? renderWorkspaceRailAccessSummary({ isAdminConsole, primaryRole, consoleCapabilities }) : ""}
-          <nav class="workspace-tabs" aria-label="${escapeHtml(`${areaName} sections`)}">
-            ${renderWorkspaceNavigation(sections, { isAdminConsole })}
+          <nav class="workspace-tabs workspace-v2-drawer-list" aria-label="${escapeHtml(`${areaName} sections`)}">
+            ${renderV2Navigation(sections, { compact: false })}
           </nav>
-          ${isAdminConsole ? `
-            <section class="workspace-rail-card">
-              <p class="workspace-kicker">${escapeHtml(isAdminConsole ? "Mode" : "Next step")}</p>
-              <p>${escapeHtml(isAdminConsole ? adminConsoleRailNote(consoleCapabilities) : nextStepText())}</p>
-            </section>
-          ` : ""}
         </aside>
-        <div class="workspace-main ${isAdminConsole ? "workspace-admin-console-main" : ""}">
-          ${renderViewAsStudentBanner()}
-          ${statusMarkup}
-          ${isAdminConsole ? renderAdminConsoleHeader(consoleCapabilities, sections) : ""}
-          ${modeUnavailableNotice}
-          ${sectionUnavailableNotice}
-          ${activeSectionBeforeGuidance ? activeSectionMarkup : ""}
-          ${activeSectionBeforeGuidance ? "" : screenGuidance}
-          ${shellReadOnlyBanner}
-          ${activeSectionBeforeGuidance ? screenGuidance : activeSectionMarkup}
-        </div>
-      </div>
+        <nav class="workspace-v2-switcher" aria-label="${escapeHtml(`${areaName} screens`)}">
+          ${renderV2Navigation(sections, { compact: true })}
+        </nav>
+        ${renderViewAsStudentBanner()}
+        ${statusMarkup}
+        ${modeUnavailableNotice}
+        ${sectionUnavailableNotice}
+        ${renderV2ActiveScreen({
+          isAdminConsole,
+          studentExperience,
+          activeSection,
+          sections,
+          primaryRole,
+          roles,
+          blocked: renderBlockedSectionOnly,
+          supportMarkup,
+        })}
+      </main>
     </section>
   `;
 
@@ -1240,6 +1249,13 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   document.querySelector("#workspaceLogout")?.addEventListener("click", signOut);
   document.querySelectorAll("[data-workspace-disclosure-action]").forEach((button) => {
     button.addEventListener("click", handleWorkspaceDisclosureToggle);
+  });
+  document.querySelectorAll("[data-v2-support-open]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const panel = document.querySelector("[data-v2-support-panel]");
+      panel?.setAttribute("open", "");
+      panel?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+    });
   });
   document.querySelectorAll("[data-section]").forEach((button) => {
     button.addEventListener("click", () => openWorkspaceSection(button));
@@ -1264,6 +1280,319 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   flushPendingStudentRequirementFocus();
   flushPendingStudentSectionFocus();
   flushPendingStudentEvidenceFocus();
+}
+
+function renderV2Navigation(sections = [], options = {}) {
+  const compact = Boolean(options.compact);
+  return (sections || []).filter((section) => !section.hidden).map((section, index) => {
+    const active = section.id === activeSection;
+    return `
+      <button class="workspace-tab workspace-v2-step ${active ? "is-active" : ""}" data-section="${escapeHtml(section.id)}" data-v2-nav-index="${escapeHtml(String(index + 1))}" type="button" title="${escapeHtml(section.label)}" aria-label="${escapeHtml(`${section.label}: ${section.detail}`)}" ${active ? 'aria-current="page"' : ""}>
+        <span class="workspace-tab-short workspace-v2-step-number" aria-hidden="true">${escapeHtml(String(index + 1))}</span>
+        <strong>${escapeHtml(compact ? section.label : `${index + 1}. ${section.label}`)}</strong>
+        ${compact ? "" : `<span>${escapeHtml(section.detail || "Open this screen.")}</span>`}
+      </button>
+    `;
+  }).join("");
+}
+
+function renderV2SupportPanel({
+  activeSectionMarkup = "",
+  screenGuidance = "",
+  shellReadOnlyBanner = "",
+  isAdminConsole = false,
+  consoleCapabilities = adminConsoleCapabilitiesFor(currentUser),
+  sections = availableSections(),
+  renderBlockedSectionOnly = false,
+} = {}) {
+  const supportTitle = renderBlockedSectionOnly
+    ? "View access message"
+    : isAdminConsole ? "Open setup tools" : "Open supporting details";
+  const adminHeader = isAdminConsole && !renderBlockedSectionOnly
+    ? renderAdminConsoleHeader(consoleCapabilities, sections)
+    : "";
+  return `
+    <details class="workspace-v2-support" data-v2-support-panel="true">
+      <summary>
+        <span>${escapeHtml(supportTitle)}</span>
+        <small>${escapeHtml(isAdminConsole ? "Forms, lists, and audit details stay here until needed." : "Extra details stay closed until they help the next step.")}</small>
+      </summary>
+      <div class="workspace-v2-support-body">
+        ${adminHeader}
+        ${activeSectionMarkup}
+        ${shellReadOnlyBanner}
+        ${screenGuidance}
+      </div>
+    </details>
+  `;
+}
+
+function renderV2ActiveScreen({
+  isAdminConsole = false,
+  studentExperience = false,
+  activeSection: sectionId = activeSection,
+  sections = availableSections(),
+  primaryRole = primaryRoleForUser(currentUser),
+  roles = roleIds(currentUser),
+  blocked = false,
+  supportMarkup = "",
+} = {}) {
+  if (blocked) {
+    return `
+      <section class="workspace-v2-screen" data-v2-screen="blocked">
+        <div class="workspace-v2-hero">
+          <p class="workspace-v2-kicker">Not available</p>
+          <h1>This screen is not open for this account</h1>
+          <p>Use the available screens above. Access rules are unchanged.</p>
+        </div>
+        ${supportMarkup}
+      </section>
+    `;
+  }
+  const model = v2ScreenModel({ isAdminConsole, studentExperience, sectionId, sections, primaryRole, roles });
+  return `
+    <section class="workspace-v2-screen" data-v2-screen="${escapeHtml(model.id)}" aria-labelledby="workspaceV2Title">
+      <div class="workspace-v2-hero">
+        <p class="workspace-v2-kicker">${escapeHtml(model.kicker)}</p>
+        <h1 id="workspaceV2Title">${escapeHtml(model.title)}</h1>
+        <p>${escapeHtml(model.detail)}</p>
+        <div class="workspace-v2-primary-row">
+          ${model.primaryAction}
+          <span>${escapeHtml(model.primaryHint)}</span>
+        </div>
+      </div>
+      <div class="workspace-v2-path" aria-label="${escapeHtml(model.pathLabel)}">
+        ${model.steps.map((step, index) => `
+          <article data-v2-path-step="${escapeHtml(String(index + 1))}" class="${escapeHtml(index === 0 ? "current" : step.tone || "next")}">
+            <span>${escapeHtml(String(index + 1))}</span>
+            <strong>${escapeHtml(step.title)}</strong>
+            <small>${escapeHtml(step.detail)}</small>
+          </article>
+        `).join("")}
+      </div>
+      ${model.focusHtml}
+      ${supportMarkup}
+    </section>
+  `;
+}
+
+function v2ScreenModel({ isAdminConsole = false, studentExperience = false, sectionId = activeSection, sections = [], primaryRole = "student", roles = new Set() } = {}) {
+  if (studentExperience) return v2StudentScreenModel(sectionId);
+  if (isAdminConsole) return v2AdminScreenModel(sectionId, sections);
+  if (roles.has("mentor") || sectionId === "mentorDashboard" || sectionId === "mentor") return v2MentorScreenModel(sectionId);
+  if (sectionId === "teacher" || sectionId === "programDashboard") return v2TeacherScreenModel(sectionId);
+  if (roles.has("viewer")) return v2ViewerScreenModel(sectionId);
+  return v2StaffScreenModel(sectionId, primaryRole);
+}
+
+function v2PrimaryButton(label, attrs = "") {
+  return `<button class="workspace-button workspace-v2-primary" type="button" ${attrs}>${escapeHtml(label)}</button>`;
+}
+
+function v2SupportButton(label) {
+  return v2PrimaryButton(label, 'data-v2-support-open="true"');
+}
+
+function v2SectionButton(label, sectionId) {
+  return v2PrimaryButton(label, `data-section="${escapeHtml(sectionId)}"`);
+}
+
+function v2PathSteps(first = "Choose the item", second = "Do the work", third = "Confirm the result") {
+  return [
+    { title: first, detail: "Start with one item only.", tone: "current" },
+    { title: second, detail: "Use the focused tool for that item.", tone: "next" },
+    { title: third, detail: "Return here when the saved result is visible.", tone: "done" },
+  ];
+}
+
+function v2StudentScreenModel(sectionId = activeSection) {
+  const isWork = sectionId === "studentWork";
+  const isFeedback = sectionId === "studentFeedback";
+  const isFinal = sectionId === "studentFinalChecklist";
+  return {
+    id: `student-${sectionId}`,
+    kicker: "Student path",
+    title: isWork ? "Finish the next capstone item" : isFeedback ? "Read the note and fix one thing" : isFinal ? "Check the final package" : "What do I do next?",
+    detail: isWork
+      ? "Your work screen opens on one requirement at a time. Extra progress details stay closed."
+      : isFeedback
+        ? "Start with feedback that asks for action, then return to the matching work item."
+        : isFinal
+          ? "Use this only when the required work and evidence are ready."
+          : "This view keeps the next action first so you do not have to decode the app.",
+    primaryAction: isWork ? v2SupportButton("Open current item") : isFeedback ? v2SupportButton("Open feedback") : isFinal ? v2SupportButton("Open final checklist") : v2SectionButton("Open My Work", "studentWork"),
+    primaryHint: isWork ? "One item at a time" : isFeedback ? "Action notes first" : isFinal ? "Final readiness only" : "Starts the next required step",
+    pathLabel: "Student capstone path",
+    steps: v2PathSteps("Find the next action", "Open one item", "Submit or revise"),
+    focusHtml: `
+      <section class="workspace-v2-focus-strip">
+        <strong>Progress, rubrics, and older notes stay out of the way.</strong>
+        <span>Open supporting details only when the next action needs them.</span>
+      </section>
+    `,
+  };
+}
+
+function v2MentorScreenModel(sectionId = activeSection) {
+  return {
+    id: `mentor-${sectionId}`,
+    kicker: "Mentor flow",
+    title: sectionId === "mentor" ? "Work with one assigned student" : "Choose the student who needs you next",
+    detail: "Mentor work starts with the assigned student list, then moves into one detail view and one follow-up action.",
+    primaryAction: sectionId === "mentor" ? v2SupportButton("Open student detail") : v2SectionButton("Open assigned students", "mentor"),
+    primaryHint: "Assigned students only",
+    pathLabel: "Mentor support path",
+    steps: v2PathSteps("Choose one student", "Review their latest work", "Record the next follow-up"),
+    focusHtml: `
+      <section class="workspace-v2-focus-strip">
+        <strong>Mentor view is scoped to assigned students.</strong>
+        <span>Meeting history and notes stay behind the selected student detail.</span>
+      </section>
+    `,
+  };
+}
+
+function v2TeacherScreenModel(sectionId = activeSection) {
+  return {
+    id: `teacher-${sectionId}`,
+    kicker: "Teacher review",
+    title: sectionId === "teacher" ? "Review one student submission" : "Pick the review that needs attention",
+    detail: "Teachers move from queue to student work to decision, without starting from metrics or system status.",
+    primaryAction: sectionId === "teacher" ? v2SupportButton("Open selected work") : v2SectionButton("Open review queue", "teacher"),
+    primaryHint: "Review queue first",
+    pathLabel: "Teacher decision path",
+    steps: v2PathSteps("Pick the next review", "Read the student's work", "Approve or request revision"),
+    focusHtml: `
+      <section class="workspace-v2-focus-strip">
+        <strong>Decision work stays centered on one submission.</strong>
+        <span>Filters and history are supporting details, not the first screen.</span>
+      </section>
+    `,
+  };
+}
+
+function v2ViewerScreenModel(sectionId = activeSection) {
+  return {
+    id: `viewer-${sectionId}`,
+    kicker: "Read-only view",
+    title: "Check one student or report",
+    detail: "Viewer screens are read-only and start with what can be reviewed, not editing controls.",
+    primaryAction: sectionId === "students" ? v2SupportButton("Open student list") : v2SectionButton("Open students", "students"),
+    primaryHint: "No edit actions",
+    pathLabel: "Viewer path",
+    steps: v2PathSteps("Choose a student or report", "Review current status", "Share follow-up outside the app"),
+    focusHtml: `
+      <section class="workspace-v2-focus-strip">
+        <strong>Read-only boundary stays visible.</strong>
+        <span>Controls that change records remain unavailable for this role.</span>
+      </section>
+    `,
+  };
+}
+
+function v2StaffScreenModel(sectionId = activeSection, primaryRole = "staff") {
+  const isStudents = sectionId === "students";
+  const isReports = sectionId === "staffReports" || sectionId === "readiness";
+  return {
+    id: `staff-${sectionId}`,
+    kicker: roleLabel(primaryRole),
+    title: isStudents ? "Open one student record" : isReports ? "Check one report question" : "Start with the worklist",
+    detail: "Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful.",
+    primaryAction: isStudents ? v2SupportButton("Open student list") : isReports ? v2SupportButton("Open report") : v2SectionButton("Open students", "students"),
+    primaryHint: "One focused screen",
+    pathLabel: "Staff work path",
+    steps: v2PathSteps("Choose the next item", "Open the focused screen", "Take the allowed action"),
+    focusHtml: `
+      <section class="workspace-v2-focus-strip">
+        <strong>Daily work stays separate from setup tools.</strong>
+        <span>Use Tools only for school switching, search, or changing mode.</span>
+      </section>
+    `,
+  };
+}
+
+function v2AdminScreenModel(sectionId = activeSection, sections = []) {
+  const configs = {
+    overview: {
+      title: "Fix the first setup blocker",
+      detail: "Admin Console starts with the next setup issue, then moves to the exact fix and confirmation.",
+      action: availableSectionIdsForAnyMode().has("adminAssignments") ? v2SectionButton("Open first fix", "adminAssignments") : v2SupportButton("Open setup tools"),
+      hint: "Issue to fix to confirmation",
+      steps: v2PathSteps("Find first blocker", "Open the matching fix", "Confirm it disappeared"),
+    },
+    adminPeople: {
+      title: "Fix one staff account",
+      detail: "Add or update one staff, mentor, viewer, teacher, or admin record for the selected school.",
+      action: v2SupportButton("Open staff tools"),
+      hint: "One account at a time",
+      steps: v2PathSteps("Choose staff record", "Make the allowed change", "Confirm access"),
+    },
+    adminStudents: {
+      title: "Fix one student record",
+      detail: "Start with one roster issue, then confirm the student appears in the right school and program.",
+      action: v2SupportButton("Open roster tools"),
+      hint: "Student setup only",
+      steps: v2PathSteps("Choose student", "Update roster details", "Confirm placement"),
+    },
+    adminAssignments: {
+      title: "Assign missing coverage",
+      detail: "Handle mentor coverage first, then viewer access, then Program Teacher coverage.",
+      action: v2SupportButton("Open assignment tools"),
+      hint: "Coverage before broad grants",
+      steps: v2PathSteps("Find the first coverage gap", "Use the matching assignment form", "Refresh and confirm"),
+    },
+    programs: {
+      title: "Set up one school program",
+      detail: "Add, remove, or confirm one program mapping before reviewing Program Teacher access.",
+      action: v2SupportButton("Open program tools"),
+      hint: "One program mapping",
+      steps: v2PathSteps("Confirm school", "Choose one program", "Confirm teacher coverage"),
+    },
+    adminImports: {
+      title: "Preview one CSV before saving",
+      detail: "Download the right template, preview validation, fix rows, then confirm only valid records.",
+      action: v2SupportButton("Open import tools"),
+      hint: "Preview before import",
+      steps: v2PathSteps("Choose template", "Preview rows", "Confirm valid records"),
+    },
+    adminReports: {
+      title: "Answer one operations question",
+      detail: "Reports are used after setup blockers are understood, not as the starting dashboard.",
+      action: v2SupportButton("Open report"),
+      hint: "Question first",
+      steps: v2PathSteps("Pick the question", "Review the matching report", "Open the fix if needed"),
+    },
+    audit: {
+      title: "Review one change trail",
+      detail: "Audit starts with a single change or actor, then expands only when more context is needed.",
+      action: v2SupportButton("Open audit trail"),
+      hint: "One trail at a time",
+      steps: v2PathSteps("Choose change trail", "Review details", "Confirm no follow-up"),
+    },
+  };
+  const config = configs[sectionId] || {
+    title: `Open ${sectionLabelForTopbar(sections, sectionId)}`,
+    detail: "Use this setup screen for one focused admin task.",
+    action: v2SupportButton("Open tools"),
+    hint: "Focused admin task",
+    steps: v2PathSteps(),
+  };
+  return {
+    id: `admin-${sectionId}`,
+    kicker: "Admin flow",
+    title: config.title,
+    detail: config.detail,
+    primaryAction: config.action,
+    primaryHint: config.hint,
+    pathLabel: "Admin setup path",
+    steps: config.steps,
+    focusHtml: `
+      <section class="workspace-v2-focus-strip">
+        <strong>Setup work moves issue, fix, confirmation.</strong>
+        <span>Reports, forms, and full lists stay closed until this screen needs them.</span>
+      </section>
+    `,
+  };
 }
 
 function sectionLabelForTopbar(sections = [], sectionId = activeSection) {
