@@ -1171,6 +1171,10 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     && !isAdminConsole
     && roles.has("viewer")
     && ["overview", "students", "staffReports"].includes(activeSection);
+  const staffAdminPrimarySection = !renderBlockedSectionOnly
+    && !isAdminConsole
+    && hasStaffAdminWorkspaceRole(roles)
+    && ["overview", "students", "teacher", "staffReports"].includes(activeSection);
   const primarySectionKind = !renderBlockedSectionOnly && studentExperience && activeSection === "student"
     ? "student"
     : !renderBlockedSectionOnly && roles.has("mentor") && activeSection === "mentorDashboard"
@@ -1181,13 +1185,21 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
           : activeSection === "staffReports"
             ? "viewer-reports"
             : "viewer"
-        : programTeacherPrimarySection
-          ? activeSection === "teacher"
-            ? "teacher"
-            : activeSection === "programDashboard"
-              ? "program-teacher-dashboard"
-              : "program-teacher"
-          : "";
+        : staffAdminPrimarySection
+          ? activeSection === "students"
+            ? "staff-students"
+            : activeSection === "teacher"
+              ? "staff-reviews"
+              : activeSection === "staffReports"
+                ? "staff-reports"
+                : "staff-admin"
+          : programTeacherPrimarySection
+            ? activeSection === "teacher"
+              ? "teacher"
+              : activeSection === "programDashboard"
+                ? "program-teacher-dashboard"
+                : "program-teacher"
+            : "";
   const primarySectionMarkup = primarySectionKind ? activeSectionMarkup : "";
   const supportMarkup = renderV2SupportPanel({
     activeSectionMarkup: primarySectionMarkup ? "" : activeSectionMarkup,
@@ -5705,6 +5717,7 @@ function renderStaffWorkspaceTodaySection() {
       </div>
       ${model.roles?.has("program_teacher") ? renderProgramTeacherTodayPlan(model) : ""}
       ${model.roles?.has("viewer") ? renderViewerReadOnlyTodayPlan(model) : ""}
+      ${hasStaffAdminWorkspaceRole(model.roles) ? renderStaffAdminTodayPlan(model) : ""}
       ${renderStaffWorkspaceStartHere(model, primaryQueue)}
       ${renderStaffNoAssignmentState(model)}
       <div class="workspace-staff-attention-layout workspace-staff-flow-layout" data-staff-flow-layout="true">
@@ -5718,6 +5731,99 @@ function renderStaffWorkspaceTodaySection() {
         scope: model.scope,
       }) : ""}
     </section>
+  `;
+}
+
+function hasStaffAdminWorkspaceRole(roles = roleIds(currentUser)) {
+  return Boolean(roles?.has?.("administration") || roles?.has?.("site_admin") || hasGlobalAdminRole(roles));
+}
+
+function renderStaffAdminTodayPlan(model = {}) {
+  const sections = availableSectionIdsForAnyMode();
+  const counts = model.counts || {};
+  const reviewCount = safeNumber(counts.needsReview);
+  const supportCount = safeNumber(counts.needsHelp);
+  const setupCount = safeNumber(counts.missingSetup);
+  const total = safeNumber(counts.total);
+  const firstStudentPreset = supportCount ? "behind-students" : reviewCount ? "submitted-students" : "all-students";
+  const cards = [
+    {
+      id: "student-group",
+      title: "Choose one student group",
+      value: reviewCount + supportCount || total,
+      detail: "Start with visible students who need review, feedback, setup, or follow-up.",
+      section: "students",
+      preset: firstStudentPreset,
+      action: "Open students",
+      tone: reviewCount || supportCount ? "warning" : "ready",
+    },
+    {
+      id: "review-work",
+      title: "Route review work",
+      value: reviewCount,
+      detail: "Open Review Work only when this role can see review rows for the selected school.",
+      section: "teacher",
+      preset: "submitted",
+      action: "Open reviews",
+      tone: reviewCount ? "teacher" : "quiet",
+    },
+    {
+      id: "setup-access",
+      title: "Fix setup and access",
+      value: setupCount,
+      detail: "Use account, mentor, viewer, or final-file setup screens after the daily student need is clear.",
+      section: "adminUsers",
+      action: "Open setup",
+      tone: setupCount ? "danger" : "ready",
+    },
+    {
+      id: "reports",
+      title: "Use reports for a question",
+      value: total,
+      detail: "Open reports after you know which count you need to confirm or export.",
+      section: "staffReports",
+      action: "Open reports",
+      tone: "ready",
+    },
+  ];
+  return `
+    <section class="workspace-staff-admin-plan" data-staff-admin-today-plan="true" aria-labelledby="staffAdminPlanTitle">
+      <div class="workspace-staff-admin-plan-head">
+        <div>
+          <p class="workspace-kicker">${escapeHtml(staffWorkspaceAdminPlanKicker(model.roles))}</p>
+          <h3 id="staffAdminPlanTitle">Daily support before setup work</h3>
+          <p>Open one student group first, then use reviews, setup, or reports only when that path answers the current problem.</p>
+        </div>
+        <span class="workspace-summary-badge">${escapeHtml(total)} visible students</span>
+      </div>
+      <div class="workspace-staff-admin-plan-grid">
+        ${cards.map((card) => renderStaffAdminTodayPlanCard(card, sections)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function staffWorkspaceAdminPlanKicker(roles = roleIds(currentUser)) {
+  if (hasGlobalAdminRole(roles)) return "Global Admin plan";
+  if (roles?.has?.("site_admin")) return "Site Admin plan";
+  if (roles?.has?.("administration")) return "School Admin plan";
+  return "Staff plan";
+}
+
+function renderStaffAdminTodayPlanCard(card = {}, sections = availableSectionIdsForAnyMode()) {
+  const section = card.section || "";
+  const actionHtml = section && sections.has(section)
+    ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(section)}" ${card.preset ? `data-section-preset="${escapeHtml(card.preset)}"` : ""}>${escapeHtml(card.action || "Open")}</button>`
+    : `<span class="workspace-summary-badge">Use allowed screen</span>`;
+  return `
+    <article class="workspace-staff-admin-plan-card ${escapeHtml(card.tone || "quiet")}" data-staff-admin-plan-card="${escapeHtml(card.id || "plan")}">
+      <div>
+        <span>${escapeHtml(String(card.value ?? 0))}</span>
+        <strong>${escapeHtml(card.title || "Staff step")}</strong>
+        <p>${escapeHtml(card.detail || "")}</p>
+      </div>
+      ${actionHtml}
+    </article>
   `;
 }
 

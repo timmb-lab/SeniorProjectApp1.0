@@ -645,6 +645,16 @@ test("workspace defaults to workflow landings instead of role profiles", async (
   assert.match(viewerLanding, /data-viewer-readonly-plan-card="boundary"[\s\S]*No edit action/);
   assert.doesNotMatch(viewerLanding, /data-review-decision="approved"|data-mentor-assignment-form="true"|data-admin-action="import-users"/);
 
+  const siteAdminLanding = await renderWorkspaceWithFetch(profileRoutesForRole("site_admin"));
+  assert.match(siteAdminLanding, /data-v2-primary-surface="staff-admin"[\s\S]*data-staff-workspace-today="true"/);
+  assertMarkupOrder(siteAdminLanding, 'data-v2-primary-surface="staff-admin"', 'data-v3-start-state="true"', "site admin landing should show the real staff worklist before shared shell guidance");
+  assert.match(siteAdminLanding, /data-staff-admin-today-plan="true"/);
+  assert.match(siteAdminLanding, /Daily support before setup work/);
+  assert.match(siteAdminLanding, /data-staff-admin-plan-card="student-group"[\s\S]*data-section="students"/);
+  assert.match(siteAdminLanding, /data-staff-admin-plan-card="review-work"[\s\S]*data-section="teacher" data-section-preset="submitted"/);
+  assert.match(siteAdminLanding, /data-staff-admin-plan-card="setup-access"/);
+  assert.match(siteAdminLanding, /data-staff-admin-plan-card="reports"[\s\S]*data-section="staffReports"/);
+
   const hiddenProfile = await renderWorkspaceWithFetch(profileRoutesForRole("global_admin"), "profile");
   assert.match(hiddenProfile, /data-role-profile="global_admin"/);
   assert.match(hiddenProfile, /Global Admin guide/);
@@ -7198,11 +7208,14 @@ test("workspace exposes a real admin site switcher and collapsible navigation", 
   assert.match(workspaceJs, /primarySectionKind[\s\S]*"student"/);
   assert.match(workspaceJs, /viewerPrimarySection/);
   assert.match(workspaceJs, /renderViewerReadOnlyTodayPlan/);
+  assert.match(workspaceJs, /staffAdminPrimarySection/);
+  assert.match(workspaceJs, /renderStaffAdminTodayPlan/);
   assert.match(workspaceJs, /programTeacherPrimarySection/);
   assert.match(workspaceJs, /renderProgramTeacherTodayPlan/);
   assert.match(workspaceJs, /data-v2-primary-surface="\$\{escapeHtml\(primarySectionKind \|\| "primary"\)\}"/);
   assert.match(workspaceCss, /\.workspace-v2-primary-surface\s*\{[\s\S]*border-top:\s*1px solid var\(--v2-line\);/);
   assert.match(workspaceCss, /\.workspace-viewer-readonly-plan\s*\{[\s\S]*border-left:\s*5px solid var\(--abc-teal\);/);
+  assert.match(workspaceCss, /\.workspace-staff-admin-plan\s*\{[\s\S]*border-left:\s*5px solid var\(--abc-amber\);/);
   assert.match(workspaceCss, /\.workspace-program-teacher-plan\s*\{[\s\S]*border-left:\s*5px solid var\(--abc-blue\);/);
 });
 
