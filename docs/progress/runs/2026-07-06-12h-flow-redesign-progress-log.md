@@ -5,6 +5,64 @@ Branch: `main`
 Prompt: flow-first UI/UX rebirth
 Scope: SeniorProjectApp only; `C:\Curriculum` is out of scope.
 
+## 2026-07-06 17:08 PT - Stage 08/09 Admin Reports Flow Checkpoint
+
+Current SHA before Stage 08/09 reports commit: `9d067fc7accecdefb81775edb33216922a6a96c7`
+
+Files changed:
+
+- `workspace.js`
+- `workspace.css`
+- `tests/workspace-app.test.mjs`
+- `scripts/prove-workspace-ui-polish.mjs`
+- `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- `docs/sales/screenshots/2026-07-06-flow-redesign/35-admin-reports.png`
+- `docs/sales/screenshots/2026-07-06-flow-redesign/42-mobile-admin-reports.png`
+- `docs/progress/runs/2026-07-06-12h-flow-redesign-progress-log.md`
+
+Tests and checks run:
+
+- `node --check workspace.js`
+- `node --check scripts\prove-workspace-ui-polish.mjs`
+- `node --test tests\workspace-app.test.mjs` - 114/114 passed
+- `npm run prove:workspace-ui-polish` with `WORKSPACE_UI_POLISH_SCREENSHOT_DIR=docs/sales/screenshots/2026-07-06-flow-redesign` and `WORKSPACE_UI_POLISH_MANIFEST_PATH=docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- `git diff --check`
+- `npm run check:workspace-mobile`
+- `npm run check:workspace-accessibility`
+- `npm run verify:permission-matrix`
+- `npm run check:pilot-readiness` - preserved `NO_GO_REAL_STUDENT_PILOT` with five required manual proof manifests still missing
+
+Screenshot/proof status:
+
+- Manifest: `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- Screenshot count: 47
+- Screenshot verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Failures: 0
+- Manually inspected `35-admin-reports.png` and `42-mobile-admin-reports.png`; both now open on a report-picker flow instead of the scope/metric card wall.
+- Boundary: local fake-account UI proof only. Real-student production status remains `NOT_CLAIMED_READY`.
+
+Finished:
+
+- Rebuilt Admin Reports from a first-viewport operational dashboard into a report-choice flow.
+- Put "Pick the report you need now" and roster completeness before secondary diagnostics.
+- Kept report-safe CSV generation, scoped rows, denominator confidence copy, and zero-row disabled states intact.
+- Moved current scope, metrics, setup readiness, and coverage bars behind a collapsed supporting-details disclosure.
+- Added CSS for the new report-choice rows and responsive stacking.
+- Updated tests and screenshot proof expectations so Admin Reports must show the report picker first and must not show the old current-scope/students-shown metric wall in the first proof text.
+
+Remaining:
+
+- Stage 08/09 still needs broader Admin Console cleanup for Audit, Admin Students, Assignments, Programs, and Users & Access screens that retain dense operational panels.
+- Audit is the next strongest target because it still opens with overview cards, quick filters, saved filters, anomaly panels, and the recent audit list on one screen.
+- Real-student pilot remains `NO_GO_REAL_STUDENT_PILOT` pending required manual/policy evidence.
+
+Blockers:
+
+- None for this stage.
+- The all-day 12-hour minimum is not complete and must not be claimed complete.
+
+Block type: active checkpoint.
+
 ## 2026-07-06 16:24 PT - Stage 06 Viewer Students Flow Checkpoint
 
 Current SHA before Stage 06 viewer commit: `6905419764ee64b3580866cce07a1d91383a0d52`

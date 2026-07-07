@@ -5625,30 +5625,96 @@ function renderAdminUsersSectionForView(view = "manage-students") {
 function renderAdminReportsSection() {
   const capabilities = adminConsoleCapabilitiesFor(currentUser);
   const model = adminConsoleOperationsModel(capabilities);
+  const exports = adminReportExportSpecs(model);
   return `
     <section class="workspace-admin-reports" data-admin-reports="true" aria-labelledby="adminReportsTitle">
       ${renderAdminSectionHeader({
         kicker: "Reports",
-        title: "Operational Reports",
+        title: "Choose one report",
         id: "adminReportsTitle",
-        detail: "Roster, review, setup, and readiness counts for the current view.",
+        detail: "Start with one report, then open setup work only when the numbers point to it.",
         badge: "Report-safe fields",
       })}
-      ${renderAdminReportScopeNotice(model.report, capabilities)}
-      <div class="workspace-admin-console-metrics">
-        ${renderAdminConsoleMetrics(capabilities)}
-      </div>
-      ${renderAdminSetupReadinessPanel(model.setupReadiness)}
-      ${renderAdminOperationalReportSummary(model.report)}
-      ${renderReportExportPanel({
-        id: "admin",
-        title: "Admin CSV downloads",
-        detail: "Exports are generated from the current authorized admin view and include only report-safe fields.",
-        exports: adminReportExportSpecs(model),
-      })}
+      ${renderAdminReportChoiceFlow(model, capabilities, exports)}
+      <details class="workspace-admin-supporting-disclosure workspace-admin-report-supporting" data-admin-report-supporting="numbers">
+        <summary>
+          <span class="workspace-kicker">Supporting details</span>
+          <strong>Show scope, setup, and coverage numbers</strong>
+        </summary>
+        ${renderAdminReportScopeNotice(model.report, capabilities)}
+        <div class="workspace-admin-console-metrics workspace-admin-report-metrics" data-admin-report-metrics="true">
+          ${renderAdminConsoleMetrics(capabilities)}
+        </div>
+        ${renderAdminSetupReadinessPanel(model.setupReadiness)}
+        ${renderAdminOperationalReportSummary(model.report)}
+      </details>
       ${availableSectionIdsForAnyMode().has("readiness") ? renderReadinessSection() : ""}
     </section>
   `;
+}
+
+function renderAdminReportChoiceFlow(model = adminConsoleOperationsModel(), capabilities = adminConsoleCapabilitiesFor(currentUser), exports = []) {
+  const safeExports = (Array.isArray(exports) ? exports : []).filter(Boolean);
+  return `
+    <section class="workspace-admin-report-choice-flow" data-admin-report-choice-flow="true" data-report-export-panel="admin" aria-labelledby="adminReportChoiceTitle">
+      <div class="workspace-admin-report-choice-head">
+        <div>
+          <p class="workspace-kicker">Report path</p>
+          <h3 id="adminReportChoiceTitle">Pick the report you need now</h3>
+          <p>Use roster completeness first. If a row needs work, move to setup issues or the linked setup screen.</p>
+        </div>
+      </div>
+      <p class="workspace-report-confidence-note" data-report-confidence-note="admin">
+        Percentages name their denominator, zero-row exports stay disabled, and unknown states are not counted as complete.
+      </p>
+      <div class="workspace-admin-report-choice-list" data-admin-report-choice-list="true">
+        ${safeExports.map((spec, index) => renderAdminReportChoiceRow(spec, index, model, capabilities)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderAdminReportChoiceRow(spec = {}, index = 0, model = adminConsoleOperationsModel(), capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  const id = spec.id || "report";
+  const title = spec.title || "Report export";
+  const count = Array.isArray(spec.rows) ? spec.rows.length : 0;
+  const isPrimary = index === 0;
+  const setupIssues = safeNumber(model?.report?.setupIssueCount) + safeNumber(model?.report?.importIssueCount);
+  const helper = id === "admin-roster-completeness"
+    ? `${safeNumber(model?.report?.loadedStudentRows || model?.report?.studentTotal)} roster rows in the current authorized view.`
+    : id === "admin-setup-issues"
+      ? `${setupIssues} setup or import issue${setupIssues === 1 ? "" : "s"} need review.`
+      : "Appears after a CSV preview or import result exists.";
+  const linkedAction = id === "admin-setup-issues" && availableSectionIdsForAnyMode().has("overview")
+    ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="overview">View setup issues</button>`
+    : "";
+  return `
+    <article class="workspace-admin-report-choice-row ${isPrimary ? "primary" : ""}" data-admin-report-choice="${escapeHtml(id)}" data-report-export-card="${escapeHtml(id)}">
+      <div>
+        <span>${escapeHtml(isPrimary ? "Start here" : "Then choose")}</span>
+        <strong>${escapeHtml(title)}</strong>
+        <p>${escapeHtml(spec.detail || "Download this report CSV.")}</p>
+        <small>${escapeHtml(helper)}</small>
+      </div>
+      <div class="workspace-admin-report-choice-actions">
+        <span class="workspace-summary-badge">${escapeHtml(String(count))} row${count === 1 ? "" : "s"}</span>
+        ${renderAdminReportChoiceAction(spec, isPrimary)}
+        ${linkedAction}
+      </div>
+    </article>
+  `;
+}
+
+function renderAdminReportChoiceAction(spec = {}, primary = false) {
+  const headers = Array.isArray(spec.headers) ? spec.headers : [];
+  const rows = Array.isArray(spec.rows) ? spec.rows : [];
+  const hasRows = headers.length && rows.length > 0;
+  const filename = spec.filename || `${spec.id || "report"}.csv`;
+  const label = primary ? "Download roster CSV" : "Download CSV";
+  if (!hasRows) {
+    return `<span class="workspace-summary-badge" data-report-export-empty="${escapeHtml(spec.id || "report")}">Awaiting report data</span>`;
+  }
+  return `<a class="workspace-button ${primary ? "workspace-button-primary" : "workspace-button-secondary"} workspace-button-small" data-report-export="${escapeHtml(spec.id || "report")}" href="${escapeHtml(csvDataHref(csvFromRows(headers, rows)))}" download="${escapeHtml(filename)}" aria-label="${escapeHtml(`Download ${spec.title || "report"} CSV`)}">${escapeHtml(label)}</a>`;
 }
 
 function renderAdminReportScopeNotice(report = {}, capabilities = adminConsoleCapabilitiesFor(currentUser)) {

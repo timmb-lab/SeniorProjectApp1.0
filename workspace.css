@@ -2723,6 +2723,86 @@ body[data-page="workspace"],
   gap: 0.75rem;
 }
 
+.workspace-admin-report-choice-flow {
+  display: grid;
+  gap: 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--abc-teal) 20%, white);
+  border-left: 5px solid var(--abc-teal);
+  border-radius: var(--radius-card);
+  background: #fff;
+  padding: 0.82rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.workspace-admin-report-choice-head,
+.workspace-admin-report-choice-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.workspace-admin-report-choice-head h3,
+.workspace-admin-report-choice-head p,
+.workspace-admin-report-choice-row p,
+.workspace-admin-report-choice-row small {
+  margin: 0;
+}
+
+.workspace-admin-report-choice-list {
+  display: grid;
+  gap: 0.58rem;
+}
+
+.workspace-admin-report-choice-row {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-card);
+  background: var(--surface-row);
+  padding: 0.72rem;
+  box-shadow: var(--shadow-row);
+}
+
+.workspace-admin-report-choice-row.primary {
+  border-color: color-mix(in srgb, var(--abc-blue) 28%, white);
+  background: color-mix(in srgb, var(--abc-soft-blue) 34%, white);
+}
+
+.workspace-admin-report-choice-row span,
+.workspace-admin-report-choice-row small {
+  color: var(--abc-muted);
+}
+
+.workspace-admin-report-choice-row > div:first-child > span {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.workspace-admin-report-choice-row strong {
+  display: block;
+  color: var(--abc-ink);
+  font-size: 1rem;
+}
+
+.workspace-admin-report-choice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  justify-content: flex-end;
+}
+
+.workspace-admin-report-supporting {
+  margin-top: 0.1rem;
+}
+
+.workspace-admin-report-supporting .workspace-admin-report-scope,
+.workspace-admin-report-supporting .workspace-admin-report-metrics,
+.workspace-admin-report-supporting .workspace-admin-setup-readiness,
+.workspace-admin-report-supporting .workspace-admin-report-summary {
+  margin-top: 0.65rem;
+}
+
 .workspace-report-confidence-note {
   border: 1px solid color-mix(in srgb, var(--abc-teal) 24%, white);
   border-radius: var(--radius-card);
@@ -10871,6 +10951,8 @@ button.workspace-metric-tile,
   .workspace-student-screen-header,
   .workspace-student-action-summary,
   .workspace-admin-flow,
+  .workspace-admin-report-choice-head,
+  .workspace-admin-report-choice-row,
   .workspace-admin-console-overview-layout,
   .workspace-admin-setup-readiness-list,
   .workspace-admin-console-safety-strip,
