@@ -375,3 +375,22 @@
   - `npm run verify:dashboard-actions`: PASS
   - `git diff --check`: PASS with line-ending warnings only
 - Real work continues before 3PM: YES
+
+## Browser Proof Refresh 05
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `78`
+- Mobile screenshots: `32`
+- Failures: `0`
+- Started: `2026-07-07T15:52:30.274Z`
+- Completed: `2026-07-07T15:59:56.182Z`
+- Visual spot checks:
+  - `48-site-admin-today-phone.png`: secondary plan grid begins with review work instead of repeating the student support route.
+  - `30-mobile-mentor-today.png`: secondary plan grid begins with one assigned student instead of repeating the Mentor Dashboard route.
+  - `49-program-teacher-today-phone.png`: secondary plan grid begins with revision support instead of repeating the review route.
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES

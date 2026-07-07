@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:63357",
+  "baseUrl": "http://127.0.0.1:57528",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-07T15:41:10.610Z",
-  "completedAt": "2026-07-07T15:48:37.240Z",
+  "startedAt": "2026-07-07T15:52:30.274Z",
+  "completedAt": "2026-07-07T15:59:56.182Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:63357",
+    "baseUrl": "http://127.0.0.1:57528",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-07-07-v6-until-3pm",
@@ -163,7 +163,7 @@
         "finalFiles": false
       },
       "heading": "Start with the worklist",
-      "textSample": "Skip to workspace SC Capstone Staff Workspace Today Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reviews 4 Reports SITE ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen SITE ADMIN PLAN Daily support before setup work Open one student group first, then use reviews, setup, or reports only when that path answers the current problem. 250 visible students STUDENT SUPPORT ROUTE Choose one student group Start with visible students who need review, feedback, setup, or follow-up. 102 Open students 102 Choose one student ",
+      "textSample": "Skip to workspace SC Capstone Staff Workspace Today Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reviews 4 Reports SITE ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen SITE ADMIN PLAN Daily support before setup work Open one student group first, then use reviews, setup, or reports only when that path answers the current problem. 250 visible students STUDENT SUPPORT ROUTE Choose one student group Start with visible students who need review, feedback, setup, or follow-up. 102 Open students 52 Route review work Op",
       "activeNav": [
         "Workspace",
         "1\n        1. Today\n        Students needing attention",
@@ -236,7 +236,7 @@
         "finalFiles": false
       },
       "heading": "Pick the review that needs attention",
-      "textSample": "Skip to workspace SC Capstone Staff Workspace Today Tools Program Teacher ROLE GQ Gray Quinn teacher-it-01@demo-staff.capstone.test 1 Today 2 Students 3 Reviews 4 Reports TEACHER REVIEW Pick the review that needs attention Teachers move from queue to student work to decision, without starting from metrics or system status. Open review queue Review queue first PROGRAM TEACHER PLAN Review decisions before reports Start with student work that changes a next step, then use support lists only when the decision queue is clear. 71 visible students REVIEW ROUTE Review decisions first Open submitted work and save one clear decision before checking reports. 25 Open Review Work 25 Review decisions firs",
+      "textSample": "Skip to workspace SC Capstone Staff Workspace Today Tools Program Teacher ROLE GQ Gray Quinn teacher-it-01@demo-staff.capstone.test 1 Today 2 Students 3 Reviews 4 Reports TEACHER REVIEW Pick the review that needs attention Teachers move from queue to student work to decision, without starting from metrics or system status. Open review queue Review queue first PROGRAM TEACHER PLAN Review decisions before reports Start with student work that changes a next step, then use support lists only when the decision queue is clear. 71 visible students REVIEW ROUTE Review decisions first Open submitted work and save one clear decision before checking reports. 25 Open Review Work 16 Students fixing chang",
       "activeNav": [
         "Workspace",
         "1\n        1. Today\n        Students needing attention",
@@ -451,7 +451,7 @@
         "finalFiles": false
       },
       "heading": "Check one student or report",
-      "textSample": "Skip to workspace SC Capstone Staff Workspace Today Tools Viewer READ-ONLY VV Valeria Viewer viewer.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reports READ-ONLY VIEW Check one student or report Viewer screens are read-only and start with what can be reviewed, not editing controls. Open students No edit actions VIEWER PLAN Read one record, then share outside the app Viewer work stays useful by narrowing to assigned students and keeping every action read-only. Read-only READ-ONLY ROUTE Open one assigned student Read the student's current status, files, feedback, presentation, and final-file context. 3 Open students 3 Open one assigned student Read the student's current st",
+      "textSample": "Skip to workspace SC Capstone Staff Workspace Today Tools Viewer READ-ONLY VV Valeria Viewer viewer.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reports READ-ONLY VIEW Check one student or report Viewer screens are read-only and start with what can be reviewed, not editing controls. Open students No edit actions VIEWER PLAN Read one record, then share outside the app Viewer work stays useful by narrowing to assigned students and keeping every action read-only. Read-only READ-ONLY ROUTE Open one assigned student Read the student's current status, files, feedback, presentation, and final-file context. 3 Open students 0 Monitor teacher follow-up Use review signals to know wh",
       "activeNav": [
         "1\n        1. Today\n        Students needing attention",
         "1\n        Today"
@@ -812,7 +812,7 @@
         "finalFiles": false
       },
       "heading": "Start with the worklist",
-      "textSample": "Skip to workspace Menu SC Capstone Staff Workspace Today Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test SITE ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen SITE ADMIN PLAN Daily support before setup work Open one student group first, then use reviews, setup, or reports only when that path answers the current problem. 250 visible students STUDENT SUPPORT ROUTE Choose one student group Start with visible students who need review, feedback, setup, or follow-up. 102 Open students 102 Choose one student group Start with visible students ",
+      "textSample": "Skip to workspace Menu SC Capstone Staff Workspace Today Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test SITE ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen SITE ADMIN PLAN Daily support before setup work Open one student group first, then use reviews, setup, or reports only when that path answers the current problem. 250 visible students STUDENT SUPPORT ROUTE Choose one student group Start with visible students who need review, feedback, setup, or follow-up. 102 Open students 52 Route review work Open Review Work only when this role",
       "activeNav": [
         "Workspace",
         "1\n        1. Today\n        Students needing attention",
@@ -2107,7 +2107,7 @@
         "finalFiles": false
       },
       "heading": "Start with the worklist",
-      "textSample": "Skip to workspace SC Capstone Staff Workspace Today Tools Administration ROLE AS Avery School Admin administration.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reports SCHOOL ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen SCHOOL ADMIN PLAN Daily support before setup work Open one student group first, then use reviews, setup, or reports only when that path answers the current problem. 250 visible students STUDENT SUPPORT ROUTE Choose one student group Start with visible students who need review, feedback, setup, or follow-up. 64 Open students 64 Choose one",
+      "textSample": "Skip to workspace SC Capstone Staff Workspace Today Tools Administration ROLE AS Avery School Admin administration.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reports SCHOOL ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen SCHOOL ADMIN PLAN Daily support before setup work Open one student group first, then use reviews, setup, or reports only when that path answers the current problem. 250 visible students STUDENT SUPPORT ROUTE Choose one student group Start with visible students who need review, feedback, setup, or follow-up. 64 Open students 14 Route revi",
       "activeNav": [
         "Workspace",
         "1\n        1. Today\n        Students needing attention",
@@ -2180,7 +2180,7 @@
         "finalFiles": false
       },
       "heading": "Start with the worklist",
-      "textSample": "Skip to workspace SC Capstone Staff Workspace Today Tools Global Admin ROLE PG Priya Global platform.admin@demo-staff.capstone.test 1 Today 2 Students 3 Reviews 4 Reports GLOBAL ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen GLOBAL ADMIN PLAN Daily support before setup work Open one student group first, then use reviews, setup, or reports only when that path answers the current problem. 250 visible students STUDENT SUPPORT ROUTE Choose one student group Start with visible students who need review, feedback, setup, or follow-up. 102 Open students 102 Choose one student group ",
+      "textSample": "Skip to workspace SC Capstone Staff Workspace Today Tools Global Admin ROLE PG Priya Global platform.admin@demo-staff.capstone.test 1 Today 2 Students 3 Reviews 4 Reports GLOBAL ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen GLOBAL ADMIN PLAN Daily support before setup work Open one student group first, then use reviews, setup, or reports only when that path answers the current problem. 250 visible students STUDENT SUPPORT ROUTE Choose one student group Start with visible students who need review, feedback, setup, or follow-up. 102 Open students 52 Route review work Open Rev",
       "activeNav": [
         "Workspace",
         "1\n        1. Today\n        Students needing attention",
@@ -2400,7 +2400,7 @@
         "finalFiles": false
       },
       "heading": "Choose the student who needs you next",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Mentor AF MENTOR FLOW Choose the student who needs you next Mentor work starts with the assigned student list, then moves into one detail view and one follow-up action. Open assigned students Assigned students only MENTOR PLAN Choose one assigned student first Mentor work starts with assigned students, then moves to meeting follow-up, presentation context, or reports only when that student needs it. 9 assigned students ASSIGNED-STUDENT ROUTE Open the assigned-student focus Start with assigned students who have meeting, stale-progress, presentation, or teacher-note signals. 5 Open Mentor Dashboard 5 Open the assigned-student focus Start with assigned s",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Mentor AF MENTOR FLOW Choose the student who needs you next Mentor work starts with the assigned student list, then moves into one detail view and one follow-up action. Open assigned students Assigned students only MENTOR PLAN Choose one assigned student first Mentor work starts with assigned students, then moves to meeting follow-up, presentation context, or reports only when that student needs it. 9 assigned students ASSIGNED-STUDENT ROUTE Open the assigned-student focus Start with assigned students who have meeting, stale-progress, presentation, or teacher-note signals. 5 Open Mentor Dashboard 9 Open one assigned student Use Assigned Students when ",
       "activeNav": [
         "1\n        1. Today\n        Students needing attention",
         "1\n        Today"
@@ -3713,7 +3713,7 @@
         "finalFiles": false
       },
       "heading": "Start with the worklist",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS SITE ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen SITE ADMIN PLAN Daily support before setup work Open one student group first, then use reviews, setup, or reports only when that path answers the current problem. 250 visible students STUDENT SUPPORT ROUTE Choose one student group Start with visible students who need review, feedback, setup, or follow-up. 102 Open students 102 Choose one student group Start with visible students who need review, feedback, setup, or follow-up. Open students 52 Route review work Open Revi",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS SITE ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen SITE ADMIN PLAN Daily support before setup work Open one student group first, then use reviews, setup, or reports only when that path answers the current problem. 250 visible students STUDENT SUPPORT ROUTE Choose one student group Start with visible students who need review, feedback, setup, or follow-up. 102 Open students 52 Route review work Open Review Work only when this role can see review rows for the selected school. Open reviews 250 Fix setup and access Use acco",
       "activeNav": [
         "Workspace",
         "1\n        1. Today\n        Students needing attention",
@@ -3780,7 +3780,7 @@
         "finalFiles": false
       },
       "heading": "Pick the review that needs attention",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Program Teacher GQ TEACHER REVIEW Pick the review that needs attention Teachers move from queue to student work to decision, without starting from metrics or system status. Open review queue Review queue first PROGRAM TEACHER PLAN Review decisions before reports Start with student work that changes a next step, then use support lists only when the decision queue is clear. 71 visible students REVIEW ROUTE Review decisions first Open submitted work and save one clear decision before checking reports. 25 Open Review Work 25 Review decisions first Open submitted work and save one clear decision before checking reports. Open Review Work 16 Students fixing ",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Program Teacher GQ TEACHER REVIEW Pick the review that needs attention Teachers move from queue to student work to decision, without starting from metrics or system status. Open review queue Review queue first PROGRAM TEACHER PLAN Review decisions before reports Start with student work that changes a next step, then use support lists only when the decision queue is clear. 71 visible students REVIEW ROUTE Review decisions first Open submitted work and save one clear decision before checking reports. 25 Open Review Work 16 Students fixing changes Read revision feedback and wait for the next student submission before approving. Read revisions 3 Missing p",
       "activeNav": [
         "Workspace",
         "1\n        1. Today\n        Students needing attention",
@@ -3847,7 +3847,7 @@
         "finalFiles": false
       },
       "heading": "Check one student or report",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Viewer VV READ-ONLY VIEW Check one student or report Viewer screens are read-only and start with what can be reviewed, not editing controls. Open students No edit actions VIEWER PLAN Read one record, then share outside the app Viewer work stays useful by narrowing to assigned students and keeping every action read-only. Read-only READ-ONLY ROUTE Open one assigned student Read the student's current status, files, feedback, presentation, and final-file context. 3 Open students 3 Open one assigned student Read the student's current status, files, feedback, presentation, and final-file context. Open students 0 Monitor teacher follow-up Use review signals ",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Viewer VV READ-ONLY VIEW Check one student or report Viewer screens are read-only and start with what can be reviewed, not editing controls. Open students No edit actions VIEWER PLAN Read one record, then share outside the app Viewer work stays useful by narrowing to assigned students and keeping every action read-only. Read-only READ-ONLY ROUTE Open one assigned student Read the student's current status, files, feedback, presentation, and final-file context. 3 Open students 0 Monitor teacher follow-up Use review signals to know when a Program Teacher or site team should act. Open roster 3 Watch support blockers Look for stuck students, mentor gaps, p",
       "activeNav": [
         "1\n        1. Today\n        Students needing attention",
         "1\n        Today"
@@ -3913,7 +3913,7 @@
         "finalFiles": false
       },
       "heading": "Start with the worklist",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Administration AS SCHOOL ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen SCHOOL ADMIN PLAN Daily support before setup work Open one student group first, then use reviews, setup, or reports only when that path answers the current problem. 250 visible students STUDENT SUPPORT ROUTE Choose one student group Start with visible students who need review, feedback, setup, or follow-up. 64 Open students 64 Choose one student group Start with visible students who need review, feedback, setup, or follow-up. Open students 14 Route review work Ope",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Administration AS SCHOOL ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen SCHOOL ADMIN PLAN Daily support before setup work Open one student group first, then use reviews, setup, or reports only when that path answers the current problem. 250 visible students STUDENT SUPPORT ROUTE Choose one student group Start with visible students who need review, feedback, setup, or follow-up. 64 Open students 14 Route review work Open Review Work only when this role can see review rows for the selected school. USE ALLOWED SCREEN 250 Fix setup and ac",
       "activeNav": [
         "Workspace",
         "1\n        1. Today\n        Students needing attention",
@@ -3980,7 +3980,7 @@
         "finalFiles": false
       },
       "heading": "Start with the worklist",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Global Admin PG GLOBAL ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen GLOBAL ADMIN PLAN Daily support before setup work Open one student group first, then use reviews, setup, or reports only when that path answers the current problem. 250 visible students STUDENT SUPPORT ROUTE Choose one student group Start with visible students who need review, feedback, setup, or follow-up. 102 Open students 102 Choose one student group Start with visible students who need review, feedback, setup, or follow-up. Open students 52 Route review work Ope",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Global Admin PG GLOBAL ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen GLOBAL ADMIN PLAN Daily support before setup work Open one student group first, then use reviews, setup, or reports only when that path answers the current problem. 250 visible students STUDENT SUPPORT ROUTE Choose one student group Start with visible students who need review, feedback, setup, or follow-up. 102 Open students 52 Route review work Open Review Work only when this role can see review rows for the selected school. Open reviews 250 Fix setup and access Us",
       "activeNav": [
         "Workspace",
         "1\n        1. Today\n        Students needing attention",

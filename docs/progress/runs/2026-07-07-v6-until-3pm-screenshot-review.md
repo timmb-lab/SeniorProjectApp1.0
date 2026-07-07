@@ -58,6 +58,7 @@ Source artifacts:
 - Admin Console pages should show their real section content before shared start-state guidance.
 - Student My Work, Feedback, and Final Checklist should show their actual route content before shared start-state guidance.
 - Admin page header overflow menus should name the section-specific action set rather than saying only `Actions`.
+- Role Today plans should not repeat the primary route card immediately in the secondary card grid.
 
 ## Refresh 02 Spot Checks
 
@@ -76,3 +77,9 @@ Source artifacts:
 - `68-mobile-admin-people.png`: Admin People now shows `More people actions` instead of a generic `Actions` button.
 - `17-people-access-landing.png`: desktop Admin People follows the same named action menu pattern.
 - `35-admin-reports.png`: Admin Reports remains green with the named report action menu.
+
+## Refresh 05 Spot Checks
+
+- `48-site-admin-today-phone.png`: the secondary grid starts with review work, not a second copy of the student support route.
+- `30-mobile-mentor-today.png`: the secondary grid starts with the assigned-student list, not a second copy of the Mentor Dashboard route.
+- `49-program-teacher-today-phone.png`: the secondary grid starts with revision support, not a second copy of the review route.
