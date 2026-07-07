@@ -635,6 +635,7 @@ test("workspace defaults to workflow landings instead of role profiles", async (
   assert.match(teacherLanding, /data-v2-primary-surface="program-teacher"[\s\S]*data-staff-workspace-today="true"/);
   assertMarkupOrder(teacherLanding, 'data-v2-primary-surface="program-teacher"', 'data-v3-start-state="true"', "program teacher landing should show real review work before shared shell guidance");
   assert.match(teacherLanding, /data-program-teacher-today-plan="true"/);
+  assertMarkupOrder(teacherLanding, 'data-program-teacher-today-plan="true"', 'id="staffWorkspaceTodayTitle"', "program teacher plan should lead before shared Staff Workspace header");
   assert.match(teacherLanding, /Review decisions before reports/);
   assert.match(teacherLanding, /data-program-teacher-primary-step="true"[\s\S]*data-today-primary-step="review"[\s\S]*data-section="teacher" data-section-preset="submitted"/);
   assert.match(teacherLanding, /data-program-teacher-plan-card="review"[\s\S]*data-section="teacher" data-section-preset="submitted"/);
@@ -645,6 +646,7 @@ test("workspace defaults to workflow landings instead of role profiles", async (
   assert.match(viewerLanding, /data-v2-primary-surface="viewer"[\s\S]*data-staff-workspace-today="true"/);
   assertMarkupOrder(viewerLanding, 'data-v2-primary-surface="viewer"', 'data-v3-start-state="true"', "viewer landing should show the real read-only queue before shared shell guidance");
   assert.match(viewerLanding, /data-viewer-readonly-plan="true"/);
+  assertMarkupOrder(viewerLanding, 'data-viewer-readonly-plan="true"', 'id="staffWorkspaceTodayTitle"', "viewer read-only plan should lead before shared Staff Workspace header");
   assert.match(viewerLanding, /Read one record, then share outside the app/);
   assert.match(viewerLanding, /data-viewer-readonly-primary-step="true"[\s\S]*data-today-primary-step="assigned-student"[\s\S]*data-section="students" data-section-preset="all-students"/);
   assert.match(viewerLanding, /data-viewer-readonly-plan-card="assigned-student"[\s\S]*data-section="students" data-section-preset="all-students"/);
@@ -655,6 +657,7 @@ test("workspace defaults to workflow landings instead of role profiles", async (
   assert.match(siteAdminLanding, /data-v2-primary-surface="staff-admin"[\s\S]*data-staff-workspace-today="true"/);
   assertMarkupOrder(siteAdminLanding, 'data-v2-primary-surface="staff-admin"', 'data-v3-start-state="true"', "site admin landing should show the real staff worklist before shared shell guidance");
   assert.match(siteAdminLanding, /data-staff-admin-today-plan="true"/);
+  assertMarkupOrder(siteAdminLanding, 'data-staff-admin-today-plan="true"', 'id="staffWorkspaceTodayTitle"', "staff admin plan should lead before shared Staff Workspace header");
   assert.match(siteAdminLanding, /Daily support before setup work/);
   assert.match(siteAdminLanding, /data-staff-admin-primary-step="true"[\s\S]*data-today-primary-step="student-group"[\s\S]*data-section="students"/);
   assert.match(siteAdminLanding, /data-staff-admin-plan-card="student-group"[\s\S]*data-section="students"/);

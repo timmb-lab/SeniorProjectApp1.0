@@ -5704,8 +5704,15 @@ function renderStaffWorkspaceTodaySection() {
   const model = staffWorkspaceAttentionModel();
   const todayTitle = staffWorkspaceTitle(model);
   const primaryQueue = staffWorkspacePrimaryQueue(model);
+  const rolePlanHtml = [
+    model.roles?.has("program_teacher") ? renderProgramTeacherTodayPlan(model) : "",
+    model.roles?.has("viewer") ? renderViewerReadOnlyTodayPlan(model) : "",
+    hasStaffAdminWorkspaceRole(model.roles) ? renderStaffAdminTodayPlan(model) : "",
+  ].filter(Boolean).join("");
+  const leadWithRolePlan = Boolean(rolePlanHtml);
   return `
     <section class="workspace-workflow-landing workspace-staff-today" data-staff-workspace-today="true" data-staff-attention-model="true" aria-labelledby="staffWorkspaceTodayTitle">
+      ${leadWithRolePlan ? rolePlanHtml : ""}
       <div class="workspace-card-head workspace-staff-today-head">
         <div>
           <p class="workspace-kicker">Staff Workspace</p>
@@ -5716,9 +5723,7 @@ function renderStaffWorkspaceTodaySection() {
           ${renderStaffPrimaryAction(model)}
         </div>
       </div>
-      ${model.roles?.has("program_teacher") ? renderProgramTeacherTodayPlan(model) : ""}
-      ${model.roles?.has("viewer") ? renderViewerReadOnlyTodayPlan(model) : ""}
-      ${hasStaffAdminWorkspaceRole(model.roles) ? renderStaffAdminTodayPlan(model) : ""}
+      ${leadWithRolePlan ? "" : rolePlanHtml}
       ${renderStaffWorkspaceStartHere(model, primaryQueue)}
       ${renderStaffNoAssignmentState(model)}
       <div class="workspace-staff-attention-layout workspace-staff-flow-layout" data-staff-flow-layout="true">

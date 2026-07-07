@@ -25,6 +25,7 @@
 - `2026-07-07 07:43:44 -07:00`: Completed V6 implementation slice 03, mentor shell language hardening. Replaced one visible "scoped" mentor shell sentence with plain assigned-student boundary language and added a regression assertion to keep that wording from returning.
 - `2026-07-07 07:45:21 -07:00`: Completed V6 implementation slice 04, CSV import outcome-first flow. Moved the latest preview outcome above the long import form after a preview exists, so admins see "fix this row first" or "confirm this import" before scrolling through file/text/note inputs. Detailed preview rows and error lists remain below the editable form.
 - `2026-07-07 07:47:04 -07:00`: Completed V6 implementation slice 05, report export boundary hardening. Added visible per-export boundary notes for staff, viewer, and admin CSV downloads and replaced one "authorized view" report helper with "current allowed view" language.
+- `2026-07-07 07:57:25 -07:00`: Completed V6 implementation slice 06 after visual proof review. V6 screenshots showed Program Teacher and Viewer phone still put the shared Staff Workspace header ahead of the role-specific plan. Reordered staff Today rendering so Program Teacher, Viewer, and staff-admin plans lead before the shared Staff Workspace header; mentors keep the existing header-first layout because they do not have a dedicated role plan block.
 
 ## Slice 01 - Mobile First-Viewport Hierarchy
 
@@ -132,5 +133,31 @@
   - `npm run verify:functionality-language`: PASS
   - `npm run check:workspace-mobile`: PASS
   - `npm run check:workspace-accessibility`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Real work continues before 3PM: YES
+
+## Slice 06 - Role Plan Before Shared Staff Header
+
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+  - `docs/progress/runs/2026-07-07-v6-until-3pm-checkpoints.md`
+- Visual finding:
+  - Fresh V6 screenshots passed but showed the role-specific Program Teacher and Viewer plans still started after the shared Staff Workspace title/action block on phone.
+- User-facing surfaces affected:
+  - Program Teacher Today
+  - Viewer Today
+  - Administration / Site Admin / Global Admin staff Today
+- Behavior changed:
+  - Dedicated role plan blocks now render before the shared Staff Workspace header when available.
+  - Mentor Today is unchanged because no dedicated mentor Today plan is rendered in this path.
+- RBAC/data impact: no permission, route, mutation, or API logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --test tests\workspace-app.test.mjs`: PASS, `115` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
   - `git diff --check`: PASS with line-ending warnings only
 - Real work continues before 3PM: YES
