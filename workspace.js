@@ -1167,17 +1167,27 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     && !isAdminConsole
     && roles.has("program_teacher")
     && ["overview", "teacher", "programDashboard"].includes(activeSection);
+  const viewerPrimarySection = !renderBlockedSectionOnly
+    && !isAdminConsole
+    && roles.has("viewer")
+    && ["overview", "students", "staffReports"].includes(activeSection);
   const primarySectionKind = !renderBlockedSectionOnly && studentExperience && activeSection === "student"
     ? "student"
     : !renderBlockedSectionOnly && roles.has("mentor") && activeSection === "mentorDashboard"
       ? "mentor"
-      : programTeacherPrimarySection
-        ? activeSection === "teacher"
-          ? "teacher"
-          : activeSection === "programDashboard"
-            ? "program-teacher-dashboard"
-            : "program-teacher"
-        : "";
+      : viewerPrimarySection
+        ? activeSection === "students"
+          ? "viewer-students"
+          : activeSection === "staffReports"
+            ? "viewer-reports"
+            : "viewer"
+        : programTeacherPrimarySection
+          ? activeSection === "teacher"
+            ? "teacher"
+            : activeSection === "programDashboard"
+              ? "program-teacher-dashboard"
+              : "program-teacher"
+          : "";
   const primarySectionMarkup = primarySectionKind ? activeSectionMarkup : "";
   const supportMarkup = renderV2SupportPanel({
     activeSectionMarkup: primarySectionMarkup ? "" : activeSectionMarkup,
@@ -5694,6 +5704,7 @@ function renderStaffWorkspaceTodaySection() {
         </div>
       </div>
       ${model.roles?.has("program_teacher") ? renderProgramTeacherTodayPlan(model) : ""}
+      ${model.roles?.has("viewer") ? renderViewerReadOnlyTodayPlan(model) : ""}
       ${renderStaffWorkspaceStartHere(model, primaryQueue)}
       ${renderStaffNoAssignmentState(model)}
       <div class="workspace-staff-attention-layout workspace-staff-flow-layout" data-staff-flow-layout="true">
@@ -5707,6 +5718,86 @@ function renderStaffWorkspaceTodaySection() {
         scope: model.scope,
       }) : ""}
     </section>
+  `;
+}
+
+function renderViewerReadOnlyTodayPlan(model = {}) {
+  const rows = Array.isArray(model.rows) ? model.rows : [];
+  const rowCountWithFlag = (flagKey) => rows.filter((row) => Array.isArray(row.attention) && row.attention.some((flag) => flag.key === flagKey)).length;
+  const sections = availableSectionIdsForAnyMode();
+  const reviewCount = safeNumber(model.counts?.needsReview) + rowCountWithFlag("revision");
+  const supportCount = safeNumber(model.counts?.needsHelp);
+  const total = safeNumber(model.counts?.total);
+  const cards = [
+    {
+      id: "assigned-student",
+      title: "Open one assigned student",
+      value: total,
+      detail: "Read the student's current status, files, feedback, presentation, and final-file context.",
+      section: "students",
+      preset: "all-students",
+      action: "Open students",
+      tone: "viewer",
+    },
+    {
+      id: "review-follow-up",
+      title: "Monitor teacher follow-up",
+      value: reviewCount,
+      detail: "Use review signals to know when a Program Teacher or site team should act.",
+      section: "students",
+      preset: reviewCount ? "submitted-students" : "all-students",
+      action: reviewCount ? "Open review signals" : "Open roster",
+      tone: reviewCount ? "warning" : "ready",
+    },
+    {
+      id: "support-blockers",
+      title: "Watch support blockers",
+      value: supportCount,
+      detail: "Look for stuck students, mentor gaps, presentation needs, or final-file blockers.",
+      section: "students",
+      preset: supportCount ? "behind-students" : "all-students",
+      action: supportCount ? "Open support rows" : "Open roster",
+      tone: supportCount ? "warning" : "ready",
+    },
+    {
+      id: "boundary",
+      title: "Share, do not edit",
+      value: "Read-only",
+      detail: "Use the student name and context in the approved staff channel. This role does not change records.",
+      tone: "quiet",
+    },
+  ];
+  return `
+    <section class="workspace-viewer-readonly-plan" data-viewer-readonly-plan="true" aria-labelledby="viewerReadOnlyPlanTitle">
+      <div class="workspace-viewer-readonly-plan-head">
+        <div>
+          <p class="workspace-kicker">Viewer plan</p>
+          <h3 id="viewerReadOnlyPlanTitle">Read one record, then share outside the app</h3>
+          <p>Viewer work stays useful by narrowing to assigned students and keeping every action read-only.</p>
+        </div>
+        <span class="workspace-chip" data-workspace-mode="read-only">Read-only</span>
+      </div>
+      <div class="workspace-viewer-readonly-plan-grid">
+        ${cards.map((card) => renderViewerReadOnlyTodayPlanCard(card, sections)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderViewerReadOnlyTodayPlanCard(card = {}, sections = availableSectionIdsForAnyMode()) {
+  const section = card.section || "";
+  const actionHtml = section && sections.has(section)
+    ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(section)}" ${card.preset ? `data-section-preset="${escapeHtml(card.preset)}"` : ""}>${escapeHtml(card.action || "Open")}</button>`
+    : `<span class="workspace-summary-badge">No edit action</span>`;
+  return `
+    <article class="workspace-viewer-readonly-plan-card ${escapeHtml(card.tone || "quiet")}" data-viewer-readonly-plan-card="${escapeHtml(card.id || "plan")}">
+      <div>
+        <span>${escapeHtml(String(card.value ?? 0))}</span>
+        <strong>${escapeHtml(card.title || "Viewer step")}</strong>
+        <p>${escapeHtml(card.detail || "")}</p>
+      </div>
+      ${actionHtml}
+    </article>
   `;
 }
 

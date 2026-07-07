@@ -636,6 +636,15 @@ test("workspace defaults to workflow landings instead of role profiles", async (
   assert.match(teacherLanding, /data-program-teacher-plan-card="revision"[\s\S]*data-section="teacher" data-section-preset="revision-requested"/);
   assert.match(teacherLanding, /data-program-teacher-plan-card="missing-work"[\s\S]*data-section="students" data-section-preset="missing-evidence-students"/);
 
+  const viewerLanding = await renderWorkspaceWithFetch(profileRoutesForRole("viewer"));
+  assert.match(viewerLanding, /data-v2-primary-surface="viewer"[\s\S]*data-staff-workspace-today="true"/);
+  assertMarkupOrder(viewerLanding, 'data-v2-primary-surface="viewer"', 'data-v3-start-state="true"', "viewer landing should show the real read-only queue before shared shell guidance");
+  assert.match(viewerLanding, /data-viewer-readonly-plan="true"/);
+  assert.match(viewerLanding, /Read one record, then share outside the app/);
+  assert.match(viewerLanding, /data-viewer-readonly-plan-card="assigned-student"[\s\S]*data-section="students" data-section-preset="all-students"/);
+  assert.match(viewerLanding, /data-viewer-readonly-plan-card="boundary"[\s\S]*No edit action/);
+  assert.doesNotMatch(viewerLanding, /data-review-decision="approved"|data-mentor-assignment-form="true"|data-admin-action="import-users"/);
+
   const hiddenProfile = await renderWorkspaceWithFetch(profileRoutesForRole("global_admin"), "profile");
   assert.match(hiddenProfile, /data-role-profile="global_admin"/);
   assert.match(hiddenProfile, /Global Admin guide/);
@@ -3518,6 +3527,8 @@ test("workspace renders route-connected student directory with filters and real 
   }, "students");
   assert.match(viewer, /data-workspace-mode="read-only"/);
   assert.match(viewer, /data-viewer-directory-flow="true"/);
+  assert.match(viewer, /data-v2-primary-surface="viewer-students"[\s\S]*data-viewer-directory-flow="true"/);
+  assertMarkupOrder(viewer, 'data-v2-primary-surface="viewer-students"', 'data-v3-start-state="true"', "viewer Students should show the read-only directory before shared shell guidance");
   assert.doesNotMatch(viewer, /data-current-site-summary="true"/);
   assert.match(viewer, /Read-only workspace/);
   assert.match(viewer, /Read-only rules/);
@@ -7185,10 +7196,13 @@ test("workspace exposes a real admin site switcher and collapsible navigation", 
   assert.match(workspaceCss, /\.workspace-v5-flow-board\s*\{[\s\S]*grid-template-columns:\s*minmax\(15rem,\s*0\.72fr\) minmax\(0,\s*1\.55fr\);/);
   assert.match(workspaceCss, /@media \(max-width: 900px\)[\s\S]*\.workspace-v5-flow-board\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
   assert.match(workspaceJs, /primarySectionKind[\s\S]*"student"/);
+  assert.match(workspaceJs, /viewerPrimarySection/);
+  assert.match(workspaceJs, /renderViewerReadOnlyTodayPlan/);
   assert.match(workspaceJs, /programTeacherPrimarySection/);
   assert.match(workspaceJs, /renderProgramTeacherTodayPlan/);
   assert.match(workspaceJs, /data-v2-primary-surface="\$\{escapeHtml\(primarySectionKind \|\| "primary"\)\}"/);
   assert.match(workspaceCss, /\.workspace-v2-primary-surface\s*\{[\s\S]*border-top:\s*1px solid var\(--v2-line\);/);
+  assert.match(workspaceCss, /\.workspace-viewer-readonly-plan\s*\{[\s\S]*border-left:\s*5px solid var\(--abc-teal\);/);
   assert.match(workspaceCss, /\.workspace-program-teacher-plan\s*\{[\s\S]*border-left:\s*5px solid var\(--abc-blue\);/);
 });
 
@@ -9681,8 +9695,13 @@ test("workspace renders role-pending and permission-denied access states", async
   assert.match(viewer, /Read-only workspace/);
   assert.doesNotMatch(viewer, /Read-only viewer/);
   assert.doesNotMatch(viewer, /workspace-product-header|data-rail-access-summary="full"/);
+  assert.match(viewer, /data-v2-primary-surface="viewer"[\s\S]*data-staff-workspace-today="true"/);
   assert.match(viewer, /data-staff-workspace-today="true"/);
   assert.match(viewer, /Viewer Workspace \/ Read-only/);
+  assert.match(viewer, /data-viewer-readonly-plan="true"/);
+  assert.match(viewer, /Read one record, then share outside the app/);
+  assert.match(viewer, /data-viewer-readonly-plan-card="assigned-student"[\s\S]*Open students/);
+  assert.match(viewer, /data-viewer-readonly-plan-card="boundary"[\s\S]*No edit action/);
   assert.match(viewer, /data-staff-start-here="true"/);
   assert.match(viewer, /data-staff-queue-student-row="true"/);
   assert.match(viewer, /data-staff-row-case-plan="true"[\s\S]*Who can help: Assigned staff[\s\S]*Next step: Use this row for context, then share the student name with authorized staff/);
