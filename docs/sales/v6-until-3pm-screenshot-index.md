@@ -1,6 +1,6 @@
 # V6 Until-3PM Screenshot Index
 
-Status: current V6 local fake-account browser proof captured after implementation slices 01-23.
+Status: current V6 local fake-account browser proof captured after implementation slices 01-24.
 
 Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
 
@@ -15,8 +15,8 @@ Counts:
 - Total screenshots captured: 78
 - Mobile screenshots captured: 32
 - Browser-proof failures: 0
-- Started: `2026-07-07T19:01:46.093Z`
-- Completed: `2026-07-07T19:09:28.558Z`
+- Started: `2026-07-07T19:13:17.064Z`
+- Completed: `2026-07-07T19:21:00.164Z`
 - Fake data only: `true`
 - Real-student production status: `NOT_CLAIMED_READY`
 
@@ -33,6 +33,7 @@ Counts:
 - Demo seed marker cleanup: `13-site-admin-student-detail-click`, `23-student-detail-phone`, `39-viewer-students-directory`, `46-mobile-viewer-students`, `61-site-admin-students-workspace`, `64-administration-students-workspace`, `66-global-admin-students-workspace`; manifest text samples containing `DEMO_SEED` or `seed`: `0`.
 - Named admin overflow actions: `17-people-access-landing`, `18-admin-students`, `33-admin-assignments`, `35-admin-reports`, `68-mobile-admin-people`, `69-admin-students-half-screen`, `70-mobile-admin-assignments`.
 - Admin People school-facing access copy cleanup: `17-people-access-landing`, `68-mobile-admin-people`; manifest text samples containing `inside the current view`: `0`; manifest text samples containing `global scope`: `0`.
+- Admin access summary wording cleanup: `17-people-access-landing`, `18-admin-students`, `68-mobile-admin-people`, `69-admin-students-half-screen`; manifest text samples containing `Allowed roles`, `Not available from this account`, or `Global Admin Not available`: `0`.
 - CSV import outcome-first flow: `19-csv-import-template`, `38-mobile-admin-imports`, `76-csv-import-preview-errors`, `77-mobile-csv-import-preview-errors`, `78-csv-import-access-error`.
 - CSV import visible-copy cleanup: manifest text samples containing `CSV help`, `Open import tools`, or `Guided setup flow`: `0`.
 - Report/export boundary hardening: `29-workspace-reports`, `35-admin-reports`, `42-mobile-admin-reports`, `63-site-admin-reports-phone`, `65-administration-reports-phone`, `67-global-admin-reports-phone`, `74-viewer-reports-desktop`.

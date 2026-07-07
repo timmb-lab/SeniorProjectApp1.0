@@ -1,6 +1,6 @@
 # 2026-07-07 V6 Until-3PM Screenshot Review
 
-Status: in progress; refreshed after slices 01-23.
+Status: in progress; refreshed after slices 01-24.
 
 Source artifacts:
 
@@ -178,3 +178,15 @@ Source artifacts:
 - `71-mobile-admin-programs.png`: Admin Programs now says `Program Teacher assignments`.
 - Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
 - Manifest scan: screenshot text samples containing `redacted rows`, `review rows`, `open stale rows`, or `assignment rows`: `0`.
+
+## Refresh 17 Spot Checks
+
+- Selected target: Admin People and Admin Students access summaries should say what this account can create and who owns Global Admin setup, instead of using generic `Allowed roles` and unavailable-account wording.
+- `17-people-access-landing.png`: Admin People now shows `CAN CREATE` and `PLATFORM OWNER Required for Global Admin accounts`.
+- `18-admin-students`: Admin Students keeps the same create/global-owner access summary.
+- `68-mobile-admin-people.png`: mobile Admin People keeps the new wording in the access block.
+- `69-admin-students-half-screen.png`: half-screen Admin Students keeps the same access-summary wording.
+- Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
+- Manifest scan: screenshot text samples containing `Allowed roles`, `Not available from this account`, or `Global Admin Not available`: `0`.
+- Manifest scan: screenshot text samples containing `loaded` or `unloaded`: `0`.
+- Manifest scan: screenshot text samples containing `global scope`: `0`.

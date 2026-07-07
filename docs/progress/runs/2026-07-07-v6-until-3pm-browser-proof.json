@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:56831",
+  "baseUrl": "http://127.0.0.1:57042",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-07T19:01:46.093Z",
-  "completedAt": "2026-07-07T19:09:28.558Z",
+  "startedAt": "2026-07-07T19:13:17.064Z",
+  "completedAt": "2026-07-07T19:21:00.164Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:56831",
+    "baseUrl": "http://127.0.0.1:57042",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-07-07-v6-until-3pm",
@@ -1313,7 +1313,7 @@
         "finalFiles": false
       },
       "heading": "Fix one staff account",
-      "textSample": "Skip to workspace SC Capstone Admin Console People Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports ADMIN FLOW Fix one staff account Add or update one staff, mentor, viewer, teacher, or admin record for the selected school. Open staff tools One account at a time PEOPLE Staff Directory Add and manage staff, mentors, viewers, Program Teachers, School Admins, and Site Admins for the selected school or every school this account can manage. School people access Add staff More people actions STAFF Manage Staff Add Staff ASSIGNMENTS Assignments ACCESS Desert Valley High School ALLOWE",
+      "textSample": "Skip to workspace SC Capstone Admin Console People Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports ADMIN FLOW Fix one staff account Add or update one staff, mentor, viewer, teacher, or admin record for the selected school. Open staff tools One account at a time PEOPLE Staff Directory Add and manage staff, mentors, viewers, Program Teachers, School Admins, and Site Admins for the selected school or every school this account can manage. School people access Add staff More people actions STAFF Manage Staff Add Staff ASSIGNMENTS Assignments ACCESS Desert Valley High School CAN CR",
       "activeNav": [
         "Admin Console",
         "2\n        2. People\n        Staff and account setup",
@@ -1388,7 +1388,7 @@
         "finalFiles": false
       },
       "heading": "Fix one student record",
-      "textSample": "Skip to workspace SC Capstone Admin Console Students Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports ADMIN FLOW Fix one student record Start with one roster issue, then confirm the student appears in the right school and program. Open roster tools Student setup only STUDENTS Student Roster Setup Review roster profile, school/program placement, mentor and viewer signals, then add one student when needed. Roster setup Add student More student actions STUDENTS Manage Students Add Student ASSIGNMENTS Assignments ACCESS Desert Valley High School ALLOWED ROLES Student, Mentor, View",
+      "textSample": "Skip to workspace SC Capstone Admin Console Students Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports ADMIN FLOW Fix one student record Start with one roster issue, then confirm the student appears in the right school and program. Open roster tools Student setup only STUDENTS Student Roster Setup Review roster profile, school/program placement, mentor and viewer signals, then add one student when needed. Roster setup Add student More student actions STUDENTS Manage Students Add Student ASSIGNMENTS Assignments ACCESS Desert Valley High School CAN CREATE Student, Mentor, Viewer,",
       "activeNav": [
         "Admin Console",
         "3\n        3. Students\n        Student roster setup",
@@ -5040,7 +5040,7 @@
         "finalFiles": false
       },
       "heading": "Fix one staff account",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS ADMIN FLOW Fix one staff account Add or update one staff, mentor, viewer, teacher, or admin record for the selected school. Open staff tools One account at a time PEOPLE Staff Directory Add and manage staff, mentors, viewers, Program Teachers, School Admins, and Site Admins for the selected school or every school this account can manage. School people access Add staff More people actions STAFF Manage Staff Add Staff ASSIGNMENTS Assignments ACCESS Desert Valley High School ALLOWED ROLES Student, Mentor, Viewer, Program Teacher, School Admin GLOBAL ADMIN Not available from this account MANAGE STAFF Current staff and support accounts Review",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS ADMIN FLOW Fix one staff account Add or update one staff, mentor, viewer, teacher, or admin record for the selected school. Open staff tools One account at a time PEOPLE Staff Directory Add and manage staff, mentors, viewers, Program Teachers, School Admins, and Site Admins for the selected school or every school this account can manage. School people access Add staff More people actions STAFF Manage Staff Add Staff ASSIGNMENTS Assignments ACCESS Desert Valley High School CAN CREATE Student, Mentor, Viewer, Program Teacher, School Admin PLATFORM OWNER Required for Global Admin accounts MANAGE STAFF Current staff and support accounts Revi",
       "activeNav": [
         "Admin Console",
         "2\n        2. People\n        Staff and account setup",
@@ -5108,7 +5108,7 @@
         "finalFiles": false
       },
       "heading": "Fix one student record",
-      "textSample": "Skip to workspace Menu SC Capstone Admin Console Students Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ADMIN FLOW Fix one student record Start with one roster issue, then confirm the student appears in the right school and program. Open roster tools Student setup only STUDENTS Student Roster Setup Review roster profile, school/program placement, mentor and viewer signals, then add one student when needed. Roster setup Add student More student actions STUDENTS Manage Students Add Student ASSIGNMENTS Assignments ACCESS Desert Valley High School ALLOWED ROLES Student, Mentor, Viewer, Program Teacher, School Admin GLOBAL ADMIN Not available from this ",
+      "textSample": "Skip to workspace Menu SC Capstone Admin Console Students Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ADMIN FLOW Fix one student record Start with one roster issue, then confirm the student appears in the right school and program. Open roster tools Student setup only STUDENTS Student Roster Setup Review roster profile, school/program placement, mentor and viewer signals, then add one student when needed. Roster setup Add student More student actions STUDENTS Manage Students Add Student ASSIGNMENTS Assignments ACCESS Desert Valley High School CAN CREATE Student, Mentor, Viewer, Program Teacher, School Admin PLATFORM OWNER Required for Global Admin",
       "activeNav": [
         "Admin Console",
         "3\n        3. Students\n        Student roster setup",
