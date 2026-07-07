@@ -4093,6 +4093,43 @@ test("workspace opens real student detail, loads timeline, and preserves directo
   );
 });
 
+test("workspace hides demo seed markers from student program labels", async () => {
+  const seededDirectory = siteStudentsFixture({ readOnly: false });
+  seededDirectory.students = seededDirectory.students.map((student, index) => index === 0
+    ? {
+      ...student,
+      programName: "Culinary - DEMO_SEED",
+      cohortName: "DEMO_SEED",
+      cohort: "DEMO_SEED",
+      graduationYear: "2027",
+    }
+    : student);
+
+  const seededDetail = siteStudentDetailFixture({ readOnly: false });
+  seededDetail.student = {
+    ...seededDetail.student,
+    programName: "Culinary - DEMO_SEED",
+    cohortName: "DEMO_SEED",
+    cohort: "DEMO_SEED",
+    graduationYear: "2027",
+  };
+
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch({
+    ...profileRoutesForRole("site_admin"),
+    "/api/site/students": { status: 200, body: seededDirectory },
+    "/api/site/students/demo-student-101": { status: 200, body: seededDetail },
+  });
+
+  vm.runInContext('activeSection = "students"; renderAppShell();', context);
+  assert.match(visibleText(workspaceRoot.innerHTML), /Culinary/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /DEMO_SEED/);
+
+  await vm.runInContext('openSiteStudentDetail("demo-student-101")', context);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-program="Culinary"/);
+  assert.match(visibleText(workspaceRoot.innerHTML), /Culinary[\s\S]*Class of 2027/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /DEMO_SEED/);
+});
+
 test("student detail handles missing real-data fields conservatively", async () => {
   const incompleteDetail = siteStudentDetailFixture({ readOnly: false });
   incompleteDetail.student = {

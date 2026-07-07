@@ -3121,6 +3121,31 @@ function adminStudentProgramValue(student = {}) {
   return String(student.programName || student.program || student.programId || student.pathway || "").trim();
 }
 
+function cleanDemoSeedDisplay(value = "", fallback = "") {
+  const cleaned = String(value || "")
+    .replace(/\s*(?:[-/|]\s*)?DEMO[_\s-]*SEED\b/gi, "")
+    .replace(/\s{2,}/g, " ")
+    .replace(/\s*[-/|]\s*$/g, "")
+    .trim();
+  return cleaned || fallback;
+}
+
+function studentProgramDisplay(student = {}, fallback = "Unassigned") {
+  return cleanDemoSeedDisplay(student.programName || student.program || student.programId || "", fallback);
+}
+
+function studentCohortDisplay(student = {}, fallback = "No cohort") {
+  return cleanDemoSeedDisplay(student.cohortName || student.cohort || student.rosterCohort || "", fallback);
+}
+
+function studentProgramCohortDisplay(student = {}, fallback = "Assigned program or cohort") {
+  const parts = [
+    studentProgramDisplay(student, ""),
+    studentCohortDisplay(student, ""),
+  ].filter(Boolean);
+  return parts.join(" / ") || fallback;
+}
+
 function adminStudentCohortValue(student = {}) {
   return String(student.cohort || student.rosterCohort || "").trim();
 }
@@ -6272,8 +6297,8 @@ function staffWorkspaceRowsFromSiteStudents(directory = {}) {
     displayName: student.displayName || student.studentName || "Student",
     email: student.email || "",
     siteName: student.siteName || directory.scope?.siteName || "",
-    programName: student.programName || "",
-    cohortName: student.cohortName || student.cohort || "",
+    programName: studentProgramDisplay(student, ""),
+    cohortName: studentCohortDisplay(student, ""),
     mentorName: student.mentorName || "",
     viewerName: student.viewerName || "",
     hasActiveMentor: student.hasActiveMentor,
@@ -6307,8 +6332,8 @@ function staffWorkspaceRowsFromProgramDashboard(dashboard = {}) {
     displayName: row.displayName || row.studentName || "Student",
     email: row.email || "",
     siteName: row.siteName || dashboard.scope?.siteName || "",
-    programName: row.programName || "",
-    cohortName: row.cohortName || row.cohort || "",
+    programName: studentProgramDisplay(row, ""),
+    cohortName: studentCohortDisplay(row, ""),
     mentorName: row.mentorName || "",
     hasActiveMentor: row.hasActiveMentor,
     latestSubmissionStatus: row.latestSubmissionStatus || row.submissionStatus || row.status || "",
@@ -6340,8 +6365,8 @@ function staffWorkspaceRowsFromMentorDashboard(body = {}) {
       displayName: row.displayName || row.studentName || "Student",
       email: row.email || "",
       siteName: row.siteName || body.scope?.siteName || "",
-      programName: row.programName || "",
-      cohortName: row.cohortName || row.cohort || "",
+      programName: studentProgramDisplay(row, ""),
+      cohortName: studentCohortDisplay(row, ""),
       mentorName: currentUser?.displayName || "Assigned mentor",
       hasActiveMentor: true,
       mentorMeetingStatus: row.mentorMeetingStatus || "",
@@ -6449,7 +6474,7 @@ function staffWorkspaceQueueRows(rows = [], queueId = "") {
 
 function staffWorkspaceScopeLabel(roles, scope = {}) {
   if (roles.has("mentor")) return "Assigned mentor students";
-  if (roles.has("program_teacher")) return scope.programName || scope.siteName || "Assigned program";
+  if (roles.has("program_teacher")) return cleanDemoSeedDisplay(scope.programName, scope.siteName || "Assigned program");
   if (roles.has("viewer")) return scope.siteName ? `${scope.siteName} read-only` : "Assigned read-only students";
   if (hasGlobalAdminRole(roles)) return "All accessible schools";
   return scope.siteName || "Assigned school";
@@ -6686,7 +6711,7 @@ function renderStaffQueueStudentRow(row = {}, queueId = "", model = {}) {
   const primaryFlag = flags[0] || row.attention?.[0] || { label: queueId === "on-track" ? "On track" : "Attention", detail: row.nextAction || "Open student detail for context." };
   const supportingText = row.nextAction || primaryFlag.detail || "Open student detail for the current status.";
   const studentName = row.displayName || row.studentName || "Student";
-  const context = [row.programName, row.cohortName].filter(Boolean).join(" / ") || model.scopeLabel || "Assigned program or cohort";
+  const context = studentProgramCohortDisplay(row, model.scopeLabel || "Assigned program or cohort");
   const casePlan = studentDirectoryRowGuidance(row, Boolean(model.readOnly));
   const moreMenu = row.studentId ? renderTeacherFirstMoreActions({
     id: `staff-${row.studentId || queueId}`,
@@ -7674,7 +7699,7 @@ function staffVisibleStudentExportRows() {
   const students = Array.isArray(body.students) ? body.students : [];
   return students.map((student) => [
     reportCell(student.displayName || student.studentName, "Student"),
-    reportCell(student.programName || student.program, "Not confirmed"),
+    reportCell(studentProgramDisplay(student, "Not confirmed"), "Not confirmed"),
     statusText(student.latestSubmissionStatus || student.submissionStatus || student.status || "unknown"),
     statusText(student.reviewStatus || student.latestReviewStatus || "unknown"),
     statusText(student.evidenceStatus || "unknown"),
@@ -8438,7 +8463,7 @@ function renderSiteProgramsSection() {
             ${activePrograms.map((program) => `
               <article class="workspace-row" data-site-program-row="${escapeHtml(program.programId || "")}">
                 <div>
-                  <strong>${escapeHtml(program.programName || "Program")}</strong>
+                  <strong>${escapeHtml(cleanDemoSeedDisplay(program.programName, "Program"))}</strong>
                   <p>${escapeHtml(program.assignedAt ? `Added ${formatDate(program.assignedAt)}` : "Active at this school")}</p>
                 </div>
                 ${activeAccessPill()}
@@ -8463,7 +8488,7 @@ function renderSiteProgramsSection() {
             ${availablePrograms.map((program) => `
               <article class="workspace-row">
                 <div>
-                  <strong>${escapeHtml(program.programName || "Program")}</strong>
+                  <strong>${escapeHtml(cleanDemoSeedDisplay(program.programName, "Program"))}</strong>
                   <p>${escapeHtml(program.previouslyRemoved ? "Previously removed from this school. Add it again to restore the school mapping." : "Available to add to this school.")}</p>
                 </div>
                 <span class="workspace-status-pill pending" data-status="available">${escapeHtml(program.previouslyRemoved ? "Restore" : "Available")}</span>
@@ -8560,7 +8585,7 @@ function renderAdminProgramsCoveragePanel(activePrograms = [], body = {}) {
         <span>First program action</span>
         <strong>${escapeHtml(gaps.length ? "Confirm Program Teacher coverage" : availablePrograms.length ? "Review available program mappings" : "Program setup is clear")}</strong>
         <small>${escapeHtml(gaps.length
-          ? `${gaps[0]?.programName || "A program"} needs Program Teacher access confirmed.`
+          ? `${cleanDemoSeedDisplay(gaps[0]?.programName, "A program")} needs Program Teacher access confirmed.`
           : availablePrograms.length
             ? `${availablePrograms.length} active ${pluralize(availablePrograms.length, "program")} can be added if they belong to this school.`
             : "No active program mapping or Program Teacher coverage issue is first in line.")}</small>
@@ -9078,12 +9103,13 @@ function renderStudentRow(student, readOnly = false, permissions = {}, scope = {
   const helper = studentDirectoryRowHelperLabel(guidance.owner);
   const nextStep = studentDirectoryRowNextStep(guidance.nextAction);
   const moreMenu = renderStudentDirectoryRowMoreMenu(student, readOnly, canRemoveStudent, scope);
+  const programCohort = studentProgramCohortDisplay(student, "Unassigned / No cohort");
   return `
     <article class="workspace-student-row" data-staff-student-row="true">
       <div>
         <strong>${escapeHtml(student.displayName || "Student")}</strong>
         <p>${escapeHtml(studentDirectoryRowStatus(student))}</p>
-        <p class="workspace-muted">${escapeHtml(student.programName || "Unassigned")} / ${escapeHtml(student.cohortName || "No cohort")}</p>
+        <p class="workspace-muted">${escapeHtml(programCohort)}</p>
       </div>
       <div>
         <span class="workspace-muted">Last update</span>
@@ -9548,10 +9574,12 @@ function renderSiteStudentDetailSurface(directory) {
   const plan = studentDetailCasePlan(detail, scope);
   const plainStatus = studentDetailPlainStatus(detail, plan);
   const primaryAction = studentDetailPrimaryAction(detail, scope, plainStatus);
+  const programName = studentProgramDisplay(student);
+  const cohortName = studentCohortDisplay(student);
   const profileFacts = `
     <span class="workspace-site-context-badge" data-student-detail-site="${escapeHtml(scope.siteName || directory.scope?.siteName || "Selected school")}">${escapeHtml(scope.siteName || directory.scope?.siteName || "Selected school")}</span>
-    <span class="workspace-site-context-badge" data-student-detail-program="${escapeHtml(student.programName || "Unassigned")}">${escapeHtml(student.programName || "Unassigned")}</span>
-    ${student.cohortName ? `<span class="workspace-site-context-badge" data-student-detail-cohort="${escapeHtml(student.cohortName)}">${escapeHtml(student.cohortName)}</span>` : `<span class="workspace-site-context-badge" data-student-detail-cohort="No cohort">No cohort</span>`}
+    <span class="workspace-site-context-badge" data-student-detail-program="${escapeHtml(programName)}">${escapeHtml(programName)}</span>
+    <span class="workspace-site-context-badge" data-student-detail-cohort="${escapeHtml(cohortName)}">${escapeHtml(cohortName)}</span>
     <span class="workspace-site-context-badge" data-student-detail-year="${escapeHtml(student.graduationYear || "")}">${escapeHtml(studentRosterProfileText(student))}</span>
     ${scope.readOnly ? `<span class="workspace-chip" data-workspace-mode="read-only">Read-only viewer</span>` : ""}
   `;
@@ -9638,8 +9666,8 @@ function studentDetailPanelAttrs(tabId = "overview", alias = "") {
 
 function studentDetailContextLine(student = {}, scope = {}, directory = {}) {
   const parts = [
-    student.programName,
-    student.cohortName,
+    studentProgramDisplay(student, ""),
+    studentCohortDisplay(student, ""),
     student.graduationYear ? `Class of ${student.graduationYear}` : "",
   ].map((part) => String(part || "").trim()).filter(Boolean);
   if (parts.length) return parts.join(" - ");
@@ -10498,7 +10526,7 @@ function renderProgramFilterOptions(programs = [], selected = "") {
     <option value="">All visible programs</option>
     ${rows.map((program) => {
       const value = program.programId || "";
-      const label = `${program.programName || value || "Program"}${program.studentCount != null ? ` (${safeNumber(program.studentCount)})` : ""}`;
+      const label = `${cleanDemoSeedDisplay(program.programName, value || "Program")}${program.studentCount != null ? ` (${safeNumber(program.studentCount)})` : ""}`;
       return `<option value="${escapeHtml(value)}" ${value === selected ? "selected" : ""}>${escapeHtml(label)}</option>`;
     }).join("")}
   `;
@@ -10542,12 +10570,12 @@ function activeFilterChip(label, value) {
 
 function programLabel(programs = [], programId = "") {
   const match = (Array.isArray(programs) ? programs : []).find((program) => program.programId === programId);
-  return match?.programName || programId || "Selected program";
+  return cleanDemoSeedDisplay(match?.programName, programId || "Selected program");
 }
 
 function cohortLabel(cohorts = [], cohortId = "") {
   const match = (Array.isArray(cohorts) ? cohorts : []).find((cohort) => cohort.cohortId === cohortId);
-  return match?.cohortName || cohortId || "Selected cohort";
+  return cleanDemoSeedDisplay(match?.cohortName, cohortId || "Selected cohort");
 }
 
 function mentorLabel(mentors = [], mentorUserId = "") {
@@ -10656,7 +10684,7 @@ function renderSiteTopRiskStudents(rows = []) {
           <article class="workspace-row">
             <div>
               <strong>${escapeHtml(row.studentName || "Student")}</strong>
-              <p>${escapeHtml(row.programName || "Program")} / ${safeNumber(row.evidenceCount)} evidence</p>
+              <p>${escapeHtml(cleanDemoSeedDisplay(row.programName, "Program"))} / ${safeNumber(row.evidenceCount)} evidence</p>
               <div class="workspace-chip-row">
                 ${reasons.length
                   ? reasons.map((reason) => `<span class="workspace-risk-chip">${escapeHtml(reason)}</span>`).join("")
@@ -11454,7 +11482,7 @@ function renderMentorUnassignedStudents(students = [], permissions = {}) {
           <div>
             <strong>${escapeHtml(student.displayName || "Student")}</strong>
             <p>${escapeHtml(student.email || "")}</p>
-            <p class="workspace-muted">${escapeHtml(student.programName || "Unassigned")} / ${escapeHtml(student.cohortName || "No cohort")}</p>
+            <p class="workspace-muted">${escapeHtml(studentProgramCohortDisplay(student, "Unassigned / No cohort"))}</p>
             <div class="workspace-chip-row">
               ${student.storyBucket ? `<span class="workspace-story-chip">${escapeHtml(storyLabel(student.storyBucket))}</span>` : `<span class="workspace-story-chip">Coverage follow-up</span>`}
               ${renderRiskChips(student.riskFlags || [])}
@@ -11487,7 +11515,7 @@ function renderMentorAssignmentForm(body) {
       <label>
         <span>Student</span>
         <select class="workspace-select" name="studentId" required>
-          ${students.map((student) => `<option value="${escapeHtml(student.studentId || "")}">${escapeHtml(student.displayName || "Student")} / ${escapeHtml(student.programName || "Unassigned")}</option>`).join("")}
+          ${students.map((student) => `<option value="${escapeHtml(student.studentId || "")}">${escapeHtml(student.displayName || "Student")} / ${escapeHtml(studentProgramDisplay(student))}</option>`).join("")}
         </select>
       </label>
       <label>
@@ -11606,7 +11634,7 @@ function renderMentorActiveAssignments(assignments = [], permissions = {}) {
         <article class="workspace-row">
           <div>
             <strong>${escapeHtml(assignment.studentName || "Student")}</strong>
-            <p>${escapeHtml(assignment.mentorName || "Mentor")} / ${escapeHtml(assignment.programName || "Unassigned")}</p>
+            <p>${escapeHtml(assignment.mentorName || "Mentor")} / ${escapeHtml(cleanDemoSeedDisplay(assignment.programName, "Unassigned"))}</p>
             <p class="workspace-muted">Assigned ${escapeHtml(formatDate(assignment.assignedAt))}</p>
           </div>
           <div class="workspace-row-actions">
@@ -12542,7 +12570,7 @@ function renderOperationsCompactWorklist(rows = [], permissions = {}, filters = 
           </div>
           <div>
             <span class="workspace-worklist-label">Program</span>
-            <span>${escapeHtml(row.programName || "Unassigned")}</span>
+            <span>${escapeHtml(cleanDemoSeedDisplay(row.programName, "Unassigned"))}</span>
           </div>
           <div>
             <span class="workspace-worklist-label">Area</span>
@@ -12725,10 +12753,10 @@ function renderOperationsProgramBreakdown(rows = [], denominator = 0) {
       ${rows.map((row) => `
         <article class="workspace-bar-row">
           <div>
-            <strong>${escapeHtml(row.programName || "Program")}</strong>
+            <strong>${escapeHtml(cleanDemoSeedDisplay(row.programName, "Program"))}</strong>
             <span>${escapeHtml(metricWithPercent(row.needsAttention || row.archiveFailed || row.presentationPending || 0, row.studentsTotal || denominator))} with risk signals</span>
           </div>
-          <div class="workspace-mini-meter" role="img" aria-label="${escapeHtml(`${row.programName || "Program"} risk: ${metricWithPercent(row.needsAttention || row.archiveFailed || row.presentationPending || 0, row.studentsTotal || denominator)}`)}">
+          <div class="workspace-mini-meter" role="img" aria-label="${escapeHtml(`${cleanDemoSeedDisplay(row.programName, "Program")} risk: ${metricWithPercent(row.needsAttention || row.archiveFailed || row.presentationPending || 0, row.studentsTotal || denominator)}`)}">
             <span class="${safeNumber(row.archiveFailed) ? "danger" : safeNumber(row.needsAttention) ? "warning" : "mentor"}" style="width: ${escapeHtml(percentOf(row.needsAttention || row.archiveFailed || row.presentationPending || 0, row.studentsTotal || denominator))}%"></span>
           </div>
           <div class="workspace-chip-row">
@@ -18405,7 +18433,7 @@ function renderReviewQueueFilters(body) {
             <option value="" ${!filters.programId ? "selected" : ""}>All visible programs</option>
             ${programs.map((program) => `
               <option value="${escapeHtml(program.programId)}" ${filters.programId === program.programId ? "selected" : ""}>
-                ${escapeHtml(program.programName)} (${safeNumber(program.queueCount)})
+                ${escapeHtml(cleanDemoSeedDisplay(program.programName, "Program"))} (${safeNumber(program.queueCount)})
               </option>
             `).join("")}
           </select>
@@ -18678,7 +18706,7 @@ function renderReviewQueueRow(item, selectedId, permissions = {}) {
         <div>
           <span>Student</span>
           <strong>${escapeHtml(item.studentName || "Student")}</strong>
-          <small>${escapeHtml(item.programName || "Unassigned")}</small>
+          <small>${escapeHtml(cleanDemoSeedDisplay(item.programName, "Unassigned"))}</small>
         </div>
         <div>
           <span>What they sent</span>
@@ -18840,7 +18868,7 @@ function renderReviewSubmissionPanel(selected, body) {
         ${reviewQueueStatusPill(selected.status)}
       </div>
       <div class="workspace-detail-grid">
-        <span class="workspace-site-context-badge">${escapeHtml(selected.programName || "Unassigned")}</span>
+        <span class="workspace-site-context-badge">${escapeHtml(cleanDemoSeedDisplay(selected.programName, "Unassigned"))}</span>
         <span class="workspace-site-context-badge">${safeNumber(selected.evidenceCount)} file${safeNumber(selected.evidenceCount) === 1 ? "" : "s"} attached</span>
         <span class="workspace-site-context-badge">${safeNumber(selected.reviewCount)} reviews</span>
         <span class="workspace-site-context-badge">${safeNumber(selected.commentCount)} comments</span>
@@ -18885,7 +18913,7 @@ function renderReviewSelectedSummary(selected = {}, canDecide = false, permissio
       <div>
         <p class="workspace-kicker">Selected row</p>
         <strong>${escapeHtml(selected.requirementTitle || "Senior Project work")}</strong>
-        <span>${escapeHtml(selected.programName || "Unassigned")} / version ${safeNumber(selected.version)} / ${escapeHtml(reviewQueueStatusText(selected.status))}</span>
+        <span>${escapeHtml(cleanDemoSeedDisplay(selected.programName, "Unassigned"))} / version ${safeNumber(selected.version)} / ${escapeHtml(reviewQueueStatusText(selected.status))}</span>
       </div>
       <div class="workspace-review-selected-summary-facts">
         <span><b>${safeNumber(selected.evidenceCount)}</b> files</span>
@@ -20448,7 +20476,7 @@ function renderManageStudentRow(student = {}) {
 }
 
 function studentRosterProfileText(student = {}) {
-  const cohort = String(student.cohort || student.rosterCohort || "").trim();
+  const cohort = studentCohortDisplay(student, "");
   const graduationYear = String(student.graduationYear || student.graduation_year || "").trim();
   if (cohort && graduationYear) return `${cohort} / Graduation ${graduationYear}`;
   if (cohort) return cohort;
@@ -21591,7 +21619,7 @@ function adminRoleAssignmentScopeText(assignment = {}) {
   }
   if (scopeType === "program") {
     const match = programs.find((program) => String(program?.programId || program?.id || "").trim() === scopeId);
-    return `Program access / ${match?.programName || match?.name || statusText(scopeId || "current_program")}`;
+    return `Program access / ${cleanDemoSeedDisplay(match?.programName || match?.name, statusText(scopeId || "current_program"))}`;
   }
   if (scopeType === "cohort") {
     return `Cohort access / ${statusText(scopeId || "current_cohort")}`;
@@ -22025,7 +22053,7 @@ function renderProgramTeacherAssignmentForm(targets = [], programs = []) {
         <label class="workspace-label">
           Program
           <select class="workspace-select" name="programId" required>
-            ${programs.map((program) => `<option value="${escapeHtml(program.programId)}">${escapeHtml(program.programName || program.programId)}</option>`).join("")}
+            ${programs.map((program) => `<option value="${escapeHtml(program.programId)}">${escapeHtml(cleanDemoSeedDisplay(program.programName, program.programId))}</option>`).join("")}
           </select>
         </label>
         ${assignmentActionSelect()}
@@ -22107,7 +22135,7 @@ function siteProgramOptions(programs = [], promptLabel = "Choose a program") {
   if (!safePrograms.length) return `<option value="">${escapeHtml(promptLabel)}</option>`;
   return [
     `<option value="">${escapeHtml(promptLabel)}</option>`,
-    ...safePrograms.map((program) => `<option value="${escapeHtml(program.programId || "")}">${escapeHtml(program.programName || program.programId || "Program")}</option>`),
+    ...safePrograms.map((program) => `<option value="${escapeHtml(program.programId || "")}">${escapeHtml(cleanDemoSeedDisplay(program.programName, program.programId || "Program"))}</option>`),
   ].join("");
 }
 
@@ -22171,7 +22199,7 @@ function siteOptionsForAdminForm() {
 function programOptionsForAdminForm() {
   const access = unwrap(currentData.accessAssignments);
   const programs = Array.isArray(access?.programs) ? access.programs : [];
-  return programs.map((program) => `<option value="${escapeHtml(program.programId)}">${escapeHtml(program.programName || program.programId)}</option>`).join("");
+  return programs.map((program) => `<option value="${escapeHtml(program.programId)}">${escapeHtml(cleanDemoSeedDisplay(program.programName, program.programId))}</option>`).join("");
 }
 
 function studentOptionsForAdminForm() {
@@ -25416,7 +25444,7 @@ function renderProgramBreakdown(rows = []) {
       ${rows.map((row) => `
         <article class="workspace-program-row">
           <div>
-            <strong>${escapeHtml(row.programName || "Program")}</strong>
+            <strong>${escapeHtml(cleanDemoSeedDisplay(row.programName, "Program"))}</strong>
             <span>${safeNumber(row.studentCount)} ${escapeHtml(pluralize(row.studentCount, "student"))}</span>
           </div>
           <span>${safeNumber(row.submitted)} submitted</span>
