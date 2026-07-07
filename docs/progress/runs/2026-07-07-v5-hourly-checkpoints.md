@@ -194,6 +194,22 @@
 - Remaining risks: local fake-account proof only; hosted and real-student gates remain unclaimed, elapsed runtime is still below the 6-hour complete-run gate, and `npm run check` continues to report real-student pilot blocked by missing manual proof.
 - Next focus: continue dense-surface polish or begin final proof packaging only after the 360-minute runtime gate is actually met.
 
+## CSV Import Preview Checkpoint
+
+- Checkpoint local time: `2026-07-06 23:52:39 -07:00`
+- Elapsed minutes so far: about 210
+- Screens changed since the Verifier Sweep checkpoint: Admin Console Imports template view, Admin Console Imports CSV preview error state, and mobile Admin Imports CSV preview error state.
+- Role-specific work completed: Site Admin import previews now show the first row to fix, keep final import blocked until the error count is zero, and let admins run preview before writing the final admin note; the final import action still requires the admin note before saving.
+- What users see differently: after a bad CSV preview, admins see "Fix this row first," the row number, the exact unsupported column or row problem, and a second card confirming that import stays blocked.
+- What users do next more clearly: admins correct the CSV, preview again, and only then add the admin note and confirm valid rows; they no longer get trapped by browser validation before previewing.
+- Mobile checked: refreshed `77-mobile-csv-import-preview-errors` shows the first-row repair guidance stacked without horizontal overflow.
+- Accessibility checked: the preview repair strip uses visible text, row labels, and existing live preview/error-state regions; `npm run check:workspace-accessibility`, `npm run check:workspace-mobile`, and `npm run check:workspace-errors` passed.
+- Screenshots captured: 77 total screenshots, including 32 mobile screenshots, refreshed in `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/`.
+- Tests run: `node --check workspace.js`; `node --check scripts\prove-workspace-ui-polish.mjs`; `node --check tests\workspace-app.test.mjs`; `npm run verify:functionality-language`; `npm run check:workspace-mobile`; `npm run check:workspace-accessibility`; `npm run check:workspace-errors`; `node --test tests\workspace-app.test.mjs` (115 pass, 0 fail); `npm run prove:workspace-ui-polish` with V5 output env vars (77 pass, 0 fail); `git diff --check` (passed; line-ending warnings only).
+- Commit SHA(s): `694e80400ab0d1050a9cacb4f14c28231082029b`
+- Remaining risks: local fake-account proof only; hosted and real-student gates remain unclaimed, elapsed runtime is still below the 6-hour complete-run gate, and final proof/push must wait until complete-run gates are met.
+- Next focus: continue Phase 9/10 dense-surface polish and regression hardening, or move to final proof packaging only after the 360-minute runtime gate is actually met.
+
 ## Working Log
 
 - `2026-07-06 20:22:33 -07:00`: start recorded after verifying `main`, clean status, and `origin/main` alignment.
@@ -212,3 +228,4 @@
 - `2026-07-06 23:09:38 -07:00`: Phase 8 empty-state and Mentor Dashboard focus-action work committed as `2c95d33a59c1a566eb4ddaaade79443941686571`; functionality-language, dashboard-action, mobile, accessibility, workspace tests, syntax checks, diff hygiene, and refreshed V5 browser proof are green.
 - `2026-07-06 23:12:43 -07:00`: Phase 8/9 mentor save-confirmation copy committed as `a3832e3445be569e3445ef345dc1a7496be7455f`; functionality-language, dashboard-action, mobile, accessibility, workspace tests, syntax checks, and diff hygiene are green.
 - `2026-07-06 23:16:01 -07:00`: Navigation contract restoration committed as `90e8b006532ce76db04bfa9f2ca36cec125184e6`; workspace navigation verifier, URL-state, permission, mutation-origin, density, review deeplink, error-state, typecheck, full test, and aggregate check gates are green while real-student pilot remains explicitly blocked by missing manual evidence.
+- `2026-07-06 23:52:39 -07:00`: Admin CSV import preview repair path committed as `694e80400ab0d1050a9cacb4f14c28231082029b`; functionality-language, mobile, accessibility, error-state, workspace tests, syntax checks, diff hygiene, and V5 browser proof are green with 77 screenshots, 32 mobile screenshots, and zero failures.
