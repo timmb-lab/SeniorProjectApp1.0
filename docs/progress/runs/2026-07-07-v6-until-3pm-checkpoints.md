@@ -280,3 +280,22 @@
   - `npm run verify:dashboard-actions`: PASS
   - `git diff --check`: PASS with line-ending warnings only
 - Real work continues before 3PM: YES
+
+## Browser Proof Refresh 03
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `78`
+- Mobile screenshots: `32`
+- Failures: `0`
+- Started: `2026-07-07T15:29:27.400Z`
+- Completed: `2026-07-07T15:37:09.801Z`
+- Visual spot checks:
+  - `43-student-my-work-phone.png`: My Work content and Continue action now appear before shared start-state guidance.
+  - `54-student-feedback-phone.png`: Feedback content and View Work action now appear before shared feedback guidance.
+  - `55-student-final-checklist-phone.png`: Final Checklist content and Continue My Work action now appear before shared final guidance.
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES

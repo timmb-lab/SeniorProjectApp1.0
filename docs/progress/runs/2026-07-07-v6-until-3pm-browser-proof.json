@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:61275",
+  "baseUrl": "http://127.0.0.1:52575",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-07T15:17:20.354Z",
-  "completedAt": "2026-07-07T15:24:41.664Z",
+  "startedAt": "2026-07-07T15:29:27.400Z",
+  "completedAt": "2026-07-07T15:37:09.801Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:61275",
+    "baseUrl": "http://127.0.0.1:52575",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-07-07-v6-until-3pm",
@@ -1812,7 +1812,7 @@
         "finalFiles": true
       },
       "heading": "Check the final package",
-      "textSample": "Skip to workspace SC My Capstone My Capstone Final Checklist Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH Check the final package Use this only when the required work and evidence are ready. Open final checklist Final readiness only START HERE Check final readiness. The page keeps staff language and older details away from the first move. RIGHT NOW Confirm presentation and final-file readiness only after required work is done. IF EMPTY Nothing needs your attention right now? Check feedback, then the final checklist. FINISH BY Stop when the checklist shows what is ready and what still needs work. STUDENT NEXT-STEP FLO",
+      "textSample": "Skip to workspace SC My Capstone My Capstone Final Checklist Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH Check the final package Use this only when the required work and evidence are ready. Open final checklist Final readiness only FINAL CHECKLIST Final Checklist What is done? What still needs work? Waiting for review Continue My Work FINISH CHECKS Finish checks These rows show what is done and what still needs work. Proposal done 0 of 3 items complete in this phase. ASK YOUR TEACHER View Work Build file started 0 of 1 item complete in this phase. NOT DONE View Work Build update and presentation plan 0 of 1 item com",
       "activeNav": [
         "4\n        4. Final Checklist\n        Presentation and final files",
         "4\n        Final Checklist"
@@ -1886,7 +1886,7 @@
         "finalFiles": false
       },
       "heading": "Finish the next capstone item",
-      "textSample": "Skip to workspace SC My Capstone My Capstone My Work Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH Finish the next capstone item Your work screen opens on one requirement at a time. Extra progress details stay closed. Open current item One item at a time START HERE Open the current item. The page keeps staff language and older details away from the first move. RIGHT NOW Work on the requirement named at the top of the details. IF EMPTY Nothing needs your attention right now? Check feedback, then the final checklist. FINISH BY Stop when the item is submitted, revised, or waiting for teacher review. STUDENT NEXT-STEP FLO",
+      "textSample": "Skip to workspace SC My Capstone My Capstone My Work Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH Finish the next capstone item Your work screen opens on one requirement at a time. Extra progress details stay closed. Open current item One item at a time MY WORK My Work Open work. Turn in work. Check files. WAITING FOR REVIEW Continue CURRENT WORK Current work Open one item. Add a file or link if the item asks for it. Turn it in when it is ready. Show one phase Current phase: Start: Setup. Show one phase if the full checklist feels too long. All phases Start: Setup (Current) Phase 1: Kickoff and Proposal Phase 2A: Bui",
       "activeNav": [
         "2\n        2. My Work\n        Current work and files",
         "2\n        My Work",
@@ -1961,7 +1961,7 @@
         "finalFiles": false
       },
       "heading": "Finish the next capstone item",
-      "textSample": "Skip to workspace Menu SC My Capstone Tools TS STUDENT PATH Finish the next capstone item Your work screen opens on one requirement at a time. Extra progress details stay closed. Open current item One item at a time START HERE Open the current item. The page keeps staff language and older details away from the first move. RIGHT NOW Work on the requirement named at the top of the details. IF EMPTY Nothing needs your attention right now? Check feedback, then the final checklist. FINISH BY Stop when the item is submitted, revised, or waiting for teacher review. STUDENT NEXT-STEP FLOW Keep the work screen on one requirement The student path separates work, feedback, and final checks so the first",
+      "textSample": "Skip to workspace Menu SC My Capstone Tools TS STUDENT PATH Finish the next capstone item Your work screen opens on one requirement at a time. Extra progress details stay closed. Open current item One item at a time MY WORK My Work Open work. Turn in work. Check files. WAITING FOR REVIEW Continue CURRENT WORK Current work Open one item. Add a file or link if the item asks for it. Turn it in when it is ready. Show one phase Current phase: Start: Setup. Show one phase if the full checklist feels too long. All phases Start: Setup (Current) Phase 1: Kickoff and Proposal Phase 2A: Build Phase 2B: Build Part II Phase 3A: Present Phase 3B: Celebrate Phase 4: Give Thanks, Reflect, Launch Finish: Dow",
       "activeNav": [
         "2\n        2. My Work\n        Current work and files",
         "2\n        My Work",
@@ -2035,7 +2035,7 @@
         "finalFiles": false
       },
       "heading": "Read the note and fix one thing",
-      "textSample": "Skip to workspace SC My Capstone My Capstone Feedback Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH Read the note and fix one thing Start with feedback that asks for action, then return to the matching work item. Open feedback Action notes first START HERE Open feedback that asks for action. The page keeps staff language and older details away from the first move. RIGHT NOW Read the teacher note, then fix one matching item. IF EMPTY Nothing needs your attention right now? Check feedback, then the final checklist. FINISH BY Stop when the item is submitted, revised, or waiting for teacher review. STUDENT NEXT-STEP FLOW ",
+      "textSample": "Skip to workspace SC My Capstone My Capstone Feedback Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH Read the note and fix one thing Start with feedback that asks for action, then return to the matching work item. Open feedback Action notes first FEEDBACK Feedback Read feedback. Fix work if asked. Not confirmed yet View Work NEEDS CHANGES Needs changes No needs changes right now. No feedback needs changes right now. NEW FEEDBACK New feedback No feedback yet. No feedback yet. When your teacher reviews your work, it will appear here. OLD FEEDBACK Old feedback No old feedback right now. Old feedback appears here after rev",
       "activeNav": [
         "3\n        3. Feedback\n        Feedback and work to fix",
         "3\n        Feedback"
@@ -4047,7 +4047,7 @@
         "finalFiles": false
       },
       "heading": "Finish the next capstone item",
-      "textSample": "Skip to workspace Menu SC My Capstone My Capstone My Work Tools TS Test Student Maya maya.student@senior-capstone.test STUDENT PATH Finish the next capstone item Your work screen opens on one requirement at a time. Extra progress details stay closed. Open current item One item at a time START HERE Open the current item. The page keeps staff language and older details away from the first move. RIGHT NOW Work on the requirement named at the top of the details. IF EMPTY Nothing needs your attention right now? Check feedback, then the final checklist. FINISH BY Stop when the item is submitted, revised, or waiting for teacher review. STUDENT NEXT-STEP FLOW Keep the work screen on one requirement ",
+      "textSample": "Skip to workspace Menu SC My Capstone My Capstone My Work Tools TS Test Student Maya maya.student@senior-capstone.test STUDENT PATH Finish the next capstone item Your work screen opens on one requirement at a time. Extra progress details stay closed. Open current item One item at a time MY WORK My Work Open work. Turn in work. Check files. WAITING FOR REVIEW Continue CURRENT WORK Current work Open one item. Add a file or link if the item asks for it. Turn it in when it is ready. Show one phase Current phase: Start: Setup. Show one phase if the full checklist feels too long. All phases Start: Setup (Current) Phase 1: Kickoff and Proposal Phase 2A: Build Phase 2B: Build Part II Phase 3A: Prese",
       "activeNav": [
         "2\n        2. My Work\n        Current work and files",
         "2\n        My Work",
@@ -4114,7 +4114,7 @@
         "finalFiles": false
       },
       "heading": "Read the note and fix one thing",
-      "textSample": "Skip to workspace Menu SC My Capstone Tools TS STUDENT PATH Read the note and fix one thing Start with feedback that asks for action, then return to the matching work item. Open feedback Action notes first START HERE Open feedback that asks for action. The page keeps staff language and older details away from the first move. RIGHT NOW Read the teacher note, then fix one matching item. IF EMPTY Nothing needs your attention right now? Check feedback, then the final checklist. FINISH BY Stop when the item is submitted, revised, or waiting for teacher review. STUDENT NEXT-STEP FLOW Fix the feedback that asks for action The student path separates work, feedback, and final checks so the first scre",
+      "textSample": "Skip to workspace Menu SC My Capstone Tools TS STUDENT PATH Read the note and fix one thing Start with feedback that asks for action, then return to the matching work item. Open feedback Action notes first FEEDBACK Feedback Read feedback. Fix work if asked. Not confirmed yet View Work NEEDS CHANGES Needs changes No needs changes right now. No feedback needs changes right now. NEW FEEDBACK New feedback No feedback yet. No feedback yet. When your teacher reviews your work, it will appear here. OLD FEEDBACK Old feedback No old feedback right now. Old feedback appears here after reviews are done. START HERE Open feedback that asks for action. The page keeps staff language and older details away ",
       "activeNav": [
         "3\n        3. Feedback\n        Feedback and work to fix",
         "3\n        Feedback"
@@ -4180,7 +4180,7 @@
         "finalFiles": true
       },
       "heading": "Check the final package",
-      "textSample": "Skip to workspace Menu SC My Capstone Tools TS STUDENT PATH Check the final package Use this only when the required work and evidence are ready. Open final checklist Final readiness only START HERE Check final readiness. The page keeps staff language and older details away from the first move. RIGHT NOW Confirm presentation and final-file readiness only after required work is done. IF EMPTY Nothing needs your attention right now? Check feedback, then the final checklist. FINISH BY Stop when the checklist shows what is ready and what still needs work. STUDENT NEXT-STEP FLOW Use the checklist after required work The student path separates work, feedback, and final checks so the first screen do",
+      "textSample": "Skip to workspace Menu SC My Capstone Tools TS STUDENT PATH Check the final package Use this only when the required work and evidence are ready. Open final checklist Final readiness only FINAL CHECKLIST Final Checklist What is done? What still needs work? Waiting for review Continue My Work FINISH CHECKS Finish checks These rows show what is done and what still needs work. Proposal done 0 of 3 items complete in this phase. ASK YOUR TEACHER View Work Build file started 0 of 1 item complete in this phase. NOT DONE View Work Build update and presentation plan 0 of 1 item complete in this phase. NOT DONE View Work Presentation practice ready 0 of 1 item complete in this phase. NOT DONE View Work",
       "activeNav": [
         "4\n        4. Final Checklist\n        Presentation and final files",
         "4\n        Final Checklist"

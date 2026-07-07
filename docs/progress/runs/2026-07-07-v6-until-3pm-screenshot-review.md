@@ -56,9 +56,16 @@ Source artifacts:
 - CSV import preview results should appear before the long form after validation.
 - Report exports should state the current allowed-view boundary before download buttons.
 - Admin Console pages should show their real section content before shared start-state guidance.
+- Student My Work, Feedback, and Final Checklist should show their actual route content before shared start-state guidance.
 
 ## Refresh 02 Spot Checks
 
 - `30-mobile-mentor-today.png`: Mentor Today now shows the assigned-student plan inside the first phone viewport.
 - `42-mobile-admin-reports.png`: Mobile Admin Reports opens with the report path and export cards instead of shell guidance.
 - `04-mentor-workspace.png`: Desktop Mentor Today shows the role plan ahead of the shared Staff Workspace header.
+
+## Refresh 03 Spot Checks
+
+- `43-student-my-work-phone.png`: My Work content and Continue action now lead before shared guidance.
+- `54-student-feedback-phone.png`: Feedback content and View Work action now lead before shared guidance.
+- `55-student-final-checklist-phone.png`: Final Checklist content and Continue My Work action now lead before shared guidance.
