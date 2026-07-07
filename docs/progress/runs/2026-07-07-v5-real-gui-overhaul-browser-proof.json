@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:60657",
+  "baseUrl": "http://127.0.0.1:54187",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-07T05:32:13.853Z",
-  "completedAt": "2026-07-07T05:39:15.347Z",
+  "startedAt": "2026-07-07T05:44:25.893Z",
+  "completedAt": "2026-07-07T05:51:34.229Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:60657",
+    "baseUrl": "http://127.0.0.1:54187",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul",
@@ -1487,7 +1487,7 @@
       "route": "/workspace.html?mode=admin&section=adminUsers",
       "screenshot": "docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/20-student-admin-route-blocked.png",
       "expected": [
-        "Admin Console is not available for this role",
+        "Admin Console is not available for this account",
         "My Capstone"
       ],
       "proves": "Student deep link to Admin Console fails safely and keeps recovery visible.",
@@ -1535,8 +1535,8 @@
         "intentionalEmptyState": false,
         "finalFiles": false
       },
-      "heading": "Admin Console is not available for this role",
-      "textSample": "Skip to workspace SC My Capstone My Capstone Today Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist ADMIN CONSOLE Admin Console is not available for this role Students use Workspace only. Staff console sections appear only when the signed-in account has a monitoring or admin-capable role. REASON This account does not have a staff or admin console capability. OWNER Project coordinator or site administrator. NEXT ACTION Use Workspace or ask for the correct assigned role. TRY NEXT Refresh workspace Review profile Open Account STUDENT PATH What do I do next? This view keeps the next action first so you do not have to decode the app. Open",
+      "heading": "Admin Console is not available for this account",
+      "textSample": "Skip to workspace SC My Capstone My Capstone Today Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist ADMIN CONSOLE Admin Console is not available for this account Students use My Capstone only. Staff console sections appear only for accounts assigned to monitor or manage school work. REASON This account is not assigned to monitor or manage school work. OWNER Project coordinator or site administrator. NEXT ACTION Use My Capstone or ask a school coordinator to check your account. TRY NEXT Refresh workspace Review profile Open Account STUDENT PATH What do I do next? This view keeps the next action first so you do not have to decode the a",
       "activeNav": [
         "1\n        1. Today\n        What to finish next",
         "1\n        Today"

@@ -286,7 +286,7 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo student account",
     url: workspaceUrl("?mode=admin&section=adminUsers"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
-    expected: ["Admin Console is not available for this role", "My Capstone"],
+    expected: ["Admin Console is not available for this account", "My Capstone"],
     proves: "Student deep link to Admin Console fails safely and keeps recovery visible.",
   },
   {
@@ -1384,7 +1384,7 @@ function expectedMarkersForPlanItem(planItem, pageState = {}) {
     return ["Viewing as:", "Student path", "Next step map", "Open My Work"];
   }
   if (id.includes("student-admin-route-blocked")) {
-    return ["Admin Console is not available for this role", "Student path", "Open My Work"];
+    return ["Admin Console is not available for this account", "Student path", "Open My Work"];
   }
   if (planItem.authRole === "student") {
     if (section === "studentWork") return ["Student path", "Finish the next capstone item", "Keep the work screen on one requirement", "Open current item"];

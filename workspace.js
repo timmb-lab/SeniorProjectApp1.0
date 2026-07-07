@@ -2628,7 +2628,7 @@ function switchWorkspaceMode(button) {
     activeWorkspaceMode = "workspace";
     activeSection = defaultSectionForMode("workspace");
     syncCurrentWorkspaceUrlState({ replace: true });
-    renderAppShell("Admin Console is not available for this role.", "error");
+    renderAppShell("Admin Console is not available for this account.", "error");
     return;
   }
   blockedWorkspaceMode = "";
@@ -2700,12 +2700,12 @@ function renderAdminConsoleUnavailableNotice() {
   return `
     <section class="workspace-card workspace-error-card" data-admin-console-unavailable="true" data-workspace-state="permission-denied">
       <p class="workspace-kicker">Admin Console</p>
-      <h2>Admin Console is not available for this role</h2>
-      <p>Students use Workspace only. Staff console sections appear only when the signed-in account has a monitoring or admin-capable role.</p>
+      <h2>Admin Console is not available for this account</h2>
+      <p>Students use My Capstone only. Staff console sections appear only for accounts assigned to monitor or manage school work.</p>
       ${renderProblemState({
-        reason: "This account does not have a staff or admin console capability.",
+        reason: "This account is not assigned to monitor or manage school work.",
         owner: "Project coordinator or site administrator.",
-        nextAction: "Use Workspace or ask for the correct assigned role.",
+        nextAction: "Use My Capstone or ask a school coordinator to check your account.",
       })}
     </section>
   `;
