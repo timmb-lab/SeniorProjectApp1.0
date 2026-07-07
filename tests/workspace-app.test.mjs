@@ -539,7 +539,7 @@ test("workspace normalizes stale student instruction copy to teacher language", 
 });
 
 test("workspace defaults to workflow landings instead of role profiles", async () => {
-  const legacyWorkflowMetaCopy = /screens now begin|route-backed task|Secondary context stays closed|Teachers move from queue|without starting from metrics or system status|Viewer screens are read-only and start|This view keeps the next action first|decode the app|Mentor work starts with the assigned student list|Admin Console starts|Your work screen opens|One focused screen|Open the exact setup screen|setup screen|linked setup screen|setup screens/i;
+  const legacyWorkflowMetaCopy = /screens now begin|route-backed task|Secondary context stays closed|Teachers move from queue|without starting from metrics or system status|Viewer screens are read-only and start|This view keeps the next action first|decode the app|Mentor work starts with the assigned student list|Admin Console starts|Your work screen opens|Keep the work screen on one requirement|One focused screen|Open the exact setup screen|setup screen|linked setup screen|setup screens/i;
   const student = await renderWorkspaceWithFetch(profileRoutesForRole("student"));
   const studentText = visibleText(student);
   assert.match(student, /data-experience="student"/);
@@ -568,9 +568,13 @@ test("workspace defaults to workflow landings instead of role profiles", async (
   assert.doesNotMatch(studentText, legacyWorkflowMetaCopy, "student landing should avoid meta app-design copy");
 
   const studentWorkLanding = await renderWorkspaceWithFetch(profileRoutesForRole("student"), "studentWork");
+  const studentWorkText = visibleText(studentWorkLanding);
   assert.match(studentWorkLanding, /data-v2-primary-surface="student-work"[\s\S]*data-student-screen="work"/);
   assertMarkupOrder(studentWorkLanding, 'data-v2-primary-surface="student-work"', 'data-v3-start-state="true"', "student work should show the real work screen before shared start guidance");
   assertMarkupOrder(studentWorkLanding, 'data-student-screen="work"', 'data-v3-start-state="true"', "student work rows should lead before shared work explanation");
+  assert.match(studentWorkText, /Finish one item/);
+  assert.match(studentWorkText, /Keep one requirement in focus/);
+  assert.doesNotMatch(studentWorkText, legacyWorkflowMetaCopy, "student work landing should avoid stale screen meta-copy");
 
   const studentFeedbackLanding = await renderWorkspaceWithFetch(profileRoutesForRole("student"), "studentFeedback");
   assert.match(studentFeedbackLanding, /data-v2-primary-surface="student-feedback"[\s\S]*data-student-screen="feedback"/);

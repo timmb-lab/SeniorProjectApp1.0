@@ -1664,7 +1664,7 @@ function v2StudentScreenModel(sectionId = activeSection) {
   return {
     id: `student-${sectionId}`,
     kicker: "Student path",
-    title: isWork ? "Finish the next capstone item" : isFeedback ? "Read the note and fix one thing" : isFinal ? "Check the final package" : "What do I do next?",
+    title: isWork ? "Finish one item" : isFeedback ? "Read the note and fix one thing" : isFinal ? "Check the final package" : "What do I do next?",
     detail: isWork
       ? "Work on one requirement at a time. Extra progress details stay closed."
       : isFeedback
@@ -1693,7 +1693,7 @@ function v2StudentScreenModel(sectionId = activeSection) {
     flowBoard: {
       id: isWork ? "student-current-work-flow" : isFeedback ? "student-feedback-flow" : isFinal ? "student-final-checklist-flow" : "student-next-step-flow",
       label: "Student next-step flow",
-      title: isWork ? "Keep the work screen on one requirement" : isFeedback ? "Fix the feedback that asks for action" : isFinal ? "Use the checklist after required work" : "Your next capstone move",
+      title: isWork ? "Keep one requirement in focus" : isFeedback ? "Fix the feedback that asks for action" : isFinal ? "Use the checklist after required work" : "Your next capstone move",
       detail: "The student path separates work, feedback, and final checks so the first screen does not feel like a staff tool.",
       lanes: [
         {
