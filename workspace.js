@@ -1475,7 +1475,7 @@ function v2StudentDetailScreenModel({ isAdminConsole = false } = {}) {
     id: isAdminConsole ? "admin-student-detail" : "student-detail",
     kicker: "Student detail",
     title: "Review this student record",
-    detail: "Start with the loaded record, feedback, work, and timeline before opening broader tools.",
+    detail: "Start with this student's status, feedback, work, and timeline before opening broader tools.",
     primaryAction: v2PrimaryButton("Open feedback", 'data-student-detail-tab="feedback" data-student-detail-primary-action="hero-feedback"'),
     primaryHint: isAdminConsole ? "Record before setup" : "Record before lists",
     pathLabel: "Student detail path",
@@ -1490,7 +1490,7 @@ function v2StudentDetailScreenModel({ isAdminConsole = false } = {}) {
     },
     focusHtml: `
       <section class="workspace-v2-focus-strip">
-        <strong>The loaded student stays ahead of broader tools.</strong>
+        <strong>This student stays ahead of broader tools.</strong>
         <span>Use setup, reports, or lists only after the record shows what follow-up is needed.</span>
       </section>
     `,
@@ -22951,7 +22951,7 @@ async function enterViewAsStudent(studentId, options = {}) {
   currentData.archiveReadiness = null;
   syncViewAsStudentUrlState();
   renderAppShell("Loading student view...");
-  await loadViewAsStudentPreview("Student view loaded.");
+  await loadViewAsStudentPreview("Student view opened.");
 }
 
 async function restoreViewAsStudentFromUrlState(options = {}) {
@@ -22971,7 +22971,7 @@ async function restoreViewAsStudentFromUrlState(options = {}) {
   });
 }
 
-async function loadViewAsStudentPreview(message = "Student view loaded.", options = {}) {
+async function loadViewAsStudentPreview(message = "Student view opened.", options = {}) {
   const studentId = cleanDirectoryFilter(viewAsStudentState.studentId || "");
   if (!studentId || !canUseViewAsStudent(roleIds(currentUser))) {
     exitViewAsStudent(options.errorMessage || "Student preview is not available for this account.", "error", { replaceUrl: true });
@@ -23591,7 +23591,7 @@ async function openSiteStudentDetail(studentId, options = {}) {
   };
   currentData.siteStudentDetail = result;
   requestSiteStudentDetailFocus();
-  renderAppShell(result.ok ? "Student detail loaded." : "Student detail unavailable.", result.ok ? "success" : "error");
+  renderAppShell(result.ok ? "Student detail opened." : "Student detail unavailable.", result.ok ? "success" : "error");
 }
 
 async function handleSiteStudentDetailAction(event) {
@@ -23726,7 +23726,7 @@ async function loadSiteStudentTimeline(options = {}) {
   };
   currentData.siteStudentTimeline = timelineResult;
   renderAppShell(
-    timelineResult.ok ? (options.successMessage || "Student timeline loaded.") : (options.errorMessage || "Student timeline unavailable."),
+    timelineResult.ok ? (options.successMessage || "Student timeline opened.") : (options.errorMessage || "Student timeline unavailable."),
     timelineResult.ok ? "success" : "error",
   );
 }

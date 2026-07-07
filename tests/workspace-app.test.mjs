@@ -2545,7 +2545,7 @@ test("global admin review workload rows open student detail and keep admin dashb
     });
   `, context);
 
-  assert.match(workspaceRoot.innerHTML, /Student detail loaded/);
+  assert.match(workspaceRoot.innerHTML, /Student detail opened/);
   assert.match(workspaceRoot.innerHTML, /Back to Admin Command Center/);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-return-context="adminDashboard"/);
   assert.deepEqual(
@@ -3069,7 +3069,7 @@ test("site dashboard top-risk detail stays in dashboard context", async () => {
     });
   `, context);
 
-  assert.match(workspaceRoot.innerHTML, /Student detail loaded/);
+  assert.match(workspaceRoot.innerHTML, /Student detail opened/);
   assert.match(workspaceRoot.innerHTML, /Desert Valley High School \/ 2025-2026/);
   assert.match(workspaceRoot.innerHTML, /workspace-detail-drawer/);
   assertFocusableStudentDetailPanel(workspaceRoot.innerHTML);
@@ -4725,7 +4725,7 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
       }
     });
   `, context);
-  assert.match(workspaceRoot.innerHTML, /Student detail loaded/);
+  assert.match(workspaceRoot.innerHTML, /Student detail opened/);
   assert.match(workspaceRoot.innerHTML, /workspace-review-queue/);
   assert.match(workspaceRoot.innerHTML, /workspace-detail-drawer/);
   assertFocusableStudentDetailPanel(workspaceRoot.innerHTML);
@@ -6524,7 +6524,7 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
       }
     });
   `, context);
-  assert.match(workspaceRoot.innerHTML, /Student detail loaded/);
+  assert.match(workspaceRoot.innerHTML, /Student detail opened/);
   assert.match(workspaceRoot.innerHTML, /workspace-detail-drawer/);
   assertFocusableStudentDetailPanel(workspaceRoot.innerHTML);
   assertMarkupOrder(
@@ -7161,7 +7161,7 @@ test("mentor dashboard assigned students open detail and meeting history without
     });
   `, context);
 
-  assert.match(workspaceRoot.innerHTML, /Student detail loaded/);
+  assert.match(workspaceRoot.innerHTML, /Student detail opened/);
   assert.match(workspaceRoot.innerHTML, /workspace-detail-drawer/);
   assertFocusableStudentDetailPanel(workspaceRoot.innerHTML);
   assertMarkupOrder(
