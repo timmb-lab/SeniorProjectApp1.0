@@ -194,8 +194,8 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function screenVisibilityNotesFor\(sectionId = "overview"[\s\S]*Files and links you add are visible to you and staff who are allowed to review or support that work[\s\S]*Temporary setup passwords are sensitive handoffs[\s\S]*Rows hide private student, work, account, and file details/,
-  "screen visibility terms must cover file visibility, setup password handoff, and redacted audit rows",
+  /function screenVisibilityNotesFor\(sectionId = "overview"[\s\S]*Files and links you add are visible to you and staff who are allowed to review or support that work[\s\S]*Temporary setup passwords are sensitive handoffs[\s\S]*Events hide private student, work, account, and file details/,
+  "screen visibility terms must cover file visibility, setup password handoff, and redacted audit events",
 );
 assertMatches(
   "workspaceJs",

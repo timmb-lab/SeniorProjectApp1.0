@@ -1264,7 +1264,7 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
     "Audit filters narrow logged activity without changing the records.",
     "Files and links you add are visible to you and staff who are allowed to review or support that work.",
     "Temporary setup passwords are sensitive handoffs and should only be shared through the school-approved process.",
-    "Rows hide private student, work, account, and file details until a source screen is opened with allowed access.",
+    "Events hide private student, work, account, and file details until a source screen is opened with allowed access.",
     "Have the exact file or link ready before adding it or turning in work.",
     "Review work and history before saving a Program Teacher decision.",
     "Have the setup handoff and admin note ready before creating or importing accounts.",
@@ -1541,8 +1541,8 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(expandedSiteDashboard, /View students/);
   assert.match(expandedSiteDashboard, /data-section="students" data-section-preset="status-breakdown" data-status-filter="submitted"/);
   assert.match(expandedSiteDashboard, /data-section="students" data-section-preset="status-breakdown" data-status-filter="revision_requested"/);
-  assert.match(expandedSiteDashboard, /data-section="operations" data-section-preset="presentation-snapshot" data-presentation-status="scheduled">[\s\S]*Review rows/);
-  assert.match(expandedSiteDashboard, /data-section="operations" data-section-preset="archive-snapshot" data-archive-status="failed">[\s\S]*Review rows/);
+  assert.match(expandedSiteDashboard, /data-section="operations" data-section-preset="presentation-snapshot" data-presentation-status="scheduled">[\s\S]*Review work/);
+  assert.match(expandedSiteDashboard, /data-section="operations" data-section-preset="archive-snapshot" data-archive-status="failed">[\s\S]*Review work/);
   assert.match(expandedSiteDashboard, /Checked out[\s\S]*Summary only/);
   assert.match(expandedSiteDashboard, /Act on assigned site records[\s\S]*data-section="students" data-section-preset="all-students"[\s\S]*Open student list/);
   assert.match(expandedSiteDashboard, /Program Teacher follow-up[\s\S]*data-section="teacher" data-section-preset="revision-requested"[\s\S]*Open review queue/);
@@ -1686,7 +1686,7 @@ test("workspace explains what clicks do before users act", async () => {
   assert.match(audit, /data-screen-action-impact-guide="audit"/);
   assert.match(audit, /data-action-impact="filters" data-action-impact-state="safe"/);
   assert.match(audit, /Audit filters narrow logged activity without changing the records\./);
-  assert.match(audit, /Rows stay redacted so private notes, file links, and Drive identifiers are not exposed\./);
+  assert.match(audit, /Events stay redacted so private notes, file links, and Drive identifiers are not exposed\./);
 });
 
 test("workspace explains who can see screen information", async () => {
@@ -1715,8 +1715,8 @@ test("workspace explains who can see screen information", async () => {
   assert.match(audit, /data-screen-visibility-guide="audit"/);
   assert.match(audit, /data-visibility-note="global-admin-only" data-visibility-note-state="staff"/);
   assert.match(audit, /Audit details are limited to global admins and authorized security review staff\./);
-  assert.match(audit, /data-visibility-note="redacted-rows" data-visibility-note-state="redacted"/);
-  assert.match(audit, /Rows hide private student, work, account, and file details until a source screen is opened with allowed access\./);
+  assert.match(audit, /data-visibility-note="redacted-events" data-visibility-note-state="redacted"/);
+  assert.match(audit, /Events hide private student, work, account, and file details until a source screen is opened with allowed access\./);
 });
 
 test("workspace explains what users need before starting a screen", async () => {
@@ -2846,7 +2846,7 @@ test("global admin recent audit rows open filtered audit activity", async () => 
   assert.match(workspaceRoot.innerHTML, /Recent Changes/);
   assert.match(workspaceRoot.innerHTML, /Potential Issues/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-access-review="true"[\s\S]*Redaction[\s\S]*Always on[\s\S]*Current filter[\s\S]*student dashboard \/ student dashboard viewed/);
-  assert.match(workspaceRoot.innerHTML, /Audit rows stay redacted; use them for triage, not private note or file inspection/);
+  assert.match(workspaceRoot.innerHTML, /Audit events stay redacted; use them for triage, not private note or file inspection/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-first-use-guide="audit"/);
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-action-map="true"/);
   assert.match(workspaceRoot.innerHTML, /Choose one audit filter/);
@@ -6274,7 +6274,7 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /data-operations-action-map-card="proof"[\s\S]*Student and Program Teacher[\s\S]*7 missing[\s\S]*Find missing work[\s\S]*data-section="operations" data-section-preset="evidence-missing"[\s\S]*Open missing work/);
   assert.match(siteAdmin, /data-operations-action-map-card="presentation"[\s\S]*Program Teacher or site staff[\s\S]*16 follow-up[\s\S]*Clarify presentation readiness[\s\S]*data-section="operations" data-section-preset="presentation-attention"[\s\S]*Open presentation/);
   assert.match(siteAdmin, /data-operations-action-map-card="staff-action"[\s\S]*Assigned staff[\s\S]*15 action[\s\S]*Work ranked staff actions[\s\S]*data-section="operations" data-section-preset="needs-attention"[\s\S]*Open actions/);
-  assert.match(siteAdmin, /data-operations-action-map-card="source-screens"[\s\S]*School team[\s\S]*49 items[\s\S]*Return after the first issue[\s\S]*data-section="operations" data-section-preset="stale-activity"[\s\S]*Open stale rows/);
+  assert.match(siteAdmin, /data-operations-action-map-card="source-screens"[\s\S]*School team[\s\S]*49 items[\s\S]*Return after the first issue[\s\S]*data-section="operations" data-section-preset="stale-activity"[\s\S]*Open stale work/);
   assert.match(siteAdmin, /workspace-filter-bar/);
   assert.match(siteAdmin, /data-readiness-score-card="true"/);
   assert.match(siteAdmin, /Readiness score/);
@@ -6307,18 +6307,18 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /Needs staff action/);
   assert.match(siteAdmin, /Stale activity/);
   assert.match(siteAdmin, /Missing work/);
-  assert.match(siteAdmin, /data-section="operations" data-section-preset="presentation-pending">Review rows/);
+  assert.match(siteAdmin, /data-section="operations" data-section-preset="presentation-pending">Review work/);
   assert.match(siteAdmin, /Check-in needed/);
-  assert.match(siteAdmin, /data-section="operations" data-section-preset="presentation-attention">Review rows/);
-  assert.match(siteAdmin, /data-section="operations" data-section-preset="outline-pending">Review rows/);
-  assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-in-progress">Review rows/);
-  assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-expiring-soon">Review rows/);
-  assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-expired">Review rows/);
-  assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-failed">Review rows/);
-  assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-provider-unavailable">Review rows/);
-  assert.match(siteAdmin, /data-section="operations" data-section-preset="needs-attention">Review rows/);
-  assert.match(siteAdmin, /data-section="operations" data-section-preset="stale-activity">Review rows/);
-  assert.match(siteAdmin, /data-section="operations" data-section-preset="evidence-missing">Review rows/);
+  assert.match(siteAdmin, /data-section="operations" data-section-preset="presentation-attention">Review work/);
+  assert.match(siteAdmin, /data-section="operations" data-section-preset="outline-pending">Review work/);
+  assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-in-progress">Review work/);
+  assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-expiring-soon">Review work/);
+  assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-expired">Review work/);
+  assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-failed">Review work/);
+  assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-provider-unavailable">Review work/);
+  assert.match(siteAdmin, /data-section="operations" data-section-preset="needs-attention">Review work/);
+  assert.match(siteAdmin, /data-section="operations" data-section-preset="stale-activity">Review work/);
+  assert.match(siteAdmin, /data-section="operations" data-section-preset="evidence-missing">Review work/);
   assert.match(siteAdmin, /Presentation Pending Demo 001/);
   assert.match(siteAdmin, /Archive Failed Demo 001/);
   assert.match(siteAdmin, /Archive Ready Demo 001/);
@@ -6334,10 +6334,10 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /High Risk Demo 001/);
   assert.match(siteAdmin, /data-operations-program-breakdown="true"/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="program-breakdown" data-program-id="it"/);
-  assert.match(siteAdmin, /View program rows/);
+  assert.match(siteAdmin, /View program list/);
   assert.match(siteAdmin, /data-operations-next-actions="true"/);
   assert.match(siteAdmin, /data-operations-action="filter-category" data-operations-category="risk"/);
-  assert.match(siteAdmin, /View risk rows/);
+  assert.match(siteAdmin, /View risk list/);
   assert.match(siteAdmin, /View student detail/);
   assert.match(siteAdmin, /status-pill|workspace-status-pill/);
   assert.match(siteAdmin, /protected student issues/);
@@ -7815,7 +7815,7 @@ test("admin console empty and failed data states stay actionable without raw out
   assert.match(snapshotEmpty, /data-intentional-empty-state="presentation-snapshot-empty"[\s\S]*No status rows are available yet/);
 
   const auditSummaryEmpty = vm.runInContext("renderAuditSummary([], { allowAuditDrillDown: true })", context);
-  assert.match(auditSummaryEmpty, /data-intentional-empty-state="audit-summary-empty"[\s\S]*Audit summaries use redacted rows only/);
+  assert.match(auditSummaryEmpty, /data-intentional-empty-state="audit-summary-empty"[\s\S]*Audit summaries use redacted events only/);
 
   const scopedStudentEmpty = vm.runInContext("renderScopedStudentList([])", context);
   assert.match(scopedStudentEmpty, /data-intentional-empty-state="scoped-student-list-empty"[\s\S]*No students are currently visible for this school view/);

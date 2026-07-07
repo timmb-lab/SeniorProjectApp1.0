@@ -523,9 +523,9 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?mode=admin&section=audit"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
-    expected: ["Audit", "Choose one audit check", "Pick one redacted check", "Start with latest changes", "Redacted rows only"],
+    expected: ["Audit", "Choose one audit check", "Pick one redacted check", "Start with latest changes", "Redacted events only"],
     absent: ["Loaded redacted rows", "Rows that may need support", "Security checks that are enforced now", "Audit is for triage and proof", "Recent Protected Activity"],
-    proves: "Audit starts with one redacted-check list while counts, filters, anomalies, and recent rows stay behind supporting details.",
+    proves: "Audit starts with one redacted-check list while counts, filters, anomalies, and recent events stay behind supporting details.",
   },
   {
     id: "37-mobile-admin-overview",

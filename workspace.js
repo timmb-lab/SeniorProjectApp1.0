@@ -5193,12 +5193,12 @@ function screenActionImpactsFor(sectionId = "overview", primaryRole = primaryRol
     ],
     adminUsers: [
       ["Create or import", "Account creation and import forms save users, roles, and school, program, or student access.", "changes"],
-      ["Current access", "Current-access rows show what exists before you edit or remove anything.", "context"],
+      ["Current access", "Current access shows what exists before you edit or remove anything.", "context"],
       ["Profile and Security links", "Profile and Security clicks are safe navigation before risky account work.", "route"],
     ],
     audit: [
       ["Filters", "Audit filters narrow logged activity without changing the records.", "safe"],
-      ["Rows", "Rows stay redacted so private notes, file links, and Drive identifiers are not exposed.", "safe"],
+      ["Events", "Events stay redacted so private notes, file links, and Drive identifiers are not exposed.", "safe"],
       ["Follow-up", "Account, access, review, storage, or package fixes happen in the source screen, not in the log.", "context"],
     ],
     archiveExports: [
@@ -5348,7 +5348,7 @@ function screenVisibilityNotesFor(sectionId = "overview", primaryRole = primaryR
     ],
     audit: [
       ["Global admin only", "Audit details are limited to global admins and authorized security review staff.", "staff"],
-      ["Redacted rows", "Rows hide private student, work, account, and file details until a source screen is opened with allowed access.", "redacted"],
+      ["Redacted events", "Events hide private student, work, account, and file details until a source screen is opened with allowed access.", "redacted"],
       ["Follow-up elsewhere", "Use the source screen for fixes; the log itself is for review and triage.", "context"],
     ],
     archiveExports: [
@@ -5457,7 +5457,7 @@ function screenStartRequirementsFor(sectionId = "overview", primaryRole = primar
       ["Add follow-up note", "Write the next support step in plain language before recording the meeting.", "prepare"],
     ],
     programDashboard: [
-      ["Review risks first", "Start with review and cohort risk rows before browsing lower-priority summaries.", "check"],
+      ["Review risks first", "Start with review and cohort risk lists before browsing lower-priority summaries.", "check"],
       ["Choose source list", "Open Review Work or Students when a row needs detail.", "source"],
       ["Use Review Work for decisions", "Save approval or revision decisions only from Review Work.", "source"],
     ],
@@ -5644,7 +5644,7 @@ function screenDoneSignalsFor(sectionId = "overview", primaryRole = primaryRoleF
     adminUsers: [
       ["Access row correct", "Current access shows the intended person, role, and school, program, cohort, or student.", "saved"],
       ["Handoff recorded", "Setup handoff and admin note are ready for the school's approved process.", "handoff"],
-      ["Review trail exists", "Recent access rows can explain account changes later.", "complete"],
+      ["Review trail exists", "Recent access changes can explain account updates later.", "complete"],
     ],
     audit: [
       ["Pattern identified", "Filters point to the action, person, or record pattern you needed to investigate.", "complete"],
@@ -6020,7 +6020,7 @@ function renderStaffAdminTodayPlan(model = {}) {
       id: "review-work",
       title: "Route review work",
       value: reviewCount,
-      detail: "Open Review Work only when this role can see review rows for the selected school.",
+      detail: "Open Review Work only when this role can see review work for the selected school.",
       section: "teacher",
       preset: "submitted",
       action: "Open reviews",
@@ -6953,7 +6953,7 @@ function staffReportQuestions({ roles, visibleStudents, reviewCount, setupSignal
     {
       id: "work-waiting-for-review",
       kicker: "Work waiting for review",
-      title: safeNumber(reviewCount) ? `${safeNumber(reviewCount)} review rows` : "No review queue is waiting",
+      title: safeNumber(reviewCount) ? `${safeNumber(reviewCount)} review ${pluralize(reviewCount, "item")}` : "No review queue is waiting",
       detail: "Submitted or revision work should be handled in Review Work before report browsing.",
       valueLabel: `${safeNumber(reviewCount)} waiting ${pluralize(reviewCount, "row")}`,
       section: canOpenReviewQueue ? "teacher" : "",
@@ -7117,7 +7117,7 @@ function renderAdminReportChoiceFlow(model = adminConsoleOperationsModel(), capa
         <div>
           <p class="workspace-kicker">Report path</p>
           <h3 id="adminReportChoiceTitle">Pick the report you need now</h3>
-          <p>Use roster completeness first. If a row needs work, move to setup issues or the linked setup screen.</p>
+          <p>Use roster completeness first. If a number needs follow-up, move to setup issues or the linked setup screen.</p>
         </div>
       </div>
       <p class="workspace-report-confidence-note" data-report-confidence-note="admin">
@@ -7137,7 +7137,7 @@ function renderAdminReportChoiceRow(spec = {}, index = 0, model = adminConsoleOp
   const isPrimary = index === 0;
   const setupIssues = safeNumber(model?.report?.setupIssueCount) + safeNumber(model?.report?.importIssueCount);
   const helper = id === "admin-roster-completeness"
-    ? `${safeNumber(model?.report?.loadedStudentRows || model?.report?.studentTotal)} roster rows visible to this admin role.`
+    ? `${safeNumber(model?.report?.loadedStudentRows || model?.report?.studentTotal)} students visible to this admin role.`
     : id === "admin-setup-issues"
       ? `${setupIssues} setup or import issue${setupIssues === 1 ? "" : "s"} need review.`
       : "Appears after a CSV preview or import result exists.";
@@ -7151,10 +7151,10 @@ function renderAdminReportChoiceRow(spec = {}, index = 0, model = adminConsoleOp
         <strong>${escapeHtml(title)}</strong>
         <p>${escapeHtml(spec.detail || "Download this report CSV.")}</p>
         <small>${escapeHtml(helper)}</small>
-        <small data-report-export-boundary="${escapeHtml(id)}">${escapeHtml(reportExportBoundaryText(spec, "Download includes only rows visible to this account."))}</small>
+        <small data-report-export-boundary="${escapeHtml(id)}">${escapeHtml(reportExportBoundaryText(spec, "Download includes only records visible to this account."))}</small>
       </div>
       <div class="workspace-admin-report-choice-actions">
-        <span class="workspace-summary-badge">${escapeHtml(String(count))} row${count === 1 ? "" : "s"}</span>
+        <span class="workspace-summary-badge">${escapeHtml(String(count))} record${count === 1 ? "" : "s"}</span>
         ${renderAdminReportChoiceAction(spec, isPrimary)}
         ${linkedAction}
       </div>
@@ -7528,7 +7528,7 @@ function renderAdminAssignmentCoverageSummary(model = adminAssignmentCoverageMod
     { id: "mentor", label: "Missing Mentor Coverage", value: missingMentorStudents.length, detail: `${mentorAssignments.length} active mentor assignments`, tone: missingMentorStudents.length ? "warning" : "ready" },
     { id: "viewer", label: "Missing Viewer Access", value: missingViewerStudents.length, detail: `${viewerAssignments.length} active viewer assignments`, tone: missingViewerStudents.length ? "warning" : "ready" },
     { id: "program-teacher", label: "Program Teacher Gaps", value: missingTeacherPrograms.length, detail: `${programTeacherAssignments.length} active Program Teacher assignments`, tone: missingTeacherPrograms.length ? "warning" : "ready" },
-    { id: "admin", label: "School Admin Grants", value: safeNumber((assignments.administrationSite || []).length) + safeNumber((assignments.siteAdminSite || []).length), detail: "Administration and Site Admin access rows", tone: "quiet" },
+    { id: "admin", label: "School Admin Grants", value: safeNumber((assignments.administrationSite || []).length) + safeNumber((assignments.siteAdminSite || []).length), detail: "Administration and Site Admin access grants", tone: "quiet" },
   ];
   return `
     <section class="workspace-admin-coverage-summary" data-admin-assignment-coverage-summary="true" aria-label="Assignment coverage summary">
@@ -7728,7 +7728,7 @@ function staffReportExportSpecs() {
       filename: "capstone-pending-reviews.csv",
       headers: ["Student name", "Requirement", "Status", "Evidence count", "Updated", "Next action"],
       rows: reviewRows,
-      boundary: "Includes only review rows this role can already open.",
+      boundary: "Includes only review work this role can already open.",
     },
   ];
 }
@@ -8648,7 +8648,7 @@ function renderAdminProgramsCoveragePanel(activePrograms = [], body = {}) {
       <article>
         <span>Active programs</span>
         <strong>${escapeHtml(String(activePrograms.length))}</strong>
-        <small>${escapeHtml(`${programTeacherAssignments.length} Program Teacher assignment ${pluralize(programTeacherAssignments.length, "row")}`)}</small>
+        <small>${escapeHtml(`${programTeacherAssignments.length} Program Teacher ${pluralize(programTeacherAssignments.length, "assignment")}`)}</small>
       </article>
       <article class="${availablePrograms.length ? "warning" : "ready"}">
         <span>Available to add</span>
@@ -11919,7 +11919,7 @@ function renderOperationsActiveFilters(filters = {}, options = {}) {
   if (filters.archiveStatus) chips.push(activeFilterChip("Archive", statusText(filters.archiveStatus)));
   if (filters.readiness) chips.push(activeFilterChip("Readiness", statusText(filters.readiness)));
   if (filters.category) chips.push(activeFilterChip("Category", categoryLabel(filters.category)));
-  if (filters.needsAttention) chips.push(activeFilterChip("Needs attention", "Blocked, missing, or high-risk rows"));
+  if (filters.needsAttention) chips.push(activeFilterChip("Needs attention", "Blocked, missing, or high-risk work"));
   if (filters.outlineAttention) chips.push(activeFilterChip("Outline", "Pending approval or needs revision"));
   if (filters.story) chips.push(activeFilterChip("Story", storyLabel(filters.story)));
   if (filters.risk && filters.risk !== "any") chips.push(activeFilterChip("Risk", riskLabel(filters.risk)));
@@ -12004,7 +12004,7 @@ function renderOperationsActionMap(body = {}, dashboard = {}) {
       count: staffAction ? `${staffAction} action` : "Clear",
       title: staffAction ? "Work ranked staff actions" : "No ranked staff action",
       detail: staffAction
-        ? "Use this item for high-priority rows when the next helper must be confirmed in student detail."
+        ? "Use this item for high-priority work when the next helper must be confirmed in student detail."
         : "No staff-action row is waiting in the current operations summary.",
       source: "Ranked worklist source",
       preset: "needs-attention",
@@ -12021,7 +12021,7 @@ function renderOperationsActionMap(body = {}, dashboard = {}) {
         : "No major operations problem is visible; keep monitoring ready, in-progress, and expiring items.",
       source: sourceDetail,
       preset: staleActivity ? "stale-activity" : "archive-in-progress",
-      actionLabel: totalItems ? "Open stale rows" : "Review in progress",
+      actionLabel: totalItems ? "Open stale work" : "Review in progress",
     },
   ];
 
@@ -12054,7 +12054,7 @@ function renderOperationsActionMapCard(card = {}) {
         <p>${escapeHtml(card.detail || "Open the matching source rows before changing any status.")}</p>
         ${card.source ? `<small>${escapeHtml(card.source)}</small>` : ""}
       </div>
-      ${card.preset ? operationsPresetButton(card.preset, card.actionLabel || "Review rows") : `<span class="workspace-summary-badge">Summary only</span>`}
+      ${card.preset ? operationsPresetButton(card.preset, card.actionLabel || "Review work") : `<span class="workspace-summary-badge">Summary only</span>`}
     </article>
   `;
 }
@@ -12493,7 +12493,7 @@ function operationsRankedActionNextStep(action = {}) {
   return "Open the filtered operations rows and route each issue to the right helper.";
 }
 
-function operationsPresetButton(preset, label = "Review rows") {
+function operationsPresetButton(preset, label = "Review work") {
   if (!preset || !availableSectionIdsForAnyMode().has("operations")) return "";
   return `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="operations" data-section-preset="${escapeHtml(preset)}">${escapeHtml(label)}</button>`;
 }
@@ -12844,7 +12844,7 @@ function renderOperationsProgramBreakdown(rows = [], denominator = 0) {
             <span class="workspace-site-context-badge">${safeNumber(row.needsAttention)} attention</span>
             ${row.programId ? `
               <button class="workspace-link-button workspace-link-button-small" type="button" data-section="operations" data-section-preset="program-breakdown" data-program-id="${escapeHtml(row.programId)}">
-                View program rows
+                View program list
               </button>
             ` : ""}
           </div>
@@ -12865,10 +12865,10 @@ function renderOperationsNextActions(rows = [], scope = {}) {
             <p>${escapeHtml(row.owner || "Site administration")} / ${escapeHtml(categoryLabel(row.category || "readiness"))}</p>
           </div>
           <div class="workspace-row-actions">
-            <span class="workspace-site-context-badge">${safeNumber(row.count)} row${safeNumber(row.count) === 1 ? "" : "s"}</span>
+            <span class="workspace-site-context-badge">${safeNumber(row.count)} item${safeNumber(row.count) === 1 ? "" : "s"}</span>
             ${row.category ? `
               <button class="workspace-link-button workspace-link-button-small" type="button" data-operations-action="filter-category" data-operations-category="${escapeHtml(row.category)}">
-                View ${escapeHtml(categoryLabel(row.category).toLowerCase())} rows
+                View ${escapeHtml(categoryLabel(row.category).toLowerCase())} list
               </button>
             ` : ""}
           </div>
@@ -12921,8 +12921,8 @@ function renderAdminAuditEmptyState(hasFilters = false, filterLabel = "") {
     <article class="workspace-empty-state-card" data-admin-audit-empty-state="true">
       <strong>${escapeHtml(hasFilters ? "No audit events match this filter." : "No audit events found.")}</strong>
       <p>${escapeHtml(hasFilters
-        ? `No redacted audit rows match ${filterLabel || "the selected filter"} in this result.`
-        : "No redacted audit rows are available in this result yet.")}</p>
+        ? `No redacted audit events match ${filterLabel || "the selected filter"} in this result.`
+        : "No redacted audit events are available in this result yet.")}</p>
       ${renderProblemState({
         reason: hasFilters ? "The selected audit filter returned no rows." : "The audit request succeeded but returned no event rows.",
         owner: "Global admin",
@@ -12964,7 +12964,7 @@ function renderAdminAuditSection() {
           <h1>Choose one audit check</h1>
           <p>${escapeHtml(hasFilters
             ? `Showing recent changes for ${filterLabel}.`
-            : "Start with the latest redacted rows, then open one saved check only if the pattern needs follow-up.")}</p>
+            : "Start with the latest redacted events, then open one saved check only if the pattern needs follow-up.")}</p>
         </div>
         <span class="workspace-chip">${safeNumber(events.length)} recent event${safeNumber(events.length) === 1 ? "" : "s"}</span>
       </div>
@@ -13008,7 +13008,7 @@ function renderAdminAuditStartFlow(events = [], activeFilters = {}) {
       id: "recent",
       step: "Start here",
       title: "Start with latest changes",
-      detail: "Use the newest redacted rows before changing filters or widening access.",
+      detail: "Use the newest redacted events before changing filters or widening access.",
       count: `${safeNumber(safeEvents.length)} ${pluralize(safeEvents.length, "event")}`,
       actionLabel: "Show recent",
       action: "",
@@ -13028,7 +13028,7 @@ function renderAdminAuditStartFlow(events = [], activeFilters = {}) {
       id: "review-decisions",
       step: "Then check",
       title: "Confirm review decisions",
-      detail: "Use review rows to verify approvals, revisions, and comments without opening private files here.",
+      detail: "Use review events to verify approvals, revisions, and comments without opening private files here.",
       count: `${reviewCount} ${pluralize(reviewCount, "decision")}`,
       actionLabel: "Open reviews",
       action: "",
@@ -13043,7 +13043,7 @@ function renderAdminAuditStartFlow(events = [], activeFilters = {}) {
           <h2 id="adminAuditStartTitle">Pick one redacted check</h2>
           <p>Audit is for triage. Open one pattern, confirm the source screen, then decide whether access or setup needs follow-up.</p>
         </div>
-        <span class="workspace-chip">Redacted rows only</span>
+        <span class="workspace-chip">Redacted events only</span>
       </div>
       <div class="workspace-admin-audit-start-list">
         ${rows.map((row, index) => renderAdminAuditStartRow(row, activeFilters, index === 0)).join("")}
@@ -13079,10 +13079,10 @@ function renderAdminAuditAccessReviewPanel(events = [], activeFilters = {}) {
   const hasFilters = Boolean(activeFilters.action || activeFilters.entityType);
   const anomalyCount = adminAuditAnomalyRows(safeEvents).reduce((sum, row) => sum + safeNumber(row.count), 0);
   const cards = [
-    ["Redaction", "Always on", "Audit rows stay redacted; use them for triage, not private note or file inspection."],
+    ["Redaction", "Always on", "Audit events stay redacted; use them for triage, not private note or file inspection."],
     ["Current filter", hasFilters ? adminAuditFilterLabel(activeFilters) : "Recent activity", hasFilters ? "Clear filters before declaring the audit view quiet." : "Start with saved filters when investigating a specific problem."],
     ["Potential issues", anomalyCount, "Anomaly cards group repeated denied access, blocked proof, session, or storage signals."],
-    ["Next move", safeEvents.length ? "Review first row" : "Refresh later", safeEvents.length ? "Open the relevant saved filter or row group before changing access." : "No redacted rows are visible in this audit view."],
+    ["Next move", safeEvents.length ? "Review first event" : "Refresh later", safeEvents.length ? "Open the relevant saved filter or event group before changing access." : "No redacted events are visible in this audit view."],
   ];
   return `
     <section class="workspace-admin-audit-access-review" data-admin-audit-access-review="true" aria-label="Audit access review guidance">
@@ -13105,7 +13105,7 @@ function renderAdminAuditOperationsSummary(events = []) {
       id: "access-review",
       title: "Access Review",
       value: countWhere(/denied|unauthorized|access|assignment/i),
-      detail: "Denied access, assignment, and school/program change rows.",
+      detail: "Denied access, assignment, and school/program change events.",
     },
     {
       id: "role-assignments",
@@ -13117,13 +13117,13 @@ function renderAdminAuditOperationsSummary(events = []) {
       id: "recent-changes",
       title: "Recent Changes",
       value: safeEvents.length,
-      detail: "Visible redacted rows in this audit view.",
+      detail: "Visible redacted events in this audit view.",
     },
     {
       id: "potential-issues",
       title: "Potential Issues",
       value: adminAuditAnomalyRows(safeEvents).reduce((sum, row) => sum + safeNumber(row.count), 0),
-      detail: "Rows that may need support, setup, or access follow-up.",
+      detail: "Events that may need support, setup, or access follow-up.",
     },
   ];
   return `
@@ -13201,8 +13201,8 @@ function renderAdminAuditActionMap(events = [], activeFilters = {}) {
       owner: "Program Teacher lead",
       count: `${reviewCount} ${pluralize(reviewCount, "decision")}`,
       title: "Confirm review decisions",
-      detail: "Use review rows to verify approvals, revisions, and comments without opening private files here.",
-      source: "Review rows",
+      detail: "Use review events to verify approvals, revisions, and comments without opening private files here.",
+      source: "Review events",
       action: "",
       entityType: "review",
       actionLabel: "Open reviews",
@@ -13351,8 +13351,8 @@ function renderAdminAuditAnomalyView(events = []) {
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Potential issues</p>
-          <h2>Rows to check</h2>
-          <p class="workspace-muted">This view summarizes the visible redacted audit rows. It does not expose private notes, file links, tokens, or Drive identifiers.</p>
+          <h2>Events to check</h2>
+          <p class="workspace-muted">This view summarizes the visible redacted audit events. It does not expose private notes, file links, tokens, or Drive identifiers.</p>
         </div>
         <span class="workspace-chip">${safeNumber(rows.reduce((sum, row) => sum + row.count, 0))} signal${rows.reduce((sum, row) => sum + row.count, 0) === 1 ? "" : "s"}</span>
       </div>
@@ -13389,7 +13389,7 @@ function adminAuditAnomalyRows(events = []) {
       label: "Denied access",
       count: countWhere((event) => /denied|unauthorized/i.test(event.action || "")),
       reviewCopy: "Check whether a role, site, or student assignment is wrong before expanding access.",
-      quietCopy: "No denied-access rows are visible in this audit view.",
+      quietCopy: "No denied-access events are visible in this audit view.",
       owner: "Access admin",
       nextAction: "Confirm the current school, program, or student assignment before changing access.",
       action: "evidence_download_denied",
@@ -18926,7 +18926,7 @@ function renderReviewSubmissionPanel(selected, body) {
             Open first work
           </button>
         ` : `
-          <p class="workspace-muted">No review rows are visible right now.</p>
+          <p class="workspace-muted">No review work is visible right now.</p>
         `}
       </section>
     `;
@@ -19520,8 +19520,8 @@ function renderSiteReadinessDashboard(operationsBody = {}, readinessResult = nul
   const heroKicker = administrationMonitoring ? "Leadership readiness" : "Aggregate project readiness";
   const heroTitle = administrationMonitoring ? "School Readiness" : "Readiness";
   const heroDetail = administrationMonitoring
-    ? "Track school readiness, blocker priorities, program risk, and highest-risk rows from the records you can monitor here. Teachers and site staff still handle approvals, mentor assignments, account updates, and security settings."
-    : "Aggregate project readiness, blocker priorities, program risk, and highest-risk rows from visible operations records.";
+    ? "Track school readiness, blocker priorities, program risk, and highest-risk students from the records you can monitor here. Teachers and site staff still handle approvals, mentor assignments, account updates, and security settings."
+    : "Aggregate project readiness, blocker priorities, program risk, and highest-risk students from visible operations records.";
   return `
     <section class="workspace-command-center workspace-readiness-dashboard" data-readiness-report="site-operations" aria-labelledby="readinessDashboardTitle">
       ${renderSiteContextBlock(operationsBody)}
@@ -19548,7 +19548,7 @@ function renderSiteReadinessDashboard(operationsBody = {}, readinessResult = nul
       </div>
       <div class="workspace-dashboard-grid workspace-dashboard-grid-two workspace-dashboard-support-grid">
         ${renderDashboardCard("Program risk", "Top-risk programs in visible records", renderOperationsProgramBreakdown(readiness.filteredProgramBreakdown || readiness.programBreakdown || [], dashboard.total))}
-        ${renderDashboardCard("Highest-risk rows", "Compact rows for follow-up", renderOperationsCompactWorklist(dashboard.worklistRows, permissions, operationsBody.filters || operationsReadinessFilters))}
+        ${renderDashboardCard("Highest-risk students", "Compact follow-up list", renderOperationsCompactWorklist(dashboard.worklistRows, permissions, operationsBody.filters || operationsReadinessFilters))}
       </div>
     </section>
   `;
@@ -19720,7 +19720,7 @@ function renderSiteReadinessActionMap(operationsBody = {}, dashboard = {}, admin
       source: "Operations stale rows",
       section: "operations",
       preset: "stale-activity",
-      actionLabel: "Open stale rows",
+      actionLabel: "Open stale work",
     },
     {
       id: "program-risk",
@@ -20176,7 +20176,7 @@ function renderSecuritySupportGuide({ globalAdmin = false, canManageUsers = fals
           <span>${escapeHtml(globalAdmin ? "Audit activity belongs in Audit" : "Security review is admin-only")}</span>
           <small>${escapeHtml(globalAdmin
             ? "Use Audit to review denied access, role changes, import attempts, reset activity, and protected-route events."
-            : "This screen does not expose audit history, denied-access rows, or protected security activity.")}</small>
+            : "This screen does not expose audit history, denied-access events, or protected security activity.")}</small>
         </article>
       </div>
     </section>
@@ -25451,7 +25451,7 @@ function renderRecentProgramActivity(rows = []) {
       kicker: "No recent activity",
       title: "No recent program activity is visible yet",
       detail: "New submissions, proof, and Program Teacher feedback will appear here when this account can see them.",
-      reason: "No recent program rows are available for the visible school or program.",
+      reason: "No recent program activity is available for the visible school or program.",
       owner: "Program Teacher or site staff",
       nextAction: "Continue normal follow-up or open Students to inspect a specific record.",
       actions: [{ label: "Open students", section: "students" }],
@@ -25591,13 +25591,13 @@ function renderMentorCoverage(rows = [], summary = {}) {
   const mentorEmpty = !rows.length ? renderIntentionalEmptyState({
     id: "mentor-coverage-clear",
     kicker: "Mentor coverage",
-    title: noMentor ? "No mentor assignment rows are visible yet" : "No mentor coverage gaps are visible right now",
+    title: noMentor ? "No mentor assignments are visible yet" : "No mentor coverage gaps are visible right now",
     detail: noMentor
-      ? "The summary shows students without mentors, but this panel did not receive the matching assignment rows."
-      : "This means the mentor coverage panel has no rows to review for this school or assigned-student list.",
+      ? "The summary shows students without mentors, but this panel did not receive the matching assignments."
+      : "This means the mentor coverage panel has no students to review for this school or assigned-student list.",
     reason: noMentor
       ? "Mentor coverage data is incomplete for the selected view."
-      : "The mentor coverage list returned no assignment rows.",
+      : "The mentor coverage list returned no assignments.",
     owner: "Site staff",
     nextAction: noMentor
       ? "Open mentor assignments or the missing-mentor student filter before adding broad access."
@@ -25732,14 +25732,14 @@ function snapshotRowAction(row = {}, type = "") {
   if (type === "presentation" && ["scheduled", "completed"].includes(status)) {
     return `
       <button class="workspace-link-button workspace-link-button-small" type="button" data-section="operations" data-section-preset="presentation-snapshot" data-presentation-status="${escapeHtml(status)}">
-        Review rows
+        Review work
       </button>
     `;
   }
   if (type === "archive" && ["queued", "running", "complete", "failed", "expired", "expiring_soon", "provider_unavailable"].includes(status)) {
     return `
       <button class="workspace-link-button workspace-link-button-small" type="button" data-section="operations" data-section-preset="archive-snapshot" data-archive-status="${escapeHtml(status)}">
-        Review rows
+        Review work
       </button>
     `;
   }
@@ -25754,7 +25754,7 @@ function renderAuditSummary(rows = [], options = {}) {
       id: "audit-summary-empty",
       kicker: "Audit",
       title: emptyMessage,
-      detail: "Audit summaries use redacted rows only. Empty does not prove that no changes happened outside the visible result.",
+      detail: "Audit summaries use redacted events only. Empty does not prove that no changes happened outside the visible result.",
       reason: "The audit summary returned no rows for this view.",
       owner: "Global admin",
       nextAction: "Open Audit or refresh after access, account, import, or review changes.",
