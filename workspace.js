@@ -7058,7 +7058,7 @@ function renderStaffReportsSection() {
       ${renderReportExportPanel({
         id: "staff",
         title: "CSV downloads",
-        detail: "Downloads use only rows already loaded for this role and omit internal ids, storage ids, passwords, and admin notes.",
+        detail: "Downloads use only rows visible to this role and leave out passwords, private notes, and file links.",
         exports: staffReportExportSpecs(),
       })}
       ${availableSectionIdsForAnyMode().has("readiness") ? renderReadinessSection() : ""}
@@ -7136,7 +7136,7 @@ function renderAdminReportChoiceRow(spec = {}, index = 0, model = adminConsoleOp
   const isPrimary = index === 0;
   const setupIssues = safeNumber(model?.report?.setupIssueCount) + safeNumber(model?.report?.importIssueCount);
   const helper = id === "admin-roster-completeness"
-    ? `${safeNumber(model?.report?.loadedStudentRows || model?.report?.studentTotal)} roster rows in the current allowed view.`
+    ? `${safeNumber(model?.report?.loadedStudentRows || model?.report?.studentTotal)} roster rows visible to this admin role.`
     : id === "admin-setup-issues"
       ? `${setupIssues} setup or import issue${setupIssues === 1 ? "" : "s"} need review.`
       : "Appears after a CSV preview or import result exists.";
@@ -7150,7 +7150,7 @@ function renderAdminReportChoiceRow(spec = {}, index = 0, model = adminConsoleOp
         <strong>${escapeHtml(title)}</strong>
         <p>${escapeHtml(spec.detail || "Download this report CSV.")}</p>
         <small>${escapeHtml(helper)}</small>
-        <small data-report-export-boundary="${escapeHtml(id)}">${escapeHtml(reportExportBoundaryText(spec, "Download includes only rows in the current allowed view."))}</small>
+        <small data-report-export-boundary="${escapeHtml(id)}">${escapeHtml(reportExportBoundaryText(spec, "Download includes only rows visible to this account."))}</small>
       </div>
       <div class="workspace-admin-report-choice-actions">
         <span class="workspace-summary-badge">${escapeHtml(String(count))} row${count === 1 ? "" : "s"}</span>
@@ -7177,7 +7177,7 @@ function renderAdminReportScopeNotice(report = {}, capabilities = adminConsoleCa
   const rows = [
     ["Current access", capabilities.scope?.label || "Allowed records", capabilities.scope?.detail || "Only records this account can already load."],
     ["Student denominator", safeNumber(report.studentTotal || report.loadedStudentRows), `${safeNumber(report.loadedStudentRows)} loaded roster row${safeNumber(report.loadedStudentRows) === 1 ? "" : "s"} in this view.`],
-    ["Export safety", "Report-safe", "Downloads omit passwords, admin notes, internal storage ids, and rows outside this account's current view."],
+    ["Export safety", "Report-safe", "Downloads leave out passwords, private notes, file links, and rows outside this account's access."],
     ["Unknowns", "Not complete", "Unknown or unloaded states are not counted as complete in coverage percentages."],
   ];
   return `
@@ -7691,7 +7691,7 @@ function renderReportExportRow(spec = {}) {
         <strong>${escapeHtml(spec.title || "Report export")}</strong>
         <p>${escapeHtml(spec.detail || "Download this report CSV.")}</p>
         <small data-report-export-fields="${escapeHtml(spec.id || "report")}">Fields: ${escapeHtml(headers.join(", "))}</small>
-        <small data-report-export-boundary="${escapeHtml(spec.id || "report")}">${escapeHtml(reportExportBoundaryText(spec, "Download includes only rows this role can already load."))}</small>
+        <small data-report-export-boundary="${escapeHtml(spec.id || "report")}">${escapeHtml(reportExportBoundaryText(spec, "Download includes only rows visible to this account."))}</small>
       </div>
       <div class="workspace-row-actions">
         <span class="workspace-summary-badge">${escapeHtml(String(rowCount))} row${rowCount === 1 ? "" : "s"}</span>
@@ -7718,7 +7718,7 @@ function staffReportExportSpecs() {
       filename: "capstone-visible-students.csv",
       headers: ["Student name", "Program", "Latest submission", "Review status", "Evidence status", "Presentation", "Final files", "Next action"],
       rows: visibleStudentRows,
-      boundary: "Includes only students this role can load; no IDs, passwords, admin notes, or storage links.",
+      boundary: "Includes only students visible to this account; no passwords, private notes, or file links.",
     },
     {
       id: "staff-pending-reviews",
@@ -7745,20 +7745,20 @@ function adminReportExportSpecs(model = adminConsoleOperationsModel()) {
     {
       id: "admin-roster-completeness",
       title: "Roster completeness",
-      detail: "Student setup fields from the current admin view.",
+      detail: "Student setup fields visible to this admin role.",
       filename: "capstone-admin-roster-completeness.csv",
       headers: ["Student name", "Program", "Cohort", "Graduation year", "Mentor coverage", "Viewer coverage", "Setup flags"],
       rows: rosterRows,
-      boundary: "Uses the current admin view only; no IDs, passwords, admin notes, or storage links.",
+      boundary: "Uses only rows visible to this admin role; no passwords, private notes, or file links.",
     },
     {
       id: "admin-setup-issues",
       title: "Setup issues",
-      detail: "Prioritized setup/import issue list for the current admin view.",
+      detail: "Prioritized setup/import issue list visible to this admin role.",
       filename: "capstone-admin-setup-issues.csv",
       headers: ["Issue", "Detail", "Count", "Action"],
       rows: setupIssueRows,
-      boundary: "Includes only setup and import issue summaries from this allowed view.",
+      boundary: "Includes only setup and import issue summaries visible to this admin role.",
     },
     {
       id: "admin-import-result",

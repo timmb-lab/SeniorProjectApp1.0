@@ -878,7 +878,8 @@ test("workspace reports render accessible shared report bars with mobile fallbac
   assert.match(staffReports, /data-report-export-panel="staff"/);
   assert.match(staffReports, /data-report-confidence-note="staff"[\s\S]*unknown states are not counted as complete/);
   assert.match(staffReports, /data-report-export-card="staff-visible-students"[\s\S]*capstone-visible-students\.csv/);
-  assert.match(staffReports, /data-report-export-boundary="staff-visible-students"[\s\S]*Includes only students this role can load/);
+  assert.match(staffReports, /data-report-export-boundary="staff-visible-students"[\s\S]*Includes only students visible to this account/);
+  assert.doesNotMatch(visibleText(staffReports), /current admin view|storage links|no IDs/i);
   const visibleStudentsCsv = reportExportCsv(staffReports, "staff-visible-students");
   assert.match(visibleStudentsCsv, /^Student name,Program,Latest submission,Review status,Evidence status,Presentation,Final files,Next action/m);
   assert.match(visibleStudentsCsv, /Missing Mentor Demo 001/);
@@ -896,8 +897,9 @@ test("workspace reports render accessible shared report bars with mobile fallbac
   assert.match(adminReports, /data-report-bars="true"/);
   assert.match(adminReports, /data-report-export-panel="admin"/);
   assert.match(adminReports, /data-report-export-card="admin-roster-completeness"[\s\S]*capstone-admin-roster-completeness\.csv/);
-  assert.match(adminReports, /data-report-export-boundary="admin-roster-completeness"[\s\S]*current admin view only/);
+  assert.match(adminReports, /data-report-export-boundary="admin-roster-completeness"[\s\S]*visible to this admin role/);
   assert.match(adminReports, /data-report-export-empty="admin-import-result"/);
+  assert.doesNotMatch(visibleText(adminReports), /current admin view|storage links|no IDs/i);
   const rosterCsv = reportExportCsv(adminReports, "admin-roster-completeness");
   assert.match(rosterCsv, /^Student name,Program,Cohort,Graduation year,Mentor coverage,Viewer coverage,Setup flags/m);
   assert.match(rosterCsv, /Missing Mentor Demo 001/);
@@ -928,7 +930,8 @@ test("workspace report exports stay scoped for viewer and unavailable to student
   assert.match(viewerReports, /data-staff-report-question="work-waiting-for-review"[\s\S]*Summary only/);
   assert.doesNotMatch(viewerReports, /data-staff-report-question="work-waiting-for-review"[\s\S]*data-section="teacher"/);
   assert.match(viewerReports, /data-report-export-panel="staff"/);
-  assert.match(viewerReports, /data-report-export-boundary="staff-visible-students"[\s\S]*Includes only students this role can load/);
+  assert.match(viewerReports, /data-report-export-boundary="staff-visible-students"[\s\S]*Includes only students visible to this account/);
+  assert.doesNotMatch(visibleText(viewerReports), /current admin view|storage links|no IDs/i);
   assert.doesNotMatch(viewerReports, /data-report-export-panel="admin"|data-report-export-card="admin-/);
   assert.doesNotMatch(viewerReports, /data-csv-import-kind="students"|data-mentor-assignment-form="true"|data-review-decision="approved"|data-admin-action="import-users"/);
   const viewerCsv = reportExportCsv(viewerReports, "staff-visible-students");
@@ -7687,7 +7690,7 @@ test("admin console surfaces setup reasons across overview people students and r
   assert.doesNotMatch(reports, /data-admin-action-menu="adminReports"[\s\S]*View audit/);
   assert.match(reports, /data-admin-report-scope-notice="true"[\s\S]*Current access[\s\S]*Student denominator[\s\S]*Export safety[\s\S]*Unknowns/);
   assert.match(reports, /data-report-confidence-note="admin"[\s\S]*unknown states are not counted as complete/);
-  assert.match(reports, /Downloads omit passwords, admin notes, internal storage ids, and rows outside this account&#039;s current view/);
+  assert.match(reports, /Downloads leave out passwords, private notes, file links, and rows outside this account&#039;s access/);
   assert.match(reports, /data-admin-setup-readiness="true"/);
   assert.match(reports, /Operational coverage summary/);
   assert.match(reports, /Setup\/import issues/);
