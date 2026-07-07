@@ -13162,6 +13162,7 @@ function renderStudentTodayActionSection(action = {}, summary = {}) {
           </div>
         </article>
       </div>
+      ${renderStudentTodayMap(action, summary)}
       <details class="workspace-student-today-disclosure" data-student-today-current-details="true">
         <summary>Show current item details</summary>
         <article data-student-current-step-card="true">
@@ -13213,6 +13214,199 @@ function studentNextActionPathCopy(action = {}) {
   if (["failed", "provider_unavailable", "expired", "expiring_soon"].includes(status)) return "Ask for help before changing final-file work.";
   if (action?.requirementId || action?.submissionId) return "Open the matching item in My Work.";
   return "Use My Work before starting anything new.";
+}
+
+function studentTodayMapState(action = {}, summary = {}) {
+  const status = normalizeStatus(action.submissionStatus || action.status);
+  if (status === "revision_requested" || safeNumber(summary.revisionRequestedCount)) return "needs-changes";
+  if (["submitted", "under_review", "pending_review"].includes(status) || safeNumber(summary.waitingForReviewCount)) return "waiting-review";
+  if (!safeNumber(summary.requirementsTotal) && !action.requirementId && !action.submissionId && !safeNumber(summary.missingRequiredCount)) return "no-work-yet";
+  if (["draft", "missing", "not_started", "pending"].includes(status) || safeNumber(summary.missingRequiredCount)) return "needs-work";
+  if (
+    safeNumber(summary.requirementsTotal)
+    && safeNumber(summary.requirementsComplete) >= safeNumber(summary.requirementsTotal)
+    && !safeNumber(summary.revisionRequestedCount)
+    && !safeNumber(summary.waitingForReviewCount)
+    && !safeNumber(summary.missingRequiredCount)
+  ) {
+    return "caught-up";
+  }
+  return "needs-work";
+}
+
+function studentTodayMapModel(action = {}, summary = {}) {
+  const state = studentTodayMapState(action, summary);
+  if (state === "needs-changes") {
+    return {
+      state,
+      title: "Read feedback, then fix the item",
+      detail: "Start with the teacher note before changing files or turning in another copy.",
+      lanes: [
+        {
+          id: "read-feedback",
+          label: "First",
+          title: "Read feedback first",
+          detail: "Find the note that asks for changes.",
+          actionsHtml: renderStudentRouteButton("studentFeedback", "Open Feedback", "workspace-button-secondary"),
+        },
+        {
+          id: "fix-work",
+          label: "Next",
+          title: "Fix the item",
+          detail: "Open the matching item in My Work and update only that work.",
+          actionsHtml: renderStudentRouteButton("studentWork", "Fix Work", "workspace-button-primary"),
+        },
+        {
+          id: "turn-in-again",
+          label: "Done when",
+          title: "Turn it in again",
+          detail: "Stop when the item is back with your teacher.",
+          actionsHtml: "",
+        },
+      ],
+    };
+  }
+  if (state === "waiting-review") {
+    return {
+      state,
+      title: "Your teacher is reviewing this",
+      detail: "Check what you sent once, then wait for feedback or approval before starting the next item.",
+      lanes: [
+        {
+          id: "view-sent-work",
+          label: "Check",
+          title: "View what you sent",
+          detail: "Use My Work if you need to confirm the file or link.",
+          actionsHtml: renderStudentRouteButton("studentWork", "View Work", "workspace-button-secondary"),
+        },
+        {
+          id: "wait",
+          label: "Then",
+          title: "Wait for your teacher",
+          detail: "Do not upload another copy unless your teacher asks.",
+          actionsHtml: "",
+        },
+        {
+          id: "watch-feedback",
+          label: "Later",
+          title: "Check feedback later",
+          detail: "If changes appear, come back and fix only the item named there.",
+          actionsHtml: renderStudentRouteButton("studentFeedback", "Open Feedback", "workspace-button-secondary"),
+        },
+      ],
+    };
+  }
+  if (state === "caught-up") {
+    return {
+      state,
+      title: "You are caught up for now",
+      detail: "Use this time to check feedback, final checklist items, or ask if something seems missing.",
+      lanes: [
+        {
+          id: "check-feedback",
+          label: "Check",
+          title: "Check feedback",
+          detail: "Make sure no note asks for changes.",
+          actionsHtml: renderStudentRouteButton("studentFeedback", "Open Feedback", "workspace-button-secondary"),
+        },
+        {
+          id: "check-finish",
+          label: "Finish",
+          title: "Check final readiness",
+          detail: "Use the final checklist only after required work is handled.",
+          actionsHtml: renderStudentRouteButton("studentFinalChecklist", "Open Final Checklist", "workspace-button-secondary"),
+        },
+        {
+          id: "ask-if-missing",
+          label: "If unsure",
+          title: "Ask your teacher",
+          detail: "Ask before starting a new phase that does not appear in My Work.",
+          actionsHtml: "",
+        },
+      ],
+    };
+  }
+  if (state === "no-work-yet") {
+    return {
+      state,
+      title: "Wait for your teacher to add work",
+      detail: "Your first assigned item will appear in My Work before you start.",
+      lanes: [
+        {
+          id: "open-work",
+          label: "Check",
+          title: "Check My Work",
+          detail: "Open My Work to see whether an item has been added.",
+          actionsHtml: renderStudentRouteButton("studentWork", "Open My Work", "workspace-button-secondary"),
+        },
+        {
+          id: "ask-teacher",
+          label: "Ask",
+          title: "Ask what comes first",
+          detail: "Ask your teacher which project item should appear here.",
+          actionsHtml: "",
+        },
+        {
+          id: "do-not-skip",
+          label: "Wait",
+          title: "Do not skip ahead",
+          detail: "Start a new phase only when it appears in My Work.",
+          actionsHtml: "",
+        },
+      ],
+    };
+  }
+  return {
+    state,
+    title: "Start the listed item",
+    detail: "Open the item, add a file or link if it asks for one, then turn it in when ready.",
+    lanes: [
+      {
+        id: "open-item",
+        label: "Start",
+        title: "Open My Work",
+        detail: "Use the item named at the top before opening anything else.",
+        actionsHtml: renderStudentRouteButton("studentWork", "Open My Work", "workspace-button-primary"),
+      },
+      {
+        id: "add-file",
+        label: "Then",
+        title: "Add what it asks for",
+        detail: "Attach the file or link that matches the item.",
+        actionsHtml: "",
+      },
+      {
+        id: "turn-in",
+        label: "Done when",
+        title: "Turn it in",
+        detail: "Stop when the item says it is waiting for teacher review.",
+        actionsHtml: "",
+      },
+    ],
+  };
+}
+
+function renderStudentTodayMap(action = {}, summary = {}) {
+  const model = studentTodayMapModel(action, summary);
+  return `
+    <section class="workspace-student-today-map" data-student-today-map="true" data-student-today-map-state="${escapeHtml(model.state)}" aria-labelledby="studentTodayMapTitle">
+      <div class="workspace-student-today-map-head">
+        <span>Next step map</span>
+        <h2 id="studentTodayMapTitle">${escapeHtml(model.title)}</h2>
+        <p>${escapeHtml(model.detail)}</p>
+      </div>
+      <div class="workspace-student-today-map-lanes">
+        ${model.lanes.map((lane) => `
+          <article class="workspace-student-today-map-lane" data-student-today-map-lane="${escapeHtml(lane.id)}">
+            <span>${escapeHtml(lane.label)}</span>
+            <strong>${escapeHtml(lane.title)}</strong>
+            <p>${escapeHtml(lane.detail)}</p>
+            ${lane.actionsHtml ? `<div class="workspace-row-actions">${lane.actionsHtml}</div>` : ""}
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `;
 }
 
 function renderStudentProgressTracker(summary = {}, requirements = []) {

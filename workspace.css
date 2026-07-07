@@ -8673,6 +8673,72 @@ body[data-page="workspace"],
   font-size: 1.16rem;
 }
 
+.workspace-student-today-map {
+  display: grid;
+  grid-template-columns: minmax(12rem, 0.62fr) minmax(0, 1.38fr);
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--abc-blue) 20%, var(--border-soft));
+  border-radius: var(--radius-card);
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.workspace-student-today-map-head {
+  display: grid;
+  align-content: center;
+  gap: 0.34rem;
+  min-width: 0;
+  border-right: 1px solid var(--border-soft);
+  padding: 0.82rem;
+}
+
+.workspace-student-today-map-head span,
+.workspace-student-today-map-lane > span {
+  color: var(--abc-blue);
+  font-size: 0.74rem;
+  font-weight: 950;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.workspace-student-today-map-head h2 {
+  color: var(--abc-ink);
+  font-size: 1.18rem;
+  line-height: 1.12;
+  margin: 0;
+}
+
+.workspace-student-today-map-head p,
+.workspace-student-today-map-lane p {
+  color: var(--abc-muted);
+  line-height: 1.38;
+  margin: 0;
+}
+
+.workspace-student-today-map-lanes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  min-width: 0;
+}
+
+.workspace-student-today-map-lane {
+  display: grid;
+  align-content: start;
+  gap: 0.36rem;
+  min-width: 0;
+  border-right: 1px solid var(--border-soft);
+  padding: 0.82rem;
+}
+
+.workspace-student-today-map-lane:last-child {
+  border-right: 0;
+}
+
+.workspace-student-today-map-lane strong {
+  color: var(--abc-ink);
+  line-height: 1.16;
+}
+
 .workspace-student-today-disclosure,
 .workspace-student-today-support {
   align-self: start;
@@ -11567,6 +11633,8 @@ button.workspace-metric-tile,
   .workspace-admin-command-hero,
   .workspace-student-screen-header,
   .workspace-student-action-summary,
+  .workspace-student-today-map,
+  .workspace-student-today-map-lanes,
   .workspace-admin-flow,
   .workspace-admin-report-choice-head,
   .workspace-admin-report-choice-row,
@@ -11584,6 +11652,17 @@ button.workspace-metric-tile,
   .workspace-admin-console-operating-head {
     display: grid;
     justify-content: stretch;
+  }
+
+  .workspace-student-today-map-head,
+  .workspace-student-today-map-lane,
+  .workspace-student-today-map-lane:last-child {
+    border-right: 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .workspace-student-today-map-lane:last-child {
+    border-bottom: 0;
   }
 
   .workspace-report-value b,

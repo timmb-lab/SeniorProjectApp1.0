@@ -8276,6 +8276,12 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.match(student, /workspace-student-next-action-hero/);
   assert.match(student, /data-student-primary-action="continue-work"[\s\S]*Fix Work/);
   assert.match(student, /data-student-next-action-card="true"[\s\S]*One thing now/);
+  assert.match(student, /data-student-today-map="true"/);
+  assert.match(student, /data-student-today-map-state="needs-changes"/);
+  assert.match(student, /Read feedback, then fix the item/);
+  assert.match(student, /data-student-today-map-lane="read-feedback"[\s\S]*Open Feedback/);
+  assert.match(student, /data-student-today-map-lane="fix-work"[\s\S]*Fix Work/);
+  assert.match(student, /data-student-today-map-lane="turn-in-again"[\s\S]*Turn it in again/);
   assert.match(student, /data-student-current-step-card="true"[\s\S]*data-student-current-step-status="true"[\s\S]*Status: Needs changes/);
   assert.match(student, /data-student-today-current-details="true"[\s\S]*Show current item details/);
   assert.match(student, /data-student-next-action-card="true"[\s\S]*data-student-next-action-path="true"[\s\S]*Read your feedback\. Fix your work\. Turn it in again/);
@@ -8289,6 +8295,85 @@ test("workspace renders a progress-first student homepage with safe language", a
   assert.doesNotMatch(student, /Your Senior Project|Use My Work in order|data-student-panel-map="true"|data-student-secondary-stack="true"/);
   assert.doesNotMatch(visibleText(student), /Role context|Demo boundary/);
   assertStudentPlainLanguageSurface(student);
+});
+
+test("student Today next-step map changes for waiting and no-work states", async () => {
+  const studentRoutes = (dashboardBody = {}) => {
+    const routes = profileRoutesForRole("student");
+    routes["/api/student/dashboard"] = {
+      status: 200,
+      body: {
+        ok: true,
+        viewer: { self: true },
+        summary: {},
+        nextSteps: [],
+        requirements: [],
+        submissions: [],
+        evidence: [],
+        feedback: [],
+        ...dashboardBody,
+      },
+    };
+    return routes;
+  };
+
+  const waiting = await renderWorkspaceWithFetch(studentRoutes({
+    summary: {
+      requirementsTotal: 3,
+      requirementsComplete: 1,
+      completionPercent: 33,
+      submittedRequiredCount: 1,
+      missingRequiredCount: 0,
+      waitingForReviewCount: 1,
+      revisionRequestedCount: 0,
+      mentor: { assigned: true, name: "Ms. Garcia" },
+    },
+    nextSteps: [
+      {
+        title: "Senior Project Proposal",
+        detail: "Your teacher is checking this work.",
+        requirementId: "req-proposal",
+        submissionId: "submission-proposal",
+        status: "submitted",
+        submissionStatus: "submitted",
+      },
+    ],
+  }), "student");
+  assert.match(waiting, /data-student-today-map-state="waiting-review"/);
+  assert.match(waiting, /Your teacher is reviewing this/);
+  assert.match(waiting, /data-student-today-map-lane="view-sent-work"[\s\S]*View Work/);
+  assert.match(waiting, /data-student-today-map-lane="wait"[\s\S]*Do not upload another copy unless your teacher asks/);
+  assert.match(waiting, /data-student-today-map-lane="watch-feedback"[\s\S]*Open Feedback/);
+  assertStudentPlainLanguageSurface(waiting);
+
+  const caughtUp = await renderWorkspaceWithFetch(studentRoutes({
+    summary: {
+      requirementsTotal: 2,
+      requirementsComplete: 2,
+      completionPercent: 100,
+      submittedRequiredCount: 2,
+      missingRequiredCount: 0,
+      waitingForReviewCount: 0,
+      revisionRequestedCount: 0,
+      mentor: { assigned: true, name: "Ms. Garcia" },
+    },
+  }), "student");
+  assert.match(caughtUp, /data-student-today-map-state="caught-up"/);
+  assert.match(caughtUp, /You are caught up for now/);
+  assert.match(caughtUp, /data-student-today-map-lane="check-feedback"[\s\S]*Open Feedback/);
+  assert.match(caughtUp, /data-student-today-map-lane="check-finish"[\s\S]*Open Final Checklist/);
+  assert.match(caughtUp, /Ask before starting a new phase/);
+  assertStudentPlainLanguageSurface(caughtUp);
+
+  const noWork = await renderWorkspaceWithFetch(studentRoutes(), "student");
+  assert.match(noWork, /data-student-today-map-state="no-work-yet"/);
+  assert.match(noWork, /Wait for your teacher to add work/);
+  assert.match(noWork, /data-student-today-map-lane="open-work"[\s\S]*Open My Work/);
+  assert.match(noWork, /data-student-today-map-lane="do-not-skip"[\s\S]*Start a new phase only when it appears in My Work/);
+  assertStudentPlainLanguageSurface(noWork);
+
+  assert.match(workspaceJs, /function renderStudentTodayMap/);
+  assert.match(workspaceCss, /\.workspace-student-today-map\s*\{[\s\S]*grid-template-columns:\s*minmax\(12rem,\s*0\.62fr\) minmax\(0,\s*1\.38fr\);/);
 });
 
 test("student requirement rows open in-page details without another route", async () => {
