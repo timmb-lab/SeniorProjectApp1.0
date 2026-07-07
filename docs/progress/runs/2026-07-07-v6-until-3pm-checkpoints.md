@@ -778,3 +778,48 @@
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES
+
+## Slice 20 - Clarify Admin People Scope Copy
+
+- Implementation commit: `0575f5b` (`Clarify admin people scope copy`)
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+- User-facing surfaces affected:
+  - Admin People desktop route
+  - Mobile Admin People route
+- Behavior changed:
+  - Admin People staff-directory copy now says staff are managed for the selected school or allowed global scope.
+  - The old visible phrase `inside the current view` is guarded against in the Admin People test.
+- RBAC/data impact: no permission, role choice, scope summary, account mutation, import, assignment, or People navigation logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --test --test-name-pattern "admin console surfaces setup reasons|People management screens|workspace scopes Users" tests\workspace-app.test.mjs`: PASS, `3` pass, `0` fail
+  - `node --test tests\workspace-app.test.mjs`: PASS, `116` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Real work continues before 3PM: YES
+
+## Browser Proof Refresh 13
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `78`
+- Mobile screenshots: `32`
+- Failures: `0`
+- Started: `2026-07-07T18:17:18.672Z`
+- Completed: `2026-07-07T18:24:54.850Z`
+- Technical-language scan:
+  - Screenshot text samples containing `DEMO_SEED` or `seed`: `0`
+  - Screenshot text samples containing `inside the current view`: `0`
+- Visual spot checks:
+  - `17-people-access-landing.png`: Admin People now says staff are managed for the selected school or allowed global scope.
+  - `68-mobile-admin-people.png`: mobile Admin People uses the same selected-school/global-scope copy.
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES

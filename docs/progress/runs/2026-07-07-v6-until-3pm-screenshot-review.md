@@ -1,6 +1,6 @@
 # 2026-07-07 V6 Until-3PM Screenshot Review
 
-Status: in progress; refreshed after slices 01-19.
+Status: in progress; refreshed after slices 01-20.
 
 Source artifacts:
 
@@ -66,6 +66,7 @@ Source artifacts:
 - Report export boundary copy should stay privacy-preserving while avoiding internal phrases such as `current admin view`, `storage links`, and `no IDs`.
 - Admin Imports should read as a CSV preview workflow, not generic import tooling or generic help.
 - Student-detail status and framing should read like a record was opened, not like a backend payload loaded.
+- Admin People should name the selected school or allowed global scope instead of saying `inside the current view`.
 
 ## Refresh 02 Spot Checks
 
@@ -140,3 +141,10 @@ Source artifacts:
 - `15-view-as-student-entered-desktop.png`: View as Student entry now says `Student view opened`.
 - `41-student-detail-timeline.png`: timeline proof now says `Student timeline opened`.
 - Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
+
+## Refresh 13 Spot Checks
+
+- `17-people-access-landing.png`: Admin People now says staff are managed for the selected school or allowed global scope.
+- `68-mobile-admin-people.png`: mobile Admin People uses the same selected-school/global-scope copy.
+- Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
+- Manifest scan: screenshot text samples containing `inside the current view`: `0`.
