@@ -3771,6 +3771,54 @@ test("workspace renders route-connected student directory with filters and real 
   assert.match(filteredArchiveEmpty, /No students with final-file export follow-up match these filters/);
   assert.match(filteredArchiveEmpty, /open Operations for final-file readiness work/i);
   assert.doesNotMatch(filteredArchiveEmpty, /No student records match these filters|No students match these filters/);
+
+  const adminSearchEmptyDirectory = siteStudentsFixture({
+    filteredTotal: 0,
+    students: [],
+    filters: {
+      search: "zzzz-no-demo-match",
+      programId: "",
+      status: "",
+      noMentor: false,
+      risk: "any",
+      story: "",
+      presentationStatus: "any",
+      archiveStatus: "any",
+      limit: 50,
+      offset: 0,
+    },
+  });
+  const adminSearchEmpty = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-admin-hidden-student-search",
+          email: "site.hidden.search@example.edu",
+          displayName: "Site Hidden Search Admin",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: false }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: adminSearchEmptyDirectory,
+    },
+  }, "", "", {
+    url: "https://workspace.example/workspace.html?mode=admin&section=students&siteId=site-desert-valley-high&search=zzzz-no-demo-match",
+  });
+  assert.match(adminSearchEmpty, /data-v2-primary-surface="admin-student-search"[\s\S]*workspace-student-directory/);
+  assert.match(adminSearchEmpty, /Student search[\s\S]*Review filtered students/);
+  assert.match(adminSearchEmpty, /No matching student search results/);
+  assert.match(adminSearchEmpty, /Clear filters/);
+  assert.match(adminSearchEmpty, /data-v5-flow-board="admin-student-search-flow"[\s\S]*data-site-student-action="reset-filters"[\s\S]*Clear filters/);
+  assertMarkupOrder(adminSearchEmpty, 'data-v2-primary-surface="admin-student-search"', 'data-v3-start-state="true"', "admin hidden student search should show directory before shared guidance");
+  assert.doesNotMatch(adminSearchEmpty, /Open Ready|Focused admin task|Use this setup screen for one focused admin task/);
 });
 
 test("student directory Start Here actions apply real directory filters", async () => {

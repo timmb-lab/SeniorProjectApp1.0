@@ -1190,6 +1190,9 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     && Boolean(siteStudentDetailState?.studentId)
     && detailSourceSection === activeSection
     && activeSection === "students";
+  const adminStudentSearchPrimarySection = !renderBlockedSectionOnly
+    && isAdminConsole
+    && activeSection === "students";
   const primarySectionKind = studentPrimarySection
     ? activeSection === "student"
       ? "student"
@@ -1200,6 +1203,8 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
           : "student-final-checklist"
     : siteStudentDetailPrimarySection
       ? isAdminConsole ? "admin-student-detail" : "student-detail"
+    : adminStudentSearchPrimarySection
+      ? "admin-student-search"
     : adminConsolePrimarySection
       ? `admin-${activeSection}`
     : mentorPrimarySection
@@ -1457,6 +1462,7 @@ function v2ScreenModel({ isAdminConsole = false, studentExperience = false, sect
   if (primarySectionKind === "admin-student-detail" || primarySectionKind === "student-detail") {
     return v2StudentDetailScreenModel({ isAdminConsole });
   }
+  if (primarySectionKind === "admin-student-search") return v2AdminStudentSearchScreenModel();
   if (isAdminConsole) return v2AdminScreenModel(sectionId, sections);
   if (roles.has("mentor") || sectionId === "mentorDashboard" || sectionId === "mentor") return v2MentorScreenModel(sectionId);
   if (roles.has("program_teacher") || sectionId === "teacher" || sectionId === "programDashboard") return v2TeacherScreenModel(sectionId);
@@ -1491,6 +1497,65 @@ function v2StudentDetailScreenModel({ isAdminConsole = false } = {}) {
   };
 }
 
+function v2AdminStudentSearchScreenModel() {
+  const directory = unwrap(currentData.siteStudents);
+  const filters = directory?.filters || {};
+  const hasFilters = Boolean(filters.search || filters.programId || filters.status || filters.progressStatus || filters.evidenceStatus || filters.reviewStatus || filters.presentationStatus || filters.archiveStatus || filters.story || filters.noMentor);
+  return {
+    id: "admin-student-search",
+    kicker: "Student search",
+    title: hasFilters ? "Review filtered students" : "Review student records",
+    detail: "Use the selected school's student list before opening broader roster setup tools.",
+    primaryAction: hasFilters
+      ? v2PrimaryButton("Clear filters", 'data-site-student-action="reset-filters"')
+      : v2SupportButton("Open student tools"),
+    primaryHint: hasFilters ? "Filtered student list" : "School-scoped students",
+    pathLabel: "Student search path",
+    steps: v2PathSteps("Check current filters", "Open one student", "Return to roster setup if needed"),
+    startState: {
+      job: "admin-student-search",
+      action: hasFilters ? "Review the filtered results." : "Review one student record.",
+      reason: "Hidden student-search routes should show the student list or empty state instead of generic setup guidance.",
+      now: hasFilters ? "Confirm whether the search found a student at this school." : "Choose the student record that needs review.",
+      empty: "Clear filters or try another search before changing roster setup.",
+      confirm: "Stop when the student is found, filters are cleared, or setup work belongs in Admin Students.",
+    },
+    flowBoard: {
+      id: "admin-student-search-flow",
+      label: "Student search flow",
+      title: "Search before setup",
+      detail: "Student search stays tied to the selected school and avoids roster changes until the visible result is clear.",
+      lanes: [
+        {
+          label: "Search",
+          target: hasFilters ? "student-directory-filters" : "support-panel",
+          title: "Check the current filters",
+          detail: "Use the visible search, saved filters, and result count before opening setup tools.",
+          actions: [hasFilters ? v5AttributeAction("Clear filters", 'data-site-student-action="reset-filters"', true) : v5SupportAction("Open student tools", true)],
+        },
+        {
+          label: "Open",
+          title: "Open one student record",
+          detail: "Use a visible row when a student matches the selected school and filters.",
+          actions: [v5SupportAction("Open student list")],
+        },
+        {
+          label: "Setup",
+          title: "Use roster setup only after search",
+          detail: "Move to Admin Students only when the student record needs roster or access setup.",
+          actions: [v5SectionAction("Open Admin Students", "adminStudents")],
+        },
+      ],
+    },
+    focusHtml: `
+      <section class="workspace-v2-focus-strip">
+        <strong>Search results lead before roster setup.</strong>
+        <span>Keep student search, empty states, and recovery actions visible before changing records.</span>
+      </section>
+    `,
+  };
+}
+
 function v2PrimaryButton(label, attrs = "") {
   return `<button class="workspace-button workspace-v2-primary" type="button" ${attrs}>${escapeHtml(label)}</button>`;
 }
@@ -1519,8 +1584,14 @@ function v5SupportAction(label, primary = false) {
   return { label, support: true, primary };
 }
 
+function v5AttributeAction(label, attrs = "", primary = false) {
+  return { label, attrs, primary };
+}
+
 function renderV5FlowAction(action = {}) {
-  const attrs = action.sectionId
+  const attrs = action.attrs
+    ? action.attrs
+    : action.sectionId
     ? `data-section="${escapeHtml(action.sectionId)}"`
     : 'data-v2-support-open="true"';
   const primaryClass = action.primary ? " is-primary" : "";
@@ -2698,6 +2769,7 @@ function renderAdminConsoleActiveSection() {
   const capabilities = adminConsoleCapabilitiesFor(currentUser);
   if (!capabilities.canSee) return renderAdminConsoleUnavailableNotice();
   if (activeSection === "overview") return renderAdminConsoleOverviewSection(capabilities);
+  if (activeSection === "students") return renderSiteStudentDirectorySection();
   if (!availableSectionIds("admin").has(activeSection)) {
     return renderPermissionDeniedSection("Admin Console", "a console section available to this role");
   }

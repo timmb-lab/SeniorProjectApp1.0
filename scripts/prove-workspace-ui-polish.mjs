@@ -1503,6 +1503,12 @@ function expectedMarkersForPlanItem(planItem, pageState = {}) {
     return ["Student path", "What do I do next?", "Your next capstone move", "Next step map", "Open My Work"];
   }
   if (mode === "admin" || pageState.v2.screen.startsWith("admin-")) {
+    if (section === "students") {
+      if (id.includes("empty-student-search") || pageState.markers?.intentionalEmptyState) {
+        return ["Student search", "Review filtered students", "No matching student search results", "Clear filters"];
+      }
+      return ["Student search", "Students"];
+    }
     if (section === "adminPeople") return ["Admin flow", "Fix one staff account", "Guided setup flow", "Open staff tools"];
     if (section === "adminStudents") return ["Admin flow", "Fix one student record", "Guided setup flow", "Open roster tools"];
     if (section === "adminAssignments") return ["Admin flow", "Assign missing coverage", "Guided setup flow", "Open assignment tools"];
