@@ -7394,6 +7394,8 @@ test("workspace exposes a real admin site switcher and collapsible navigation", 
   assert.match(workspaceCss, /\.workspace-v5-flow-board\s*\{[\s\S]*grid-template-columns:\s*minmax\(15rem,\s*0\.72fr\) minmax\(0,\s*1\.55fr\);/);
   assert.match(workspaceCss, /@media \(max-width: 900px\)[\s\S]*\.workspace-v5-flow-board\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
   assert.match(workspaceCss, /@media \(max-width: 900px\)[\s\S]*\.workspace-v2-hero h1\s*\{[\s\S]*font-size:\s*2\.22rem;/, "tablet V2 hero should keep role work visible above the fold");
+  assert.match(workspaceCss, /@media \(min-width: 901px\) and \(max-height: 820px\)[\s\S]*\.workspace-app\[data-primary-role="student"\] \.workspace-v2-hero h1\s*\{[\s\S]*font-size:\s*3\.35rem;/, "Chromebook-height student browser should tighten the hero before the first work card");
+  assert.match(workspaceCss, /@media \(min-width: 901px\) and \(max-height: 820px\)[\s\S]*\.workspace-app\[data-primary-role="student"\] \.workspace-v2-primary-surface\s*\{[\s\S]*padding:\s*0\.78rem 0;/, "Chromebook-height student browser should move route content closer to the first viewport");
   assert.match(workspaceCss, /@media \(max-width: 620px\)[\s\S]*\.workspace-v2-user\s*\{[\s\S]*flex-wrap:\s*nowrap;/, "phone V2 topbar should keep tools, role, and account on one compact row");
   assert.match(workspaceCss, /@media \(max-width: 620px\)[\s\S]*\.workspace-v2-hero h1\s*\{[\s\S]*font-size:\s*1\.86rem;/, "phone V2 hero should leave room for the role-specific plan");
   assert.match(workspaceCss, /@media \(max-width: 620px\)[\s\S]*\.workspace-v2-stage\s*\{[\s\S]*padding-top:\s*0\.46rem;/, "phone V2 stage should tighten vertical chrome before the first task");
