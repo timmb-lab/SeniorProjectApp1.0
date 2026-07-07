@@ -5,6 +5,62 @@ Branch: `main`
 Prompt: flow-first UI/UX rebirth
 Scope: SeniorProjectApp only; `C:\Curriculum` is out of scope.
 
+## 2026-07-06 17:41 PT - Stage 08/09 Admin Students Flow Checkpoint
+
+Current SHA before Stage 08/09 students commit: `66d10a57ced2dd039197e99f6f86d9f749b0eff0`
+
+Files changed:
+
+- `workspace.js`
+- `workspace.css`
+- `tests/workspace-app.test.mjs`
+- `scripts/prove-workspace-ui-polish.mjs`
+- `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- `docs/sales/screenshots/2026-07-06-flow-redesign/15-view-as-student-entered-desktop.png`
+- `docs/sales/screenshots/2026-07-06-flow-redesign/18-admin-students.png`
+- `docs/progress/runs/2026-07-06-12h-flow-redesign-progress-log.md`
+
+Tests and checks run:
+
+- `node --check workspace.js`
+- `node --check scripts\prove-workspace-ui-polish.mjs`
+- `node --test tests\workspace-app.test.mjs` - 114/114 passed
+- `npm run prove:workspace-ui-polish` with `WORKSPACE_UI_POLISH_SCREENSHOT_DIR=docs/sales/screenshots/2026-07-06-flow-redesign` and `WORKSPACE_UI_POLISH_MANIFEST_PATH=docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- `git diff --check`
+- `npm run check:workspace-mobile`
+- `npm run check:workspace-accessibility`
+- `npm run verify:permission-matrix`
+- `npm run check:pilot-readiness` - preserved `NO_GO_REAL_STUDENT_PILOT` with five required manual proof manifests still missing
+
+Screenshot/proof status:
+
+- Manifest: `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- Screenshot count: 47
+- Screenshot verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Failures: 0
+- Manually inspected `18-admin-students.png`; it now opens on the first roster issue, setup-count disclosure, and roster rows instead of four visible metric tiles.
+- Boundary: local fake-account UI proof only. Real-student production status remains `NOT_CLAIMED_READY`.
+
+Finished:
+
+- Reordered Admin Students so the first roster setup issue appears before the setup counts.
+- Moved Students loaded, Roster fields, Mentor gaps, and Viewer gaps behind a collapsed "Show setup counts" disclosure.
+- Kept the first safe action (`Assign coverage`) and the existing row-level student actions intact.
+- Added tests to require the first roster issue before setup counts and before student rows.
+- Updated screenshot proof expectations so the old metric labels must not appear in the proof text.
+
+Remaining:
+
+- Stage 08/09 still needs cleanup for Assignments, Programs, and Users & Access screens that retain dense operational panels.
+- Real-student pilot remains `NO_GO_REAL_STUDENT_PILOT` pending required manual/policy evidence.
+
+Blockers:
+
+- None for this stage.
+- The all-day 12-hour minimum is not complete and must not be claimed complete.
+
+Block type: checkpoint validation and commit.
+
 ## 2026-07-06 17:20 PT - Stage 08/09 Admin Audit Flow Checkpoint
 
 Current SHA before Stage 08/09 audit commit: `45b75e28ec11143c23d6b9e650e82701655c714e`

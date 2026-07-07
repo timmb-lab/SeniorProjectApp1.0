@@ -18797,28 +18797,6 @@ function renderManageStudentSetupSummary(students = [], assignments = {}) {
     : { label: "Review reports", section: sections.has("adminReports") ? "adminReports" : "overview" };
   return `
     <section class="workspace-admin-student-setup-summary" data-admin-student-setup-summary="true" aria-label="Student setup summary">
-      <div class="workspace-admin-student-setup-cards">
-        <article>
-          <span>Students loaded</span>
-          <strong>${escapeHtml(String(rows.length))}</strong>
-          <small>Roster rows available in this school view.</small>
-        </article>
-        <article class="${programGaps + profileGaps ? "warning" : "ready"}">
-          <span>Roster fields</span>
-          <strong>${escapeHtml(String(programGaps + profileGaps))}</strong>
-          <small>${escapeHtml(`${profileGaps} profile, ${programGaps} program gaps.`)}</small>
-        </article>
-        <article class="${mentorGaps ? "warning" : "ready"}">
-          <span>Mentor gaps</span>
-          <strong>${escapeHtml(String(mentorGaps))}</strong>
-          <small>Students without loaded active mentor coverage.</small>
-        </article>
-        <article class="${viewerGaps ? "warning" : "ready"}">
-          <span>Viewer gaps</span>
-          <strong>${escapeHtml(String(viewerGaps))}</strong>
-          <small>Students without loaded read-only viewer coverage.</small>
-        </article>
-      </div>
       <article class="workspace-admin-student-first-action ${firstIssue ? "warning" : "ready"}" data-admin-student-first-action="${escapeHtml(firstIssue?.student?.userId || "clear")}">
         <div>
           <span>${escapeHtml(firstIssue ? "Review first" : "Current roster state")}</span>
@@ -18827,6 +18805,34 @@ function renderManageStudentSetupSummary(students = [], assignments = {}) {
         </div>
         ${renderAdminActionControl(firstAction, "workspace-button workspace-button-secondary workspace-button-small", "student-first")}
       </article>
+      <details class="workspace-admin-supporting-disclosure workspace-admin-student-setup-details" data-admin-student-setup-details="true">
+        <summary>
+          <span class="workspace-kicker">Roster counts</span>
+          <strong>Show setup counts</strong>
+        </summary>
+        <div class="workspace-admin-student-setup-cards">
+          <article>
+            <span>Students loaded</span>
+            <strong>${escapeHtml(String(rows.length))}</strong>
+            <small>Roster rows available in this school view.</small>
+          </article>
+          <article class="${programGaps + profileGaps ? "warning" : "ready"}">
+            <span>Roster fields</span>
+            <strong>${escapeHtml(String(programGaps + profileGaps))}</strong>
+            <small>${escapeHtml(`${profileGaps} profile, ${programGaps} program gaps.`)}</small>
+          </article>
+          <article class="${mentorGaps ? "warning" : "ready"}">
+            <span>Mentor gaps</span>
+            <strong>${escapeHtml(String(mentorGaps))}</strong>
+            <small>Students without loaded active mentor coverage.</small>
+          </article>
+          <article class="${viewerGaps ? "warning" : "ready"}">
+            <span>Viewer gaps</span>
+            <strong>${escapeHtml(String(viewerGaps))}</strong>
+            <small>Students without loaded read-only viewer coverage.</small>
+          </article>
+        </div>
+      </details>
     </section>
   `;
 }

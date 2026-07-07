@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:49240",
+  "baseUrl": "http://127.0.0.1:61823",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-07T00:12:51.885Z",
-  "completedAt": "2026-07-07T00:19:05.755Z",
+  "startedAt": "2026-07-07T00:34:27.854Z",
+  "completedAt": "2026-07-07T00:39:44.792Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:49240",
+    "baseUrl": "http://127.0.0.1:61823",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-07-06-flow-redesign",
@@ -1153,12 +1153,12 @@
         "reportExportPanel": false,
         "studentDirectory": false,
         "studentWork": false,
-        "problemState": false,
+        "problemState": true,
         "intentionalEmptyState": false,
         "finalFiles": false
       },
-      "heading": "What to do next",
-      "textSample": "Skip to workspace Menu SC My Capstone My Capstone Today Tools SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test Today What to finish next My Work Current work and files Feedback Feedback and work to fix Final Checklist Presentation and final files Viewing as: High Risk Demo 01 Staff account: Sam Site Admin (Site Admin). Staff identity and permissions remain active behind this preview. Read-only preview Authorized student only No student changes saved here No proof or account changes This is a read-only staff preview of the student workspace. Exit returns to Students. Exit student view Student view loaded. TODAY What to do next Read your feedback. Fix your work. Turn it in a",
+      "heading": "My Capstone is unavailable",
+      "textSample": "Skip to workspace Menu SC My Capstone My Capstone Today Tools SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test Today What to finish next My Work Current work and files Feedback Feedback and work to fix Final Checklist Presentation and final files Viewing as: High Risk Demo 01 Staff account: Sam Site Admin (Site Admin). Staff identity and permissions remain active behind this preview. Read-only preview Authorized student only No student changes saved here No proof or account changes This is a read-only staff preview of the student workspace. Exit returns to Students. Exit student view Loading student view... My Capstone is unavailable We could not load your project progress",
       "activeNav": [
         "Workspace",
         "My Work\n        Today\n        What to finish next"
@@ -1322,11 +1322,12 @@
       "screenshot": "docs/sales/screenshots/2026-07-06-flow-redesign/18-admin-students.png",
       "expected": [
         "Students",
-        "Student Roster Setup",
-        "Manage Students",
-        "Current student accounts"
+        "Current student accounts",
+        "REVIEW FIRST",
+        "Assign coverage",
+        "Show setup counts"
       ],
-      "proves": "Students opens as a focused roster setup section with real student rows.",
+      "proves": "Students opens on the first roster setup issue and real student rows, with setup counts collapsed.",
       "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
       "login": {
         "status": 200,

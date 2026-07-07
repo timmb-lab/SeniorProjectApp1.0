@@ -261,9 +261,10 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?mode=admin&section=adminStudents&siteId=site-desert-valley-high"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
-    expected: ["Students", "Student Roster Setup", "Manage Students", "Current student accounts"],
+    expected: ["Students", "Current student accounts", "REVIEW FIRST", "Assign coverage", "Show setup counts"],
+    absent: ["Students loaded", "Roster fields", "Mentor gaps", "Viewer gaps"],
     action: "scrollToPeopleScreen",
-    proves: "Students opens as a focused roster setup section with real student rows.",
+    proves: "Students opens on the first roster setup issue and real student rows, with setup counts collapsed.",
   },
   {
     id: "19-csv-import-template",

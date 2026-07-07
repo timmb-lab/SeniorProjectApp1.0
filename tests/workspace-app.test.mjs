@@ -7308,6 +7308,18 @@ test("admin console surfaces setup reasons across overview people students and r
   assert.match(students, /data-admin-action-menu="adminStudents"[\s\S]*aria-label="Actions menu for Students"[\s\S]*Import students[\s\S]*Download student template/);
   assert.match(students, /data-admin-student-setup-summary="true"[\s\S]*Students loaded[\s\S]*Roster fields[\s\S]*Mentor gaps[\s\S]*Viewer gaps/);
   assert.match(students, /data-admin-student-first-action="[^"]+"[\s\S]*(Review first|Current roster state)/);
+  assertMarkupOrder(
+    students,
+    'data-admin-student-first-action=',
+    'data-admin-student-setup-details="true"',
+    "admin students should show the first roster issue before setup count details",
+  );
+  assertMarkupOrder(
+    students,
+    'data-admin-student-first-action=',
+    'data-manage-student-row=',
+    "admin students should show the first roster issue before the student rows",
+  );
   assert.match(students, /data-manage-student-row="student-needs-setup" data-manage-student-setup="needs-review"/);
   assert.match(students, /data-admin-more-menu="student-student-needs-setup"[\s\S]*aria-label="More actions for No Year Student"[\s\S]*More[\s\S]*View as Student[\s\S]*Manage assignments/);
   assert.match(students, /data-admin-setup-flag="profile"[\s\S]*Missing cohort\/year/);

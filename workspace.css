@@ -2145,6 +2145,10 @@ body[data-page="workspace"],
   gap: 0.55rem;
 }
 
+.workspace-admin-student-setup-details .workspace-admin-student-setup-cards {
+  margin-top: 0.65rem;
+}
+
 .workspace-admin-staff-setup-cards article,
 .workspace-admin-student-setup-cards article,
 .workspace-admin-staff-first-action,
