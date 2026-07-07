@@ -1,6 +1,6 @@
 # V5 Real GUI Overhaul Screenshot Index
 
-Status: partial V5 browser proof captured.
+Status: partial V5 browser proof captured with the screenshot-count gate met.
 
 Manifest: `docs/progress/runs/2026-07-07-v5-real-gui-overhaul-browser-proof.json`
 
@@ -12,12 +12,12 @@ Claim boundary: local fake-account browser UI proof only. This does not prove ho
 
 Counts:
 
-- Total screenshots captured: 47
-- Mobile screenshots captured: 13
+- Total screenshots captured: 75
+- Mobile screenshots captured: 31
 - Browser-proof failures: 0
-- V5 complete-run screenshot gate: not met yet; target is at least 75 screenshots and at least 18 mobile screenshots.
-- Started: `2026-07-07T04:37:59.374Z`
-- Completed: `2026-07-07T04:42:42.098Z`
+- V5 complete-run screenshot gate: met for screenshot count; runtime, hosted/live, accessibility, and real-student gates remain pending.
+- Started: `2026-07-07T04:48:40.176Z`
+- Completed: `2026-07-07T04:55:56.381Z`
 
 ## Inventory
 
@@ -68,3 +68,31 @@ Counts:
 - `40-staff-reviews` - Staff Reviews - Program Teacher Reviews - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/40-staff-reviews.png`
 - `41-student-detail-timeline` - Student detail Timeline tab - Site Admin timeline detail - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/41-student-detail-timeline.png`
 - `23-student-detail-phone` - Student detail phone - Site Admin phone detail - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/23-student-detail-phone.png`
+- `48-site-admin-today-phone` - Site Admin Today phone - Site Admin mobile Today - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/48-site-admin-today-phone.png`
+- `49-program-teacher-today-phone` - Program Teacher Today phone - Program Teacher mobile Today - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/49-program-teacher-today-phone.png`
+- `50-viewer-today-phone` - Viewer Today phone - Viewer mobile Today - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/50-viewer-today-phone.png`
+- `51-administration-today-phone` - Administration Today phone - Administration mobile Today - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/51-administration-today-phone.png`
+- `52-global-admin-today-phone` - Global Admin Today phone - Global Admin mobile Today - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/52-global-admin-today-phone.png`
+- `53-student-my-work-half-screen` - Student My Work half-screen - Student half-screen My Work - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/53-student-my-work-half-screen.png`
+- `54-student-feedback-phone` - Student Feedback phone - Student mobile Feedback - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/54-student-feedback-phone.png`
+- `55-student-final-checklist-phone` - Student Final Checklist phone - Student mobile Final Checklist - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/55-student-final-checklist-phone.png`
+- `56-program-dashboard-desktop` - Program Dashboard desktop - Program Teacher dashboard - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/56-program-dashboard-desktop.png`
+- `57-program-dashboard-phone` - Program Dashboard phone - Program Teacher mobile dashboard - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/57-program-dashboard-phone.png`
+- `58-mentor-dashboard-phone` - Mentor Dashboard phone - Mentor mobile focused dashboard - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/58-mentor-dashboard-phone.png`
+- `59-mentor-assigned-students-desktop` - Mentor assigned students - Mentor assigned-student screen - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/59-mentor-assigned-students-desktop.png`
+- `60-mentor-assigned-students-phone` - Mentor assigned students phone - Mentor mobile assigned-student screen - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/60-mentor-assigned-students-phone.png`
+- `61-site-admin-students-workspace` - Site Admin Students workspace - Site Admin workspace Students - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/61-site-admin-students-workspace.png`
+- `62-site-admin-reviews-workspace` - Site Admin Reviews workspace - Site Admin workspace Reviews - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/62-site-admin-reviews-workspace.png`
+- `63-site-admin-reports-phone` - Site Admin Reports phone - Site Admin mobile Reports - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/63-site-admin-reports-phone.png`
+- `64-administration-students-workspace` - Administration Students workspace - Administration workspace Students - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/64-administration-students-workspace.png`
+- `65-administration-reports-phone` - Administration Reports phone - Administration mobile Reports - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/65-administration-reports-phone.png`
+- `66-global-admin-students-workspace` - Global Admin Students workspace - Global Admin workspace Students - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/66-global-admin-students-workspace.png`
+- `67-global-admin-reports-phone` - Global Admin Reports phone - Global Admin mobile Reports - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/67-global-admin-reports-phone.png`
+- `68-mobile-admin-people` - Mobile Admin People - Site Admin mobile People - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/68-mobile-admin-people.png`
+- `69-admin-students-half-screen` - Admin Students half-screen - Site Admin half-screen Students - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/69-admin-students-half-screen.png`
+- `70-mobile-admin-assignments` - Mobile Admin Assignments - Site Admin mobile Assignments - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/70-mobile-admin-assignments.png`
+- `71-mobile-admin-programs` - Mobile Admin Programs - Site Admin mobile Programs - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/71-mobile-admin-programs.png`
+- `72-mobile-admin-audit` - Mobile Admin Audit - Global Admin mobile Audit - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/72-mobile-admin-audit.png`
+- `73-mobile-global-admin-overview` - Mobile Global Admin Overview - Global Admin mobile overview - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/73-mobile-global-admin-overview.png`
+- `74-viewer-reports-desktop` - Viewer Reports desktop - Viewer Reports - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/74-viewer-reports-desktop.png`
+- `75-student-today-half-screen` - Student Today half-screen - Student half-screen Today - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/75-student-today-half-screen.png`
