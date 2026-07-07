@@ -935,3 +935,67 @@
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES
+
+## Slice 23 - Replace Row Jargon In Admin Worklists
+
+- Implementation commit: `7142325` (`Replace row jargon in admin worklists`)
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+  - `scripts/prove-workspace-ui-polish.mjs`
+  - `scripts/verify-dashboard-actions.mjs`
+- User-facing surfaces affected:
+  - Admin Reports desktop and mobile
+  - Admin Audit desktop and mobile
+  - Admin Assignments mobile
+  - Admin Programs mobile
+  - Operations readiness worklists and dashboard support cards
+  - Screen visibility/action guide copy
+- Behavior changed:
+  - Non-CSV Admin/report/audit/operations language now uses `records`, `work`, `events`, `items`, `assignments`, `lists`, or `access grants` instead of data-row wording.
+  - Admin Reports now says `If a number needs follow-up`.
+  - Admin Audit now says `redacted events`, `Redacted events only`, and `Events to check`.
+  - Admin Assignments now says `Administration and Site Admin access grants`.
+  - Admin Programs now says `Program Teacher assignments`.
+  - Operations readiness buttons now say `Review work`, `Open stale work`, `View program list`, and `View risk list`.
+- RBAC/data impact: no report exports, audit filters, operations filters, assignment gates, route handlers, or mutation logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --check scripts\prove-workspace-ui-polish.mjs`: PASS
+  - `node --check scripts\verify-dashboard-actions.mjs`: PASS
+  - `node --test --test-name-pattern "workspace reports render accessible|global admin site dashboard recent activity|workspace renders site-scoped Operations readiness|workspace clarifies Operations empty states|admin console surfaces setup reasons|global admin recent audit rows|workspace keeps audit and archive" tests\workspace-app.test.mjs`: PASS, `7` pass, `0` fail
+  - `node --test --test-name-pattern "Phase 6.6 Figma cleanup|what clicks do|who can see|Operations readiness|admin console surfaces setup reasons" tests\workspace-app.test.mjs`: PASS, `5` pass, `0` fail
+  - `node --test tests\workspace-app.test.mjs`: PASS, `116` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `npm run verify:functionality-language`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Real work continues before 3PM: YES
+
+## Browser Proof Refresh 16
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `78`
+- Mobile screenshots: `32`
+- Failures: `0`
+- Started: `2026-07-07T19:01:46.093Z`
+- Completed: `2026-07-07T19:09:28.558Z`
+- Technical-language scan:
+  - Screenshot text samples containing `DEMO_SEED` or `seed`: `0`
+  - Screenshot text samples containing `loaded` or `unloaded`: `0`
+  - Screenshot text samples containing `global scope`: `0`
+  - Screenshot text samples containing `denominator`: `0`
+  - Screenshot text samples containing `redacted rows`, `review rows`, `open stale rows`, or `assignment rows`: `0`
+- Visual spot checks:
+  - `35-admin-reports.png`: Admin Reports now says `If a number needs follow-up`.
+  - `36-admin-audit.png` and `72-mobile-admin-audit.png`: Audit now uses `redacted events` and `Redacted events only`.
+  - `70-mobile-admin-assignments.png`: Admin Assignments now says `access grants`.
+  - `71-mobile-admin-programs.png`: Admin Programs now says `Program Teacher assignments`.
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES

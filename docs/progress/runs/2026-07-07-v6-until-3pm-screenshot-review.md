@@ -1,6 +1,6 @@
 # 2026-07-07 V6 Until-3PM Screenshot Review
 
-Status: in progress; refreshed after slices 01-22.
+Status: in progress; refreshed after slices 01-23.
 
 Source artifacts:
 
@@ -69,6 +69,7 @@ Source artifacts:
 - Admin People should name the selected school or every school this account can manage instead of saying `inside the current view` or `global scope`.
 - Report percentage and chart helper text should say which students or programs are counted instead of exposing the internal `denominator` term.
 - Admin setup, report, audit, and readiness helper text should use visible/current/available language instead of backend-style loaded/unloaded wording.
+- Non-CSV Admin, audit, report, and operations worklists should use records/work/events/items/lists instead of data-row jargon.
 
 ## Refresh 02 Spot Checks
 
@@ -168,3 +169,12 @@ Source artifacts:
 - Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
 - Manifest scan: screenshot text samples containing `loaded` or `unloaded`: `0`.
 - Manifest scan: screenshot text samples containing `global scope`: `0`.
+
+## Refresh 16 Spot Checks
+
+- `35-admin-reports.png`: Admin Reports now says `If a number needs follow-up`.
+- `36-admin-audit.png` and `72-mobile-admin-audit.png`: Admin Audit now says `redacted events` and `Redacted events only`.
+- `70-mobile-admin-assignments.png`: Admin Assignments now says `Administration and Site Admin access grants`.
+- `71-mobile-admin-programs.png`: Admin Programs now says `Program Teacher assignments`.
+- Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
+- Manifest scan: screenshot text samples containing `redacted rows`, `review rows`, `open stale rows`, or `assignment rows`: `0`.

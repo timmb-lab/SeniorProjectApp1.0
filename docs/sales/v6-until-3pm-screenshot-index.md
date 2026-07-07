@@ -1,6 +1,6 @@
 # V6 Until-3PM Screenshot Index
 
-Status: current V6 local fake-account browser proof captured after implementation slices 01-22.
+Status: current V6 local fake-account browser proof captured after implementation slices 01-23.
 
 Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
 
@@ -15,8 +15,8 @@ Counts:
 - Total screenshots captured: 78
 - Mobile screenshots captured: 32
 - Browser-proof failures: 0
-- Started: `2026-07-07T18:45:24.118Z`
-- Completed: `2026-07-07T18:53:02.864Z`
+- Started: `2026-07-07T19:01:46.093Z`
+- Completed: `2026-07-07T19:09:28.558Z`
 - Fake data only: `true`
 - Real-student production status: `NOT_CLAIMED_READY`
 
@@ -38,6 +38,7 @@ Counts:
 - Report/export boundary hardening: `29-workspace-reports`, `35-admin-reports`, `42-mobile-admin-reports`, `63-site-admin-reports-phone`, `65-administration-reports-phone`, `67-global-admin-reports-phone`, `74-viewer-reports-desktop`.
 - Report/export visible-copy cleanup: manifest text samples containing `current admin view`, `storage links`, or `no IDs`: `0`.
 - Report counted-language cleanup: manifest text samples containing `denominator` or `Denominator`: `0`.
+- Non-CSV row-jargon cleanup: `35-admin-reports`, `36-admin-audit`, `42-mobile-admin-reports`, `70-mobile-admin-assignments`, `71-mobile-admin-programs`, `72-mobile-admin-audit`; manifest text samples containing `redacted rows`, `review rows`, `open stale rows`, or `assignment rows`: `0`.
 - Admin setup visible/current-language cleanup: `17-people-access-landing`, `37-mobile-admin-overview`, `68-mobile-admin-people`, `71-mobile-admin-programs`, `73-mobile-global-admin-overview`; manifest text samples containing `loaded` or `unloaded`: `0`.
 - Admin Console primary-surface ordering: `01-admin-console-global-admin-desktop`, `32-admin-console-site-admin-overview`, `35-admin-reports`, `37-mobile-admin-overview`, `42-mobile-admin-reports`, `68-mobile-admin-people`, `70-mobile-admin-assignments`, `71-mobile-admin-programs`, `72-mobile-admin-audit`.
 - RBAC/read-only guard coverage: `05-viewer-read-only-workspace`, `14-viewer-read-only-detail-click`, `20-student-admin-route-blocked`, `39-viewer-students-directory`, `46-mobile-viewer-students`.
