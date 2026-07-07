@@ -20595,7 +20595,7 @@ function renderCsvImportScreen(kind = "students", options = {}) {
           <p class="workspace-kicker">2. Validation note</p>
           <label class="workspace-label workspace-label-wide">
             Admin note <span class="workspace-required">Required before final import</span>
-            <textarea class="workspace-textarea" name="adminNote" maxlength="500" required></textarea>
+            <textarea class="workspace-textarea" name="adminNote" maxlength="500"></textarea>
           </label>
           <p class="workspace-muted">Bad rows are never imported. Existing emails are shown as skipped before final import.</p>
         </div>
@@ -20625,8 +20625,8 @@ function renderCsvImportReadinessPanel(kind = "students", state = defaultAdminCs
         <p class="workspace-kicker">Import readiness</p>
         <strong>${escapeHtml(status === "waiting" ? "Preview required before import" : status === "errors" ? "Fix preview errors before import" : "Preview is ready for confirmation")}</strong>
         <p>${escapeHtml(status === "ready"
-          ? "Only valid new rows will be sent to the import API."
-          : "Preview protects the roster and account table before any row is saved.")}</p>
+          ? "Only valid previewed rows will be saved."
+          : "Preview protects the roster and accounts before any row is saved.")}</p>
       </div>
       <div class="workspace-csv-import-readiness-grid">
         ${steps.map(([label, detail]) => `
@@ -20723,6 +20723,7 @@ function renderCsvImportPreview(kind = "students", state = defaultAdminCsvImport
         ${kind === "students" ? renderCsvSummaryMetric("Mentor assignments", summary.mentorAssignmentsCreated) : ""}
         ${kind === "students" ? renderCsvSummaryMetric("Viewer assignments", summary.viewerAssignmentsCreated) : ""}
       </div>
+      ${renderCsvPreviewNextAction(kind, state, summary)}
       ${state.errors.length ? `
         <article class="workspace-empty-state-card" data-csv-import-error-guide="true">
           <strong>CSV preview found rows to fix.</strong>
@@ -20750,9 +20751,54 @@ function renderCsvImportPreview(kind = "students", state = defaultAdminCsvImport
           <strong>Ready for final confirmation.</strong>
           <p>${escapeHtml(kind === "students"
             ? "Only valid new student rows will be sent. Previewed mentor/viewer assignments are created during import."
-            : "Only valid new rows will be sent to the account import API.")}</p>
+            : "Only valid new staff rows will be saved.")}</p>
         </article>
       `}
+    </section>
+  `;
+}
+
+function renderCsvPreviewNextAction(kind = "students", state = defaultAdminCsvImportKindState(kind), summary = defaultAdminCsvSummary()) {
+  const safeKind = kind === "staff" ? "staff" : "students";
+  const errors = Array.isArray(state.errors) ? state.errors : [];
+  const validRows = Array.isArray(state.validRows) ? state.validRows : [];
+  const firstError = errors[0] || null;
+  const firstValid = validRows[0] || null;
+  const newRecords = safeNumber(summary.newRecords);
+  const existingRecords = safeNumber(summary.existingRecords);
+  const assignmentText = safeKind === "students"
+    ? `${safeNumber(summary.mentorAssignmentsCreated)} mentor and ${safeNumber(summary.viewerAssignmentsCreated)} viewer assignment${safeNumber(summary.viewerAssignmentsCreated) === 1 ? "" : "s"} previewed.`
+    : `${newRecords} staff account${newRecords === 1 ? "" : "s"} ready to save.`;
+  if (firstError) {
+    return `
+      <section class="workspace-csv-preview-next warning" data-csv-preview-next-action="${escapeHtml(safeKind)}" data-csv-preview-next-state="fix-errors" data-csv-preview-first-row="${escapeHtml(String(firstError.rowNumber || ""))}">
+        <article>
+          <span>Fix this row first</span>
+          <strong>Row ${escapeHtml(String(firstError.rowNumber || "?"))}</strong>
+          <p>${escapeHtml(firstError.message || "Fix this row before importing.")}</p>
+        </article>
+        <article>
+          <span>Then preview again</span>
+          <strong>Import stays blocked</strong>
+          <p>Correct the CSV, run preview again, and confirm only after the error count is zero.</p>
+        </article>
+      </section>
+    `;
+  }
+  const firstName = firstValid?.user?.fullName || firstValid?.user?.email || "";
+  const noNewRows = newRecords === 0;
+  return `
+    <section class="workspace-csv-preview-next ${noNewRows ? "quiet" : "ready"}" data-csv-preview-next-action="${escapeHtml(safeKind)}" data-csv-preview-next-state="${escapeHtml(noNewRows ? "no-new-rows" : "confirm")}" data-csv-preview-new-records="${escapeHtml(String(newRecords))}">
+      <article>
+        <span>${escapeHtml(noNewRows ? "Nothing new to save" : "Confirm this import")}</span>
+        <strong>${escapeHtml(noNewRows ? "All rows already exist or were skipped" : `${newRecords} new ${safeKind === "staff" ? "staff" : "student"} row${newRecords === 1 ? "" : "s"}`)}</strong>
+        <p>${escapeHtml(noNewRows ? `${existingRecords} existing record${existingRecords === 1 ? "" : "s"} skipped in this preview.` : "Add the admin note, then save the valid previewed rows.")}</p>
+      </article>
+      <article>
+        <span>${escapeHtml(safeKind === "students" ? "Coverage preview" : "First saved row")}</span>
+        <strong>${escapeHtml(safeKind === "students" ? assignmentText : firstName || "Staff row ready")}</strong>
+        <p>${escapeHtml(safeKind === "students" ? "Mentor and viewer links are saved only for rows that are valid now." : "Review the role and school access before confirming.")}</p>
+      </article>
     </section>
   `;
 }
@@ -28786,13 +28832,18 @@ function submitAdminCsvPreview(event) {
       errors: [{ rowNumber: 1, message: "Choose a CSV file or paste CSV text before preview." }],
       summary: { ...defaultAdminCsvSummary(), rowsWithErrors: 1 },
     };
-    activeSection = "adminUsers";
+    activeSection = adminCsvPreviewReturnSection();
     renderAppShell("CSV preview needs a file or pasted CSV text.", "error");
     return;
   }
   adminCsvImportState[kind] = validateAdminCsvImport(kind, text, { fileName: adminCsvImportState[kind]?.fileName || "" });
-  activeSection = "adminUsers";
+  activeSection = adminCsvPreviewReturnSection();
   renderAppShell(adminCsvImportState[kind].errors.length ? "CSV preview found rows to fix." : "CSV preview is ready for confirmation.", adminCsvImportState[kind].errors.length ? "error" : "success");
+}
+
+function adminCsvPreviewReturnSection() {
+  if (activeWorkspaceMode === "admin" && availableSectionIdsForAnyMode().has("adminImports")) return "adminImports";
+  return "adminUsers";
 }
 
 function handleAdminCsvFileSelected(event) {
@@ -28808,6 +28859,7 @@ function handleAdminCsvFileSelected(event) {
       errors: [{ rowNumber: 1, message: "Upload a .csv file." }],
       summary: { ...defaultAdminCsvSummary(), rowsWithErrors: 1 },
     };
+    activeSection = adminCsvPreviewReturnSection();
     renderAppShell("Upload a .csv file.", "error");
     return;
   }
@@ -28818,7 +28870,7 @@ function handleAdminCsvFileSelected(event) {
       fileName: file.name || "",
       csvText: String(reader.result || ""),
     };
-    activeSection = "adminUsers";
+    activeSection = adminCsvPreviewReturnSection();
     renderAppShell("CSV loaded. Preview before importing.", "success");
   };
   reader.onerror = () => {

@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:53536",
+  "baseUrl": "http://127.0.0.1:49416",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-07T06:01:15.678Z",
-  "completedAt": "2026-07-07T06:08:38.640Z",
+  "startedAt": "2026-07-07T06:43:19.313Z",
+  "completedAt": "2026-07-07T06:51:03.638Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:53536",
+    "baseUrl": "http://127.0.0.1:49416",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul",
@@ -1465,6 +1465,74 @@
       },
       "heading": "Preview one CSV before saving",
       "textSample": "Skip to workspace SC Capstone Admin Console Imports Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports ADMIN FLOW Preview one CSV before saving Download the right template, preview validation, fix rows, then confirm only valid records. Open import tools Preview before import START HERE Preview one CSV file. Imports should show row problems before anything is saved. RIGHT NOW Choose the correct template, then preview rows. IF EMPTY No CSV is selected. Download a template before preparing a batch. FINISH BY Stop when valid rows are confirmed or problem rows are fixed outside the a",
+      "activeNav": [
+        "Admin Console",
+        "6\n        6. Imports\n        CSV templates and preview",
+        "6\n        Imports",
+        "Import Students"
+      ]
+    },
+    {
+      "id": "76-csv-import-preview-errors",
+      "label": "Admin Imports preview errors",
+      "persona": "Site Admin Import Students preview",
+      "role": "site_admin",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace.html?mode=admin&section=adminImports&siteId=site-desert-valley-high",
+      "screenshot": "docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/76-csv-import-preview-errors.png",
+      "proves": "CSV preview names the first row to fix and keeps final import blocked until errors are cleared.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": true,
+        "adminSetupList": false,
+        "adminSetupReadiness": false,
+        "adminQuickActions": false,
+        "adminStudents": false,
+        "adminAssignments": false,
+        "adminImports": true,
+        "adminPrograms": false,
+        "adminReports": false,
+        "adminAudit": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
+        "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
+        "problemState": true,
+        "intentionalEmptyState": false,
+        "finalFiles": false
+      },
+      "heading": "Preview one CSV before saving",
+      "textSample": "Skip to workspace SC Capstone Admin Console Imports Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports CSV preview found rows to fix. ADMIN FLOW Preview one CSV before saving Download the right template, preview validation, fix rows, then confirm only valid records. Open import tools Preview before import START HERE Preview one CSV file. Imports should show row problems before anything is saved. RIGHT NOW Choose the correct template, then preview rows. IF EMPTY No CSV is selected. Download a template before preparing a batch. FINISH BY Stop when valid rows are confirmed or probl",
       "activeNav": [
         "Admin Console",
         "6\n        6. Imports\n        CSV templates and preview",
@@ -3004,6 +3072,74 @@
       },
       "heading": "Preview one CSV before saving",
       "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS ADMIN FLOW Preview one CSV before saving Download the right template, preview validation, fix rows, then confirm only valid records. Open import tools Preview before import START HERE Preview one CSV file. Imports should show row problems before anything is saved. RIGHT NOW Choose the correct template, then preview rows. IF EMPTY No CSV is selected. Download a template before preparing a batch. FINISH BY Stop when valid rows are confirmed or problem rows are fixed outside the app. GUIDED SETUP FLOW Issue, fix, confirmation Admin Console stays focused on the selected setup job and keeps broader tools behind the active screen. ISSUE Start ",
+      "activeNav": [
+        "Admin Console",
+        "6\n        6. Imports\n        CSV templates and preview",
+        "6\n        Imports",
+        "Import Students"
+      ]
+    },
+    {
+      "id": "77-mobile-csv-import-preview-errors",
+      "label": "Mobile Admin Imports preview errors",
+      "persona": "Site Admin mobile import preview",
+      "role": "site_admin",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "deviceScaleFactor": 2,
+        "mobile": true
+      },
+      "route": "/workspace.html?mode=admin&section=adminImports&siteId=site-desert-valley-high",
+      "screenshot": "docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/77-mobile-csv-import-preview-errors.png",
+      "proves": "Mobile CSV preview stacks the first-row repair guidance without overflow.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": true,
+        "adminSetupList": false,
+        "adminSetupReadiness": false,
+        "adminQuickActions": false,
+        "adminStudents": false,
+        "adminAssignments": false,
+        "adminImports": true,
+        "adminPrograms": false,
+        "adminReports": false,
+        "adminAudit": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
+        "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
+        "problemState": true,
+        "intentionalEmptyState": false,
+        "finalFiles": false
+      },
+      "heading": "Preview one CSV before saving",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS CSV preview found rows to fix. ADMIN FLOW Preview one CSV before saving Download the right template, preview validation, fix rows, then confirm only valid records. Open import tools Preview before import START HERE Preview one CSV file. Imports should show row problems before anything is saved. RIGHT NOW Choose the correct template, then preview rows. IF EMPTY No CSV is selected. Download a template before preparing a batch. FINISH BY Stop when valid rows are confirmed or problem rows are fixed outside the app. GUIDED SETUP FLOW Issue, fix, confirmation Admin Console stays focused on the selected setup job and keeps broader tools behind ",
       "activeNav": [
         "Admin Console",
         "6\n        6. Imports\n        CSV templates and preview",

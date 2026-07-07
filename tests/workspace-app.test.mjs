@@ -7497,6 +7497,7 @@ test("admin console surfaces setup reasons across overview people students and r
   assert.match(imports, /data-csv-help-disclosure="students"[\s\S]*CSV help[\s\S]*Template columns/);
   assert.match(imports, /data-csv-import-readiness="students" data-csv-import-readiness-state="errors"/);
   assert.match(imports, /Fix preview errors before import[\s\S]*Template[\s\S]*Preview[\s\S]*Confirm/);
+  assert.match(imports, /data-csv-preview-next-action="students" data-csv-preview-next-state="fix-errors"[\s\S]*Fix this row first[\s\S]*Unsupported column: guardian_phone/);
   assert.match(imports, /1 row error must be fixed/);
 
   vm.runInContext('activeSection = "adminReports"; renderAppShell();', context);
@@ -10818,6 +10819,8 @@ test("People CSV import screens provide templates and row-level preview validati
   assert.match(workspaceRoot.innerHTML, /data-csv-template-download="students"/);
   assert.match(workspaceRoot.innerHTML, /data-csv-import-stepper="students"/);
   assert.match(workspaceRoot.innerHTML, /Before you import[\s\S]*Download the template[\s\S]*Preview validation[\s\S]*Confirm only valid rows/);
+  assert.match(workspaceRoot.innerHTML, /data-csv-import-form="true" data-csv-import-kind="students"[\s\S]*Admin note[\s\S]*Required before final import[\s\S]*<textarea class="workspace-textarea" name="adminNote" maxlength="500"><\/textarea>/);
+  assert.match(workspaceJs, /if \(!adminNote\) \{\s*renderAppShell\("Add the admin note before final import\.", "error"\);/);
   assert.match(workspaceRoot.innerHTML, /Mentor and Viewer emails must already exist in the current roster/);
   assert.match(workspaceRoot.innerHTML, /first_name[\s\S]*last_name[\s\S]*mentor_email[\s\S]*viewer_email/);
   assert.match(workspaceRoot.innerHTML, /data-csv-template-example="students"[\s\S]*Alex,Student,alex\.student@senior-capstone\.test/);
@@ -10841,6 +10844,8 @@ test("People CSV import screens provide templates and row-level preview validati
     renderAppShell();
   `, context);
   assert.match(workspaceRoot.innerHTML, /data-csv-preview="students" data-csv-preview-state="ready"/);
+  assert.match(workspaceRoot.innerHTML, /data-csv-preview-next-action="students" data-csv-preview-next-state="confirm"[\s\S]*Confirm this import[\s\S]*1 new student row/);
+  assert.match(workspaceRoot.innerHTML, /data-csv-preview-next-action="students"[\s\S]*Coverage preview[\s\S]*1 mentor and 1 viewer assignment previewed/);
   assert.match(workspaceRoot.innerHTML, /Rows detected[\s\S]*1/);
   assert.match(workspaceRoot.innerHTML, /Valid rows[\s\S]*1/);
   assert.match(workspaceRoot.innerHTML, /Rows with errors[\s\S]*0/);
@@ -10865,6 +10870,7 @@ test("People CSV import screens provide templates and row-level preview validati
     renderAppShell();
   `, context);
   assert.match(workspaceRoot.innerHTML, /data-csv-preview="students" data-csv-preview-state="errors"/);
+  assert.match(workspaceRoot.innerHTML, /data-csv-preview-next-action="students" data-csv-preview-next-state="fix-errors"[\s\S]*Fix this row first[\s\S]*Student users cannot be assigned as mentors/);
   assert.match(workspaceRoot.innerHTML, /Student users cannot be assigned as mentors/);
   assert.match(workspaceRoot.innerHTML, /Mentor email must already exist in the current roster before automatic assignment/);
 
@@ -10894,6 +10900,8 @@ test("People CSV import screens provide templates and row-level preview validati
   assert.match(workspaceRoot.innerHTML, /data-csv-import-stepper="staff"/);
   assert.match(workspaceRoot.innerHTML, /Staff assignments must match an existing school, program, or assigned student/);
   assert.match(workspaceRoot.innerHTML, /data-csv-preview="staff" data-csv-preview-state="ready"/);
+  assert.match(workspaceRoot.innerHTML, /data-csv-preview-next-action="staff" data-csv-preview-next-state="confirm"[\s\S]*Confirm this import[\s\S]*1 new staff row/);
+  assert.doesNotMatch(visibleText(workspaceRoot.innerHTML), /account import API|import API/);
   assert.match(workspaceRoot.innerHTML, /Valid rows[\s\S]*1/);
 
   vm.runInContext(`

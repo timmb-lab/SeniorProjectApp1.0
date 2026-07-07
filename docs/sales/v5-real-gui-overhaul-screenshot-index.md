@@ -4,7 +4,7 @@ Status: partial V5 browser proof captured with the screenshot-count gate met.
 
 Manifest: `docs/progress/runs/2026-07-07-v5-real-gui-overhaul-browser-proof.json`
 
-Screenshot folder: `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/`
+Screenshot folder: `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul`
 
 Proof verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
 
@@ -12,12 +12,12 @@ Claim boundary: local fake-account browser UI proof only. This does not prove ho
 
 Counts:
 
-- Total screenshots captured: 75
-- Mobile screenshots captured: 31
+- Total screenshots captured: 77
+- Mobile screenshots captured: 32
 - Browser-proof failures: 0
 - V5 complete-run screenshot gate: met for screenshot count; runtime, hosted/live, accessibility, and real-student gates remain pending.
-- Started: `2026-07-07T06:01:15.678Z`
-- Completed: `2026-07-07T06:08:38.640Z`
+- Started: `2026-07-07T06:43:19.313Z`
+- Completed: `2026-07-07T06:51:03.638Z`
 
 ## Inventory
 
@@ -41,6 +41,7 @@ Counts:
 - `17-people-access-landing` - Admin People - Site Admin People - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/17-people-access-landing.png`
 - `18-admin-students` - Admin Students - Site Admin Students - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/18-admin-students.png`
 - `19-csv-import-template` - Admin Imports templates - Site Admin Import Students - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/19-csv-import-template.png`
+- `76-csv-import-preview-errors` - Admin Imports preview errors - Site Admin Import Students preview - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/76-csv-import-preview-errors.png`
 - `20-student-admin-route-blocked` - Student admin route blocked - Student blocked from Admin Console - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/20-student-admin-route-blocked.png`
 - `21-empty-student-search` - Empty student search - Site Admin empty search - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/21-empty-student-search.png`
 - `22-student-final-files-state` - Student Final Checklist - Student Final Checklist - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/22-student-final-files-state.png`
@@ -62,6 +63,7 @@ Counts:
 - `36-admin-audit` - Admin Audit - Global Admin Audit - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/36-admin-audit.png`
 - `37-mobile-admin-overview` - Mobile Admin Overview - Site Admin mobile overview - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/37-mobile-admin-overview.png`
 - `38-mobile-admin-imports` - Mobile Admin Imports - Site Admin mobile imports - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/38-mobile-admin-imports.png`
+- `77-mobile-csv-import-preview-errors` - Mobile Admin Imports preview errors - Site Admin mobile import preview - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/77-mobile-csv-import-preview-errors.png`
 - `42-mobile-admin-reports` - Mobile Admin Reports - Site Admin mobile reports - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/42-mobile-admin-reports.png`
 - `39-viewer-students-directory` - Viewer Students directory - Viewer Students - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/39-viewer-students-directory.png`
 - `46-mobile-viewer-students` - Mobile Viewer Students - Viewer mobile Students - mobile - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/46-mobile-viewer-students.png`

@@ -279,6 +279,17 @@ const SCREENSHOT_PLAN = [
     proves: "Imports shows student and staff templates plus preview and confirmation order before any save action.",
   },
   {
+    id: "76-csv-import-preview-errors",
+    label: "Admin Imports preview errors",
+    persona: "Site Admin Import Students preview",
+    authRole: "site_admin",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?mode=admin&section=adminImports&siteId=site-desert-valley-high"),
+    viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    action: "previewStudentCsvWithError",
+    proves: "CSV preview names the first row to fix and keeps final import blocked until errors are cleared.",
+  },
+  {
     id: "20-student-admin-route-blocked",
     label: "Student admin route blocked",
     persona: "Student blocked from Admin Console",
@@ -527,6 +538,17 @@ const SCREENSHOT_PLAN = [
     expected: ["Imports", "Student and Staff Imports", "Student CSV template", "Preview protects the roster"],
     action: "scrollToCsvImport",
     proves: "Mobile Imports keeps template downloads and CSV preview readable on phone width.",
+  },
+  {
+    id: "77-mobile-csv-import-preview-errors",
+    label: "Mobile Admin Imports preview errors",
+    persona: "Site Admin mobile import preview",
+    authRole: "site_admin",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?mode=admin&section=adminImports&siteId=site-desert-valley-high"),
+    viewport: { width: 390, height: 844, deviceScaleFactor: 2, mobile: true },
+    action: "previewStudentCsvWithError",
+    proves: "Mobile CSV preview stacks the first-row repair guidance without overflow.",
   },
   {
     id: "42-mobile-admin-reports",
@@ -1222,6 +1244,37 @@ async function scrollToSelector(client, selector, label) {
   await sleep(700);
 }
 
+async function openV2SupportPanel(client) {
+  const opened = await client.evaluate(`(() => {
+    const panel = document.querySelector("[data-v2-support-panel]");
+    if (!panel) return false;
+    panel.setAttribute("open", "");
+    return true;
+  })()`);
+  if (opened) await sleep(500);
+}
+
+async function previewStudentCsvWithError(client) {
+  await openV2SupportPanel(client);
+  await waitForSelectorState(client, "[data-csv-import-form][data-csv-import-kind='students']");
+  const previewed = await client.evaluate(`(() => {
+    const textarea = document.querySelector("[data-csv-text-input='students']");
+    const button = document.querySelector("[data-csv-preview-action='students']");
+    if (!textarea || !button) return false;
+    textarea.value = [
+      "first_name,last_name,email,site,program,guardian_phone",
+      "Header,Drift,header.drift@senior-capstone.test,Desert Valley High School,Information Technology,555-0100"
+    ].join("\\n");
+    textarea.dispatchEvent(new Event("input", { bubbles: true }));
+    button.click();
+    return true;
+  })()`);
+  if (!previewed) throw new Error("Could not seed and preview student CSV error state.");
+  await waitForSelectorState(client, "[data-csv-preview-next-action='students'][data-csv-preview-next-state='fix-errors']");
+  await openV2SupportPanel(client);
+  await scrollToSelector(client, "[data-csv-preview-next-action='students']", "CSV preview next action");
+}
+
 async function performSinglePlanAction(client, action) {
   if (action === "scrollTop") {
     await client.evaluate(`(() => { window.scrollTo(0, 0); return true; })()`);
@@ -1233,7 +1286,12 @@ async function performSinglePlanAction(client, action) {
     return;
   }
   if (action === "scrollToCsvImport") {
+    await openV2SupportPanel(client);
     await scrollToSelector(client, "[data-csv-import-stepper]", "CSV import stepper");
+    return;
+  }
+  if (action === "previewStudentCsvWithError") {
+    await previewStudentCsvWithError(client);
     return;
   }
   if (action === "scrollToReportExports") {
@@ -1385,6 +1443,9 @@ function expectedMarkersForPlanItem(planItem, pageState = {}) {
   }
   if (id.includes("student-admin-route-blocked")) {
     return ["Admin Console is not available for this account", "Student path", "Open My Work"];
+  }
+  if (id.includes("csv-import-preview-errors")) {
+    return ["Admin flow", "Preview one CSV before saving", "Fix this row first", "Unsupported column: guardian_phone", "Import stays blocked"];
   }
   if (planItem.authRole === "student") {
     if (section === "studentWork") return ["Student path", "Finish the next capstone item", "Keep the work screen on one requirement", "Open current item"];
