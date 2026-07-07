@@ -421,3 +421,56 @@
   - `npm run verify:dashboard-actions`: PASS
   - `git diff --check`: PASS with line-ending warnings only
 - Real work continues before 3PM: YES
+
+## Slice 13 - Student Detail Frames Lead With Record Context
+
+- Implementation commit: `0bdf133` (`Lead student detail frames with record context`)
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+  - `scripts/prove-workspace-ui-polish.mjs`
+- User-facing surfaces affected:
+  - Admin-mode hidden student detail route
+  - Staff Workspace student detail route
+  - Viewer read-only student detail route
+  - Student detail evidence and timeline tab proof paths
+- Behavior changed:
+  - Loaded student-detail screens now use a record-specific V2 frame: `Student detail`, `Review this student record`, and either `Record before setup` or `Record before lists`.
+  - The old generic Admin fallback copy (`Open Ready`, `Open tools`, `Focused admin task`) is no longer accepted for the hidden Admin student-detail route.
+  - Viewer detail proof still requires the read-only boundary while allowing the record-first frame.
+  - Existing detail tabs, scoped URL state, Viewer read-only behavior, and staff/admin detail actions remain route-backed.
+- RBAC/data impact: no permission, detail API, URL-state permission, student data, View as Student, Viewer read-only, or mutation logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --check scripts\prove-workspace-ui-polish.mjs`: PASS
+  - `node --test --test-name-pattern "workspace opens real student detail" tests\workspace-app.test.mjs`: PASS, `1` pass, `0` fail
+  - `node --test tests\workspace-app.test.mjs`: PASS, `115` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Browser proof note:
+  - First proof attempt after the code change failed because proof expectations still described the previous workspace/detail frame.
+  - The verifier was tightened to expect the new record-first detail frame and to keep Viewer read-only markers.
+- Real work continues before 3PM: YES
+
+## Browser Proof Refresh 06
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `78`
+- Mobile screenshots: `32`
+- Failures: `0`
+- Started: `2026-07-07T16:28:41.250Z`
+- Completed: `2026-07-07T16:36:26.543Z`
+- Visual spot checks:
+  - `23-student-detail-phone.png`: hidden Admin student detail now shows `Review this student record` and `Record before setup` instead of generic `Open tools` / `Focused admin task`.
+  - `13-site-admin-student-detail-click.png`: desktop Admin detail opens with record-first context while preserving the scoped Admin Console route.
+  - `14-viewer-read-only-detail-click.png`: Viewer detail uses the record-first frame while still showing the read-only boundary.
+  - `31-mobile-student-detail.png`: Workspace student detail phone route uses `Record before lists` before detail tabs and supporting context.
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES
