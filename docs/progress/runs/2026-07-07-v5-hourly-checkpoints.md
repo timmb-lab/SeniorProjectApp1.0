@@ -82,6 +82,22 @@
 - Remaining risks: screenshot-count gate is still not met; this is local fake-account proof only, not hosted or real-student pilot proof.
 - Next focus: Phase 7 evidence expansion and shared mobile/header tightening.
 
+## Evidence Expansion Checkpoint
+
+- Checkpoint local time: `2026-07-06 21:57:43 -07:00`
+- Elapsed minutes so far: about 95
+- Screens changed since the Staff/Admin checkpoint: proof coverage expanded across Site Admin, Program Teacher, Viewer, Administration, Global Admin, Student My Work/Feedback/Final Checklist/Today, Mentor Dashboard/assigned-student screens, workspace Students/Reviews/Reports, and Admin Console People/Students/Assignments/Programs/Audit mobile or half-screen routes.
+- Role-specific work completed: Phase 7 evidence now includes the required V5 screenshot gate with role-specific mobile and half-screen coverage for Student, Mentor, Program Teacher, Viewer, Site Admin, Administration, and Global Admin.
+- What users see differently: no user-facing UI code changed in this checkpoint; the change is broader proof that the existing V5 flows hold across more roles and responsive widths.
+- What users do next more clearly: evidence now covers the main daily route, work/detail route, report route, and admin/setup route combinations needed to keep later mobile/header tightening honest.
+- Mobile checked: V5 browser proof now captures 31 mobile screenshots, exceeding the 18-mobile screenshot gate.
+- Accessibility checked: browser proof verified expected text, absence checks, no visible password values, no secret-like text, and no horizontal overflow across all 75 captures. Full accessibility sweep still pending.
+- Screenshots captured: 75 total screenshots, including 31 mobile screenshots, written to `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/`.
+- Tests run: `node --check scripts\prove-workspace-ui-polish.mjs`; `node scripts\prove-workspace-ui-polish.mjs` with V5 output env vars (75 pass, 0 fail); `git diff --check` (passed; line-ending warnings only).
+- Commit SHA(s): `b788c9aad4b3a97afec3eb42004e23dbb8369f45`
+- Remaining risks: this is still local fake-account proof only, not hosted or real-student pilot proof; runtime, full accessibility, and final complete-run gates remain pending.
+- Next focus: shared mobile/header tightening and any proof-driven responsive fixes.
+
 ## Working Log
 
 - `2026-07-06 20:22:33 -07:00`: start recorded after verifying `main`, clean status, and `origin/main` alignment.
@@ -93,3 +109,4 @@
 - `2026-07-06 21:24:24 -07:00`: Phase 4 Program Teacher work committed through `e44507f02f0a9ecbcdbcab565ff396660cf956d1`; workspace tests pass at 115/115 and V5 browser proof is refreshed green with Program Teacher Today and Review Work screenshots.
 - `2026-07-06 21:34:24 -07:00`: Phase 5 Viewer work committed through `b091346835e02a58d57b9160e20a19a891e85c98`; workspace tests pass at 115/115 and V5 browser proof is refreshed green with Viewer desktop, detail, directory, and mobile screenshots.
 - `2026-07-06 21:43:55 -07:00`: Phase 6 Staff/Admin work committed through `5df6d1f83ad4e90b8710f6b7f547f4fea08c1f96`; workspace tests pass at 115/115 and V5 browser proof is refreshed green with staff/admin workspace, report, detail, and mobile screenshots.
+- `2026-07-06 21:57:43 -07:00`: Phase 7 evidence expansion committed as `b788c9aad4b3a97afec3eb42004e23dbb8369f45`; V5 browser proof is green with 75 screenshots, 31 mobile screenshots, and zero failures.
