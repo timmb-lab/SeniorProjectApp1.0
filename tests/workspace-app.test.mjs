@@ -873,7 +873,7 @@ test("workspace reports render accessible shared report bars with mobile fallbac
   assert.match(staffReports, /data-staff-report-bars="true"/);
   assert.match(staffReports, /data-report-row="visible-students"[\s\S]*aria-label="Visible students:/);
   assert.match(staffReports, /data-staff-report-row="needs-review"[\s\S]*role="meter"[\s\S]*aria-valuetext=/);
-  assert.match(staffReports, /data-staff-report-row="mentor-coverage"[\s\S]*Denominator: \d+ visible students/);
+  assert.match(staffReports, /data-staff-report-row="mentor-coverage"[\s\S]*Students counted: \d+ visible students/);
   assert.match(staffReports, /Missing work\/setup/);
   assert.match(staffReports, /data-report-export-panel="staff"/);
   assert.match(staffReports, /data-report-confidence-note="staff"[\s\S]*unknown states are not counted as complete/);
@@ -892,7 +892,7 @@ test("workspace reports render accessible shared report bars with mobile fallbac
   assert.match(adminReports, /data-admin-reports="true"/);
   assert.match(adminReports, /data-admin-report-summary="true"/);
   assert.match(adminReports, /data-admin-report-row="roster"[\s\S]*aria-valuemax="100"[\s\S]*aria-valuetext="/);
-  assert.match(adminReports, /data-admin-report-row="mentor"[\s\S]*Denominator: \d+ students in this view/);
+  assert.match(adminReports, /data-admin-report-row="mentor"[\s\S]*Students counted: \d+ visible students/);
   assert.match(adminReports, /data-admin-report-row="issues"[\s\S]*Setup\/import issues/);
   assert.match(adminReports, /data-report-bars="true"/);
   assert.match(adminReports, /data-report-export-panel="admin"/);
@@ -7693,7 +7693,7 @@ test("admin console surfaces setup reasons across overview people students and r
   );
   assert.match(reports, /data-admin-action-menu="adminReports"[\s\S]*Review roster summary[\s\S]*Review setup issues/);
   assert.doesNotMatch(reports, /data-admin-action-menu="adminReports"[\s\S]*View audit/);
-  assert.match(reports, /data-admin-report-scope-notice="true"[\s\S]*Current access[\s\S]*Student denominator[\s\S]*Export safety[\s\S]*Unknowns/);
+  assert.match(reports, /data-admin-report-scope-notice="true"[\s\S]*Current access[\s\S]*Students counted[\s\S]*Export safety[\s\S]*Unknowns/);
   assert.match(reports, /data-report-confidence-note="admin"[\s\S]*unknown states are not counted as complete/);
   assert.match(reports, /Downloads leave out passwords, private notes, file links, and rows outside this account&#039;s access/);
   assert.match(reports, /data-admin-setup-readiness="true"/);

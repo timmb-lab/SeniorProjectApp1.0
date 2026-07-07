@@ -572,7 +572,7 @@ const SCREENSHOT_PLAN = [
     viewport: { width: 390, height: 844, deviceScaleFactor: 2, mobile: true },
     expected: ["Reports", "Pick the report you need now", "Download roster CSV", "unknown states are not counted as complete"],
     actions: ["scrollToReportExports"],
-    proves: "Mobile Admin Reports opens on the scoped report picker with denominator confidence copy and CSV download affordances.",
+    proves: "Mobile Admin Reports opens on the scoped report picker with counted-students confidence copy and CSV download affordances.",
   },
   {
     id: "39-viewer-students-directory",

@@ -6965,7 +6965,7 @@ function staffReportQuestions({ roles, visibleStudents, reviewCount, setupSignal
       kicker: "Mentor coverage",
       title: `Mentor coverage is ${percentLabel(mentorCoverage)}`,
       detail: mentorDenominator
-        ? `${mentorDenominator} visible ${pluralize(mentorDenominator, "student")} in the coverage denominator.`
+        ? `${mentorDenominator} visible ${pluralize(mentorDenominator, "student")} counted for coverage.`
         : "Coverage percentage appears after student and mentor data load.",
       valueLabel: "Private mentor notes are not shown in reports.",
       section: canOpenStudents ? "students" : "",
@@ -7027,7 +7027,7 @@ function renderStaffReportsSection() {
       value: report.mentorCoveragePercent,
       max: 100,
       valueLabel: percentLabel(report.mentorCoveragePercent),
-      detail: `Denominator: ${safeNumber(report.mentorCoverageDenominator || visibleStudents)} visible students.`,
+      detail: `Students counted: ${safeNumber(report.mentorCoverageDenominator || visibleStudents)} visible students.`,
       tone: "mentor",
       dataAttrs: `data-staff-report-row="mentor-coverage"`,
     },
@@ -7121,7 +7121,7 @@ function renderAdminReportChoiceFlow(model = adminConsoleOperationsModel(), capa
         </div>
       </div>
       <p class="workspace-report-confidence-note" data-report-confidence-note="admin">
-        Percentages name their denominator, zero-row exports stay disabled, and unknown states are not counted as complete.
+        Percentages say which students are counted, zero-row exports stay disabled, and unknown states are not counted as complete.
       </p>
       <div class="workspace-admin-report-choice-list" data-admin-report-choice-list="true">
         ${safeExports.map((spec, index) => renderAdminReportChoiceRow(spec, index, model, capabilities)).join("")}
@@ -7177,7 +7177,7 @@ function renderAdminReportChoiceAction(spec = {}, primary = false) {
 function renderAdminReportScopeNotice(report = {}, capabilities = adminConsoleCapabilitiesFor(currentUser)) {
   const rows = [
     ["Current access", capabilities.scope?.label || "Allowed records", capabilities.scope?.detail || "Only records this account can already load."],
-    ["Student denominator", safeNumber(report.studentTotal || report.loadedStudentRows), `${safeNumber(report.loadedStudentRows)} loaded roster row${safeNumber(report.loadedStudentRows) === 1 ? "" : "s"} in this view.`],
+    ["Students counted", safeNumber(report.studentTotal || report.loadedStudentRows), `${safeNumber(report.loadedStudentRows)} roster row${safeNumber(report.loadedStudentRows) === 1 ? "" : "s"} visible here.`],
     ["Export safety", "Report-safe", "Downloads leave out passwords, private notes, file links, and rows outside this account's access."],
     ["Unknowns", "Not complete", "Unknown or unloaded states are not counted as complete in coverage percentages."],
   ];
@@ -7638,10 +7638,10 @@ function renderAdminImportTemplateShelf() {
 
 function renderAdminOperationalReportSummary(report = {}) {
   const rows = [
-    { id: "roster", label: "Roster completeness", value: report.rosterCompletenessPercent, max: 100, valueLabel: percentLabel(report.rosterCompletenessPercent), detail: `Denominator: ${safeNumber(report.rosterCompletenessDenominator)} loaded roster rows`, tone: "student", dataAttrs: `data-admin-report-row="roster"` },
-    { id: "mentor", label: "Mentor coverage", value: report.mentorCoveragePercent, max: 100, valueLabel: percentLabel(report.mentorCoveragePercent), detail: `Denominator: ${safeNumber(report.mentorCoverageDenominator)} students in this view`, tone: "mentor", dataAttrs: `data-admin-report-row="mentor"` },
-    { id: "viewer", label: "Viewer coverage", value: report.viewerCoveragePercent, max: 100, valueLabel: percentLabel(report.viewerCoveragePercent), detail: `Denominator: ${safeNumber(report.viewerCoverageDenominator)} loaded roster rows`, tone: "ready", dataAttrs: `data-admin-report-row="viewer"` },
-    { id: "program", label: "Program coverage", value: report.programCoveragePercent, max: 100, valueLabel: percentLabel(report.programCoveragePercent), detail: `Denominator: ${safeNumber(report.programCoverageDenominator)} active programs`, tone: "teacher", dataAttrs: `data-admin-report-row="program"` },
+    { id: "roster", label: "Roster completeness", value: report.rosterCompletenessPercent, max: 100, valueLabel: percentLabel(report.rosterCompletenessPercent), detail: `Students counted: ${safeNumber(report.rosterCompletenessDenominator)} roster rows`, tone: "student", dataAttrs: `data-admin-report-row="roster"` },
+    { id: "mentor", label: "Mentor coverage", value: report.mentorCoveragePercent, max: 100, valueLabel: percentLabel(report.mentorCoveragePercent), detail: `Students counted: ${safeNumber(report.mentorCoverageDenominator)} visible students`, tone: "mentor", dataAttrs: `data-admin-report-row="mentor"` },
+    { id: "viewer", label: "Viewer coverage", value: report.viewerCoveragePercent, max: 100, valueLabel: percentLabel(report.viewerCoveragePercent), detail: `Students counted: ${safeNumber(report.viewerCoverageDenominator)} roster rows`, tone: "ready", dataAttrs: `data-admin-report-row="viewer"` },
+    { id: "program", label: "Program coverage", value: report.programCoveragePercent, max: 100, valueLabel: percentLabel(report.programCoveragePercent), detail: `Programs counted: ${safeNumber(report.programCoverageDenominator)} active programs`, tone: "teacher", dataAttrs: `data-admin-report-row="program"` },
     { id: "progress", label: "Progress follow-up", value: safeNumber(report.reviewFollowUp), max: Math.max(safeNumber(report.studentTotal), safeNumber(report.reviewFollowUp), 1), detail: "Submitted and revision-requested records", tone: safeNumber(report.reviewFollowUp) ? "warning" : "ready", dataAttrs: `data-admin-report-row="progress"` },
     { id: "issues", label: "Setup/import issues", value: safeNumber(report.setupIssueCount) + safeNumber(report.importIssueCount), max: Math.max(safeNumber(report.studentTotal), safeNumber(report.setupIssueCount) + safeNumber(report.importIssueCount), 1), detail: "Setup list and CSV preview issues", tone: safeNumber(report.setupIssueCount) + safeNumber(report.importIssueCount) ? "warning" : "ready", dataAttrs: `data-admin-report-row="issues"` },
   ];
@@ -7670,7 +7670,7 @@ function renderReportExportPanel({ id = "reports", title = "CSV downloads", deta
         </div>
       </div>
       <p class="workspace-report-confidence-note" data-report-confidence-note="${escapeHtml(id)}">
-        Percentages name their denominator, zero-row exports stay disabled, and unknown states are not counted as complete.
+        Percentages say which students are counted, zero-row exports stay disabled, and unknown states are not counted as complete.
       </p>
       <div class="workspace-report-export-grid">
         ${safeExports.map(renderReportExportRow).join("")}
@@ -11798,7 +11798,7 @@ function renderOperationsReadinessSection() {
       <div class="workspace-operations-insight-grid">
         ${renderReadinessScoreCard(dashboard.score, dashboard.total, "Overall readiness score", dashboard.scoreDetail)}
         ${renderDashboardCard("Stage distribution", "Presentation, archive, and readiness items", renderStackedDistribution(dashboard.stageDistribution, "Operations stage distribution"))}
-        ${renderDashboardCard("Top issue categories", "Counts include denominator and percent", renderHorizontalBars(dashboard.blockers, dashboard.total, { emptyLabel: "No issues found in visible rows." }))}
+        ${renderDashboardCard("Top issue categories", "Counts include totals and percent", renderHorizontalBars(dashboard.blockers, dashboard.total, { emptyLabel: "No issues found in visible rows." }))}
       </div>
       ${renderDashboardCard("Top next actions", "Ranked staff follow-up", renderRankedNextActions(dashboard.nextActions, { emptyLabel: "No issue-driven follow-up is waiting in this view." }))}
       ${renderOperationsFilters(body)}
@@ -19544,7 +19544,7 @@ function renderSiteReadinessDashboard(operationsBody = {}, readinessResult = nul
       ], { label: "Readiness top summary", className: "workspace-readiness-kpis" })}
       <div class="workspace-dashboard-grid workspace-dashboard-grid-two workspace-dashboard-support-grid">
         ${renderReadinessScoreCard(dashboard.score, dashboard.total, "Readiness score", dashboard.scoreDetail)}
-        ${renderDashboardCard("Top blockers", "Ranked categories with denominator context", renderHorizontalBars(dashboard.blockers, dashboard.total, { emptyLabel: "No blockers found in visible records." }))}
+        ${renderDashboardCard("Top blockers", "Ranked categories with total-count context", renderHorizontalBars(dashboard.blockers, dashboard.total, { emptyLabel: "No blockers found in visible records." }))}
       </div>
       <div class="workspace-dashboard-grid workspace-dashboard-grid-two workspace-dashboard-support-grid">
         ${renderDashboardCard("Program risk", "Top-risk programs in visible records", renderOperationsProgramBreakdown(readiness.filteredProgramBreakdown || readiness.programBreakdown || [], dashboard.total))}
