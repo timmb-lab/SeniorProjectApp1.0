@@ -1167,6 +1167,10 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     && !isAdminConsole
     && roles.has("program_teacher")
     && ["overview", "teacher", "programDashboard"].includes(activeSection);
+  const mentorPrimarySection = !renderBlockedSectionOnly
+    && !isAdminConsole
+    && roles.has("mentor")
+    && ["overview", "mentor", "mentorDashboard"].includes(activeSection);
   const adminConsolePrimarySection = !renderBlockedSectionOnly
     && isAdminConsole
     && ["overview", "adminPeople", "adminStudents", "adminAssignments", "programs", "adminImports", "adminReports", "audit"].includes(activeSection);
@@ -1182,8 +1186,8 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     ? "student"
     : adminConsolePrimarySection
       ? `admin-${activeSection}`
-    : !renderBlockedSectionOnly && roles.has("mentor") && activeSection === "mentorDashboard"
-      ? "mentor"
+    : mentorPrimarySection
+      ? activeSection === "mentor" ? "mentor-students" : "mentor"
       : viewerPrimarySection
         ? activeSection === "students"
           ? "viewer-students"
@@ -5710,6 +5714,7 @@ function renderStaffWorkspaceTodaySection() {
   const todayTitle = staffWorkspaceTitle(model);
   const primaryQueue = staffWorkspacePrimaryQueue(model);
   const rolePlanHtml = [
+    model.roles?.has("mentor") ? renderMentorTodayPlan(model) : "",
     model.roles?.has("program_teacher") ? renderProgramTeacherTodayPlan(model) : "",
     model.roles?.has("viewer") ? renderViewerReadOnlyTodayPlan(model) : "",
     hasStaffAdminWorkspaceRole(model.roles) ? renderStaffAdminTodayPlan(model) : "",
@@ -5747,6 +5752,99 @@ function renderStaffWorkspaceTodaySection() {
 
 function hasStaffAdminWorkspaceRole(roles = roleIds(currentUser)) {
   return Boolean(roles?.has?.("administration") || roles?.has?.("site_admin") || hasGlobalAdminRole(roles));
+}
+
+function renderMentorTodayPlan(model = {}) {
+  const rows = Array.isArray(model.rows) ? model.rows : [];
+  const rowCountWithFlag = (flagKey) => rows.filter((row) => Array.isArray(row.attention) && row.attention.some((flag) => flag.key === flagKey)).length;
+  const sections = availableSectionIdsForAnyMode();
+  const total = safeNumber(model.counts?.total);
+  const supportCount = safeNumber(model.counts?.needsHelp);
+  const meetingCount = rowCountWithFlag("meeting");
+  const presentationCount = rowCountWithFlag("presentation");
+  const cards = [
+    {
+      id: "assigned-student",
+      title: "Open the assigned-student focus",
+      value: supportCount || total,
+      detail: "Start with assigned students who have meeting, stale-progress, presentation, or teacher-note signals.",
+      section: sections.has("mentorDashboard") ? "mentorDashboard" : "mentor",
+      action: sections.has("mentorDashboard") ? "Open Mentor Dashboard" : "Open Students",
+      tone: supportCount ? "mentor" : "ready",
+    },
+    {
+      id: "student-list",
+      title: "Open one assigned student",
+      value: total,
+      detail: "Use Assigned Students when you already know who needs meeting or proof context.",
+      section: "mentor",
+      action: "Open Students",
+      tone: "mentor",
+    },
+    {
+      id: "meeting-follow-up",
+      title: "Check meeting follow-up",
+      value: meetingCount,
+      detail: "Use meeting signals to decide which assigned student needs the next check-in.",
+      section: "mentor",
+      action: meetingCount ? "Open meeting rows" : "Open Students",
+      tone: meetingCount ? "warning" : "ready",
+    },
+    {
+      id: "presentation",
+      title: "Check presentation context",
+      value: presentationCount,
+      detail: "Confirm schedule, outline, and day-of status for students you support.",
+      section: "presentation",
+      action: presentationCount ? "Open presentation" : "Check presentation",
+      tone: presentationCount ? "warning" : "quiet",
+    },
+    {
+      id: "reports",
+      title: "Use reports after check-ins",
+      value: total,
+      detail: "Use Reports only after the next assigned-student check is clear.",
+      section: "staffReports",
+      action: "Open Reports",
+      tone: "quiet",
+    },
+  ];
+  return `
+    <section class="workspace-mentor-today-plan" data-mentor-today-plan="true" aria-labelledby="mentorTodayPlanTitle">
+      <div class="workspace-mentor-today-plan-head">
+        <div>
+          <p class="workspace-kicker">Mentor plan</p>
+          <h3 id="mentorTodayPlanTitle">Choose one assigned student first</h3>
+          <p>Mentor work starts with assigned students, then moves to meeting follow-up, presentation context, or reports only when that student needs it.</p>
+        </div>
+        <span class="workspace-summary-badge">${escapeHtml(total)} assigned students</span>
+      </div>
+      ${renderTodayPrimaryStep(cards, sections, {
+        label: "Assigned-student route",
+        dataAttrs: 'data-mentor-primary-step="true"',
+      })}
+      <div class="workspace-mentor-today-plan-grid">
+        ${cards.map((card) => renderMentorTodayPlanCard(card, sections)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderMentorTodayPlanCard(card = {}, sections = availableSectionIdsForAnyMode()) {
+  const section = card.section || "";
+  const actionHtml = section && sections.has(section)
+    ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(section)}" ${card.preset ? `data-section-preset="${escapeHtml(card.preset)}"` : ""}>${escapeHtml(card.action || "Open")}</button>`
+    : `<span class="workspace-summary-badge">Assigned only</span>`;
+  return `
+    <article class="workspace-mentor-today-plan-card ${escapeHtml(card.tone || "quiet")}" data-mentor-today-plan-card="${escapeHtml(card.id || "plan")}">
+      <div>
+        <span>${escapeHtml(String(card.value ?? 0))}</span>
+        <strong>${escapeHtml(card.title || "Mentor step")}</strong>
+        <p>${escapeHtml(card.detail || "")}</p>
+      </div>
+      ${actionHtml}
+    </article>
+  `;
 }
 
 function renderStaffAdminTodayPlan(model = {}) {

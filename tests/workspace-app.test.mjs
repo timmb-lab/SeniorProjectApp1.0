@@ -630,6 +630,15 @@ test("workspace defaults to workflow landings instead of role profiles", async (
   const mentorLanding = await renderWorkspaceWithFetch(profileRoutesForRole("mentor"));
   assert.match(visibleText(mentorLanding), /Mentor view shows assigned students only/);
   assert.doesNotMatch(visibleText(mentorLanding), /Mentor view is scoped/);
+  assert.match(mentorLanding, /data-v2-primary-surface="mentor"[\s\S]*data-staff-workspace-today="true"/);
+  assertMarkupOrder(mentorLanding, 'data-v2-primary-surface="mentor"', 'data-v3-start-state="true"', "mentor landing should show assigned-student work before shared shell guidance");
+  assert.match(mentorLanding, /data-mentor-today-plan="true"/);
+  assertMarkupOrder(mentorLanding, 'data-mentor-today-plan="true"', 'id="staffWorkspaceTodayTitle"', "mentor plan should lead before shared Staff Workspace header");
+  assert.match(mentorLanding, /Choose one assigned student first/);
+  assert.match(mentorLanding, /data-mentor-primary-step="true"[\s\S]*data-today-primary-step="assigned-student"[\s\S]*data-section="mentorDashboard"/);
+  assert.match(mentorLanding, /data-mentor-today-plan-card="student-list"[\s\S]*data-section="mentor"/);
+  assert.match(mentorLanding, /data-mentor-today-plan-card="presentation"[\s\S]*data-section="presentation"/);
+  assert.doesNotMatch(mentorLanding, /data-review-decision="approved"|data-mentor-assignment-form="true"|data-admin-action="import-users"/);
 
   const teacherLanding = await renderWorkspaceWithFetch(profileRoutesForRole("program_teacher"));
   assert.match(teacherLanding, /data-v2-primary-surface="program-teacher"[\s\S]*data-staff-workspace-today="true"/);
@@ -7244,12 +7253,15 @@ test("workspace exposes a real admin site switcher and collapsible navigation", 
   assert.match(workspaceJs, /renderStaffAdminTodayPlan/);
   assert.match(workspaceJs, /programTeacherPrimarySection/);
   assert.match(workspaceJs, /renderProgramTeacherTodayPlan/);
+  assert.match(workspaceJs, /mentorPrimarySection/);
+  assert.match(workspaceJs, /renderMentorTodayPlan/);
   assert.match(workspaceJs, /data-v2-primary-surface="\$\{escapeHtml\(primarySectionKind \|\| "primary"\)\}"/);
   assert.match(workspaceCss, /\.workspace-v2-primary-surface\s*\{[\s\S]*border-top:\s*1px solid var\(--v2-line\);/);
   assert.match(workspaceCss, /\.workspace-today-primary-step\s*\{[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) auto auto;/);
   assert.match(workspaceCss, /\.workspace-viewer-readonly-plan\s*\{[\s\S]*border-left:\s*5px solid var\(--abc-teal\);/);
   assert.match(workspaceCss, /\.workspace-staff-admin-plan\s*\{[\s\S]*border-left:\s*5px solid var\(--abc-amber\);/);
   assert.match(workspaceCss, /\.workspace-program-teacher-plan\s*\{[\s\S]*border-left:\s*5px solid var\(--abc-blue\);/);
+  assert.match(workspaceCss, /\.workspace-mentor-today-plan\s*\{[\s\S]*border-left:\s*5px solid var\(--abc-green\);/);
 });
 
 test("workspace half-width drawer and phone drawer stay bounded and keep global admin controls reachable", async () => {

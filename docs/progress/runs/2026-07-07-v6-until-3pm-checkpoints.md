@@ -207,3 +207,31 @@
   - `npm run verify:dashboard-actions`: PASS
   - `git diff --check`: PASS with line-ending warnings only
 - Real work continues before 3PM: YES
+
+## Slice 08 - Mentor Today Assigned-Student Plan
+
+- Files changed:
+  - `workspace.js`
+  - `workspace.css`
+  - `tests/workspace-app.test.mjs`
+  - `docs/progress/runs/2026-07-07-v6-until-3pm-checkpoints.md`
+- User-facing surfaces affected:
+  - Mentor Today
+  - Mentor assigned-student route
+  - Mentor presentation/report follow-up links
+- Behavior changed:
+  - Mentor Today now has a dedicated role plan before the shared Staff Workspace header.
+  - The first Mentor Today action routes to the existing Mentor Dashboard/assigned-student surface.
+  - Follow-up cards point only to existing mentor, presentation, and staff report surfaces.
+  - Mentor overview now uses the V2 primary surface ordering so real assigned-student work appears before shared shell guidance.
+- RBAC/data impact: no permission, API, route availability, mutation, or data-access logic changed. Mentor remains assigned-student scoped.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --test --test-name-pattern "workspace defaults to workflow landings" tests\workspace-app.test.mjs`: PASS, `1` pass, `0` fail
+  - `node --test tests\workspace-app.test.mjs`: PASS, `115` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Real work continues before 3PM: YES
