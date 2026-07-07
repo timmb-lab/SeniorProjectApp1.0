@@ -802,7 +802,7 @@ assertMatches(
   "Mentor Dashboard assigned-student rows must use the existing student detail route through a mentor-scoped handler",
 );
 
-assertMatches("workspaceJs", /function renderReadOnlyBanner\(\)[\s\S]*Read-only workspace/, "viewer read-only banner must remain visible");
+assertMatches("workspaceJs", /function renderReadOnlyBanner\([^)]*\)[\s\S]*Read-only workspace/, "viewer read-only banner must remain visible");
 assertMatches("workspaceJs", /data-review-queue-read-only="true"[\s\S]*No review action available for this row/, "read-only review queue must not expose mutation actions as available");
 assertMatches("workspaceJs", /data-mentor-assignment-controls-hidden="true"[\s\S]*Assignment changes unavailable/, "read-only mentor coverage must hide assignment controls");
 assertMatches("workspaceJs", /data-operations-read-only="true"[\s\S]*Read-only operations worklists/, "operations read-only state must remain explicit");

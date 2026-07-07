@@ -10896,6 +10896,14 @@ function renderMentorDashboardSection() {
       })}
     </section>
   `;
+  const mentorSummaryMetrics = `
+    <div class="workspace-dashboard-grid workspace-mentor-dashboard-metrics" data-mentor-dashboard-summary-metrics="true">
+      ${renderMetricTile("Assigned", summary.assignedCount || assigned.length, "Students assigned to this mentor", "mentor", "", { actionHtml: renderMentorDashboardMetricAction("all", "Show all") })}
+      ${renderMetricTile("Needs Revision", summary.needsRevision, "Students with teacher changes to discuss", safeNumber(summary.needsRevision) ? "warning" : "ready", "", { actionHtml: renderMentorDashboardMetricAction("revision", "Focus list") })}
+      ${renderMetricTile("Meetings", summary.missingMeeting, "Check-ins missing, missed, or needing make-up", safeNumber(summary.missingMeeting) ? "warning" : "ready", "", { actionHtml: renderMentorDashboardMetricAction("meeting", "Focus list") })}
+      ${renderMetricTile("Presentations", summary.presentationPending, "Outline or presentation readiness to confirm", safeNumber(summary.presentationPending) ? "warning" : "ready", "", { actionHtml: renderMentorDashboardMetricAction("presentation", "Focus list") })}
+    </div>
+  `;
 
   if (mentorDetailSurface) {
     return `
@@ -10922,6 +10930,7 @@ function renderMentorDashboardSection() {
           <span class="workspace-chip">${safeNumber(summary.assignedCount)} assigned</span>
         </div>
       </div>
+      ${assigned.length ? mentorSummaryMetrics : ""}
       ${focusStudent ? renderMentorDashboardFocusedStudent(focusStudent, activeFilter, assigned.length) : mentorSecondaryContent}
       ${focusStudent ? renderMentorNextMeetingPlan([focusStudent], activeFilter) : ""}
       ${assigned.length ? `
@@ -24854,10 +24863,19 @@ function renderReportBars({ id = "workspaceReportBarsTitle", kicker = "Reports",
           ${safeRows.map(renderReportBarRow).join("")}
         </div>
       ` : `
-        <article class="workspace-empty-state-card" data-report-empty="true">
-          <strong>No report data is available for this view yet.</strong>
-          <p>Report rows appear after roster, review, or setup data loads.</p>
-        </article>
+        ${renderIntentionalEmptyState({
+          id: "report-bars-empty",
+          kicker,
+          title: "No report data is available for this view yet",
+          detail: "Report rows appear after roster, review, or setup data loads for records this account can see.",
+          reason: "No roster, review, or setup rows were returned for this report view.",
+          owner: "Assigned staff",
+          nextAction: "Refresh after roster, review, or setup changes; open Students when you need to inspect visible records.",
+          actions: [
+            { label: "Refresh workspace", problemAction: "refresh" },
+            { label: "Open students", section: "students" },
+          ],
+        })}
       `}
     </section>
   `;
@@ -25126,7 +25144,21 @@ function renderProgramBreakdown(rows = []) {
 }
 
 function renderReviewQueueSummary(rows = [], options = {}) {
-  if (!rows.length) return `<div class="workspace-empty">No submitted or revision-requested records need Program Teacher review right now.</div>`;
+  if (!rows.length) {
+    return renderIntentionalEmptyState({
+      id: "review-queue-clear",
+      kicker: "Review workload",
+      title: "No submitted or revision-requested work needs review right now",
+      detail: "This does not approve work by itself. It only means the loaded queue has no rows for the current school, program, or assigned-student list.",
+      reason: "The review queue returned no submitted or revision-requested rows.",
+      owner: "Program Teacher",
+      nextAction: "Open Review Work after new submissions arrive, or open Students if you need to inspect a specific visible record.",
+      actions: [
+        { label: "Open Review Work", section: "teacher", preset: "submitted" },
+        { label: "Open students", section: "students" },
+      ],
+    });
+  }
   const allowStudentDetail = Boolean(options.allowStudentDetail && availableSectionIdsForAnyMode().has("students"));
   return `
     <div class="workspace-list">
@@ -25158,6 +25190,25 @@ function renderReviewQueueSummary(rows = [], options = {}) {
 
 function renderMentorCoverage(rows = [], summary = {}) {
   const noMentor = safeNumber(summary.studentsNoMentor || summary.noMentor);
+  const mentorEmpty = !rows.length ? renderIntentionalEmptyState({
+    id: "mentor-coverage-clear",
+    kicker: "Mentor coverage",
+    title: noMentor ? "No mentor assignment rows are loaded yet" : "No mentor coverage gaps are visible right now",
+    detail: noMentor
+      ? "The summary shows students without mentors, but this panel did not receive the matching assignment rows."
+      : "This means the loaded mentor coverage panel has no rows to review for this school or assigned-student list.",
+    reason: noMentor
+      ? "Mentor coverage data is incomplete for the current view."
+      : "The mentor coverage list returned no assignment rows.",
+    owner: "Site staff",
+    nextAction: noMentor
+      ? "Open mentor assignments or the missing-mentor student filter before adding broad access."
+      : "Refresh after assignment changes or open Students when checking a specific student.",
+    actions: [
+      { label: "Open coverage", section: "mentorAssignments", preset: noMentor ? "no-mentor" : "" },
+      { label: "View students", section: "students", preset: "missing-mentors" },
+    ],
+  }) : "";
   return `
     <div class="workspace-list">
       ${noMentor ? `
@@ -25189,13 +25240,24 @@ function renderMentorCoverage(rows = [], summary = {}) {
             ` : ""}
           </div>
         </article>
-      `).join("") : `<div class="workspace-empty">No mentor coverage records are available yet.</div>`}
+      `).join("") : mentorEmpty}
     </div>
   `;
 }
 
 function renderStatusBreakdown(rows = []) {
-  if (!rows.length) return `<div class="workspace-empty">No student status rows are available yet.</div>`;
+  if (!rows.length) {
+    return renderIntentionalEmptyState({
+      id: "student-status-empty",
+      kicker: "Student status",
+      title: "No student status rows are available yet",
+      detail: "Status rows appear after visible student records load for the selected school or program.",
+      reason: "The loaded status breakdown returned no rows this account can see.",
+      owner: "Assigned school staff",
+      nextAction: "Open Students to confirm the visible roster before treating the status view as quiet.",
+      actions: [{ label: "Open students", section: "students" }],
+    });
+  }
   const canOpenStudents = availableSectionIdsForAnyMode().has("students");
   return `
     <div class="workspace-list">
@@ -25224,7 +25286,26 @@ function renderStatusBreakdown(rows = []) {
 }
 
 function renderSnapshotRows(rows = [], type = "") {
-  if (!rows.length) return `<div class="workspace-empty">No status rows are available yet.</div>`;
+  if (!rows.length) {
+    const snapshotLabel = type === "presentation"
+      ? "Presentation snapshot"
+      : type === "archive"
+        ? "Final-file snapshot"
+        : "Status snapshot";
+    return renderIntentionalEmptyState({
+      id: `${type || "status"}-snapshot-empty`,
+      kicker: snapshotLabel,
+      title: "No status rows are available yet",
+      detail: "Snapshot rows appear after presentation, final-file, or operations data loads for this school or assigned-student list.",
+      reason: `The loaded ${snapshotLabel.toLowerCase()} returned no rows.`,
+      owner: "Assigned staff",
+      nextAction: "Open Operations when you need the detailed worklist, or refresh after new presentation or final-file activity.",
+      actions: [
+        { label: "Open operations", section: "operations" },
+        { label: "Refresh workspace", problemAction: "refresh" },
+      ],
+    });
+  }
   return `
     <div class="workspace-list">
       ${rows.map((row) => renderSnapshotRow(row, type)).join("")}
@@ -25270,7 +25351,21 @@ function snapshotRowAction(row = {}, type = "") {
 function renderAuditSummary(rows = [], options = {}) {
   const emptyMessage = options.emptyMessage || "No recent audit rows are available for this view.";
   const allowAuditDrillDown = Boolean(options.allowAuditDrillDown && availableSectionIdsForAnyMode().has("audit"));
-  if (!rows.length) return `<div class="workspace-empty">${escapeHtml(emptyMessage)}</div>`;
+  if (!rows.length) {
+    return renderIntentionalEmptyState({
+      id: "audit-summary-empty",
+      kicker: "Audit",
+      title: emptyMessage,
+      detail: "Audit summaries use redacted rows only. Empty does not prove that no changes happened outside the loaded result.",
+      reason: "The loaded audit summary returned no rows for this view.",
+      owner: "Global admin",
+      nextAction: "Open Audit or refresh after access, account, import, or review changes.",
+      actions: [
+        { label: "Open audit", section: "audit" },
+        { label: "Refresh workspace", problemAction: "refresh" },
+      ],
+    });
+  }
   return `
     <div class="workspace-list">
       ${rows.slice(0, 8).map((row) => `
@@ -25294,7 +25389,18 @@ function renderAuditSummary(rows = [], options = {}) {
 }
 
 function renderScopedStudentList(rows = []) {
-  if (!rows.length) return `<div class="workspace-empty">No students are currently visible for this school view.</div>`;
+  if (!rows.length) {
+    return renderIntentionalEmptyState({
+      id: "scoped-student-list-empty",
+      kicker: "Students",
+      title: "No students are currently visible for this school view",
+      detail: "This screen only shows students assigned to this account.",
+      reason: "The loaded student list returned no visible rows.",
+      owner: "Assigned school staff",
+      nextAction: "Open Students to confirm site, program, and filter choices before changing access.",
+      actions: [{ label: "Open students", section: "students", preset: "all-students" }],
+    });
+  }
   return `
     <div class="workspace-list">
       ${rows.slice(0, 12).map((row) => `

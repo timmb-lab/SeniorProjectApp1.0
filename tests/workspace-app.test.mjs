@@ -7620,6 +7620,27 @@ test("admin console empty and failed data states stay actionable without raw out
   assert.match(overview, /workspace-problem-state[\s\S]*Refresh after roster, program, or import changes/);
   assertNoRawDebugState(overview);
 
+  const reviewQueueEmpty = vm.runInContext("renderReviewQueueSummary([], { allowStudentDetail: true })", context);
+  assert.match(reviewQueueEmpty, /data-intentional-empty-state="review-queue-clear"[\s\S]*No submitted or revision-requested work needs review right now/);
+  assert.match(reviewQueueEmpty, /data-problem-state-actions="true"[\s\S]*Open Review Work/);
+
+  const mentorCoverageEmpty = vm.runInContext("renderMentorCoverage([], {})", context);
+  assert.match(mentorCoverageEmpty, /data-intentional-empty-state="mentor-coverage-clear"[\s\S]*No mentor coverage gaps are visible right now/);
+
+  const snapshotEmpty = vm.runInContext("renderSnapshotRows([], 'presentation')", context);
+  assert.match(snapshotEmpty, /data-intentional-empty-state="presentation-snapshot-empty"[\s\S]*No status rows are available yet/);
+
+  const auditSummaryEmpty = vm.runInContext("renderAuditSummary([], { allowAuditDrillDown: true })", context);
+  assert.match(auditSummaryEmpty, /data-intentional-empty-state="audit-summary-empty"[\s\S]*Audit summaries use redacted rows only/);
+
+  const scopedStudentEmpty = vm.runInContext("renderScopedStudentList([])", context);
+  assert.match(scopedStudentEmpty, /data-intentional-empty-state="scoped-student-list-empty"[\s\S]*No students are currently visible for this school view/);
+  assert.match(scopedStudentEmpty, /data-section="students" data-section-preset="all-students"/);
+
+  const reportEmpty = vm.runInContext("renderReportBars({ rows: [], title: 'Empty report proof' })", context);
+  assert.match(reportEmpty, /data-intentional-empty-state="report-bars-empty"[\s\S]*No report data is available for this view yet/);
+  assert.match(reportEmpty, /data-problem-action="refresh"/);
+
   vm.runInContext('activeSection = "audit"; renderAppShell();', context);
   const audit = workspaceRoot.innerHTML;
   assert.match(audit, /data-admin-audit-empty-state="true"[\s\S]*No audit events found/);
