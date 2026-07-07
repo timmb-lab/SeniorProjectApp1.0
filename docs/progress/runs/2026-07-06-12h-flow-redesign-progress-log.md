@@ -5,6 +5,63 @@ Branch: `main`
 Prompt: flow-first UI/UX rebirth
 Scope: SeniorProjectApp only; `C:\Curriculum` is out of scope.
 
+## 2026-07-06 17:20 PT - Stage 08/09 Admin Audit Flow Checkpoint
+
+Current SHA before Stage 08/09 audit commit: `45b75e28ec11143c23d6b9e650e82701655c714e`
+
+Files changed:
+
+- `workspace.js`
+- `workspace.css`
+- `tests/workspace-app.test.mjs`
+- `scripts/prove-workspace-ui-polish.mjs`
+- `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- `docs/sales/screenshots/2026-07-06-flow-redesign/36-admin-audit.png`
+- `docs/progress/runs/2026-07-06-12h-flow-redesign-progress-log.md`
+
+Tests and checks run:
+
+- `node --check workspace.js`
+- `node --check scripts\prove-workspace-ui-polish.mjs`
+- `node --test tests\workspace-app.test.mjs` - 114/114 passed
+- `npm run prove:workspace-ui-polish` with `WORKSPACE_UI_POLISH_SCREENSHOT_DIR=docs/sales/screenshots/2026-07-06-flow-redesign` and `WORKSPACE_UI_POLISH_MANIFEST_PATH=docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- `git diff --check`
+- `npm run check:workspace-mobile`
+- `npm run check:workspace-accessibility`
+- `npm run verify:permission-matrix`
+- `npm run check:pilot-readiness` - preserved `NO_GO_REAL_STUDENT_PILOT` with five required manual proof manifests still missing
+
+Screenshot/proof status:
+
+- Manifest: `docs/progress/runs/2026-07-06-flow-redesign-browser-proof.json`
+- Screenshot count: 47
+- Screenshot verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Failures: 0
+- Manually inspected `36-admin-audit.png`; it now opens with a redacted-check list instead of two metric-card rows plus quick-filter cards.
+- Boundary: local fake-account UI proof only. Real-student production status remains `NOT_CLAIMED_READY`.
+
+Finished:
+
+- Rebuilt Admin Audit first view around "Choose one audit check" and "Pick one redacted check."
+- Put latest changes, denied access, and review decisions into a row-led audit path.
+- Moved audit overview counts, access-review guidance, filter bar, quick filters, saved filters, anomaly groups, and the recent audit list behind a collapsed supporting-details disclosure.
+- Preserved existing audit filter buttons and URL-state data attributes so review/audit links still use the same scoped route path.
+- Added CSS for the audit start list and mobile stacking.
+- Updated tests and screenshot proof expectations so Audit must show the new check list before diagnostics and must not show the old metric-card text in proof text.
+
+Remaining:
+
+- Stage 08/09 still needs cleanup for Admin Students, Assignments, Programs, and Users & Access screens that retain dense operational panels.
+- Admin Students is the next strongest candidate because it still opens with summary metric tiles above the roster rows.
+- Real-student pilot remains `NO_GO_REAL_STUDENT_PILOT` pending required manual/policy evidence.
+
+Blockers:
+
+- None for this stage.
+- The all-day 12-hour minimum is not complete and must not be claimed complete.
+
+Block type: active checkpoint.
+
 ## 2026-07-06 17:08 PT - Stage 08/09 Admin Reports Flow Checkpoint
 
 Current SHA before Stage 08/09 reports commit: `9d067fc7accecdefb81775edb33216922a6a96c7`

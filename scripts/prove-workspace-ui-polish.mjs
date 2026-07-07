@@ -499,9 +499,9 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?mode=admin&section=audit"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
-    expected: ["Audit", "Access Review", "Account, role, and school access changes", "Loaded redacted rows", "Rows that may need support"],
-    absent: ["Security checks that are enforced now", "Audit is for triage and proof", "Recent Protected Activity"],
-    proves: "Audit shows access review, role assignments, recent changes, and potential issues without proof/debug copy.",
+    expected: ["Audit", "Choose one audit check", "Pick one redacted check", "Start with latest changes", "Redacted rows only"],
+    absent: ["Loaded redacted rows", "Rows that may need support", "Security checks that are enforced now", "Audit is for triage and proof", "Recent Protected Activity"],
+    proves: "Audit starts with one redacted-check list while counts, filters, anomalies, and recent rows stay behind supporting details.",
   },
   {
     id: "37-mobile-admin-overview",

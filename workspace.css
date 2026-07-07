@@ -9346,6 +9346,89 @@ body[data-page="workspace"],
   margin-top: 0.62rem;
 }
 
+.workspace-admin-audit-start-flow {
+  display: grid;
+  gap: 0.68rem;
+  border: 1px solid color-mix(in srgb, var(--abc-charcoal) 18%, white);
+  border-left: 5px solid var(--abc-charcoal);
+  border-radius: var(--radius-card);
+  background: #fff;
+  padding: 0.82rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.workspace-admin-audit-start-head,
+.workspace-admin-audit-start-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.workspace-admin-audit-start-head h2,
+.workspace-admin-audit-start-head p,
+.workspace-admin-audit-start-row p {
+  margin: 0;
+}
+
+.workspace-admin-audit-start-list {
+  display: grid;
+  gap: 0.58rem;
+}
+
+.workspace-admin-audit-start-row {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-card);
+  background: var(--surface-row);
+  padding: 0.72rem;
+  box-shadow: var(--shadow-row);
+}
+
+.workspace-admin-audit-start-row.primary {
+  border-color: color-mix(in srgb, var(--abc-charcoal) 22%, white);
+  background: color-mix(in srgb, var(--surface-page) 70%, white);
+}
+
+.workspace-admin-audit-start-row[data-current-filter="true"] {
+  border-color: color-mix(in srgb, var(--abc-teal) 34%, white);
+  background: color-mix(in srgb, var(--abc-soft-teal) 34%, white);
+}
+
+.workspace-admin-audit-start-row span,
+.workspace-admin-audit-start-row p {
+  color: var(--abc-muted);
+}
+
+.workspace-admin-audit-start-row > div:first-child > span {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.workspace-admin-audit-start-row strong {
+  display: block;
+  color: var(--abc-ink);
+  font-size: 1rem;
+}
+
+.workspace-admin-audit-start-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  justify-content: flex-end;
+}
+
+.workspace-admin-audit-supporting .workspace-admin-audit-overview,
+.workspace-admin-audit-supporting .workspace-admin-audit-access-review,
+.workspace-admin-audit-supporting .workspace-filter-bar,
+.workspace-admin-audit-supporting .workspace-admin-audit-action-map,
+.workspace-admin-audit-supporting .workspace-admin-audit-saved-filters,
+.workspace-admin-audit-supporting .workspace-admin-audit-anomalies,
+.workspace-admin-audit-supporting .workspace-dashboard-card {
+  margin-top: 0.65rem;
+}
+
 .workspace-admin-audit-action-map {
   display: grid;
   gap: 0.65rem;
@@ -11121,6 +11204,8 @@ button.workspace-metric-tile,
   .workspace-people-screen-head,
   .workspace-readiness-action-map-head,
   .workspace-security-action-map-head,
+  .workspace-admin-audit-start-head,
+  .workspace-admin-audit-start-row,
   .workspace-admin-audit-action-map-head,
   .workspace-student-directory-start-head,
   .workspace-review-start-head,

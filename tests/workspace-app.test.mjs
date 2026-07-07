@@ -2681,6 +2681,13 @@ test("global admin recent audit rows open filtered audit activity", async () => 
   assert.equal(new URL(window.location.href).searchParams.get("section"), "audit");
   assert.equal(new URL(window.location.href).searchParams.get("action"), "student_dashboard_viewed");
   assert.equal(new URL(window.location.href).searchParams.get("entityType"), "student_dashboard");
+  assert.match(workspaceRoot.innerHTML, /data-admin-audit-start-flow="true"[\s\S]*Pick one redacted check/);
+  assertMarkupOrder(
+    workspaceRoot.innerHTML,
+    'data-admin-audit-start-flow="true"',
+    'data-admin-audit-supporting="details"',
+    "admin audit should show the audit check list before supporting diagnostics",
+  );
   assert.match(workspaceRoot.innerHTML, /data-admin-audit-filters="true"/);
   assert.match(workspaceRoot.innerHTML, /data-screen-orientation-section="audit"/);
   assert.match(workspaceRoot.innerHTML, /Review access, roles, assignments, and recent changes while staying redacted/);

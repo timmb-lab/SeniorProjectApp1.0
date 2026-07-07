@@ -11465,38 +11465,120 @@ function renderAdminAuditSection() {
   const hasFilters = Boolean(adminAuditFilters.action || adminAuditFilters.entityType);
   const filterLabel = adminAuditFilterLabel(adminAuditFilters);
   return `
-    <section class="workspace-command-center">
+    <section class="workspace-command-center workspace-admin-audit-flow" data-admin-audit-flow="true">
       <div class="workspace-command-hero">
         <div>
           <p class="workspace-kicker">Audit</p>
-          <h1>Access Review</h1>
+          <h1>Choose one audit check</h1>
           <p>${escapeHtml(hasFilters
             ? `Showing recent changes for ${filterLabel}.`
-            : "Review access, roles, assignments, recent changes, and potential issues from redacted activity rows.")}</p>
+            : "Start with the latest redacted rows, then open one saved check only if the pattern needs follow-up.")}</p>
         </div>
         <span class="workspace-chip">${safeNumber(events.length)} recent event${safeNumber(events.length) === 1 ? "" : "s"}</span>
       </div>
-      ${renderAdminAuditOperationsSummary(events)}
-      ${renderAdminAuditAccessReviewPanel(events, adminAuditFilters)}
-      <div class="workspace-filter-bar" data-admin-audit-filters="true" aria-label="Audit filters">
-        <span class="workspace-muted">${escapeHtml(hasFilters ? `Filtered by ${filterLabel}` : "Showing the latest redacted audit activity.")}</span>
-        ${hasFilters ? `
-          <button class="workspace-button workspace-button-secondary" type="button" data-section="audit">
-            Show recent activity
-          </button>
-        ` : ""}
-      </div>
-      ${events.length ? "" : renderAdminAuditEmptyState(hasFilters, filterLabel)}
-      ${renderAdminAuditActionMap(events, adminAuditFilters)}
-      ${renderAdminAuditSavedFilters(events, adminAuditFilters)}
-      ${renderAdminAuditAnomalyView(events)}
-      ${renderDashboardCard("Recent Audit", hasFilters ? "Filtered redacted activity rows" : "Redacted activity list", renderAuditSummary(events, {
-        allowAuditDrillDown: true,
-        emptyMessage: hasFilters
-          ? "No recent changes match this filter right now."
-          : "No recent audit rows are available for this view.",
-      }))}
+      ${renderAdminAuditStartFlow(events, adminAuditFilters)}
+      <details class="workspace-admin-supporting-disclosure workspace-admin-audit-supporting" data-admin-audit-supporting="details">
+        <summary>
+          <span class="workspace-kicker">Supporting details</span>
+          <strong>Show audit counts, filters, and recent rows</strong>
+        </summary>
+        ${renderAdminAuditOperationsSummary(events)}
+        ${renderAdminAuditAccessReviewPanel(events, adminAuditFilters)}
+        <div class="workspace-filter-bar" data-admin-audit-filters="true" aria-label="Audit filters">
+          <span class="workspace-muted">${escapeHtml(hasFilters ? `Filtered by ${filterLabel}` : "Showing the latest redacted audit activity.")}</span>
+          ${hasFilters ? `
+            <button class="workspace-button workspace-button-secondary" type="button" data-section="audit">
+              Show recent activity
+            </button>
+          ` : ""}
+        </div>
+        ${events.length ? "" : renderAdminAuditEmptyState(hasFilters, filterLabel)}
+        ${renderAdminAuditActionMap(events, adminAuditFilters)}
+        ${renderAdminAuditSavedFilters(events, adminAuditFilters)}
+        ${renderAdminAuditAnomalyView(events)}
+        ${renderDashboardCard("Recent Audit", hasFilters ? "Filtered redacted activity rows" : "Redacted activity list", renderAuditSummary(events, {
+          allowAuditDrillDown: true,
+          emptyMessage: hasFilters
+            ? "No recent changes match this filter right now."
+            : "No recent audit rows are available for this view.",
+        }))}
+      </details>
     </section>
+  `;
+}
+
+function renderAdminAuditStartFlow(events = [], activeFilters = {}) {
+  const safeEvents = Array.isArray(events) ? events : [];
+  const anomalyById = new Map(adminAuditAnomalyRows(safeEvents).map((row) => [row.id, row]));
+  const reviewCount = safeEvents.filter((event) => /review/i.test(event.entityType || "") || /review/i.test(event.action || "")).length;
+  const rows = [
+    {
+      id: "recent",
+      step: "Start here",
+      title: "Start with latest changes",
+      detail: "Use the newest redacted rows before changing filters or widening access.",
+      count: `${safeNumber(safeEvents.length)} ${pluralize(safeEvents.length, "event")}`,
+      actionLabel: "Show recent",
+      action: "",
+      entityType: "",
+    },
+    {
+      id: "denied-access",
+      step: "Then check",
+      title: "Check denied access first",
+      detail: "Confirm the current school, program, or student before adding access.",
+      count: `${safeNumber(anomalyById.get("denied-access")?.count)} ${pluralize(anomalyById.get("denied-access")?.count, "denial", "denials")}`,
+      actionLabel: "Open denials",
+      action: "evidence_download_denied",
+      entityType: "evidence_artifact",
+    },
+    {
+      id: "review-decisions",
+      step: "Then check",
+      title: "Confirm review decisions",
+      detail: "Use review rows to verify approvals, revisions, and comments without opening private files here.",
+      count: `${reviewCount} ${pluralize(reviewCount, "decision")}`,
+      actionLabel: "Open reviews",
+      action: "",
+      entityType: "review",
+    },
+  ];
+  return `
+    <section class="workspace-admin-audit-start-flow" data-admin-audit-start-flow="true" aria-labelledby="adminAuditStartTitle">
+      <div class="workspace-admin-audit-start-head">
+        <div>
+          <p class="workspace-kicker">Audit path</p>
+          <h2 id="adminAuditStartTitle">Pick one redacted check</h2>
+          <p>Audit is for triage. Open one pattern, confirm the source screen, then decide whether access or setup needs follow-up.</p>
+        </div>
+        <span class="workspace-chip">Redacted rows only</span>
+      </div>
+      <div class="workspace-admin-audit-start-list">
+        ${rows.map((row, index) => renderAdminAuditStartRow(row, activeFilters, index === 0)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderAdminAuditStartRow(row = {}, activeFilters = {}, primary = false) {
+  const isActive = primary
+    ? !activeFilters.action && !activeFilters.entityType
+    : String(activeFilters.action || "") === String(row.action || "")
+      && String(activeFilters.entityType || "") === String(row.entityType || "");
+  return `
+    <article class="workspace-admin-audit-start-row ${primary ? "primary" : ""}" data-admin-audit-start-row="${escapeHtml(row.id || "audit-check")}" data-current-filter="${isActive ? "true" : "false"}">
+      <div>
+        <span>${escapeHtml(row.step || "Check")}</span>
+        <strong>${escapeHtml(row.title || "Review audit rows")}</strong>
+        <p>${escapeHtml(row.detail || "Open this audit check before changing access.")}</p>
+      </div>
+      <div class="workspace-admin-audit-start-actions">
+        <span class="workspace-summary-badge">${escapeHtml(row.count || "0")}</span>
+        <button class="workspace-button ${primary ? "workspace-button-primary" : "workspace-button-secondary"} workspace-button-small" type="button" data-section="audit" data-audit-action="${escapeHtml(row.action || "")}" data-audit-entity-type="${escapeHtml(row.entityType || "")}" aria-pressed="${isActive ? "true" : "false"}">
+          ${escapeHtml(isActive ? "Viewing" : row.actionLabel || "Open audit")}
+        </button>
+      </div>
+    </article>
   `;
 }
 
