@@ -1,6 +1,6 @@
 # 2026-07-07 V6 Until-3PM Screenshot Review
 
-Status: in progress; refreshed after slices 01-20.
+Status: in progress; refreshed after slices 01-21.
 
 Source artifacts:
 
@@ -67,6 +67,7 @@ Source artifacts:
 - Admin Imports should read as a CSV preview workflow, not generic import tooling or generic help.
 - Student-detail status and framing should read like a record was opened, not like a backend payload loaded.
 - Admin People should name the selected school or allowed global scope instead of saying `inside the current view`.
+- Report percentage and chart helper text should say which students or programs are counted instead of exposing the internal `denominator` term.
 
 ## Refresh 02 Spot Checks
 
@@ -148,3 +149,11 @@ Source artifacts:
 - `68-mobile-admin-people.png`: mobile Admin People uses the same selected-school/global-scope copy.
 - Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
 - Manifest scan: screenshot text samples containing `inside the current view`: `0`.
+
+## Refresh 14 Spot Checks
+
+- `35-admin-reports.png`: Admin Reports now says `Percentages say which students are counted`.
+- `42-mobile-admin-reports.png`: mobile Admin Reports keeps the report picker and CSV download affordances with counted-students confidence copy.
+- `29-workspace-reports.png` and `74-viewer-reports-desktop.png`: staff and Viewer reports keep the scoped report flow without internal denominator wording.
+- Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
+- Manifest scan: screenshot text samples containing `denominator` or `Denominator`: `0`.

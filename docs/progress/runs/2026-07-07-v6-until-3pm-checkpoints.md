@@ -823,3 +823,56 @@
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES
+
+## Slice 21 - Use Counted Language In Reports
+
+- Implementation commit: `defa577` (`Use counted language in reports`)
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+  - `scripts/prove-workspace-ui-polish.mjs`
+- User-facing surfaces affected:
+  - Staff Reports
+  - Viewer Reports
+  - Admin Reports
+  - Mobile Admin Reports
+  - Readiness dashboard support cards
+- Behavior changed:
+  - Report percentage support copy now says which students or programs are counted instead of exposing the internal `denominator` term.
+  - Admin report scope notice now labels the count as `Students counted`.
+  - Dashboard support card helper text now uses total-count wording.
+  - Mobile report proof description now names counted-students confidence copy.
+- RBAC/data impact: no report queries, export filters, role gates, row scope, CSV contents, or mutation logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --check scripts\prove-workspace-ui-polish.mjs`: PASS
+  - `node --test --test-name-pattern "workspace reports render accessible|workspace report exports stay scoped|admin console surfaces setup reasons" tests\workspace-app.test.mjs`: PASS, `3` pass, `0` fail
+  - `node --test tests\workspace-app.test.mjs`: PASS, `116` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Real work continues before 3PM: YES
+
+## Browser Proof Refresh 14
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `78`
+- Mobile screenshots: `32`
+- Failures: `0`
+- Started: `2026-07-07T18:28:50.990Z`
+- Completed: `2026-07-07T18:36:27.987Z`
+- Technical-language scan:
+  - Screenshot text samples containing `DEMO_SEED` or `seed`: `0`
+  - Screenshot text samples containing `denominator` or `Denominator`: `0`
+- Visual spot checks:
+  - `35-admin-reports.png`: Admin Reports now says `Percentages say which students are counted`.
+  - `42-mobile-admin-reports.png`: mobile Admin Reports keeps the question-first report flow with counted-students confidence copy.
+  - `29-workspace-reports.png` and `74-viewer-reports-desktop.png`: staff and Viewer reports keep the scoped report flow without internal denominator language.
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES
