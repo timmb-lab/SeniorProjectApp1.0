@@ -11162,6 +11162,67 @@ button.workspace-metric-tile,
   font-size: 0.9rem;
 }
 
+.workspace-v3-start-state {
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.85fr) minmax(0, 1.45fr);
+  min-width: 0;
+  border-top: 1px solid var(--v2-line);
+  border-bottom: 1px solid var(--v2-line);
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.92), rgba(244, 248, 243, 0.66));
+}
+
+.workspace-v3-start-lead {
+  display: grid;
+  align-content: center;
+  gap: 0.34rem;
+  min-width: 0;
+  border-right: 1px solid var(--v2-line);
+  padding: 0.95rem 1rem 0.95rem 0;
+}
+
+.workspace-v3-start-lead span,
+.workspace-v3-start-grid span {
+  color: var(--v2-accent);
+  font-size: 0.76rem;
+  font-weight: 950;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.workspace-v3-start-lead strong {
+  color: var(--v2-ink);
+  font-size: 1.08rem;
+  line-height: 1.15;
+}
+
+.workspace-v3-start-lead p,
+.workspace-v3-start-grid p {
+  color: var(--v2-muted);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.workspace-v3-start-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  min-width: 0;
+}
+
+.workspace-v3-start-grid article {
+  display: grid;
+  align-content: start;
+  gap: 0.32rem;
+  min-width: 0;
+  border-right: 1px solid var(--v2-line);
+  padding: 0.95rem 1rem;
+}
+
+.workspace-v3-start-grid article:last-child {
+  border-right: 0;
+  padding-right: 0;
+}
+
 .workspace-v2-path {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -11874,6 +11935,31 @@ button.workspace-metric-tile,
   .workspace-v2-hero h1 {
     max-width: 13ch;
     font-size: clamp(2rem, 13vw, 3.5rem);
+  }
+
+  .workspace-v3-start-state {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-v3-start-lead {
+    border-right: 0;
+    border-bottom: 1px solid var(--v2-line);
+    padding: 0.85rem 0;
+  }
+
+  .workspace-v3-start-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-v3-start-grid article,
+  .workspace-v3-start-grid article:last-child {
+    border-right: 0;
+    border-bottom: 1px solid var(--v2-line);
+    padding: 0.78rem 0;
+  }
+
+  .workspace-v3-start-grid article:last-child {
+    border-bottom: 0;
   }
 
   .workspace-v2-path {

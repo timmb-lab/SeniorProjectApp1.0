@@ -551,6 +551,12 @@ test("workspace defaults to workflow landings instead of role profiles", async (
   assert.doesNotMatch(studentText, /My Capstone ready\./);
   assert.match(studentText, /My Capstone/);
   assert.match(studentText, /What to do next/);
+  assert.match(student, /data-v3-start-state="true"/);
+  assert.match(student, /data-v3-one-job="student-next-step"/);
+  assert.match(studentText, /Start here/);
+  assert.match(studentText, /Open My Work first\./);
+  assert.match(studentText, /Right now/);
+  assert.match(studentText, /Finish by/);
 
   const staffCases = [
     ["mentor", ["Today", "Students", "Reports"]],
@@ -565,6 +571,10 @@ test("workspace defaults to workflow landings instead of role profiles", async (
     const text = visibleText(markup);
     assert.match(markup, /data-experience="staff-workspace"/, `${roleId} staff experience`);
     assert.match(markup, /aria-label="Staff Workspace navigation"/, `${roleId} staff nav label`);
+    assert.match(markup, /data-v3-start-state="true"/, `${roleId} V3 start state`);
+    assert.match(text, /Start here/, `${roleId} start cue`);
+    assert.match(text, /Right now/, `${roleId} current cue`);
+    assert.match(text, /Finish by/, `${roleId} confirmation cue`);
     assert.match(text, /Staff Workspace|Which students need attention today\?|Read-only access/, `${roleId} workflow question`);
     assert.doesNotMatch(text, /Staff Workspace ready\./, `${roleId} suppresses default ready banner`);
     assert.doesNotMatch(text, /working profile|Role context|Demo boundary|What this role can manage or monitor/, `${roleId} no role-proof landing`);
@@ -645,6 +655,8 @@ test("workspace separates Admin Console mode by role and URL state", async () =>
     assert.match(markup, /data-workspace-mode-switch="true"/, `${row.roleId} mode switch`);
     assert.match(markup, /data-workspace-mode-target="workspace"[\s\S]*Workspace/, `${row.roleId} workspace switch`);
     assert.match(markup, /data-workspace-mode-target="admin"[\s\S]*Admin Console/, `${row.roleId} admin switch`);
+    assert.match(markup, /data-v3-start-state="true"/, `${row.roleId} admin V3 start state`);
+    assert.match(visibleText(markup), /Start here[\s\S]*Right now[\s\S]*Finish by/, `${row.roleId} admin V3 cues`);
     assert.doesNotMatch(markup, /data-role-command-strip="true"/, `${row.roleId} no role command strip`);
     assert.match(markup, /data-admin-console-overview="true"/, `${row.roleId} overview`);
     assert.match(markup, /data-admin-console-setup-list="true"/, `${row.roleId} setup list`);
@@ -7103,6 +7115,10 @@ test("workspace exposes a real admin site switcher and collapsible navigation", 
   assert.match(workspaceCss, /\.workspace-v2-stage\s*\{[\s\S]*width:\s*min\(1180px,/);
   assert.match(workspaceCss, /\.workspace-v2-switcher\s*\{[\s\S]*display:\s*flex;/);
   assert.match(workspaceCss, /\.workspace-v2-support\s*\{[\s\S]*border-top:\s*1px solid var\(--v2-line\);/);
+  assert.match(workspaceJs, /function renderV3StartState/);
+  assert.match(workspaceJs, /data-v3-start-state="true"/);
+  assert.match(workspaceCss, /\.workspace-v3-start-state\s*\{[\s\S]*grid-template-columns:\s*minmax\(16rem,\s*0\.85fr\) minmax\(0,\s*1\.45fr\);/);
+  assert.match(workspaceCss, /@media \(max-width: 900px\)[\s\S]*\.workspace-v3-start-state\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
 });
 
 test("workspace half-width drawer and phone drawer stay bounded and keep global admin controls reachable", async () => {

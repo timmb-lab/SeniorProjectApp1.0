@@ -1361,6 +1361,7 @@ function renderV2ActiveScreen({
           <span>${escapeHtml(model.primaryHint)}</span>
         </div>
       </div>
+      ${renderV3StartState(model)}
       <div class="workspace-v2-path" aria-label="${escapeHtml(model.pathLabel)}">
         ${model.steps.map((step, index) => `
           <article data-v2-path-step="${escapeHtml(String(index + 1))}" class="${escapeHtml(index === 0 ? "current" : step.tone || "next")}">
@@ -1405,6 +1406,34 @@ function v2PathSteps(first = "Choose the item", second = "Do the work", third = 
   ];
 }
 
+function renderV3StartState(model = {}) {
+  const state = model.startState || {};
+  const rows = [
+    ["Right now", state.now || ""],
+    ["If empty", state.empty || ""],
+    ["Finish by", state.confirm || ""],
+  ].filter(([, value]) => value);
+  if (!rows.length) return "";
+  const job = state.job || model.id || "focused-screen";
+  return `
+    <section class="workspace-v3-start-state" data-v3-start-state="true" data-v3-one-job="${escapeHtml(job)}" aria-labelledby="workspaceV3StartTitle">
+      <div class="workspace-v3-start-lead">
+        <span>${escapeHtml(state.label || "Start here")}</span>
+        <strong id="workspaceV3StartTitle">${escapeHtml(state.action || model.primaryHint || "Open the focused work.")}</strong>
+        <p>${escapeHtml(state.reason || "Use one screen, one action, and one confirmation before moving on.")}</p>
+      </div>
+      <div class="workspace-v3-start-grid">
+        ${rows.map(([label, value]) => `
+          <article data-v3-start-cue="${escapeHtml(label.toLowerCase().replace(/\s+/g, "-"))}">
+            <span>${escapeHtml(label)}</span>
+            <p>${escapeHtml(value)}</p>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
 function v2StudentScreenModel(sectionId = activeSection) {
   const isWork = sectionId === "studentWork";
   const isFeedback = sectionId === "studentFeedback";
@@ -1424,6 +1453,20 @@ function v2StudentScreenModel(sectionId = activeSection) {
     primaryHint: isWork ? "One item at a time" : isFeedback ? "Action notes first" : isFinal ? "Final readiness only" : "Starts the next required step",
     pathLabel: "Student capstone path",
     steps: v2PathSteps("Find the next action", "Open one item", "Submit or revise"),
+    startState: {
+      job: isWork ? "student-current-work" : isFeedback ? "student-feedback" : isFinal ? "student-final-checklist" : "student-next-step",
+      action: isWork ? "Open the current item." : isFeedback ? "Open feedback that asks for action." : isFinal ? "Check final readiness." : "Open My Work first.",
+      reason: "The page keeps staff language and older details away from the first move.",
+      now: isWork
+        ? "Work on the requirement named at the top of the details."
+        : isFeedback
+          ? "Read the teacher note, then fix one matching item."
+          : isFinal
+            ? "Confirm presentation and final-file readiness only after required work is done."
+            : "Start with one thing now, then use feedback or checklist only if needed.",
+      empty: "Nothing needs your attention right now? Check feedback, then the final checklist.",
+      confirm: isFinal ? "Stop when the checklist shows what is ready and what still needs work." : "Stop when the item is submitted, revised, or waiting for teacher review.",
+    },
     focusHtml: `
       <section class="workspace-v2-focus-strip">
         <strong>Progress, rubrics, and older notes stay out of the way.</strong>
@@ -1443,6 +1486,14 @@ function v2MentorScreenModel(sectionId = activeSection) {
     primaryHint: "Assigned students only",
     pathLabel: "Mentor support path",
     steps: v2PathSteps("Choose one student", "Review their latest work", "Record the next follow-up"),
+    startState: {
+      job: sectionId === "mentor" ? "mentor-student-detail" : "mentor-assigned-student-start",
+      action: sectionId === "mentor" ? "Open one assigned student detail." : "Open assigned students.",
+      reason: "Mentor work should feel like student support, not a broad dashboard scan.",
+      now: "Pick one assigned student who needs help or a meeting follow-up.",
+      empty: "Nothing needs your attention right now. Check presentation prep only if you have a planned meeting.",
+      confirm: "Stop when the next follow-up is clear or recorded for that student.",
+    },
     focusHtml: `
       <section class="workspace-v2-focus-strip">
         <strong>Mentor view is scoped to assigned students.</strong>
@@ -1462,6 +1513,14 @@ function v2TeacherScreenModel(sectionId = activeSection) {
     primaryHint: "Review queue first",
     pathLabel: "Teacher decision path",
     steps: v2PathSteps("Pick the next review", "Read the student's work", "Approve or request revision"),
+    startState: {
+      job: sectionId === "teacher" ? "teacher-review-decision" : "teacher-review-start",
+      action: sectionId === "teacher" ? "Open selected work." : "Open the review queue.",
+      reason: "Program Teacher work starts with review decisions before summaries.",
+      now: "Choose one submitted item and decide what the student needs next.",
+      empty: "Nothing is waiting for review. Look for stuck students before opening reports.",
+      confirm: "Stop when the student has an approval, a revision request, or a clear next step.",
+    },
     focusHtml: `
       <section class="workspace-v2-focus-strip">
         <strong>Decision work stays centered on one submission.</strong>
@@ -1481,6 +1540,14 @@ function v2ViewerScreenModel(sectionId = activeSection) {
     primaryHint: "No edit actions",
     pathLabel: "Viewer path",
     steps: v2PathSteps("Choose a student or report", "Review current status", "Share follow-up outside the app"),
+    startState: {
+      job: "viewer-read-only-review",
+      action: sectionId === "students" ? "Open the student list." : "Open assigned students.",
+      reason: "Viewer screens show status and context without change controls.",
+      now: "Review one assigned student or report.",
+      empty: "Nothing has been added yet for this view.",
+      confirm: "Stop when you know what to share with the Program Teacher or site team.",
+    },
     focusHtml: `
       <section class="workspace-v2-focus-strip">
         <strong>Read-only boundary stays visible.</strong>
@@ -1502,6 +1569,14 @@ function v2StaffScreenModel(sectionId = activeSection, primaryRole = "staff") {
     primaryHint: "One focused screen",
     pathLabel: "Staff work path",
     steps: v2PathSteps("Choose the next item", "Open the focused screen", "Take the allowed action"),
+    startState: {
+      job: isStudents ? "staff-student-record" : isReports ? "staff-report-question" : "staff-worklist-start",
+      action: isStudents ? "Open the student list." : isReports ? "Open one report." : "Open students.",
+      reason: "Daily staff work should start with the visible student need, not setup tools.",
+      now: isStudents ? "Pick one student record." : isReports ? "Answer one report question." : "Choose one student group that needs attention.",
+      empty: "Nothing needs your attention right now. Leave setup and access work in Admin Console.",
+      confirm: "Stop when the allowed action is done or the next staff follow-up is clear.",
+    },
     focusHtml: `
       <section class="workspace-v2-focus-strip">
         <strong>Daily work stays separate from setup tools.</strong>
@@ -1519,6 +1594,14 @@ function v2AdminScreenModel(sectionId = activeSection, sections = []) {
       action: availableSectionIdsForAnyMode().has("adminAssignments") ? v2SectionButton("Open first fix", "adminAssignments") : v2SupportButton("Open setup tools"),
       hint: "Issue to fix to confirmation",
       steps: v2PathSteps("Find first blocker", "Open the matching fix", "Confirm it disappeared"),
+      startState: {
+        job: "admin-first-setup-blocker",
+        action: "Open the first setup blocker.",
+        reason: "Console pages should move from issue to fix to confirmation.",
+        now: "Start with the first setup issue, not a broad operations scan.",
+        empty: "No setup blocker is visible. Open reports or audit only for a real question.",
+        confirm: "Return here and confirm the issue is gone or clearly still blocked.",
+      },
     },
     adminPeople: {
       title: "Fix one staff account",
@@ -1526,6 +1609,14 @@ function v2AdminScreenModel(sectionId = activeSection, sections = []) {
       action: v2SupportButton("Open staff tools"),
       hint: "One account at a time",
       steps: v2PathSteps("Choose staff record", "Make the allowed change", "Confirm access"),
+      startState: {
+        job: "admin-staff-account",
+        action: "Open one staff record.",
+        reason: "People work is safer when one account is changed and checked.",
+        now: "Choose the staff row with the clearest setup need.",
+        empty: "No staff setup issue is visible. Use Add Staff only when a real person is missing.",
+        confirm: "Stop when the role, school, and allowed actions match the intended staff job.",
+      },
     },
     adminStudents: {
       title: "Fix one student record",
@@ -1533,6 +1624,14 @@ function v2AdminScreenModel(sectionId = activeSection, sections = []) {
       action: v2SupportButton("Open roster tools"),
       hint: "Student setup only",
       steps: v2PathSteps("Choose student", "Update roster details", "Confirm placement"),
+      startState: {
+        job: "admin-student-record",
+        action: "Open one student record.",
+        reason: "Roster changes should be narrow and easy to verify.",
+        now: "Choose the student with the clearest roster, program, mentor, or viewer gap.",
+        empty: "No roster issue is visible. Use import only when a real roster batch is ready.",
+        confirm: "Stop when the student appears in the right school and program.",
+      },
     },
     adminAssignments: {
       title: "Assign missing coverage",
@@ -1540,6 +1639,14 @@ function v2AdminScreenModel(sectionId = activeSection, sections = []) {
       action: v2SupportButton("Open assignment tools"),
       hint: "Coverage before broad grants",
       steps: v2PathSteps("Find the first coverage gap", "Use the matching assignment form", "Refresh and confirm"),
+      startState: {
+        job: "admin-coverage-assignment",
+        action: "Open the first coverage gap.",
+        reason: "Coverage work should grant only the relationship the student needs.",
+        now: "Start with missing mentor, viewer, or Program Teacher coverage.",
+        empty: "No coverage gap is visible. Do not add broad access just to fill the page.",
+        confirm: "Stop when the assignment appears and the student remains in the correct school or program.",
+      },
     },
     programs: {
       title: "Set up one school program",
@@ -1547,6 +1654,14 @@ function v2AdminScreenModel(sectionId = activeSection, sections = []) {
       action: v2SupportButton("Open program tools"),
       hint: "One program mapping",
       steps: v2PathSteps("Confirm school", "Choose one program", "Confirm teacher coverage"),
+      startState: {
+        job: "admin-program-mapping",
+        action: "Open one program mapping.",
+        reason: "Program setup should confirm school, program, and teacher coverage together.",
+        now: "Choose the one program mapping that needs review.",
+        empty: "No program issue is visible. Leave this screen without changing access.",
+        confirm: "Stop when the program and Program Teacher coverage are visible together.",
+      },
     },
     adminImports: {
       title: "Preview one CSV before saving",
@@ -1554,6 +1669,14 @@ function v2AdminScreenModel(sectionId = activeSection, sections = []) {
       action: v2SupportButton("Open import tools"),
       hint: "Preview before import",
       steps: v2PathSteps("Choose template", "Preview rows", "Confirm valid records"),
+      startState: {
+        job: "admin-csv-preview",
+        action: "Preview one CSV file.",
+        reason: "Imports should show row problems before anything is saved.",
+        now: "Choose the correct template, then preview rows.",
+        empty: "No CSV is selected. Download a template before preparing a batch.",
+        confirm: "Stop when valid rows are confirmed or problem rows are fixed outside the app.",
+      },
     },
     adminReports: {
       title: "Answer one operations question",
@@ -1561,6 +1684,14 @@ function v2AdminScreenModel(sectionId = activeSection, sections = []) {
       action: v2SupportButton("Open report"),
       hint: "Question first",
       steps: v2PathSteps("Pick the question", "Review the matching report", "Open the fix if needed"),
+      startState: {
+        job: "admin-report-question",
+        action: "Open one report question.",
+        reason: "Reports should answer a specific operations question.",
+        now: "Pick the question before opening export or detail controls.",
+        empty: "No report question is active. Return to setup before browsing summaries.",
+        confirm: "Stop when you know which setup screen, student list, or audit trail should open next.",
+      },
     },
     audit: {
       title: "Review one change trail",
@@ -1568,6 +1699,14 @@ function v2AdminScreenModel(sectionId = activeSection, sections = []) {
       action: v2SupportButton("Open audit trail"),
       hint: "One trail at a time",
       steps: v2PathSteps("Choose change trail", "Review details", "Confirm no follow-up"),
+      startState: {
+        job: "admin-audit-trail",
+        action: "Open one change trail.",
+        reason: "Audit work should inspect one actor, change, or concern at a time.",
+        now: "Choose the change trail tied to the current concern.",
+        empty: "No audit concern is visible. Do not invent a follow-up.",
+        confirm: "Stop when the follow-up is documented or no action is needed.",
+      },
     },
   };
   const config = configs[sectionId] || {
@@ -1576,6 +1715,14 @@ function v2AdminScreenModel(sectionId = activeSection, sections = []) {
     action: v2SupportButton("Open tools"),
     hint: "Focused admin task",
     steps: v2PathSteps(),
+    startState: {
+      job: `admin-${sectionId || "focused-task"}`,
+      action: "Open the focused tools.",
+      reason: "Keep the admin task narrow before changing records.",
+      now: "Choose one admin item.",
+      empty: "Nothing needs your attention right now.",
+      confirm: "Stop when the visible result matches the change you intended.",
+    },
   };
   return {
     id: `admin-${sectionId}`,
@@ -1586,6 +1733,7 @@ function v2AdminScreenModel(sectionId = activeSection, sections = []) {
     primaryHint: config.hint,
     pathLabel: "Admin setup path",
     steps: config.steps,
+    startState: config.startState,
     focusHtml: `
       <section class="workspace-v2-focus-strip">
         <strong>Setup work moves issue, fix, confirmation.</strong>

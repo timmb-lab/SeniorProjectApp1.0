@@ -1134,7 +1134,10 @@ function expectedMarkersForPlanItem(planItem, pageState = {}) {
 
 function checkPage(planItem, pageState) {
   const text = `${pageState.heading || ""}\n${pageState.text || ""}`;
-  const expectedMarkers = expectedMarkersForPlanItem(planItem, pageState);
+  const expectedMarkers = [
+    ...expectedMarkersForPlanItem(planItem, pageState),
+    ...(pageState.v2?.frame ? ["Start here", "Finish by"] : []),
+  ];
   const searchableText = pageState.v2?.frame ? text.toLowerCase() : text;
   const missingExpectedText = expectedMarkers.filter((marker) => {
     const expected = pageState.v2?.frame ? String(marker).toLowerCase() : marker;
