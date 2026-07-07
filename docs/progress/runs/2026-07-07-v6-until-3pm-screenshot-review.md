@@ -1,6 +1,6 @@
 # 2026-07-07 V6 Until-3PM Screenshot Review
 
-Status: in progress; refreshed after slices 01-32.
+Status: in progress; refreshed after slices 01-33.
 
 Source artifacts:
 
@@ -278,3 +278,15 @@ Source artifacts:
 - Manifest count: `86` screenshots total, including `32` mobile screenshots, `8` Chromebook/student desktop screenshots, and `4` short Chromebook/student desktop screenshots.
 - Manifest scan: screenshot text samples containing `Read the note and fix one thing` or `Fix the feedback that asks for action`: `0`.
 - Manifest scan: screenshot text samples containing `Fix one feedback note` or `Fix one action note`: present in Feedback captures.
+
+## Refresh 25 Spot Checks
+
+- Selected target: hidden-but-real student Presentation and Final Files direct routes should render as primary Chromebook browser pages, not fall back to Student Today.
+- First proof attempt with new hidden-route captures failed because direct `?section=presentation` and `?section=archive` opened the Student Today V2 shell as the primary route.
+- Fixed route behavior with `STUDENT_PRIMARY_SECTION_IDS` and route-specific student V2 models for Presentation and Final Files.
+- `87-student-presentation-chromebook.png`: Presentation route shows `Know your presentation plan`, `Your Presentation`, and readiness tiles as the first primary surface.
+- `88-student-presentation-chromebook-short.png`: short Chromebook Presentation route shows the same primary presentation surface in the first viewport.
+- `89-student-final-files-chromebook.png`: Final Files route shows `Save final files`, `Download and Keep`, readiness status, and file-readiness tiles as the first primary surface.
+- `90-student-final-files-chromebook-short.png`: short Chromebook Final Files route keeps final-file readiness visible in the first viewport.
+- Manifest count: `90` screenshots total, including `32` mobile screenshots, `12` Chromebook/student desktop screenshots, and `6` short Chromebook/student desktop screenshots.
+- Final manifest verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`, `0` failures.

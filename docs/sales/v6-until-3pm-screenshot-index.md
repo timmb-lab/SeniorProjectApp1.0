@@ -1,6 +1,6 @@
 # V6 Until-3PM Screenshot Index
 
-Status: current V6 local fake-account browser proof captured after implementation slices 01-32.
+Status: current V6 local fake-account browser proof captured after implementation slices 01-33.
 
 Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
 
@@ -12,13 +12,13 @@ Claim boundary: local fake-account browser UI proof only. This does not prove ho
 
 Counts:
 
-- Total screenshots captured: 86
+- Total screenshots captured: 90
 - Mobile screenshots captured: 32
-- Chromebook/student desktop screenshots captured: 8
-- Short Chromebook/student desktop screenshots captured: 4
+- Chromebook/student desktop screenshots captured: 12
+- Short Chromebook/student desktop screenshots captured: 6
 - Browser-proof failures: 0
-- Started: `2026-07-07T21:10:26.524Z`
-- Completed: `2026-07-07T21:18:39.901Z`
+- Started: `2026-07-07T21:37:04.836Z`
+- Completed: `2026-07-07T21:45:32.900Z`
 - Fake data only: `true`
 - Real-student production status: `NOT_CLAIMED_READY`
 
@@ -52,10 +52,11 @@ Counts:
 - Short Chromebook desktop browser proof: `83-student-today-chromebook-short`, `84-student-my-work-chromebook-short`, `85-student-feedback-chromebook-short`, and `86-student-final-checklist-chromebook-short` prove student-owned routes at `1366x650` after the short-height CSS pass.
 - Student My Work heading cleanup: `24-student-my-work-desktop`, `43-student-my-work-phone`, `53-student-my-work-half-screen`, `80-student-my-work-chromebook`, and `84-student-my-work-chromebook-short`; manifest text samples containing `Finish the next capstone item` or `Keep the work screen on one requirement`: `0`.
 - Student Feedback heading cleanup: `25-student-feedback-desktop`, `54-student-feedback-phone`, `81-student-feedback-chromebook`, and `85-student-feedback-chromebook-short`; manifest text samples containing `Read the note and fix one thing` or `Fix the feedback that asks for action`: `0`.
+- Hidden student Chromebook routes: `87-student-presentation-chromebook`, `88-student-presentation-chromebook-short`, `89-student-final-files-chromebook`, and `90-student-final-files-chromebook-short` prove direct Presentation and Final Files links render their real student primary surfaces instead of falling back to Today.
 - RBAC/read-only guard coverage: `05-viewer-read-only-workspace`, `14-viewer-read-only-detail-click`, `20-student-admin-route-blocked`, `39-viewer-students-directory`, `46-mobile-viewer-students`.
 
 ## Full Inventory Source
 
-The complete 86-screenshot inventory, expected text checks, role/persona labels, viewport metadata, and per-screenshot caveats are in the manifest:
+The complete 90-screenshot inventory, expected text checks, role/persona labels, viewport metadata, and per-screenshot caveats are in the manifest:
 
 `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`

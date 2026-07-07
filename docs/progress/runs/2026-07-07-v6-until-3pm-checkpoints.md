@@ -1491,3 +1491,64 @@
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES
+
+## Slice 33 - Make Hidden Student Routes Primary on Chromebook
+
+- Implementation commit: `c9a99d4` (`Make hidden student routes primary on Chromebook`)
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+  - `scripts/prove-workspace-ui-polish.mjs`
+- User-facing surfaces affected:
+  - Student Presentation direct route
+  - Student Final Files direct route
+  - Student Presentation Chromebook and short Chromebook proof
+  - Student Final Files Chromebook and short Chromebook proof
+- Behavior changed:
+  - Added `STUDENT_PRIMARY_SECTION_IDS` so direct student Presentation and Final Files links render their real section as the V2 primary surface while the visible four-tab student path remains unchanged.
+  - Added student V2 hero/start/flow models for Presentation and Final Files instead of falling back to Student Today.
+  - Browser proof now includes four explicit hidden student route captures: Presentation and Final Files at `1366x768` and `1366x650`.
+- RBAC/data impact: route rendering/proof-plan only for existing student-owned sections; no role expansion, staff controls, student data mutation, evidence, report export, or admin route behavior changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --check scripts\prove-workspace-ui-polish.mjs`: PASS
+  - `node --test --test-name-pattern "workspace defaults to workflow landings|student presentation screen explains|workspace explains the next student final-files blocker|workspace explains student final-file package failures" tests\workspace-app.test.mjs`: PASS, `4` pass, `0` fail
+  - `node --test tests\workspace-app.test.mjs`: PASS, `116` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `npm run verify:functionality-language`: PASS
+  - `npm run prove:workspace-ui-polish`: PASS, `90` screenshots, `0` failures
+  - `git diff --check`: PASS with line-ending warnings only
+- Direct visual inspection:
+  - `87-student-presentation-chromebook.png`: Presentation route shows `Know your presentation plan`, `Your Presentation`, and readiness tiles as the first primary surface.
+  - `88-student-presentation-chromebook-short.png`: short Chromebook Presentation route shows the same primary presentation surface in the first viewport.
+  - `89-student-final-files-chromebook.png`: Final Files route shows `Save final files`, `Download and Keep`, readiness status, and file-readiness tiles as the first primary surface.
+  - `90-student-final-files-chromebook-short.png`: short Chromebook Final Files route keeps final-file readiness visible in the first viewport.
+- Real work continues before 3PM: YES
+
+## Browser Proof Refresh 25
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `90`
+- Mobile screenshots: `32`
+- Chromebook/student desktop screenshots: `12`
+- Short Chromebook/student desktop screenshots: `6`
+- Failures: `0`
+- Started: `2026-07-07T21:37:04.836Z`
+- Completed: `2026-07-07T21:45:32.900Z`
+- Hidden student route proof files:
+  - `87-student-presentation-chromebook.png`
+  - `88-student-presentation-chromebook-short.png`
+  - `89-student-final-files-chromebook.png`
+  - `90-student-final-files-chromebook-short.png`
+- Technical-language scan:
+  - Screenshot text samples containing `DEMO_SEED` or `seed`: `0`
+  - New hidden student route failures from the first attempt: resolved; final proof has `0` failures.
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES
