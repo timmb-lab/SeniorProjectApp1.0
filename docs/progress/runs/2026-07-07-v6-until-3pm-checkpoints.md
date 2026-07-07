@@ -727,3 +727,54 @@
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES
+
+## Slice 19 - Use Opened Wording For Student Detail
+
+- Implementation commit: `44d51b2` (`Use opened wording for student detail`)
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+- User-facing surfaces affected:
+  - Staff and Admin student-detail routes
+  - Viewer read-only student-detail route
+  - View as Student entry status
+  - Student detail timeline status
+- Behavior changed:
+  - Student-detail success text now says `Student detail opened` instead of `Student detail loaded`.
+  - Student timeline success text now says `Student timeline opened`.
+  - View as Student entry success text now says `Student view opened`.
+  - Student detail framing now says `this student's status, feedback, work, and timeline` and `This student stays ahead of broader tools`.
+- RBAC/data impact: no permission, detail API, timeline API, View as Student, Viewer read-only, or mutation logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --test --test-name-pattern "workspace opens real student detail|staff roles can enter and exit|View as Student refresh|student detail URLs restore|student detail reviews" tests\workspace-app.test.mjs`: PASS, `5` pass, `0` fail
+  - `node --test tests\workspace-app.test.mjs`: PASS, `116` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Real work continues before 3PM: YES
+
+## Browser Proof Refresh 12
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `78`
+- Mobile screenshots: `32`
+- Failures: `0`
+- Started: `2026-07-07T18:06:14.300Z`
+- Completed: `2026-07-07T18:13:44.842Z`
+- Technical-language scan:
+  - Screenshot text samples containing `DEMO_SEED` or `seed`: `0`
+  - Student-detail screenshot samples containing `Student detail loaded`, `Student timeline loaded`, `Student view loaded`, `loaded record`, or `The loaded student`: `0`
+- Visual spot checks:
+  - `13-site-admin-student-detail-click.png`: Admin student detail now says `Student detail opened` and `this student's status`.
+  - `14-viewer-read-only-detail-click.png`: Viewer read-only detail keeps the boundary while using the opened/this-student wording.
+  - `15-view-as-student-entered-desktop.png`: View as Student entry now says `Student view opened`.
+  - `41-student-detail-timeline.png`: timeline proof now says `Student timeline opened`.
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES

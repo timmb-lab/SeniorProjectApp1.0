@@ -1,6 +1,6 @@
 # 2026-07-07 V6 Until-3PM Screenshot Review
 
-Status: in progress; refreshed after slices 01-18.
+Status: in progress; refreshed after slices 01-19.
 
 Source artifacts:
 
@@ -65,6 +65,7 @@ Source artifacts:
 - Viewer Reports should lead with report review, not a generic Viewer frame that sends the reader back to Students.
 - Report export boundary copy should stay privacy-preserving while avoiding internal phrases such as `current admin view`, `storage links`, and `no IDs`.
 - Admin Imports should read as a CSV preview workflow, not generic import tooling or generic help.
+- Student-detail status and framing should read like a record was opened, not like a backend payload loaded.
 
 ## Refresh 02 Spot Checks
 
@@ -131,3 +132,11 @@ Source artifacts:
 - `76-csv-import-preview-errors.png` and `77-mobile-csv-import-preview-errors.png`: preview-error states keep row-level validation while using the CSV preview frame.
 - Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
 - Manifest scan: screenshot text samples containing `CSV help`, `Open import tools`, or `Guided setup flow`: `0`.
+
+## Refresh 12 Spot Checks
+
+- `13-site-admin-student-detail-click.png`: Admin student detail now says `Student detail opened` and `this student's status`.
+- `14-viewer-read-only-detail-click.png`: Viewer read-only detail keeps the boundary while using the opened/this-student wording.
+- `15-view-as-student-entered-desktop.png`: View as Student entry now says `Student view opened`.
+- `41-student-detail-timeline.png`: timeline proof now says `Student timeline opened`.
+- Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
