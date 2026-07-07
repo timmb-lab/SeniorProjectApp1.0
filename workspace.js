@@ -4805,12 +4805,12 @@ function screenLanguageTermsFor(sectionId = "overview", primaryRole = primaryRol
   const termsBySection = {
     overview: [
       ["Signal", "A number or row that points to work. It does not save or change any record by itself."],
-      ["Access", "The role and scope that decide which students, schools, and actions you can use."],
+      ["Access", "The role and access settings that decide which students, schools, and actions you can use."],
       ["Next step", "The safest place to start from your current role today."],
     ],
     profile: [
       ["Role", "The job the app thinks you have, such as Student, Mentor, Program Teacher, Site Admin, or Viewer."],
-      ["Scope", "The school, program, cohort, student, or platform area your role is allowed to see."],
+      ["Access area", "The school, program, cohort, student, or platform area your role is allowed to see."],
       ["Read-only", "You can monitor records, but an authorized staff member must make changes."],
     ],
     siteDashboard: [
@@ -4850,7 +4850,7 @@ function screenLanguageTermsFor(sectionId = "overview", primaryRole = primaryRol
     ],
     programDashboard: [
       ["Review-first list", "The Program Teacher work that should be checked before browsing wider cohort details."],
-      ["Cohort", "The students grouped under your assigned program or class scope."],
+      ["Cohort", "The students grouped under your assigned program or class group."],
       ["Manual gate", "A decision point that needs Program Teacher approval before a student moves on."],
     ],
     teacher: [
@@ -4885,7 +4885,7 @@ function screenLanguageTermsFor(sectionId = "overview", primaryRole = primaryRol
     ],
     adminUsers: [
       ["Smallest role", "The lowest access level that lets the person do the job."],
-      ["Scope", "The exact school, program, cohort, student, or platform area tied to the access change."],
+      ["Access area", "The exact school, program, cohort, student, or platform area tied to the access change."],
       ["Setup password", "A temporary local login handoff that must follow the school's approved process."],
     ],
     audit: [
@@ -4998,7 +4998,7 @@ function screenActionImpactsFor(sectionId = "overview", primaryRole = primaryRol
       ["Assignments", "This screen does not add or remove mentor assignments.", "safe"],
     ],
     programDashboard: [
-      ["Review shortcuts", "Review-first rows open the queue or student detail for scoped students.", "route"],
+      ["Review shortcuts", "Review-first rows open the queue or student detail for students this role can see.", "route"],
       ["Summary rows", "Program summary rows do not approve, reject, or request revision.", "safe"],
       ["Decision point", "Use Review Work after checking proof and history when a decision is needed.", "context"],
     ],
@@ -6230,9 +6230,9 @@ function staffStudentIsRecent(row = {}) {
 
 function staffWorkspaceQueueDefinitions() {
   return [
-    { id: "needs-review", title: "Needs Review", detail: "Open submitted work and feedback decisions first.", empty: "No submitted work is waiting in this scope." },
+    { id: "needs-review", title: "Needs Review", detail: "Open submitted work and feedback decisions first.", empty: "No submitted work is waiting for this account." },
     { id: "needs-help", title: "Needs Help", detail: "Changes, meetings, or presentation checks.", empty: "No student needs extra help right now." },
-    { id: "missing-setup", title: "Missing Setup", detail: "Mentor coverage, missing work, and final-file follow-up.", empty: "No setup work is visible in this scope." },
+    { id: "missing-setup", title: "Missing Setup", detail: "Mentor coverage, missing work, and final-file follow-up.", empty: "No setup work is visible for this account." },
     { id: "recent", title: "Recently Updated", detail: "Fresh activity worth a quick scan.", empty: "No recent student activity is visible." },
     { id: "on-track", title: "On Track", detail: "Regular monitoring rows after urgent groups are clear.", empty: "No routine rows are visible yet." },
   ];
@@ -6690,7 +6690,7 @@ function renderStaffReportsSection() {
       label: "Visible students",
       value: visibleStudents,
       max: reportMax,
-      detail: "Students available inside this role's scope.",
+      detail: "Students available to this role.",
       tone: "student",
       dataAttrs: `data-staff-report-row="visible-students"`,
     },
@@ -6786,7 +6786,7 @@ function renderAdminReportsSection() {
       <details class="workspace-admin-supporting-disclosure workspace-admin-report-supporting" data-admin-report-supporting="numbers">
         <summary>
           <span class="workspace-kicker">Supporting details</span>
-          <strong>Show scope, setup, and coverage numbers</strong>
+          <strong>Show access, setup, and coverage numbers</strong>
         </summary>
         ${renderAdminReportScopeNotice(model.report, capabilities)}
         <div class="workspace-admin-console-metrics workspace-admin-report-metrics" data-admin-report-metrics="true">
@@ -6868,7 +6868,7 @@ function renderAdminReportScopeNotice(report = {}, capabilities = adminConsoleCa
   const rows = [
     ["Current access", capabilities.scope?.label || "Allowed records", capabilities.scope?.detail || "Only records this account can already load."],
     ["Student denominator", safeNumber(report.studentTotal || report.loadedStudentRows), `${safeNumber(report.loadedStudentRows)} loaded roster row${safeNumber(report.loadedStudentRows) === 1 ? "" : "s"} in this view.`],
-    ["Export safety", "Report-safe", "Downloads omit passwords, admin notes, internal storage ids, and rows outside the current authorized view."],
+    ["Export safety", "Report-safe", "Downloads omit passwords, admin notes, internal storage ids, and rows outside this account's current view."],
     ["Unknowns", "Not complete", "Unknown or unloaded states are not counted as complete in coverage percentages."],
   ];
   return `
@@ -7416,7 +7416,7 @@ function adminReportExportSpecs(model = adminConsoleOperationsModel()) {
     {
       id: "admin-roster-completeness",
       title: "Roster completeness",
-      detail: "Student setup fields from the current admin scope.",
+      detail: "Student setup fields from the current admin view.",
       filename: "capstone-admin-roster-completeness.csv",
       headers: ["Student name", "Program", "Cohort", "Graduation year", "Mentor coverage", "Viewer coverage", "Setup flags"],
       rows: rosterRows,
@@ -7424,7 +7424,7 @@ function adminReportExportSpecs(model = adminConsoleOperationsModel()) {
     {
       id: "admin-setup-issues",
       title: "Setup issues",
-      detail: "Prioritized setup/import issue list for the current admin scope.",
+      detail: "Prioritized setup/import issue list for the current admin view.",
       filename: "capstone-admin-setup-issues.csv",
       headers: ["Issue", "Detail", "Count", "Action"],
       rows: setupIssueRows,
@@ -9098,7 +9098,7 @@ function studentDirectoryEmptyStateCopy(filters = {}, options = {}, emptyState =
       heading: "No matching mentor meeting follow-up",
       reason: "No students with missed or make-up-required mentor meetings match these filters.",
       owner,
-      nextAction: "Clear filters or open student detail from another scoped worklist.",
+      nextAction: "Clear filters or open student detail from another visible worklist.",
     };
   }
   if (filters.evidenceStatus === "missing" || filters.progressStatus === "missing_evidence") {
@@ -9278,7 +9278,7 @@ function renderSiteStudentDetailSurface(directory) {
             <strong>This student is not assigned to your mentor account</strong>
             <p>Mentors can open full detail only for students with an active mentor assignment. This protects private proof, Program Teacher feedback, and school records.</p>
             ${renderProblemState({
-              reason: "The requested student is outside your active mentor assignment scope.",
+              reason: "The requested student is not assigned to your active mentor roster.",
               owner: "Site administration or Program Teacher.",
               nextAction: "Return to Mentor Dashboard and choose an assigned student, or ask the site team to update mentor coverage.",
             })}
@@ -11271,7 +11271,7 @@ function renderMentorAssignmentForm(body) {
       ${renderTaskFinishChecklist("mentor-assignment-save", "Before assigning this mentor", [
         ["Student still needs coverage", "Confirm the selected student is in the unassigned queue for this school.", "ready"],
         ["Mentor load checked", "Use the active assignment count and load label before choosing a mentor.", "ready"],
-        ["Scope is school-only", "This assignment does not create an account, change a role, or message the student.", "context"],
+        ["School-only assignment", "This assignment does not create an account, change a role, or message the student.", "context"],
         ["Reason is specific", "Write why this mentor is the right coverage before saving.", "needs_review"],
       ], {
         detail: "Use these checks before saving a mentor assignment.",
@@ -13107,7 +13107,7 @@ function adminAuditAnomalyRows(events = []) {
       id: "role-changes",
       label: "Role changes",
       count: countWhere((event) => /access\.|role|assignment/i.test(event.action || "")),
-      reviewCopy: "Confirm this access change was intentional and scoped to the smallest useful role.",
+      reviewCopy: "Confirm this access change was intentional and limited to the smallest useful role.",
       quietCopy: "No role or access change rows are visible in this audit view.",
       owner: "Access admin",
       nextAction: "Compare the change with current assignments before adding broader access.",
@@ -18575,7 +18575,7 @@ function renderReviewSubmissionPanel(selected, body) {
           ${renderProblemState({
             reason: selectionNotice,
             owner: "Assigned review staff.",
-            nextAction: "Clear filters or select a visible review row. Protected history loads only after the row appears in this scoped queue.",
+            nextAction: "Clear filters or select a visible review row. Protected history loads only after the row appears in this visible review queue.",
           })}
         </section>
       `;
@@ -19622,7 +19622,7 @@ function renderSecurityActionMap({ roles = roleIds(currentUser), globalAdmin = h
       owner: "Signed-in account",
       count: roleLabel(primaryRole),
       title: studentView ? "Make sure this is your account" : "Confirm this is your account",
-      detail: studentView ? `Password changes apply only to ${email}.` : `Password changes apply only to ${email}. Use Profile to review your role and scope first.`,
+      detail: studentView ? `Password changes apply only to ${email}.` : `Password changes apply only to ${email}. Use Profile to review your role and access first.`,
       source: roleScopeSummary(currentUser),
       section: "profile",
       actionLabel: "Open profile",
@@ -20335,7 +20335,7 @@ function renderManageStaffSetupSummary(accounts = [], assignments = {}) {
           <small>Local account delivery still needs an approved contact path.</small>
         </article>
         <article class="${missingMentorScope + missingProgramScope ? "warning" : "ready"}">
-          <span>Scope gaps</span>
+          <span>Coverage gaps</span>
           <strong>${escapeHtml(String(missingMentorScope + missingProgramScope))}</strong>
           <small>Mentor or Program Teacher coverage needs confirmation.</small>
         </article>
@@ -20344,7 +20344,7 @@ function renderManageStaffSetupSummary(accounts = [], assignments = {}) {
         <div>
           <span>${escapeHtml(firstIssue ? "Review first" : "Current staff state")}</span>
           <strong>${escapeHtml(firstIssue?.account?.displayName || "No staff blocker is first in line")}</strong>
-          <p>${escapeHtml(firstIssue ? firstLabels : "Loaded staff rows do not show email, role, mentor, viewer, program, or site scope gaps.")}</p>
+          <p>${escapeHtml(firstIssue ? firstLabels : "Loaded staff rows do not show email, role, mentor, viewer, program, or site access gaps.")}</p>
         </div>
         ${renderAdminActionControl(firstAction, "workspace-button workspace-button-secondary workspace-button-small", "staff-first")}
       </article>
@@ -21367,7 +21367,7 @@ function adminRoleAssignmentScopeText(assignment = {}) {
   if (scopeType === "cohort") {
     return `Cohort access / ${statusText(scopeId || "current_cohort")}`;
   }
-  return `${statusText(scopeType)} / ${statusText(scopeId || "current_scope")}`;
+  return `${statusText(scopeType)} / ${statusText(scopeId || "current_access")}`;
 }
 
 function renderAdminAccessAssignmentPanel() {
@@ -22644,7 +22644,7 @@ async function loadViewAsStudentPreview(message = "Student view loaded.", option
   const dashboardResult = await settleApi(apiJson(`/api/student/dashboard?studentId=${encodeURIComponent(studentId)}`));
   if (!dashboardResult.ok) {
     const reason = dashboardResult.status === 403
-      ? "Student view is outside this account's authorized scope."
+      ? "Student view is not available for this account."
       : "Student view unavailable.";
     exitViewAsStudent(options.errorMessage || reason, "error", { replaceUrl: true });
     return false;
@@ -23416,7 +23416,7 @@ function renderPresentationSection() {
           <h1 id="presentationDashboardTitle">${escapeHtml(studentView ? "Your Presentation" : "Presentation")}</h1>
           <p>${escapeHtml(studentView
             ? "Check your time, room, outline status, and what still needs attention before presentation day."
-            : "Schedule, outline, check-in, and day-of readiness from scoped presentation records.")}</p>
+            : "Schedule, outline, check-in, and day-of readiness from presentation rows this account can see.")}</p>
         </div>
         <span class="workspace-chip">${filteredSlots.length} of ${slots.length} slot${slots.length === 1 ? "" : "s"}</span>
       </div>
@@ -25114,7 +25114,7 @@ function renderRecentProgramActivity(rows = []) {
       id: "recent-program-activity-empty",
       kicker: "No recent activity",
       title: "No recent program activity is visible yet",
-      detail: "New submissions, proof, and Program Teacher feedback will appear here when they exist in this account's scope.",
+      detail: "New submissions, proof, and Program Teacher feedback will appear here when this account can see them.",
       reason: "No recent program rows are available for the visible school or program.",
       owner: "Program Teacher or site staff",
       nextAction: "Continue normal follow-up or open Students to inspect a specific record.",
@@ -26883,7 +26883,7 @@ const ROLE_WORKING_PROFILES = {
     ],
     limits: [
       "Use global access carefully because it can affect every school.",
-      "Keep student records scoped to real operational need.",
+      "Open student records only for real operational need.",
     ],
     actions: [
       { section: "adminDashboard", label: "Open Command Center", detail: "Platform risks and quick actions." },
@@ -27178,7 +27178,7 @@ function adminConsoleScopeForRoles(roles) {
   if (roles.has("viewer")) {
     return { key: "read_only", label: "Read-only", detail: "Assigned student records only." };
   }
-  return { key: "none", label: "Workspace", detail: "No staff console scope is assigned." };
+  return { key: "none", label: "Workspace", detail: "No staff console access is assigned." };
 }
 
 function adminConsoleSectionsForRoles(roles) {
@@ -27202,7 +27202,7 @@ function adminConsoleSectionsForRoles(roles) {
   }
 
   if (hasSiteStudentDirectoryRole(roles)) {
-    add("students", "Students", "Legacy scoped student directory", { hidden: true });
+    add("students", "Students", "Legacy student directory", { hidden: true });
   }
   if (hasSiteReviewQueueRole(roles)) {
     add("teacher", "Review / Evidence", "Legacy submitted work renderer", { hidden: true });
@@ -27454,7 +27454,7 @@ async function handleWorkspaceUrlPopState() {
       renderLoading: false,
       syncUrl: false,
       message: "Student view link restored.",
-      errorMessage: "Student view is outside this account's authorized scope.",
+      errorMessage: "Student view is not available for this account.",
     });
     return;
   }
@@ -28609,7 +28609,7 @@ function buildAdminImportBody(form) {
   const deliveryConfirmation = Boolean(values.deliveryConfirmation);
 
   if (!adminNote) return { ok: false, message: "Add the admin note for this account." };
-  if (!deliveryConfirmation) return { ok: false, message: "Confirm the account scope and setup-password delivery process before creating this account." };
+  if (!deliveryConfirmation) return { ok: false, message: "Confirm the account access and setup-password delivery process before creating this account." };
   if (!email || !fullName || !roleId) return { ok: false, message: "Add the person's email, name, and role." };
   if (!["student", "mentor", "viewer", "program_teacher", "administration", "site_admin", "global_admin"].includes(roleId)) {
     return { ok: false, message: "Choose a supported workspace role." };
@@ -28764,7 +28764,7 @@ function buildAdminPersonImportBody(form) {
   if (!firstName || !lastName) return { ok: false, message: "Add first and last name." };
   if (!isUsableEmail(email)) return { ok: false, message: "Add a usable email or login identifier." };
   if (!adminNote) return { ok: false, message: "Add the admin note for this account." };
-  if (!deliveryConfirmation) return { ok: false, message: "Confirm the account scope and setup-password delivery process before creating this account." };
+  if (!deliveryConfirmation) return { ok: false, message: "Confirm the account access and setup-password delivery process before creating this account." };
   if (!status) return { ok: false, message: "Choose active or inactive status." };
   if (!allowedRoleIds.has(roleId)) return { ok: false, message: "This role cannot create that account type." };
   if (kind === "student" && !siteIds.length) return { ok: false, message: "Choose the student's site or school." };

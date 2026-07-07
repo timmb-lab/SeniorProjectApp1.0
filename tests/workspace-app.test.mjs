@@ -5251,7 +5251,7 @@ test("workspace explains Review Queue shared selections that are no longer visib
   assert.match(workspaceRoot.innerHTML, /data-review-panel-state="selection-unavailable"/);
   assert.match(workspaceRoot.innerHTML, /Shared submission not visible/);
   assert.match(workspaceRoot.innerHTML, /The shared submission is not visible in this review queue with the current filters/);
-  assert.match(workspaceRoot.innerHTML, /Protected history loads only after the row appears in this scoped queue/);
+  assert.match(workspaceRoot.innerHTML, /Protected history loads only after the row appears in this visible review queue/);
   assert.match(window.location.href, /unknown=keep/);
   assert.doesNotMatch(window.location.href, /submissionId=/);
   assert.equal(fetchLog.some((entry) => entry.startsWith("/api/reviews/submission-review-001/history")), false);
@@ -7483,7 +7483,7 @@ test("admin console surfaces setup reasons across overview people students and r
   const people = workspaceRoot.innerHTML;
   assert.match(people, /data-admin-page-header="true" data-admin-page-section="adminPeople"/);
   assert.match(people, /data-admin-action-menu="adminPeople"[\s\S]*aria-label="Actions menu for People"[\s\S]*Import staff[\s\S]*Download staff template/);
-  assert.match(people, /data-admin-staff-setup-summary="true"[\s\S]*Staff loaded[\s\S]*Needs setup[\s\S]*Scope gaps/);
+  assert.match(people, /data-admin-staff-setup-summary="true"[\s\S]*Staff loaded[\s\S]*Needs setup[\s\S]*Coverage gaps/);
   assert.match(people, /data-admin-staff-first-action="[^"]+"[\s\S]*(Review first|Current staff state)/);
   assert.match(people, /data-manage-staff-row="mentor-no-scope" data-manage-staff-setup="needs-review"/);
   assert.match(people, /data-admin-more-menu="staff-mentor-no-scope"[\s\S]*aria-label="More actions for Orphan Mentor"[\s\S]*More[\s\S]*Manage assignments/);
@@ -7514,7 +7514,7 @@ test("admin console surfaces setup reasons across overview people students and r
   assert.doesNotMatch(reports, /data-admin-action-menu="adminReports"[\s\S]*View audit/);
   assert.match(reports, /data-admin-report-scope-notice="true"[\s\S]*Current access[\s\S]*Student denominator[\s\S]*Export safety[\s\S]*Unknowns/);
   assert.match(reports, /data-report-confidence-note="admin"[\s\S]*unknown states are not counted as complete/);
-  assert.match(reports, /Downloads omit passwords, admin notes, internal storage ids, and rows outside the current authorized view/);
+  assert.match(reports, /Downloads omit passwords, admin notes, internal storage ids, and rows outside this account&#039;s current view/);
   assert.match(reports, /data-admin-setup-readiness="true"/);
   assert.match(reports, /Operational coverage summary/);
   assert.match(reports, /Setup\/import issues/);
