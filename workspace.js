@@ -6541,11 +6541,147 @@ function renderStaffTodayScopePanel(model = {}) {
   `;
 }
 
+function renderStaffReportQuestionAction(question = {}) {
+  const section = question.section || "";
+  const canOpen = section && availableSectionIdsForAnyMode().has(section);
+  if (!canOpen) return `<span class="workspace-summary-badge">Summary only</span>`;
+  const preset = question.preset ? ` data-section-preset="${escapeHtml(question.preset)}"` : "";
+  return `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(section)}"${preset}>${escapeHtml(question.actionLabel || "Open")}</button>`;
+}
+
+function renderStaffReportQuestionRow(question = {}, index = 0) {
+  return `
+    <article class="workspace-admin-report-choice-row ${index === 0 ? "primary" : ""}" data-staff-report-question="${escapeHtml(question.id || "question")}">
+      <div>
+        <span>${escapeHtml(question.kicker || "Report question")}</span>
+        <strong>${escapeHtml(question.title || "Choose one report question")}</strong>
+        <p>${escapeHtml(question.detail || "Use this summary to decide the next route.")}</p>
+        <small>${escapeHtml(question.valueLabel || "No value loaded")}</small>
+      </div>
+      <div class="workspace-admin-report-choice-actions">
+        ${renderStaffReportQuestionAction(question)}
+      </div>
+    </article>
+  `;
+}
+
+function renderStaffReportQuestionFlow(questions = []) {
+  const safeQuestions = (Array.isArray(questions) ? questions : []).filter(Boolean);
+  if (!safeQuestions.length) return "";
+  return `
+    <section class="workspace-admin-report-choice-flow workspace-staff-report-question-flow" data-staff-report-question-flow="true" aria-labelledby="staffReportQuestionTitle">
+      <div class="workspace-admin-report-choice-head">
+        <div>
+          <p class="workspace-kicker">Start here</p>
+          <h3 id="staffReportQuestionTitle">Answer one report question</h3>
+          <p>Pick the question that matches the current problem before scanning charts or exports.</p>
+        </div>
+      </div>
+      <div class="workspace-admin-report-choice-list">
+        ${safeQuestions.map(renderStaffReportQuestionRow).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function staffReportAttentionCount() {
+  const operations = unwrap(currentData.operationsReadiness) || {};
+  const siteDashboard = unwrap(currentData.siteDashboard) || {};
+  const summary = {
+    ...(siteDashboard.summary || {}),
+    ...(operations.summary || {}),
+  };
+  const explicitCounts = [
+    summary.needsAttention,
+    summary.attentionRequired,
+    summary.studentsNeedingAttention,
+    summary.studentsBehind,
+    summary.studentsNoMentor,
+    summary.noMentor,
+    summary.missingMentor,
+    summary.missingEvidence,
+    summary.archiveFailed,
+    summary.exportsFailed,
+  ].map((value) => safeNumber(value)).filter((value) => value > 0);
+  if (explicitCounts.length) return explicitCounts[0];
+  const rows = [
+    ...(Array.isArray(operations.rows) ? operations.rows : []),
+    ...(Array.isArray(siteDashboard.needsAttention) ? siteDashboard.needsAttention : []),
+  ];
+  return rows.filter((row) => {
+    const flags = [
+      row?.queue,
+      row?.status,
+      row?.readiness,
+      row?.state,
+      row?.progressStatus,
+      ...(Array.isArray(row?.riskFlags) ? row.riskFlags : []),
+      ...(Array.isArray(row?.flags) ? row.flags : []),
+    ].map((value) => normalizeStatus(value)).join(" ");
+    return /\b(needs|attention|required|blocked|missing|failed|revision|behind)\b/.test(flags);
+  }).length;
+}
+
+function staffReportQuestions({ roles, visibleStudents, reviewCount, setupSignalCount, report }) {
+  const canOpenStudents = hasSiteStudentDirectoryRole(roles);
+  const canOpenReviewQueue = hasSiteReviewQueueRole(roles);
+  const canOpenOperations = hasSiteOperationsRole(roles);
+  const mentorCoverage = report?.mentorCoveragePercent;
+  const mentorDenominator = safeNumber(report?.mentorCoverageDenominator || visibleStudents);
+  const onTrackCount = Math.max(safeNumber(visibleStudents) - safeNumber(reviewCount) - safeNumber(setupSignalCount), 0);
+  return [
+    {
+      id: "students-needing-attention",
+      kicker: "Students needing attention",
+      title: safeNumber(setupSignalCount) ? `${safeNumber(setupSignalCount)} signals to check` : "No attention group is visible",
+      detail: "Use the worklist to confirm which presentation, mentor, final-file, or setup signals need action.",
+      valueLabel: `${safeNumber(setupSignalCount)} visible attention ${pluralize(setupSignalCount, "signal")}`,
+      section: canOpenOperations ? "operations" : canOpenStudents ? "students" : "",
+      preset: canOpenOperations ? "needs-attention" : "behind-students",
+      actionLabel: canOpenOperations ? "Open worklist" : "Open students",
+    },
+    {
+      id: "work-waiting-for-review",
+      kicker: "Work waiting for review",
+      title: safeNumber(reviewCount) ? `${safeNumber(reviewCount)} review rows` : "No review queue is waiting",
+      detail: "Submitted or revision work should be handled in Review Work before report browsing.",
+      valueLabel: `${safeNumber(reviewCount)} waiting ${pluralize(reviewCount, "row")}`,
+      section: canOpenReviewQueue ? "teacher" : "",
+      preset: "submitted",
+      actionLabel: "Open review queue",
+    },
+    {
+      id: "mentor-coverage",
+      kicker: "Mentor coverage",
+      title: `Mentor coverage is ${percentLabel(mentorCoverage)}`,
+      detail: mentorDenominator
+        ? `${mentorDenominator} visible ${pluralize(mentorDenominator, "student")} in the coverage denominator.`
+        : "Coverage percentage appears after student and mentor data load.",
+      valueLabel: "Private mentor notes are not shown in reports.",
+      section: canOpenStudents ? "students" : "",
+      preset: "missing-mentors",
+      actionLabel: "Find missing mentors",
+    },
+    {
+      id: "on-track",
+      kicker: "On track",
+      title: `${onTrackCount} look clear right now`,
+      detail: "This is a simple visible-count check, not a promise that every final requirement is complete.",
+      valueLabel: "Unknown or unloaded states are not counted as complete.",
+      section: canOpenStudents ? "students" : "",
+      preset: "on-track-students",
+      actionLabel: "View on track",
+    },
+  ];
+}
+
 function renderStaffReportsSection() {
   const roles = roleIds(currentUser);
   const visibleStudents = adminConsoleStudentCount();
   const reviewCount = adminConsoleReviewCount();
-  const setupSignalCount = adminConsoleOperationsCount();
+  const setupSignalCount = staffReportAttentionCount();
+  const operationsModel = adminConsoleOperationsModel();
+  const report = operationsModel.report || {};
   const reportMax = Math.max(visibleStudents, reviewCount, setupSignalCount, 1);
   const reportRows = [
     {
@@ -6575,6 +6711,16 @@ function renderStaffReportsSection() {
       tone: setupSignalCount ? "warning" : "ready",
       dataAttrs: `data-staff-report-row="missing-work-setup"`,
     },
+    {
+      id: "mentor-coverage",
+      label: "Mentor coverage",
+      value: report.mentorCoveragePercent,
+      max: 100,
+      valueLabel: percentLabel(report.mentorCoveragePercent),
+      detail: `Denominator: ${safeNumber(report.mentorCoverageDenominator || visibleStudents)} visible students.`,
+      tone: "mentor",
+      dataAttrs: `data-staff-report-row="mentor-coverage"`,
+    },
   ];
   return `
     <section class="workspace-command-center workspace-staff-reports" data-staff-reports="true" aria-labelledby="staffReportsTitle">
@@ -6585,6 +6731,7 @@ function renderStaffReportsSection() {
           <p>Use simple counts to spot review, setup, and readiness work inside this account's allowed area.</p>
         </div>
       </div>
+      ${renderStaffReportQuestionFlow(staffReportQuestions({ roles, visibleStudents, reviewCount, setupSignalCount, report }))}
       <div class="workspace-admin-console-metrics" data-staff-report-metrics="true">
         ${renderMetricTile("Visible Students", adminConsoleStudentCount(), "Rows available to this role", "student", hasSiteStudentDirectoryRole(roles) ? "students" : "", { label: "Open Students" })}
         ${renderMetricTile("Needs Review", adminConsoleReviewCount(), "Submitted or review-related rows", safeNumber(adminConsoleReviewCount()) ? "warning" : "teacher", hasSiteReviewQueueRole(roles) ? "teacher" : "", { label: "Open Reviews", preset: "submitted" })}

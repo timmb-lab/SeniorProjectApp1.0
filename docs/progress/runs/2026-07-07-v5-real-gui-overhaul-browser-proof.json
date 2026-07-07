@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:58116",
+  "baseUrl": "http://127.0.0.1:60657",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-07T05:01:32.805Z",
-  "completedAt": "2026-07-07T05:08:55.532Z",
+  "startedAt": "2026-07-07T05:32:13.853Z",
+  "completedAt": "2026-07-07T05:39:15.347Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:58116",
+    "baseUrl": "http://127.0.0.1:60657",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul",
@@ -2192,7 +2192,7 @@
         "finalFiles": false
       },
       "heading": "Check one report question",
-      "textSample": "Skip to workspace SC Capstone Staff Workspace Reports Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reviews 4 Reports SITE ADMIN Check one report question Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open report One focused screen REPORTS Student Progress Reports Use simple counts to spot review, setup, and readiness work inside this account's allowed area. VISIBLE STUDENTS 250 Rows available to this role Open Students NEEDS REVIEW 52 Submitted or review-related rows Open Reviews SETUP WORK 250 Presentation, mentor, or final-file follow-up Open Worklist STAFF REPORTS Vis",
+      "textSample": "Skip to workspace SC Capstone Staff Workspace Reports Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reviews 4 Reports SITE ADMIN Check one report question Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open report One focused screen REPORTS Student Progress Reports Use simple counts to spot review, setup, and readiness work inside this account's allowed area. START HERE Answer one report question Pick the question that matches the current problem before scanning charts or exports. STUDENTS NEEDING ATTENTION 250 signals to check Use the worklist to confirm which presentatio",
       "activeNav": [
         "Workspace",
         "4\n        4. Reports\n        Progress and setup summary",
@@ -4501,7 +4501,7 @@
         "finalFiles": false
       },
       "heading": "Check one report question",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS SITE ADMIN Check one report question Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open report One focused screen REPORTS Student Progress Reports Use simple counts to spot review, setup, and readiness work inside this account's allowed area. VISIBLE STUDENTS 250 Rows available to this role Open Students NEEDS REVIEW 52 Submitted or review-related rows Open Reviews SETUP WORK 250 Presentation, mentor, or final-file follow-up Open Worklist STAFF REPORTS Visible students by status Quick bars compare the visible roster with review and setup work; each value is also shown as text and u",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS SITE ADMIN Check one report question Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open report One focused screen REPORTS Student Progress Reports Use simple counts to spot review, setup, and readiness work inside this account's allowed area. START HERE Answer one report question Pick the question that matches the current problem before scanning charts or exports. STUDENTS NEEDING ATTENTION 250 signals to check Use the worklist to confirm which presentation, mentor, final-file, or setup signals need action. 250 visible attention signals Open worklist WORK WAITING FOR REVIEW 52 revi",
       "activeNav": [
         "Workspace",
         "4\n        4. Reports\n        Progress and setup summary",
@@ -4635,7 +4635,7 @@
         "finalFiles": false
       },
       "heading": "Check one report question",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Administration AS SCHOOL ADMIN Check one report question Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open report One focused screen REPORTS Student Progress Reports Use simple counts to spot review, setup, and readiness work inside this account's allowed area. VISIBLE STUDENTS 250 Rows available to this role Open Students NEEDS REVIEW 0 Submitted or review-related rows SUMMARY ONLY SETUP WORK 250 Presentation, mentor, or final-file follow-up Open Worklist STAFF REPORTS Visible students by status Quick bars compare the visible roster with review and setup work; each value is also shown as text ",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Administration AS SCHOOL ADMIN Check one report question Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open report One focused screen REPORTS Student Progress Reports Use simple counts to spot review, setup, and readiness work inside this account's allowed area. START HERE Answer one report question Pick the question that matches the current problem before scanning charts or exports. STUDENTS NEEDING ATTENTION 250 signals to check Use the worklist to confirm which presentation, mentor, final-file, or setup signals need action. 250 visible attention signals Open worklist WORK WAITING FOR REVIEW N",
       "activeNav": [
         "Workspace",
         "3\n        3. Reports\n        Progress and setup summary",
@@ -4769,7 +4769,7 @@
         "finalFiles": false
       },
       "heading": "Check one report question",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Global Admin PG GLOBAL ADMIN Check one report question Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open report One focused screen REPORTS Student Progress Reports Use simple counts to spot review, setup, and readiness work inside this account's allowed area. VISIBLE STUDENTS 250 Rows available to this role Open Students NEEDS REVIEW 52 Submitted or review-related rows Open Reviews SETUP WORK 250 Presentation, mentor, or final-file follow-up Open Worklist STAFF REPORTS Visible students by status Quick bars compare the visible roster with review and setup work; each value is also shown as text a",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Global Admin PG GLOBAL ADMIN Check one report question Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open report One focused screen REPORTS Student Progress Reports Use simple counts to spot review, setup, and readiness work inside this account's allowed area. START HERE Answer one report question Pick the question that matches the current problem before scanning charts or exports. STUDENTS NEEDING ATTENTION 250 signals to check Use the worklist to confirm which presentation, mentor, final-file, or setup signals need action. 250 visible attention signals Open worklist WORK WAITING FOR REVIEW 52 ",
       "activeNav": [
         "Workspace",
         "4\n        4. Reports\n        Progress and setup summary",
@@ -5240,7 +5240,7 @@
         "finalFiles": false
       },
       "heading": "Check one student or report",
-      "textSample": "Skip to workspace SC Capstone Staff Workspace Reports Tools Viewer READ-ONLY VV Valeria Viewer viewer.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reports READ-ONLY VIEW Check one student or report Viewer screens are read-only and start with what can be reviewed, not editing controls. Open students No edit actions REPORTS Student Progress Reports Use simple counts to spot review, setup, and readiness work inside this account's allowed area. VISIBLE STUDENTS 3 Rows available to this role Open Students NEEDS REVIEW 0 Submitted or review-related rows SUMMARY ONLY SETUP WORK 0 Presentation, mentor, or final-file follow-up SUMMARY ONLY STAFF REPORTS Visible students by status ",
+      "textSample": "Skip to workspace SC Capstone Staff Workspace Reports Tools Viewer READ-ONLY VV Valeria Viewer viewer.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reports READ-ONLY VIEW Check one student or report Viewer screens are read-only and start with what can be reviewed, not editing controls. Open students No edit actions REPORTS Student Progress Reports Use simple counts to spot review, setup, and readiness work inside this account's allowed area. START HERE Answer one report question Pick the question that matches the current problem before scanning charts or exports. STUDENTS NEEDING ATTENTION No attention group is visible Use the worklist to confirm which presentation, mentor",
       "activeNav": [
         "3\n        3. Reports\n        Progress and setup summary",
         "3\n        Reports"

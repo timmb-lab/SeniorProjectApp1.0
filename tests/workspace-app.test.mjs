@@ -829,9 +829,15 @@ test("workspace reports render accessible shared report bars with mobile fallbac
     url: "https://workspace.example/workspace.html?mode=workspace&section=staffReports&siteId=site-desert-valley-high",
   });
   assert.match(staffReports, /data-staff-reports="true"/);
+  assert.match(staffReports, /data-staff-report-question-flow="true"/);
+  assert.match(staffReports, /data-staff-report-question="students-needing-attention"[\s\S]*Students needing attention/);
+  assert.match(staffReports, /data-staff-report-question="work-waiting-for-review"[\s\S]*Work waiting for review[\s\S]*data-section="teacher" data-section-preset="submitted"[\s\S]*Open review queue/);
+  assert.match(staffReports, /data-staff-report-question="mentor-coverage"[\s\S]*Mentor coverage is/);
+  assert.match(staffReports, /data-staff-report-question="on-track"[\s\S]*Unknown or unloaded states are not counted as complete/);
   assert.match(staffReports, /data-staff-report-bars="true"/);
   assert.match(staffReports, /data-report-row="visible-students"[\s\S]*aria-label="Visible students:/);
   assert.match(staffReports, /data-staff-report-row="needs-review"[\s\S]*role="meter"[\s\S]*aria-valuetext=/);
+  assert.match(staffReports, /data-staff-report-row="mentor-coverage"[\s\S]*Denominator: \d+ visible students/);
   assert.match(staffReports, /Missing work\/setup/);
   assert.match(staffReports, /data-report-export-panel="staff"/);
   assert.match(staffReports, /data-report-confidence-note="staff"[\s\S]*unknown states are not counted as complete/);
@@ -877,6 +883,9 @@ test("workspace report exports stay scoped for viewer and unavailable to student
   });
   assert.match(viewerReports, /data-workspace-mode="read-only"/);
   assert.match(viewerReports, /data-staff-reports="true"/);
+  assert.match(viewerReports, /data-staff-report-question-flow="true"/);
+  assert.match(viewerReports, /data-staff-report-question="work-waiting-for-review"[\s\S]*Summary only/);
+  assert.doesNotMatch(viewerReports, /data-staff-report-question="work-waiting-for-review"[\s\S]*data-section="teacher"/);
   assert.match(viewerReports, /data-report-export-panel="staff"/);
   assert.doesNotMatch(viewerReports, /data-report-export-panel="admin"|data-report-export-card="admin-/);
   assert.doesNotMatch(viewerReports, /data-csv-import-kind="students"|data-mentor-assignment-form="true"|data-review-decision="approved"|data-admin-action="import-users"/);
