@@ -348,3 +348,30 @@
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES
+
+## Slice 11 - Role Today Plans Do Not Repeat The Primary Card
+
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+  - `docs/progress/runs/2026-07-07-v6-until-3pm-checkpoints.md`
+- User-facing surfaces affected:
+  - Mentor Today
+  - Program Teacher Today
+  - Viewer Today
+  - Administration / Site Admin / Global Admin staff Today
+- Behavior changed:
+  - The card promoted into the `First route` / primary route strip no longer repeats immediately in the secondary plan grid.
+  - Remaining plan cards continue to render as secondary choices.
+  - Primary route selection uses the same availability and count rules as before.
+- RBAC/data impact: no permission, route availability, role scope, API, student data, or mutation logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --test --test-name-pattern "workspace defaults to workflow landings|workspace separates Admin Console mode" tests\workspace-app.test.mjs`: PASS, `2` pass, `0` fail
+  - `node --test tests\workspace-app.test.mjs`: PASS, `115` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Real work continues before 3PM: YES

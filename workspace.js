@@ -5833,7 +5833,7 @@ function renderMentorTodayPlan(model = {}) {
         dataAttrs: 'data-mentor-primary-step="true"',
       })}
       <div class="workspace-mentor-today-plan-grid">
-        ${cards.map((card) => renderMentorTodayPlanCard(card, sections)).join("")}
+        ${todaySecondaryCards(cards, sections).map((card) => renderMentorTodayPlanCard(card, sections)).join("")}
       </div>
     </section>
   `;
@@ -5919,7 +5919,7 @@ function renderStaffAdminTodayPlan(model = {}) {
         dataAttrs: 'data-staff-admin-primary-step="true"',
       })}
       <div class="workspace-staff-admin-plan-grid">
-        ${cards.map((card) => renderStaffAdminTodayPlanCard(card, sections)).join("")}
+        ${todaySecondaryCards(cards, sections).map((card) => renderStaffAdminTodayPlanCard(card, sections)).join("")}
       </div>
     </section>
   `;
@@ -5950,13 +5950,9 @@ function renderStaffAdminTodayPlanCard(card = {}, sections = availableSectionIds
 }
 
 function renderTodayPrimaryStep(cards = [], sections = availableSectionIdsForAnyMode(), options = {}) {
-  const safeCards = (Array.isArray(cards) ? cards : []).filter(Boolean);
-  const canOpenCard = (card) => Boolean(card?.section && sections.has(card.section));
-  const card = safeCards.find((candidate) => canOpenCard(candidate) && safeNumber(candidate.value) > 0)
-    || safeCards.find(canOpenCard)
-    || safeCards[0];
+  const card = todayPrimaryCard(cards, sections);
   if (!card) return "";
-  const canOpen = canOpenCard(card);
+  const canOpen = todayCardCanOpen(card, sections);
   const actionHtml = canOpen
     ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(card.section)}" ${card.preset ? `data-section-preset="${escapeHtml(card.preset)}"` : ""}>${escapeHtml(card.action || "Open")}</button>`
     : `<span class="workspace-summary-badge">${escapeHtml(options.unavailableLabel || "Summary only")}</span>`;
@@ -5971,6 +5967,24 @@ function renderTodayPrimaryStep(cards = [], sections = availableSectionIdsForAny
       ${actionHtml}
     </article>
   `;
+}
+
+function todayPrimaryCard(cards = [], sections = availableSectionIdsForAnyMode()) {
+  const safeCards = (Array.isArray(cards) ? cards : []).filter(Boolean);
+  return safeCards.find((candidate) => todayCardCanOpen(candidate, sections) && safeNumber(candidate.value) > 0)
+    || safeCards.find((candidate) => todayCardCanOpen(candidate, sections))
+    || safeCards[0]
+    || null;
+}
+
+function todaySecondaryCards(cards = [], sections = availableSectionIdsForAnyMode()) {
+  const safeCards = (Array.isArray(cards) ? cards : []).filter(Boolean);
+  const primary = todayPrimaryCard(safeCards, sections);
+  return primary ? safeCards.filter((card) => card !== primary) : safeCards;
+}
+
+function todayCardCanOpen(card = {}, sections = availableSectionIdsForAnyMode()) {
+  return Boolean(card?.section && sections.has(card.section));
 }
 
 function renderViewerReadOnlyTodayPlan(model = {}) {
@@ -6035,7 +6049,7 @@ function renderViewerReadOnlyTodayPlan(model = {}) {
         unavailableLabel: "No edit action",
       })}
       <div class="workspace-viewer-readonly-plan-grid">
-        ${cards.map((card) => renderViewerReadOnlyTodayPlanCard(card, sections)).join("")}
+        ${todaySecondaryCards(cards, sections).map((card) => renderViewerReadOnlyTodayPlanCard(card, sections)).join("")}
       </div>
     </section>
   `;
@@ -6123,7 +6137,7 @@ function renderProgramTeacherTodayPlan(model = {}) {
         dataAttrs: 'data-program-teacher-primary-step="true"',
       })}
       <div class="workspace-program-teacher-plan-grid">
-        ${cards.map((card) => renderProgramTeacherTodayPlanCard(card, sections)).join("")}
+        ${todaySecondaryCards(cards, sections).map((card) => renderProgramTeacherTodayPlanCard(card, sections)).join("")}
       </div>
     </section>
   `;
