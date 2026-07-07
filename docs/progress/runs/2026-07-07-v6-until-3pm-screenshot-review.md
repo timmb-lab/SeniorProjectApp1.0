@@ -57,6 +57,7 @@ Source artifacts:
 - Report exports should state the current allowed-view boundary before download buttons.
 - Admin Console pages should show their real section content before shared start-state guidance.
 - Student My Work, Feedback, and Final Checklist should show their actual route content before shared start-state guidance.
+- Admin page header overflow menus should name the section-specific action set rather than saying only `Actions`.
 
 ## Refresh 02 Spot Checks
 
@@ -69,3 +70,9 @@ Source artifacts:
 - `43-student-my-work-phone.png`: My Work content and Continue action now lead before shared guidance.
 - `54-student-feedback-phone.png`: Feedback content and View Work action now lead before shared guidance.
 - `55-student-final-checklist-phone.png`: Final Checklist content and Continue My Work action now lead before shared guidance.
+
+## Refresh 04 Spot Checks
+
+- `68-mobile-admin-people.png`: Admin People now shows `More people actions` instead of a generic `Actions` button.
+- `17-people-access-landing.png`: desktop Admin People follows the same named action menu pattern.
+- `35-admin-reports.png`: Admin Reports remains green with the named report action menu.

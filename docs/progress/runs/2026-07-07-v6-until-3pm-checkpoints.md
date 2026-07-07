@@ -329,3 +329,22 @@
   - `npm run verify:dashboard-actions`: PASS
   - `git diff --check`: PASS with line-ending warnings only
 - Real work continues before 3PM: YES
+
+## Browser Proof Refresh 04
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `78`
+- Mobile screenshots: `32`
+- Failures: `0`
+- Started: `2026-07-07T15:41:10.610Z`
+- Completed: `2026-07-07T15:48:37.240Z`
+- Visual spot checks:
+  - `68-mobile-admin-people.png`: generic `Actions` button is replaced with `More people actions`.
+  - `17-people-access-landing.png`: desktop Admin People uses the same named menu pattern.
+  - `35-admin-reports.png`: Admin Reports proof remains green after named report actions.
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES
