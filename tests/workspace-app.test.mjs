@@ -7657,6 +7657,8 @@ test("admin console surfaces setup reasons across overview people students and r
   assert.match(people, /data-admin-page-header="true" data-admin-page-section="adminPeople"/);
   assert.match(people, /data-admin-action-menu="adminPeople"[\s\S]*aria-label="More people actions menu for People"[\s\S]*More people actions[\s\S]*Import staff[\s\S]*Download staff template/);
   assert.doesNotMatch(people, /data-admin-action-menu="adminPeople"[\s\S]<summary aria-label="Actions menu for People">Actions<\/summary>/);
+  assert.match(people, /Staff Directory[\s\S]*selected school or allowed global scope/);
+  assert.doesNotMatch(visibleText(people), /inside the current view/i);
   assert.match(people, /data-admin-staff-setup-summary="true"[\s\S]*Staff loaded[\s\S]*Needs setup[\s\S]*Coverage gaps/);
   assert.match(people, /data-admin-staff-first-action="[^"]+"[\s\S]*(Review first|Current staff state)/);
   assert.match(people, /data-manage-staff-row="mentor-no-scope" data-manage-staff-setup="needs-review"/);

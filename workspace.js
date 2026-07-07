@@ -7211,7 +7211,7 @@ function renderAdminConsolePeopleSection() {
         kicker: "People",
         title: "Staff Directory",
         id: "adminPeopleTitle",
-        detail: "Add and manage staff, mentors, viewers, Program Teachers, School Admins, and Site Admins inside the current view.",
+        detail: "Add and manage staff, mentors, viewers, Program Teachers, School Admins, and Site Admins for the selected school or allowed global scope.",
         badge: options.canCreateGlobal ? "Global people access" : "School people access",
       })}
       ${renderPeopleManagementNav(screens.filter((screen) => screen.group === "Staff" || screen.id === "assignments"), adminPeopleView)}
