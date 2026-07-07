@@ -525,3 +525,56 @@
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES
+
+## Slice 15 - Render Admin Student Search Empty State
+
+- Implementation commit: `bc0123f` (`Render admin student search empty state`)
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+  - `scripts/prove-workspace-ui-polish.mjs`
+- User-facing surfaces affected:
+  - Hidden Admin Console `section=students` route
+  - Empty student-search route with a current school and search filter
+  - View as Student exit return path back to Admin `section=students`
+- Behavior changed:
+  - Admin `mode=admin&section=students` now renders the real site student directory in a V2 `admin-student-search` primary surface instead of generic setup fallback copy.
+  - Empty hidden student search now shows the student-directory empty state, `No matching student search results`, and a real `Clear filters` reset action.
+  - The student-search flow-board clear action uses `data-site-student-action="reset-filters"` instead of opening support guidance under a clear-filter label.
+  - Browser proof expectations now distinguish true empty-search states from non-empty filtered return paths after exiting View as Student.
+- RBAC/data impact: no permission, route availability, API fetch, student data, View as Student, Viewer read-only, or mutation logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --check scripts\prove-workspace-ui-polish.mjs`: PASS
+  - `node --test --test-name-pattern "workspace renders route-connected student directory|workspace hides demo seed markers|workspace opens real student detail" tests\workspace-app.test.mjs`: PASS, `3` pass, `0` fail
+  - `node --test tests\workspace-app.test.mjs`: PASS, `116` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Browser proof note:
+  - First proof attempt after the route change failed because the verifier forced empty-state copy onto the non-empty View as Student exit return screenshot.
+  - The verifier was tightened to require empty-state copy only for the empty-search route or intentional empty states.
+- Real work continues before 3PM: YES
+
+## Browser Proof Refresh 08
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `78`
+- Mobile screenshots: `32`
+- Failures: `0`
+- Started: `2026-07-07T17:17:34.773Z`
+- Completed: `2026-07-07T17:25:01.377Z`
+- Technical-language scan:
+  - Screenshot text samples containing `DEMO_SEED` or `seed`: `0`
+- Visual spot checks:
+  - `21-empty-student-search.png`: hidden Admin student search now shows `Student search`, `Review filtered students`, `No matching student search results`, and `Clear filters`.
+  - `16-view-as-student-exited-return.png`: View as Student exit return now lands on the real Admin student directory/search surface without requiring empty-state copy.
+  - `21-empty-student-search.png`: the clear-filter call to action is route-backed through the existing student-directory reset behavior.
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES

@@ -1,6 +1,6 @@
 # 2026-07-07 V6 Until-3PM Screenshot Review
 
-Status: in progress; refreshed after slices 01-14.
+Status: in progress; refreshed after slices 01-15.
 
 Source artifacts:
 
@@ -61,6 +61,7 @@ Source artifacts:
 - Role Today plans should not repeat the primary route card immediately in the secondary card grid.
 - Loaded student-detail routes should use record-specific framing instead of generic Admin setup or list-start framing.
 - Runtime program/cohort labels should not expose exact demo seed markers in primary UI.
+- Hidden Admin student-search routes should show the real student directory, including empty-search recovery, rather than generic setup fallback copy.
 
 ## Refresh 02 Spot Checks
 
@@ -98,4 +99,10 @@ Source artifacts:
 - `13-site-admin-student-detail-click.png`: student detail context now shows `Culinary - Desert Valley High School Class of 2027`, with no `DEMO_SEED` marker.
 - `23-student-detail-phone.png`: phone detail context keeps the cleaned program/school/year label in the first viewport.
 - `39-viewer-students-directory.png` and `46-mobile-viewer-students.png`: Viewer student rows no longer expose `IT / DEMO_SEED`.
+- Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
+
+## Refresh 08 Spot Checks
+
+- `21-empty-student-search.png`: hidden Admin student search now renders the route-connected student directory empty state with `No matching student search results` and `Clear filters`.
+- `16-view-as-student-exited-return.png`: exiting View as Student returns to the real Admin student search/directory surface instead of generic setup guidance.
 - Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
