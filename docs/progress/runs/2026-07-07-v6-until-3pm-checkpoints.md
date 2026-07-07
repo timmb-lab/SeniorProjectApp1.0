@@ -676,3 +676,54 @@
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES
+
+## Slice 18 - Name Imports As CSV Preview Flow
+
+- Implementation commit: `448b060` (`Name imports as CSV preview flow`)
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+  - `scripts/prove-workspace-ui-polish.mjs`
+- User-facing surfaces affected:
+  - Admin Imports desktop and mobile routes
+  - CSV import template help disclosure
+  - CSV preview-error proof states
+- Behavior changed:
+  - Admin Imports now uses a CSV-specific flow board: `CSV preview flow` and `Template, preview, confirmation`.
+  - The primary imports action now says `Open CSV checklist` instead of the generic `Open import tools`.
+  - The template help disclosure now says `Template columns and example` instead of `CSV help`.
+  - Proof expectations now reject the old import wording and require the CSV preview path.
+- RBAC/data impact: no permission, import validation, CSV parser, import confirmation, preview state, or account mutation logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --check scripts\prove-workspace-ui-polish.mjs`: PASS
+  - `node --test --test-name-pattern "admin console surfaces setup reasons|People CSV import screens|workspace keeps admin import" tests\workspace-app.test.mjs`: PASS, `3` pass, `0` fail
+  - `node --test tests\workspace-app.test.mjs`: PASS, `116` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Real work continues before 3PM: YES
+
+## Browser Proof Refresh 11
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `78`
+- Mobile screenshots: `32`
+- Failures: `0`
+- Started: `2026-07-07T17:54:24.951Z`
+- Completed: `2026-07-07T18:02:05.821Z`
+- Technical-language scan:
+  - Screenshot text samples containing `DEMO_SEED` or `seed`: `0`
+  - Screenshot text samples containing old import phrases `CSV help`, `Open import tools`, or `Guided setup flow`: `0`
+- Visual spot checks:
+  - `19-csv-import-template.png`: desktop Admin Imports now shows `Open CSV checklist`.
+  - `38-mobile-admin-imports.png`: mobile Admin Imports now shows `Template columns and example` instead of `CSV help`.
+  - `76-csv-import-preview-errors.png` and `77-mobile-csv-import-preview-errors.png`: preview-error states keep row-level validation while using the CSV preview frame.
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES

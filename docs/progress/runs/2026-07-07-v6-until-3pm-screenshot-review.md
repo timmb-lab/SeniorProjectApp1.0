@@ -1,6 +1,6 @@
 # 2026-07-07 V6 Until-3PM Screenshot Review
 
-Status: in progress; refreshed after slices 01-17.
+Status: in progress; refreshed after slices 01-18.
 
 Source artifacts:
 
@@ -64,6 +64,7 @@ Source artifacts:
 - Hidden Admin student-search routes should show the real student directory, including empty-search recovery, rather than generic setup fallback copy.
 - Viewer Reports should lead with report review, not a generic Viewer frame that sends the reader back to Students.
 - Report export boundary copy should stay privacy-preserving while avoiding internal phrases such as `current admin view`, `storage links`, and `no IDs`.
+- Admin Imports should read as a CSV preview workflow, not generic import tooling or generic help.
 
 ## Refresh 02 Spot Checks
 
@@ -122,3 +123,11 @@ Source artifacts:
 - `63-site-admin-reports-phone.png`, `65-administration-reports-phone.png`, and `67-global-admin-reports-phone.png`: staff report states keep the same route-backed report flow with friendlier export-boundary wording.
 - Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
 - Manifest scan: screenshot text samples containing `current admin view`, `storage links`, or `no IDs`: `0`.
+
+## Refresh 11 Spot Checks
+
+- `19-csv-import-template.png`: desktop Admin Imports now shows `Open CSV checklist`.
+- `38-mobile-admin-imports.png`: mobile Admin Imports now shows `Template columns and example` instead of `CSV help`.
+- `76-csv-import-preview-errors.png` and `77-mobile-csv-import-preview-errors.png`: preview-error states keep row-level validation while using the CSV preview frame.
+- Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
+- Manifest scan: screenshot text samples containing `CSV help`, `Open import tools`, or `Guided setup flow`: `0`.
