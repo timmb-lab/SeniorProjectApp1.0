@@ -1594,7 +1594,7 @@ function expectedMarkersForPlanItem(planItem, pageState = {}) {
   }
   if (planItem.authRole === "student") {
     if (section === "studentWork") return ["Student path", "Finish one item", "Keep one requirement in focus", "Open current item"];
-    if (section === "studentFeedback") return ["Student path", "Read the note and fix one thing", "Fix the feedback that asks for action", "Open feedback"];
+    if (section === "studentFeedback") return ["Student path", "Fix one feedback note", "Fix one action note", "Open feedback"];
     if (section === "studentFinalChecklist") return ["Student path", "Check the final package", "Use the checklist after required work", "Open final checklist"];
     return ["Student path", "What do I do next?", "Your next capstone move", "Next step map", "Open My Work"];
   }

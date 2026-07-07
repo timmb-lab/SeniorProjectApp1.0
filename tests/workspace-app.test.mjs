@@ -577,9 +577,13 @@ test("workspace defaults to workflow landings instead of role profiles", async (
   assert.doesNotMatch(studentWorkText, legacyWorkflowMetaCopy, "student work landing should avoid stale screen meta-copy");
 
   const studentFeedbackLanding = await renderWorkspaceWithFetch(profileRoutesForRole("student"), "studentFeedback");
+  const studentFeedbackText = visibleText(studentFeedbackLanding);
   assert.match(studentFeedbackLanding, /data-v2-primary-surface="student-feedback"[\s\S]*data-student-screen="feedback"/);
   assertMarkupOrder(studentFeedbackLanding, 'data-v2-primary-surface="student-feedback"', 'data-v3-start-state="true"', "student feedback should show the real feedback screen before shared start guidance");
   assertMarkupOrder(studentFeedbackLanding, 'data-student-screen="feedback"', 'data-v3-start-state="true"', "student feedback rows should lead before shared feedback explanation");
+  assert.match(studentFeedbackText, /Fix one feedback note/);
+  assert.match(studentFeedbackText, /Fix one action note/);
+  assert.doesNotMatch(studentFeedbackText, /Read the note and fix one thing|Fix the feedback that asks for action/, "student feedback landing should use short student task copy");
 
   const studentFinalLanding = await renderWorkspaceWithFetch(profileRoutesForRole("student"), "studentFinalChecklist");
   assert.match(studentFinalLanding, /data-v2-primary-surface="student-final-checklist"[\s\S]*data-student-screen="final-checklist"/);
@@ -7398,6 +7402,7 @@ test("workspace exposes a real admin site switcher and collapsible navigation", 
   assert.match(workspaceCss, /\.workspace-v5-flow-board\s*\{[\s\S]*grid-template-columns:\s*minmax\(15rem,\s*0\.72fr\) minmax\(0,\s*1\.55fr\);/);
   assert.match(workspaceCss, /@media \(max-width: 900px\)[\s\S]*\.workspace-v5-flow-board\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
   assert.match(workspaceCss, /@media \(max-width: 900px\)[\s\S]*\.workspace-v2-hero h1\s*\{[\s\S]*font-size:\s*2\.22rem;/, "tablet V2 hero should keep role work visible above the fold");
+  assert.match(workspaceCss, /@media \(min-width: 901px\) and \(max-height: 820px\)[\s\S]*\.workspace-app\[data-primary-role="student"\] \.workspace-v2-hero h1\s*\{[\s\S]*max-width:\s*22ch;/, "Chromebook-height student browser should let short task headings use desktop width");
   assert.match(workspaceCss, /@media \(min-width: 901px\) and \(max-height: 820px\)[\s\S]*\.workspace-app\[data-primary-role="student"\] \.workspace-v2-hero h1\s*\{[\s\S]*font-size:\s*3\.35rem;/, "Chromebook-height student browser should tighten the hero before the first work card");
   assert.match(workspaceCss, /@media \(min-width: 901px\) and \(max-height: 820px\)[\s\S]*\.workspace-app\[data-primary-role="student"\] \.workspace-v2-primary-surface\s*\{[\s\S]*padding:\s*0\.78rem 0;/, "Chromebook-height student browser should move route content closer to the first viewport");
   assert.match(workspaceCss, /@media \(min-width: 901px\) and \(max-height: 700px\)[\s\S]*\.workspace-app\[data-primary-role="student"\] \.workspace-v2-hero h1\s*\{[\s\S]*font-size:\s*2\.82rem;/, "short Chromebook browser should keep more student task content in the first viewport");
