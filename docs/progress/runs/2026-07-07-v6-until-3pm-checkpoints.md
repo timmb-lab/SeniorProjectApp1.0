@@ -27,6 +27,7 @@
 - `2026-07-07 07:47:04 -07:00`: Completed V6 implementation slice 05, report export boundary hardening. Added visible per-export boundary notes for staff, viewer, and admin CSV downloads and replaced one "authorized view" report helper with "current allowed view" language.
 - `2026-07-07 07:57:25 -07:00`: Completed V6 implementation slice 06 after visual proof review. V6 screenshots showed Program Teacher and Viewer phone still put the shared Staff Workspace header ahead of the role-specific plan. Reordered staff Today rendering so Program Teacher, Viewer, and staff-admin plans lead before the shared Staff Workspace header; mentors keep the existing header-first layout because they do not have a dedicated role plan block.
 - `2026-07-07 08:05:59 -07:00`: Refreshed V6 browser proof after slice 06. Result: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`, `78` screenshots, `32` mobile screenshots, `0` failures, fake-data-only, real-student status still `NOT_CLAIMED_READY`. Visually rechecked Program Teacher, Viewer, and Administration phone screenshots and confirmed the role-specific plan now appears before the shared Staff Workspace header.
+- `2026-07-07 08:09:34 -07:00`: Completed V6 implementation slice 07, Admin Console primary-surface ordering. Marked real Admin Console sections as primary surfaces so overview, people, students, assignments, programs, imports, reports, and audit content render before shared V3/V5 guidance. This directly addresses the mobile Admin Reports screenshot where shared guidance appeared before report choices.
 
 ## Slice 01 - Mobile First-Viewport Hierarchy
 
@@ -176,4 +177,33 @@
 - Completed: `2026-07-07T15:05:17.912Z`
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES
+
+## Slice 07 - Admin Console Primary Surfaces
+
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+  - `docs/progress/runs/2026-07-07-v6-until-3pm-checkpoints.md`
+- User-facing surfaces affected:
+  - Admin Overview
+  - Admin People
+  - Admin Students
+  - Admin Assignments
+  - Admin Programs
+  - Admin Imports
+  - Admin Reports
+  - Admin Audit
+- Behavior changed:
+  - Real Admin Console section content now renders in the V2 primary surface before shared start-state/flow guidance.
+  - Admin Reports and Admin Overview have explicit order assertions to prevent the shared explainer from returning ahead of page content.
+- RBAC/data impact: no role, permission, API, route, mutation, or data-access logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --test tests\workspace-app.test.mjs`: PASS, `115` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
 - Real work continues before 3PM: YES

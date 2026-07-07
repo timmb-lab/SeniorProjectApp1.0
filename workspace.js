@@ -1167,6 +1167,9 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     && !isAdminConsole
     && roles.has("program_teacher")
     && ["overview", "teacher", "programDashboard"].includes(activeSection);
+  const adminConsolePrimarySection = !renderBlockedSectionOnly
+    && isAdminConsole
+    && ["overview", "adminPeople", "adminStudents", "adminAssignments", "programs", "adminImports", "adminReports", "audit"].includes(activeSection);
   const viewerPrimarySection = !renderBlockedSectionOnly
     && !isAdminConsole
     && roles.has("viewer")
@@ -1177,6 +1180,8 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     && ["overview", "students", "teacher", "staffReports"].includes(activeSection);
   const primarySectionKind = !renderBlockedSectionOnly && studentExperience && activeSection === "student"
     ? "student"
+    : adminConsolePrimarySection
+      ? `admin-${activeSection}`
     : !renderBlockedSectionOnly && roles.has("mentor") && activeSection === "mentorDashboard"
       ? "mentor"
       : viewerPrimarySection

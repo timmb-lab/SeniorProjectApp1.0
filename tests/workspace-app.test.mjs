@@ -742,6 +742,8 @@ test("workspace separates Admin Console mode by role and URL state", async () =>
     assert.match(markup, /data-v5-flow-board="admin-first-setup-blocker-flow"/, `${row.roleId} admin V5 setup flow`);
     assert.match(visibleText(markup), /Guided setup flow[\s\S]*Issue, fix, confirmation/, `${row.roleId} admin V5 setup cues`);
     assert.doesNotMatch(markup, /data-role-command-strip="true"/, `${row.roleId} no role command strip`);
+    assert.match(markup, /data-v2-primary-surface="admin-overview"[\s\S]*data-admin-console-overview="true"/, `${row.roleId} admin overview primary surface`);
+    assertMarkupOrder(markup, 'data-v2-primary-surface="admin-overview"', 'data-v3-start-state="true"', `${row.roleId} Admin Overview content should lead before shared guidance`);
     assert.match(markup, /data-admin-console-overview="true"/, `${row.roleId} overview`);
     assert.match(markup, /data-admin-console-setup-list="true"/, `${row.roleId} setup list`);
     assert.match(markup, /Needs Setup/, `${row.roleId} setup heading`);
@@ -7518,6 +7520,8 @@ test("admin console surfaces setup reasons across overview people students and r
 
   vm.runInContext('activeSection = "adminReports"; renderAppShell();', context);
   const reports = workspaceRoot.innerHTML;
+  assert.match(reports, /data-v2-primary-surface="admin-adminReports"[\s\S]*data-admin-reports="true"/);
+  assertMarkupOrder(reports, 'data-v2-primary-surface="admin-adminReports"', 'data-v3-start-state="true"', "Admin Reports content should lead before shared guidance");
   assert.match(reports, /data-admin-page-header="true" data-admin-page-section="adminReports"/);
   assert.match(reports, /data-admin-report-choice-flow="true"[\s\S]*Pick the report you need now/);
   assertMarkupOrder(
