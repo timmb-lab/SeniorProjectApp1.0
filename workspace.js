@@ -5348,7 +5348,7 @@ function screenVisibilityNotesFor(sectionId = "overview", primaryRole = primaryR
     ],
     audit: [
       ["Global admin only", "Audit details are limited to global admins and authorized security review staff.", "staff"],
-      ["Redacted events", "Events hide private student, work, account, and file details until a source screen is opened with allowed access.", "redacted"],
+      ["Redacted events", "Events hide private student, work, account, and file details until a source area is opened with allowed access.", "redacted"],
       ["Follow-up elsewhere", "Use the source screen for fixes; the log itself is for review and triage.", "context"],
     ],
     archiveExports: [
@@ -5970,7 +5970,7 @@ function renderMentorTodayPlan(model = {}) {
         <span class="workspace-summary-badge">${escapeHtml(total)} assigned students</span>
       </div>
       ${renderTodayPrimaryStep(cards, sections, {
-        label: "Assigned-student route",
+        label: "Assigned-student path",
         dataAttrs: 'data-mentor-primary-step="true"',
       })}
       <div class="workspace-mentor-today-plan-grid">
@@ -6018,7 +6018,7 @@ function renderStaffAdminTodayPlan(model = {}) {
     },
     {
       id: "review-work",
-      title: "Route review work",
+      title: "Review work",
       value: reviewCount,
       detail: "Open Review Work only when this role can see review work for the selected school.",
       section: "teacher",
@@ -6056,7 +6056,7 @@ function renderStaffAdminTodayPlan(model = {}) {
         <span class="workspace-summary-badge">${escapeHtml(total)} visible students</span>
       </div>
       ${renderTodayPrimaryStep(cards, sections, {
-        label: "Student support route",
+        label: "Student support path",
         dataAttrs: 'data-staff-admin-primary-step="true"',
       })}
       <div class="workspace-staff-admin-plan-grid">
@@ -6100,7 +6100,7 @@ function renderTodayPrimaryStep(cards = [], sections = availableSectionIdsForAny
   return `
     <article class="workspace-today-primary-step ${escapeHtml(card.tone || "quiet")}" ${options.dataAttrs || ""} data-today-primary-step="${escapeHtml(card.id || "primary")}">
       <div>
-        <span>${escapeHtml(options.label || "First route")}</span>
+        <span>${escapeHtml(options.label || "First path")}</span>
         <strong>${escapeHtml(card.title || "Open the next item")}</strong>
         <p>${escapeHtml(card.detail || "")}</p>
       </div>
@@ -6185,7 +6185,7 @@ function renderViewerReadOnlyTodayPlan(model = {}) {
         <span class="workspace-chip" data-workspace-mode="read-only">Read-only</span>
       </div>
       ${renderTodayPrimaryStep(cards, sections, {
-        label: "Read-only route",
+        label: "Read-only path",
         dataAttrs: 'data-viewer-readonly-primary-step="true"',
         unavailableLabel: "No edit action",
       })}
@@ -6274,7 +6274,7 @@ function renderProgramTeacherTodayPlan(model = {}) {
         <span class="workspace-summary-badge">${escapeHtml(safeNumber(model.counts?.total))} visible students</span>
       </div>
       ${renderTodayPrimaryStep(cards, sections, {
-        label: "Review route",
+        label: "Review path",
         dataAttrs: 'data-program-teacher-primary-step="true"',
       })}
       <div class="workspace-program-teacher-plan-grid">
@@ -6865,7 +6865,7 @@ function renderStaffReportQuestionRow(question = {}, index = 0) {
       <div>
         <span>${escapeHtml(question.kicker || "Report question")}</span>
         <strong>${escapeHtml(question.title || "Choose one report question")}</strong>
-        <p>${escapeHtml(question.detail || "Use this summary to decide the next route.")}</p>
+        <p>${escapeHtml(question.detail || "Use this summary to decide the next step.")}</p>
         <small>${escapeHtml(question.valueLabel || "No value available")}</small>
       </div>
       <div class="workspace-admin-report-choice-actions">
@@ -8329,7 +8329,7 @@ function renderSiteDashboardActionMap(dashboard = {}, readOnly = false) {
       tone: reviewTotal ? "review" : "ready",
       owner: "Program Teacher",
       count: reviewTotal ? `${reviewTotal} review` : "Clear",
-      title: reviewTotal ? "Route review work" : "No review work waiting",
+      title: reviewTotal ? "Review work" : "No review work waiting",
       detail: reviewTotal
         ? `${submitted} submitted and ${revisions} revision ${pluralize(revisions, "record")} need Program Teacher attention.`
         : "No submitted or revision-requested count is waiting in the school summary.",
@@ -12490,7 +12490,7 @@ function operationsRankedActionNextStep(action = {}) {
   if (preset === "outline_pending") return "Confirm the outline decision before presentation readiness is marked complete.";
   if (preset === "presentation_pending" || preset === "presentation_attention") return "Confirm schedule, outline, and check-in state in the presentation workflow.";
   if (preset === "stale_activity") return "Open student detail and verify whether the student, mentor, or Program Teacher should take the next step.";
-  return "Open the filtered operations rows and route each issue to the right helper.";
+  return "Open the filtered operations rows and send each issue to the right helper.";
 }
 
 function operationsPresetButton(preset, label = "Review work") {
@@ -13041,7 +13041,7 @@ function renderAdminAuditStartFlow(events = [], activeFilters = {}) {
         <div>
           <p class="workspace-kicker">Audit path</p>
           <h2 id="adminAuditStartTitle">Pick one redacted check</h2>
-          <p>Audit is for triage. Open one pattern, confirm the source screen, then decide whether access or setup needs follow-up.</p>
+          <p>Audit is for triage. Open one pattern, confirm the source area, then decide whether access or setup needs follow-up.</p>
         </div>
         <span class="workspace-chip">Redacted events only</span>
       </div>
@@ -13263,7 +13263,7 @@ function renderAdminAuditActionMap(events = [], activeFilters = {}) {
         <div>
           <p class="workspace-kicker">Audit quick filters</p>
           <h2>Choose one audit filter</h2>
-          <p>Pick the pattern, open the matching redacted filter, then fix the issue in the source screen.</p>
+          <p>Pick the pattern, open the matching redacted filter, then fix the issue in the source area.</p>
         </div>
         <span class="workspace-chip">${escapeHtml(adminAuditFilterLabel(activeFilters))}</span>
       </div>
@@ -13290,7 +13290,7 @@ function renderAdminAuditActionMapCard(card = {}, activeFilters = {}) {
           <b>${escapeHtml(card.count || "0")}</b>
         </div>
         <strong>${escapeHtml(card.title || "Review activity")}</strong>
-        <p>${escapeHtml(card.detail || "Use the matching redacted filter before investigating the source screen.")}</p>
+        <p>${escapeHtml(card.detail || "Use the matching redacted filter before investigating the source area.")}</p>
         ${card.source ? `<small>${escapeHtml(card.source)}</small>` : ""}
       </div>
       ${renderAdminAuditActionMapButton(card, isActive)}
@@ -19740,7 +19740,7 @@ function renderSiteReadinessActionMap(operationsBody = {}, dashboard = {}, admin
       tone: "review",
       owner: "Program Teachers",
       count: "Review",
-      title: "Route review work",
+      title: "Review work",
       detail: "Submitted and revision decisions still belong in Review Work, not this report.",
       source: "Review Work",
       section: "teacher",

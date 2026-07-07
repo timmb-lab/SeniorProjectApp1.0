@@ -1276,7 +1276,7 @@ test("workspace uses Phase 6.6 Figma cleanup patterns in real render paths", () 
     "Audit filters narrow logged activity without changing the records.",
     "Files and links you add are visible to you and staff who are allowed to review or support that work.",
     "Temporary setup passwords are sensitive handoffs and should only be shared through the school-approved process.",
-    "Events hide private student, work, account, and file details until a source screen is opened with allowed access.",
+    "Events hide private student, work, account, and file details until a source area is opened with allowed access.",
     "Have the exact file or link ready before adding it or turning in work.",
     "Review work and history before saving a Program Teacher decision.",
     "Have the setup handoff and admin note ready before creating or importing accounts.",
@@ -1524,7 +1524,7 @@ test("workspace renders route-connected site dashboard with Figma product-system
   assert.match(siteDashboard, /Current school: Desert Valley High School/);
   assert.match(siteDashboard, /data-site-action-map-card="setup"[\s\S]*School team[\s\S]*1 setup[\s\S]*Fix the first setup gap[\s\S]*Start with mentor coverage/);
   assert.match(siteDashboard, /data-site-action-map-card="mentor"[\s\S]*Site staff[\s\S]*17 missing[\s\S]*Assign mentor coverage[\s\S]*data-section="mentorAssignments" data-section-preset="no-mentor"[\s\S]*Open coverage/);
-  assert.match(siteDashboard, /data-site-action-map-card="review"[\s\S]*Program Teacher[\s\S]*84 review[\s\S]*Route review work[\s\S]*data-section="teacher" data-section-preset="revision-requested"[\s\S]*Open revisions/);
+  assert.match(siteDashboard, /data-site-action-map-card="review"[\s\S]*Program Teacher[\s\S]*84 review[\s\S]*Review work[\s\S]*data-section="teacher" data-section-preset="revision-requested"[\s\S]*Open revisions/);
   assert.match(siteDashboard, /data-site-action-map-card="proof"[\s\S]*Student and teacher[\s\S]*1 need help[\s\S]*Check students needing help[\s\S]*data-section="students" data-section-preset="high-risk-students"[\s\S]*Open high priority/);
   assert.match(siteDashboard, /data-site-action-map-card="operations"[\s\S]*Site staff[\s\S]*15 ops[\s\S]*Finish operations follow-up[\s\S]*data-section="operations" data-section-preset="archive-failed"[\s\S]*Open failures/);
   assert.match(siteDashboard, /data-site-action-map-card="all-clear"[\s\S]*School team[\s\S]*101 items[\s\S]*Return here after the first issue/);
@@ -1728,7 +1728,7 @@ test("workspace explains who can see screen information", async () => {
   assert.match(audit, /data-visibility-note="global-admin-only" data-visibility-note-state="staff"/);
   assert.match(audit, /Audit details are limited to global admins and authorized security review staff\./);
   assert.match(audit, /data-visibility-note="redacted-events" data-visibility-note-state="redacted"/);
-  assert.match(audit, /Events hide private student, work, account, and file details until a source screen is opened with allowed access\./);
+  assert.match(audit, /Events hide private student, work, account, and file details until a source area is opened with allowed access\./);
 });
 
 test("workspace explains what users need before starting a screen", async () => {
