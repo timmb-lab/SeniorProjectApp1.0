@@ -7049,7 +7049,8 @@ test("mentor dashboard assigned students open detail and meeting history without
     notes: "Reviewed the updated proof plan and next presentation step.",
   });
   assert.ok(fetchRequests.some((entry) => entry.url === "/api/mentor/meetings" && entry.method === "POST"));
-  assert.match(workspaceRoot.innerHTML, /Mentor meeting recorded/);
+  assert.match(workspaceRoot.innerHTML, /Mentor meeting saved as held/);
+  assert.match(workspaceRoot.innerHTML, /Student detail refreshed; use the note for the next check-in/);
   assert.match(workspaceRoot.innerHTML, /Reviewed the updated proof plan and next presentation step/);
   assert.match(workspaceRoot.innerHTML, /2 meetings/);
 
@@ -7121,7 +7122,8 @@ test("workspace gates mentor assignment visibility and refresh behavior by role"
   assert.match(workspaceJs, /function submitMentorAssignment/);
   assert.match(workspaceJs, /\/api\/site\/mentor-assignments/);
   assert.match(workspaceJs, /function refreshConnectedSurfacesAfterMentorAssignment/);
-  assert.match(workspaceJs, /loadMentorAssignmentsResult\("Mentor assignment saved\."\)/);
+  assert.match(workspaceJs, /loadMentorAssignmentsResult\(mentorAssignmentSuccessMessage\(\)\)/);
+  assert.match(workspaceJs, /Coverage list refreshed; confirm the student row now shows the active mentor/);
   assert.match(workspaceJs, /\/api\/site\/dashboard\$\{query\}/);
   assert.match(workspaceJs, /\/api\/site\/students\$\{siteStudentQueryString\(\)\}/);
   assert.match(workspaceJs, /\/api\/site\/students\/\$\{encodeURIComponent\(studentId\)\}/);

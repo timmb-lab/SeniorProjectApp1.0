@@ -22976,10 +22976,14 @@ async function submitMentorAssignment(event) {
       return;
     }
     await refreshConnectedSurfacesAfterMentorAssignment(studentId, siteId);
-    await loadMentorAssignmentsResult("Mentor assignment saved.");
+    await loadMentorAssignmentsResult(mentorAssignmentSuccessMessage());
   } finally {
     busy = false;
   }
+}
+
+function mentorAssignmentSuccessMessage() {
+  return "Mentor assignment saved. Coverage list refreshed; confirm the student row now shows the active mentor.";
 }
 
 async function submitMentorMeeting(event) {
@@ -23015,10 +23019,21 @@ async function submitMentorMeeting(event) {
       ...siteStudentDetailState,
       activeTab: "work",
     };
-    renderAppShell("Mentor meeting recorded.", "success");
+    renderAppShell(mentorMeetingSuccessMessage(status), "success");
   } finally {
     busy = false;
   }
+}
+
+function mentorMeetingSuccessMessage(status = "") {
+  const normalized = normalizeStatus(status);
+  if (normalized === "missed") {
+    return "Mentor meeting saved as missed. Student detail refreshed; schedule the make-up plan next.";
+  }
+  if (normalized === "makeup_required") {
+    return "Make-up required saved. Student detail refreshed; confirm the new check-in plan with the student.";
+  }
+  return "Mentor meeting saved as held. Student detail refreshed; use the note for the next check-in.";
 }
 
 async function loadMentorAssignmentsResult(message = "") {
