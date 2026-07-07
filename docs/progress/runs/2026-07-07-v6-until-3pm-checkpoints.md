@@ -578,3 +578,52 @@
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES
+
+## Slice 16 - Make Viewer Reports Lead With Reports
+
+- Implementation commit: `58b8493` (`Make viewer reports lead with reports`)
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+  - `scripts/prove-workspace-ui-polish.mjs`
+- User-facing surfaces affected:
+  - Viewer Reports desktop route
+  - Viewer Students desktop and mobile routes
+  - Viewer read-only V2 primary frame
+- Behavior changed:
+  - Viewer Reports now starts with `Read-only report`, `Answer one report question`, `Open report`, and `Report-safe fields` instead of the broader `Check one student or report` / `Open students` frame.
+  - Viewer Students now starts with `Open one assigned student`, making the assigned-student route more explicit without changing read-only controls.
+  - Proof expectations now verify the viewer report path and the viewer assigned-student path separately.
+- RBAC/data impact: no permission, report data, export data, student data, Viewer read-only, or mutation logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --check scripts\prove-workspace-ui-polish.mjs`: PASS
+  - `node --test --test-name-pattern "workspace report exports stay scoped|workspace reports render accessible" tests\workspace-app.test.mjs`: PASS, `2` pass, `0` fail
+  - `node --test tests\workspace-app.test.mjs`: PASS, `116` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Real work continues before 3PM: YES
+
+## Browser Proof Refresh 09
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `78`
+- Mobile screenshots: `32`
+- Failures: `0`
+- Started: `2026-07-07T17:30:14.953Z`
+- Completed: `2026-07-07T17:37:43.196Z`
+- Technical-language scan:
+  - Screenshot text samples containing `DEMO_SEED` or `seed`: `0`
+- Visual spot checks:
+  - `74-viewer-reports-desktop.png`: Viewer Reports now leads with `Answer one report question`, `Open report`, and `Report-safe fields`.
+  - `39-viewer-students-directory.png`: Viewer Students now leads with `Open one assigned student` before the read-only student list.
+  - `46-mobile-viewer-students.png`: mobile Viewer Students keeps the assigned-student frame and read-only boundary.
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES

@@ -1,6 +1,6 @@
 # V6 Until-3PM Screenshot Index
 
-Status: current V6 local fake-account browser proof captured after implementation slices 01-15.
+Status: current V6 local fake-account browser proof captured after implementation slices 01-16.
 
 Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
 
@@ -15,8 +15,8 @@ Counts:
 - Total screenshots captured: 78
 - Mobile screenshots captured: 32
 - Browser-proof failures: 0
-- Started: `2026-07-07T17:17:34.773Z`
-- Completed: `2026-07-07T17:25:01.377Z`
+- Started: `2026-07-07T17:30:14.953Z`
+- Completed: `2026-07-07T17:37:43.196Z`
 - Fake data only: `true`
 - Real-student production status: `NOT_CLAIMED_READY`
 
@@ -28,6 +28,7 @@ Counts:
 - Student route primary content: `24-student-my-work-desktop`, `43-student-my-work-phone`, `53-student-my-work-half-screen`, `25-student-feedback-desktop`, `54-student-feedback-phone`, `22-student-final-files-state`, `55-student-final-checklist-phone`.
 - Student detail record-first framing: `13-site-admin-student-detail-click`, `14-viewer-read-only-detail-click`, `23-student-detail-phone`, `28-student-detail-evidence`, `31-mobile-student-detail`, `41-student-detail-timeline`, `45-mobile-student-detail-evidence`.
 - Hidden Admin student search and empty-state recovery: `16-view-as-student-exited-return`, `21-empty-student-search`.
+- Viewer read-only report and assigned-student framing: `39-viewer-students-directory`, `46-mobile-viewer-students`, `74-viewer-reports-desktop`.
 - Demo seed marker cleanup: `13-site-admin-student-detail-click`, `23-student-detail-phone`, `39-viewer-students-directory`, `46-mobile-viewer-students`, `61-site-admin-students-workspace`, `64-administration-students-workspace`, `66-global-admin-students-workspace`; manifest text samples containing `DEMO_SEED` or `seed`: `0`.
 - Named admin overflow actions: `17-people-access-landing`, `18-admin-students`, `33-admin-assignments`, `35-admin-reports`, `68-mobile-admin-people`, `69-admin-students-half-screen`, `70-mobile-admin-assignments`.
 - CSV import outcome-first flow: `19-csv-import-template`, `38-mobile-admin-imports`, `76-csv-import-preview-errors`, `77-mobile-csv-import-preview-errors`, `78-csv-import-access-error`.
