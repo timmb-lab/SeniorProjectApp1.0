@@ -12417,8 +12417,8 @@ button.workspace-metric-tile,
 
   .workspace-v2-stage {
     width: min(100% - 1.1rem, 48rem);
-    gap: 0.9rem;
-    padding-top: 0.9rem;
+    gap: 0.78rem;
+    padding-top: 0.74rem;
   }
 
   .workspace-v2-switcher {
@@ -12445,19 +12445,19 @@ button.workspace-metric-tile,
   }
 
   .workspace-v2-hero {
-    gap: 0.58rem;
-    padding: 0.35rem 0 0.82rem;
+    gap: 0.46rem;
+    padding: 0.22rem 0 0.68rem;
   }
 
   .workspace-v2-hero h1 {
     max-width: 16ch;
-    font-size: 2.55rem;
+    font-size: 2.22rem;
     line-height: 1;
   }
 
   .workspace-v2-hero p:not(.workspace-v2-kicker) {
-    font-size: 1rem;
-    line-height: 1.38;
+    font-size: 0.96rem;
+    line-height: 1.34;
   }
 
   .workspace-v2-primary {
@@ -12512,6 +12512,27 @@ button.workspace-metric-tile,
 
   .workspace-v5-flow-lane:last-child {
     border-bottom: 0;
+  }
+
+  .workspace-command-hero {
+    gap: 0.62rem;
+    padding: 0.72rem;
+  }
+
+  .workspace-command-hero h1 {
+    font-size: 1.45rem;
+    line-height: 1.12;
+  }
+
+  .workspace-command-hero p {
+    margin-top: 0.22rem;
+    font-size: 0.92rem;
+    line-height: 1.34;
+  }
+
+  .workspace-command-hero small {
+    margin-top: 0.22rem;
+    font-size: 0.76rem;
   }
 
   .workspace-v2-path {
@@ -12829,13 +12850,13 @@ button.workspace-metric-tile,
 
   .workspace-v2-stage {
     width: min(100% - 0.9rem, 48rem);
-    gap: 0.72rem;
-    padding-top: 0.62rem;
+    gap: 0.58rem;
+    padding-top: 0.46rem;
   }
 
   .workspace-v2-hero {
-    gap: 0.48rem;
-    padding: 0.22rem 0 0.72rem;
+    gap: 0.34rem;
+    padding: 0.08rem 0 0.48rem;
   }
 
   .workspace-v2-kicker {
@@ -12844,13 +12865,13 @@ button.workspace-metric-tile,
 
   .workspace-v2-hero h1 {
     max-width: 17ch;
-    font-size: 2.18rem;
-    line-height: 1.02;
+    font-size: 1.86rem;
+    line-height: 1.05;
   }
 
   .workspace-v2-hero p:not(.workspace-v2-kicker) {
-    font-size: 0.94rem;
-    line-height: 1.34;
+    font-size: 0.88rem;
+    line-height: 1.3;
   }
 
   .workspace-v2-primary-row {
@@ -12861,6 +12882,21 @@ button.workspace-metric-tile,
   .workspace-v2-primary {
     min-height: 40px;
     padding-inline: 0.78rem;
+  }
+
+  .workspace-command-hero {
+    gap: 0.5rem;
+    padding: 0.62rem;
+  }
+
+  .workspace-command-hero h1 {
+    font-size: 1.26rem;
+    line-height: 1.14;
+  }
+
+  .workspace-command-hero p {
+    font-size: 0.88rem;
+    line-height: 1.3;
   }
 
   .workspace-mode-button {

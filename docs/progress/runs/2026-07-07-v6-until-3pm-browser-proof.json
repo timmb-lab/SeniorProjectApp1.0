@@ -1,0 +1,10 @@
+{
+  "proof": "v6_until_3pm_local_browser",
+  "verdict": "PENDING",
+  "status": "placeholder_created_at_startup",
+  "fakeDataOnly": true,
+  "realStudentProductionStatus": "NOT_CLAIMED_READY",
+  "claimBoundary": "Pending V6 browser proof. This file must not be treated as a pass until screenshots are refreshed after implementation.",
+  "screenshots": [],
+  "failures": []
+}

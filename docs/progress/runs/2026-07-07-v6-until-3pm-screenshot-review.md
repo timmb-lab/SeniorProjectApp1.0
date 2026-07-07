@@ -1,0 +1,54 @@
+# 2026-07-07 V6 Until-3PM Screenshot Review
+
+Status: in progress.
+
+Source artifacts:
+
+- V5 final proof: `docs/progress/runs/2026-07-07-6h-v5-real-gui-overhaul-final-proof.md`
+- V5 screenshot index: `docs/sales/v5-real-gui-overhaul-screenshot-index.md`
+- V5 browser manifest: `docs/progress/runs/2026-07-07-v5-real-gui-overhaul-browser-proof.json`
+- V5 screenshot folder: `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/`
+
+## Review Method
+
+- Read V5 proof and screenshot inventory.
+- Inspect representative desktop, mobile, and half-screen images across Student, Mentor, Program Teacher, Viewer, Admin/Site Admin, Reports, and mobile flows.
+- Convert findings into safe V6 implementation targets.
+- Do not treat this review as completion; it must feed real implementation.
+
+## Initial Opportunities To Validate Visually
+
+1. Student Today: confirm next action is dominant enough on phone and half-screen.
+2. Student My Work: verify work cards do not bury upload/continue action.
+3. Student Feedback: verify revision/feedback path is first, not history metadata.
+4. Student Final Checklist: verify final-file guidance does not feel like admin closeout.
+5. Student admin-blocked state: verify recovery action is plain and obvious.
+6. Mentor Today: verify assigned-student priority is visible without roster overload.
+7. Mentor Dashboard: verify metrics lead to real filters and do not read like static stats.
+8. Mentor assigned-student desktop: verify first student action is above details.
+9. Mentor assigned-student phone: verify primary button stack is reachable.
+10. Program Teacher Today: verify review-next action is visible above program summary.
+11. Program Teacher Review Work: verify decision hierarchy is clear.
+12. Program Teacher missing-proof state: verify approval lock reads as guidance, not failure.
+13. Program Dashboard phone: verify review cues fit without crowding.
+14. Viewer Today: verify read-only status feels intentional.
+15. Viewer Students directory: verify owner/next-action guidance is visible.
+16. Viewer Reports: verify summary-only paths do not look like disabled tools.
+17. Site Admin Overview: verify first setup issue is distinguishable from supporting counts.
+18. Admin People: verify staff/student/import choices are not too many equal buttons.
+19. Admin Students: verify setup flags are explained before rows.
+20. Admin Assignments: verify mentor/viewer/program lanes read as a guided flow.
+21. Admin Programs: verify add/remove context avoids control-panel feel.
+22. Admin Imports: verify template, preview, and fix flow is clear on phone.
+23. Admin Reports: verify report questions and chart text equivalents are readable on phone.
+24. Admin Audit: verify audit is support/review, not a primary daily workflow.
+25. Mobile drawer/switcher: verify the header does not push role-specific work too far down.
+26. Half-screen Admin Students: verify rows/actions do not overflow or crowd.
+27. Reports across roles: verify exported CSV boundaries remain obvious and non-technical.
+28. Technical language sweep: verify primary UI does not expose API, payload, mutation, database, debug, fake, seed, or token language.
+29. Dead UI cleanup: verify old left-rail/card-wall/control-panel remnants are not active.
+30. Demo path: verify there is a concise route-backed demo sequence across Student, Mentor, Program Teacher, Viewer, Admin, and Reports.
+
+## Selected V6 Targets
+
+Pending visual inspection.
