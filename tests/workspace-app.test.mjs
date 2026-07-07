@@ -539,6 +539,7 @@ test("workspace normalizes stale student instruction copy to teacher language", 
 });
 
 test("workspace defaults to workflow landings instead of role profiles", async () => {
+  const legacyWorkflowMetaCopy = /screens now begin|route-backed task|Secondary context stays closed|Teachers move from queue|without starting from metrics or system status|Viewer screens are read-only and start|This view keeps the next action first|decode the app|Mentor work starts with the assigned student list|Admin Console starts/i;
   const student = await renderWorkspaceWithFetch(profileRoutesForRole("student"));
   const studentText = visibleText(student);
   assert.match(student, /data-experience="student"/);
@@ -563,6 +564,8 @@ test("workspace defaults to workflow landings instead of role profiles", async (
   assert.match(studentText, /Student next-step flow/);
   assert.match(studentText, /Your next capstone move/);
   assert.match(student, /data-v5-flow-target="studentWork"[\s\S]*Open My Work/);
+  assert.match(studentText, /Start with the next action, then use feedback or checklist only when it applies/);
+  assert.doesNotMatch(studentText, legacyWorkflowMetaCopy, "student landing should avoid meta app-design copy");
 
   const studentWorkLanding = await renderWorkspaceWithFetch(profileRoutesForRole("student"), "studentWork");
   assert.match(studentWorkLanding, /data-v2-primary-surface="student-work"[\s\S]*data-student-screen="work"/);
@@ -635,6 +638,7 @@ test("workspace defaults to workflow landings instead of role profiles", async (
     assert.match(markup, new RegExp(`data-v5-flow-board="${escapeRegExp(flow)}"`), `${roleId} V5 flow board`);
     assert.match(text, flowText, `${roleId} V5 flow text`);
     assert.match(text, workflowText, `${roleId} workflow question`);
+    assert.doesNotMatch(text, legacyWorkflowMetaCopy, `${roleId} avoids meta app-design copy`);
     assert.doesNotMatch(text, /Staff Workspace ready\./, `${roleId} suppresses default ready banner`);
     assert.doesNotMatch(text, /working profile|Role context|Demo boundary|What this role can manage or monitor/, `${roleId} no role-proof landing`);
     for (const label of expectedLabels) {
@@ -643,6 +647,8 @@ test("workspace defaults to workflow landings instead of role profiles", async (
   }
 
   const mentorLanding = await renderWorkspaceWithFetch(profileRoutesForRole("mentor"));
+  assert.match(visibleText(mentorLanding), /Start with the assigned-student list, then open one detail view and record one follow-up/);
+  assert.match(visibleText(mentorLanding), /Pick one assigned student, then use meetings, presentation details, or reports only when that student needs it/);
   assert.match(visibleText(mentorLanding), /Mentor view shows assigned students only/);
   assert.doesNotMatch(visibleText(mentorLanding), /Mentor view is scoped/);
   assert.match(mentorLanding, /data-v2-primary-surface="mentor"[\s\S]*data-staff-workspace-today="true"/);
@@ -656,6 +662,7 @@ test("workspace defaults to workflow landings instead of role profiles", async (
   assert.doesNotMatch(mentorLanding, /data-review-decision="approved"|data-mentor-assignment-form="true"|data-admin-action="import-users"/);
 
   const teacherLanding = await renderWorkspaceWithFetch(profileRoutesForRole("program_teacher"));
+  assert.match(visibleText(teacherLanding), /Start with the next submitted item, review the student(?:'|&#039;)s work, then save a decision/);
   assert.match(teacherLanding, /data-v2-primary-surface="program-teacher"[\s\S]*data-staff-workspace-today="true"/);
   assertMarkupOrder(teacherLanding, 'data-v2-primary-surface="program-teacher"', 'data-v3-start-state="true"', "program teacher landing should show real review work before shared shell guidance");
   assert.match(teacherLanding, /data-program-teacher-today-plan="true"/);
@@ -667,6 +674,7 @@ test("workspace defaults to workflow landings instead of role profiles", async (
   assert.match(teacherLanding, /data-program-teacher-plan-card="missing-work"[\s\S]*data-section="students" data-section-preset="missing-evidence-students"/);
 
   const viewerLanding = await renderWorkspaceWithFetch(profileRoutesForRole("viewer"));
+  assert.match(visibleText(viewerLanding), /Use read-only views to review students and reports without showing edit controls/);
   assert.match(viewerLanding, /data-v2-primary-surface="viewer"[\s\S]*data-staff-workspace-today="true"/);
   assertMarkupOrder(viewerLanding, 'data-v2-primary-surface="viewer"', 'data-v3-start-state="true"', "viewer landing should show the real read-only queue before shared shell guidance");
   assert.match(viewerLanding, /data-viewer-readonly-plan="true"/);
@@ -678,6 +686,7 @@ test("workspace defaults to workflow landings instead of role profiles", async (
   assert.doesNotMatch(viewerLanding, /data-review-decision="approved"|data-mentor-assignment-form="true"|data-admin-action="import-users"/);
 
   const siteAdminLanding = await renderWorkspaceWithFetch(profileRoutesForRole("site_admin"));
+  assert.match(visibleText(siteAdminLanding), /Start with one student group, one student record, or one report question before opening supporting details/);
   assert.match(siteAdminLanding, /data-v2-primary-surface="staff-admin"[\s\S]*data-staff-workspace-today="true"/);
   assertMarkupOrder(siteAdminLanding, 'data-v2-primary-surface="staff-admin"', 'data-v3-start-state="true"', "site admin landing should show the real staff worklist before shared shell guidance");
   assert.match(siteAdminLanding, /data-staff-admin-today-plan="true"/);
@@ -763,6 +772,8 @@ test("workspace separates Admin Console mode by role and URL state", async () =>
     assert.match(markup, /data-workspace-mode-target="admin"[\s\S]*Admin Console/, `${row.roleId} admin switch`);
     assert.match(markup, /data-v3-start-state="true"/, `${row.roleId} admin V3 start state`);
     assert.match(visibleText(markup), /Start here[\s\S]*Right now[\s\S]*Finish by/, `${row.roleId} admin V3 cues`);
+    assert.match(visibleText(markup), /Start with the next setup issue, then open the exact fix and confirm it cleared/, `${row.roleId} admin plain-language setup guidance`);
+    assert.doesNotMatch(visibleText(markup), /Admin Console starts|route-backed task|screens now begin|Secondary context stays closed/i, `${row.roleId} admin avoids meta app-design copy`);
     assert.match(markup, /data-v5-flow-board="admin-first-setup-blocker-flow"/, `${row.roleId} admin V5 setup flow`);
     assert.match(visibleText(markup), /Guided setup flow[\s\S]*Issue, fix, confirmation/, `${row.roleId} admin V5 setup cues`);
     assert.doesNotMatch(markup, /data-role-command-strip="true"/, `${row.roleId} no role command strip`);

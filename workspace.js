@@ -1671,7 +1671,7 @@ function v2StudentScreenModel(sectionId = activeSection) {
         ? "Start with feedback that asks for action, then return to the matching work item."
         : isFinal
           ? "Use this only when the required work and evidence are ready."
-          : "This view keeps the next action first so you do not have to decode the app.",
+          : "Start with the next action, then use feedback or checklist only when it applies.",
     primaryAction: isWork ? v2SupportButton("Open current item") : isFeedback ? v2SupportButton("Open feedback") : isFinal ? v2SupportButton("Open final checklist") : v2SectionButton("Open My Work", "studentWork"),
     primaryHint: isWork ? "One item at a time" : isFeedback ? "Action notes first" : isFinal ? "Final readiness only" : "Starts the next required step",
     pathLabel: "Student capstone path",
@@ -1679,7 +1679,7 @@ function v2StudentScreenModel(sectionId = activeSection) {
     startState: {
       job: isWork ? "student-current-work" : isFeedback ? "student-feedback" : isFinal ? "student-final-checklist" : "student-next-step",
       action: isWork ? "Open the current item." : isFeedback ? "Open feedback that asks for action." : isFinal ? "Check final readiness." : "Open My Work first.",
-      reason: "The page keeps staff language and older details away from the first move.",
+      reason: "My Work stays first, with staff language and older details out of the way.",
       now: isWork
         ? "Work on the requirement named at the top of the details."
         : isFeedback
@@ -1730,7 +1730,7 @@ function v2MentorScreenModel(sectionId = activeSection) {
     id: `mentor-${sectionId}`,
     kicker: "Mentor flow",
     title: sectionId === "mentor" ? "Work with one assigned student" : "Choose the student who needs you next",
-    detail: "Mentor work starts with the assigned student list, then moves into one detail view and one follow-up action.",
+    detail: "Start with the assigned-student list, then open one detail view and record one follow-up.",
     primaryAction: sectionId === "mentor" ? v2SupportButton("Open student detail") : v2SectionButton("Open assigned students", "mentor"),
     primaryHint: "Assigned students only",
     pathLabel: "Mentor support path",
@@ -1783,7 +1783,7 @@ function v2TeacherScreenModel(sectionId = activeSection) {
     id: `teacher-${sectionId}`,
     kicker: "Teacher review",
     title: sectionId === "teacher" ? "Review one student submission" : "Pick the review that needs attention",
-    detail: "Teachers move from queue to student work to decision, without starting from metrics or system status.",
+    detail: "Start with the next submitted item, review the student's work, then save a decision.",
     primaryAction: sectionId === "teacher" ? v2SupportButton("Open selected work") : v2SectionButton("Open review queue", "teacher"),
     primaryHint: "Review queue first",
     pathLabel: "Teacher decision path",
@@ -1791,7 +1791,7 @@ function v2TeacherScreenModel(sectionId = activeSection) {
     startState: {
       job: sectionId === "teacher" ? "teacher-review-decision" : "teacher-review-start",
       action: sectionId === "teacher" ? "Open selected work." : "Open the review queue.",
-      reason: "Program Teacher work starts with review decisions before summaries.",
+      reason: "Review decisions come before summaries.",
       now: "Choose one submitted item and decide what the student needs next.",
       empty: "Nothing is waiting for review. Look for stuck students before opening reports.",
       confirm: "Stop when the student has an approval, a revision request, or a clear next step.",
@@ -1800,7 +1800,7 @@ function v2TeacherScreenModel(sectionId = activeSection) {
       id: sectionId === "teacher" ? "teacher-review-decision-flow" : "teacher-review-flow",
       label: "Program Teacher review flow",
       title: "Review queue before reports",
-      detail: "The Program Teacher path keeps the first move on student work that needs a decision.",
+      detail: "Keep the first move on student work that needs a decision.",
       lanes: [
         {
           label: "Open",
@@ -1839,8 +1839,8 @@ function v2ViewerScreenModel(sectionId = activeSection) {
     kicker: isReports ? "Read-only report" : "Read-only view",
     title: isReports ? "Answer one report question" : isStudents ? "Open one assigned student" : "Check one student or report",
     detail: isReports
-      ? "Viewer reports stay read-only and scoped to students this account can load."
-      : "Viewer screens are read-only and start with what can be reviewed, not editing controls.",
+      ? "Viewer reports stay read-only and scoped to assigned students."
+      : "Use read-only views to review students and reports without showing edit controls.",
     primaryAction: isStudents ? v2SupportButton("Open student list") : isReports ? v2SupportButton("Open report") : v2SectionButton("Open students", "students"),
     primaryHint: isReports ? "Report-safe fields" : "No edit actions",
     pathLabel: isReports ? "Viewer report path" : "Viewer path",
@@ -1898,7 +1898,7 @@ function v2StaffScreenModel(sectionId = activeSection, primaryRole = "staff") {
     id: `staff-${sectionId}`,
     kicker: roleName,
     title: isStudents ? "Open one student record" : isReports ? "Check one report question" : "Start with the worklist",
-    detail: "Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful.",
+    detail: "Start with one student group, one student record, or one report question before opening supporting details.",
     primaryAction: isStudents ? v2SupportButton("Open student list") : isReports ? v2SupportButton("Open report") : v2SectionButton("Open students", "students"),
     primaryHint: "One focused screen",
     pathLabel: "Staff work path",
@@ -1983,7 +1983,7 @@ function v2AdminScreenModel(sectionId = activeSection, sections = []) {
   const configs = {
     overview: {
       title: "Fix the first setup blocker",
-      detail: "Admin Console starts with the next setup issue, then moves to the exact fix and confirmation.",
+      detail: "Start with the next setup issue, then open the exact fix and confirm it cleared.",
       action: availableSectionIdsForAnyMode().has("adminAssignments") ? v2SectionButton("Open first fix", "adminAssignments") : v2SupportButton("Open setup tools"),
       hint: "Issue to fix to confirmation",
       steps: v2PathSteps("Find first blocker", "Open the matching fix", "Confirm it disappeared"),
@@ -5965,7 +5965,7 @@ function renderMentorTodayPlan(model = {}) {
         <div>
           <p class="workspace-kicker">Mentor plan</p>
           <h3 id="mentorTodayPlanTitle">Choose one assigned student first</h3>
-          <p>Mentor work starts with assigned students, then moves to meeting follow-up, presentation context, or reports only when that student needs it.</p>
+          <p>Pick one assigned student, then use meetings, presentation details, or reports only when that student needs it.</p>
         </div>
         <span class="workspace-summary-badge">${escapeHtml(total)} assigned students</span>
       </div>
