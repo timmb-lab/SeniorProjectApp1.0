@@ -2044,7 +2044,8 @@ function renderWorkspaceModeSwitch(capabilities = adminConsoleCapabilitiesFor(cu
   `;
 }
 
-function renderWorkspaceNavigation(sections = [], options = {}) {
+function renderWorkspaceNavigation(sections, options = {}) {
+  sections = Array.isArray(sections) ? sections : [];
   const isAdminConsole = Boolean(options.isAdminConsole);
   const visibleSections = sections.filter((section) => !section.hidden);
   let lastGroup = "";
