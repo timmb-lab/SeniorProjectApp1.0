@@ -66,6 +66,22 @@
 - Remaining risks: screenshot-count gate is still not met; this is local fake-account proof only, not hosted or real-student pilot proof.
 - Next focus: Phase 6 Staff/Admin overview and setup surfaces.
 
+## Staff/Admin Checkpoint
+
+- Checkpoint local time: `2026-07-06 21:43:55 -07:00`
+- Elapsed minutes so far: about 81
+- Screens changed since the Viewer checkpoint: Site Admin Today, Administration Today, Global Admin Today, staff Students, staff Reviews, staff Reports, and related detail/mobile staff screenshots.
+- Role-specific work completed: Phase 6 Staff/Admin workspace routes now promote Today, Students, Reviews, and Reports as real primary surfaces; Site Admin, Administration, and Global Admin Today include a daily-support plan separating student support, review work, setup/access, and reports.
+- What users see differently: staff administrators see the daily support plan in the first viewport and setup/access is framed as a follow-up path, not the first daily action.
+- What users do next more clearly: open one student group, route review work when available, fix setup/access after the daily support need is clear, or use reports for a specific question.
+- Mobile checked: refreshed staff mobile screenshots remain stacked without overlap; inherited shared headers remain large and should be tightened in a later phase.
+- Accessibility checked: the staff/admin plan is labeled, card-based, and uses route-backed buttons or safe summary badges where the role cannot open a route; full accessibility sweep still pending.
+- Screenshots captured: 47 total screenshots, including 13 mobile screenshots, refreshed in `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/`.
+- Tests run: `node --check workspace.js`; `node --test tests\workspace-app.test.mjs` (115 pass, 0 fail); `node scripts\prove-workspace-ui-polish.mjs` with V5 output env vars (47 pass, 0 fail); `git diff --check` (passed; line-ending warnings only).
+- Commit SHA(s): `6157a7c708267283855f6fb679f61a84c121c90f`, `5df6d1f83ad4e90b8710f6b7f547f4fea08c1f96`
+- Remaining risks: screenshot-count gate is still not met; this is local fake-account proof only, not hosted or real-student pilot proof.
+- Next focus: Phase 7 evidence expansion and shared mobile/header tightening.
+
 ## Working Log
 
 - `2026-07-06 20:22:33 -07:00`: start recorded after verifying `main`, clean status, and `origin/main` alignment.
@@ -76,3 +92,4 @@
 - `2026-07-06 21:14:12 -07:00`: Phase 3 Mentor work committed through `082c11c14e73762a4cde1c3f6ea5b96e07f9aacf`; workspace tests pass at 115/115 and V5 browser proof is refreshed green with the Mentor Dashboard primary surface.
 - `2026-07-06 21:24:24 -07:00`: Phase 4 Program Teacher work committed through `e44507f02f0a9ecbcdbcab565ff396660cf956d1`; workspace tests pass at 115/115 and V5 browser proof is refreshed green with Program Teacher Today and Review Work screenshots.
 - `2026-07-06 21:34:24 -07:00`: Phase 5 Viewer work committed through `b091346835e02a58d57b9160e20a19a891e85c98`; workspace tests pass at 115/115 and V5 browser proof is refreshed green with Viewer desktop, detail, directory, and mobile screenshots.
+- `2026-07-06 21:43:55 -07:00`: Phase 6 Staff/Admin work committed through `5df6d1f83ad4e90b8710f6b7f547f4fea08c1f96`; workspace tests pass at 115/115 and V5 browser proof is refreshed green with staff/admin workspace, report, detail, and mobile screenshots.
