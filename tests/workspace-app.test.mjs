@@ -10856,6 +10856,9 @@ test("People CSV import screens provide templates and row-level preview validati
   assert.match(workspaceRoot.innerHTML, /data-csv-preview="students" data-csv-preview-state="ready"/);
   assert.match(workspaceRoot.innerHTML, /data-csv-preview-next-action="students" data-csv-preview-next-state="confirm"[\s\S]*Confirm this import[\s\S]*1 new student row/);
   assert.match(workspaceRoot.innerHTML, /data-csv-preview-next-action="students"[\s\S]*Coverage preview[\s\S]*1 mentor and 1 viewer assignment previewed/);
+  assertMarkupOrder(workspaceRoot.innerHTML, 'data-csv-import-readiness="students"', 'data-csv-preview-next-action="students"', "CSV outcome should appear immediately after readiness");
+  assertMarkupOrder(workspaceRoot.innerHTML, 'data-csv-preview-next-action="students"', 'data-csv-import-form="true"', "CSV outcome should appear before the long import form");
+  assertMarkupOrder(workspaceRoot.innerHTML, 'data-csv-import-form="true"', 'data-csv-preview="students"', "CSV detailed preview should remain after the editable form");
   assert.match(workspaceRoot.innerHTML, /Rows detected[\s\S]*1/);
   assert.match(workspaceRoot.innerHTML, /Valid rows[\s\S]*1/);
   assert.match(workspaceRoot.innerHTML, /Rows with errors[\s\S]*0/);
@@ -10881,6 +10884,7 @@ test("People CSV import screens provide templates and row-level preview validati
   `, context);
   assert.match(workspaceRoot.innerHTML, /data-csv-preview="students" data-csv-preview-state="errors"/);
   assert.match(workspaceRoot.innerHTML, /data-csv-preview-next-action="students" data-csv-preview-next-state="fix-errors"[\s\S]*Fix this row first[\s\S]*Student users cannot be assigned as mentors/);
+  assertMarkupOrder(workspaceRoot.innerHTML, 'data-csv-preview-next-action="students"', 'data-csv-import-form="true"', "CSV error cue should appear before the long import form");
   assert.match(workspaceRoot.innerHTML, /Student users cannot be assigned as mentors/);
   assert.match(workspaceRoot.innerHTML, /Mentor email must already exist in the current roster before automatic assignment/);
 

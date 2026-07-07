@@ -23,6 +23,7 @@
 - `2026-07-07 07:39:00 -07:00`: Completed V6 implementation slice 01, mobile first-viewport hierarchy hardening. Tightened V2 tablet/phone stage spacing, hero spacing, hero title size, support copy line height, and command/admin/report hero density so role-specific work appears earlier on phones and half-width screens. Added regression assertions for the new V2 hero and command-hero breakpoints.
 - `2026-07-07 07:42:04 -07:00`: Completed V6 implementation slice 02, role Today primary-route hardening. Added a compact primary-step row ahead of the Program Teacher, Viewer, and staff-admin Today plan grids so the first live route/action is not competing with equal secondary cards. Viewer remains read-only and only receives monitoring routes.
 - `2026-07-07 07:43:44 -07:00`: Completed V6 implementation slice 03, mentor shell language hardening. Replaced one visible "scoped" mentor shell sentence with plain assigned-student boundary language and added a regression assertion to keep that wording from returning.
+- `2026-07-07 07:45:21 -07:00`: Completed V6 implementation slice 04, CSV import outcome-first flow. Moved the latest preview outcome above the long import form after a preview exists, so admins see "fix this row first" or "confirm this import" before scrolling through file/text/note inputs. Detailed preview rows and error lists remain below the editable form.
 
 ## Slice 01 - Mobile First-Viewport Hierarchy
 
@@ -77,5 +78,32 @@
   - `node --check workspace.js`: PASS
   - `node --test tests\workspace-app.test.mjs`: PASS, `115` pass, `0` fail
   - `npm run verify:functionality-language`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Real work continues before 3PM: YES
+
+## Slice 04 - CSV Import Outcome First
+
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+  - `docs/progress/runs/2026-07-07-v6-until-3pm-checkpoints.md`
+- User-facing surfaces affected:
+  - People > Import Students
+  - People > Import Staff
+  - Admin Imports routed import views
+- Behavior changed:
+  - Waiting state still shows template, readiness, form, and empty preview guidance.
+  - After a preview exists, the next outcome row now appears immediately after readiness and before the long form.
+  - Error state surfaces the first row to fix before the editable form.
+  - Ready state surfaces confirm guidance before the editable form.
+  - Detailed counts and row-level error lists still render after the form.
+- RBAC/data impact: no permission, API, validation, or import-confirm mutation logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --test tests\workspace-app.test.mjs`: PASS, `115` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
   - `git diff --check`: PASS with line-ending warnings only
 - Real work continues before 3PM: YES

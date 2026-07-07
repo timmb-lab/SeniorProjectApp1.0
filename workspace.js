@@ -20616,6 +20616,7 @@ function renderCsvImportScreen(kind = "students", options = {}) {
       ${renderCsvImportStepper(safeKind)}
       ${renderCsvTemplateDocumentation(safeKind)}
       ${renderCsvImportReadinessPanel(safeKind, state)}
+      ${state.previewed ? renderCsvPreviewNextAction(safeKind, state, state.summary || defaultAdminCsvSummary()) : ""}
       <form class="workspace-form workspace-csv-import-form" data-csv-import-form="true" data-csv-import-kind="${escapeHtml(safeKind)}">
         <div class="workspace-form-section">
           <p class="workspace-kicker">1. Upload CSV</p>
@@ -20760,7 +20761,6 @@ function renderCsvImportPreview(kind = "students", state = defaultAdminCsvImport
         ${kind === "students" ? renderCsvSummaryMetric("Mentor assignments", summary.mentorAssignmentsCreated) : ""}
         ${kind === "students" ? renderCsvSummaryMetric("Viewer assignments", summary.viewerAssignmentsCreated) : ""}
       </div>
-      ${renderCsvPreviewNextAction(kind, state, summary)}
       ${state.errors.length ? `
         <article class="workspace-empty-state-card" data-csv-import-error-guide="true">
           <strong>CSV preview found rows to fix.</strong>
