@@ -2926,8 +2926,8 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
     } : null,
     staffScopeGaps ? {
       id: "staff-scope",
-      title: "Staff scope needs confirmation",
-      detail: `${staffScopeGaps} staff ${pluralize(staffScopeGaps, "row")} need role, email, or assignment scope review.`,
+      title: "Staff access needs confirmation",
+      detail: `${staffScopeGaps} staff ${pluralize(staffScopeGaps, "row")} need role, email, or assignment access review.`,
       count: staffScopeGaps,
       tone: "warning",
       section: capabilities.sectionIds.has("adminPeople") ? "adminPeople" : "adminAssignments",
@@ -2989,7 +2989,7 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
     { id: "mentor-coverage", label: "Mentor Coverage", value: percentLabel(mentorCoveragePercent), detail: `${mentorAssignments.length} active mentor assignments`, tone: missingMentors ? "warning" : "ready" },
     { id: "viewer-coverage", label: "Viewer Coverage", value: percentLabel(viewerCoveragePercent), detail: `${viewerAssignments.length} active viewer assignments`, tone: missingViewers ? "warning" : "ready" },
     { id: "roster-complete", label: "Roster Completeness", value: percentLabel(rosterCompletenessPercent), detail: `${rosterIncomplete} profile ${pluralize(rosterIncomplete, "gap")}`, tone: rosterIncomplete ? "warning" : "ready" },
-    { id: "staff-scope", label: "Staff Scope", value: staffScopeGaps, detail: "Staff role, email, or assignment gaps", tone: staffScopeGaps ? "warning" : "ready" },
+    { id: "staff-scope", label: "Staff Access", value: staffScopeGaps, detail: "Staff role, email, or assignment gaps", tone: staffScopeGaps ? "warning" : "ready" },
     { id: "setup-issues", label: "Setup Issues", value: setupIssues.length, detail: "Prioritized issues above", tone: setupIssues.length ? "warning" : "ready" },
   ];
   const recentRows = [
@@ -3204,11 +3204,11 @@ function adminSetupReadinessRows({
     },
     {
       id: "staff",
-      label: "Staff role and scope",
+      label: "Staff role and access",
       count: staffSetupRows.length,
       detail: staffSetupRows.length
-        ? "Staff rows need an email, role, or scoped assignment before handoff."
-        : `${staffRows.length} staff rows have role and assignment scope visible here.`,
+        ? "Staff rows need an email, role, or assignment coverage before handoff."
+        : `${staffRows.length} staff rows have role and assignment coverage visible here.`,
       sample: staffSetupRows.slice(0, 2).map(adminSetupSampleText),
       section: "adminPeople",
       action: "Open people",
@@ -6866,13 +6866,13 @@ function renderAdminReportChoiceAction(spec = {}, primary = false) {
 
 function renderAdminReportScopeNotice(report = {}, capabilities = adminConsoleCapabilitiesFor(currentUser)) {
   const rows = [
-    ["Current scope", capabilities.scope?.label || "Allowed records", capabilities.scope?.detail || "Only records this account can already load."],
+    ["Current access", capabilities.scope?.label || "Allowed records", capabilities.scope?.detail || "Only records this account can already load."],
     ["Student denominator", safeNumber(report.studentTotal || report.loadedStudentRows), `${safeNumber(report.loadedStudentRows)} loaded roster row${safeNumber(report.loadedStudentRows) === 1 ? "" : "s"} in this view.`],
     ["Export safety", "Report-safe", "Downloads omit passwords, admin notes, internal storage ids, and rows outside the current authorized view."],
     ["Unknowns", "Not complete", "Unknown or unloaded states are not counted as complete in coverage percentages."],
   ];
   return `
-    <section class="workspace-admin-report-scope" data-admin-report-scope-notice="true" aria-label="Report scope and export safety">
+    <section class="workspace-admin-report-scope" data-admin-report-scope-notice="true" aria-label="Report access and export safety">
       ${rows.map(([label, value, detail]) => `
         <article>
           <span>${escapeHtml(label)}</span>

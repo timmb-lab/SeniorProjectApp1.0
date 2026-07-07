@@ -15,9 +15,9 @@ Counts:
 - Total screenshots captured: 78
 - Mobile screenshots captured: 32
 - Browser-proof failures: 0
-- V5 complete-run screenshot gate: met for screenshot count; runtime, hosted/live, accessibility, and real-student gates remain pending.
-- Started: `2026-07-07T07:02:50.024Z`
-- Completed: `2026-07-07T07:10:28.991Z`
+- V5 complete-run screenshot gate: met for screenshot count; runtime, hosted/live, final aggregate proof, push/origin alignment, and real-student gates remain pending.
+- Started: `2026-07-07T07:16:23.512Z`
+- Completed: `2026-07-07T07:24:24.325Z`
 
 ## Inventory
 

@@ -7434,7 +7434,7 @@ test("admin console surfaces setup reasons across overview people students and r
   assert.match(overview, /data-admin-setup-readiness="true"/);
   assert.match(overview, /Student program missing/);
   assert.match(overview, /Roster profile incomplete/);
-  assert.match(overview, /Staff scope needs confirmation/);
+  assert.match(overview, /Staff access needs confirmation/);
   assert.match(overview, /CSV preview needs fixes/);
   assert.match(overview, /data-admin-setup-readiness-row="students"[\s\S]*Student roster setup[\s\S]*1 profile, 1 program, 17 mentor, 1 viewer gaps/);
   assert.match(overview, /No Year Student: Missing cohort\/year, No mentor, No viewer/);
@@ -7512,7 +7512,7 @@ test("admin console surfaces setup reasons across overview people students and r
   );
   assert.match(reports, /data-admin-action-menu="adminReports"[\s\S]*Review roster summary[\s\S]*Review setup issues/);
   assert.doesNotMatch(reports, /data-admin-action-menu="adminReports"[\s\S]*View audit/);
-  assert.match(reports, /data-admin-report-scope-notice="true"[\s\S]*Current scope[\s\S]*Student denominator[\s\S]*Export safety[\s\S]*Unknowns/);
+  assert.match(reports, /data-admin-report-scope-notice="true"[\s\S]*Current access[\s\S]*Student denominator[\s\S]*Export safety[\s\S]*Unknowns/);
   assert.match(reports, /data-report-confidence-note="admin"[\s\S]*unknown states are not counted as complete/);
   assert.match(reports, /Downloads omit passwords, admin notes, internal storage ids, and rows outside the current authorized view/);
   assert.match(reports, /data-admin-setup-readiness="true"/);
