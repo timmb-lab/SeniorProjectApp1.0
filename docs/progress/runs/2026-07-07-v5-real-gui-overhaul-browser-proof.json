@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:50895",
+  "baseUrl": "http://127.0.0.1:51304",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-07T04:19:02.484Z",
-  "completedAt": "2026-07-07T04:23:33.895Z",
+  "startedAt": "2026-07-07T04:28:45.626Z",
+  "completedAt": "2026-07-07T04:33:21.168Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:50895",
+    "baseUrl": "http://127.0.0.1:51304",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul",
@@ -451,7 +451,7 @@
         "finalFiles": false
       },
       "heading": "Check one student or report",
-      "textSample": "Skip to workspace SC Capstone Staff Workspace Today Tools Viewer READ-ONLY VV Valeria Viewer viewer.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reports READ-ONLY VIEW Check one student or report Viewer screens are read-only and start with what can be reviewed, not editing controls. Open students No edit actions START HERE Open assigned students. Viewer screens show status and context without change controls. RIGHT NOW Review one assigned student or report. IF EMPTY Nothing has been added yet for this view. FINISH BY Stop when you know what to share with the Program Teacher or site team. VIEWER REVIEW FLOW Read-only review path Viewer work stays useful without exposing ed",
+      "textSample": "Skip to workspace SC Capstone Staff Workspace Today Tools Viewer READ-ONLY VV Valeria Viewer viewer.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reports READ-ONLY VIEW Check one student or report Viewer screens are read-only and start with what can be reviewed, not editing controls. Open students No edit actions STAFF WORKSPACE Viewer Workspace / Read-only Start with one group, then open one student. Open Student VIEWER PLAN Read one record, then share outside the app Viewer work stays useful by narrowing to assigned students and keeping every action read-only. Read-only 3 Open one assigned student Read the student's current status, files, feedback, presentation, and fina",
       "activeNav": [
         "1\n        1. Today\n        Students needing attention",
         "1\n        Today"
@@ -1098,7 +1098,7 @@
         "finalFiles": false
       },
       "heading": "Check one student or report",
-      "textSample": "Skip to workspace SC Capstone Staff Workspace Students Tools Viewer READ-ONLY VV Valeria Viewer viewer.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reports Student detail loaded. READ-ONLY VIEW Check one student or report Viewer screens are read-only and start with what can be reviewed, not editing controls. Open student list No edit actions START HERE Open the student list. Viewer screens show status and context without change controls. RIGHT NOW Review one assigned student or report. IF EMPTY Nothing has been added yet for this view. FINISH BY Stop when you know what to share with the Program Teacher or site team. VIEWER REVIEW FLOW Read-only review path Viewer work sta",
+      "textSample": "Skip to workspace SC Capstone Staff Workspace Students Tools Viewer READ-ONLY VV Valeria Viewer viewer.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reports Student detail loaded. READ-ONLY VIEW Check one student or report Viewer screens are read-only and start with what can be reviewed, not editing controls. Open student list No edit actions STUDENT Model Excellent Demo 01 IT - DEMO_SEED Desert Valley High School Class of 2027 student001@demo-student.capstone.test Return to the filtered student list when you finish with this student. On track No urgent review item is open right now. View work More Student details START HERE What this student needs next Use this row for co",
       "activeNav": [
         "2\n        2. Students\n        Assigned read-only student records",
         "2\n        Students",
@@ -3150,7 +3150,7 @@
         "finalFiles": false
       },
       "heading": "Check one student or report",
-      "textSample": "Skip to workspace SC Capstone Staff Workspace Students Tools Viewer READ-ONLY VV Valeria Viewer viewer.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reports READ-ONLY VIEW Check one student or report Viewer screens are read-only and start with what can be reviewed, not editing controls. Open student list No edit actions START HERE Open the student list. Viewer screens show status and context without change controls. RIGHT NOW Review one assigned student or report. IF EMPTY Nothing has been added yet for this view. FINISH BY Stop when you know what to share with the Program Teacher or site team. VIEWER REVIEW FLOW Read-only review path Viewer work stays useful without expos",
+      "textSample": "Skip to workspace SC Capstone Staff Workspace Students Tools Viewer READ-ONLY VV Valeria Viewer viewer.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reports READ-ONLY VIEW Check one student or report Viewer screens are read-only and start with what can be reviewed, not editing controls. Open student list No edit actions STUDENTS Students Find a student by picking one group, then open one record to read context. Read-only Desert Valley High School Start Here Pick one group, then open the first student who needs attention. View all students Ready for final review 3 See students who are close to done. View students Model Excellent Demo 01 On track. IT / DEMO_SEED Desert Valle",
       "activeNav": [
         "2\n        2. Students\n        Assigned read-only student records",
         "2\n        Students"
@@ -3221,7 +3221,7 @@
         "finalFiles": false
       },
       "heading": "Check one student or report",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Viewer VV READ-ONLY VIEW Check one student or report Viewer screens are read-only and start with what can be reviewed, not editing controls. Open student list No edit actions START HERE Open the student list. Viewer screens show status and context without change controls. RIGHT NOW Review one assigned student or report. IF EMPTY Nothing has been added yet for this view. FINISH BY Stop when you know what to share with the Program Teacher or site team. VIEWER REVIEW FLOW Read-only review path Viewer work stays useful without exposing edit, setup, or admin controls. OPEN Choose one student Start with the assigned student list or the one report you were a",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Viewer VV READ-ONLY VIEW Check one student or report Viewer screens are read-only and start with what can be reviewed, not editing controls. Open student list No edit actions STUDENTS Students Find a student by picking one group, then open one record to read context. Read-only Desert Valley High School Start Here Pick one group, then open the first student who needs attention. View all students Ready for final review 3 See students who are close to done. View students Model Excellent Demo 01 On track. IT / DEMO_SEED Desert Valley High School Class of 2027 Last update May 18, 9:00 AM Mentor: Ari Field Who can help: assigned staff Next step: Use this ro",
       "activeNav": [
         "2\n        2. Students\n        Assigned read-only student records",
         "2\n        Students"
