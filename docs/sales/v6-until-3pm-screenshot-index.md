@@ -1,6 +1,6 @@
 # V6 Until-3PM Screenshot Index
 
-Status: current V6 local fake-account browser proof captured after implementation slices 01-25.
+Status: current V6 local fake-account browser proof captured after implementation slices 01-26.
 
 Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
 
@@ -15,8 +15,8 @@ Counts:
 - Total screenshots captured: 78
 - Mobile screenshots captured: 32
 - Browser-proof failures: 0
-- Started: `2026-07-07T19:28:15.660Z`
-- Completed: `2026-07-07T19:35:55.613Z`
+- Started: `2026-07-07T19:40:30.267Z`
+- Completed: `2026-07-07T19:48:13.299Z`
 - Fake data only: `true`
 - Real-student production status: `NOT_CLAIMED_READY`
 
@@ -43,6 +43,7 @@ Counts:
 - Admin setup visible/current-language cleanup: `17-people-access-landing`, `37-mobile-admin-overview`, `68-mobile-admin-people`, `71-mobile-admin-programs`, `73-mobile-global-admin-overview`; manifest text samples containing `loaded` or `unloaded`: `0`.
 - Admin Console primary-surface ordering: `01-admin-console-global-admin-desktop`, `32-admin-console-site-admin-overview`, `35-admin-reports`, `37-mobile-admin-overview`, `42-mobile-admin-reports`, `68-mobile-admin-people`, `70-mobile-admin-assignments`, `71-mobile-admin-programs`, `72-mobile-admin-audit`.
 - Role-header meta-copy cleanup: `02-workspace-site-admin-desktop`, `03-program-teacher-workspace`, `04-mentor-workspace`, `05-viewer-read-only-workspace`, `30-mobile-mentor-today`, `39-viewer-students-directory`, `48-site-admin-today-phone`, `49-program-teacher-today-phone`, `50-viewer-today-phone`, `63-site-admin-reports-phone`, `74-viewer-reports-desktop`; manifest text samples containing old screen-construction phrases: `0`.
+- Setup task/item wording cleanup: `01-admin-console-global-admin-desktop`, `09-admin-console-half-screen`, `24-student-my-work-desktop`, `35-admin-reports`, `42-mobile-admin-reports`, `43-student-my-work-phone`, `53-student-my-work-half-screen`, `73-mobile-global-admin-overview`; manifest text samples containing `Your work screen opens`, `One focused screen`, `Open the exact setup screen`, `setup screen`, `linked setup screen`, or `setup screens`: `0`.
 - RBAC/read-only guard coverage: `05-viewer-read-only-workspace`, `14-viewer-read-only-detail-click`, `20-student-admin-route-blocked`, `39-viewer-students-directory`, `46-mobile-viewer-students`.
 
 ## Full Inventory Source

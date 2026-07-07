@@ -1,6 +1,6 @@
 # 2026-07-07 V6 Until-3PM Screenshot Review
 
-Status: in progress; refreshed after slices 01-25.
+Status: in progress; refreshed after slices 01-26.
 
 Source artifacts:
 
@@ -203,3 +203,16 @@ Source artifacts:
 - Manifest scan: screenshot text samples containing `screens now begin`, `route-backed task`, or `Secondary context stays closed`: `0`.
 - Manifest scan: screenshot text samples containing `Teachers move from queue`, `without starting from metrics or system status`, or `Viewer screens are read-only and start`: `0`.
 - Manifest scan: screenshot text samples containing `This view keeps the next action first`, `decode the app`, `Mentor work starts with the assigned student list`, or `Admin Console starts`: `0`.
+
+## Refresh 19 Spot Checks
+
+- Selected target: visible setup and work guidance should use task/item/work wording rather than generic `screen` wording.
+- `01-admin-console-global-admin-desktop.png`, `09-admin-console-half-screen.png`, `32-admin-console-site-admin-overview.png`, and `73-mobile-global-admin-overview.png`: Admin Overview passed proof markers expecting `Open the exact setup item`.
+- `02-workspace-site-admin-desktop.png`, `10-workspace-half-screen.png`, `26-administration-workspace-today.png`, and `27-global-admin-workspace-today.png`: staff headers now say `One focused task`.
+- `24-student-my-work-desktop.png`, `43-student-my-work-phone.png`, and `53-student-my-work-half-screen.png`: Student My Work no longer says `Your work screen opens`.
+- `35-admin-reports.png` and `42-mobile-admin-reports.png`: report-choice helper now says `linked setup item`.
+- Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
+- Manifest scan: screenshot text samples containing `Your work screen opens`, `One focused screen`, or `Open the exact setup screen`: `0`.
+- Manifest scan: screenshot text samples containing `setup screen`, `linked setup screen`, or `setup screens`: `0`.
+- Manifest scan: screenshot text samples containing `One focused task`: `16`.
+- Manifest scan: screenshot text samples containing `After that setup item is fixed`: `3`.

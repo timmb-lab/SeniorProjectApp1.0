@@ -1108,3 +1108,63 @@
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES
+
+## Slice 26 - Use Task Wording For Setup Guidance
+
+- Implementation commit: `d4b219f` (`Use task wording for setup guidance`)
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+  - `scripts/prove-workspace-ui-polish.mjs`
+- User-facing surfaces affected:
+  - Student My Work desktop, phone, and half-screen
+  - Staff Workspace Today desktop, half-screen, and mobile
+  - Admin Console Overview desktop, half-screen, and mobile
+  - Admin setup list/details and report-choice helper copy
+  - Browser proof Admin Overview expected markers
+- Behavior changed:
+  - Replaced visible `screen` wording with `task`, `item`, or `work` wording where the UI was describing setup or role guidance.
+  - Admin Quick Actions proof now expects `Open the exact setup item`.
+  - Staff role headers now say `One focused task` instead of `One focused screen`.
+  - Student My Work now says `Work on one requirement at a time` instead of `Your work screen opens...`.
+- RBAC/data impact: no route, role, read-only boundary, admin action, report export, student, setup, or mutation logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --check scripts\prove-workspace-ui-polish.mjs`: PASS
+  - `node --test --test-name-pattern "workspace defaults to workflow landings|workspace separates Admin Console mode|admin console surfaces setup reasons|workspace reports render accessible" tests\workspace-app.test.mjs`: PASS, `4` pass, `0` fail
+  - `npm run verify:functionality-language`: PASS
+  - `node --test tests\workspace-app.test.mjs`: PASS, `116` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Real work continues before 3PM: YES
+
+## Browser Proof Refresh 19
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `78`
+- Mobile screenshots: `32`
+- Failures: `0`
+- Started: `2026-07-07T19:40:30.267Z`
+- Completed: `2026-07-07T19:48:13.299Z`
+- Technical-language scan:
+  - Screenshot text samples containing `DEMO_SEED` or `seed`: `0`
+  - Screenshot text samples containing `Your work screen opens`, `One focused screen`, or `Open the exact setup screen`: `0`
+  - Screenshot text samples containing `setup screen`, `linked setup screen`, or `setup screens`: `0`
+  - Screenshot text samples containing `One focused task`: `16`
+  - Screenshot text samples containing `After that setup item is fixed`: `3`
+- Proof marker update:
+  - `scripts/prove-workspace-ui-polish.mjs` now expects `Open the exact setup item` on Admin Overview screenshots.
+- Visual spot checks:
+  - `01-admin-console-global-admin-desktop.png`, `09-admin-console-half-screen.png`, `32-admin-console-site-admin-overview.png`, and `73-mobile-global-admin-overview.png`: Admin Overview passes with setup-item wording.
+  - `02-workspace-site-admin-desktop.png`, `10-workspace-half-screen.png`, `26-administration-workspace-today.png`, and `27-global-admin-workspace-today.png`: staff headers now say `One focused task`.
+  - `24-student-my-work-desktop.png`, `43-student-my-work-phone.png`, and `53-student-my-work-half-screen.png`: Student My Work now uses one-requirement wording without `work screen`.
+  - `35-admin-reports.png` and `42-mobile-admin-reports.png`: report-choice helper now says `linked setup item`.
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES
