@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:50691",
+  "baseUrl": "http://127.0.0.1:50895",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-07T04:08:59.640Z",
-  "completedAt": "2026-07-07T04:13:26.371Z",
+  "startedAt": "2026-07-07T04:19:02.484Z",
+  "completedAt": "2026-07-07T04:23:33.895Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:50691",
+    "baseUrl": "http://127.0.0.1:50895",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul",
@@ -236,7 +236,7 @@
         "finalFiles": false
       },
       "heading": "Pick the review that needs attention",
-      "textSample": "Skip to workspace SC Capstone Staff Workspace Today Tools Program Teacher ROLE GQ Gray Quinn teacher-it-01@demo-staff.capstone.test 1 Today 2 Students 3 Reviews 4 Reports TEACHER REVIEW Pick the review that needs attention Teachers move from queue to student work to decision, without starting from metrics or system status. Open review queue Review queue first START HERE Open the review queue. Program Teacher work starts with review decisions before summaries. RIGHT NOW Choose one submitted item and decide what the student needs next. IF EMPTY Nothing is waiting for review. Look for stuck students before opening reports. FINISH BY Stop when the student has an approval, a revision request, or ",
+      "textSample": "Skip to workspace SC Capstone Staff Workspace Today Tools Program Teacher ROLE GQ Gray Quinn teacher-it-01@demo-staff.capstone.test 1 Today 2 Students 3 Reviews 4 Reports TEACHER REVIEW Pick the review that needs attention Teachers move from queue to student work to decision, without starting from metrics or system status. Open review queue Review queue first STAFF WORKSPACE Program Teacher Workspace Start with one group, then open one student. Open Student PROGRAM TEACHER PLAN Review decisions before reports Start with student work that changes a next step, then use support lists only when the decision queue is clear. 71 visible students 25 Review decisions first Open submitted work and sav",
       "activeNav": [
         "Workspace",
         "1\n        1. Today\n        Students needing attention",
@@ -3294,7 +3294,7 @@
         "finalFiles": false
       },
       "heading": "Review one student submission",
-      "textSample": "Skip to workspace SC Capstone Staff Workspace Reviews Tools Program Teacher ROLE GQ Gray Quinn teacher-it-01@demo-staff.capstone.test 1 Today 2 Students 3 Reviews 4 Reports TEACHER REVIEW Review one student submission Teachers move from queue to student work to decision, without starting from metrics or system status. Open selected work Review queue first START HERE Open selected work. Program Teacher work starts with review decisions before summaries. RIGHT NOW Choose one submitted item and decide what the student needs next. IF EMPTY Nothing is waiting for review. Look for stuck students before opening reports. FINISH BY Stop when the student has an approval, a revision request, or a clear",
+      "textSample": "Skip to workspace SC Capstone Staff Workspace Reviews Tools Program Teacher ROLE GQ Gray Quinn teacher-it-01@demo-staff.capstone.test 1 Today 2 Students 3 Reviews 4 Reports TEACHER REVIEW Review one student submission Teachers move from queue to student work to decision, without starting from metrics or system status. Open selected work Review queue first TEACHER REVIEWS Review Work Work students sent in will appear here. Desert Valley High School 2026-2027 Can review work START HERE Choose the work to review first Pick one row from the list, then make one decision. WAITING FOR REVIEW 20 items Work students sent in. Review Show other review groups NEXT Select one work item Open one row from ",
       "activeNav": [
         "Workspace",
         "3\n        3. Reviews\n        Work waiting for review",
