@@ -627,3 +627,52 @@
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES
+
+## Slice 17 - Clarify Report Export Boundaries
+
+- Implementation commit: `404d2d8` (`Clarify report export boundaries`)
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+- User-facing surfaces affected:
+  - Staff Workspace Reports
+  - Viewer Reports
+  - Admin Console Reports
+  - Mobile report/export proof states
+- Behavior changed:
+  - Report export boundary copy now uses school-facing language: rows visible to this account or admin role, passwords, private notes, and file links.
+  - Older technical/internal phrases such as `current admin view`, `storage links`, and `no IDs` are guarded against in visible report text.
+  - CSV export contents and privacy exclusions remain unchanged; tests still verify internal IDs, storage, admin notes, temporary passwords, and demo IDs are not exported.
+- RBAC/data impact: no permission, report query, CSV row, export field, role scope, or mutation logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --test --test-name-pattern "admin console surfaces setup reasons|workspace report exports stay scoped|workspace reports render accessible" tests\workspace-app.test.mjs`: PASS, `3` pass, `0` fail
+  - `node --test tests\workspace-app.test.mjs`: PASS, `116` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Real work continues before 3PM: YES
+
+## Browser Proof Refresh 10
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `78`
+- Mobile screenshots: `32`
+- Failures: `0`
+- Started: `2026-07-07T17:42:41.032Z`
+- Completed: `2026-07-07T17:50:11.670Z`
+- Technical-language scan:
+  - Screenshot text samples containing `DEMO_SEED` or `seed`: `0`
+  - Screenshot text samples containing old report-boundary phrases `current admin view`, `storage links`, or `no IDs`: `0`
+- Visual spot checks:
+  - `42-mobile-admin-reports.png`: Admin mobile report export copy now says student setup fields are visible to this admin role.
+  - `63-site-admin-reports-phone.png`, `65-administration-reports-phone`, and `67-global-admin-reports-phone`: staff report copy stays route-backed while using friendlier export-boundary language.
+  - `74-viewer-reports-desktop.png`: Viewer Reports keeps the report-first read-only frame after the export-copy cleanup.
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES

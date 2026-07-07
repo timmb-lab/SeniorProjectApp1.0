@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:62929",
+  "baseUrl": "http://127.0.0.1:58524",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-07T17:30:14.953Z",
-  "completedAt": "2026-07-07T17:37:43.196Z",
+  "startedAt": "2026-07-07T17:42:41.032Z",
+  "completedAt": "2026-07-07T17:50:11.670Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:62929",
+    "baseUrl": "http://127.0.0.1:58524",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-07-07-v6-until-3pm",
@@ -3281,7 +3281,7 @@
         "finalFiles": false
       },
       "heading": "Answer one operations question",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS ADMIN FLOW Answer one operations question Reports are used after setup blockers are understood, not as the starting dashboard. Open report Question first REPORTS Choose one report Start with one report, then open setup work only when the numbers point to it. Report-safe fields View setup issues More report actions REPORT PATH Pick the report you need now Use roster completeness first. If a row needs work, move to setup issues or the linked setup screen. Percentages name their denominator, zero-row exports stay disabled, and unknown states are not counted as complete. START HERE Roster completeness Student setup fields from the current ad",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS ADMIN FLOW Answer one operations question Reports are used after setup blockers are understood, not as the starting dashboard. Open report Question first REPORTS Choose one report Start with one report, then open setup work only when the numbers point to it. Report-safe fields View setup issues More report actions REPORT PATH Pick the report you need now Use roster completeness first. If a row needs work, move to setup issues or the linked setup screen. Percentages name their denominator, zero-row exports stay disabled, and unknown states are not counted as complete. START HERE Roster completeness Student setup fields visible to this adm",
       "activeNav": [
         "Admin Console",
         "7\n        7. Reports\n        Roster and operational health",

@@ -1,6 +1,6 @@
 # 2026-07-07 V6 Until-3PM Screenshot Review
 
-Status: in progress; refreshed after slices 01-16.
+Status: in progress; refreshed after slices 01-17.
 
 Source artifacts:
 
@@ -63,6 +63,7 @@ Source artifacts:
 - Runtime program/cohort labels should not expose exact demo seed markers in primary UI.
 - Hidden Admin student-search routes should show the real student directory, including empty-search recovery, rather than generic setup fallback copy.
 - Viewer Reports should lead with report review, not a generic Viewer frame that sends the reader back to Students.
+- Report export boundary copy should stay privacy-preserving while avoiding internal phrases such as `current admin view`, `storage links`, and `no IDs`.
 
 ## Refresh 02 Spot Checks
 
@@ -114,3 +115,10 @@ Source artifacts:
 - `39-viewer-students-directory.png`: Viewer Students now starts with `Open one assigned student` before the read-only directory.
 - `46-mobile-viewer-students.png`: mobile Viewer Students keeps the assigned-student frame and read-only boundary.
 - Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
+
+## Refresh 10 Spot Checks
+
+- `42-mobile-admin-reports.png`: Admin mobile report copy now uses `visible to this admin role` instead of `current admin view`.
+- `63-site-admin-reports-phone.png`, `65-administration-reports-phone.png`, and `67-global-admin-reports-phone.png`: staff report states keep the same route-backed report flow with friendlier export-boundary wording.
+- Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
+- Manifest scan: screenshot text samples containing `current admin view`, `storage links`, or `no IDs`: `0`.
