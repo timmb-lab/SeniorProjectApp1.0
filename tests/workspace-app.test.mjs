@@ -590,6 +590,16 @@ test("workspace defaults to workflow landings instead of role profiles", async (
   assertMarkupOrder(studentFinalLanding, 'data-v2-primary-surface="student-final-checklist"', 'data-v3-start-state="true"', "student final checklist should show the real checklist before shared start guidance");
   assertMarkupOrder(studentFinalLanding, 'data-student-screen="final-checklist"', 'data-v3-start-state="true"', "student final checklist rows should lead before shared final explanation");
 
+  const studentPresentationLanding = await renderWorkspaceWithFetch(profileRoutesForRole("student"), "presentation");
+  assert.match(studentPresentationLanding, /data-v2-primary-surface="student-presentation"[\s\S]*data-presentation-schedule="true"/);
+  assert.match(visibleText(studentPresentationLanding), /Know your presentation plan/);
+  assertMarkupOrder(studentPresentationLanding, 'data-v2-primary-surface="student-presentation"', 'data-v3-start-state="true"', "student presentation should show the real presentation plan before shared start guidance");
+
+  const studentArchiveLanding = await renderWorkspaceWithFetch(profileRoutesForRole("student"), "archive");
+  assert.match(studentArchiveLanding, /data-v2-primary-surface="student-final-files"[\s\S]*workspace-archive-dashboard/);
+  assert.match(visibleText(studentArchiveLanding), /Save final files/);
+  assertMarkupOrder(studentArchiveLanding, 'data-v2-primary-surface="student-final-files"', 'data-v3-start-state="true"', "student final files should show readiness before shared start guidance");
+
   const staffCases = [
     {
       roleId: "mentor",

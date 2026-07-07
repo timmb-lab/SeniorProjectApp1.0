@@ -388,6 +388,7 @@ const WORKSPACE_SECTION_IDS = new Set([
 ]);
 const WORKSPACE_MODES = new Set(["workspace", "admin"]);
 const STUDENT_NAV_SECTION_IDS = new Set(["student", "studentWork", "studentFeedback", "studentFinalChecklist"]);
+const STUDENT_PRIMARY_SECTION_IDS = new Set([...STUDENT_NAV_SECTION_IDS, "presentation", "archive"]);
 const STAFF_WORKLIST_FIRST_SECTION_IDS = new Set([
   "students",
   "teacher",
@@ -1137,7 +1138,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     ? adminConsoleHeaderContext(consoleCapabilities)
     : workspaceHeaderContext(primaryRole, siteContext);
   const roleFirstOverview = !isAdminConsole && activeSection === "overview";
-  const studentFirstWorkspace = !isAdminConsole && studentExperience && STUDENT_NAV_SECTION_IDS.has(activeSection);
+  const studentFirstWorkspace = !isAdminConsole && studentExperience && STUDENT_PRIMARY_SECTION_IDS.has(activeSection);
   const staffWorklistFirst = !isAdminConsole && !studentExperience && STAFF_WORKLIST_FIRST_SECTION_IDS.has(activeSection);
   const activeSectionFirst = roleFirstOverview || studentFirstWorkspace || staffWorklistFirst;
   const modeUnavailableNotice = blockedWorkspaceMode === "admin" && !isAdminConsole
@@ -1184,7 +1185,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     && ["overview", "students", "teacher", "staffReports"].includes(activeSection);
   const studentPrimarySection = !renderBlockedSectionOnly
     && studentExperience
-    && STUDENT_NAV_SECTION_IDS.has(activeSection);
+    && STUDENT_PRIMARY_SECTION_IDS.has(activeSection);
   const detailSourceSection = cleanWorkspaceSection(siteStudentDetailState?.sourceSection || "");
   const siteStudentDetailPrimarySection = !renderBlockedSectionOnly
     && Boolean(siteStudentDetailState?.studentId)
@@ -1200,7 +1201,11 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
         ? "student-work"
         : activeSection === "studentFeedback"
           ? "student-feedback"
-          : "student-final-checklist"
+          : activeSection === "studentFinalChecklist"
+            ? "student-final-checklist"
+            : activeSection === "presentation"
+              ? "student-presentation"
+              : "student-final-files"
     : siteStudentDetailPrimarySection
       ? isAdminConsole ? "admin-student-detail" : "student-detail"
     : adminStudentSearchPrimarySection
@@ -1661,60 +1666,182 @@ function v2StudentScreenModel(sectionId = activeSection) {
   const isWork = sectionId === "studentWork";
   const isFeedback = sectionId === "studentFeedback";
   const isFinal = sectionId === "studentFinalChecklist";
+  const isPresentation = sectionId === "presentation";
+  const isArchive = sectionId === "archive";
+  const title = isWork
+    ? "Finish one item"
+    : isFeedback
+      ? "Fix one feedback note"
+      : isFinal
+        ? "Check the final package"
+        : isPresentation
+          ? "Know your presentation plan"
+          : isArchive
+            ? "Save final files"
+            : "What do I do next?";
+  const detail = isWork
+    ? "Work on one requirement at a time. Extra progress details stay closed."
+    : isFeedback
+      ? "Start with feedback that asks for action, then return to the matching work item."
+      : isFinal
+        ? "Use this only when the required work and evidence are ready."
+        : isPresentation
+          ? "Check your time, outline, and what to bring before presentation day."
+          : isArchive
+            ? "Check readiness and save downloads only when final files are ready."
+            : "Start with the next action, then use feedback or checklist only when it applies.";
+  const primaryAction = isWork
+    ? v2SupportButton("Open current item")
+    : isFeedback
+      ? v2SupportButton("Open feedback")
+      : isFinal
+        ? v2SupportButton("Open final checklist")
+        : isPresentation
+          ? v2SupportButton("Open presentation details")
+          : isArchive
+            ? v2SupportButton("Open final files details")
+            : v2SectionButton("Open My Work", "studentWork");
+  const primaryHint = isWork
+    ? "One item at a time"
+    : isFeedback
+      ? "Action notes first"
+      : isFinal
+        ? "Final readiness only"
+        : isPresentation
+          ? "Time and outline first"
+          : isArchive
+            ? "Download readiness only"
+            : "Starts the next required step";
+  const startAction = isWork
+    ? "Open the current item."
+    : isFeedback
+      ? "Open feedback that asks for action."
+      : isFinal
+        ? "Check final readiness."
+        : isPresentation
+          ? "Check presentation time and outline."
+          : isArchive
+            ? "Check final-file readiness."
+            : "Open My Work first.";
+  const startNow = isWork
+    ? "Work on the requirement named at the top of the details."
+    : isFeedback
+      ? "Read the teacher note, then fix one matching item."
+      : isFinal
+        ? "Confirm presentation and final-file readiness only after required work is done."
+        : isPresentation
+          ? "Confirm when, where, and what outline status still needs attention."
+          : isArchive
+            ? "Check whether downloads are ready, blocked, expired, or waiting for staff."
+            : "Start with one thing now, then use feedback or checklist only if needed.";
+  const startEmpty = isPresentation
+    ? "No presentation row yet? Keep My Work current and check back when staff posts the schedule."
+    : isArchive
+      ? "No download yet? Finish missing work or ask staff what is blocking final files."
+      : "Nothing needs your attention right now? Check feedback, then the final checklist.";
+  const startConfirm = isFinal
+    ? "Stop when the checklist shows what is ready and what still needs work."
+    : isPresentation
+      ? "Stop when you know your time, room, outline status, and after-presentation check."
+      : isArchive
+        ? "Stop when files are saved somewhere you can keep or the blocker is clear."
+        : "Stop when the item is submitted, revised, or waiting for teacher review.";
+  const flowTitle = isWork
+    ? "Keep one requirement in focus"
+    : isFeedback
+      ? "Fix one action note"
+      : isFinal
+        ? "Use the checklist after required work"
+        : isPresentation
+          ? "Prepare without replacing missing work"
+          : isArchive
+            ? "Save files only when ready"
+            : "Your next capstone move";
+  const flowLanes = isPresentation
+    ? [
+        {
+          label: "Before",
+          title: "Know time and outline",
+          detail: "Check the scheduled time, room, and outline status before presentation day.",
+          actions: [v5SectionAction("Open Presentation", "presentation", true)],
+        },
+        {
+          label: "During",
+          title: "Show finished work",
+          detail: "Presentation helps you show work. It does not replace missing checklist files.",
+          actions: [v5SectionAction("Open My Work", "studentWork", false)],
+        },
+        {
+          label: "After",
+          title: "Check final files",
+          detail: "After presenting, confirm final-file readiness and save downloads when ready.",
+          actions: [v5SectionAction("Open Final Files", "archive", false)],
+        },
+      ]
+    : isArchive
+      ? [
+          {
+            label: "Check",
+            title: "Read readiness",
+            detail: "Confirm whether final files are ready, blocked, expired, or waiting for staff.",
+            actions: [v5SectionAction("Open Final Files", "archive", true)],
+          },
+          {
+            label: "Save",
+            title: "Keep a copy",
+            detail: "Download and save final files somewhere you can keep when the download is ready.",
+            actions: [v5SectionAction("Open Final Checklist", "studentFinalChecklist", false)],
+          },
+          {
+            label: "Ask",
+            title: "Use blocker text",
+            detail: "If downloads are blocked or failed, use the listed reason when asking staff for help.",
+            actions: [v5SectionAction("Open My Work", "studentWork", false)],
+          },
+        ]
+      : [
+          {
+            label: "Do first",
+            title: isWork ? "Continue the current item" : "Start your next step",
+            detail: isWork ? "Stay on the requirement named in the work area before opening other panels." : "Open My Work to see the next requirement, files, and submission state.",
+            actions: [v5SectionAction("Open My Work", "studentWork", !isFeedback && !isFinal)],
+          },
+          {
+            label: "If marked",
+            title: "Check feedback",
+            detail: "Use feedback only when a note asks for changes or explains what the teacher reviewed.",
+            actions: [v5SectionAction("Open Feedback", "studentFeedback", isFeedback)],
+          },
+          {
+            label: "After work",
+            title: "Check final readiness",
+            detail: "Use the final checklist after the required work and evidence have been handled.",
+            actions: [v5SectionAction("Open Final Checklist", "studentFinalChecklist", isFinal)],
+          },
+        ];
   return {
     id: `student-${sectionId}`,
     kicker: "Student path",
-    title: isWork ? "Finish one item" : isFeedback ? "Fix one feedback note" : isFinal ? "Check the final package" : "What do I do next?",
-    detail: isWork
-      ? "Work on one requirement at a time. Extra progress details stay closed."
-      : isFeedback
-        ? "Start with feedback that asks for action, then return to the matching work item."
-        : isFinal
-          ? "Use this only when the required work and evidence are ready."
-          : "Start with the next action, then use feedback or checklist only when it applies.",
-    primaryAction: isWork ? v2SupportButton("Open current item") : isFeedback ? v2SupportButton("Open feedback") : isFinal ? v2SupportButton("Open final checklist") : v2SectionButton("Open My Work", "studentWork"),
-    primaryHint: isWork ? "One item at a time" : isFeedback ? "Action notes first" : isFinal ? "Final readiness only" : "Starts the next required step",
+    title,
+    detail,
+    primaryAction,
+    primaryHint,
     pathLabel: "Student capstone path",
     steps: v2PathSteps("Find the next action", "Open one item", "Submit or revise"),
     startState: {
-      job: isWork ? "student-current-work" : isFeedback ? "student-feedback" : isFinal ? "student-final-checklist" : "student-next-step",
-      action: isWork ? "Open the current item." : isFeedback ? "Open feedback that asks for action." : isFinal ? "Check final readiness." : "Open My Work first.",
+      job: isWork ? "student-current-work" : isFeedback ? "student-feedback" : isFinal ? "student-final-checklist" : isPresentation ? "student-presentation" : isArchive ? "student-final-files" : "student-next-step",
+      action: startAction,
       reason: "My Work stays first, with staff language and older details out of the way.",
-      now: isWork
-        ? "Work on the requirement named at the top of the details."
-        : isFeedback
-          ? "Read the teacher note, then fix one matching item."
-          : isFinal
-            ? "Confirm presentation and final-file readiness only after required work is done."
-            : "Start with one thing now, then use feedback or checklist only if needed.",
-      empty: "Nothing needs your attention right now? Check feedback, then the final checklist.",
-      confirm: isFinal ? "Stop when the checklist shows what is ready and what still needs work." : "Stop when the item is submitted, revised, or waiting for teacher review.",
+      now: startNow,
+      empty: startEmpty,
+      confirm: startConfirm,
     },
     flowBoard: {
-      id: isWork ? "student-current-work-flow" : isFeedback ? "student-feedback-flow" : isFinal ? "student-final-checklist-flow" : "student-next-step-flow",
+      id: isWork ? "student-current-work-flow" : isFeedback ? "student-feedback-flow" : isFinal ? "student-final-checklist-flow" : isPresentation ? "student-presentation-flow" : isArchive ? "student-final-files-flow" : "student-next-step-flow",
       label: "Student next-step flow",
-      title: isWork ? "Keep one requirement in focus" : isFeedback ? "Fix one action note" : isFinal ? "Use the checklist after required work" : "Your next capstone move",
+      title: flowTitle,
       detail: "The student path separates work, feedback, and final checks so the first screen does not feel like a staff tool.",
-      lanes: [
-        {
-          label: "Do first",
-          title: isWork ? "Continue the current item" : "Start your next step",
-          detail: isWork ? "Stay on the requirement named in the work area before opening other panels." : "Open My Work to see the next requirement, files, and submission state.",
-          actions: [v5SectionAction("Open My Work", "studentWork", !isFeedback && !isFinal)],
-        },
-        {
-          label: "If marked",
-          title: "Check feedback",
-          detail: "Use feedback only when a note asks for changes or explains what the teacher reviewed.",
-          actions: [v5SectionAction("Open Feedback", "studentFeedback", isFeedback)],
-        },
-        {
-          label: "After work",
-          title: "Check final readiness",
-          detail: "Use the final checklist after the required work and evidence have been handled.",
-          actions: [v5SectionAction("Open Final Checklist", "studentFinalChecklist", isFinal)],
-        },
-      ],
+      lanes: flowLanes,
     },
     focusHtml: `
       <section class="workspace-v2-focus-strip">

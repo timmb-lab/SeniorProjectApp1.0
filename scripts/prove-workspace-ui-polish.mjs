@@ -385,6 +385,54 @@ const SCREENSHOT_PLAN = [
     proves: "Student Final Checklist keeps finish checks in reach when Chromebook browser chrome leaves a shorter page viewport.",
   },
   {
+    id: "87-student-presentation-chromebook",
+    label: "Student Presentation Chromebook",
+    persona: "Student Chromebook Presentation",
+    authRole: "student",
+    accountType: "Fake .test demo student account",
+    url: workspaceUrl("?section=presentation"),
+    viewport: { width: 1366, height: 768, deviceScaleFactor: 1, mobile: false },
+    expected: ["Presentation plan", "Your Presentation", "Before presentation day"],
+    absent: ["Admin Console", "Staff Workspace", "data-presentation-action=\"check-out\"", "data-presentation-action=\"check-in\""],
+    proves: "Student Presentation keeps time, outline, and day-of guidance readable in a Chromebook-size desktop browser without staff controls.",
+  },
+  {
+    id: "88-student-presentation-chromebook-short",
+    label: "Student Presentation short Chromebook",
+    persona: "Student short Chromebook Presentation",
+    authRole: "student",
+    accountType: "Fake .test demo student account",
+    url: workspaceUrl("?section=presentation"),
+    viewport: { width: 1366, height: 650, deviceScaleFactor: 1, mobile: false },
+    expected: ["Presentation plan", "Your Presentation", "Before presentation day"],
+    absent: ["Admin Console", "Staff Workspace", "data-presentation-action=\"check-out\"", "data-presentation-action=\"check-in\""],
+    proves: "Student Presentation keeps preparation guidance in reach when Chromebook browser chrome leaves a shorter page viewport.",
+  },
+  {
+    id: "89-student-final-files-chromebook",
+    label: "Student Final Files Chromebook",
+    persona: "Student Chromebook Final Files",
+    authRole: "student",
+    accountType: "Fake .test demo student account",
+    url: workspaceUrl("?section=archive"),
+    viewport: { width: 1366, height: 768, deviceScaleFactor: 1, mobile: false },
+    expected: ["Final Files", "Final files readiness score", "What affects your download"],
+    absent: ["Admin Console", "Staff Workspace", "signed archive links", "Drive-backed archive package"],
+    proves: "Student Final Files keeps readiness and download guidance readable in a Chromebook-size desktop browser without staff-only archive language.",
+  },
+  {
+    id: "90-student-final-files-chromebook-short",
+    label: "Student Final Files short Chromebook",
+    persona: "Student short Chromebook Final Files",
+    authRole: "student",
+    accountType: "Fake .test demo student account",
+    url: workspaceUrl("?section=archive"),
+    viewport: { width: 1366, height: 650, deviceScaleFactor: 1, mobile: false },
+    expected: ["Final Files", "Final files readiness score", "What affects your download"],
+    absent: ["Admin Console", "Staff Workspace", "signed archive links", "Drive-backed archive package"],
+    proves: "Student Final Files keeps readiness and download guidance in reach when Chromebook browser chrome leaves a shorter page viewport.",
+  },
+  {
     id: "24-student-my-work-desktop",
     label: "Student My Work desktop",
     persona: "Student My Work",
@@ -1596,6 +1644,8 @@ function expectedMarkersForPlanItem(planItem, pageState = {}) {
     if (section === "studentWork") return ["Student path", "Finish one item", "Keep one requirement in focus", "Open current item"];
     if (section === "studentFeedback") return ["Student path", "Fix one feedback note", "Fix one action note", "Open feedback"];
     if (section === "studentFinalChecklist") return ["Student path", "Check the final package", "Use the checklist after required work", "Open final checklist"];
+    if (section === "presentation") return ["Student path", "Know your presentation plan", "Prepare without replacing missing work", "Presentation plan"];
+    if (section === "archive") return ["Student path", "Save final files", "Save files only when ready", "Final files readiness score"];
     return ["Student path", "What do I do next?", "Your next capstone move", "Next step map", "Open My Work"];
   }
   if (mode === "admin" || pageState.v2.screen.startsWith("admin-")) {
