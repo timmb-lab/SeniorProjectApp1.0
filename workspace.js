@@ -1645,7 +1645,7 @@ function v2MentorScreenModel(sectionId = activeSection) {
     },
     focusHtml: `
       <section class="workspace-v2-focus-strip">
-        <strong>Mentor view is scoped to assigned students.</strong>
+        <strong>Mentor view shows assigned students only.</strong>
         <span>Meeting history and notes stay behind the selected student detail.</span>
       </section>
     `,

@@ -22,6 +22,7 @@
 - `2026-07-07 07:37:03 -07:00`: Corrected an accidental summary-only stop after the user called out that the V6 run had not continued. Rechecked clock, repo status, `HEAD`, `origin/main`, and alignment. Result: still before 3PM Phoenix, on `main`, aligned `0 0`, with only V6 scaffolding untracked. Resumed real implementation work.
 - `2026-07-07 07:39:00 -07:00`: Completed V6 implementation slice 01, mobile first-viewport hierarchy hardening. Tightened V2 tablet/phone stage spacing, hero spacing, hero title size, support copy line height, and command/admin/report hero density so role-specific work appears earlier on phones and half-width screens. Added regression assertions for the new V2 hero and command-hero breakpoints.
 - `2026-07-07 07:42:04 -07:00`: Completed V6 implementation slice 02, role Today primary-route hardening. Added a compact primary-step row ahead of the Program Teacher, Viewer, and staff-admin Today plan grids so the first live route/action is not competing with equal secondary cards. Viewer remains read-only and only receives monitoring routes.
+- `2026-07-07 07:43:44 -07:00`: Completed V6 implementation slice 03, mentor shell language hardening. Replaced one visible "scoped" mentor shell sentence with plain assigned-student boundary language and added a regression assertion to keep that wording from returning.
 
 ## Slice 01 - Mobile First-Viewport Hierarchy
 
@@ -60,5 +61,21 @@
   - `npm run check:workspace-mobile`: PASS
   - `npm run check:workspace-accessibility`: PASS
   - `npm run verify:dashboard-actions`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Real work continues before 3PM: YES
+
+## Slice 03 - Mentor Shell Language
+
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+  - `docs/progress/runs/2026-07-07-v6-until-3pm-checkpoints.md`
+- User-facing surfaces affected:
+  - Mentor V2 shell focus strip now says "Mentor view shows assigned students only" instead of "Mentor view is scoped to assigned students."
+- RBAC/data impact: none. Copy/test-only change; no permission, route, mutation, or API logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --test tests\workspace-app.test.mjs`: PASS, `115` pass, `0` fail
+  - `npm run verify:functionality-language`: PASS
   - `git diff --check`: PASS with line-ending warnings only
 - Real work continues before 3PM: YES

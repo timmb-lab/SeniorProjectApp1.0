@@ -627,6 +627,10 @@ test("workspace defaults to workflow landings instead of role profiles", async (
     }
   }
 
+  const mentorLanding = await renderWorkspaceWithFetch(profileRoutesForRole("mentor"));
+  assert.match(visibleText(mentorLanding), /Mentor view shows assigned students only/);
+  assert.doesNotMatch(visibleText(mentorLanding), /Mentor view is scoped/);
+
   const teacherLanding = await renderWorkspaceWithFetch(profileRoutesForRole("program_teacher"));
   assert.match(teacherLanding, /data-v2-primary-surface="program-teacher"[\s\S]*data-staff-workspace-today="true"/);
   assertMarkupOrder(teacherLanding, 'data-v2-primary-surface="program-teacher"', 'data-v3-start-state="true"', "program teacher landing should show real review work before shared shell guidance");
