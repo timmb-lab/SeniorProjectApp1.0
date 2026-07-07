@@ -1,6 +1,6 @@
 # 2026-07-07 V6 Until-3PM Screenshot Review
 
-Status: in progress; refreshed after slices 01-13.
+Status: in progress; refreshed after slices 01-14.
 
 Source artifacts:
 
@@ -60,6 +60,7 @@ Source artifacts:
 - Admin page header overflow menus should name the section-specific action set rather than saying only `Actions`.
 - Role Today plans should not repeat the primary route card immediately in the secondary card grid.
 - Loaded student-detail routes should use record-specific framing instead of generic Admin setup or list-start framing.
+- Runtime program/cohort labels should not expose exact demo seed markers in primary UI.
 
 ## Refresh 02 Spot Checks
 
@@ -91,3 +92,10 @@ Source artifacts:
 - `13-site-admin-student-detail-click.png`: desktop Admin detail keeps the record-first context on the scoped Admin Console route.
 - `14-viewer-read-only-detail-click.png`: Viewer detail keeps the record-first context and still exposes the read-only boundary.
 - `31-mobile-student-detail.png`: Workspace student detail on phone uses `Record before lists` before the detail tabs and supporting context.
+
+## Refresh 07 Spot Checks
+
+- `13-site-admin-student-detail-click.png`: student detail context now shows `Culinary - Desert Valley High School Class of 2027`, with no `DEMO_SEED` marker.
+- `23-student-detail-phone.png`: phone detail context keeps the cleaned program/school/year label in the first viewport.
+- `39-viewer-students-directory.png` and `46-mobile-viewer-students.png`: Viewer student rows no longer expose `IT / DEMO_SEED`.
+- Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.

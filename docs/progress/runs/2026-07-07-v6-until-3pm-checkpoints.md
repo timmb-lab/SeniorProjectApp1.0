@@ -474,3 +474,54 @@
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES
+
+## Slice 14 - Hide Demo Seed Markers In Workspace Labels
+
+- Implementation commit: `273c57c` (`Hide demo seed markers in workspace labels`)
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+- User-facing surfaces affected:
+  - Student Directory rows
+  - Staff queue student rows
+  - Loaded student-detail record headers and context chips
+  - Mentor assignment student labels
+  - Review Queue, reports, operations readiness, and program selector labels
+- Behavior changed:
+  - UI display labels now remove exact `DEMO_SEED` markers from program/cohort names while preserving the real visible program name.
+  - Student detail context now shows clean labels such as `Culinary - Desert Valley High School Class of 2027` instead of exposing seed text.
+  - Runtime regression coverage renders seeded-looking program/cohort labels and asserts the rendered workspace HTML does not expose `DEMO_SEED`.
+  - The underlying API data, route scope, permissions, and student/program IDs are not changed.
+- RBAC/data impact: no permission, route availability, query, mutation, import, student data, report scope, or assignment logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --test --test-name-pattern "workspace hides demo seed markers|workspace opens real student detail" tests\workspace-app.test.mjs`: PASS, `2` pass, `0` fail
+  - `node --test tests\workspace-app.test.mjs`: PASS, `116` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `npm run verify:functionality-language`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Real work continues before 3PM: YES
+
+## Browser Proof Refresh 07
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `78`
+- Mobile screenshots: `32`
+- Failures: `0`
+- Started: `2026-07-07T16:44:28.258Z`
+- Completed: `2026-07-07T16:51:58.171Z`
+- Technical-language scan:
+  - Screenshot text samples containing `DEMO_SEED` or `seed`: `0`
+- Visual spot checks:
+  - `13-site-admin-student-detail-click.png`: student detail context now shows `Culinary - Desert Valley High School Class of 2027` without the seed marker.
+  - `23-student-detail-phone.png`: phone detail context shows the same clean label before action guidance.
+  - `39-viewer-students-directory.png` and `46-mobile-viewer-students.png`: Viewer student directory rows no longer expose `IT / DEMO_SEED`.
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES
