@@ -5797,6 +5797,10 @@ function renderStaffAdminTodayPlan(model = {}) {
         </div>
         <span class="workspace-summary-badge">${escapeHtml(total)} visible students</span>
       </div>
+      ${renderTodayPrimaryStep(cards, sections, {
+        label: "Student support route",
+        dataAttrs: 'data-staff-admin-primary-step="true"',
+      })}
       <div class="workspace-staff-admin-plan-grid">
         ${cards.map((card) => renderStaffAdminTodayPlanCard(card, sections)).join("")}
       </div>
@@ -5823,6 +5827,30 @@ function renderStaffAdminTodayPlanCard(card = {}, sections = availableSectionIds
         <strong>${escapeHtml(card.title || "Staff step")}</strong>
         <p>${escapeHtml(card.detail || "")}</p>
       </div>
+      ${actionHtml}
+    </article>
+  `;
+}
+
+function renderTodayPrimaryStep(cards = [], sections = availableSectionIdsForAnyMode(), options = {}) {
+  const safeCards = (Array.isArray(cards) ? cards : []).filter(Boolean);
+  const canOpenCard = (card) => Boolean(card?.section && sections.has(card.section));
+  const card = safeCards.find((candidate) => canOpenCard(candidate) && safeNumber(candidate.value) > 0)
+    || safeCards.find(canOpenCard)
+    || safeCards[0];
+  if (!card) return "";
+  const canOpen = canOpenCard(card);
+  const actionHtml = canOpen
+    ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(card.section)}" ${card.preset ? `data-section-preset="${escapeHtml(card.preset)}"` : ""}>${escapeHtml(card.action || "Open")}</button>`
+    : `<span class="workspace-summary-badge">${escapeHtml(options.unavailableLabel || "Summary only")}</span>`;
+  return `
+    <article class="workspace-today-primary-step ${escapeHtml(card.tone || "quiet")}" ${options.dataAttrs || ""} data-today-primary-step="${escapeHtml(card.id || "primary")}">
+      <div>
+        <span>${escapeHtml(options.label || "First route")}</span>
+        <strong>${escapeHtml(card.title || "Open the next item")}</strong>
+        <p>${escapeHtml(card.detail || "")}</p>
+      </div>
+      <small>${escapeHtml(String(card.value ?? ""))}</small>
       ${actionHtml}
     </article>
   `;
@@ -5884,6 +5912,11 @@ function renderViewerReadOnlyTodayPlan(model = {}) {
         </div>
         <span class="workspace-chip" data-workspace-mode="read-only">Read-only</span>
       </div>
+      ${renderTodayPrimaryStep(cards, sections, {
+        label: "Read-only route",
+        dataAttrs: 'data-viewer-readonly-primary-step="true"',
+        unavailableLabel: "No edit action",
+      })}
       <div class="workspace-viewer-readonly-plan-grid">
         ${cards.map((card) => renderViewerReadOnlyTodayPlanCard(card, sections)).join("")}
       </div>
@@ -5968,6 +6001,10 @@ function renderProgramTeacherTodayPlan(model = {}) {
         </div>
         <span class="workspace-summary-badge">${escapeHtml(safeNumber(model.counts?.total))} visible students</span>
       </div>
+      ${renderTodayPrimaryStep(cards, sections, {
+        label: "Review route",
+        dataAttrs: 'data-program-teacher-primary-step="true"',
+      })}
       <div class="workspace-program-teacher-plan-grid">
         ${cards.map((card) => renderProgramTeacherTodayPlanCard(card, sections)).join("")}
       </div>

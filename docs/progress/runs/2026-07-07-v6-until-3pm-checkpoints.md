@@ -21,6 +21,7 @@
 - `2026-07-07 07:20:40 -07:00`: Started V6 from clean `main` at V5 final SHA `1ffd87d851dd473861e1892f7d7dfccbb94792e9`; read V6 prompt, V5 final proof, V5 screenshot index, V5 manifest summary, and proof script screenshot-plan hooks.
 - `2026-07-07 07:37:03 -07:00`: Corrected an accidental summary-only stop after the user called out that the V6 run had not continued. Rechecked clock, repo status, `HEAD`, `origin/main`, and alignment. Result: still before 3PM Phoenix, on `main`, aligned `0 0`, with only V6 scaffolding untracked. Resumed real implementation work.
 - `2026-07-07 07:39:00 -07:00`: Completed V6 implementation slice 01, mobile first-viewport hierarchy hardening. Tightened V2 tablet/phone stage spacing, hero spacing, hero title size, support copy line height, and command/admin/report hero density so role-specific work appears earlier on phones and half-width screens. Added regression assertions for the new V2 hero and command-hero breakpoints.
+- `2026-07-07 07:42:04 -07:00`: Completed V6 implementation slice 02, role Today primary-route hardening. Added a compact primary-step row ahead of the Program Teacher, Viewer, and staff-admin Today plan grids so the first live route/action is not competing with equal secondary cards. Viewer remains read-only and only receives monitoring routes.
 
 ## Slice 01 - Mobile First-Viewport Hierarchy
 
@@ -37,5 +38,27 @@
   - `node --test tests\workspace-app.test.mjs`: PASS, `115` pass, `0` fail
   - `npm run check:workspace-mobile`: PASS
   - `npm run check:workspace-accessibility`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Real work continues before 3PM: YES
+
+## Slice 02 - Role Today Primary Route
+
+- Files changed:
+  - `workspace.js`
+  - `workspace.css`
+  - `tests/workspace-app.test.mjs`
+  - `docs/progress/runs/2026-07-07-v6-until-3pm-checkpoints.md`
+- User-facing surfaces affected:
+  - Program Teacher Today now surfaces the first live review/support route above the equal-card plan grid.
+  - Viewer Today now surfaces one read-only monitoring route before secondary read-only cards.
+  - Site Admin / Administration / Global Admin staff Today now surfaces one student-support route before setup/report cards.
+- RBAC/data impact: no permission, mutation, or API changes. The new primary row reuses the same `data-section` / `data-section-preset` route controls already guarded by existing workspace routing and available-section checks.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --test tests\workspace-app.test.mjs`: PASS, `115` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
   - `git diff --check`: PASS with line-ending warnings only
 - Real work continues before 3PM: YES

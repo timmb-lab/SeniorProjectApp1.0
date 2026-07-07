@@ -9340,6 +9340,80 @@ body[data-page="workspace"],
   justify-self: start;
 }
 
+.workspace-today-primary-step {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 0.62rem;
+  align-items: center;
+  min-width: 0;
+  border: 1px solid color-mix(in srgb, var(--workspace-primary) 28%, white);
+  border-left: 5px solid var(--workspace-primary);
+  border-radius: var(--radius-card);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--workspace-soft) 70%, white), #fff 70%),
+    #fff;
+  padding: 0.68rem;
+}
+
+.workspace-today-primary-step > div {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.workspace-today-primary-step span {
+  color: var(--abc-muted);
+  font-size: 0.74rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.workspace-today-primary-step strong {
+  color: var(--ink);
+  font-size: 1.06rem;
+  line-height: 1.14;
+}
+
+.workspace-today-primary-step p {
+  margin: 0;
+  color: var(--abc-charcoal);
+  font-size: 0.88rem;
+  line-height: 1.34;
+}
+
+.workspace-today-primary-step small {
+  justify-self: end;
+  min-width: 2.6rem;
+  color: var(--workspace-primary);
+  font-size: 1rem;
+  font-weight: 950;
+  text-align: right;
+}
+
+.workspace-today-primary-step .workspace-link-button {
+  justify-self: end;
+  white-space: nowrap;
+}
+
+.workspace-today-primary-step.teacher {
+  border-left-color: var(--abc-blue);
+}
+
+.workspace-today-primary-step.warning {
+  border-left-color: var(--abc-yellow);
+  background: #fffaf0;
+}
+
+.workspace-today-primary-step.danger {
+  border-left-color: var(--abc-red);
+  background: color-mix(in srgb, var(--abc-soft-red) 64%, white);
+}
+
+.workspace-today-primary-step.ready {
+  border-left-color: var(--abc-green);
+  background: #f4fbf6;
+}
+
 .workspace-viewer-readonly-plan {
   display: grid;
   gap: 0.72rem;
@@ -12175,6 +12249,7 @@ button.workspace-metric-tile,
   .workspace-problem-state-actions,
   .workspace-dashboard-summary,
   .workspace-command-hero,
+  .workspace-today-primary-step,
   .workspace-program-teacher-plan-head,
   .workspace-viewer-readonly-plan-head,
   .workspace-staff-admin-plan-head,
@@ -12230,6 +12305,11 @@ button.workspace-metric-tile,
 
   .workspace-screen-orientation-actions > div {
     justify-content: flex-start;
+  }
+
+  .workspace-today-primary-step small {
+    justify-self: start;
+    text-align: left;
   }
 
   .workspace-student-screen-actions {

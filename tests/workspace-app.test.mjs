@@ -632,6 +632,7 @@ test("workspace defaults to workflow landings instead of role profiles", async (
   assertMarkupOrder(teacherLanding, 'data-v2-primary-surface="program-teacher"', 'data-v3-start-state="true"', "program teacher landing should show real review work before shared shell guidance");
   assert.match(teacherLanding, /data-program-teacher-today-plan="true"/);
   assert.match(teacherLanding, /Review decisions before reports/);
+  assert.match(teacherLanding, /data-program-teacher-primary-step="true"[\s\S]*data-today-primary-step="review"[\s\S]*data-section="teacher" data-section-preset="submitted"/);
   assert.match(teacherLanding, /data-program-teacher-plan-card="review"[\s\S]*data-section="teacher" data-section-preset="submitted"/);
   assert.match(teacherLanding, /data-program-teacher-plan-card="revision"[\s\S]*data-section="teacher" data-section-preset="revision-requested"/);
   assert.match(teacherLanding, /data-program-teacher-plan-card="missing-work"[\s\S]*data-section="students" data-section-preset="missing-evidence-students"/);
@@ -641,6 +642,7 @@ test("workspace defaults to workflow landings instead of role profiles", async (
   assertMarkupOrder(viewerLanding, 'data-v2-primary-surface="viewer"', 'data-v3-start-state="true"', "viewer landing should show the real read-only queue before shared shell guidance");
   assert.match(viewerLanding, /data-viewer-readonly-plan="true"/);
   assert.match(viewerLanding, /Read one record, then share outside the app/);
+  assert.match(viewerLanding, /data-viewer-readonly-primary-step="true"[\s\S]*data-today-primary-step="assigned-student"[\s\S]*data-section="students" data-section-preset="all-students"/);
   assert.match(viewerLanding, /data-viewer-readonly-plan-card="assigned-student"[\s\S]*data-section="students" data-section-preset="all-students"/);
   assert.match(viewerLanding, /data-viewer-readonly-plan-card="boundary"[\s\S]*No edit action/);
   assert.doesNotMatch(viewerLanding, /data-review-decision="approved"|data-mentor-assignment-form="true"|data-admin-action="import-users"/);
@@ -650,6 +652,7 @@ test("workspace defaults to workflow landings instead of role profiles", async (
   assertMarkupOrder(siteAdminLanding, 'data-v2-primary-surface="staff-admin"', 'data-v3-start-state="true"', "site admin landing should show the real staff worklist before shared shell guidance");
   assert.match(siteAdminLanding, /data-staff-admin-today-plan="true"/);
   assert.match(siteAdminLanding, /Daily support before setup work/);
+  assert.match(siteAdminLanding, /data-staff-admin-primary-step="true"[\s\S]*data-today-primary-step="student-group"[\s\S]*data-section="students"/);
   assert.match(siteAdminLanding, /data-staff-admin-plan-card="student-group"[\s\S]*data-section="students"/);
   assert.match(siteAdminLanding, /data-staff-admin-plan-card="review-work"[\s\S]*data-section="teacher" data-section-preset="submitted"/);
   assert.match(siteAdminLanding, /data-staff-admin-plan-card="setup-access"/);
@@ -7231,6 +7234,7 @@ test("workspace exposes a real admin site switcher and collapsible navigation", 
   assert.match(workspaceJs, /renderProgramTeacherTodayPlan/);
   assert.match(workspaceJs, /data-v2-primary-surface="\$\{escapeHtml\(primarySectionKind \|\| "primary"\)\}"/);
   assert.match(workspaceCss, /\.workspace-v2-primary-surface\s*\{[\s\S]*border-top:\s*1px solid var\(--v2-line\);/);
+  assert.match(workspaceCss, /\.workspace-today-primary-step\s*\{[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) auto auto;/);
   assert.match(workspaceCss, /\.workspace-viewer-readonly-plan\s*\{[\s\S]*border-left:\s*5px solid var\(--abc-teal\);/);
   assert.match(workspaceCss, /\.workspace-staff-admin-plan\s*\{[\s\S]*border-left:\s*5px solid var\(--abc-amber\);/);
   assert.match(workspaceCss, /\.workspace-program-teacher-plan\s*\{[\s\S]*border-left:\s*5px solid var\(--abc-blue\);/);
