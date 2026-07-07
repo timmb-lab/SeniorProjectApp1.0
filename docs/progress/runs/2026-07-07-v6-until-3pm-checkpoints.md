@@ -1552,3 +1552,86 @@
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES
+
+## Slice 34 - Tighten Student Chromebook Browser Chrome
+
+- Implementation commit: `1293166` (`Tighten student Chromebook browser chrome`)
+- Files changed:
+  - `workspace.css`
+  - `tests/workspace-app.test.mjs`
+  - `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+  - `docs/sales/screenshots/2026-07-07-v6-until-3pm/79-student-today-chromebook.png`
+  - `docs/sales/screenshots/2026-07-07-v6-until-3pm/80-student-my-work-chromebook.png`
+  - `docs/sales/screenshots/2026-07-07-v6-until-3pm/81-student-feedback-chromebook.png`
+  - `docs/sales/screenshots/2026-07-07-v6-until-3pm/82-student-final-checklist-chromebook.png`
+  - `docs/sales/screenshots/2026-07-07-v6-until-3pm/83-student-today-chromebook-short.png`
+  - `docs/sales/screenshots/2026-07-07-v6-until-3pm/84-student-my-work-chromebook-short.png`
+  - `docs/sales/screenshots/2026-07-07-v6-until-3pm/85-student-feedback-chromebook-short.png`
+  - `docs/sales/screenshots/2026-07-07-v6-until-3pm/86-student-final-checklist-chromebook-short.png`
+  - `docs/sales/screenshots/2026-07-07-v6-until-3pm/87-student-presentation-chromebook.png`
+  - `docs/sales/screenshots/2026-07-07-v6-until-3pm/88-student-presentation-chromebook-short.png`
+  - `docs/sales/screenshots/2026-07-07-v6-until-3pm/89-student-final-files-chromebook.png`
+  - `docs/sales/screenshots/2026-07-07-v6-until-3pm/90-student-final-files-chromebook-short.png`
+- User-facing surfaces affected:
+  - Student Today Chromebook and short Chromebook
+  - Student My Work Chromebook and short Chromebook
+  - Student Feedback Chromebook and short Chromebook
+  - Student Final Checklist Chromebook and short Chromebook
+  - Student Presentation Chromebook and short Chromebook
+  - Student Final Files Chromebook and short Chromebook
+- Behavior changed:
+  - Student-only desktop-height CSS now trims the V2 topbar, tools button, account summary, and desktop path switcher before the first route surface.
+  - Student Chromebook-height hero titles now use `28ch` desktop width so task headings like `Know your presentation plan` no longer force a two-line wrap at `1366x650`.
+  - The refreshed proof screenshots confirm the hidden student Presentation and Final Files routes keep the real route surface visible after the density pass.
+- RBAC/data impact: CSS/test/proof-artifact only; no role expansion, data mutation, View as Student boundary, report export, evidence, or admin-route behavior changed.
+- Focused checks:
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --test --test-name-pattern "workspace defaults to workflow landings|workspace gates operations readiness" tests\workspace-app.test.mjs`: PASS, `2` pass, `0` fail
+  - `npm run prove:workspace-ui-polish`: PASS, `90` screenshots, `0` failures
+- Post-3PM final gates:
+  - `node --test tests\workspace-app.test.mjs`: PASS, `116` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `npm run verify:functionality-language`: PASS
+  - `npm test`: PASS, `503` pass, `4` skipped, `0` fail
+  - `npm run typecheck`: PASS
+  - `npm run check`: PASS, including `PILOT_READINESS_PREFLIGHT_COMPLETE_NO_GO` with real-student final decision still `NO_GO_REAL_STUDENT_PILOT`
+- Direct visual inspection:
+  - `88-student-presentation-chromebook-short.png`: short Chromebook Presentation title is now one desktop-width line and the `Your Presentation` card plus readiness tiles stay visible in the first viewport.
+  - `83-student-today-chromebook-short.png`: short Chromebook Today keeps the topbar, path, next action, and first work card in view with less route chrome.
+- Real work completed after 3PM gate: YES, final proof completed at `2026-07-07T22:02:02.144Z` (`2026-07-07 15:02:02 America/Phoenix`)
+
+## Browser Proof Refresh 26
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `90`
+- Mobile screenshots: `32`
+- Chromebook/student desktop screenshots: `12`
+- Short Chromebook/student desktop screenshots: `6`
+- Failures: `0`
+- Started: `2026-07-07T21:52:59.087Z`
+- Completed: `2026-07-07T22:02:02.144Z`
+- Refreshed Chromebook proof files:
+  - `79-student-today-chromebook.png`
+  - `80-student-my-work-chromebook.png`
+  - `81-student-feedback-chromebook.png`
+  - `82-student-final-checklist-chromebook.png`
+  - `83-student-today-chromebook-short.png`
+  - `84-student-my-work-chromebook-short.png`
+  - `85-student-feedback-chromebook-short.png`
+  - `86-student-final-checklist-chromebook-short.png`
+  - `87-student-presentation-chromebook.png`
+  - `88-student-presentation-chromebook-short.png`
+  - `89-student-final-files-chromebook.png`
+  - `90-student-final-files-chromebook-short.png`
+- Technical-language scan:
+  - Screenshot text samples containing `DEMO_SEED` or `seed`: `0`
+  - Screenshot text samples containing `Finish the next capstone item` or `Keep the work screen on one requirement`: `0`
+  - Screenshot text samples containing `Read the note and fix one thing` or `Fix the feedback that asks for action`: `0`
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Final closeout after 3PM: YES

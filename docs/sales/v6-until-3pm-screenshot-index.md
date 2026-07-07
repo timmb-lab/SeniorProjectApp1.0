@@ -1,6 +1,6 @@
 # V6 Until-3PM Screenshot Index
 
-Status: current V6 local fake-account browser proof captured after implementation slices 01-33.
+Status: current V6 local fake-account browser proof captured after implementation slices 01-34 and the post-3PM final proof.
 
 Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
 
@@ -17,8 +17,8 @@ Counts:
 - Chromebook/student desktop screenshots captured: 12
 - Short Chromebook/student desktop screenshots captured: 6
 - Browser-proof failures: 0
-- Started: `2026-07-07T21:37:04.836Z`
-- Completed: `2026-07-07T21:45:32.900Z`
+- Started: `2026-07-07T21:52:59.087Z`
+- Completed: `2026-07-07T22:02:02.144Z`
 - Fake data only: `true`
 - Real-student production status: `NOT_CLAIMED_READY`
 
@@ -53,6 +53,7 @@ Counts:
 - Student My Work heading cleanup: `24-student-my-work-desktop`, `43-student-my-work-phone`, `53-student-my-work-half-screen`, `80-student-my-work-chromebook`, and `84-student-my-work-chromebook-short`; manifest text samples containing `Finish the next capstone item` or `Keep the work screen on one requirement`: `0`.
 - Student Feedback heading cleanup: `25-student-feedback-desktop`, `54-student-feedback-phone`, `81-student-feedback-chromebook`, and `85-student-feedback-chromebook-short`; manifest text samples containing `Read the note and fix one thing` or `Fix the feedback that asks for action`: `0`.
 - Hidden student Chromebook routes: `87-student-presentation-chromebook`, `88-student-presentation-chromebook-short`, `89-student-final-files-chromebook`, and `90-student-final-files-chromebook-short` prove direct Presentation and Final Files links render their real student primary surfaces instead of falling back to Today.
+- Student Chromebook browser chrome tightening: `79-student-today-chromebook`, `83-student-today-chromebook-short`, `87-student-presentation-chromebook`, and `88-student-presentation-chromebook-short` show the student topbar/path chrome trimmed and task headings using desktop width so the real route surface stays higher in school-laptop viewports.
 - RBAC/read-only guard coverage: `05-viewer-read-only-workspace`, `14-viewer-read-only-detail-click`, `20-student-admin-route-blocked`, `39-viewer-students-directory`, `46-mobile-viewer-students`.
 
 ## Full Inventory Source

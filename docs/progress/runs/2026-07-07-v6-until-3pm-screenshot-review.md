@@ -1,6 +1,6 @@
 # 2026-07-07 V6 Until-3PM Screenshot Review
 
-Status: in progress; refreshed after slices 01-33.
+Status: complete after the post-3PM final proof; refreshed after slices 01-34.
 
 Source artifacts:
 
@@ -290,3 +290,15 @@ Source artifacts:
 - `90-student-final-files-chromebook-short.png`: short Chromebook Final Files route keeps final-file readiness visible in the first viewport.
 - Manifest count: `90` screenshots total, including `32` mobile screenshots, `12` Chromebook/student desktop screenshots, and `6` short Chromebook/student desktop screenshots.
 - Final manifest verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`, `0` failures.
+
+## Refresh 26 Spot Checks
+
+- Selected target: student Chromebook desktop browser chrome should stay compact after the user clarified Chromebooks are the primary student device pattern.
+- Added student-only desktop-height CSS for the V2 topbar, tools button, account summary, and path switcher so the first route surface starts higher in `1366px` browser viewports.
+- Increased student Chromebook-height hero width to `28ch` so short task headings use the available desktop browser width instead of forced wraps.
+- `88-student-presentation-chromebook-short.png`: Presentation title now fits on one line and the `Your Presentation` card plus readiness tiles remain visible in the short Chromebook first viewport.
+- `83-student-today-chromebook-short.png`: Today still shows the next action and first work card in the first viewport after the topbar/path tightening.
+- `87-student-presentation-chromebook.png` and `89-student-final-files-chromebook.png`: hidden direct student routes still render as their real primary surfaces at standard Chromebook height.
+- Manifest count: `90` screenshots total, including `32` mobile screenshots, `12` Chromebook/student desktop screenshots, and `6` short Chromebook/student desktop screenshots.
+- Final manifest verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`, `0` failures.
+- Final proof completed after the not-before-3PM gate at `2026-07-07T22:02:02.144Z`; this remains local fake-account proof only, not real-student pilot readiness.
