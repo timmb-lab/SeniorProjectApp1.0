@@ -226,6 +226,22 @@
 - Remaining risks: local fake-account proof only; hosted and real-student gates remain unclaimed, elapsed runtime is still below the 6-hour complete-run gate, and final proof/push must wait until complete-run gates are met.
 - Next focus: continue Phase 9/10 dense-surface polish and regression hardening, or move to final proof packaging only after the 360-minute runtime gate is actually met.
 
+## Admin Access-Language Checkpoint
+
+- Checkpoint local time: `2026-07-07 00:25:15 -07:00`
+- Elapsed minutes so far: about 243
+- Screens changed since the CSV Import Access-Language checkpoint: Admin Console Overview and Admin Reports supporting guidance.
+- Role-specific work completed: Site Admin setup guidance now says staff access needs confirmation, Staff Access, staff role and access, and Current access instead of using staff-scope or current-scope labels in those work surfaces.
+- What users see differently: admin setup blockers and report safety guidance now describe access in terms a school operator can act on without knowing internal scope terminology.
+- What users do next more clearly: admins can open People or Reports from the same real route-backed controls, while the wording focuses them on role, email, coverage, and export safety.
+- Mobile checked: no mobile-only layout changes were introduced; `npm run check:workspace-mobile` passed and the refreshed V5 browser proof still includes 32 mobile screenshots.
+- Accessibility checked: the report notice aria-label now says report access and export safety; `npm run check:workspace-accessibility` and `npm run check:workspace-errors` passed.
+- Screenshots captured: 78 total screenshots, including 32 mobile screenshots, refreshed in `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/`; screenshot index timestamps now match the refreshed manifest.
+- Tests run: `node --check workspace.js`; `node --check tests\workspace-app.test.mjs`; `npm run verify:functionality-language`; `npm run check:workspace-mobile`; `npm run check:workspace-accessibility`; `npm run check:workspace-errors`; `node --test tests\workspace-app.test.mjs` (115 pass, 0 fail); `npm run prove:workspace-ui-polish` with V5 output env vars (78 pass, 0 fail); `git diff --check` (passed; line-ending warnings only).
+- Commit SHA(s): `6f76c029db81e1a08f6579bb070376b7d5da6465`
+- Remaining risks: local fake-account proof only; hosted and real-student gates remain unclaimed, elapsed runtime is still below the 6-hour complete-run gate, and final proof/push must wait until complete-run gates are met.
+- Next focus: continue Phase 9/10 dense-surface polish and regression hardening, or move to final proof packaging only after the 360-minute runtime gate is actually met.
+
 ## Working Log
 
 - `2026-07-06 20:22:33 -07:00`: start recorded after verifying `main`, clean status, and `origin/main` alignment.
@@ -246,3 +262,4 @@
 - `2026-07-06 23:16:01 -07:00`: Navigation contract restoration committed as `90e8b006532ce76db04bfa9f2ca36cec125184e6`; workspace navigation verifier, URL-state, permission, mutation-origin, density, review deeplink, error-state, typecheck, full test, and aggregate check gates are green while real-student pilot remains explicitly blocked by missing manual evidence.
 - `2026-07-06 23:52:39 -07:00`: Admin CSV import preview repair path committed as `694e80400ab0d1050a9cacb4f14c28231082029b`; functionality-language, mobile, accessibility, error-state, workspace tests, syntax checks, diff hygiene, and V5 browser proof are green with 77 screenshots, 32 mobile screenshots, and zero failures.
 - `2026-07-07 00:11:46 -07:00`: Admin CSV import access-language cleanup committed as `aeff9a5a0d271dc150289d2f873fe33cf2187584`; functionality-language, mobile, accessibility, error-state, workspace tests, syntax checks, diff hygiene, and V5 browser proof are green with 78 screenshots, 32 mobile screenshots, and zero failures.
+- `2026-07-07 00:25:15 -07:00`: Admin Overview/Reports access-language cleanup committed as `6f76c029db81e1a08f6579bb070376b7d5da6465`; functionality-language, mobile, accessibility, error-state, workspace tests, syntax checks, diff hygiene, and V5 browser proof are green with 78 screenshots, 32 mobile screenshots, and zero failures.
