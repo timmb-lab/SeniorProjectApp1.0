@@ -1529,6 +1529,12 @@ function expectedMarkersForPlanItem(planItem, pageState = {}) {
       : ["Teacher review", "Pick the review that needs attention", "Review queue before reports", "Open review queue"];
   }
   if (planItem.authRole === "viewer") {
+    if (section === "staffReports" || section === "readiness") {
+      return ["Read-only report", "Answer one report question", "Read-only report path", "Report-safe fields"];
+    }
+    if (section === "students") {
+      return ["Read-only view", "Open one assigned student", "Read-only review path", "No edit actions"];
+    }
     return ["Read-only view", "Check one student or report", "Read-only review path", "No edit actions"];
   }
   if (section === "students") return ["Open one student record", "Open the right student first", "Open student list", "Open supporting details"];

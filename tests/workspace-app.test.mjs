@@ -920,6 +920,9 @@ test("workspace report exports stay scoped for viewer and unavailable to student
     url: "https://workspace.example/workspace.html?mode=workspace&section=staffReports&siteId=site-desert-valley-high",
   });
   assert.match(viewerReports, /data-workspace-mode="read-only"/);
+  assert.match(viewerReports, /data-v2-screen="viewer-staffReports"[\s\S]*Read-only report[\s\S]*Answer one report question/);
+  assert.match(viewerReports, /data-v5-flow-board="viewer-read-only-report-flow"[\s\S]*Read-only report path[\s\S]*Open report/);
+  assert.doesNotMatch(viewerReports, /Check one student or report[\s\S]*Open students[\s\S]*No edit actions/);
   assert.match(viewerReports, /data-staff-reports="true"/);
   assert.match(viewerReports, /data-staff-report-question-flow="true"/);
   assert.match(viewerReports, /data-staff-report-question="work-waiting-for-review"[\s\S]*Summary only/);

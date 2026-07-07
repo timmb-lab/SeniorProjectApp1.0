@@ -1832,40 +1832,46 @@ function v2TeacherScreenModel(sectionId = activeSection) {
 }
 
 function v2ViewerScreenModel(sectionId = activeSection) {
+  const isStudents = sectionId === "students";
+  const isReports = sectionId === "staffReports" || sectionId === "readiness";
   return {
     id: `viewer-${sectionId}`,
-    kicker: "Read-only view",
-    title: "Check one student or report",
-    detail: "Viewer screens are read-only and start with what can be reviewed, not editing controls.",
-    primaryAction: sectionId === "students" ? v2SupportButton("Open student list") : v2SectionButton("Open students", "students"),
-    primaryHint: "No edit actions",
-    pathLabel: "Viewer path",
-    steps: v2PathSteps("Choose a student or report", "Review current status", "Share follow-up outside the app"),
+    kicker: isReports ? "Read-only report" : "Read-only view",
+    title: isReports ? "Answer one report question" : isStudents ? "Open one assigned student" : "Check one student or report",
+    detail: isReports
+      ? "Viewer reports stay read-only and scoped to students this account can load."
+      : "Viewer screens are read-only and start with what can be reviewed, not editing controls.",
+    primaryAction: isStudents ? v2SupportButton("Open student list") : isReports ? v2SupportButton("Open report") : v2SectionButton("Open students", "students"),
+    primaryHint: isReports ? "Report-safe fields" : "No edit actions",
+    pathLabel: isReports ? "Viewer report path" : "Viewer path",
+    steps: isReports
+      ? v2PathSteps("Pick one report question", "Review the scoped summary", "Share follow-up outside the app")
+      : v2PathSteps("Choose a student or report", "Review current status", "Share follow-up outside the app"),
     startState: {
-      job: "viewer-read-only-review",
-      action: sectionId === "students" ? "Open the student list." : "Open assigned students.",
+      job: isReports ? "viewer-read-only-report" : "viewer-read-only-review",
+      action: isStudents ? "Open the student list." : isReports ? "Open one report question." : "Open assigned students.",
       reason: "Viewer screens show status and context without change controls.",
-      now: "Review one assigned student or report.",
+      now: isReports ? "Use the first report question that matches the concern." : "Review one assigned student or report.",
       empty: "Nothing has been added yet for this view.",
       confirm: "Stop when you know what to share with the Program Teacher or site team.",
     },
     flowBoard: {
-      id: "viewer-read-only-flow",
+      id: isReports ? "viewer-read-only-report-flow" : "viewer-read-only-flow",
       label: "Viewer review flow",
-      title: "Read-only review path",
+      title: isReports ? "Read-only report path" : "Read-only review path",
       detail: "Viewer work stays useful without exposing edit, setup, or admin controls.",
       lanes: [
         {
           label: "Open",
-          title: "Choose one student",
-          detail: "Start with the assigned student list or the one report you were asked to review.",
-          actions: [v5SectionAction("Open students", "students", sectionId !== "students")],
+          title: isReports ? "Pick a report question" : "Choose one student",
+          detail: isReports ? "Start with the scoped report question instead of returning to the student list first." : "Start with the assigned student list or the one report you were asked to review.",
+          actions: [isReports ? v5SupportAction("Open report", true) : v5SectionAction("Open students", "students", !isStudents)],
         },
         {
           label: "Read",
-          title: "Review current status",
-          detail: "Look for progress, deadlines, and feedback without changing the record.",
-          actions: [v5SupportAction("Open read-only detail", sectionId === "students")],
+          title: isReports ? "Review report-safe fields" : "Review current status",
+          detail: isReports ? "Use summary rows and export boundaries without exposing setup or edit controls." : "Look for progress, deadlines, and feedback without changing the record.",
+          actions: [isReports ? v5SectionAction("Open students if needed", "students") : v5SupportAction("Open read-only detail", isStudents)],
         },
         {
           label: "Share",
