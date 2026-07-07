@@ -98,6 +98,22 @@
 - Remaining risks: this is still local fake-account proof only, not hosted or real-student pilot proof; runtime, full accessibility, and final complete-run gates remain pending.
 - Next focus: shared mobile/header tightening and any proof-driven responsive fixes.
 
+## Mobile/Header Checkpoint
+
+- Checkpoint local time: `2026-07-06 22:10:12 -07:00`
+- Elapsed minutes so far: about 108
+- Screens changed since the evidence checkpoint: phone and half-screen V2 shell screenshots refreshed for Student, Mentor, Program Teacher, Viewer, Site Admin, Administration, Global Admin, and Admin Console mobile routes.
+- Role-specific work completed: Phase 7 shared mobile/header tightening reduces the V2 phone header to a compact two-row layout, tightens the V2 stage spacing, caps mobile/tablet hero type, and keeps the role-specific primary surface visible earlier in the first viewport.
+- What users see differently: mobile users get less repeated chrome before the real task; Site Admin, Program Teacher, and Student Today phone proof now shows the role-specific plan or next-step card inside the first viewport.
+- What users do next more clearly: the first action remains route-backed, while the role-specific plan appears sooner and the support/details panel stays secondary.
+- Mobile checked: visually inspected refreshed `07-student-today-phone`, `48-site-admin-today-phone`, and `49-program-teacher-today-phone`; all 31 mobile screenshots refreshed.
+- Accessibility checked: touch targets remain at least 36-40px in the V2 mobile shell; browser proof again verified expected text, absence checks, and no horizontal overflow across all 75 captures.
+- Screenshots captured: 75 total screenshots, including 31 mobile screenshots, refreshed in `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/`.
+- Tests run: `node --check workspace.js`; `node --check scripts\prove-workspace-ui-polish.mjs`; `node --test tests\workspace-app.test.mjs` (115 pass, 0 fail); `node scripts\prove-workspace-ui-polish.mjs` with V5 output env vars (75 pass, 0 fail); `git diff --check` (passed; line-ending warnings only).
+- Commit SHA(s): `2c5b208c07819c8f0f8e553fa0b951a4c49d1e57`
+- Remaining risks: this is still local fake-account proof only, not hosted or real-student pilot proof; full accessibility sweep and complete-run runtime gates remain pending.
+- Next focus: inspect remaining route-specific dense screens for small mobile text/spacing issues or move into final accessibility/readiness gates if no obvious UI regression appears.
+
 ## Working Log
 
 - `2026-07-06 20:22:33 -07:00`: start recorded after verifying `main`, clean status, and `origin/main` alignment.
@@ -110,3 +126,4 @@
 - `2026-07-06 21:34:24 -07:00`: Phase 5 Viewer work committed through `b091346835e02a58d57b9160e20a19a891e85c98`; workspace tests pass at 115/115 and V5 browser proof is refreshed green with Viewer desktop, detail, directory, and mobile screenshots.
 - `2026-07-06 21:43:55 -07:00`: Phase 6 Staff/Admin work committed through `5df6d1f83ad4e90b8710f6b7f547f4fea08c1f96`; workspace tests pass at 115/115 and V5 browser proof is refreshed green with staff/admin workspace, report, detail, and mobile screenshots.
 - `2026-07-06 21:57:43 -07:00`: Phase 7 evidence expansion committed as `b788c9aad4b3a97afec3eb42004e23dbb8369f45`; V5 browser proof is green with 75 screenshots, 31 mobile screenshots, and zero failures.
+- `2026-07-06 22:10:12 -07:00`: Phase 7 mobile/header tightening committed as `2c5b208c07819c8f0f8e553fa0b951a4c49d1e57`; workspace tests pass at 115/115 and refreshed V5 browser proof is green with 75 screenshots, 31 mobile screenshots, and zero failures.
