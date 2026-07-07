@@ -1,6 +1,6 @@
 # 2026-07-07 V6 Until-3PM Screenshot Review
 
-Status: in progress; refreshed after slices 01-26.
+Status: in progress; refreshed after slices 01-27.
 
 Source artifacts:
 
@@ -216,3 +216,17 @@ Source artifacts:
 - Manifest scan: screenshot text samples containing `setup screen`, `linked setup screen`, or `setup screens`: `0`.
 - Manifest scan: screenshot text samples containing `One focused task`: `16`.
 - Manifest scan: screenshot text samples containing `After that setup item is fixed`: `3`.
+
+## Refresh 20 Spot Checks
+
+- Selected target: staff/teacher/mentor/viewer plan labels and audit guidance should use work-path/source-area language instead of internal route/source-screen wording.
+- `02-workspace-site-admin-desktop.png`, `10-workspace-half-screen.png`, `26-administration-workspace-today.png`, and `27-global-admin-workspace-today.png`: staff plans now use `Student support path`.
+- `03-program-teacher-workspace.png` and `49-program-teacher-today-phone.png`: Program Teacher plan now uses `Review path`.
+- `04-mentor-workspace.png` and `30-mobile-mentor-today.png`: Mentor plan now uses `Assigned-student path`.
+- `05-viewer-read-only-workspace.png` and `50-viewer-today-phone.png`: Viewer plan now uses `Read-only path`.
+- `36-admin-audit.png` and `72-mobile-admin-audit.png`: Admin Audit now uses `source area`.
+- Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
+- Manifest scan: screenshot text samples containing `Route review work`, `Student support route`, `Review route`, `Assigned-student route`, or `Read-only route`: `0`.
+- Manifest scan: screenshot text samples containing `source screen, then` or `source screen.`: `0`.
+- Manifest scan: screenshot text samples containing `Student support path`, `Review path`, `Assigned-student path`, `Read-only path`, or `source area`: present.
+- Direction update: future V6 work should prioritize Chromebook/desktop browser needs; mobile proof remains a guardrail.

@@ -1168,3 +1168,66 @@
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES
+
+## Slice 27 - Use Path Wording In Staff And Audit Guidance
+
+- Implementation commit: `462c3963` (`Use path wording in staff and audit guidance`)
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+- User-facing surfaces affected:
+  - Staff Workspace Today desktop, half-screen, and mobile
+  - Mentor Today desktop/mobile
+  - Program Teacher Today desktop/mobile
+  - Viewer Today desktop/mobile
+  - Admin Audit desktop/mobile
+  - Site Dashboard review-action guidance
+  - Screen visibility guide redacted-event language
+- Behavior changed:
+  - Staff/mentor/teacher/viewer plan labels now use `path` wording instead of visible `route` wording.
+  - Review actions now say `Review work` instead of `Route review work`.
+  - Admin Audit guidance now says `source area` for redacted follow-up context instead of `source screen`.
+  - Tests now assert the visible guide language with `source area` and the updated Site Dashboard review card label.
+- RBAC/data impact: no route handlers, role visibility, student-detail actions, audit filters, dashboard filters, report exports, or mutation logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --test --test-name-pattern "workspace renders route-connected site dashboard|workspace explains who can see screen information|workspace renders screen-specific plain-language term guides|workspace defaults to workflow landings|workspace keeps audit" tests\workspace-app.test.mjs`: PASS, `5` pass, `0` fail
+  - `node --test tests\workspace-app.test.mjs`: PASS, `116` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `npm run verify:functionality-language`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Real work continues before 3PM: YES
+- Direction update from user: Chromebook/desktop browser needs are now the priority; mobile remains a regression guardrail.
+
+## Browser Proof Refresh 20
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `78`
+- Mobile screenshots: `32`
+- Failures: `0`
+- Started: `2026-07-07T19:51:49.026Z`
+- Completed: `2026-07-07T19:59:35.138Z`
+- Technical-language scan:
+  - Screenshot text samples containing `DEMO_SEED` or `seed`: `0`
+  - Screenshot text samples containing `Route review work`, `Student support route`, `Review route`, `Assigned-student route`, or `Read-only route`: `0`
+  - Screenshot text samples containing `source screen, then` or `source screen.`: `0`
+  - Screenshot text samples containing `source area`: `2`
+  - Screenshot text samples containing `Student support path`: `7`
+  - Screenshot text samples containing `Review path`: `2`
+  - Screenshot text samples containing `Assigned-student path`: `2`
+  - Screenshot text samples containing `Read-only path`: `2`
+- Visual spot checks:
+  - `02-workspace-site-admin-desktop.png`, `10-workspace-half-screen.png`, `26-administration-workspace-today.png`, and `27-global-admin-workspace-today.png`: staff plans now use `Student support path`.
+  - `03-program-teacher-workspace.png` and `49-program-teacher-today-phone.png`: Program Teacher plan now uses `Review path`.
+  - `04-mentor-workspace.png` and `30-mobile-mentor-today.png`: Mentor plan now uses `Assigned-student path`.
+  - `05-viewer-read-only-workspace.png` and `50-viewer-today-phone.png`: Viewer plan now uses `Read-only path`.
+  - `36-admin-audit.png` and `72-mobile-admin-audit.png`: Audit guidance now uses `source area`.
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES
