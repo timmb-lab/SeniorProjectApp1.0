@@ -1,6 +1,6 @@
 # V6 Until-3PM Screenshot Index
 
-Status: current V6 local fake-account browser proof captured after implementation slices 01-31.
+Status: current V6 local fake-account browser proof captured after implementation slices 01-32.
 
 Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
 
@@ -17,8 +17,8 @@ Counts:
 - Chromebook/student desktop screenshots captured: 8
 - Short Chromebook/student desktop screenshots captured: 4
 - Browser-proof failures: 0
-- Started: `2026-07-07T20:48:54.349Z`
-- Completed: `2026-07-07T20:57:03.349Z`
+- Started: `2026-07-07T21:10:26.524Z`
+- Completed: `2026-07-07T21:18:39.901Z`
 - Fake data only: `true`
 - Real-student production status: `NOT_CLAIMED_READY`
 
@@ -51,6 +51,7 @@ Counts:
 - Student Chromebook hero tightening: `79-student-today-chromebook`, `80-student-my-work-chromebook`, `81-student-feedback-chromebook`, and `82-student-final-checklist-chromebook` show the first real route/work card in the first browser viewport after the desktop-height CSS pass.
 - Short Chromebook desktop browser proof: `83-student-today-chromebook-short`, `84-student-my-work-chromebook-short`, `85-student-feedback-chromebook-short`, and `86-student-final-checklist-chromebook-short` prove student-owned routes at `1366x650` after the short-height CSS pass.
 - Student My Work heading cleanup: `24-student-my-work-desktop`, `43-student-my-work-phone`, `53-student-my-work-half-screen`, `80-student-my-work-chromebook`, and `84-student-my-work-chromebook-short`; manifest text samples containing `Finish the next capstone item` or `Keep the work screen on one requirement`: `0`.
+- Student Feedback heading cleanup: `25-student-feedback-desktop`, `54-student-feedback-phone`, `81-student-feedback-chromebook`, and `85-student-feedback-chromebook-short`; manifest text samples containing `Read the note and fix one thing` or `Fix the feedback that asks for action`: `0`.
 - RBAC/read-only guard coverage: `05-viewer-read-only-workspace`, `14-viewer-read-only-detail-click`, `20-student-admin-route-blocked`, `39-viewer-students-directory`, `46-mobile-viewer-students`.
 
 ## Full Inventory Source

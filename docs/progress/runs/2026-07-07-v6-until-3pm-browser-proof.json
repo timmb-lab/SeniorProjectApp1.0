@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:53005",
+  "baseUrl": "http://127.0.0.1:51066",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-07T20:48:54.349Z",
-  "completedAt": "2026-07-07T20:57:03.349Z",
+  "startedAt": "2026-07-07T21:10:26.524Z",
+  "completedAt": "2026-07-07T21:18:39.901Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:53005",
+    "baseUrl": "http://127.0.0.1:51066",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-07-07-v6-until-3pm",
@@ -2469,8 +2469,8 @@
         "intentionalEmptyState": false,
         "finalFiles": false
       },
-      "heading": "Read the note and fix one thing",
-      "textSample": "Skip to workspace SC My Capstone My Capstone Feedback Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH Read the note and fix one thing Start with feedback that asks for action, then return to the matching work item. Open feedback Action notes first FEEDBACK Feedback Read feedback. Fix work if asked. Not confirmed yet View Work NEEDS CHANGES Needs changes No needs changes right now. No feedback needs changes right now. NEW FEEDBACK New feedback No feedback yet. No feedback yet. When your teacher reviews your work, it will appear here. OLD FEEDBACK Old feedback No old feedback right now. Old feedback appears here after rev",
+      "heading": "Fix one feedback note",
+      "textSample": "Skip to workspace SC My Capstone My Capstone Feedback Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH Fix one feedback note Start with feedback that asks for action, then return to the matching work item. Open feedback Action notes first FEEDBACK Feedback Read feedback. Fix work if asked. Not confirmed yet View Work NEEDS CHANGES Needs changes No needs changes right now. No feedback needs changes right now. NEW FEEDBACK New feedback No feedback yet. No feedback yet. When your teacher reviews your work, it will appear here. OLD FEEDBACK Old feedback No old feedback right now. Old feedback appears here after reviews are d",
       "activeNav": [
         "3\n        3. Feedback\n        Feedback and work to fix",
         "3\n        Feedback"
@@ -2542,8 +2542,8 @@
         "intentionalEmptyState": false,
         "finalFiles": false
       },
-      "heading": "Read the note and fix one thing",
-      "textSample": "Skip to workspace SC My Capstone My Capstone Feedback Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH Read the note and fix one thing Start with feedback that asks for action, then return to the matching work item. Open feedback Action notes first FEEDBACK Feedback Read feedback. Fix work if asked. Not confirmed yet View Work NEEDS CHANGES Needs changes No needs changes right now. No feedback needs changes right now. NEW FEEDBACK New feedback No feedback yet. No feedback yet. When your teacher reviews your work, it will appear here. OLD FEEDBACK Old feedback No old feedback right now. Old feedback appears here after rev",
+      "heading": "Fix one feedback note",
+      "textSample": "Skip to workspace SC My Capstone My Capstone Feedback Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH Fix one feedback note Start with feedback that asks for action, then return to the matching work item. Open feedback Action notes first FEEDBACK Feedback Read feedback. Fix work if asked. Not confirmed yet View Work NEEDS CHANGES Needs changes No needs changes right now. No feedback needs changes right now. NEW FEEDBACK New feedback No feedback yet. No feedback yet. When your teacher reviews your work, it will appear here. OLD FEEDBACK Old feedback No old feedback right now. Old feedback appears here after reviews are d",
       "activeNav": [
         "3\n        3. Feedback\n        Feedback and work to fix",
         "3\n        Feedback"
@@ -2614,8 +2614,8 @@
         "intentionalEmptyState": false,
         "finalFiles": false
       },
-      "heading": "Read the note and fix one thing",
-      "textSample": "Skip to workspace SC My Capstone My Capstone Feedback Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH Read the note and fix one thing Start with feedback that asks for action, then return to the matching work item. Open feedback Action notes first FEEDBACK Feedback Read feedback. Fix work if asked. Not confirmed yet View Work NEEDS CHANGES Needs changes No needs changes right now. No feedback needs changes right now. NEW FEEDBACK New feedback No feedback yet. No feedback yet. When your teacher reviews your work, it will appear here. OLD FEEDBACK Old feedback No old feedback right now. Old feedback appears here after rev",
+      "heading": "Fix one feedback note",
+      "textSample": "Skip to workspace SC My Capstone My Capstone Feedback Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH Fix one feedback note Start with feedback that asks for action, then return to the matching work item. Open feedback Action notes first FEEDBACK Feedback Read feedback. Fix work if asked. Not confirmed yet View Work NEEDS CHANGES Needs changes No needs changes right now. No feedback needs changes right now. NEW FEEDBACK New feedback No feedback yet. No feedback yet. When your teacher reviews your work, it will appear here. OLD FEEDBACK Old feedback No old feedback right now. Old feedback appears here after reviews are d",
       "activeNav": [
         "3\n        3. Feedback\n        Feedback and work to fix",
         "3\n        Feedback"
@@ -4693,8 +4693,8 @@
         "intentionalEmptyState": false,
         "finalFiles": false
       },
-      "heading": "Read the note and fix one thing",
-      "textSample": "Skip to workspace Menu SC My Capstone Tools TS STUDENT PATH Read the note and fix one thing Start with feedback that asks for action, then return to the matching work item. Open feedback Action notes first FEEDBACK Feedback Read feedback. Fix work if asked. Not confirmed yet View Work NEEDS CHANGES Needs changes No needs changes right now. No feedback needs changes right now. NEW FEEDBACK New feedback No feedback yet. No feedback yet. When your teacher reviews your work, it will appear here. OLD FEEDBACK Old feedback No old feedback right now. Old feedback appears here after reviews are done. START HERE Open feedback that asks for action. My Work stays first, with staff language and older de",
+      "heading": "Fix one feedback note",
+      "textSample": "Skip to workspace Menu SC My Capstone Tools TS STUDENT PATH Fix one feedback note Start with feedback that asks for action, then return to the matching work item. Open feedback Action notes first FEEDBACK Feedback Read feedback. Fix work if asked. Not confirmed yet View Work NEEDS CHANGES Needs changes No needs changes right now. No feedback needs changes right now. NEW FEEDBACK New feedback No feedback yet. No feedback yet. When your teacher reviews your work, it will appear here. OLD FEEDBACK Old feedback No old feedback right now. Old feedback appears here after reviews are done. START HERE Open feedback that asks for action. My Work stays first, with staff language and older details out ",
       "activeNav": [
         "3\n        3. Feedback\n        Feedback and work to fix",
         "3\n        Feedback"

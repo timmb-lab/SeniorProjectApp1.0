@@ -1,6 +1,6 @@
 # 2026-07-07 V6 Until-3PM Screenshot Review
 
-Status: in progress; refreshed after slices 01-31.
+Status: in progress; refreshed after slices 01-32.
 
 Source artifacts:
 
@@ -266,3 +266,15 @@ Source artifacts:
 - Manifest count: `86` screenshots total, including `32` mobile screenshots, `8` Chromebook/student desktop screenshots, and `4` short Chromebook/student desktop screenshots.
 - Manifest scan: screenshot text samples containing `Finish the next capstone item` or `Keep the work screen on one requirement`: `0`.
 - Manifest scan: screenshot text samples containing `Finish one item` or `Keep one requirement in focus`: present in My Work captures.
+
+## Refresh 24 Spot Checks
+
+- Selected target: Student Feedback hero should stay short enough for Chromebook browser first-view scanning.
+- `81-student-feedback-chromebook.png`: Feedback hero now says `Fix one feedback note` on one line and the Needs changes card remains visible in the first viewport.
+- `85-student-feedback-chromebook-short.png`: short Chromebook Feedback hero is one line and the Needs changes card remains visible in the first viewport.
+- `25-student-feedback-desktop.png`: desktop Feedback keeps the shortened student task language.
+- `54-student-feedback-phone.png`: mobile Feedback regression capture still passes with the shorter heading.
+- `82-student-final-checklist-chromebook.png`: wider Chromebook hero width also keeps the Final Checklist title on one line and shows first finish rows in the first viewport.
+- Manifest count: `86` screenshots total, including `32` mobile screenshots, `8` Chromebook/student desktop screenshots, and `4` short Chromebook/student desktop screenshots.
+- Manifest scan: screenshot text samples containing `Read the note and fix one thing` or `Fix the feedback that asks for action`: `0`.
+- Manifest scan: screenshot text samples containing `Fix one feedback note` or `Fix one action note`: present in Feedback captures.

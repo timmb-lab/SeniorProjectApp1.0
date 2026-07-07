@@ -1426,3 +1426,68 @@
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES
+
+## Slice 32 - Shorten Student Feedback Browser Heading
+
+- Implementation commit: `e31bb8b` (`Shorten student Feedback browser heading`)
+- Files changed:
+  - `workspace.js`
+  - `workspace.css`
+  - `tests/workspace-app.test.mjs`
+  - `scripts/prove-workspace-ui-polish.mjs`
+- User-facing surfaces affected:
+  - Student Feedback desktop
+  - Student Feedback Chromebook
+  - Student Feedback short Chromebook
+  - Student Final Checklist Chromebook via the wider student Chromebook hero width
+  - Student Feedback phone regression capture
+- Behavior changed:
+  - Student Feedback hero now says `Fix one feedback note` instead of `Read the note and fix one thing`.
+  - Student Feedback supporting flow now says `Fix one action note` instead of `Fix the feedback that asks for action`.
+  - Student Chromebook-height hero max-width increases from `18ch` to `22ch`, letting short task headings use available desktop browser width.
+  - Browser proof expected text was updated to require the shorter student wording.
+- RBAC/data impact: copy/CSS/proof-plan only; no route, role, read-only boundary, student data, evidence, report export, or mutation logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --check scripts\prove-workspace-ui-polish.mjs`: PASS
+  - `node --test --test-name-pattern "workspace defaults to workflow landings|workspace uses Phase 6.6 Figma cleanup patterns|student feedback rows open" tests\workspace-app.test.mjs`: PASS, `3` pass, `0` fail
+  - `node --test tests\workspace-app.test.mjs`: PASS, `116` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `npm run verify:functionality-language`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Direct visual inspection:
+  - `81-student-feedback-chromebook.png`: Feedback hero is now one line and the Needs changes card remains visible in the first viewport.
+  - `85-student-feedback-chromebook-short.png`: short Chromebook Feedback hero is one line and the Needs changes card remains visible in the first viewport.
+  - `82-student-final-checklist-chromebook.png`: wider Chromebook hero width keeps the Final Checklist title on one line and shows the first finish rows in the first viewport.
+- Real work continues before 3PM: YES
+
+## Browser Proof Refresh 24
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `86`
+- Mobile screenshots: `32`
+- Chromebook/student desktop screenshots: `8`
+- Short Chromebook/student desktop screenshots: `4`
+- Failures: `0`
+- Started: `2026-07-07T21:10:26.524Z`
+- Completed: `2026-07-07T21:18:39.901Z`
+- Technical-language scan:
+  - Screenshot text samples containing `DEMO_SEED` or `seed`: `0`
+  - Screenshot text samples containing `Read the note and fix one thing` or `Fix the feedback that asks for action`: `0`
+  - Screenshot text samples containing `Fix one feedback note` or `Fix one action note`: present in Feedback captures
+- Refreshed Feedback proof files:
+  - `25-student-feedback-desktop.png`
+  - `54-student-feedback-phone.png`
+  - `81-student-feedback-chromebook.png`
+  - `85-student-feedback-chromebook-short.png`
+- Refreshed adjacent Chromebook proof file:
+  - `82-student-final-checklist-chromebook.png`
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES
