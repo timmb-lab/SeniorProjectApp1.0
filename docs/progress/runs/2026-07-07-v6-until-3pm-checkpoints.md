@@ -24,6 +24,7 @@
 - `2026-07-07 07:42:04 -07:00`: Completed V6 implementation slice 02, role Today primary-route hardening. Added a compact primary-step row ahead of the Program Teacher, Viewer, and staff-admin Today plan grids so the first live route/action is not competing with equal secondary cards. Viewer remains read-only and only receives monitoring routes.
 - `2026-07-07 07:43:44 -07:00`: Completed V6 implementation slice 03, mentor shell language hardening. Replaced one visible "scoped" mentor shell sentence with plain assigned-student boundary language and added a regression assertion to keep that wording from returning.
 - `2026-07-07 07:45:21 -07:00`: Completed V6 implementation slice 04, CSV import outcome-first flow. Moved the latest preview outcome above the long import form after a preview exists, so admins see "fix this row first" or "confirm this import" before scrolling through file/text/note inputs. Detailed preview rows and error lists remain below the editable form.
+- `2026-07-07 07:47:04 -07:00`: Completed V6 implementation slice 05, report export boundary hardening. Added visible per-export boundary notes for staff, viewer, and admin CSV downloads and replaced one "authorized view" report helper with "current allowed view" language.
 
 ## Slice 01 - Mobile First-Viewport Hierarchy
 
@@ -105,5 +106,31 @@
   - `npm run check:workspace-mobile`: PASS
   - `npm run check:workspace-accessibility`: PASS
   - `npm run verify:dashboard-actions`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Real work continues before 3PM: YES
+
+## Slice 05 - Report Export Boundaries
+
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+  - `docs/progress/runs/2026-07-07-v6-until-3pm-checkpoints.md`
+- User-facing surfaces affected:
+  - Staff Reports CSV export cards
+  - Viewer read-only Reports CSV export cards
+  - Admin Reports export choice rows
+- Behavior changed:
+  - Each report export now names what the download is limited to.
+  - Staff/viewer exports state that downloads include only students or review rows the role can already load/open.
+  - Admin exports state that downloads use the current admin view and omit IDs, passwords, admin notes, storage links, row notes, setup passwords, and credentials as appropriate.
+- RBAC/data impact: no CSV data generation, permission, route, or export availability logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --test tests\workspace-app.test.mjs`: PASS, `115` pass, `0` fail
+  - `npm run verify:dashboard-actions`: PASS
+  - `npm run verify:functionality-language`: PASS
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
   - `git diff --check`: PASS with line-ending warnings only
 - Real work continues before 3PM: YES

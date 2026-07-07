@@ -6865,7 +6865,7 @@ function renderAdminReportChoiceRow(spec = {}, index = 0, model = adminConsoleOp
   const isPrimary = index === 0;
   const setupIssues = safeNumber(model?.report?.setupIssueCount) + safeNumber(model?.report?.importIssueCount);
   const helper = id === "admin-roster-completeness"
-    ? `${safeNumber(model?.report?.loadedStudentRows || model?.report?.studentTotal)} roster rows in the current authorized view.`
+    ? `${safeNumber(model?.report?.loadedStudentRows || model?.report?.studentTotal)} roster rows in the current allowed view.`
     : id === "admin-setup-issues"
       ? `${setupIssues} setup or import issue${setupIssues === 1 ? "" : "s"} need review.`
       : "Appears after a CSV preview or import result exists.";
@@ -6879,6 +6879,7 @@ function renderAdminReportChoiceRow(spec = {}, index = 0, model = adminConsoleOp
         <strong>${escapeHtml(title)}</strong>
         <p>${escapeHtml(spec.detail || "Download this report CSV.")}</p>
         <small>${escapeHtml(helper)}</small>
+        <small data-report-export-boundary="${escapeHtml(id)}">${escapeHtml(reportExportBoundaryText(spec, "Download includes only rows in the current allowed view."))}</small>
       </div>
       <div class="workspace-admin-report-choice-actions">
         <span class="workspace-summary-badge">${escapeHtml(String(count))} row${count === 1 ? "" : "s"}</span>
@@ -7406,6 +7407,7 @@ function renderReportExportRow(spec = {}) {
         <strong>${escapeHtml(spec.title || "Report export")}</strong>
         <p>${escapeHtml(spec.detail || "Download this report CSV.")}</p>
         <small data-report-export-fields="${escapeHtml(spec.id || "report")}">Fields: ${escapeHtml(headers.join(", "))}</small>
+        <small data-report-export-boundary="${escapeHtml(spec.id || "report")}">${escapeHtml(reportExportBoundaryText(spec, "Download includes only rows this role can already load."))}</small>
       </div>
       <div class="workspace-row-actions">
         <span class="workspace-summary-badge">${escapeHtml(String(rowCount))} row${rowCount === 1 ? "" : "s"}</span>
@@ -7415,6 +7417,10 @@ function renderReportExportRow(spec = {}) {
       </div>
     </article>
   `;
+}
+
+function reportExportBoundaryText(spec = {}, fallback = "Download includes only rows this role can already load.") {
+  return String(spec.boundary || fallback).trim() || fallback;
 }
 
 function staffReportExportSpecs() {
@@ -7428,6 +7434,7 @@ function staffReportExportSpecs() {
       filename: "capstone-visible-students.csv",
       headers: ["Student name", "Program", "Latest submission", "Review status", "Evidence status", "Presentation", "Final files", "Next action"],
       rows: visibleStudentRows,
+      boundary: "Includes only students this role can load; no IDs, passwords, admin notes, or storage links.",
     },
     {
       id: "staff-pending-reviews",
@@ -7436,6 +7443,7 @@ function staffReportExportSpecs() {
       filename: "capstone-pending-reviews.csv",
       headers: ["Student name", "Requirement", "Status", "Evidence count", "Updated", "Next action"],
       rows: reviewRows,
+      boundary: "Includes only review rows this role can already open.",
     },
   ];
 }
@@ -7457,6 +7465,7 @@ function adminReportExportSpecs(model = adminConsoleOperationsModel()) {
       filename: "capstone-admin-roster-completeness.csv",
       headers: ["Student name", "Program", "Cohort", "Graduation year", "Mentor coverage", "Viewer coverage", "Setup flags"],
       rows: rosterRows,
+      boundary: "Uses the current admin view only; no IDs, passwords, admin notes, or storage links.",
     },
     {
       id: "admin-setup-issues",
@@ -7465,6 +7474,7 @@ function adminReportExportSpecs(model = adminConsoleOperationsModel()) {
       filename: "capstone-admin-setup-issues.csv",
       headers: ["Issue", "Detail", "Count", "Action"],
       rows: setupIssueRows,
+      boundary: "Includes only setup and import issue summaries from this allowed view.",
     },
     {
       id: "admin-import-result",
@@ -7473,6 +7483,7 @@ function adminReportExportSpecs(model = adminConsoleOperationsModel()) {
       filename: "capstone-admin-import-summary.csv",
       headers: ["Metric", "Value"],
       rows: importRows,
+      boundary: "Includes import counts only; credentials, row notes, and setup passwords are never exported.",
     },
   ];
 }
