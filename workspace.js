@@ -1182,8 +1182,17 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     && !isAdminConsole
     && hasStaffAdminWorkspaceRole(roles)
     && ["overview", "students", "teacher", "staffReports"].includes(activeSection);
-  const primarySectionKind = !renderBlockedSectionOnly && studentExperience && activeSection === "student"
-    ? "student"
+  const studentPrimarySection = !renderBlockedSectionOnly
+    && studentExperience
+    && STUDENT_NAV_SECTION_IDS.has(activeSection);
+  const primarySectionKind = studentPrimarySection
+    ? activeSection === "student"
+      ? "student"
+      : activeSection === "studentWork"
+        ? "student-work"
+        : activeSection === "studentFeedback"
+          ? "student-feedback"
+          : "student-final-checklist"
     : adminConsolePrimarySection
       ? `admin-${activeSection}`
     : mentorPrimarySection

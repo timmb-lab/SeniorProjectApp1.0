@@ -254,3 +254,29 @@
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES
+
+## Slice 09 - Student Work Screens Lead With Real Content
+
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+  - `docs/progress/runs/2026-07-07-v6-until-3pm-checkpoints.md`
+- User-facing surfaces affected:
+  - Student My Work
+  - Student Feedback
+  - Student Final Checklist
+- Behavior changed:
+  - Student My Work, Feedback, and Final Checklist now render their real section content inside the V2 primary surface.
+  - Shared start-state and flow guidance now follows the actual student screen content instead of leading those routes.
+  - Existing Today behavior remains primary-surface-backed.
+- RBAC/data impact: no permission, API, student data, submission, upload, review, or final-file logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --test --test-name-pattern "workspace defaults to workflow landings" tests\workspace-app.test.mjs`: PASS, `1` pass, `0` fail
+  - `node --test tests\workspace-app.test.mjs`: PASS, `115` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Real work continues before 3PM: YES

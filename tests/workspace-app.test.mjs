@@ -564,6 +564,21 @@ test("workspace defaults to workflow landings instead of role profiles", async (
   assert.match(studentText, /Your next capstone move/);
   assert.match(student, /data-v5-flow-target="studentWork"[\s\S]*Open My Work/);
 
+  const studentWorkLanding = await renderWorkspaceWithFetch(profileRoutesForRole("student"), "studentWork");
+  assert.match(studentWorkLanding, /data-v2-primary-surface="student-work"[\s\S]*data-student-screen="work"/);
+  assertMarkupOrder(studentWorkLanding, 'data-v2-primary-surface="student-work"', 'data-v3-start-state="true"', "student work should show the real work screen before shared start guidance");
+  assertMarkupOrder(studentWorkLanding, 'data-student-screen="work"', 'data-v3-start-state="true"', "student work rows should lead before shared work explanation");
+
+  const studentFeedbackLanding = await renderWorkspaceWithFetch(profileRoutesForRole("student"), "studentFeedback");
+  assert.match(studentFeedbackLanding, /data-v2-primary-surface="student-feedback"[\s\S]*data-student-screen="feedback"/);
+  assertMarkupOrder(studentFeedbackLanding, 'data-v2-primary-surface="student-feedback"', 'data-v3-start-state="true"', "student feedback should show the real feedback screen before shared start guidance");
+  assertMarkupOrder(studentFeedbackLanding, 'data-student-screen="feedback"', 'data-v3-start-state="true"', "student feedback rows should lead before shared feedback explanation");
+
+  const studentFinalLanding = await renderWorkspaceWithFetch(profileRoutesForRole("student"), "studentFinalChecklist");
+  assert.match(studentFinalLanding, /data-v2-primary-surface="student-final-checklist"[\s\S]*data-student-screen="final-checklist"/);
+  assertMarkupOrder(studentFinalLanding, 'data-v2-primary-surface="student-final-checklist"', 'data-v3-start-state="true"', "student final checklist should show the real checklist before shared start guidance");
+  assertMarkupOrder(studentFinalLanding, 'data-student-screen="final-checklist"', 'data-v3-start-state="true"', "student final checklist rows should lead before shared final explanation");
+
   const staffCases = [
     {
       roleId: "mentor",
@@ -7255,6 +7270,7 @@ test("workspace exposes a real admin site switcher and collapsible navigation", 
   assert.match(workspaceJs, /renderProgramTeacherTodayPlan/);
   assert.match(workspaceJs, /mentorPrimarySection/);
   assert.match(workspaceJs, /renderMentorTodayPlan/);
+  assert.match(workspaceJs, /studentPrimarySection/);
   assert.match(workspaceJs, /data-v2-primary-surface="\$\{escapeHtml\(primarySectionKind \|\| "primary"\)\}"/);
   assert.match(workspaceCss, /\.workspace-v2-primary-surface\s*\{[\s\S]*border-top:\s*1px solid var\(--v2-line\);/);
   assert.match(workspaceCss, /\.workspace-today-primary-step\s*\{[\s\S]*grid-template-columns:\s*minmax\(0, 1fr\) auto auto;/);
