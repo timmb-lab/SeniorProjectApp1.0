@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:51304",
+  "baseUrl": "http://127.0.0.1:55447",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-07T04:28:45.626Z",
-  "completedAt": "2026-07-07T04:33:21.168Z",
+  "startedAt": "2026-07-07T04:37:59.374Z",
+  "completedAt": "2026-07-07T04:42:42.098Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:51304",
+    "baseUrl": "http://127.0.0.1:55447",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul",
@@ -163,7 +163,7 @@
         "finalFiles": false
       },
       "heading": "Start with the worklist",
-      "textSample": "Skip to workspace SC Capstone Staff Workspace Today Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reviews 4 Reports SITE ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen START HERE Open students. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Choose one student group that needs attention. IF EMPTY Nothing needs your attention right now. Leave setup and access work in Admin Console. FINISH BY Stop when the allowed action is done or the next staff follow-up is clear. SITE AD",
+      "textSample": "Skip to workspace SC Capstone Staff Workspace Today Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reviews 4 Reports SITE ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen STAFF WORKSPACE Site Admin Workspace Start with one group, then open one student. Open Student SITE ADMIN PLAN Daily support before setup work Open one student group first, then use reviews, setup, or reports only when that path answers the current problem. 250 visible students 102 Choose one student group Start with visible students who need rev",
       "activeNav": [
         "Workspace",
         "1\n        1. Today\n        Students needing attention",
@@ -812,7 +812,7 @@
         "finalFiles": false
       },
       "heading": "Start with the worklist",
-      "textSample": "Skip to workspace Menu SC Capstone Staff Workspace Today Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test SITE ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen START HERE Open students. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Choose one student group that needs attention. IF EMPTY Nothing needs your attention right now. Leave setup and access work in Admin Console. FINISH BY Stop when the allowed action is done or the next staff follow-up is clear. SITE ADMIN FLOW Daily student support pat",
+      "textSample": "Skip to workspace Menu SC Capstone Staff Workspace Today Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test SITE ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen STAFF WORKSPACE Site Admin Workspace Start with one group, then open one student. Open Student SITE ADMIN PLAN Daily support before setup work Open one student group first, then use reviews, setup, or reports only when that path answers the current problem. 250 visible students 102 Choose one student group Start with visible students who need review, feedback, setup, or follow-up",
       "activeNav": [
         "Workspace",
         "1\n        1. Today\n        Students needing attention",
@@ -953,7 +953,7 @@
         "finalFiles": false
       },
       "heading": "Start with the worklist",
-      "textSample": "Skip to workspace Menu SC Capstone Staff Workspace Today Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test Go to Staff Workspace Close 1 1. Today Students needing attention 2 2. Students Site student rows 3 3. Reviews Submitted work and follow-up 4 4. Reports Progress and setup summary Menu opened. SITE ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen START HERE Open students. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Choose one student group that needs attention. IF EMPTY Nothing needs your ",
+      "textSample": "Skip to workspace Menu SC Capstone Staff Workspace Today Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test Go to Staff Workspace Close 1 1. Today Students needing attention 2 2. Students Site student rows 3 3. Reviews Submitted work and follow-up 4 4. Reports Progress and setup summary Menu opened. SITE ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen STAFF WORKSPACE Site Admin Workspace Start with one group, then open one student. Open Student SITE ADMIN PLAN Daily support before setup work Open one student group first, then use reviews",
       "activeNav": [
         "Workspace",
         "1\n        1. Today\n        Students needing attention",
@@ -1971,7 +1971,7 @@
         "finalFiles": false
       },
       "heading": "Start with the worklist",
-      "textSample": "Skip to workspace SC Capstone Staff Workspace Today Tools Administration ROLE AS Avery School Admin administration.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reports SCHOOL ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen START HERE Open students. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Choose one student group that needs attention. IF EMPTY Nothing needs your attention right now. Leave setup and access work in Admin Console. FINISH BY Stop when the allowed action is done or the next staff follow-up is clear",
+      "textSample": "Skip to workspace SC Capstone Staff Workspace Today Tools Administration ROLE AS Avery School Admin administration.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reports SCHOOL ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen STAFF WORKSPACE Administration Workspace Start with one group, then open one student. Open Student SCHOOL ADMIN PLAN Daily support before setup work Open one student group first, then use reviews, setup, or reports only when that path answers the current problem. 250 visible students 64 Choose one student group Start with visible student",
       "activeNav": [
         "Workspace",
         "1\n        1. Today\n        Students needing attention",
@@ -2044,7 +2044,7 @@
         "finalFiles": false
       },
       "heading": "Start with the worklist",
-      "textSample": "Skip to workspace SC Capstone Staff Workspace Today Tools Global Admin ROLE PG Priya Global platform.admin@demo-staff.capstone.test 1 Today 2 Students 3 Reviews 4 Reports GLOBAL ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen START HERE Open students. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Choose one student group that needs attention. IF EMPTY Nothing needs your attention right now. Leave setup and access work in Admin Console. FINISH BY Stop when the allowed action is done or the next staff follow-up is clear. GLOBAL ADMIN FL",
+      "textSample": "Skip to workspace SC Capstone Staff Workspace Today Tools Global Admin ROLE PG Priya Global platform.admin@demo-staff.capstone.test 1 Today 2 Students 3 Reviews 4 Reports GLOBAL ADMIN Start with the worklist Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open students One focused screen STAFF WORKSPACE Global Admin Workspace Start with one group, then open one student. Open Student GLOBAL ADMIN PLAN Daily support before setup work Open one student group first, then use reviews, setup, or reports only when that path answers the current problem. 250 visible students 102 Choose one student group Start with visible students who need review,",
       "activeNav": [
         "Workspace",
         "1\n        1. Today\n        Students needing attention",
@@ -2116,7 +2116,7 @@
         "finalFiles": false
       },
       "heading": "Open one student record",
-      "textSample": "Skip to workspace SC Capstone Staff Workspace Students Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reviews 4 Reports SITE ADMIN Open one student record Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open student list One focused screen START HERE Open the student list. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Pick one student record. IF EMPTY Nothing needs your attention right now. Leave setup and access work in Admin Console. FINISH BY Stop when the allowed action is done or the next staff follow-up is clear. SITE ADMIN FLO",
+      "textSample": "Skip to workspace SC Capstone Staff Workspace Students Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reviews 4 Reports SITE ADMIN Open one student record Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open student list One focused screen STUDENT High Risk Demo 01 Culinary - DEMO_SEED Desert Valley High School Class of 2027 student059@demo-student.capstone.test Return to the filtered student list when you finish with this student. Needs changes Student should read feedback, fix the work, and send it again. Open feedback More Student details START HERE What this student need",
       "activeNav": [
         "Workspace",
         "2\n        2. Students\n        Site student rows",
@@ -2192,7 +2192,7 @@
         "finalFiles": false
       },
       "heading": "Check one report question",
-      "textSample": "Skip to workspace SC Capstone Staff Workspace Reports Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reviews 4 Reports SITE ADMIN Check one report question Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open report One focused screen START HERE Open one report. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Answer one report question. IF EMPTY Nothing needs your attention right now. Leave setup and access work in Admin Console. FINISH BY Stop when the allowed action is done or the next staff follow-up is clear. SITE ADMIN FLOW Report",
+      "textSample": "Skip to workspace SC Capstone Staff Workspace Reports Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reviews 4 Reports SITE ADMIN Check one report question Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open report One focused screen REPORTS Student Progress Reports Use simple counts to spot review, setup, and readiness work inside this account's allowed area. VISIBLE STUDENTS 250 Rows available to this role Open Students NEEDS REVIEW 52 Submitted or review-related rows Open Reviews SETUP WORK 250 Presentation, mentor, or final-file follow-up Open Worklist STAFF REPORTS Vis",
       "activeNav": [
         "Workspace",
         "4\n        4. Reports\n        Progress and setup summary",
@@ -2336,7 +2336,7 @@
         "finalFiles": false
       },
       "heading": "Open one student record",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS Student detail loaded. SITE ADMIN Open one student record Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open student list One focused screen START HERE Open the student list. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Pick one student record. IF EMPTY Nothing needs your attention right now. Leave setup and access work in Admin Console. FINISH BY Stop when the allowed action is done or the next staff follow-up is clear. SITE ADMIN FLOW Open the right student first The workspace path keeps daily student support separate from setup and acce",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS Student detail loaded. SITE ADMIN Open one student record Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open student list One focused screen STUDENT High Risk Demo 01 Culinary - DEMO_SEED Desert Valley High School Class of 2027 student059@demo-student.capstone.test Return to the filtered student list when you finish with this student. Needs changes Student should read feedback, fix the work, and send it again. Open feedback More Student details START HERE What this student needs next Open Mentor Assignments and assign coverage before the next check-in. Site Admin or Program Teacher",
       "activeNav": [
         "Workspace",
         "2\n        2. Students\n        Site student rows",
@@ -2411,7 +2411,7 @@
         "finalFiles": false
       },
       "heading": "Open one student record",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS SITE ADMIN Open one student record Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open student list One focused screen START HERE Open the student list. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Pick one student record. IF EMPTY Nothing needs your attention right now. Leave setup and access work in Admin Console. FINISH BY Stop when the allowed action is done or the next staff follow-up is clear. SITE ADMIN FLOW Open the right student first The workspace path keeps daily student support separate from setup and access administration. STAR",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS SITE ADMIN Open one student record Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open student list One focused screen CURRENT SITE Desert Valley High School / 2026-2027 Approved Desert Valley School District Site Admin School access No student messaging STUDENTS Students Find a student or start with work that needs attention. Approved Only students at this school are shown. Start Here Pick one group, then open the first student who needs attention. View all students Review work waiting for you 52 Open students whose work is ready for a teacher decision. View students Help students ",
       "activeNav": [
         "Workspace",
         "2\n        2. Students\n        Site student rows",
@@ -2485,7 +2485,7 @@
         "finalFiles": false
       },
       "heading": "Open one student record",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS SITE ADMIN Open one student record Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open student list One focused screen START HERE Open the student list. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Pick one student record. IF EMPTY Nothing needs your attention right now. Leave setup and access work in Admin Console. FINISH BY Stop when the allowed action is done or the next staff follow-up is clear. SITE ADMIN FLOW Open the right student first The workspace path keeps daily student support separate from setup and access administration. STAR",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS SITE ADMIN Open one student record Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open student list One focused screen STUDENT High Risk Demo 01 Culinary - DEMO_SEED Desert Valley High School Class of 2027 student059@demo-student.capstone.test Return to the filtered student list when you finish with this student. Needs changes Student should read feedback, fix the work, and send it again. Open feedback More Student details START HERE What this student needs next Open Mentor Assignments and assign coverage before the next check-in. Site Admin or Program Teacher Show plan details Over",
       "activeNav": [
         "Workspace",
         "2\n        2. Students\n        Site student rows",
@@ -3367,7 +3367,7 @@
         "finalFiles": false
       },
       "heading": "Open one student record",
-      "textSample": "Skip to workspace SC Capstone Staff Workspace Students Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reviews 4 Reports Student timeline loaded. SITE ADMIN Open one student record Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open student list One focused screen START HERE Open the student list. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Pick one student record. IF EMPTY Nothing needs your attention right now. Leave setup and access work in Admin Console. FINISH BY Stop when the allowed action is done or the next staff follow-up",
+      "textSample": "Skip to workspace SC Capstone Staff Workspace Students Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Today 2 Students 3 Reviews 4 Reports Student timeline loaded. SITE ADMIN Open one student record Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful. Open student list One focused screen STUDENT High Risk Demo 01 Culinary - DEMO_SEED Desert Valley High School Class of 2027 student059@demo-student.capstone.test Return to the filtered student list when you finish with this student. Needs changes Student should read feedback, fix the work, and send it again. Open feedback More Student details START HE",
       "activeNav": [
         "Workspace",
         "2\n        2. Students\n        Site student rows",
