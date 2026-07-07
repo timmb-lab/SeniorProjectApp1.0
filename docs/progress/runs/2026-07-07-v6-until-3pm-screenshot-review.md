@@ -1,6 +1,6 @@
 # 2026-07-07 V6 Until-3PM Screenshot Review
 
-Status: in progress; refreshed after slices 01-30.
+Status: in progress; refreshed after slices 01-31.
 
 Source artifacts:
 
@@ -255,3 +255,14 @@ Source artifacts:
 - Manifest count: `86` screenshots total, including `32` mobile screenshots, `8` Chromebook/student desktop screenshots, and `4` short Chromebook/student desktop screenshots.
 - Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
 - Direction update: short Chromebook desktop browser proof is now first-class for student-owned routes; mobile screenshots remain regression coverage.
+
+## Refresh 23 Spot Checks
+
+- Selected target: Student My Work hero should stay short enough for Chromebook browser first-view scanning.
+- `24-student-my-work-desktop.png`: My Work hero now says `Finish one item` and the work card remains visible above the fold.
+- `80-student-my-work-chromebook.png`: Chromebook My Work hero is one line and the Current work card remains visible in the first viewport.
+- `84-student-my-work-chromebook-short.png`: short Chromebook My Work hero is one line and the Current work summary remains visible in the first viewport.
+- `43-student-my-work-phone.png` and `53-student-my-work-half-screen.png`: mobile and half-screen regression captures still pass with the shorter My Work heading.
+- Manifest count: `86` screenshots total, including `32` mobile screenshots, `8` Chromebook/student desktop screenshots, and `4` short Chromebook/student desktop screenshots.
+- Manifest scan: screenshot text samples containing `Finish the next capstone item` or `Keep the work screen on one requirement`: `0`.
+- Manifest scan: screenshot text samples containing `Finish one item` or `Keep one requirement in focus`: present in My Work captures.

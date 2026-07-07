@@ -1365,3 +1365,64 @@
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES
+
+## Slice 31 - Shorten Student My Work Browser Heading
+
+- Implementation commit: `eff5cc3` (`Shorten student My Work browser heading`)
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+  - `scripts/prove-workspace-ui-polish.mjs`
+- User-facing surfaces affected:
+  - Student My Work desktop
+  - Student My Work Chromebook
+  - Student My Work short Chromebook
+  - Student My Work phone and half-screen regression captures
+- Behavior changed:
+  - Student My Work hero now says `Finish one item` instead of `Finish the next capstone item`.
+  - Student My Work supporting flow now says `Keep one requirement in focus` instead of `Keep the work screen on one requirement`.
+  - Browser proof expected text was updated to require the shorter student wording.
+- RBAC/data impact: copy/proof-plan only; no route, role, read-only boundary, student data, evidence, report export, or mutation logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --check scripts\prove-workspace-ui-polish.mjs`: PASS
+  - `node --test --test-name-pattern "workspace defaults to workflow landings|workspace uses Phase 6.6 Figma cleanup patterns|student Today next-step map" tests\workspace-app.test.mjs`: PASS, `3` pass, `0` fail
+  - `node --test tests\workspace-app.test.mjs`: PASS, `116` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `npm run verify:functionality-language`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Direct visual inspection:
+  - `24-student-my-work-desktop.png`: My Work hero is one line: `Finish one item`.
+  - `80-student-my-work-chromebook.png`: Chromebook My Work hero is one line and the Current work card remains visible in the first viewport.
+  - `84-student-my-work-chromebook-short.png`: short Chromebook My Work hero is one line and the Current work summary remains visible in the first viewport.
+- Real work continues before 3PM: YES
+
+## Browser Proof Refresh 23
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `86`
+- Mobile screenshots: `32`
+- Chromebook/student desktop screenshots: `8`
+- Short Chromebook/student desktop screenshots: `4`
+- Failures: `0`
+- Started: `2026-07-07T20:48:54.349Z`
+- Completed: `2026-07-07T20:57:03.349Z`
+- Technical-language scan:
+  - Screenshot text samples containing `DEMO_SEED` or `seed`: `0`
+  - Screenshot text samples containing `Finish the next capstone item` or `Keep the work screen on one requirement`: `0`
+  - Screenshot text samples containing `Finish one item` or `Keep one requirement in focus`: present in My Work captures
+- Refreshed My Work proof files:
+  - `24-student-my-work-desktop.png`
+  - `43-student-my-work-phone.png`
+  - `53-student-my-work-half-screen.png`
+  - `80-student-my-work-chromebook.png`
+  - `84-student-my-work-chromebook-short.png`
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES

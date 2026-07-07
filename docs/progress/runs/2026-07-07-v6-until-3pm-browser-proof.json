@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:63983",
+  "baseUrl": "http://127.0.0.1:53005",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-07T20:35:33.496Z",
-  "completedAt": "2026-07-07T20:43:48.069Z",
+  "startedAt": "2026-07-07T20:48:54.349Z",
+  "completedAt": "2026-07-07T20:57:03.349Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:63983",
+    "baseUrl": "http://127.0.0.1:53005",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-07-07-v6-until-3pm",
@@ -2172,8 +2172,8 @@
         "intentionalEmptyState": false,
         "finalFiles": false
       },
-      "heading": "Finish the next capstone item",
-      "textSample": "Skip to workspace SC My Capstone My Capstone My Work Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH Finish the next capstone item Work on one requirement at a time. Extra progress details stay closed. Open current item One item at a time MY WORK My Work Open work. Turn in work. Check files. WAITING FOR REVIEW Continue CURRENT WORK Current work Open one item. Add a file or link if the item asks for it. Turn it in when it is ready. Show one phase Current phase: Start: Setup. Show one phase if the full checklist feels too long. All phases Start: Setup (Current) Phase 1: Kickoff and Proposal Phase 2A: Build Phase 2B: Build",
+      "heading": "Finish one item",
+      "textSample": "Skip to workspace SC My Capstone My Capstone My Work Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH Finish one item Work on one requirement at a time. Extra progress details stay closed. Open current item One item at a time MY WORK My Work Open work. Turn in work. Check files. WAITING FOR REVIEW Continue CURRENT WORK Current work Open one item. Add a file or link if the item asks for it. Turn it in when it is ready. Show one phase Current phase: Start: Setup. Show one phase if the full checklist feels too long. All phases Start: Setup (Current) Phase 1: Kickoff and Proposal Phase 2A: Build Phase 2B: Build Part II Phase",
       "activeNav": [
         "2\n        2. My Work\n        Current work and files",
         "2\n        My Work",
@@ -2247,8 +2247,8 @@
         "intentionalEmptyState": false,
         "finalFiles": false
       },
-      "heading": "Finish the next capstone item",
-      "textSample": "Skip to workspace SC My Capstone My Capstone My Work Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH Finish the next capstone item Work on one requirement at a time. Extra progress details stay closed. Open current item One item at a time MY WORK My Work Open work. Turn in work. Check files. WAITING FOR REVIEW Continue CURRENT WORK Current work Open one item. Add a file or link if the item asks for it. Turn it in when it is ready. Show one phase Current phase: Start: Setup. Show one phase if the full checklist feels too long. All phases Start: Setup (Current) Phase 1: Kickoff and Proposal Phase 2A: Build Phase 2B: Build",
+      "heading": "Finish one item",
+      "textSample": "Skip to workspace SC My Capstone My Capstone My Work Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH Finish one item Work on one requirement at a time. Extra progress details stay closed. Open current item One item at a time MY WORK My Work Open work. Turn in work. Check files. WAITING FOR REVIEW Continue CURRENT WORK Current work Open one item. Add a file or link if the item asks for it. Turn it in when it is ready. Show one phase Current phase: Start: Setup. Show one phase if the full checklist feels too long. All phases Start: Setup (Current) Phase 1: Kickoff and Proposal Phase 2A: Build Phase 2B: Build Part II Phase",
       "activeNav": [
         "2\n        2. My Work\n        Current work and files",
         "2\n        My Work",
@@ -2320,8 +2320,8 @@
         "intentionalEmptyState": false,
         "finalFiles": false
       },
-      "heading": "Finish the next capstone item",
-      "textSample": "Skip to workspace SC My Capstone My Capstone My Work Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH Finish the next capstone item Work on one requirement at a time. Extra progress details stay closed. Open current item One item at a time MY WORK My Work Open work. Turn in work. Check files. WAITING FOR REVIEW Continue CURRENT WORK Current work Open one item. Add a file or link if the item asks for it. Turn it in when it is ready. Show one phase Current phase: Start: Setup. Show one phase if the full checklist feels too long. All phases Start: Setup (Current) Phase 1: Kickoff and Proposal Phase 2A: Build Phase 2B: Build",
+      "heading": "Finish one item",
+      "textSample": "Skip to workspace SC My Capstone My Capstone My Work Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH Finish one item Work on one requirement at a time. Extra progress details stay closed. Open current item One item at a time MY WORK My Work Open work. Turn in work. Check files. WAITING FOR REVIEW Continue CURRENT WORK Current work Open one item. Add a file or link if the item asks for it. Turn it in when it is ready. Show one phase Current phase: Start: Setup. Show one phase if the full checklist feels too long. All phases Start: Setup (Current) Phase 1: Kickoff and Proposal Phase 2A: Build Phase 2B: Build Part II Phase",
       "activeNav": [
         "2\n        2. My Work\n        Current work and files",
         "2\n        My Work",
@@ -2395,8 +2395,8 @@
         "intentionalEmptyState": false,
         "finalFiles": false
       },
-      "heading": "Finish the next capstone item",
-      "textSample": "Skip to workspace Menu SC My Capstone Tools TS STUDENT PATH Finish the next capstone item Work on one requirement at a time. Extra progress details stay closed. Open current item One item at a time MY WORK My Work Open work. Turn in work. Check files. WAITING FOR REVIEW Continue CURRENT WORK Current work Open one item. Add a file or link if the item asks for it. Turn it in when it is ready. Show one phase Current phase: Start: Setup. Show one phase if the full checklist feels too long. All phases Start: Setup (Current) Phase 1: Kickoff and Proposal Phase 2A: Build Phase 2B: Build Part II Phase 3A: Present Phase 3B: Celebrate Phase 4: Give Thanks, Reflect, Launch Finish: Download and Keep Sta",
+      "heading": "Finish one item",
+      "textSample": "Skip to workspace Menu SC My Capstone Tools TS STUDENT PATH Finish one item Work on one requirement at a time. Extra progress details stay closed. Open current item One item at a time MY WORK My Work Open work. Turn in work. Check files. WAITING FOR REVIEW Continue CURRENT WORK Current work Open one item. Add a file or link if the item asks for it. Turn it in when it is ready. Show one phase Current phase: Start: Setup. Show one phase if the full checklist feels too long. All phases Start: Setup (Current) Phase 1: Kickoff and Proposal Phase 2A: Build Phase 2B: Build Part II Phase 3A: Present Phase 3B: Celebrate Phase 4: Give Thanks, Reflect, Launch Finish: Download and Keep Start: Setup Fix ",
       "activeNav": [
         "2\n        2. My Work\n        Current work and files",
         "2\n        My Work",
@@ -4626,8 +4626,8 @@
         "intentionalEmptyState": false,
         "finalFiles": false
       },
-      "heading": "Finish the next capstone item",
-      "textSample": "Skip to workspace Menu SC My Capstone My Capstone My Work Tools TS Test Student Maya maya.student@senior-capstone.test STUDENT PATH Finish the next capstone item Work on one requirement at a time. Extra progress details stay closed. Open current item One item at a time MY WORK My Work Open work. Turn in work. Check files. WAITING FOR REVIEW Continue CURRENT WORK Current work Open one item. Add a file or link if the item asks for it. Turn it in when it is ready. Show one phase Current phase: Start: Setup. Show one phase if the full checklist feels too long. All phases Start: Setup (Current) Phase 1: Kickoff and Proposal Phase 2A: Build Phase 2B: Build Part II Phase 3A: Present Phase 3B: Celeb",
+      "heading": "Finish one item",
+      "textSample": "Skip to workspace Menu SC My Capstone My Capstone My Work Tools TS Test Student Maya maya.student@senior-capstone.test STUDENT PATH Finish one item Work on one requirement at a time. Extra progress details stay closed. Open current item One item at a time MY WORK My Work Open work. Turn in work. Check files. WAITING FOR REVIEW Continue CURRENT WORK Current work Open one item. Add a file or link if the item asks for it. Turn it in when it is ready. Show one phase Current phase: Start: Setup. Show one phase if the full checklist feels too long. All phases Start: Setup (Current) Phase 1: Kickoff and Proposal Phase 2A: Build Phase 2B: Build Part II Phase 3A: Present Phase 3B: Celebrate Phase 4: ",
       "activeNav": [
         "2\n        2. My Work\n        Current work and files",
         "2\n        My Work",
