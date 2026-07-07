@@ -146,6 +146,22 @@
 - Remaining risks: local fake-account proof only; hosted and real-student gates remain unclaimed, and elapsed runtime is still below the 6-hour complete-run gate.
 - Next focus: continue Phase 8 with empty, error, confirmation, and action-label wording on route-backed staff/student states.
 
+## Empty-State And Mentor Action Checkpoint
+
+- Checkpoint local time: `2026-07-06 23:09:38 -07:00`
+- Elapsed minutes so far: about 167
+- Screens changed since the Microcopy checkpoint: Mentor Dashboard desktop and phone, staff/admin report empty summaries, review workload empty summary, mentor coverage empty summary, student status empty summary, presentation/final-file snapshot empty summary, audit summary empty state, and scoped student-list empty state.
+- Role-specific work completed: Phase 8 now gives staff/admin empty states a reason, owner, and safe next action instead of bare "no rows" messages; Mentor Dashboard regained compact focus metrics for Assigned, Needs Revision, Meetings, and Presentations using the existing mentor filters.
+- What users see differently: empty summaries explain whether the loaded list is actually clear or simply has no rows in the current school/program/assigned-student list, and mentors can jump from the first screen into each focused student list.
+- What users do next more clearly: staff can refresh, open Students, open Review Work, open Operations, or open Audit only where their role already has the route; mentors can show all assigned students or focus revision, meeting, and presentation follow-up.
+- Mobile checked: refreshed `58-mentor-dashboard-phone` shows the mentor metrics stacked without overlap; V5 browser proof still captures 31 mobile screenshots.
+- Accessibility checked: the existing intentional empty-state pattern supplies labeled reason/owner/next-action content and recovery actions; `npm run check:workspace-accessibility` and `npm run check:workspace-mobile` both pass.
+- Screenshots captured: 75 total screenshots, including 31 mobile screenshots, refreshed in `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/`.
+- Tests run: `node --check workspace.js`; `node --check tests\workspace-app.test.mjs`; `node --check scripts\verify-dashboard-actions.mjs`; `npm run verify:functionality-language`; `npm run verify:dashboard-actions`; `node --test tests\workspace-app.test.mjs` (115 pass, 0 fail); `npm run check:workspace-accessibility`; `npm run check:workspace-mobile`; `node scripts\prove-workspace-ui-polish.mjs` with V5 output env vars (75 pass, 0 fail); `git diff --check` (passed; line-ending warnings only).
+- Commit SHA(s): `2c95d33a59c1a566eb4ddaaade79443941686571`
+- Remaining risks: local fake-account proof only; hosted and real-student gates remain unclaimed, and elapsed runtime is still below the 6-hour complete-run gate.
+- Next focus: continue Phase 8/9 with confirmation/action-result wording and any remaining route-backed dense surfaces.
+
 ## Working Log
 
 - `2026-07-06 20:22:33 -07:00`: start recorded after verifying `main`, clean status, and `origin/main` alignment.
@@ -161,3 +177,4 @@
 - `2026-07-06 22:10:12 -07:00`: Phase 7 mobile/header tightening committed as `2c5b208c07819c8f0f8e553fa0b951a4c49d1e57`; workspace tests pass at 115/115 and refreshed V5 browser proof is green with 75 screenshots, 31 mobile screenshots, and zero failures.
 - `2026-07-06 22:40:32 -07:00`: Phase 7 Reports simplification committed as `2d1c3e1237944da0d88728531bd7d6132deefd67`; workspace tests pass at 115/115, mobile/accessibility contracts pass, and refreshed V5 browser proof is green with 75 screenshots, 31 mobile screenshots, and zero failures.
 - `2026-07-06 22:53:34 -07:00`: Phase 8 Student Admin Console blocked-state microcopy committed as `c015905279737ca11eb852c734feeb62d3f2fde4`; functionality-language, workspace tests, syntax checks, and refreshed V5 browser proof are green with 75 screenshots, 31 mobile screenshots, and zero failures.
+- `2026-07-06 23:09:38 -07:00`: Phase 8 empty-state and Mentor Dashboard focus-action work committed as `2c95d33a59c1a566eb4ddaaade79443941686571`; functionality-language, dashboard-action, mobile, accessibility, workspace tests, syntax checks, diff hygiene, and refreshed V5 browser proof are green.
