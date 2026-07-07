@@ -7158,10 +7158,23 @@ function renderAdminPageHeader({ kicker = "Admin Console", title = "Section", id
       <div class="workspace-admin-page-header-actions">
         ${badge ? `<span class="workspace-site-context-badge">${escapeHtml(badge)}</span>` : ""}
         ${primary ? renderAdminActionControl(primary, "workspace-button workspace-button-primary workspace-button-small", "primary") : ""}
-        ${renderAdminActionMenu({ id: activeSection || "overview", actions })}
+        ${renderAdminActionMenu({ id: activeSection || "overview", actions, label: adminActionMenuLabelForSection(activeSection) })}
       </div>
     </div>
   `;
+}
+
+function adminActionMenuLabelForSection(section = activeSection) {
+  const map = {
+    adminPeople: "More people actions",
+    adminStudents: "More student actions",
+    adminAssignments: "More assignment actions",
+    adminImports: "More import actions",
+    adminReports: "More report actions",
+    audit: "More audit actions",
+    programs: "More program actions",
+  };
+  return map[section] || "More actions";
 }
 
 function adminPrimaryActionForSection(section = activeSection) {

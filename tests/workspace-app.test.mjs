@@ -7490,7 +7490,7 @@ test("admin console surfaces setup reasons across overview people students and r
   vm.runInContext('activeSection = "adminStudents"; adminPeopleView = "manage-students"; renderAppShell();', context);
   const students = workspaceRoot.innerHTML;
   assert.match(students, /data-admin-page-header="true" data-admin-page-section="adminStudents"/);
-  assert.match(students, /data-admin-action-menu="adminStudents"[\s\S]*aria-label="Actions menu for Students"[\s\S]*Import students[\s\S]*Download student template/);
+  assert.match(students, /data-admin-action-menu="adminStudents"[\s\S]*aria-label="More student actions menu for Students"[\s\S]*More student actions[\s\S]*Import students[\s\S]*Download student template/);
   assert.match(students, /data-admin-student-setup-summary="true"[\s\S]*Students loaded[\s\S]*Roster fields[\s\S]*Mentor gaps[\s\S]*Viewer gaps/);
   assert.match(students, /data-admin-student-first-action="[^"]+"[\s\S]*(Review first|Current roster state)/);
   assertMarkupOrder(
@@ -7528,7 +7528,8 @@ test("admin console surfaces setup reasons across overview people students and r
   vm.runInContext('activeSection = "adminPeople"; adminPeopleView = "manage-staff"; renderAppShell();', context);
   const people = workspaceRoot.innerHTML;
   assert.match(people, /data-admin-page-header="true" data-admin-page-section="adminPeople"/);
-  assert.match(people, /data-admin-action-menu="adminPeople"[\s\S]*aria-label="Actions menu for People"[\s\S]*Import staff[\s\S]*Download staff template/);
+  assert.match(people, /data-admin-action-menu="adminPeople"[\s\S]*aria-label="More people actions menu for People"[\s\S]*More people actions[\s\S]*Import staff[\s\S]*Download staff template/);
+  assert.doesNotMatch(people, /data-admin-action-menu="adminPeople"[\s\S]<summary aria-label="Actions menu for People">Actions<\/summary>/);
   assert.match(people, /data-admin-staff-setup-summary="true"[\s\S]*Staff loaded[\s\S]*Needs setup[\s\S]*Coverage gaps/);
   assert.match(people, /data-admin-staff-first-action="[^"]+"[\s\S]*(Review first|Current staff state)/);
   assert.match(people, /data-manage-staff-row="mentor-no-scope" data-manage-staff-setup="needs-review"/);
@@ -7576,7 +7577,7 @@ test("admin console menus filters and mutation entry points stay role scoped", a
     url: "https://workspace.example/workspace.html?mode=admin&section=adminReports",
   });
   assert.match(globalReports, /data-admin-action-menu="adminReports"[\s\S]*data-section="audit"[\s\S]*View audit/);
-  assert.match(globalReports, /aria-label="Actions menu for Reports"/);
+  assert.match(globalReports, /aria-label="More report actions menu for Reports"/);
 
   const siteReports = await renderWorkspaceWithFetch(profileRoutesForRole("site_admin"), "adminReports", 'activeWorkspaceMode = "admin";', {
     url: "https://workspace.example/workspace.html?mode=admin&section=adminReports&siteId=site-desert-valley-high",
