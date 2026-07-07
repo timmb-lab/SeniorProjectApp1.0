@@ -34,6 +34,22 @@
 - Remaining risks: screenshot-count gate is still not met; this is local fake-account proof only, not hosted or real-student pilot proof.
 - Next focus: Phase 4 Program Teacher review flow.
 
+## Hour 2
+
+- Hour checkpoint local time: `2026-07-06 21:24:24 -07:00`
+- Elapsed minutes so far: about 62
+- Screens changed this hour: Program Teacher Today landing, Program Teacher Review Work route, and related Program Teacher browser screenshots.
+- Role-specific work completed: Phase 4 Program Teacher landing now promotes the real work surface for Today, Review Work, and Program Dashboard routes; Program Teacher Today includes a decision plan for submitted decisions, revision follow-up, missing proof, and student support.
+- What users see differently: Program Teachers see their actionable review plan and route-backed work surface in the first viewport instead of having the actual queue hidden below shared shell guidance.
+- What users do next more clearly: open submitted work first, read revision follow-up, find missing proof, or use the roster only after decision work is clear.
+- Mobile checked: current V5 proof still captures 13 mobile screenshots; Program Teacher-specific mobile expansion remains pending.
+- Accessibility checked: the new Program Teacher plan is a labeled section with stable action buttons and responsive grid behavior; full accessibility sweep still pending.
+- Screenshots captured: 47 total screenshots, including 13 mobile screenshots, refreshed in `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/`.
+- Tests run: `node --check workspace.js`; `node --test tests\workspace-app.test.mjs` (115 pass, 0 fail); `node scripts\prove-workspace-ui-polish.mjs` with V5 output env vars (47 pass, 0 fail); `git diff --check` (passed; line-ending warnings only).
+- Commit SHA(s): `2ba0d85e2ba89674d52f2f39d2701add497d4871`, `e44507f02f0a9ecbcdbcab565ff396660cf956d1`
+- Remaining risks: screenshot-count gate is still not met; this is local fake-account proof only, not hosted or real-student pilot proof.
+- Next focus: Phase 5 Viewer and read-only support surfaces.
+
 ## Working Log
 
 - `2026-07-06 20:22:33 -07:00`: start recorded after verifying `main`, clean status, and `origin/main` alignment.
@@ -42,3 +58,4 @@
 - `2026-07-06 20:37:55 -07:00`: V5 browser proof committed as `8839eded20bb9a511d818ed784756e441573a847` with 47 screenshots, 13 mobile screenshots, zero failures, and the fake-account-only claim boundary preserved.
 - `2026-07-06 21:02:40 -07:00`: Phase 2 Student Today work committed through `b348a33b19f621cc64f2bb19eb3ea383d80a36b9`; workspace tests pass at 115/115 and browser proof is refreshed green with the Student Today map marker.
 - `2026-07-06 21:14:12 -07:00`: Phase 3 Mentor work committed through `082c11c14e73762a4cde1c3f6ea5b96e07f9aacf`; workspace tests pass at 115/115 and V5 browser proof is refreshed green with the Mentor Dashboard primary surface.
+- `2026-07-06 21:24:24 -07:00`: Phase 4 Program Teacher work committed through `e44507f02f0a9ecbcdbcab565ff396660cf956d1`; workspace tests pass at 115/115 and V5 browser proof is refreshed green with Program Teacher Today and Review Work screenshots.
