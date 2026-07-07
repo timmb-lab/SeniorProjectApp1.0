@@ -130,6 +130,22 @@
 - Remaining risks: local fake-account proof only; hosted and real-student gates remain unclaimed, and elapsed runtime is still below the 6-hour complete-run gate.
 - Next focus: Phase 8 microcopy, empty, error, and confirmation sweep.
 
+## Microcopy Checkpoint
+
+- Checkpoint local time: `2026-07-06 22:53:34 -07:00`
+- Elapsed minutes so far: about 151
+- Screens changed since the Reports checkpoint: Student deep link blocked from Admin Console and the related Admin Console unavailable recovery state.
+- Role-specific work completed: Phase 8 microcopy now explains the student/admin boundary as an account assignment issue instead of telling students they have the wrong role or need a console capability.
+- What users see differently: students who land on an admin URL see "Admin Console is not available for this account," a My Capstone recovery path, and a plain instruction to ask a school coordinator to check the account if needed.
+- What users do next more clearly: students return to My Capstone, refresh their workspace, review their profile, or ask a coordinator for account help without seeing staff/admin terminology.
+- Mobile checked: no new mobile layout regression was introduced; the refreshed 75-screenshot proof still includes 31 mobile screenshots.
+- Accessibility checked: browser proof verified the updated student admin-block marker, absence checks, no visible password values, no secret-like text, and no horizontal overflow across all 75 captures.
+- Screenshots captured: 75 total screenshots, including 31 mobile screenshots, refreshed in `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/`.
+- Tests run: `node --check workspace.js`; `node --check scripts\prove-workspace-ui-polish.mjs`; `npm run verify:functionality-language`; `node --test tests\workspace-app.test.mjs` (115 pass, 0 fail); `node scripts\prove-workspace-ui-polish.mjs` with V5 output env vars (75 pass, 0 fail); `git diff --check` (passed; line-ending warnings only).
+- Commit SHA(s): `c015905279737ca11eb852c734feeb62d3f2fde4`
+- Remaining risks: local fake-account proof only; hosted and real-student gates remain unclaimed, and elapsed runtime is still below the 6-hour complete-run gate.
+- Next focus: continue Phase 8 with empty, error, confirmation, and action-label wording on route-backed staff/student states.
+
 ## Working Log
 
 - `2026-07-06 20:22:33 -07:00`: start recorded after verifying `main`, clean status, and `origin/main` alignment.
@@ -144,3 +160,4 @@
 - `2026-07-06 21:57:43 -07:00`: Phase 7 evidence expansion committed as `b788c9aad4b3a97afec3eb42004e23dbb8369f45`; V5 browser proof is green with 75 screenshots, 31 mobile screenshots, and zero failures.
 - `2026-07-06 22:10:12 -07:00`: Phase 7 mobile/header tightening committed as `2c5b208c07819c8f0f8e553fa0b951a4c49d1e57`; workspace tests pass at 115/115 and refreshed V5 browser proof is green with 75 screenshots, 31 mobile screenshots, and zero failures.
 - `2026-07-06 22:40:32 -07:00`: Phase 7 Reports simplification committed as `2d1c3e1237944da0d88728531bd7d6132deefd67`; workspace tests pass at 115/115, mobile/accessibility contracts pass, and refreshed V5 browser proof is green with 75 screenshots, 31 mobile screenshots, and zero failures.
+- `2026-07-06 22:53:34 -07:00`: Phase 8 Student Admin Console blocked-state microcopy committed as `c015905279737ca11eb852c734feeb62d3f2fde4`; functionality-language, workspace tests, syntax checks, and refreshed V5 browser proof are green with 75 screenshots, 31 mobile screenshots, and zero failures.
