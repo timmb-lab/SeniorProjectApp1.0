@@ -26,6 +26,7 @@
 - `2026-07-07 07:45:21 -07:00`: Completed V6 implementation slice 04, CSV import outcome-first flow. Moved the latest preview outcome above the long import form after a preview exists, so admins see "fix this row first" or "confirm this import" before scrolling through file/text/note inputs. Detailed preview rows and error lists remain below the editable form.
 - `2026-07-07 07:47:04 -07:00`: Completed V6 implementation slice 05, report export boundary hardening. Added visible per-export boundary notes for staff, viewer, and admin CSV downloads and replaced one "authorized view" report helper with "current allowed view" language.
 - `2026-07-07 07:57:25 -07:00`: Completed V6 implementation slice 06 after visual proof review. V6 screenshots showed Program Teacher and Viewer phone still put the shared Staff Workspace header ahead of the role-specific plan. Reordered staff Today rendering so Program Teacher, Viewer, and staff-admin plans lead before the shared Staff Workspace header; mentors keep the existing header-first layout because they do not have a dedicated role plan block.
+- `2026-07-07 08:05:59 -07:00`: Refreshed V6 browser proof after slice 06. Result: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`, `78` screenshots, `32` mobile screenshots, `0` failures, fake-data-only, real-student status still `NOT_CLAIMED_READY`. Visually rechecked Program Teacher, Viewer, and Administration phone screenshots and confirmed the role-specific plan now appears before the shared Staff Workspace header.
 
 ## Slice 01 - Mobile First-Viewport Hierarchy
 
@@ -160,4 +161,19 @@
   - `npm run check:workspace-accessibility`: PASS
   - `npm run verify:dashboard-actions`: PASS
   - `git diff --check`: PASS with line-ending warnings only
+- Real work continues before 3PM: YES
+
+## Browser Proof Refresh 01
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `78`
+- Mobile screenshots: `32`
+- Failures: `0`
+- Started: `2026-07-07T14:57:53.622Z`
+- Completed: `2026-07-07T15:05:17.912Z`
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES
