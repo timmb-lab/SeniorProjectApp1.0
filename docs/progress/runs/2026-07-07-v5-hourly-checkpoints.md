@@ -50,6 +50,22 @@
 - Remaining risks: screenshot-count gate is still not met; this is local fake-account proof only, not hosted or real-student pilot proof.
 - Next focus: Phase 5 Viewer and read-only support surfaces.
 
+## Viewer Checkpoint
+
+- Checkpoint local time: `2026-07-06 21:34:24 -07:00`
+- Elapsed minutes so far: about 72
+- Screens changed since the Hour 2 checkpoint: Viewer Today landing, Viewer Students directory, Viewer read-only detail, and Viewer mobile Students proof.
+- Role-specific work completed: Phase 5 Viewer surfaces now promote the real read-only landing, assigned-student directory, and reports route as primary surfaces; Viewer Today includes a read-only plan for opening one assigned student, monitoring teacher follow-up, watching support blockers, and sharing outside the app.
+- What users see differently: Viewers see an explicit read-only plan and assigned-student context in the first viewport instead of waiting until after shared shell guidance.
+- What users do next more clearly: open one assigned student, monitor review/support signals, and pass concerns to authorized staff without seeing edit/review/import/assignment controls.
+- Mobile checked: Viewer mobile Students screenshot refreshed and visually inspected; text remains stacked without overlap, though the inherited shared role header remains large.
+- Accessibility checked: Viewer plan is a labeled section with route-backed buttons and an explicit no-edit boundary; full accessibility sweep still pending.
+- Screenshots captured: 47 total screenshots, including 13 mobile screenshots, refreshed in `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/`.
+- Tests run: `node --check workspace.js`; `node --test tests\workspace-app.test.mjs` (115 pass, 0 fail); `node scripts\prove-workspace-ui-polish.mjs` with V5 output env vars (47 pass, 0 fail); `git diff --check` (passed; line-ending warnings only).
+- Commit SHA(s): `c13c24e01a2977dfd9c4a91dd357b24241caa654`, `b091346835e02a58d57b9160e20a19a891e85c98`
+- Remaining risks: screenshot-count gate is still not met; this is local fake-account proof only, not hosted or real-student pilot proof.
+- Next focus: Phase 6 Staff/Admin overview and setup surfaces.
+
 ## Working Log
 
 - `2026-07-06 20:22:33 -07:00`: start recorded after verifying `main`, clean status, and `origin/main` alignment.
@@ -59,3 +75,4 @@
 - `2026-07-06 21:02:40 -07:00`: Phase 2 Student Today work committed through `b348a33b19f621cc64f2bb19eb3ea383d80a36b9`; workspace tests pass at 115/115 and browser proof is refreshed green with the Student Today map marker.
 - `2026-07-06 21:14:12 -07:00`: Phase 3 Mentor work committed through `082c11c14e73762a4cde1c3f6ea5b96e07f9aacf`; workspace tests pass at 115/115 and V5 browser proof is refreshed green with the Mentor Dashboard primary surface.
 - `2026-07-06 21:24:24 -07:00`: Phase 4 Program Teacher work committed through `e44507f02f0a9ecbcdbcab565ff396660cf956d1`; workspace tests pass at 115/115 and V5 browser proof is refreshed green with Program Teacher Today and Review Work screenshots.
+- `2026-07-06 21:34:24 -07:00`: Phase 5 Viewer work committed through `b091346835e02a58d57b9160e20a19a891e85c98`; workspace tests pass at 115/115 and V5 browser proof is refreshed green with Viewer desktop, detail, directory, and mobile screenshots.
