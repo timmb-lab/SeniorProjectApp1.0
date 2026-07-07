@@ -178,6 +178,22 @@
 - Remaining risks: local fake-account proof only; hosted and real-student gates remain unclaimed, and elapsed runtime is still below the 6-hour complete-run gate.
 - Next focus: continue dense-surface polish, full verifier sweep, and final complete-run gate tracking.
 
+## Verifier Sweep Checkpoint
+
+- Checkpoint local time: `2026-07-06 23:16:01 -07:00`
+- Elapsed minutes so far: about 174
+- Screens changed since the Confirmation checkpoint: no user-facing screen change beyond the source-shape restoration for hidden-section navigation filtering.
+- Role-specific work completed: workspace navigation contract restored the verifier-recognized hidden-section filter so compatibility-only legacy routes remain out of visible nav.
+- What users see differently: no intended visual change; visible navigation still hides hidden/legacy sections.
+- What users do next more clearly: no new user path; this checkpoint protects the route-backed navigation guardrails before later dense-surface work.
+- Mobile checked: `npm run check:workspace-mobile` passed during the verifier sweep.
+- Accessibility checked: `npm run check:workspace-accessibility` and `npm run check:workspace-errors` passed during the verifier sweep.
+- Screenshots captured: no new screenshots were added for this source-contract slice; latest V5 browser proof remains green with 75 screenshots and 31 mobile screenshots from the previous screenshot checkpoint.
+- Tests run: `npm run verify:workspace-navigation`; `npm run verify:workspace-url-state`; `npm run verify:permission-matrix`; `npm run verify:mutation-origin`; `npm run verify:workspace-density`; `npm run verify:review-queue-deeplinks`; `npm run check:workspace-errors`; `node --test tests\workspace-app.test.mjs` (115 pass, 0 fail); `npm run typecheck`; `npm test` (502 pass, 4 skipped); `npm run check` (passed, preserving `NO_GO_REAL_STUDENT_PILOT` because required manual real-student evidence is still missing).
+- Commit SHA(s): `90e8b006532ce76db04bfa9f2ca36cec125184e6`
+- Remaining risks: local fake-account proof only; hosted and real-student gates remain unclaimed, elapsed runtime is still below the 6-hour complete-run gate, and `npm run check` continues to report real-student pilot blocked by missing manual proof.
+- Next focus: continue dense-surface polish or begin final proof packaging only after the 360-minute runtime gate is actually met.
+
 ## Working Log
 
 - `2026-07-06 20:22:33 -07:00`: start recorded after verifying `main`, clean status, and `origin/main` alignment.
@@ -195,3 +211,4 @@
 - `2026-07-06 22:53:34 -07:00`: Phase 8 Student Admin Console blocked-state microcopy committed as `c015905279737ca11eb852c734feeb62d3f2fde4`; functionality-language, workspace tests, syntax checks, and refreshed V5 browser proof are green with 75 screenshots, 31 mobile screenshots, and zero failures.
 - `2026-07-06 23:09:38 -07:00`: Phase 8 empty-state and Mentor Dashboard focus-action work committed as `2c95d33a59c1a566eb4ddaaade79443941686571`; functionality-language, dashboard-action, mobile, accessibility, workspace tests, syntax checks, diff hygiene, and refreshed V5 browser proof are green.
 - `2026-07-06 23:12:43 -07:00`: Phase 8/9 mentor save-confirmation copy committed as `a3832e3445be569e3445ef345dc1a7496be7455f`; functionality-language, dashboard-action, mobile, accessibility, workspace tests, syntax checks, and diff hygiene are green.
+- `2026-07-06 23:16:01 -07:00`: Navigation contract restoration committed as `90e8b006532ce76db04bfa9f2ca36cec125184e6`; workspace navigation verifier, URL-state, permission, mutation-origin, density, review deeplink, error-state, typecheck, full test, and aggregate check gates are green while real-student pilot remains explicitly blocked by missing manual evidence.
