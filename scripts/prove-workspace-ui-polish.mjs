@@ -1098,38 +1098,38 @@ function expectedMarkersForPlanItem(planItem, pageState = {}) {
     return ["Admin Console is not available for this role", "Student path", "Open My Work"];
   }
   if (planItem.authRole === "student") {
-    if (section === "studentWork") return ["Student path", "Finish the next capstone item", "Open current item"];
-    if (section === "studentFeedback") return ["Student path", "Read the note and fix one thing", "Open feedback"];
-    if (section === "studentFinalChecklist") return ["Student path", "Check the final package", "Open final checklist"];
-    return ["Student path", "What do I do next?", "Open My Work"];
+    if (section === "studentWork") return ["Student path", "Finish the next capstone item", "Keep the work screen on one requirement", "Open current item"];
+    if (section === "studentFeedback") return ["Student path", "Read the note and fix one thing", "Fix the feedback that asks for action", "Open feedback"];
+    if (section === "studentFinalChecklist") return ["Student path", "Check the final package", "Use the checklist after required work", "Open final checklist"];
+    return ["Student path", "What do I do next?", "Your next capstone move", "Open My Work"];
   }
   if (mode === "admin" || pageState.v2.screen.startsWith("admin-")) {
     if (pageState.markers?.studentDetailPanel) return ["Admin flow", "Open Ready", "Open tools"];
-    if (section === "adminPeople") return ["Admin flow", "Fix one staff account", "Open staff tools"];
-    if (section === "adminStudents") return ["Admin flow", "Fix one student record", "Open roster tools"];
-    if (section === "adminAssignments") return ["Admin flow", "Assign missing coverage", "Open assignment tools"];
-    if (section === "programs") return ["Admin flow", "Set up one school program", "Open program tools"];
-    if (section === "adminImports") return ["Admin flow", "Preview one CSV before saving", "Open import tools"];
-    if (section === "adminReports") return ["Admin flow", "Answer one operations question", "Open report"];
-    if (section === "audit") return ["Admin flow", "Review one change trail", "Open audit trail"];
-    return ["Admin flow", "Open setup tools"];
+    if (section === "adminPeople") return ["Admin flow", "Fix one staff account", "Guided setup flow", "Open staff tools"];
+    if (section === "adminStudents") return ["Admin flow", "Fix one student record", "Guided setup flow", "Open roster tools"];
+    if (section === "adminAssignments") return ["Admin flow", "Assign missing coverage", "Guided setup flow", "Open assignment tools"];
+    if (section === "programs") return ["Admin flow", "Set up one school program", "Guided setup flow", "Open program tools"];
+    if (section === "adminImports") return ["Admin flow", "Preview one CSV before saving", "Guided setup flow", "Open import tools"];
+    if (section === "adminReports") return ["Admin flow", "Answer one operations question", "Reports answer one operations question", "Open report"];
+    if (section === "audit") return ["Admin flow", "Review one change trail", "Audit starts with one trail", "Open audit trail"];
+    return ["Admin flow", "Guided setup flow", "Issue, fix, confirmation", "Open setup tools"];
   }
   if (planItem.authRole === "mentor" || section === "mentorDashboard" || section === "mentor") {
     return section === "mentor"
-      ? ["Mentor flow", "Work with one assigned student", "Open student detail"]
-      : ["Mentor flow", "Choose the student who needs you next", "Open assigned students"];
+      ? ["Mentor flow", "Work with one assigned student", "Assigned-student focus", "Open student detail"]
+      : ["Mentor flow", "Choose the student who needs you next", "Assigned-student focus", "Open assigned students"];
   }
-  if (section === "teacher" || section === "programDashboard") {
+  if (planItem.authRole === "program_teacher" || section === "teacher" || section === "programDashboard") {
     return section === "teacher"
-      ? ["Teacher review", "Review one student submission", "Open selected work"]
-      : ["Teacher review", "Pick the review that needs attention", "Open review queue"];
+      ? ["Teacher review", "Review one student submission", "Review queue before reports", "Open selected work"]
+      : ["Teacher review", "Pick the review that needs attention", "Review queue before reports", "Open review queue"];
   }
   if (planItem.authRole === "viewer") {
-    return ["Read-only view", "Check one student or report", "No edit actions"];
+    return ["Read-only view", "Check one student or report", "Read-only review path", "No edit actions"];
   }
-  if (section === "students") return ["Open one student record", "Open student list", "Open supporting details"];
-  if (section === "staffReports" || section === "readiness") return ["Check one report question", "Open report", "Open supporting details"];
-  return ["Start with the worklist", "Open students", "Open supporting details"];
+  if (section === "students") return ["Open one student record", "Open the right student first", "Open student list", "Open supporting details"];
+  if (section === "staffReports" || section === "readiness") return ["Check one report question", "Reports start with one question", "Open report", "Open supporting details"];
+  return ["Start with the worklist", "Daily student support path", "Open students", "Open supporting details"];
 }
 
 function checkPage(planItem, pageState) {

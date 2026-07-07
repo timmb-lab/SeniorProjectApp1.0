@@ -557,16 +557,56 @@ test("workspace defaults to workflow landings instead of role profiles", async (
   assert.match(studentText, /Open My Work first\./);
   assert.match(studentText, /Right now/);
   assert.match(studentText, /Finish by/);
+  assert.match(student, /data-v5-flow-board="student-next-step-flow"/);
+  assert.match(studentText, /Student next-step flow/);
+  assert.match(studentText, /Your next capstone move/);
+  assert.match(student, /data-v5-flow-target="studentWork"[\s\S]*Open My Work/);
 
   const staffCases = [
-    ["mentor", ["Today", "Students", "Reports"]],
-    ["viewer", ["Today", "Students", "Reports"]],
-    ["program_teacher", ["Today", "Students", "Reviews", "Reports"]],
-    ["administration", ["Today", "Students", "Reports"]],
-    ["site_admin", ["Today", "Students", "Reviews", "Reports"]],
-    ["global_admin", ["Today", "Students", "Reviews", "Reports"]],
+    {
+      roleId: "mentor",
+      expectedLabels: ["Today", "Students", "Reports"],
+      flow: "mentor-assigned-student-flow",
+      flowText: /Assigned-student focus/,
+      workflowText: /Choose the student who needs you next/,
+    },
+    {
+      roleId: "viewer",
+      expectedLabels: ["Today", "Students", "Reports"],
+      flow: "viewer-read-only-flow",
+      flowText: /Read-only review path/,
+      workflowText: /Read-only access|Check one student or report/,
+    },
+    {
+      roleId: "program_teacher",
+      expectedLabels: ["Today", "Students", "Reviews", "Reports"],
+      flow: "teacher-review-flow",
+      flowText: /Review queue before reports/,
+      workflowText: /Pick the review that needs attention/,
+    },
+    {
+      roleId: "administration",
+      expectedLabels: ["Today", "Students", "Reports"],
+      flow: "staff-worklist-flow",
+      flowText: /Daily student support path/,
+      workflowText: /Staff Workspace|Which students need attention today\?/,
+    },
+    {
+      roleId: "site_admin",
+      expectedLabels: ["Today", "Students", "Reviews", "Reports"],
+      flow: "staff-worklist-flow",
+      flowText: /Daily student support path/,
+      workflowText: /Staff Workspace|Which students need attention today\?/,
+    },
+    {
+      roleId: "global_admin",
+      expectedLabels: ["Today", "Students", "Reviews", "Reports"],
+      flow: "staff-worklist-flow",
+      flowText: /Daily student support path/,
+      workflowText: /Staff Workspace|Which students need attention today\?/,
+    },
   ];
-  for (const [roleId, expectedLabels] of staffCases) {
+  for (const { roleId, expectedLabels, flow, flowText, workflowText } of staffCases) {
     const markup = await renderWorkspaceWithFetch(profileRoutesForRole(roleId));
     const text = visibleText(markup);
     assert.match(markup, /data-experience="staff-workspace"/, `${roleId} staff experience`);
@@ -575,7 +615,9 @@ test("workspace defaults to workflow landings instead of role profiles", async (
     assert.match(text, /Start here/, `${roleId} start cue`);
     assert.match(text, /Right now/, `${roleId} current cue`);
     assert.match(text, /Finish by/, `${roleId} confirmation cue`);
-    assert.match(text, /Staff Workspace|Which students need attention today\?|Read-only access/, `${roleId} workflow question`);
+    assert.match(markup, new RegExp(`data-v5-flow-board="${escapeRegExp(flow)}"`), `${roleId} V5 flow board`);
+    assert.match(text, flowText, `${roleId} V5 flow text`);
+    assert.match(text, workflowText, `${roleId} workflow question`);
     assert.doesNotMatch(text, /Staff Workspace ready\./, `${roleId} suppresses default ready banner`);
     assert.doesNotMatch(text, /working profile|Role context|Demo boundary|What this role can manage or monitor/, `${roleId} no role-proof landing`);
     for (const label of expectedLabels) {
@@ -657,6 +699,8 @@ test("workspace separates Admin Console mode by role and URL state", async () =>
     assert.match(markup, /data-workspace-mode-target="admin"[\s\S]*Admin Console/, `${row.roleId} admin switch`);
     assert.match(markup, /data-v3-start-state="true"/, `${row.roleId} admin V3 start state`);
     assert.match(visibleText(markup), /Start here[\s\S]*Right now[\s\S]*Finish by/, `${row.roleId} admin V3 cues`);
+    assert.match(markup, /data-v5-flow-board="admin-first-setup-blocker-flow"/, `${row.roleId} admin V5 setup flow`);
+    assert.match(visibleText(markup), /Guided setup flow[\s\S]*Issue, fix, confirmation/, `${row.roleId} admin V5 setup cues`);
     assert.doesNotMatch(markup, /data-role-command-strip="true"/, `${row.roleId} no role command strip`);
     assert.match(markup, /data-admin-console-overview="true"/, `${row.roleId} overview`);
     assert.match(markup, /data-admin-console-setup-list="true"/, `${row.roleId} setup list`);
@@ -7119,6 +7163,10 @@ test("workspace exposes a real admin site switcher and collapsible navigation", 
   assert.match(workspaceJs, /data-v3-start-state="true"/);
   assert.match(workspaceCss, /\.workspace-v3-start-state\s*\{[\s\S]*grid-template-columns:\s*minmax\(16rem,\s*0\.85fr\) minmax\(0,\s*1\.45fr\);/);
   assert.match(workspaceCss, /@media \(max-width: 900px\)[\s\S]*\.workspace-v3-start-state\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
+  assert.match(workspaceJs, /function renderV5FlowBoard/);
+  assert.match(workspaceJs, /data-v5-flow-board="\$\{escapeHtml\(boardId\)\}"/);
+  assert.match(workspaceCss, /\.workspace-v5-flow-board\s*\{[\s\S]*grid-template-columns:\s*minmax\(15rem,\s*0\.72fr\) minmax\(0,\s*1\.55fr\);/);
+  assert.match(workspaceCss, /@media \(max-width: 900px\)[\s\S]*\.workspace-v5-flow-board\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
 });
 
 test("workspace half-width drawer and phone drawer stay bounded and keep global admin controls reachable", async () => {

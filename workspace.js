@@ -1362,6 +1362,7 @@ function renderV2ActiveScreen({
         </div>
       </div>
       ${renderV3StartState(model)}
+      ${renderV5FlowBoard(model)}
       <div class="workspace-v2-path" aria-label="${escapeHtml(model.pathLabel)}">
         ${model.steps.map((step, index) => `
           <article data-v2-path-step="${escapeHtml(String(index + 1))}" class="${escapeHtml(index === 0 ? "current" : step.tone || "next")}">
@@ -1381,7 +1382,7 @@ function v2ScreenModel({ isAdminConsole = false, studentExperience = false, sect
   if (studentExperience) return v2StudentScreenModel(sectionId);
   if (isAdminConsole) return v2AdminScreenModel(sectionId, sections);
   if (roles.has("mentor") || sectionId === "mentorDashboard" || sectionId === "mentor") return v2MentorScreenModel(sectionId);
-  if (sectionId === "teacher" || sectionId === "programDashboard") return v2TeacherScreenModel(sectionId);
+  if (roles.has("program_teacher") || sectionId === "teacher" || sectionId === "programDashboard") return v2TeacherScreenModel(sectionId);
   if (roles.has("viewer")) return v2ViewerScreenModel(sectionId);
   return v2StaffScreenModel(sectionId, primaryRole);
 }
@@ -1404,6 +1405,53 @@ function v2PathSteps(first = "Choose the item", second = "Do the work", third = 
     { title: second, detail: "Use the focused tool for that item.", tone: "next" },
     { title: third, detail: "Return here when the saved result is visible.", tone: "done" },
   ];
+}
+
+function v5SectionAction(label, sectionId, primary = false) {
+  return { label, sectionId, primary };
+}
+
+function v5SupportAction(label, primary = false) {
+  return { label, support: true, primary };
+}
+
+function renderV5FlowAction(action = {}) {
+  const attrs = action.sectionId
+    ? `data-section="${escapeHtml(action.sectionId)}"`
+    : 'data-v2-support-open="true"';
+  const primaryClass = action.primary ? " is-primary" : "";
+  return `<button class="workspace-button workspace-v5-flow-action${primaryClass}" type="button" ${attrs}>${escapeHtml(action.label || "Open")}</button>`;
+}
+
+function renderV5FlowBoard(model = {}) {
+  const board = model.flowBoard || {};
+  const lanes = Array.isArray(board.lanes) ? board.lanes.filter(Boolean) : [];
+  if (!lanes.length) return "";
+  const boardId = board.id || `${model.id || "screen"}-flow`;
+  const titleId = `workspaceV5FlowTitle-${boardId}`.replace(/[^a-zA-Z0-9_-]/g, "-");
+  return `
+    <section class="workspace-v5-flow-board" data-v5-flow-board="${escapeHtml(boardId)}" aria-labelledby="${escapeHtml(titleId)}">
+      <div class="workspace-v5-flow-lead">
+        <span>${escapeHtml(board.label || "Next flow")}</span>
+        <h2 id="${escapeHtml(titleId)}">${escapeHtml(board.title || "Choose the next action")}</h2>
+        <p>${escapeHtml(board.detail || "Start with one routed action, then use supporting details only when needed.")}</p>
+      </div>
+      <div class="workspace-v5-flow-lanes">
+        ${lanes.map((lane, index) => {
+          const actions = Array.isArray(lane.actions) ? lane.actions.filter(Boolean) : [];
+          const target = lane.target || actions.find((action) => action.sectionId)?.sectionId || (actions.length ? "support-panel" : "none");
+          return `
+            <article class="workspace-v5-flow-lane" data-v5-flow-lane="${escapeHtml(String(index + 1))}" data-v5-flow-target="${escapeHtml(target)}">
+              <span>${escapeHtml(lane.label || `Step ${index + 1}`)}</span>
+              <strong>${escapeHtml(lane.title || "Open the focused work")}</strong>
+              <p>${escapeHtml(lane.detail || "Use this action before scanning the rest of the page.")}</p>
+              ${actions.length ? `<div class="workspace-v5-flow-actions">${actions.map(renderV5FlowAction).join("")}</div>` : ""}
+            </article>
+          `;
+        }).join("")}
+      </div>
+    </section>
+  `;
 }
 
 function renderV3StartState(model = {}) {
@@ -1467,6 +1515,32 @@ function v2StudentScreenModel(sectionId = activeSection) {
       empty: "Nothing needs your attention right now? Check feedback, then the final checklist.",
       confirm: isFinal ? "Stop when the checklist shows what is ready and what still needs work." : "Stop when the item is submitted, revised, or waiting for teacher review.",
     },
+    flowBoard: {
+      id: isWork ? "student-current-work-flow" : isFeedback ? "student-feedback-flow" : isFinal ? "student-final-checklist-flow" : "student-next-step-flow",
+      label: "Student next-step flow",
+      title: isWork ? "Keep the work screen on one requirement" : isFeedback ? "Fix the feedback that asks for action" : isFinal ? "Use the checklist after required work" : "Your next capstone move",
+      detail: "The student path separates work, feedback, and final checks so the first screen does not feel like a staff tool.",
+      lanes: [
+        {
+          label: "Do first",
+          title: isWork ? "Continue the current item" : "Start your next step",
+          detail: isWork ? "Stay on the requirement named in the work area before opening other panels." : "Open My Work to see the next requirement, files, and submission state.",
+          actions: [v5SectionAction("Open My Work", "studentWork", !isFeedback && !isFinal)],
+        },
+        {
+          label: "If marked",
+          title: "Check feedback",
+          detail: "Use feedback only when a note asks for changes or explains what the teacher reviewed.",
+          actions: [v5SectionAction("Open Feedback", "studentFeedback", isFeedback)],
+        },
+        {
+          label: "After work",
+          title: "Check final readiness",
+          detail: "Use the final checklist after the required work and evidence have been handled.",
+          actions: [v5SectionAction("Open Final Checklist", "studentFinalChecklist", isFinal)],
+        },
+      ],
+    },
     focusHtml: `
       <section class="workspace-v2-focus-strip">
         <strong>Progress, rubrics, and older notes stay out of the way.</strong>
@@ -1493,6 +1567,32 @@ function v2MentorScreenModel(sectionId = activeSection) {
       now: "Pick one assigned student who needs help or a meeting follow-up.",
       empty: "Nothing needs your attention right now. Check presentation prep only if you have a planned meeting.",
       confirm: "Stop when the next follow-up is clear or recorded for that student.",
+    },
+    flowBoard: {
+      id: sectionId === "mentor" ? "mentor-student-detail-flow" : "mentor-assigned-student-flow",
+      label: "Mentor support flow",
+      title: "Assigned-student focus",
+      detail: "The mentor start path narrows the screen to one assigned student, one coaching question, and one follow-up.",
+      lanes: [
+        {
+          label: "Choose",
+          title: "Pick the assigned student",
+          detail: "Start with the student who has a meeting, stalled work, or a recent teacher note.",
+          actions: [v5SectionAction("Open assigned students", "mentor", sectionId !== "mentor")],
+        },
+        {
+          label: "Support",
+          title: "Review the latest work",
+          detail: "Use the selected student detail before scanning every table row or report.",
+          actions: [v5SupportAction("Open student detail", sectionId === "mentor")],
+        },
+        {
+          label: "Preview",
+          title: "Use safe student preview",
+          detail: "Preview helps explain the student view while staying read-only and staff-only.",
+          actions: [v5SupportAction("Open preview tools")],
+        },
+      ],
     },
     focusHtml: `
       <section class="workspace-v2-focus-strip">
@@ -1521,6 +1621,32 @@ function v2TeacherScreenModel(sectionId = activeSection) {
       empty: "Nothing is waiting for review. Look for stuck students before opening reports.",
       confirm: "Stop when the student has an approval, a revision request, or a clear next step.",
     },
+    flowBoard: {
+      id: sectionId === "teacher" ? "teacher-review-decision-flow" : "teacher-review-flow",
+      label: "Program Teacher review flow",
+      title: "Review queue before reports",
+      detail: "The Program Teacher path keeps the first move on student work that needs a decision.",
+      lanes: [
+        {
+          label: "Open",
+          title: "Open waiting work",
+          detail: "Start with one submitted item instead of metrics or exports.",
+          actions: [v5SectionAction("Open review queue", "teacher", sectionId !== "teacher")],
+        },
+        {
+          label: "Decide",
+          title: "Approve or request changes",
+          detail: "Read the work, use the rubric, and choose the student-facing next step.",
+          actions: [v5SupportAction("Open selected work", sectionId === "teacher")],
+        },
+        {
+          label: "Check",
+          title: "Use reports after the queue",
+          detail: "Reports answer which students are stuck after review decisions are handled.",
+          actions: [v5SectionAction("Open reports", "staffReports")],
+        },
+      ],
+    },
     focusHtml: `
       <section class="workspace-v2-focus-strip">
         <strong>Decision work stays centered on one submission.</strong>
@@ -1548,6 +1674,32 @@ function v2ViewerScreenModel(sectionId = activeSection) {
       empty: "Nothing has been added yet for this view.",
       confirm: "Stop when you know what to share with the Program Teacher or site team.",
     },
+    flowBoard: {
+      id: "viewer-read-only-flow",
+      label: "Viewer review flow",
+      title: "Read-only review path",
+      detail: "Viewer work stays useful without exposing edit, setup, or admin controls.",
+      lanes: [
+        {
+          label: "Open",
+          title: "Choose one student",
+          detail: "Start with the assigned student list or the one report you were asked to review.",
+          actions: [v5SectionAction("Open students", "students", sectionId !== "students")],
+        },
+        {
+          label: "Read",
+          title: "Review current status",
+          detail: "Look for progress, deadlines, and feedback without changing the record.",
+          actions: [v5SupportAction("Open read-only detail", sectionId === "students")],
+        },
+        {
+          label: "Share",
+          title: "Follow up outside the app",
+          detail: "Use what you learned to brief the teacher or site team through the approved channel.",
+          actions: [v5SectionAction("Open reports", "staffReports")],
+        },
+      ],
+    },
     focusHtml: `
       <section class="workspace-v2-focus-strip">
         <strong>Read-only boundary stays visible.</strong>
@@ -1560,9 +1712,10 @@ function v2ViewerScreenModel(sectionId = activeSection) {
 function v2StaffScreenModel(sectionId = activeSection, primaryRole = "staff") {
   const isStudents = sectionId === "students";
   const isReports = sectionId === "staffReports" || sectionId === "readiness";
+  const roleName = roleLabel(primaryRole);
   return {
     id: `staff-${sectionId}`,
-    kicker: roleLabel(primaryRole),
+    kicker: roleName,
     title: isStudents ? "Open one student record" : isReports ? "Check one report question" : "Start with the worklist",
     detail: "Staff screens now begin with one route-backed task. Secondary context stays closed until it is useful.",
     primaryAction: isStudents ? v2SupportButton("Open student list") : isReports ? v2SupportButton("Open report") : v2SectionButton("Open students", "students"),
@@ -1577,12 +1730,71 @@ function v2StaffScreenModel(sectionId = activeSection, primaryRole = "staff") {
       empty: "Nothing needs your attention right now. Leave setup and access work in Admin Console.",
       confirm: "Stop when the allowed action is done or the next staff follow-up is clear.",
     },
+    flowBoard: {
+      id: isStudents ? "staff-student-record-flow" : isReports ? "staff-report-question-flow" : "staff-worklist-flow",
+      label: `${roleName} flow`,
+      title: isReports ? "Reports start with one question" : isStudents ? "Open the right student first" : "Daily student support path",
+      detail: "The workspace path keeps daily student support separate from setup and access administration.",
+      lanes: [
+        {
+          label: "Start",
+          title: isReports ? "Pick a report question" : "Choose the student group",
+          detail: isReports ? "Use reports to answer one operational question at a time." : "Start from students who need review, feedback, or follow-up.",
+          actions: [isReports ? v5SupportAction("Open report", true) : v5SectionAction("Open students", "students", !isStudents)],
+        },
+        {
+          label: "Open",
+          title: "Open one student record",
+          detail: "Move into one student before scanning summaries or unrelated queues.",
+          actions: [isStudents ? v5SupportAction("Open student list", true) : v5SectionAction("Open students", "students")],
+        },
+        {
+          label: "Confirm",
+          title: "Use reports only for a question",
+          detail: "Open reports after you know what you are trying to confirm or fix.",
+          actions: [v5SectionAction("Open reports", "staffReports", isReports)],
+        },
+      ],
+    },
     focusHtml: `
       <section class="workspace-v2-focus-strip">
         <strong>Daily work stays separate from setup tools.</strong>
         <span>Use Tools only for school switching, search, or changing mode.</span>
       </section>
     `,
+  };
+}
+
+function v5AdminFlowBoard(sectionId = activeSection, config = {}) {
+  const isReports = sectionId === "adminReports";
+  const isAudit = sectionId === "audit";
+  const isImports = sectionId === "adminImports";
+  const job = config.startState?.job || `admin-${sectionId || "task"}`;
+  return {
+    id: `${job}-flow`,
+    label: isReports ? "Admin report flow" : isAudit ? "Audit review flow" : "Guided setup flow",
+    title: isReports ? "Reports answer one operations question" : isAudit ? "Audit starts with one trail" : "Issue, fix, confirmation",
+    detail: "Admin Console stays focused on the selected setup job and keeps broader tools behind the active screen.",
+    lanes: [
+      {
+        label: "Issue",
+        title: isReports ? "Pick the question" : isAudit ? "Choose the trail" : "Start with the blocker",
+        detail: config.startState?.now || "Choose one admin item before opening forms or reports.",
+        actions: [v5SupportAction(config.hint || "Open focused tools", true)],
+      },
+      {
+        label: "Fix",
+        title: isImports ? "Preview before saving" : "Open the matching tools",
+        detail: config.detail || "Use the one screen tied to the visible issue.",
+        actions: [v5SupportAction(config.actionLabel || "Open tools")],
+      },
+      {
+        label: "Confirm",
+        title: isAudit ? "Document follow-up" : "Check the result",
+        detail: config.startState?.confirm || "Return here and confirm the visible result changed.",
+        actions: [isReports ? v5SectionAction("Open setup", "overview") : v5SupportAction("Open confirmation")],
+      },
+    ],
   };
 }
 
@@ -1734,6 +1946,7 @@ function v2AdminScreenModel(sectionId = activeSection, sections = []) {
     pathLabel: "Admin setup path",
     steps: config.steps,
     startState: config.startState,
+    flowBoard: v5AdminFlowBoard(sectionId, config),
     focusHtml: `
       <section class="workspace-v2-focus-strip">
         <strong>Setup work moves issue, fix, confirmation.</strong>

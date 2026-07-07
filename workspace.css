@@ -11223,6 +11223,95 @@ button.workspace-metric-tile,
   padding-right: 0;
 }
 
+.workspace-v5-flow-board {
+  display: grid;
+  grid-template-columns: minmax(15rem, 0.72fr) minmax(0, 1.55fr);
+  min-width: 0;
+  border-top: 1px solid var(--v2-line);
+  border-bottom: 1px solid var(--v2-line);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.workspace-v5-flow-lead {
+  display: grid;
+  align-content: center;
+  gap: 0.4rem;
+  min-width: 0;
+  border-right: 1px solid var(--v2-line);
+  padding: 1rem 1rem 1rem 0;
+}
+
+.workspace-v5-flow-lead span,
+.workspace-v5-flow-lane > span {
+  color: var(--v2-accent);
+  font-size: 0.74rem;
+  font-weight: 950;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.workspace-v5-flow-lead h2 {
+  color: var(--v2-ink);
+  font-size: clamp(1.32rem, 2vw, 1.95rem);
+  line-height: 1.05;
+  margin: 0;
+}
+
+.workspace-v5-flow-lead p,
+.workspace-v5-flow-lane p {
+  color: var(--v2-muted);
+  line-height: 1.42;
+  margin: 0;
+}
+
+.workspace-v5-flow-lanes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  min-width: 0;
+}
+
+.workspace-v5-flow-lane {
+  display: grid;
+  align-content: start;
+  gap: 0.48rem;
+  min-width: 0;
+  border-right: 1px solid var(--v2-line);
+  padding: 1rem;
+}
+
+.workspace-v5-flow-lane:last-child {
+  border-right: 0;
+  padding-right: 0;
+}
+
+.workspace-v5-flow-lane strong {
+  color: var(--v2-ink);
+  font-size: 1.02rem;
+  line-height: 1.18;
+}
+
+.workspace-v5-flow-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.46rem;
+  margin-top: 0.24rem;
+}
+
+.workspace-v5-flow-action {
+  width: auto;
+  min-height: 38px;
+  border-color: var(--v2-line);
+  background: #fff;
+  color: var(--v2-ink);
+  padding: 0.5rem 0.72rem;
+}
+
+.workspace-v5-flow-action.is-primary {
+  border-color: var(--v2-ink);
+  background: var(--v2-ink);
+  color: #fff;
+}
+
 .workspace-v2-path {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -11959,6 +12048,31 @@ button.workspace-metric-tile,
   }
 
   .workspace-v3-start-grid article:last-child {
+    border-bottom: 0;
+  }
+
+  .workspace-v5-flow-board {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-v5-flow-lead {
+    border-right: 0;
+    border-bottom: 1px solid var(--v2-line);
+    padding: 0.85rem 0;
+  }
+
+  .workspace-v5-flow-lanes {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-v5-flow-lane,
+  .workspace-v5-flow-lane:last-child {
+    border-right: 0;
+    border-bottom: 1px solid var(--v2-line);
+    padding: 0.78rem 0;
+  }
+
+  .workspace-v5-flow-lane:last-child {
     border-bottom: 0;
   }
 
