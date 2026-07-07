@@ -1185,6 +1185,11 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   const studentPrimarySection = !renderBlockedSectionOnly
     && studentExperience
     && STUDENT_NAV_SECTION_IDS.has(activeSection);
+  const detailSourceSection = cleanWorkspaceSection(siteStudentDetailState?.sourceSection || "");
+  const siteStudentDetailPrimarySection = !renderBlockedSectionOnly
+    && Boolean(siteStudentDetailState?.studentId)
+    && detailSourceSection === activeSection
+    && activeSection === "students";
   const primarySectionKind = studentPrimarySection
     ? activeSection === "student"
       ? "student"
@@ -1193,6 +1198,8 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
         : activeSection === "studentFeedback"
           ? "student-feedback"
           : "student-final-checklist"
+    : siteStudentDetailPrimarySection
+      ? isAdminConsole ? "admin-student-detail" : "student-detail"
     : adminConsolePrimarySection
       ? `admin-${activeSection}`
     : mentorPrimarySection

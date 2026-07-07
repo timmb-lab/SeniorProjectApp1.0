@@ -394,3 +394,30 @@
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES
+
+## Slice 12 - Admin Student Detail Leads With The Record
+
+- Files changed:
+  - `workspace.js`
+  - `tests/workspace-app.test.mjs`
+  - `scripts/prove-workspace-ui-polish.mjs`
+  - `docs/progress/runs/2026-07-07-v6-until-3pm-checkpoints.md`
+- User-facing surfaces affected:
+  - Admin-mode hidden student detail route
+  - Mobile Student Detail proof path
+- Behavior changed:
+  - A loaded student detail on the hidden Admin `students` route now renders as `data-v2-primary-surface="admin-student-detail"`.
+  - The real student detail panel appears before shared admin start-state and setup guidance.
+  - The browser proof now expects student-detail content instead of accepting generic `Admin flow / Open Ready / Open tools` copy.
+- RBAC/data impact: no permission, detail API, URL-state permission, student data, View as Student, or mutation logic changed.
+- Focused checks:
+  - `node --check workspace.js`: PASS
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --check scripts\prove-workspace-ui-polish.mjs`: PASS
+  - `node --test --test-name-pattern "workspace opens real student detail" tests\workspace-app.test.mjs`: PASS, `1` pass, `0` fail
+  - `node --test tests\workspace-app.test.mjs`: PASS, `115` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Real work continues before 3PM: YES

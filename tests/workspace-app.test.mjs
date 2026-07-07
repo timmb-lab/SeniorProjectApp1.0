@@ -4056,6 +4056,39 @@ test("workspace opens real student detail, loads timeline, and preserves directo
   assert.match(workspaceRoot.innerHTML, /data-student-detail-section="work"/);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-section="presentation"/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-detail-action="open-operations"|Open operations for this student/);
+
+  const adminDetailFixture = siteStudentDetailFixture({ readOnly: false });
+  const adminDetail = await renderWorkspaceWithFetch(
+    profileRoutesForRole("site_admin"),
+    "students",
+    `
+      activeWorkspaceMode = "admin";
+      siteStudentDetailState = {
+        ...defaultSiteStudentDetailState(),
+        studentId: "demo-student-101",
+        sourceSection: "students",
+        activeTab: "overview",
+        result: { ok: true, status: 200, body: ${JSON.stringify(adminDetailFixture)} }
+      };
+      currentData.siteStudentDetail = siteStudentDetailState.result;
+    `,
+    {
+      url: "https://workspace.example/workspace.html?mode=admin&section=students&siteId=site-desert-valley-high",
+    },
+  );
+  assert.match(adminDetail, /data-v2-primary-surface="admin-student-detail"[\s\S]*data-student-detail-panel="true"/);
+  assertMarkupOrder(
+    adminDetail,
+    'data-v2-primary-surface="admin-student-detail"',
+    'data-v3-start-state="true"',
+    "admin student detail should lead before shared admin setup guidance",
+  );
+  assertMarkupOrder(
+    adminDetail,
+    'data-student-detail-panel="true"',
+    'data-v3-start-state="true"',
+    "admin student detail content should lead before generic admin guidance",
+  );
 });
 
 test("student detail handles missing real-data fields conservatively", async () => {
