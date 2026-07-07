@@ -1092,7 +1092,7 @@ function expectedMarkersForPlanItem(planItem, pageState = {}) {
   const mode = params.get("mode") || "";
   const id = planItem.id || "";
   if (pageState.markers?.viewAsBanner) {
-    return ["Viewing as:", "Student path", "Open My Work"];
+    return ["Viewing as:", "Student path", "Next step map", "Open My Work"];
   }
   if (id.includes("student-admin-route-blocked")) {
     return ["Admin Console is not available for this role", "Student path", "Open My Work"];
@@ -1101,7 +1101,7 @@ function expectedMarkersForPlanItem(planItem, pageState = {}) {
     if (section === "studentWork") return ["Student path", "Finish the next capstone item", "Keep the work screen on one requirement", "Open current item"];
     if (section === "studentFeedback") return ["Student path", "Read the note and fix one thing", "Fix the feedback that asks for action", "Open feedback"];
     if (section === "studentFinalChecklist") return ["Student path", "Check the final package", "Use the checklist after required work", "Open final checklist"];
-    return ["Student path", "What do I do next?", "Your next capstone move", "Open My Work"];
+    return ["Student path", "What do I do next?", "Your next capstone move", "Next step map", "Open My Work"];
   }
   if (mode === "admin" || pageState.v2.screen.startsWith("admin-")) {
     if (pageState.markers?.studentDetailPanel) return ["Admin flow", "Open Ready", "Open tools"];
