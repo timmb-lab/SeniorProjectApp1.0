@@ -539,7 +539,7 @@ test("workspace normalizes stale student instruction copy to teacher language", 
 });
 
 test("workspace defaults to workflow landings instead of role profiles", async () => {
-  const legacyWorkflowMetaCopy = /screens now begin|route-backed task|Secondary context stays closed|Teachers move from queue|without starting from metrics or system status|Viewer screens are read-only and start|This view keeps the next action first|decode the app|Mentor work starts with the assigned student list|Admin Console starts/i;
+  const legacyWorkflowMetaCopy = /screens now begin|route-backed task|Secondary context stays closed|Teachers move from queue|without starting from metrics or system status|Viewer screens are read-only and start|This view keeps the next action first|decode the app|Mentor work starts with the assigned student list|Admin Console starts|Your work screen opens|One focused screen|Open the exact setup screen|setup screen|linked setup screen|setup screens/i;
   const student = await renderWorkspaceWithFetch(profileRoutesForRole("student"));
   const studentText = visibleText(student);
   assert.match(student, /data-experience="student"/);
@@ -773,7 +773,8 @@ test("workspace separates Admin Console mode by role and URL state", async () =>
     assert.match(markup, /data-v3-start-state="true"/, `${row.roleId} admin V3 start state`);
     assert.match(visibleText(markup), /Start here[\s\S]*Right now[\s\S]*Finish by/, `${row.roleId} admin V3 cues`);
     assert.match(visibleText(markup), /Start with the next setup issue, then open the exact fix and confirm it cleared/, `${row.roleId} admin plain-language setup guidance`);
-    assert.doesNotMatch(visibleText(markup), /Admin Console starts|route-backed task|screens now begin|Secondary context stays closed/i, `${row.roleId} admin avoids meta app-design copy`);
+    assert.match(visibleText(markup), /Open the exact setup item/, `${row.roleId} admin setup item wording`);
+    assert.doesNotMatch(visibleText(markup), /Admin Console starts|route-backed task|screens now begin|Secondary context stays closed|Open the exact setup screen|setup screen|linked setup screen/i, `${row.roleId} admin avoids meta app-design copy`);
     assert.match(markup, /data-v5-flow-board="admin-first-setup-blocker-flow"/, `${row.roleId} admin V5 setup flow`);
     assert.match(visibleText(markup), /Guided setup flow[\s\S]*Issue, fix, confirmation/, `${row.roleId} admin V5 setup cues`);
     assert.doesNotMatch(markup, /data-role-command-strip="true"/, `${row.roleId} no role command strip`);
@@ -3835,7 +3836,7 @@ test("workspace renders route-connected student directory with filters and real 
   assert.match(adminSearchEmpty, /Clear filters/);
   assert.match(adminSearchEmpty, /data-v5-flow-board="admin-student-search-flow"[\s\S]*data-site-student-action="reset-filters"[\s\S]*Clear filters/);
   assertMarkupOrder(adminSearchEmpty, 'data-v2-primary-surface="admin-student-search"', 'data-v3-start-state="true"', "admin hidden student search should show directory before shared guidance");
-  assert.doesNotMatch(adminSearchEmpty, /Open Ready|Focused admin task|Use this setup screen for one focused admin task/);
+  assert.doesNotMatch(adminSearchEmpty, /Open Ready|Focused admin task|Use this setup (screen|item) for one focused admin task/);
 });
 
 test("student directory Start Here actions apply real directory filters", async () => {
@@ -4143,7 +4144,7 @@ test("workspace opens real student detail, loads timeline, and preserves directo
   );
   assert.match(adminDetail, /data-v2-primary-surface="admin-student-detail"[\s\S]*data-student-detail-panel="true"/);
   assert.match(adminDetail, /Student detail[\s\S]*Review this student record[\s\S]*Record before setup/);
-  assert.doesNotMatch(adminDetail, /Open Ready|Open tools|Focused admin task|Use this setup screen for one focused admin task/);
+  assert.doesNotMatch(adminDetail, /Open Ready|Open tools|Focused admin task|Use this setup (screen|item) for one focused admin task/);
   assertMarkupOrder(
     adminDetail,
     'data-v2-primary-surface="admin-student-detail"',

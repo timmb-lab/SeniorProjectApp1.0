@@ -1666,7 +1666,7 @@ function v2StudentScreenModel(sectionId = activeSection) {
     kicker: "Student path",
     title: isWork ? "Finish the next capstone item" : isFeedback ? "Read the note and fix one thing" : isFinal ? "Check the final package" : "What do I do next?",
     detail: isWork
-      ? "Your work screen opens on one requirement at a time. Extra progress details stay closed."
+      ? "Work on one requirement at a time. Extra progress details stay closed."
       : isFeedback
         ? "Start with feedback that asks for action, then return to the matching work item."
         : isFinal
@@ -1900,7 +1900,7 @@ function v2StaffScreenModel(sectionId = activeSection, primaryRole = "staff") {
     title: isStudents ? "Open one student record" : isReports ? "Check one report question" : "Start with the worklist",
     detail: "Start with one student group, one student record, or one report question before opening supporting details.",
     primaryAction: isStudents ? v2SupportButton("Open student list") : isReports ? v2SupportButton("Open report") : v2SectionButton("Open students", "students"),
-    primaryHint: "One focused screen",
+    primaryHint: "One focused task",
     pathLabel: "Staff work path",
     steps: v2PathSteps("Choose the next item", "Open the focused screen", "Take the allowed action"),
     startState: {
@@ -2084,7 +2084,7 @@ function v2AdminScreenModel(sectionId = activeSection, sections = []) {
         reason: "Reports should answer a specific operations question.",
         now: "Pick the question before opening export or detail controls.",
         empty: "No report question is active. Return to setup before browsing summaries.",
-        confirm: "Stop when you know which setup screen, student list, or audit trail should open next.",
+        confirm: "Stop when you know which setup item, student list, or audit trail should open next.",
       },
     },
     audit: {
@@ -2105,7 +2105,7 @@ function v2AdminScreenModel(sectionId = activeSection, sections = []) {
   };
   const config = configs[sectionId] || {
     title: `Open ${sectionLabelForTopbar(sections, sectionId)}`,
-    detail: "Use this setup screen for one focused admin task.",
+    detail: "Use this setup item for one focused admin task.",
     action: v2SupportButton("Open tools"),
     hint: "Focused admin task",
     steps: v2PathSteps(),
@@ -2954,7 +2954,7 @@ function renderAdminSetupFirstPanel(model = {}, capabilities = adminConsoleCapab
         </div>
         ${renderAdminActionControl(action, "workspace-button workspace-button-primary workspace-button-small", "setup-first")}
       </article>
-      <p class="workspace-muted" data-admin-setup-confirmation-cue="true">After the setup screen is fixed, return here and refresh. This item leaves the list when current records confirm it.</p>
+      <p class="workspace-muted" data-admin-setup-confirmation-cue="true">After that setup item is fixed, return here and refresh. This item leaves the list when current records confirm it.</p>
       <details class="workspace-admin-supporting-disclosure" data-admin-setup-first-lanes-disclosure="true">
         <summary>Show setup checklist</summary>
         <div class="workspace-admin-setup-first-grid" data-admin-setup-first-lanes="true">
@@ -3457,7 +3457,7 @@ function renderAdminIssueRow(issue = {}) {
         <details class="workspace-admin-issue-details" data-admin-issue-details="${escapeHtml(issue.id || "issue")}" id="${escapeHtml(detailsId)}">
           <summary>Show details</summary>
           <div>
-            <p>${escapeHtml(issue.longDetail || issue.detail || "Review this setup issue, then open the linked setup screen.")}</p>
+            <p>${escapeHtml(issue.longDetail || issue.detail || "Review this setup issue, then open the linked setup item.")}</p>
             <span class="workspace-muted">${escapeHtml(count ? `${count} ${pluralize(count, "record")} to check` : "No active records to check")}</span>
           </div>
         </details>
@@ -3527,7 +3527,7 @@ function renderAdminQuickActions(actions = []) {
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Quick Actions</p>
-          <h3 id="adminQuickActionsTitle">Open the exact setup screen</h3>
+          <h3 id="adminQuickActionsTitle">Open the exact setup item</h3>
         </div>
       </div>
       <div class="workspace-admin-quick-action-grid">
@@ -6030,7 +6030,7 @@ function renderStaffAdminTodayPlan(model = {}) {
       id: "setup-access",
       title: "Fix setup and access",
       value: setupCount,
-      detail: "Use account, mentor, viewer, or final-file setup screens after the daily student need is clear.",
+      detail: "Use account, mentor, viewer, or final-file setup work after the daily student need is clear.",
       section: "adminUsers",
       action: "Open setup",
       tone: setupCount ? "danger" : "ready",
@@ -7117,7 +7117,7 @@ function renderAdminReportChoiceFlow(model = adminConsoleOperationsModel(), capa
         <div>
           <p class="workspace-kicker">Report path</p>
           <h3 id="adminReportChoiceTitle">Pick the report you need now</h3>
-          <p>Use roster completeness first. If a number needs follow-up, move to setup issues or the linked setup screen.</p>
+          <p>Use roster completeness first. If a number needs follow-up, move to setup issues or the linked setup item.</p>
         </div>
       </div>
       <p class="workspace-report-confidence-note" data-report-confidence-note="admin">
