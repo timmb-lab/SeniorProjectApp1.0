@@ -4077,6 +4077,8 @@ test("workspace opens real student detail, loads timeline, and preserves directo
     },
   );
   assert.match(adminDetail, /data-v2-primary-surface="admin-student-detail"[\s\S]*data-student-detail-panel="true"/);
+  assert.match(adminDetail, /Student detail[\s\S]*Review this student record[\s\S]*Record before setup/);
+  assert.doesNotMatch(adminDetail, /Open Ready|Open tools|Focused admin task|Use this setup screen for one focused admin task/);
   assertMarkupOrder(
     adminDetail,
     'data-v2-primary-surface="admin-student-detail"',

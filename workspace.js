@@ -1416,7 +1416,7 @@ function renderV2ActiveScreen({
       </section>
     `;
   }
-  const model = v2ScreenModel({ isAdminConsole, studentExperience, sectionId, sections, primaryRole, roles });
+  const model = v2ScreenModel({ isAdminConsole, studentExperience, sectionId, sections, primaryRole, roles, primarySectionKind });
   const primarySurfaceMarkup = primarySectionMarkup ? `
     <div class="workspace-v2-primary-surface" data-v2-primary-surface="${escapeHtml(primarySectionKind || "primary")}">
       ${primarySectionMarkup}
@@ -1452,13 +1452,43 @@ function renderV2ActiveScreen({
   `;
 }
 
-function v2ScreenModel({ isAdminConsole = false, studentExperience = false, sectionId = activeSection, sections = [], primaryRole = "student", roles = new Set() } = {}) {
+function v2ScreenModel({ isAdminConsole = false, studentExperience = false, sectionId = activeSection, sections = [], primaryRole = "student", roles = new Set(), primarySectionKind = "" } = {}) {
   if (studentExperience) return v2StudentScreenModel(sectionId);
+  if (primarySectionKind === "admin-student-detail" || primarySectionKind === "student-detail") {
+    return v2StudentDetailScreenModel({ isAdminConsole });
+  }
   if (isAdminConsole) return v2AdminScreenModel(sectionId, sections);
   if (roles.has("mentor") || sectionId === "mentorDashboard" || sectionId === "mentor") return v2MentorScreenModel(sectionId);
   if (roles.has("program_teacher") || sectionId === "teacher" || sectionId === "programDashboard") return v2TeacherScreenModel(sectionId);
   if (roles.has("viewer")) return v2ViewerScreenModel(sectionId);
   return v2StaffScreenModel(sectionId, primaryRole);
+}
+
+function v2StudentDetailScreenModel({ isAdminConsole = false } = {}) {
+  return {
+    id: isAdminConsole ? "admin-student-detail" : "student-detail",
+    kicker: "Student detail",
+    title: "Review this student record",
+    detail: "Start with the loaded record, feedback, work, and timeline before opening broader tools.",
+    primaryAction: v2PrimaryButton("Open feedback", 'data-student-detail-tab="feedback" data-student-detail-primary-action="hero-feedback"'),
+    primaryHint: isAdminConsole ? "Record before setup" : "Record before lists",
+    pathLabel: "Student detail path",
+    steps: v2PathSteps("Read the next need", "Open the matching tab", "Return to the filtered list"),
+    startState: {
+      job: isAdminConsole ? "admin-student-detail-record" : "staff-student-detail-record",
+      action: "What this student needs next",
+      reason: "Student-detail routes should lead with the record instead of generic setup guidance.",
+      now: "Use the current status, feedback, and support owner to choose the next action.",
+      empty: "If the record is unavailable, return to the filtered student list and open another student.",
+      confirm: "Stop when the next support owner, feedback item, or work tab is clear.",
+    },
+    focusHtml: `
+      <section class="workspace-v2-focus-strip">
+        <strong>The loaded student stays ahead of broader tools.</strong>
+        <span>Use setup, reports, or lists only after the record shows what follow-up is needed.</span>
+      </section>
+    `,
+  };
 }
 
 function v2PrimaryButton(label, attrs = "") {

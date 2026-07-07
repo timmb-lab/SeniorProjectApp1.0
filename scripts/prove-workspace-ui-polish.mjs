@@ -1487,6 +1487,15 @@ function expectedMarkersForPlanItem(planItem, pageState = {}) {
   if (id.includes("csv-import-access-error")) {
     return ["Admin flow", "Preview one CSV before saving", "Fix this row first", "School is not available to this account", "Import stays blocked"];
   }
+  if (pageState.markers?.studentDetailPanel) {
+    if (planItem.authRole === "viewer") {
+      return ["Student detail", "Review this student record", "Read-only viewer", "View work"];
+    }
+    if (mode === "admin") {
+      return ["Student detail", "Review this student record", "Record before setup", "What this student needs next"];
+    }
+    return ["Student detail", "Review this student record", "Record before lists", "What this student needs next"];
+  }
   if (planItem.authRole === "student") {
     if (section === "studentWork") return ["Student path", "Finish the next capstone item", "Keep the work screen on one requirement", "Open current item"];
     if (section === "studentFeedback") return ["Student path", "Read the note and fix one thing", "Fix the feedback that asks for action", "Open feedback"];
@@ -1494,7 +1503,6 @@ function expectedMarkersForPlanItem(planItem, pageState = {}) {
     return ["Student path", "What do I do next?", "Your next capstone move", "Next step map", "Open My Work"];
   }
   if (mode === "admin" || pageState.v2.screen.startsWith("admin-")) {
-    if (pageState.markers?.studentDetailPanel) return ["Student detail", "What this student needs next", "Open feedback"];
     if (section === "adminPeople") return ["Admin flow", "Fix one staff account", "Guided setup flow", "Open staff tools"];
     if (section === "adminStudents") return ["Admin flow", "Fix one student record", "Guided setup flow", "Open roster tools"];
     if (section === "adminAssignments") return ["Admin flow", "Assign missing coverage", "Guided setup flow", "Open assignment tools"];
