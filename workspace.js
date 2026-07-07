@@ -1163,8 +1163,9 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     renderWorkspaceStudentSearchControl(roles),
     renderWorkspaceModeSwitch(consoleCapabilities),
   ], { isAdminConsole });
+  const primarySectionMarkup = studentExperience && activeSection === "student" && !renderBlockedSectionOnly ? activeSectionMarkup : "";
   const supportMarkup = renderV2SupportPanel({
-    activeSectionMarkup,
+    activeSectionMarkup: primarySectionMarkup ? "" : activeSectionMarkup,
     screenGuidance,
     shellReadOnlyBanner,
     isAdminConsole,
@@ -1226,6 +1227,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
           roles,
           blocked: renderBlockedSectionOnly,
           supportMarkup,
+          primarySectionMarkup,
         })}
       </main>
     </section>
@@ -1336,6 +1338,7 @@ function renderV2ActiveScreen({
   roles = roleIds(currentUser),
   blocked = false,
   supportMarkup = "",
+  primarySectionMarkup = "",
 } = {}) {
   if (blocked) {
     return `
@@ -1350,6 +1353,12 @@ function renderV2ActiveScreen({
     `;
   }
   const model = v2ScreenModel({ isAdminConsole, studentExperience, sectionId, sections, primaryRole, roles });
+  const primarySurfaceMarkup = studentExperience && primarySectionMarkup ? `
+    <div class="workspace-v2-primary-surface" data-v2-primary-surface="student">
+      ${primarySectionMarkup}
+    </div>
+  ` : "";
+  const secondarySupportMarkup = supportMarkup;
   return `
     <section class="workspace-v2-screen" data-v2-screen="${escapeHtml(model.id)}" aria-labelledby="workspaceV2Title">
       <div class="workspace-v2-hero">
@@ -1361,6 +1370,7 @@ function renderV2ActiveScreen({
           <span>${escapeHtml(model.primaryHint)}</span>
         </div>
       </div>
+      ${primarySurfaceMarkup}
       ${renderV3StartState(model)}
       ${renderV5FlowBoard(model)}
       <div class="workspace-v2-path" aria-label="${escapeHtml(model.pathLabel)}">
@@ -1373,7 +1383,7 @@ function renderV2ActiveScreen({
         `).join("")}
       </div>
       ${model.focusHtml}
-      ${supportMarkup}
+      ${secondarySupportMarkup}
     </section>
   `;
 }

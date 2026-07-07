@@ -551,6 +551,8 @@ test("workspace defaults to workflow landings instead of role profiles", async (
   assert.doesNotMatch(studentText, /My Capstone ready\./);
   assert.match(studentText, /My Capstone/);
   assert.match(studentText, /What to do next/);
+  assert.match(student, /data-v2-primary-surface="student"/);
+  assertMarkupOrder(student, 'data-v2-primary-surface="student"', 'data-v3-start-state="true"', "student's real work surface should come before shared shell guidance");
   assert.match(student, /data-v3-start-state="true"/);
   assert.match(student, /data-v3-one-job="student-next-step"/);
   assert.match(studentText, /Start here/);
@@ -7167,6 +7169,8 @@ test("workspace exposes a real admin site switcher and collapsible navigation", 
   assert.match(workspaceJs, /data-v5-flow-board="\$\{escapeHtml\(boardId\)\}"/);
   assert.match(workspaceCss, /\.workspace-v5-flow-board\s*\{[\s\S]*grid-template-columns:\s*minmax\(15rem,\s*0\.72fr\) minmax\(0,\s*1\.55fr\);/);
   assert.match(workspaceCss, /@media \(max-width: 900px\)[\s\S]*\.workspace-v5-flow-board\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
+  assert.match(workspaceJs, /data-v2-primary-surface="student"/);
+  assert.match(workspaceCss, /\.workspace-v2-primary-surface\s*\{[\s\S]*border-top:\s*1px solid var\(--v2-line\);/);
 });
 
 test("workspace half-width drawer and phone drawer stay bounded and keep global admin controls reachable", async () => {
