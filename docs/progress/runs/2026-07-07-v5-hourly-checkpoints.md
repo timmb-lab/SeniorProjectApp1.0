@@ -114,6 +114,22 @@
 - Remaining risks: this is still local fake-account proof only, not hosted or real-student pilot proof; full accessibility sweep and complete-run runtime gates remain pending.
 - Next focus: inspect remaining route-specific dense screens for small mobile text/spacing issues or move into final accessibility/readiness gates if no obvious UI regression appears.
 
+## Reports Checkpoint
+
+- Checkpoint local time: `2026-07-06 22:40:32 -07:00`
+- Elapsed minutes so far: about 138
+- Screens changed since the mobile/header checkpoint: Staff Reports desktop, Site Admin Reports phone, Administration Reports phone, Global Admin Reports phone, and Viewer Reports desktop proof screenshots.
+- Role-specific work completed: Phase 7 Reports now starts staff reports with a question-first strip for Students needing attention, Work waiting for review, Mentor coverage, and On track before metrics, charts, and exports.
+- What users see differently: Reports ask users to choose one operational question before scanning bars or CSV downloads; attention counts are framed as signals to check instead of overclaiming urgency.
+- What users do next more clearly: Site Admin/Administration/Global Admin can open the worklist, Review Queue, missing-mentor student filter, or on-track student filter when their role allows it; Viewer sees summary-only where Review Queue actions are not allowed.
+- Mobile checked: Reports phone screenshots refreshed for Site Admin, Administration, and Global Admin after the question strip change.
+- Accessibility checked: report bars still expose meter labels and text equivalents; `npm run check:workspace-mobile` and `npm run check:workspace-accessibility` both pass.
+- Screenshots captured: 75 total screenshots, including 31 mobile screenshots, refreshed in `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/`.
+- Tests run: `node --check workspace.js`; `node --test tests\workspace-app.test.mjs` (115 pass, 0 fail); `npm run check:workspace-mobile`; `npm run check:workspace-accessibility`; `node scripts\prove-workspace-ui-polish.mjs` with V5 output env vars (75 pass, 0 fail); `git diff --check` (passed; line-ending warnings only).
+- Commit SHA(s): `2d1c3e1237944da0d88728531bd7d6132deefd67`
+- Remaining risks: local fake-account proof only; hosted and real-student gates remain unclaimed, and elapsed runtime is still below the 6-hour complete-run gate.
+- Next focus: Phase 8 microcopy, empty, error, and confirmation sweep.
+
 ## Working Log
 
 - `2026-07-06 20:22:33 -07:00`: start recorded after verifying `main`, clean status, and `origin/main` alignment.
@@ -127,3 +143,4 @@
 - `2026-07-06 21:43:55 -07:00`: Phase 6 Staff/Admin work committed through `5df6d1f83ad4e90b8710f6b7f547f4fea08c1f96`; workspace tests pass at 115/115 and V5 browser proof is refreshed green with staff/admin workspace, report, detail, and mobile screenshots.
 - `2026-07-06 21:57:43 -07:00`: Phase 7 evidence expansion committed as `b788c9aad4b3a97afec3eb42004e23dbb8369f45`; V5 browser proof is green with 75 screenshots, 31 mobile screenshots, and zero failures.
 - `2026-07-06 22:10:12 -07:00`: Phase 7 mobile/header tightening committed as `2c5b208c07819c8f0f8e553fa0b951a4c49d1e57`; workspace tests pass at 115/115 and refreshed V5 browser proof is green with 75 screenshots, 31 mobile screenshots, and zero failures.
+- `2026-07-06 22:40:32 -07:00`: Phase 7 Reports simplification committed as `2d1c3e1237944da0d88728531bd7d6132deefd67`; workspace tests pass at 115/115, mobile/accessibility contracts pass, and refreshed V5 browser proof is green with 75 screenshots, 31 mobile screenshots, and zero failures.
