@@ -242,6 +242,22 @@
 - Remaining risks: local fake-account proof only; hosted and real-student gates remain unclaimed, elapsed runtime is still below the 6-hour complete-run gate, and final proof/push must wait until complete-run gates are met.
 - Next focus: continue Phase 9/10 dense-surface polish and regression hardening, or move to final proof packaging only after the 360-minute runtime gate is actually met.
 
+## Final Access-Language Sweep Checkpoint
+
+- Checkpoint local time: `2026-07-07 06:36:37 -07:00`
+- Elapsed minutes so far: about 614
+- Screens changed since the Admin Access-Language checkpoint: screen-language glossary, Program Teacher review shortcut help, staff worklist empty states, staff/admin report safety copy, admin staff setup summary, mentor detail unavailable state, Mentor Assignment safety checklist, Review Queue unavailable-selection guidance, View as Student unavailable state, staff presentation header copy, recent program activity empty state, Global Admin role guide, Admin Console fallback access label, and admin account creation validation.
+- Role-specific work completed: Phase 8/10 access-language hardening removed remaining primary `scope/scoped/authorized scope` wording from visible user copy where the wording could safely become access, account, coverage, current view, or visible-row language without renaming authorization identifiers or weakening RBAC.
+- What users see differently: staff and admins see school-operator language such as Current access, Coverage gaps, visible review queue, school-only assignment, and account access instead of internal scope terminology.
+- What users do next more clearly: admins can understand report export limits, staff setup gaps, account creation confirmation, and unavailable preview states from the account/view they are using.
+- Mobile checked: `npm run check:workspace-mobile` passed after the copy sweep.
+- Accessibility checked: `npm run check:workspace-accessibility` and `npm run check:workspace-errors` passed after the copy sweep.
+- Screenshots captured: no new screenshot was required for this copy-only slice; the next step is a final V5 proof refresh.
+- Tests run: `node --check workspace.js`; `node --check tests\workspace-app.test.mjs`; `npm run verify:functionality-language`; `node --test --test-name-pattern "admin console surfaces setup reasons" tests\workspace-app.test.mjs`; `node --test tests\workspace-app.test.mjs` (115 pass, 0 fail); `npm run check:workspace-mobile`; `npm run check:workspace-accessibility`; `npm run check:workspace-errors`; `git diff --check` (passed; line-ending warnings only).
+- Commit SHA(s): `a33b0adc4d0aa9cdbba8329599f044693bd0ed1b`
+- Remaining risks: final full validation stack, final browser proof refresh, final proof report, push, origin alignment, and real-student no-go reporting remain pending.
+- Next focus: final complete-run validation and proof packaging.
+
 ## Working Log
 
 - `2026-07-06 20:22:33 -07:00`: start recorded after verifying `main`, clean status, and `origin/main` alignment.
@@ -263,3 +279,4 @@
 - `2026-07-06 23:52:39 -07:00`: Admin CSV import preview repair path committed as `694e80400ab0d1050a9cacb4f14c28231082029b`; functionality-language, mobile, accessibility, error-state, workspace tests, syntax checks, diff hygiene, and V5 browser proof are green with 77 screenshots, 32 mobile screenshots, and zero failures.
 - `2026-07-07 00:11:46 -07:00`: Admin CSV import access-language cleanup committed as `aeff9a5a0d271dc150289d2f873fe33cf2187584`; functionality-language, mobile, accessibility, error-state, workspace tests, syntax checks, diff hygiene, and V5 browser proof are green with 78 screenshots, 32 mobile screenshots, and zero failures.
 - `2026-07-07 00:25:15 -07:00`: Admin Overview/Reports access-language cleanup committed as `6f76c029db81e1a08f6579bb070376b7d5da6465`; functionality-language, mobile, accessibility, error-state, workspace tests, syntax checks, diff hygiene, and V5 browser proof are green with 78 screenshots, 32 mobile screenshots, and zero failures.
+- `2026-07-07 06:36:37 -07:00`: Final access-language sweep committed as `a33b0adc4d0aa9cdbba8329599f044693bd0ed1b`; functionality-language, workspace tests, syntax checks, mobile, accessibility, error-state, and diff hygiene are green. Six-hour wall-clock gate is now met; final validation/proof packaging is next.

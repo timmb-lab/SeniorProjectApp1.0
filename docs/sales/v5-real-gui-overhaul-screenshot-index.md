@@ -1,6 +1,6 @@
 # V5 Real GUI Overhaul Screenshot Index
 
-Status: partial V5 browser proof captured with the screenshot-count gate met.
+Status: complete V5 local fake-account browser proof captured with the screenshot-count gate met.
 
 Manifest: `docs/progress/runs/2026-07-07-v5-real-gui-overhaul-browser-proof.json`
 
@@ -15,9 +15,9 @@ Counts:
 - Total screenshots captured: 78
 - Mobile screenshots captured: 32
 - Browser-proof failures: 0
-- V5 complete-run screenshot gate: met for screenshot count; runtime, hosted/live, final aggregate proof, push/origin alignment, and real-student gates remain pending.
-- Started: `2026-07-07T07:16:23.512Z`
-- Completed: `2026-07-07T07:24:24.325Z`
+- V5 complete-run screenshot gate: met for screenshot count and mobile screenshot count. This remains local fake-account browser proof only; hosted readiness and real-student pilot readiness are not claimed by this manifest.
+- Started: `2026-07-07T13:39:12.009Z`
+- Completed: `2026-07-07T13:46:57.050Z`
 
 ## Inventory
 
