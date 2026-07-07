@@ -1,6 +1,6 @@
 # 2026-07-07 V6 Until-3PM Screenshot Review
 
-Status: in progress; refreshed after slices 01-29.
+Status: in progress; refreshed after slices 01-30.
 
 Source artifacts:
 
@@ -242,3 +242,16 @@ Source artifacts:
 - Manifest count: `82` screenshots total, including `32` mobile screenshots and `4` Chromebook/student desktop screenshots.
 - Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
 - Direction update: desktop/Chromebook browser needs are the primary student target from here; mobile screenshots remain regression coverage.
+
+## Refresh 22 Spot Checks
+
+- Selected target: student Chromebook desktop browser proof should include shorter page viewports where browser chrome, shelf, or bookmark bars reduce available height.
+- Added short Chromebook-size proof at `1366x650` for Student Today, My Work, Feedback, and Final Checklist.
+- Added student-only `max-height: 700px` desktop CSS tightening for the step switcher, hero, primary action row, and primary-surface spacing.
+- `83-student-today-chromebook-short.png`: Today work card, One thing now, teacher-review text, and Open item are visible in the short first viewport.
+- `84-student-my-work-chromebook-short.png`: My Work header, Waiting for review, Continue, and Current work summary are visible in the short first viewport.
+- `85-student-feedback-chromebook-short.png`: Feedback header, View Work, Needs changes, and no-action-needed note are visible in the short first viewport.
+- `86-student-final-checklist-chromebook-short.png`: Final Checklist header, Continue My Work, Finish checks, and first proposal row are visible in the short first viewport.
+- Manifest count: `86` screenshots total, including `32` mobile screenshots, `8` Chromebook/student desktop screenshots, and `4` short Chromebook/student desktop screenshots.
+- Manifest scan: screenshot text samples containing `DEMO_SEED` or `seed`: `0`.
+- Direction update: short Chromebook desktop browser proof is now first-class for student-owned routes; mobile screenshots remain regression coverage.

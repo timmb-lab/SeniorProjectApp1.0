@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:62065",
+  "baseUrl": "http://127.0.0.1:63983",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-07T20:13:18.201Z",
-  "completedAt": "2026-07-07T20:21:17.004Z",
+  "startedAt": "2026-07-07T20:35:33.496Z",
+  "completedAt": "2026-07-07T20:43:48.069Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:62065",
+    "baseUrl": "http://127.0.0.1:63983",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-07-07-v6-until-3pm",
@@ -552,6 +552,78 @@
         "Show progress, feedback, and checklist"
       ],
       "proves": "Student Today keeps next action, current work, and supporting details reachable in a Chromebook-size desktop browser.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "adminSetupList": false,
+        "adminSetupReadiness": false,
+        "adminQuickActions": false,
+        "adminStudents": false,
+        "adminAssignments": false,
+        "adminImports": false,
+        "adminPrograms": false,
+        "adminReports": false,
+        "adminAudit": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
+        "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false
+      },
+      "heading": "What do I do next?",
+      "textSample": "Skip to workspace SC My Capstone My Capstone Today Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH What do I do next? Start with the next action, then use feedback or checklist only when it applies. Open My Work Starts the next required step TODAY What to do next View what you turned in. Wait for your teacher. Turned in View Work One thing now Teacher review Done for now. Do not upload another copy unless your teacher asks. View what you sent. Wait for your teacher. Open item NEXT STEP MAP Your teacher is reviewing this Check what you sent once, then wait for feedback or approval before starting the next item. CHECK Vie",
+      "activeNav": [
+        "1\n        1. Today\n        What to finish next",
+        "1\n        Today"
+      ]
+    },
+    {
+      "id": "83-student-today-chromebook-short",
+      "label": "Student Today short Chromebook",
+      "persona": "Student short Chromebook browser",
+      "role": "student",
+      "accountType": "Fake .test demo student account",
+      "viewport": {
+        "width": 1366,
+        "height": 650,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace.html?section=student",
+      "screenshot": "docs/sales/screenshots/2026-07-07-v6-until-3pm/83-student-today-chromebook-short.png",
+      "expected": [
+        "My Capstone",
+        "What to do next",
+        "One thing now",
+        "View Work"
+      ],
+      "proves": "Student Today keeps the next action and current work visible when Chromebook browser chrome leaves a shorter page viewport.",
       "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
       "login": {
         "status": 200,
@@ -1963,6 +2035,77 @@
       ]
     },
     {
+      "id": "86-student-final-checklist-chromebook-short",
+      "label": "Student Final Checklist short Chromebook",
+      "persona": "Student short Chromebook final checklist",
+      "role": "student",
+      "accountType": "Fake .test demo student account",
+      "viewport": {
+        "width": 1366,
+        "height": 650,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace.html?section=studentFinalChecklist",
+      "screenshot": "docs/sales/screenshots/2026-07-07-v6-until-3pm/86-student-final-checklist-chromebook-short.png",
+      "expected": [
+        "Final Checklist",
+        "What is done? What still needs work?",
+        "Finish checks"
+      ],
+      "proves": "Student Final Checklist keeps finish checks in reach when Chromebook browser chrome leaves a shorter page viewport.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "adminSetupList": false,
+        "adminSetupReadiness": false,
+        "adminQuickActions": false,
+        "adminStudents": false,
+        "adminAssignments": false,
+        "adminImports": false,
+        "adminPrograms": false,
+        "adminReports": false,
+        "adminAudit": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
+        "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": true
+      },
+      "heading": "Check the final package",
+      "textSample": "Skip to workspace SC My Capstone My Capstone Final Checklist Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH Check the final package Use this only when the required work and evidence are ready. Open final checklist Final readiness only FINAL CHECKLIST Final Checklist What is done? What still needs work? Waiting for review Continue My Work FINISH CHECKS Finish checks These rows show what is done and what still needs work. Proposal done 0 of 3 items complete in this phase. ASK YOUR TEACHER View Work Build file started 0 of 1 item complete in this phase. NOT DONE View Work Build update and presentation plan 0 of 1 item com",
+      "activeNav": [
+        "4\n        4. Final Checklist\n        Presentation and final files",
+        "4\n        Final Checklist"
+      ]
+    },
+    {
       "id": "24-student-my-work-desktop",
       "label": "Student My Work desktop",
       "persona": "Student My Work",
@@ -2060,6 +2203,79 @@
         "Files"
       ],
       "proves": "Student My Work keeps current work, turned-in work, and files readable in a Chromebook-size desktop browser.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "adminSetupList": false,
+        "adminSetupReadiness": false,
+        "adminQuickActions": false,
+        "adminStudents": false,
+        "adminAssignments": false,
+        "adminImports": false,
+        "adminPrograms": false,
+        "adminReports": false,
+        "adminAudit": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
+        "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": true,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false
+      },
+      "heading": "Finish the next capstone item",
+      "textSample": "Skip to workspace SC My Capstone My Capstone My Work Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH Finish the next capstone item Work on one requirement at a time. Extra progress details stay closed. Open current item One item at a time MY WORK My Work Open work. Turn in work. Check files. WAITING FOR REVIEW Continue CURRENT WORK Current work Open one item. Add a file or link if the item asks for it. Turn it in when it is ready. Show one phase Current phase: Start: Setup. Show one phase if the full checklist feels too long. All phases Start: Setup (Current) Phase 1: Kickoff and Proposal Phase 2A: Build Phase 2B: Build",
+      "activeNav": [
+        "2\n        2. My Work\n        Current work and files",
+        "2\n        My Work",
+        "All phases"
+      ]
+    },
+    {
+      "id": "84-student-my-work-chromebook-short",
+      "label": "Student My Work short Chromebook",
+      "persona": "Student short Chromebook My Work",
+      "role": "student",
+      "accountType": "Fake .test demo student account",
+      "viewport": {
+        "width": 1366,
+        "height": 650,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace.html?section=studentWork",
+      "screenshot": "docs/sales/screenshots/2026-07-07-v6-until-3pm/84-student-my-work-chromebook-short.png",
+      "expected": [
+        "My Work",
+        "Open work. Turn in work. Check files.",
+        "Current work",
+        "Turned in"
+      ],
+      "proves": "Student My Work keeps the current item visible when Chromebook browser chrome leaves a shorter page viewport.",
       "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
       "login": {
         "status": 200,
@@ -2282,6 +2498,78 @@
         "Old feedback"
       ],
       "proves": "Student Feedback keeps revision, new feedback, and older feedback readable in a Chromebook-size desktop browser.",
+      "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "drawerOpenWhenRequested": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "adminSetupList": false,
+        "adminSetupReadiness": false,
+        "adminQuickActions": false,
+        "adminStudents": false,
+        "adminAssignments": false,
+        "adminImports": false,
+        "adminPrograms": false,
+        "adminReports": false,
+        "adminAudit": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
+        "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false
+      },
+      "heading": "Read the note and fix one thing",
+      "textSample": "Skip to workspace SC My Capstone My Capstone Feedback Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH Read the note and fix one thing Start with feedback that asks for action, then return to the matching work item. Open feedback Action notes first FEEDBACK Feedback Read feedback. Fix work if asked. Not confirmed yet View Work NEEDS CHANGES Needs changes No needs changes right now. No feedback needs changes right now. NEW FEEDBACK New feedback No feedback yet. No feedback yet. When your teacher reviews your work, it will appear here. OLD FEEDBACK Old feedback No old feedback right now. Old feedback appears here after rev",
+      "activeNav": [
+        "3\n        3. Feedback\n        Feedback and work to fix",
+        "3\n        Feedback"
+      ]
+    },
+    {
+      "id": "85-student-feedback-chromebook-short",
+      "label": "Student Feedback short Chromebook",
+      "persona": "Student short Chromebook Feedback",
+      "role": "student",
+      "accountType": "Fake .test demo student account",
+      "viewport": {
+        "width": 1366,
+        "height": 650,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace.html?section=studentFeedback",
+      "screenshot": "docs/sales/screenshots/2026-07-07-v6-until-3pm/85-student-feedback-chromebook-short.png",
+      "expected": [
+        "Feedback",
+        "Read feedback. Fix work if asked.",
+        "Needs changes",
+        "New feedback"
+      ],
+      "proves": "Student Feedback keeps action-needed notes visible when Chromebook browser chrome leaves a shorter page viewport.",
       "caveat": "Fake/demo account UI screenshot only; not real-student production pilot proof.",
       "login": {
         "status": 200,

@@ -1306,3 +1306,62 @@
 - Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
 - Real-student production status: `NOT_CLAIMED_READY`
 - Real work continues before 3PM: YES
+
+## Slice 30 - Tighten Student Short Chromebook Browser Layout
+
+- Implementation commit: `6048e28` (`Tighten student short Chromebook browser layout`)
+- Files changed:
+  - `workspace.css`
+  - `tests/workspace-app.test.mjs`
+  - `scripts/prove-workspace-ui-polish.mjs`
+- User-facing surfaces affected:
+  - Student Today at short Chromebook desktop browser height
+  - Student My Work at short Chromebook desktop browser height
+  - Student Feedback at short Chromebook desktop browser height
+  - Student Final Checklist at short Chromebook desktop browser height
+- Behavior changed:
+  - Added four `1366x650` student proof captures to model Chromebook browser windows with reduced page height from browser chrome, shelf, or bookmark bars.
+  - Added a student-only short desktop-height media rule: `@media (min-width: 901px) and (max-height: 700px)`.
+  - The short-height rule tightens the student step switcher, hero, primary action row, and primary-surface padding so the task surface appears earlier.
+  - Mobile rules are unchanged; mobile remains regression coverage while Chromebook desktop browser use is the primary student target.
+- RBAC/data impact: CSS/layout and proof-plan only; no route, role, read-only boundary, student data, evidence, report export, or mutation logic changed.
+- Focused checks:
+  - `node --check tests\workspace-app.test.mjs`: PASS
+  - `node --check scripts\prove-workspace-ui-polish.mjs`: PASS
+  - `node --test --test-name-pattern "workspace uses Phase 6.6 Figma cleanup patterns|workspace defaults to workflow landings|student Today next-step map" tests\workspace-app.test.mjs`: PASS, `3` pass, `0` fail
+  - `node --test tests\workspace-app.test.mjs`: PASS, `116` pass, `0` fail
+  - `npm run check:workspace-mobile`: PASS
+  - `npm run check:workspace-accessibility`: PASS
+  - `npm run verify:dashboard-actions`: PASS
+  - `npm run verify:functionality-language`: PASS
+  - `git diff --check`: PASS with line-ending warnings only
+- Direct visual inspection:
+  - `83-student-today-chromebook-short.png`: Today work card, One thing now, teacher-review text, and Open item are visible in the short first viewport.
+  - `84-student-my-work-chromebook-short.png`: My Work header, Waiting for review, Continue, and Current work summary are visible in the short first viewport.
+  - `85-student-feedback-chromebook-short.png`: Feedback header, View Work, Needs changes, and no-action-needed note are visible in the short first viewport.
+  - `86-student-final-checklist-chromebook-short.png`: Final Checklist header, Continue My Work, Finish checks, and first proposal row are visible in the short first viewport.
+- Real work continues before 3PM: YES
+
+## Browser Proof Refresh 22
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `86`
+- Mobile screenshots: `32`
+- Chromebook/student desktop screenshots: `8`
+- Short Chromebook/student desktop screenshots: `4`
+- Failures: `0`
+- Started: `2026-07-07T20:35:33.496Z`
+- Completed: `2026-07-07T20:43:48.069Z`
+- Technical-language scan:
+  - Screenshot text samples containing `DEMO_SEED` or `seed`: `0`
+- Short Chromebook proof files:
+  - `83-student-today-chromebook-short.png`
+  - `84-student-my-work-chromebook-short.png`
+  - `85-student-feedback-chromebook-short.png`
+  - `86-student-final-checklist-chromebook-short.png`
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES

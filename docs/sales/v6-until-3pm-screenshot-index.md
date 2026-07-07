@@ -1,6 +1,6 @@
 # V6 Until-3PM Screenshot Index
 
-Status: current V6 local fake-account browser proof captured after implementation slices 01-29.
+Status: current V6 local fake-account browser proof captured after implementation slices 01-30.
 
 Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
 
@@ -12,12 +12,13 @@ Claim boundary: local fake-account browser UI proof only. This does not prove ho
 
 Counts:
 
-- Total screenshots captured: 82
+- Total screenshots captured: 86
 - Mobile screenshots captured: 32
-- Chromebook/student desktop screenshots captured: 4
+- Chromebook/student desktop screenshots captured: 8
+- Short Chromebook/student desktop screenshots captured: 4
 - Browser-proof failures: 0
-- Started: `2026-07-07T20:13:18.201Z`
-- Completed: `2026-07-07T20:21:17.004Z`
+- Started: `2026-07-07T20:35:33.496Z`
+- Completed: `2026-07-07T20:43:48.069Z`
 - Fake data only: `true`
 - Real-student production status: `NOT_CLAIMED_READY`
 
@@ -48,10 +49,11 @@ Counts:
 - Path/source wording cleanup: `02-workspace-site-admin-desktop`, `03-program-teacher-workspace`, `04-mentor-workspace`, `05-viewer-read-only-workspace`, `30-mobile-mentor-today`, `36-admin-audit`, `49-program-teacher-today-phone`, `50-viewer-today-phone`, `72-mobile-admin-audit`; manifest text samples containing old route/source-screen phrases: `0`.
 - Chromebook/desktop browser priority: `79-student-today-chromebook`, `80-student-my-work-chromebook`, `81-student-feedback-chromebook`, and `82-student-final-checklist-chromebook` prove student-owned flows at `1366x768`; mobile screenshots remain regression guardrails.
 - Student Chromebook hero tightening: `79-student-today-chromebook`, `80-student-my-work-chromebook`, `81-student-feedback-chromebook`, and `82-student-final-checklist-chromebook` show the first real route/work card in the first browser viewport after the desktop-height CSS pass.
+- Short Chromebook desktop browser proof: `83-student-today-chromebook-short`, `84-student-my-work-chromebook-short`, `85-student-feedback-chromebook-short`, and `86-student-final-checklist-chromebook-short` prove student-owned routes at `1366x650` after the short-height CSS pass.
 - RBAC/read-only guard coverage: `05-viewer-read-only-workspace`, `14-viewer-read-only-detail-click`, `20-student-admin-route-blocked`, `39-viewer-students-directory`, `46-mobile-viewer-students`.
 
 ## Full Inventory Source
 
-The complete 78-screenshot inventory, expected text checks, role/persona labels, viewport metadata, and per-screenshot caveats are in the manifest:
+The complete 86-screenshot inventory, expected text checks, role/persona labels, viewport metadata, and per-screenshot caveats are in the manifest:
 
 `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
