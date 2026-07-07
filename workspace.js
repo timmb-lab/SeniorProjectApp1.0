@@ -1163,11 +1163,21 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     renderWorkspaceStudentSearchControl(roles),
     renderWorkspaceModeSwitch(consoleCapabilities),
   ], { isAdminConsole });
+  const programTeacherPrimarySection = !renderBlockedSectionOnly
+    && !isAdminConsole
+    && roles.has("program_teacher")
+    && ["overview", "teacher", "programDashboard"].includes(activeSection);
   const primarySectionKind = !renderBlockedSectionOnly && studentExperience && activeSection === "student"
     ? "student"
     : !renderBlockedSectionOnly && roles.has("mentor") && activeSection === "mentorDashboard"
       ? "mentor"
-      : "";
+      : programTeacherPrimarySection
+        ? activeSection === "teacher"
+          ? "teacher"
+          : activeSection === "programDashboard"
+            ? "program-teacher-dashboard"
+            : "program-teacher"
+        : "";
   const primarySectionMarkup = primarySectionKind ? activeSectionMarkup : "";
   const supportMarkup = renderV2SupportPanel({
     activeSectionMarkup: primarySectionMarkup ? "" : activeSectionMarkup,
@@ -5683,6 +5693,7 @@ function renderStaffWorkspaceTodaySection() {
           ${renderStaffPrimaryAction(model)}
         </div>
       </div>
+      ${model.roles?.has("program_teacher") ? renderProgramTeacherTodayPlan(model) : ""}
       ${renderStaffWorkspaceStartHere(model, primaryQueue)}
       ${renderStaffNoAssignmentState(model)}
       <div class="workspace-staff-attention-layout workspace-staff-flow-layout" data-staff-flow-layout="true">
@@ -5696,6 +5707,90 @@ function renderStaffWorkspaceTodaySection() {
         scope: model.scope,
       }) : ""}
     </section>
+  `;
+}
+
+function renderProgramTeacherTodayPlan(model = {}) {
+  const rows = Array.isArray(model.rows) ? model.rows : [];
+  const rowCountWithFlag = (flagKey) => rows.filter((row) => Array.isArray(row.attention) && row.attention.some((flag) => flag.key === flagKey)).length;
+  const sections = availableSectionIdsForAnyMode();
+  const reviewCount = safeNumber(model.counts?.needsReview);
+  const revisionCount = rowCountWithFlag("revision");
+  const missingWorkCount = rowCountWithFlag("evidence");
+  const supportCount = safeNumber(model.counts?.needsHelp);
+  const cards = [
+    {
+      id: "review",
+      title: "Review decisions first",
+      value: reviewCount,
+      detail: "Open submitted work and save one clear decision before checking reports.",
+      section: "teacher",
+      preset: "submitted",
+      action: "Open Review Work",
+      tone: "teacher",
+    },
+    {
+      id: "revision",
+      title: "Students fixing changes",
+      value: revisionCount,
+      detail: "Read revision feedback and wait for the next student submission before approving.",
+      section: "teacher",
+      preset: "revision-requested",
+      action: "Read revisions",
+      tone: "warning",
+    },
+    {
+      id: "missing-work",
+      title: "Missing proof",
+      value: missingWorkCount,
+      detail: "Find students who need the exact file or link before approval is possible.",
+      section: "students",
+      preset: "missing-evidence-students",
+      action: "Find proof gaps",
+      tone: "danger",
+    },
+    {
+      id: "support",
+      title: "Student support",
+      value: supportCount,
+      detail: "Use the roster after review work is clear or when a student is stuck.",
+      section: "students",
+      preset: supportCount ? "behind-students" : "all-students",
+      action: supportCount ? "Help students" : "Open roster",
+      tone: supportCount ? "warning" : "ready",
+    },
+  ];
+  return `
+    <section class="workspace-program-teacher-plan" data-program-teacher-today-plan="true" aria-labelledby="programTeacherPlanTitle">
+      <div class="workspace-program-teacher-plan-head">
+        <div>
+          <p class="workspace-kicker">Program Teacher plan</p>
+          <h3 id="programTeacherPlanTitle">Review decisions before reports</h3>
+          <p>Start with student work that changes a next step, then use support lists only when the decision queue is clear.</p>
+        </div>
+        <span class="workspace-summary-badge">${escapeHtml(safeNumber(model.counts?.total))} visible students</span>
+      </div>
+      <div class="workspace-program-teacher-plan-grid">
+        ${cards.map((card) => renderProgramTeacherTodayPlanCard(card, sections)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderProgramTeacherTodayPlanCard(card = {}, sections = availableSectionIdsForAnyMode()) {
+  const section = card.section || "";
+  const actionHtml = section && sections.has(section)
+    ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="${escapeHtml(section)}" ${card.preset ? `data-section-preset="${escapeHtml(card.preset)}"` : ""}>${escapeHtml(card.action || "Open")}</button>`
+    : `<span class="workspace-summary-badge">Summary only</span>`;
+  return `
+    <article class="workspace-program-teacher-plan-card ${escapeHtml(card.tone || "quiet")}" data-program-teacher-plan-card="${escapeHtml(card.id || "plan")}">
+      <div>
+        <span>${escapeHtml(String(card.value ?? 0))}</span>
+        <strong>${escapeHtml(card.title || "Program Teacher step")}</strong>
+        <p>${escapeHtml(card.detail || "")}</p>
+      </div>
+      ${actionHtml}
+    </article>
   `;
 }
 

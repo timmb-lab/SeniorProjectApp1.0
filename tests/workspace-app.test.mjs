@@ -627,6 +627,15 @@ test("workspace defaults to workflow landings instead of role profiles", async (
     }
   }
 
+  const teacherLanding = await renderWorkspaceWithFetch(profileRoutesForRole("program_teacher"));
+  assert.match(teacherLanding, /data-v2-primary-surface="program-teacher"[\s\S]*data-staff-workspace-today="true"/);
+  assertMarkupOrder(teacherLanding, 'data-v2-primary-surface="program-teacher"', 'data-v3-start-state="true"', "program teacher landing should show real review work before shared shell guidance");
+  assert.match(teacherLanding, /data-program-teacher-today-plan="true"/);
+  assert.match(teacherLanding, /Review decisions before reports/);
+  assert.match(teacherLanding, /data-program-teacher-plan-card="review"[\s\S]*data-section="teacher" data-section-preset="submitted"/);
+  assert.match(teacherLanding, /data-program-teacher-plan-card="revision"[\s\S]*data-section="teacher" data-section-preset="revision-requested"/);
+  assert.match(teacherLanding, /data-program-teacher-plan-card="missing-work"[\s\S]*data-section="students" data-section-preset="missing-evidence-students"/);
+
   const hiddenProfile = await renderWorkspaceWithFetch(profileRoutesForRole("global_admin"), "profile");
   assert.match(hiddenProfile, /data-role-profile="global_admin"/);
   assert.match(hiddenProfile, /Global Admin guide/);
@@ -4338,6 +4347,8 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   `);
 
   assert.match(teacher, /data-section="teacher"/);
+  assert.match(teacher, /data-v2-primary-surface="teacher"[\s\S]*workspace-review-queue/);
+  assertMarkupOrder(teacher, 'data-v2-primary-surface="teacher"', 'data-v3-start-state="true"', "program teacher Review Work should come before shared shell guidance");
   assert.match(teacher, /data-screen-orientation-section="teacher"/);
   assert.match(teacher, /Review work students sent in/);
   assert.match(teacher, /Start with waiting work, then open one student row/);
@@ -7174,8 +7185,11 @@ test("workspace exposes a real admin site switcher and collapsible navigation", 
   assert.match(workspaceCss, /\.workspace-v5-flow-board\s*\{[\s\S]*grid-template-columns:\s*minmax\(15rem,\s*0\.72fr\) minmax\(0,\s*1\.55fr\);/);
   assert.match(workspaceCss, /@media \(max-width: 900px\)[\s\S]*\.workspace-v5-flow-board\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
   assert.match(workspaceJs, /primarySectionKind[\s\S]*"student"/);
+  assert.match(workspaceJs, /programTeacherPrimarySection/);
+  assert.match(workspaceJs, /renderProgramTeacherTodayPlan/);
   assert.match(workspaceJs, /data-v2-primary-surface="\$\{escapeHtml\(primarySectionKind \|\| "primary"\)\}"/);
   assert.match(workspaceCss, /\.workspace-v2-primary-surface\s*\{[\s\S]*border-top:\s*1px solid var\(--v2-line\);/);
+  assert.match(workspaceCss, /\.workspace-program-teacher-plan\s*\{[\s\S]*border-left:\s*5px solid var\(--abc-blue\);/);
 });
 
 test("workspace half-width drawer and phone drawer stay bounded and keep global admin controls reachable", async () => {
