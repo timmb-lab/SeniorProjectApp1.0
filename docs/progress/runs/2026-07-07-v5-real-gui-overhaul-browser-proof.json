@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:65245",
+  "baseUrl": "http://127.0.0.1:56682",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-07T03:31:32.048Z",
-  "completedAt": "2026-07-07T03:35:55.744Z",
+  "startedAt": "2026-07-07T03:57:04.178Z",
+  "completedAt": "2026-07-07T04:01:28.047Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:65245",
+    "baseUrl": "http://127.0.0.1:56682",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul",
@@ -524,7 +524,7 @@
         "finalFiles": false
       },
       "heading": "What do I do next?",
-      "textSample": "Skip to workspace SC My Capstone My Capstone Today Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH What do I do next? This view keeps the next action first so you do not have to decode the app. Open My Work Starts the next required step START HERE Open My Work first. The page keeps staff language and older details away from the first move. RIGHT NOW Start with one thing now, then use feedback or checklist only if needed. IF EMPTY Nothing needs your attention right now? Check feedback, then the final checklist. FINISH BY Stop when the item is submitted, revised, or waiting for teacher review. STUDENT NEXT-STEP FLOW Your ",
+      "textSample": "Skip to workspace SC My Capstone My Capstone Today Tools TS Test Student Maya maya.student@senior-capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist STUDENT PATH What do I do next? This view keeps the next action first so you do not have to decode the app. Open My Work Starts the next required step TODAY What to do next View what you turned in. Wait for your teacher. Turned in View Work One thing now Teacher review Done for now. Do not upload another copy unless your teacher asks. View what you sent. Wait for your teacher. Open item NEXT STEP MAP Your teacher is reviewing this Check what you sent once, then wait for feedback or approval before starting the next item. CHECK View wha",
       "activeNav": [
         "1\n        1. Today\n        What to finish next",
         "1\n        Today"
@@ -596,7 +596,7 @@
         "finalFiles": false
       },
       "heading": "What do I do next?",
-      "textSample": "Skip to workspace Menu SC My Capstone Tools TS STUDENT PATH What do I do next? This view keeps the next action first so you do not have to decode the app. Open My Work Starts the next required step START HERE Open My Work first. The page keeps staff language and older details away from the first move. RIGHT NOW Start with one thing now, then use feedback or checklist only if needed. IF EMPTY Nothing needs your attention right now? Check feedback, then the final checklist. FINISH BY Stop when the item is submitted, revised, or waiting for teacher review. STUDENT NEXT-STEP FLOW Your next capstone move The student path separates work, feedback, and final checks so the first screen does not feel",
+      "textSample": "Skip to workspace Menu SC My Capstone Tools TS STUDENT PATH What do I do next? This view keeps the next action first so you do not have to decode the app. Open My Work Starts the next required step TODAY What to do next View what you turned in. Wait for your teacher. Turned in View Work One thing now Teacher review Done for now. Do not upload another copy unless your teacher asks. View what you sent. Wait for your teacher. Open item NEXT STEP MAP Your teacher is reviewing this Check what you sent once, then wait for feedback or approval before starting the next item. CHECK View what you sent Use My Work if you need to confirm the file or link. View Work THEN Wait for your teacher Do not uplo",
       "activeNav": [
         "1\n        1. Today\n        What to finish next",
         "1\n        Today"
@@ -666,7 +666,7 @@
         "finalFiles": false
       },
       "heading": "What do I do next?",
-      "textSample": "Skip to workspace Menu SC My Capstone Tools SS Viewing as: Aven Ashford Staff account: Sam Site Admin (Site Admin). Staff identity and permissions remain active behind this preview. Read-only preview Authorized student only No student changes saved here No proof or account changes This is a read-only staff preview of the student workspace. Exit returns to Students. Exit student view Student view restored. STUDENT PATH What do I do next? This view keeps the next action first so you do not have to decode the app. Open My Work Starts the next required step START HERE Open My Work first. The page keeps staff language and older details away from the first move. RIGHT NOW Start with one thing now,",
+      "textSample": "Skip to workspace Menu SC My Capstone Tools SS Viewing as: Aven Ashford Staff account: Sam Site Admin (Site Admin). Staff identity and permissions remain active behind this preview. Read-only preview Authorized student only No student changes saved here No proof or account changes This is a read-only staff preview of the student workspace. Exit returns to Students. Exit student view Student view restored. STUDENT PATH What do I do next? This view keeps the next action first so you do not have to decode the app. Open My Work Starts the next required step TODAY What to do next Open this item. Finish the work. Add a file or link if needed. Missing Start One thing now Your action Due Before usin",
       "activeNav": [
         "Workspace",
         "1\n        1. Today\n        What to finish next",
@@ -883,7 +883,7 @@
         "finalFiles": false
       },
       "heading": "What do I do next?",
-      "textSample": "Skip to workspace Menu SC My Capstone Tools TS Go to My Capstone Close 1 1. Today What to finish next 2 2. My Work Current work and files 3 3. Feedback Feedback and work to fix 4 4. Final Checklist Presentation and final files Menu opened. STUDENT PATH What do I do next? This view keeps the next action first so you do not have to decode the app. Open My Work Starts the next required step START HERE Open My Work first. The page keeps staff language and older details away from the first move. RIGHT NOW Start with one thing now, then use feedback or checklist only if needed. IF EMPTY Nothing needs your attention right now? Check feedback, then the final checklist. FINISH BY Stop when the item i",
+      "textSample": "Skip to workspace Menu SC My Capstone Tools TS Go to My Capstone Close 1 1. Today What to finish next 2 2. My Work Current work and files 3 3. Feedback Feedback and work to fix 4 4. Final Checklist Presentation and final files Menu opened. STUDENT PATH What do I do next? This view keeps the next action first so you do not have to decode the app. Open My Work Starts the next required step TODAY What to do next View what you turned in. Wait for your teacher. Turned in View Work One thing now Teacher review Done for now. Do not upload another copy unless your teacher asks. View what you sent. Wait for your teacher. Open item NEXT STEP MAP Your teacher is reviewing this Check what you sent once,",
       "activeNav": [
         "1\n        1. Today\n        What to finish next",
         "1\n        Today"
@@ -1171,7 +1171,7 @@
         "finalFiles": false
       },
       "heading": "What do I do next?",
-      "textSample": "Skip to workspace SC My Capstone My Capstone Today Tools SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist Viewing as: High Risk Demo 01 Staff account: Sam Site Admin (Site Admin). Staff identity and permissions remain active behind this preview. Read-only preview Authorized student only No student changes saved here No proof or account changes This is a read-only staff preview of the student workspace. Exit returns to Students. Exit student view Student view loaded. STUDENT PATH What do I do next? This view keeps the next action first so you do not have to decode the app. Open My Work Starts the next required step START HERE O",
+      "textSample": "Skip to workspace SC My Capstone My Capstone Today Tools SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Today 2 My Work 3 Feedback 4 Final Checklist Viewing as: High Risk Demo 01 Staff account: Sam Site Admin (Site Admin). Staff identity and permissions remain active behind this preview. Read-only preview Authorized student only No student changes saved here No proof or account changes This is a read-only staff preview of the student workspace. Exit returns to Students. Exit student view Student view loaded. STUDENT PATH What do I do next? This view keeps the next action first so you do not have to decode the app. Open My Work Starts the next required step TODAY What t",
       "activeNav": [
         "Workspace",
         "1\n        1. Today\n        What to finish next",
