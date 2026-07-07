@@ -1,17 +1,17 @@
 {
   "proof": "workspace_ui_polish_local_browser",
   "verdict": "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF",
-  "baseUrl": "http://127.0.0.1:58208",
+  "baseUrl": "http://127.0.0.1:61275",
   "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-07T14:57:53.622Z",
-  "completedAt": "2026-07-07T15:05:17.912Z",
+  "startedAt": "2026-07-07T15:17:20.354Z",
+  "completedAt": "2026-07-07T15:24:41.664Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
   },
   "server": {
     "startedByScript": true,
-    "baseUrl": "http://127.0.0.1:58208",
+    "baseUrl": "http://127.0.0.1:61275",
     "command": "node node_modules/wrangler/bin/wrangler.js pages dev . --compatibility-date=2026-05-18"
   },
   "screenshotDir": "docs/sales/screenshots/2026-07-07-v6-until-3pm",
@@ -89,7 +89,7 @@
         "finalFiles": false
       },
       "heading": "Fix the first setup blocker",
-      "textSample": "Skip to workspace SC Capstone Admin Console Overview Tools Global Admin ROLE PG Priya Global platform.admin@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports 8 Audit ADMIN FLOW Fix the first setup blocker Admin Console starts with the next setup issue, then moves to the exact fix and confirmation. Open first fix Issue to fix to confirmation START HERE Open the first setup blocker. Console pages should move from issue to fix to confirmation. RIGHT NOW Start with the first setup issue, not a broad operations scan. IF EMPTY No setup blocker is visible. Open reports or audit only for a real question. FINISH BY Return here and confirm the issue i",
+      "textSample": "Skip to workspace SC Capstone Admin Console Overview Tools Global Admin ROLE PG Priya Global platform.admin@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports 8 Audit ADMIN FLOW Fix the first setup blocker Admin Console starts with the next setup issue, then moves to the exact fix and confirmation. Open first fix Issue to fix to confirmation ADMIN CONSOLE Admin Overview What setup, people, assignments, imports, programs, reports, or access issues need attention? Global START HERE Do this first Open the first setup blocker before using broader reports or exports. Global NEXT SETUP MOVE Mentor coverage missing 38 students need active mentor cov",
       "activeNav": [
         "Admin Console",
         "1\n        1. Overview\n        Setup issues and quick actions",
@@ -309,7 +309,7 @@
         "finalFiles": false
       },
       "heading": "Choose the student who needs you next",
-      "textSample": "Skip to workspace SC Capstone Staff Workspace Today Tools Mentor ROLE AF Ari Field mentor001@demo-staff.capstone.test 1 Today 2 Students 3 Reports MENTOR FLOW Choose the student who needs you next Mentor work starts with the assigned student list, then moves into one detail view and one follow-up action. Open assigned students Assigned students only START HERE Open assigned students. Mentor work should feel like student support, not a broad dashboard scan. RIGHT NOW Pick one assigned student who needs help or a meeting follow-up. IF EMPTY Nothing needs your attention right now. Check presentation prep only if you have a planned meeting. FINISH BY Stop when the next follow-up is clear or reco",
+      "textSample": "Skip to workspace SC Capstone Staff Workspace Today Tools Mentor ROLE AF Ari Field mentor001@demo-staff.capstone.test 1 Today 2 Students 3 Reports MENTOR FLOW Choose the student who needs you next Mentor work starts with the assigned student list, then moves into one detail view and one follow-up action. Open assigned students Assigned students only MENTOR PLAN Choose one assigned student first Mentor work starts with assigned students, then moves to meeting follow-up, presentation context, or reports only when that student needs it. 9 assigned students ASSIGNED-STUDENT ROUTE Open the assigned-student focus Start with assigned students who have meeting, stale-progress, presentation, or teach",
       "activeNav": [
         "1\n        1. Today\n        Students needing attention",
         "1\n        Today"
@@ -740,7 +740,7 @@
         "finalFiles": false
       },
       "heading": "Fix the first setup blocker",
-      "textSample": "Skip to workspace Menu SC Capstone Admin Console Overview Tools Global Admin ROLE PG Priya Global platform.admin@demo-staff.capstone.test ADMIN FLOW Fix the first setup blocker Admin Console starts with the next setup issue, then moves to the exact fix and confirmation. Open first fix Issue to fix to confirmation START HERE Open the first setup blocker. Console pages should move from issue to fix to confirmation. RIGHT NOW Start with the first setup issue, not a broad operations scan. IF EMPTY No setup blocker is visible. Open reports or audit only for a real question. FINISH BY Return here and confirm the issue is gone or clearly still blocked. GUIDED SETUP FLOW Issue, fix, confirmation Adm",
+      "textSample": "Skip to workspace Menu SC Capstone Admin Console Overview Tools Global Admin ROLE PG Priya Global platform.admin@demo-staff.capstone.test ADMIN FLOW Fix the first setup blocker Admin Console starts with the next setup issue, then moves to the exact fix and confirmation. Open first fix Issue to fix to confirmation ADMIN CONSOLE Admin Overview What setup, people, assignments, imports, programs, reports, or access issues need attention? Global START HERE Do this first Open the first setup blocker before using broader reports or exports. Global NEXT SETUP MOVE Mentor coverage missing 38 students need active mentor coverage. Open assignments After the setup screen is fixed, return here and refres",
       "activeNav": [
         "Admin Console",
         "1\n        1. Overview\n        Setup issues and quick actions",
@@ -1313,7 +1313,7 @@
         "finalFiles": false
       },
       "heading": "Fix one staff account",
-      "textSample": "Skip to workspace SC Capstone Admin Console People Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports ADMIN FLOW Fix one staff account Add or update one staff, mentor, viewer, teacher, or admin record for the selected school. Open staff tools One account at a time START HERE Open one staff record. People work is safer when one account is changed and checked. RIGHT NOW Choose the staff row with the clearest setup need. IF EMPTY No staff setup issue is visible. Use Add Staff only when a real person is missing. FINISH BY Stop when the role, school, and allowed actions match the int",
+      "textSample": "Skip to workspace SC Capstone Admin Console People Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports ADMIN FLOW Fix one staff account Add or update one staff, mentor, viewer, teacher, or admin record for the selected school. Open staff tools One account at a time PEOPLE Staff Directory Add and manage staff, mentors, viewers, Program Teachers, School Admins, and Site Admins inside the current view. School people access Add staff Actions STAFF Manage Staff Add Staff ASSIGNMENTS Assignments ACCESS Desert Valley High School ALLOWED ROLES Student, Mentor, Viewer, Program Teacher, Sc",
       "activeNav": [
         "Admin Console",
         "2\n        2. People\n        Staff and account setup",
@@ -1388,7 +1388,7 @@
         "finalFiles": false
       },
       "heading": "Fix one student record",
-      "textSample": "Skip to workspace SC Capstone Admin Console Students Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports ADMIN FLOW Fix one student record Start with one roster issue, then confirm the student appears in the right school and program. Open roster tools Student setup only START HERE Open one student record. Roster changes should be narrow and easy to verify. RIGHT NOW Choose the student with the clearest roster, program, mentor, or viewer gap. IF EMPTY No roster issue is visible. Use import only when a real roster batch is ready. FINISH BY Stop when the student appears in the right",
+      "textSample": "Skip to workspace SC Capstone Admin Console Students Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports ADMIN FLOW Fix one student record Start with one roster issue, then confirm the student appears in the right school and program. Open roster tools Student setup only STUDENTS Student Roster Setup Review roster profile, school/program placement, mentor and viewer signals, then add one student when needed. Roster setup Add student Actions STUDENTS Manage Students Add Student ASSIGNMENTS Assignments ACCESS Desert Valley High School ALLOWED ROLES Student, Mentor, Viewer, Program T",
       "activeNav": [
         "Admin Console",
         "3\n        3. Students\n        Student roster setup",
@@ -1464,7 +1464,7 @@
         "finalFiles": false
       },
       "heading": "Preview one CSV before saving",
-      "textSample": "Skip to workspace SC Capstone Admin Console Imports Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports ADMIN FLOW Preview one CSV before saving Download the right template, preview validation, fix rows, then confirm only valid records. Open import tools Preview before import START HERE Preview one CSV file. Imports should show row problems before anything is saved. RIGHT NOW Choose the correct template, then preview rows. IF EMPTY No CSV is selected. Download a template before preparing a batch. FINISH BY Stop when valid rows are confirmed or problem rows are fixed outside the a",
+      "textSample": "Skip to workspace SC Capstone Admin Console Imports Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports ADMIN FLOW Preview one CSV before saving Download the right template, preview validation, fix rows, then confirm only valid records. Open import tools Preview before import IMPORTS Student and Staff Imports Download the supported CSV template, preview validation, fix errors, then confirm only valid rows. CSV preview Upload CSV Actions Student CSV template Creates local student accounts with school/program placement and optional roster coverage fields. REQUIRED first_name last_n",
       "activeNav": [
         "Admin Console",
         "6\n        6. Imports\n        CSV templates and preview",
@@ -1532,7 +1532,7 @@
         "finalFiles": false
       },
       "heading": "Preview one CSV before saving",
-      "textSample": "Skip to workspace SC Capstone Admin Console Imports Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports CSV preview found rows to fix. ADMIN FLOW Preview one CSV before saving Download the right template, preview validation, fix rows, then confirm only valid records. Open import tools Preview before import START HERE Preview one CSV file. Imports should show row problems before anything is saved. RIGHT NOW Choose the correct template, then preview rows. IF EMPTY No CSV is selected. Download a template before preparing a batch. FINISH BY Stop when valid rows are confirmed or probl",
+      "textSample": "Skip to workspace SC Capstone Admin Console Imports Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports CSV preview found rows to fix. ADMIN FLOW Preview one CSV before saving Download the right template, preview validation, fix rows, then confirm only valid records. Open import tools Preview before import IMPORTS Student and Staff Imports Download the supported CSV template, preview validation, fix errors, then confirm only valid rows. CSV preview Upload CSV Actions Student CSV template Creates local student accounts with school/program placement and optional roster coverage fie",
       "activeNav": [
         "Admin Console",
         "6\n        6. Imports\n        CSV templates and preview",
@@ -1600,7 +1600,7 @@
         "finalFiles": false
       },
       "heading": "Preview one CSV before saving",
-      "textSample": "Skip to workspace SC Capstone Admin Console Imports Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports CSV preview found rows to fix. ADMIN FLOW Preview one CSV before saving Download the right template, preview validation, fix rows, then confirm only valid records. Open import tools Preview before import START HERE Preview one CSV file. Imports should show row problems before anything is saved. RIGHT NOW Choose the correct template, then preview rows. IF EMPTY No CSV is selected. Download a template before preparing a batch. FINISH BY Stop when valid rows are confirmed or probl",
+      "textSample": "Skip to workspace SC Capstone Admin Console Imports Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports CSV preview found rows to fix. ADMIN FLOW Preview one CSV before saving Download the right template, preview validation, fix rows, then confirm only valid records. Open import tools Preview before import IMPORTS Student and Staff Imports Download the supported CSV template, preview validation, fix errors, then confirm only valid rows. CSV preview Upload CSV Actions Student CSV template Creates local student accounts with school/program placement and optional roster coverage fie",
       "activeNav": [
         "Admin Console",
         "6\n        6. Imports\n        CSV templates and preview",
@@ -2400,7 +2400,7 @@
         "finalFiles": false
       },
       "heading": "Choose the student who needs you next",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Mentor AF MENTOR FLOW Choose the student who needs you next Mentor work starts with the assigned student list, then moves into one detail view and one follow-up action. Open assigned students Assigned students only START HERE Open assigned students. Mentor work should feel like student support, not a broad dashboard scan. RIGHT NOW Pick one assigned student who needs help or a meeting follow-up. IF EMPTY Nothing needs your attention right now. Check presentation prep only if you have a planned meeting. FINISH BY Stop when the next follow-up is clear or recorded for that student. MENTOR SUPPORT FLOW Assigned-student focus The mentor start path narrows ",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Mentor AF MENTOR FLOW Choose the student who needs you next Mentor work starts with the assigned student list, then moves into one detail view and one follow-up action. Open assigned students Assigned students only MENTOR PLAN Choose one assigned student first Mentor work starts with assigned students, then moves to meeting follow-up, presentation context, or reports only when that student needs it. 9 assigned students ASSIGNED-STUDENT ROUTE Open the assigned-student focus Start with assigned students who have meeting, stale-progress, presentation, or teacher-note signals. 5 Open Mentor Dashboard 5 Open the assigned-student focus Start with assigned s",
       "activeNav": [
         "1\n        1. Today\n        Students needing attention",
         "1\n        Today"
@@ -2698,7 +2698,7 @@
         "finalFiles": false
       },
       "heading": "Fix the first setup blocker",
-      "textSample": "Skip to workspace SC Capstone Admin Console Overview Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports ADMIN FLOW Fix the first setup blocker Admin Console starts with the next setup issue, then moves to the exact fix and confirmation. Open first fix Issue to fix to confirmation START HERE Open the first setup blocker. Console pages should move from issue to fix to confirmation. RIGHT NOW Start with the first setup issue, not a broad operations scan. IF EMPTY No setup blocker is visible. Open reports or audit only for a real question. FINISH BY Return here and confirm the issue",
+      "textSample": "Skip to workspace SC Capstone Admin Console Overview Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports ADMIN FLOW Fix the first setup blocker Admin Console starts with the next setup issue, then moves to the exact fix and confirmation. Open first fix Issue to fix to confirmation ADMIN CONSOLE Admin Overview What setup, people, assignments, imports, programs, reports, or access issues need attention? Site START HERE Do this first Open the first setup blocker before using broader reports or exports. Site NEXT SETUP MOVE Mentor coverage missing 38 students need active mentor cover",
       "activeNav": [
         "Admin Console",
         "1\n        1. Overview\n        Setup issues and quick actions",
@@ -2771,7 +2771,7 @@
         "finalFiles": false
       },
       "heading": "Assign missing coverage",
-      "textSample": "Skip to workspace SC Capstone Admin Console Assignments Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports ADMIN FLOW Assign missing coverage Handle mentor coverage first, then viewer access, then Program Teacher coverage. Open assignment tools Coverage before broad grants START HERE Open the first coverage gap. Coverage work should grant only the relationship the student needs. RIGHT NOW Start with missing mentor, viewer, or Program Teacher coverage. IF EMPTY No coverage gap is visible. Do not add broad access just to fill the page. FINISH BY Stop when the assignment appears an",
+      "textSample": "Skip to workspace SC Capstone Admin Console Assignments Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports ADMIN FLOW Assign missing coverage Handle mentor coverage first, then viewer access, then Program Teacher coverage. Open assignment tools Coverage before broad grants ASSIGNMENTS Coverage and Access Assignments Put missing coverage first, then use the assignment forms already allowed for this role. Limited forms Assign mentor Actions MISSING MENTOR COVERAGE 32 212 active mentor assignments MISSING VIEWER ACCESS 197 3 active viewer assignments PROGRAM TEACHER GAPS 0 23 activ",
       "activeNav": [
         "Admin Console",
         "4\n        4. Assignments\n        Mentor, viewer, and program coverage",
@@ -2844,7 +2844,7 @@
         "finalFiles": false
       },
       "heading": "Set up one school program",
-      "textSample": "Skip to workspace SC Capstone Admin Console Programs Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports ADMIN FLOW Set up one school program Add, remove, or confirm one program mapping before reviewing Program Teacher access. Open program tools One program mapping START HERE Open one program mapping. Program setup should confirm school, program, and teacher coverage together. RIGHT NOW Choose the one program mapping that needs review. IF EMPTY No program issue is visible. Leave this screen without changing access. FINISH BY Stop when the program and Program Teacher coverage are ",
+      "textSample": "Skip to workspace SC Capstone Admin Console Programs Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports ADMIN FLOW Set up one school program Add, remove, or confirm one program mapping before reviewing Program Teacher access. Open program tools One program mapping PROGRAMS Programs at Desert Valley High School Desert Valley High School Manage which active programs belong to this school. Removing a program here turns off the school mapping only and keeps historical student and assignment records intact. SCHOOL CONTEXT Desert Valley High School 2026-2027 ACTIVE PROGRAMS 9 23 Progr",
       "activeNav": [
         "Admin Console",
         "5\n        5. Programs\n        Site program management",
@@ -2918,7 +2918,7 @@
         "finalFiles": false
       },
       "heading": "Answer one operations question",
-      "textSample": "Skip to workspace SC Capstone Admin Console Reports Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports ADMIN FLOW Answer one operations question Reports are used after setup blockers are understood, not as the starting dashboard. Open report Question first START HERE Open one report question. Reports should answer a specific operations question. RIGHT NOW Pick the question before opening export or detail controls. IF EMPTY No report question is active. Return to setup before browsing summaries. FINISH BY Stop when you know which setup screen, student list, or audit trail should ",
+      "textSample": "Skip to workspace SC Capstone Admin Console Reports Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports ADMIN FLOW Answer one operations question Reports are used after setup blockers are understood, not as the starting dashboard. Open report Question first REPORTS Choose one report Start with one report, then open setup work only when the numbers point to it. Report-safe fields View setup issues Actions REPORT PATH Pick the report you need now Use roster completeness first. If a row needs work, move to setup issues or the linked setup screen. Percentages name their denominator, ",
       "activeNav": [
         "Admin Console",
         "7\n        7. Reports\n        Roster and operational health",
@@ -2992,7 +2992,7 @@
         "finalFiles": false
       },
       "heading": "Review one change trail",
-      "textSample": "Skip to workspace SC Capstone Admin Console Audit Tools Global Admin ROLE PG Priya Global platform.admin@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports 8 Audit ADMIN FLOW Review one change trail Audit starts with a single change or actor, then expands only when more context is needed. Open audit trail One trail at a time START HERE Open one change trail. Audit work should inspect one actor, change, or concern at a time. RIGHT NOW Choose the change trail tied to the current concern. IF EMPTY No audit concern is visible. Do not invent a follow-up. FINISH BY Stop when the follow-up is documented or no action is needed. AUDIT REVIEW FLOW Audi",
+      "textSample": "Skip to workspace SC Capstone Admin Console Audit Tools Global Admin ROLE PG Priya Global platform.admin@demo-staff.capstone.test 1 Overview 2 People 3 Students 4 Assignments 5 Programs 6 Imports 7 Reports 8 Audit ADMIN FLOW Review one change trail Audit starts with a single change or actor, then expands only when more context is needed. Open audit trail One trail at a time AUDIT Choose one audit check Start with the latest redacted rows, then open one saved check only if the pattern needs follow-up. 50 recent events AUDIT PATH Pick one redacted check Audit is for triage. Open one pattern, confirm the source screen, then decide whether access or setup needs follow-up. Redacted rows only STAR",
       "activeNav": [
         "Admin Console",
         "8\n        8. Audit\n        Access review and recent changes",
@@ -3066,7 +3066,7 @@
         "finalFiles": false
       },
       "heading": "Fix the first setup blocker",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS ADMIN FLOW Fix the first setup blocker Admin Console starts with the next setup issue, then moves to the exact fix and confirmation. Open first fix Issue to fix to confirmation START HERE Open the first setup blocker. Console pages should move from issue to fix to confirmation. RIGHT NOW Start with the first setup issue, not a broad operations scan. IF EMPTY No setup blocker is visible. Open reports or audit only for a real question. FINISH BY Return here and confirm the issue is gone or clearly still blocked. GUIDED SETUP FLOW Issue, fix, confirmation Admin Console stays focused on the selected setup job and keeps broader tools behind t",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS ADMIN FLOW Fix the first setup blocker Admin Console starts with the next setup issue, then moves to the exact fix and confirmation. Open first fix Issue to fix to confirmation ADMIN CONSOLE Admin Overview What setup, people, assignments, imports, programs, reports, or access issues need attention? Site START HERE Do this first Open the first setup blocker before using broader reports or exports. Site NEXT SETUP MOVE Mentor coverage missing 38 students need active mentor coverage. Open assignments After the setup screen is fixed, return here and refresh. This item leaves the list when the loaded records confirm it. Show setup checklist N",
       "activeNav": [
         "Admin Console",
         "1\n        1. Overview\n        Setup issues and quick actions",
@@ -3139,7 +3139,7 @@
         "finalFiles": false
       },
       "heading": "Preview one CSV before saving",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS ADMIN FLOW Preview one CSV before saving Download the right template, preview validation, fix rows, then confirm only valid records. Open import tools Preview before import START HERE Preview one CSV file. Imports should show row problems before anything is saved. RIGHT NOW Choose the correct template, then preview rows. IF EMPTY No CSV is selected. Download a template before preparing a batch. FINISH BY Stop when valid rows are confirmed or problem rows are fixed outside the app. GUIDED SETUP FLOW Issue, fix, confirmation Admin Console stays focused on the selected setup job and keeps broader tools behind the active screen. ISSUE Start ",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS ADMIN FLOW Preview one CSV before saving Download the right template, preview validation, fix rows, then confirm only valid records. Open import tools Preview before import IMPORTS Student and Staff Imports Download the supported CSV template, preview validation, fix errors, then confirm only valid rows. CSV preview Upload CSV Actions Student CSV template Creates local student accounts with school/program placement and optional roster coverage fields. REQUIRED first_name last_name email site program OPTIONAL cohort graduation_year status mentor_email viewer_email EXAMPLE ROW Alex,Student,alex.student@senior-capstone.test,Desert Valley Hi",
       "activeNav": [
         "Admin Console",
         "6\n        6. Imports\n        CSV templates and preview",
@@ -3207,7 +3207,7 @@
         "finalFiles": false
       },
       "heading": "Preview one CSV before saving",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS CSV preview found rows to fix. ADMIN FLOW Preview one CSV before saving Download the right template, preview validation, fix rows, then confirm only valid records. Open import tools Preview before import START HERE Preview one CSV file. Imports should show row problems before anything is saved. RIGHT NOW Choose the correct template, then preview rows. IF EMPTY No CSV is selected. Download a template before preparing a batch. FINISH BY Stop when valid rows are confirmed or problem rows are fixed outside the app. GUIDED SETUP FLOW Issue, fix, confirmation Admin Console stays focused on the selected setup job and keeps broader tools behind ",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS CSV preview found rows to fix. ADMIN FLOW Preview one CSV before saving Download the right template, preview validation, fix rows, then confirm only valid records. Open import tools Preview before import IMPORTS Student and Staff Imports Download the supported CSV template, preview validation, fix errors, then confirm only valid rows. CSV preview Upload CSV Actions Student CSV template Creates local student accounts with school/program placement and optional roster coverage fields. REQUIRED first_name last_name email site program OPTIONAL cohort graduation_year status mentor_email viewer_email EXAMPLE ROW Alex,Student,alex.student@senior",
       "activeNav": [
         "Admin Console",
         "6\n        6. Imports\n        CSV templates and preview",
@@ -3281,7 +3281,7 @@
         "finalFiles": false
       },
       "heading": "Answer one operations question",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS ADMIN FLOW Answer one operations question Reports are used after setup blockers are understood, not as the starting dashboard. Open report Question first START HERE Open one report question. Reports should answer a specific operations question. RIGHT NOW Pick the question before opening export or detail controls. IF EMPTY No report question is active. Return to setup before browsing summaries. FINISH BY Stop when you know which setup screen, student list, or audit trail should open next. ADMIN REPORT FLOW Reports answer one operations question Admin Console stays focused on the selected setup job and keeps broader tools behind the active",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS ADMIN FLOW Answer one operations question Reports are used after setup blockers are understood, not as the starting dashboard. Open report Question first REPORTS Choose one report Start with one report, then open setup work only when the numbers point to it. Report-safe fields View setup issues Actions REPORT PATH Pick the report you need now Use roster completeness first. If a row needs work, move to setup issues or the linked setup screen. Percentages name their denominator, zero-row exports stay disabled, and unknown states are not counted as complete. START HERE Roster completeness Student setup fields from the current admin view. 20",
       "activeNav": [
         "Admin Console",
         "7\n        7. Reports\n        Roster and operational health",
@@ -4439,7 +4439,7 @@
         "finalFiles": false
       },
       "heading": "Work with one assigned student",
-      "textSample": "Skip to workspace SC Capstone Staff Workspace Students Tools Mentor ROLE AF Ari Field mentor001@demo-staff.capstone.test 1 Today 2 Students 3 Reports MENTOR FLOW Work with one assigned student Mentor work starts with the assigned student list, then moves into one detail view and one follow-up action. Open student detail Assigned students only START HERE Open one assigned student detail. Mentor work should feel like student support, not a broad dashboard scan. RIGHT NOW Pick one assigned student who needs help or a meeting follow-up. IF EMPTY Nothing needs your attention right now. Check presentation prep only if you have a planned meeting. FINISH BY Stop when the next follow-up is clear or r",
+      "textSample": "Skip to workspace SC Capstone Staff Workspace Students Tools Mentor ROLE AF Ari Field mentor001@demo-staff.capstone.test 1 Today 2 Students 3 Reports MENTOR FLOW Work with one assigned student Mentor work starts with the assigned student list, then moves into one detail view and one follow-up action. Open student detail Assigned students only MENTOR VIEW Assigned Students 9 assigned Dalen Elmstead 0 files attached. Not started Faye Redwick 3 files attached. Revision requested Ivara Rookwood 6 files attached. Approved Kael Morrow 1 file attached. Revision requested Model Excellent Demo 01 6 files attached. Archived Presentation Pending Demo 05 5 files attached. Approved Uma Southwick 4 files ",
       "activeNav": [
         "2\n        2. Students\n        Assigned student rows",
         "2\n        Students"
@@ -4505,7 +4505,7 @@
         "finalFiles": false
       },
       "heading": "Work with one assigned student",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Mentor AF MENTOR FLOW Work with one assigned student Mentor work starts with the assigned student list, then moves into one detail view and one follow-up action. Open student detail Assigned students only START HERE Open one assigned student detail. Mentor work should feel like student support, not a broad dashboard scan. RIGHT NOW Pick one assigned student who needs help or a meeting follow-up. IF EMPTY Nothing needs your attention right now. Check presentation prep only if you have a planned meeting. FINISH BY Stop when the next follow-up is clear or recorded for that student. MENTOR SUPPORT FLOW Assigned-student focus The mentor start path narrows ",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Mentor AF MENTOR FLOW Work with one assigned student Mentor work starts with the assigned student list, then moves into one detail view and one follow-up action. Open student detail Assigned students only MENTOR VIEW Assigned Students 9 assigned Dalen Elmstead 0 files attached. Not started Faye Redwick 3 files attached. Revision requested Ivara Rookwood 6 files attached. Approved Kael Morrow 1 file attached. Revision requested Model Excellent Demo 01 6 files attached. Archived Presentation Pending Demo 05 5 files attached. Approved Uma Southwick 4 files attached. Approved Willa Frostvale 1 file attached. Submitted Zerin Cedarfall 0 files attached. Not",
       "activeNav": [
         "2\n        2. Students\n        Assigned student rows",
         "2\n        Students"
@@ -5040,7 +5040,7 @@
         "finalFiles": false
       },
       "heading": "Fix one staff account",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS ADMIN FLOW Fix one staff account Add or update one staff, mentor, viewer, teacher, or admin record for the selected school. Open staff tools One account at a time START HERE Open one staff record. People work is safer when one account is changed and checked. RIGHT NOW Choose the staff row with the clearest setup need. IF EMPTY No staff setup issue is visible. Use Add Staff only when a real person is missing. FINISH BY Stop when the role, school, and allowed actions match the intended staff job. GUIDED SETUP FLOW Issue, fix, confirmation Admin Console stays focused on the selected setup job and keeps broader tools behind the active screen",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS ADMIN FLOW Fix one staff account Add or update one staff, mentor, viewer, teacher, or admin record for the selected school. Open staff tools One account at a time PEOPLE Staff Directory Add and manage staff, mentors, viewers, Program Teachers, School Admins, and Site Admins inside the current view. School people access Add staff Actions STAFF Manage Staff Add Staff ASSIGNMENTS Assignments ACCESS Desert Valley High School ALLOWED ROLES Student, Mentor, Viewer, Program Teacher, School Admin GLOBAL ADMIN Not available from this account MANAGE STAFF Current staff and support accounts Review staff access before changing assignments or removin",
       "activeNav": [
         "Admin Console",
         "2\n        2. People\n        Staff and account setup",
@@ -5108,7 +5108,7 @@
         "finalFiles": false
       },
       "heading": "Fix one student record",
-      "textSample": "Skip to workspace Menu SC Capstone Admin Console Students Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ADMIN FLOW Fix one student record Start with one roster issue, then confirm the student appears in the right school and program. Open roster tools Student setup only START HERE Open one student record. Roster changes should be narrow and easy to verify. RIGHT NOW Choose the student with the clearest roster, program, mentor, or viewer gap. IF EMPTY No roster issue is visible. Use import only when a real roster batch is ready. FINISH BY Stop when the student appears in the right school and program. GUIDED SETUP FLOW Issue, fix, confirmation Admin C",
+      "textSample": "Skip to workspace Menu SC Capstone Admin Console Students Tools Site Admin ROLE SS Sam Site Admin admin.desert-valley-high@demo-staff.capstone.test ADMIN FLOW Fix one student record Start with one roster issue, then confirm the student appears in the right school and program. Open roster tools Student setup only STUDENTS Student Roster Setup Review roster profile, school/program placement, mentor and viewer signals, then add one student when needed. Roster setup Add student Actions STUDENTS Manage Students Add Student ASSIGNMENTS Assignments ACCESS Desert Valley High School ALLOWED ROLES Student, Mentor, Viewer, Program Teacher, School Admin GLOBAL ADMIN Not available from this account MANAG",
       "activeNav": [
         "Admin Console",
         "3\n        3. Students\n        Student roster setup",
@@ -5176,7 +5176,7 @@
         "finalFiles": false
       },
       "heading": "Assign missing coverage",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS ADMIN FLOW Assign missing coverage Handle mentor coverage first, then viewer access, then Program Teacher coverage. Open assignment tools Coverage before broad grants START HERE Open the first coverage gap. Coverage work should grant only the relationship the student needs. RIGHT NOW Start with missing mentor, viewer, or Program Teacher coverage. IF EMPTY No coverage gap is visible. Do not add broad access just to fill the page. FINISH BY Stop when the assignment appears and the student remains in the correct school or program. GUIDED SETUP FLOW Issue, fix, confirmation Admin Console stays focused on the selected setup job and keeps broa",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS ADMIN FLOW Assign missing coverage Handle mentor coverage first, then viewer access, then Program Teacher coverage. Open assignment tools Coverage before broad grants ASSIGNMENTS Coverage and Access Assignments Put missing coverage first, then use the assignment forms already allowed for this role. Limited forms Assign mentor Actions MISSING MENTOR COVERAGE 32 212 active mentor assignments MISSING VIEWER ACCESS 197 3 active viewer assignments PROGRAM TEACHER GAPS 0 23 active Program Teacher assignments SCHOOL ADMIN GRANTS 2 Administration and Site Admin access rows COVERAGE FLOW Fix coverage in order Use the matching assignment form for ",
       "activeNav": [
         "Admin Console",
         "4\n        4. Assignments\n        Mentor, viewer, and program coverage",
@@ -5243,7 +5243,7 @@
         "finalFiles": false
       },
       "heading": "Set up one school program",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS ADMIN FLOW Set up one school program Add, remove, or confirm one program mapping before reviewing Program Teacher access. Open program tools One program mapping START HERE Open one program mapping. Program setup should confirm school, program, and teacher coverage together. RIGHT NOW Choose the one program mapping that needs review. IF EMPTY No program issue is visible. Leave this screen without changing access. FINISH BY Stop when the program and Program Teacher coverage are visible together. GUIDED SETUP FLOW Issue, fix, confirmation Admin Console stays focused on the selected setup job and keeps broader tools behind the active screen.",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin SS ADMIN FLOW Set up one school program Add, remove, or confirm one program mapping before reviewing Program Teacher access. Open program tools One program mapping PROGRAMS Programs at Desert Valley High School Desert Valley High School Manage which active programs belong to this school. Removing a program here turns off the school mapping only and keeps historical student and assignment records intact. SCHOOL CONTEXT Desert Valley High School 2026-2027 ACTIVE PROGRAMS 9 23 Program Teacher assignment rows AVAILABLE TO ADD 1 Add only programs that belong to this school. COVERAGE ISSUES 0 No Program Teacher gaps in loaded assignments. FIRST P",
       "activeNav": [
         "Admin Console",
         "5\n        5. Programs\n        Site program management",
@@ -5310,7 +5310,7 @@
         "finalFiles": false
       },
       "heading": "Review one change trail",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Global Admin PG ADMIN FLOW Review one change trail Audit starts with a single change or actor, then expands only when more context is needed. Open audit trail One trail at a time START HERE Open one change trail. Audit work should inspect one actor, change, or concern at a time. RIGHT NOW Choose the change trail tied to the current concern. IF EMPTY No audit concern is visible. Do not invent a follow-up. FINISH BY Stop when the follow-up is documented or no action is needed. AUDIT REVIEW FLOW Audit starts with one trail Admin Console stays focused on the selected setup job and keeps broader tools behind the active screen. ISSUE Choose the trail Choose",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Global Admin PG ADMIN FLOW Review one change trail Audit starts with a single change or actor, then expands only when more context is needed. Open audit trail One trail at a time AUDIT Choose one audit check Start with the latest redacted rows, then open one saved check only if the pattern needs follow-up. 50 recent events AUDIT PATH Pick one redacted check Audit is for triage. Open one pattern, confirm the source screen, then decide whether access or setup needs follow-up. Redacted rows only START HERE Start with latest changes Use the newest redacted rows before changing filters or widening access. 50 events Viewing THEN CHECK Check denied access fi",
       "activeNav": [
         "Admin Console",
         "8\n        8. Audit\n        Access review and recent changes",
@@ -5377,7 +5377,7 @@
         "finalFiles": false
       },
       "heading": "Fix the first setup blocker",
-      "textSample": "Skip to workspace Menu SC Capstone Tools Global Admin PG ADMIN FLOW Fix the first setup blocker Admin Console starts with the next setup issue, then moves to the exact fix and confirmation. Open first fix Issue to fix to confirmation START HERE Open the first setup blocker. Console pages should move from issue to fix to confirmation. RIGHT NOW Start with the first setup issue, not a broad operations scan. IF EMPTY No setup blocker is visible. Open reports or audit only for a real question. FINISH BY Return here and confirm the issue is gone or clearly still blocked. GUIDED SETUP FLOW Issue, fix, confirmation Admin Console stays focused on the selected setup job and keeps broader tools behind",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Global Admin PG ADMIN FLOW Fix the first setup blocker Admin Console starts with the next setup issue, then moves to the exact fix and confirmation. Open first fix Issue to fix to confirmation ADMIN CONSOLE Admin Overview What setup, people, assignments, imports, programs, reports, or access issues need attention? Global START HERE Do this first Open the first setup blocker before using broader reports or exports. Global NEXT SETUP MOVE Mentor coverage missing 38 students need active mentor coverage. Open assignments After the setup screen is fixed, return here and refresh. This item leaves the list when the loaded records confirm it. Show setup check",
       "activeNav": [
         "Admin Console",
         "1\n        1. Overview\n        Setup issues and quick actions",

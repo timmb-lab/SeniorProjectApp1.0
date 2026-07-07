@@ -9,15 +9,15 @@ If interrupted before `2026-07-07 15:00 America/Phoenix`, do not call V6 complet
 ## Current State
 
 - Starting SHA: `1ffd87d851dd473861e1892f7d7dfccbb94792e9`
-- Current SHA: `4d40b90e`
+- Current SHA: `ea5b9bb`
 - START_TIME_PHOENIX: `2026-07-07 07:20:40 America/Phoenix`
 - TARGET_NOT_BEFORE_TIME_LOCAL: `2026-07-07 15:00 America/Phoenix`
-- Latest stable commit: slice 06 `4d40b90e` (`Lead staff today with V6 role plans`)
-- Commits since V6 start: `6`
+- Latest stable commit: slice 08 `ea5b9bb` (`Add V6 mentor today plan`)
+- Commits since V6 start: `9`
 - Changed files so far: `workspace.js`, `workspace.css`, `tests/workspace-app.test.mjs`, V6 proof/checkpoint/index docs, and V6 screenshot proof artifacts.
-- Screens/states changed: mobile V2 hierarchy, staff Today primary-route order, CSV import outcome order, report export boundary messaging, mentor assigned-student shell language.
+- Screens/states changed: mobile V2 hierarchy, staff Today primary-route order, CSV import outcome order, report export boundary messaging, mentor assigned-student shell language, Admin Console primary-surface ordering, Mentor Today assigned-student plan.
 - Screenshots captured: `78` V6 screenshots, including `32` mobile screenshots.
-- Browser proof: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`, `0` failures, fake-data-only, real-student status `NOT_CLAIMED_READY`.
+- Browser proof: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`, `0` failures, fake-data-only, real-student status `NOT_CLAIMED_READY`, refreshed after slice 08.
 - Tests run: targeted syntax checks, `node --test tests\workspace-app.test.mjs`, `npm run check:workspace-mobile`, `npm run check:workspace-accessibility`, `npm run verify:dashboard-actions`, `npm run verify:functionality-language`, `git diff --check`, and V6 browser proof.
 - Pending: continue real implementation/proof loops until after 3PM Phoenix, then run final gates, update final proof, push, and report honestly.
 

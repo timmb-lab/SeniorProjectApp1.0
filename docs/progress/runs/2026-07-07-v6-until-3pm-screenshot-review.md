@@ -1,6 +1,6 @@
 # 2026-07-07 V6 Until-3PM Screenshot Review
 
-Status: in progress.
+Status: in progress; refreshed after slices 01-08.
 
 Source artifacts:
 
@@ -51,4 +51,14 @@ Source artifacts:
 
 ## Selected V6 Targets
 
-Pending visual inspection.
+- Mobile first-viewport hardening for student and staff role landing screens.
+- Program Teacher, Viewer, School Admin, and Mentor Today plans should lead before shared Staff Workspace guidance.
+- CSV import preview results should appear before the long form after validation.
+- Report exports should state the current allowed-view boundary before download buttons.
+- Admin Console pages should show their real section content before shared start-state guidance.
+
+## Refresh 02 Spot Checks
+
+- `30-mobile-mentor-today.png`: Mentor Today now shows the assigned-student plan inside the first phone viewport.
+- `42-mobile-admin-reports.png`: Mobile Admin Reports opens with the report path and export cards instead of shell guidance.
+- `04-mentor-workspace.png`: Desktop Mentor Today shows the role plan ahead of the shared Staff Workspace header.

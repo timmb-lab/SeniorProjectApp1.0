@@ -235,3 +235,22 @@
   - `npm run verify:dashboard-actions`: PASS
   - `git diff --check`: PASS with line-ending warnings only
 - Real work continues before 3PM: YES
+
+## Browser Proof Refresh 02
+
+- Manifest: `docs/progress/runs/2026-07-07-v6-until-3pm-browser-proof.json`
+- Screenshot folder: `docs/sales/screenshots/2026-07-07-v6-until-3pm`
+- Screenshot index: `docs/sales/v6-until-3pm-screenshot-index.md`
+- Verdict: `GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF`
+- Screenshots: `78`
+- Mobile screenshots: `32`
+- Failures: `0`
+- Started: `2026-07-07T15:17:20.354Z`
+- Completed: `2026-07-07T15:24:41.664Z`
+- Visual spot checks:
+  - `30-mobile-mentor-today.png`: Mentor plan appears in the first phone viewport and routes first to Mentor Dashboard.
+  - `42-mobile-admin-reports.png`: Admin Reports begins with the report path and export rows, not shared shell guidance.
+  - `04-mentor-workspace.png`: desktop Mentor Today shows the assigned-student plan before the shared Staff Workspace header.
+- Claim boundary: local fake-account browser UI proof only; hosted readiness and real-student pilot readiness are not claimed.
+- Real-student production status: `NOT_CLAIMED_READY`
+- Real work continues before 3PM: YES
