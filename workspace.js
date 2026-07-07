@@ -2931,7 +2931,7 @@ function renderAdminSetupFirstPanel(model = {}, capabilities = adminConsoleCapab
     : { label: fallbackSection === "adminReports" ? "Review reports" : "Review overview", section: fallbackSection };
   const state = nextIssue ? nextIssue.tone || "warning" : "ready";
   const nextTitle = nextIssue?.title || "No setup blocker is first in line";
-  const nextDetail = nextIssue?.detail || "The loaded roster, assignment, program, import, and report signals do not show a first setup issue.";
+  const nextDetail = nextIssue?.detail || "Current roster, assignment, program, import, and report signals do not show a first setup issue.";
   const verificationRows = readinessRows
     .slice()
     .sort((a, b) => safeNumber(b.count) - safeNumber(a.count))
@@ -2954,7 +2954,7 @@ function renderAdminSetupFirstPanel(model = {}, capabilities = adminConsoleCapab
         </div>
         ${renderAdminActionControl(action, "workspace-button workspace-button-primary workspace-button-small", "setup-first")}
       </article>
-      <p class="workspace-muted" data-admin-setup-confirmation-cue="true">After the setup screen is fixed, return here and refresh. This item leaves the list when the loaded records confirm it.</p>
+      <p class="workspace-muted" data-admin-setup-confirmation-cue="true">After the setup screen is fixed, return here and refresh. This item leaves the list when current records confirm it.</p>
       <details class="workspace-admin-supporting-disclosure" data-admin-setup-first-lanes-disclosure="true">
         <summary>Show setup checklist</summary>
         <div class="workspace-admin-setup-first-grid" data-admin-setup-first-lanes="true">
@@ -3043,7 +3043,7 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
     missingViewers ? {
       id: "viewer-coverage",
       title: "Viewer access unassigned",
-      detail: `${missingViewers} ${pluralize(missingViewers, "student")} have no read-only viewer listed in the loaded roster.`,
+      detail: `${missingViewers} ${pluralize(missingViewers, "student")} have no read-only viewer listed in the visible roster.`,
       count: missingViewers,
       tone: "quiet",
       section: capabilities.sectionIds.has("adminAssignments") ? "adminAssignments" : "overview",
@@ -3117,8 +3117,8 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
     ? clampPercent(((students.length - rosterIncomplete) / students.length) * 100)
     : null;
   const health = [
-    { id: "students", label: "Students", value: scopedStudentCount, detail: `${students.length || scopedStudentCount} loaded in roster setup`, tone: "students" },
-    { id: "staff", label: "Staff", value: staffRows.length, detail: "Staff and support accounts loaded", tone: "access" },
+    { id: "students", label: "Students", value: scopedStudentCount, detail: `${students.length || scopedStudentCount} visible in roster setup`, tone: "students" },
+    { id: "staff", label: "Staff", value: staffRows.length, detail: "Staff and support accounts visible", tone: "access" },
     { id: "programs", label: "Programs", value: activePrograms.length || safeNumber(summary.programsTotal), detail: "Active program mappings", tone: "programs" },
     { id: "mentor-coverage", label: "Mentor Coverage", value: percentLabel(mentorCoveragePercent), detail: `${mentorAssignments.length} active mentor assignments`, tone: missingMentors ? "warning" : "ready" },
     { id: "viewer-coverage", label: "Viewer Coverage", value: percentLabel(viewerCoveragePercent), detail: `${viewerAssignments.length} active viewer assignments`, tone: missingViewers ? "warning" : "ready" },
@@ -3355,7 +3355,7 @@ function adminSetupReadinessRows({
       count: studentIssueCount,
       detail: studentIssueCount
         ? `${rosterIncomplete} profile, ${missingProgramStudents} program, ${missingMentors} mentor, ${missingViewers} viewer gaps.`
-        : `${students.length} loaded students have the setup fields visible here.`,
+        : `${students.length} student rows have setup fields visible here.`,
       sample: studentSetupRows.slice(0, 2).map(adminSetupSampleText),
       section: "adminStudents",
       action: "Open students",
@@ -3431,7 +3431,7 @@ function renderAdminSetupIssues(issues = []) {
           <strong>No setup issues found.</strong>
           <p>Roster, coverage, programs, imports, and recent admin activity do not show a current setup issue in this view.</p>
           ${renderProblemState({
-            reason: "The current admin view loaded without setup issues that need action.",
+            reason: "This admin view has no setup issues that need action.",
             owner: "Site admin",
             nextAction: "Refresh after roster, program, or import changes before treating this view as still clear.",
             actions: [
@@ -3566,7 +3566,7 @@ function renderAdminRecentActivity(rows = []) {
           <strong>No recent admin activity found.</strong>
           <p>No redacted admin changes are available for this view yet.</p>
           ${renderProblemState({
-            reason: "The recent activity feed loaded with no activity rows.",
+            reason: "The recent activity feed has no activity rows.",
             owner: "Site admin",
             nextAction: "Refresh after staff, roster, import, or access changes; open Audit if this role can review older rows.",
             actions: [
@@ -6866,7 +6866,7 @@ function renderStaffReportQuestionRow(question = {}, index = 0) {
         <span>${escapeHtml(question.kicker || "Report question")}</span>
         <strong>${escapeHtml(question.title || "Choose one report question")}</strong>
         <p>${escapeHtml(question.detail || "Use this summary to decide the next route.")}</p>
-        <small>${escapeHtml(question.valueLabel || "No value loaded")}</small>
+        <small>${escapeHtml(question.valueLabel || "No value available")}</small>
       </div>
       <div class="workspace-admin-report-choice-actions">
         ${renderStaffReportQuestionAction(question)}
@@ -6977,7 +6977,7 @@ function staffReportQuestions({ roles, visibleStudents, reviewCount, setupSignal
       kicker: "On track",
       title: `${onTrackCount} look clear right now`,
       detail: "This is a simple visible-count check, not a promise that every final requirement is complete.",
-      valueLabel: "Unknown or unloaded states are not counted as complete.",
+      valueLabel: "Unknown states are not counted as complete.",
       section: canOpenStudents ? "students" : "",
       preset: "on-track-students",
       actionLabel: "View on track",
@@ -7179,7 +7179,7 @@ function renderAdminReportScopeNotice(report = {}, capabilities = adminConsoleCa
     ["Current access", capabilities.scope?.label || "Allowed records", capabilities.scope?.detail || "Only records this account can already load."],
     ["Students counted", safeNumber(report.studentTotal || report.loadedStudentRows), `${safeNumber(report.loadedStudentRows)} roster row${safeNumber(report.loadedStudentRows) === 1 ? "" : "s"} visible here.`],
     ["Export safety", "Report-safe", "Downloads leave out passwords, private notes, file links, and rows outside this account's access."],
-    ["Unknowns", "Not complete", "Unknown or unloaded states are not counted as complete in coverage percentages."],
+    ["Unknowns", "Not complete", "Unknown states are not counted as complete in coverage percentages."],
   ];
   return `
     <section class="workspace-admin-report-scope" data-admin-report-scope-notice="true" aria-label="Report access and export safety">
@@ -7211,7 +7211,7 @@ function renderAdminConsolePeopleSection() {
         kicker: "People",
         title: "Staff Directory",
         id: "adminPeopleTitle",
-        detail: "Add and manage staff, mentors, viewers, Program Teachers, School Admins, and Site Admins for the selected school or allowed global scope.",
+        detail: "Add and manage staff, mentors, viewers, Program Teachers, School Admins, and Site Admins for the selected school or every school this account can manage.",
         badge: options.canCreateGlobal ? "Global people access" : "School people access",
       })}
       ${renderPeopleManagementNav(screens.filter((screen) => screen.group === "Staff" || screen.id === "assignments"), adminPeopleView)}
@@ -7549,7 +7549,7 @@ function renderAdminAssignmentFlowPanel(model = adminAssignmentCoverageModel()) 
       id: "mentor",
       title: "Assign mentor coverage",
       count: safeNumber(model.missingMentorStudents?.length),
-      detail: "Start here when students have no active mentor in the loaded roster.",
+      detail: "Start here when students have no active mentor in the visible roster.",
       tone: safeNumber(model.missingMentorStudents?.length) ? "warning" : "ready",
       action: "Open mentor form",
     },
@@ -7649,7 +7649,7 @@ function renderAdminOperationalReportSummary(report = {}) {
     id: "adminReportSummaryTitle",
     kicker: "Reports",
     title: "Operational coverage summary",
-    detail: "Roster completeness, mentor/viewer/program coverage, review status, setup, and import issues for the current view.",
+    detail: "Roster completeness, mentor/viewer/program coverage, review status, setup, and import issues for this allowed view.",
     rows,
     className: "workspace-admin-report-summary",
     dataAttrs: `data-admin-report-summary="true"`,
@@ -7715,7 +7715,7 @@ function staffReportExportSpecs() {
     {
       id: "staff-visible-students",
       title: "Visible students",
-      detail: "Current Student Directory rows loaded for this role and site.",
+      detail: "Current Student Directory rows visible to this role and site.",
       filename: "capstone-visible-students.csv",
       headers: ["Student name", "Program", "Latest submission", "Review status", "Evidence status", "Presentation", "Final files", "Next action"],
       rows: visibleStudentRows,
@@ -7724,7 +7724,7 @@ function staffReportExportSpecs() {
     {
       id: "staff-pending-reviews",
       title: "Pending reviews",
-      detail: "Loaded review queue rows that this role can already open.",
+      detail: "Review queue rows this role can already open.",
       filename: "capstone-pending-reviews.csv",
       headers: ["Student name", "Requirement", "Status", "Evidence count", "Updated", "Next action"],
       rows: reviewRows,
@@ -8432,7 +8432,7 @@ function renderSiteAdminFirstDayChecklist(dashboard = {}) {
       label: "1. Confirm active students",
       detail: safeNumber(summary.studentsActive || summary.studentsTotal)
         ? `${safeNumber(summary.studentsActive || summary.studentsTotal)} active student ${pluralize(summary.studentsActive || summary.studentsTotal, "record")} visible.`
-        : "Open Students and confirm the current school roster is loaded.",
+        : "Open Students and confirm the current school roster is visible.",
       state: safeNumber(summary.studentsActive || summary.studentsTotal) ? "ready" : "needs_review",
       action: `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="students" data-section-preset="all-students">Open students</button>`,
     },
@@ -8658,7 +8658,7 @@ function renderAdminProgramsCoveragePanel(activePrograms = [], body = {}) {
       <article class="${gaps.length ? "warning" : "ready"}">
         <span>Coverage issues</span>
         <strong>${escapeHtml(String(gaps.length))}</strong>
-        <small>${escapeHtml(gaps.length ? "Confirm Program Teacher access in Assignments." : "No Program Teacher gaps in loaded assignments.")}</small>
+        <small>${escapeHtml(gaps.length ? "Confirm Program Teacher access in Assignments." : "No Program Teacher gaps in current assignments.")}</small>
       </article>
       <article class="workspace-admin-program-first-action ${gaps.length || availablePrograms.length ? "warning" : "ready"}" data-admin-program-first-action="${escapeHtml(gaps[0]?.programId || gaps[0]?.id || availablePrograms[0]?.programId || "clear")}">
         <span>First program action</span>
@@ -12091,7 +12091,7 @@ function renderOperationsRoleActionGuide(body = {}, dashboard = {}) {
           </article>
         `).join("")}
       </div>
-      <p class="workspace-muted">Visible issues: ${escapeHtml(safeNumber(dashboard.total || summary.studentsTotal || summary.studentsActive))} loaded rows.</p>
+      <p class="workspace-muted">Visible issues: ${escapeHtml(safeNumber(dashboard.total || summary.studentsTotal || summary.studentsActive))} rows.</p>
     </section>
   `;
 }
@@ -12921,8 +12921,8 @@ function renderAdminAuditEmptyState(hasFilters = false, filterLabel = "") {
     <article class="workspace-empty-state-card" data-admin-audit-empty-state="true">
       <strong>${escapeHtml(hasFilters ? "No audit events match this filter." : "No audit events found.")}</strong>
       <p>${escapeHtml(hasFilters
-        ? `No redacted audit rows match ${filterLabel || "the selected filter"} in the loaded result.`
-        : "No redacted audit rows are available in the loaded result yet.")}</p>
+        ? `No redacted audit rows match ${filterLabel || "the selected filter"} in this result.`
+        : "No redacted audit rows are available in this result yet.")}</p>
       ${renderProblemState({
         reason: hasFilters ? "The selected audit filter returned no rows." : "The audit request succeeded but returned no event rows.",
         owner: "Global admin",
@@ -13082,7 +13082,7 @@ function renderAdminAuditAccessReviewPanel(events = [], activeFilters = {}) {
     ["Redaction", "Always on", "Audit rows stay redacted; use them for triage, not private note or file inspection."],
     ["Current filter", hasFilters ? adminAuditFilterLabel(activeFilters) : "Recent activity", hasFilters ? "Clear filters before declaring the audit view quiet." : "Start with saved filters when investigating a specific problem."],
     ["Potential issues", anomalyCount, "Anomaly cards group repeated denied access, blocked proof, session, or storage signals."],
-    ["Next move", safeEvents.length ? "Review first row" : "Refresh later", safeEvents.length ? "Open the relevant saved filter or row group before changing access." : "No redacted rows are loaded in this audit view."],
+    ["Next move", safeEvents.length ? "Review first row" : "Refresh later", safeEvents.length ? "Open the relevant saved filter or row group before changing access." : "No redacted rows are visible in this audit view."],
   ];
   return `
     <section class="workspace-admin-audit-access-review" data-admin-audit-access-review="true" aria-label="Audit access review guidance">
@@ -13117,7 +13117,7 @@ function renderAdminAuditOperationsSummary(events = []) {
       id: "recent-changes",
       title: "Recent Changes",
       value: safeEvents.length,
-      detail: "Loaded redacted rows in this audit view.",
+      detail: "Visible redacted rows in this audit view.",
     },
     {
       id: "potential-issues",
@@ -13352,7 +13352,7 @@ function renderAdminAuditAnomalyView(events = []) {
         <div>
           <p class="workspace-kicker">Potential issues</p>
           <h2>Rows to check</h2>
-          <p class="workspace-muted">This view summarizes the currently loaded redacted audit rows. It does not expose private notes, file links, tokens, or Drive identifiers.</p>
+          <p class="workspace-muted">This view summarizes the visible redacted audit rows. It does not expose private notes, file links, tokens, or Drive identifiers.</p>
         </div>
         <span class="workspace-chip">${safeNumber(rows.reduce((sum, row) => sum + row.count, 0))} signal${rows.reduce((sum, row) => sum + row.count, 0) === 1 ? "" : "s"}</span>
       </div>
@@ -20452,7 +20452,7 @@ function renderManageStudentsScreen() {
         </div>
       ` : `
         <article class="workspace-empty-state-card" data-manage-students-empty="true">
-          <strong>No students are loaded for this school yet.</strong>
+          <strong>No students are available for this school yet.</strong>
           <p>Add a student or choose a site with student access.</p>
         </article>
       `}
@@ -20487,7 +20487,7 @@ function renderManageStudentSetupSummary(students = [], assignments = {}) {
         <div>
           <span>${escapeHtml(firstIssue ? "Review first" : "Current roster state")}</span>
           <strong>${escapeHtml(firstIssue?.student?.displayName || "No student setup blocker is first in line")}</strong>
-          <p>${escapeHtml(firstIssue ? firstLabels : "Loaded student rows do not show program, profile, mentor, or viewer setup gaps.")}</p>
+          <p>${escapeHtml(firstIssue ? firstLabels : "Current student rows do not show program, profile, mentor, or viewer setup gaps.")}</p>
         </div>
         ${renderAdminActionControl(firstAction, "workspace-button workspace-button-secondary workspace-button-small", "student-first")}
       </article>
@@ -20498,7 +20498,7 @@ function renderManageStudentSetupSummary(students = [], assignments = {}) {
         </summary>
         <div class="workspace-admin-student-setup-cards">
           <article>
-            <span>Students loaded</span>
+            <span>Students visible</span>
             <strong>${escapeHtml(String(rows.length))}</strong>
             <small>Roster rows available in this school view.</small>
           </article>
@@ -20510,12 +20510,12 @@ function renderManageStudentSetupSummary(students = [], assignments = {}) {
           <article class="${mentorGaps ? "warning" : "ready"}">
             <span>Mentor gaps</span>
             <strong>${escapeHtml(String(mentorGaps))}</strong>
-            <small>Students without loaded active mentor coverage.</small>
+            <small>Students without active mentor coverage.</small>
           </article>
           <article class="${viewerGaps ? "warning" : "ready"}">
             <span>Viewer gaps</span>
             <strong>${escapeHtml(String(viewerGaps))}</strong>
-            <small>Students without loaded read-only viewer coverage.</small>
+            <small>Students without read-only viewer coverage.</small>
           </article>
         </div>
       </details>
@@ -20617,7 +20617,7 @@ function renderManageStaffScreen() {
         </div>
       ` : `
         <article class="workspace-empty-state-card" data-manage-staff-empty="true">
-          <strong>No staff accounts are loaded for this school yet.</strong>
+          <strong>No staff accounts are available for this school yet.</strong>
           <p>Add staff or choose a site with staff access.</p>
         </article>
       `}
@@ -20656,14 +20656,14 @@ function renderManageStaffSetupSummary(accounts = [], assignments = {}) {
     <section class="workspace-admin-staff-setup-summary" data-admin-staff-setup-summary="true" aria-label="Staff setup summary">
       <div class="workspace-admin-staff-setup-cards">
         <article>
-          <span>Staff loaded</span>
+          <span>Staff visible</span>
           <strong>${escapeHtml(String(rows.length))}</strong>
           <small>Staff, mentors, viewers, teachers, and admins in this school view.</small>
         </article>
         <article class="${issueRows.length ? "warning" : "ready"}">
           <span>Needs setup</span>
           <strong>${escapeHtml(String(issueRows.length))}</strong>
-          <small>${escapeHtml(issueRows.length ? "Review these before handoff." : "No staff setup gaps in loaded rows.")}</small>
+          <small>${escapeHtml(issueRows.length ? "Review these before handoff." : "No staff setup gaps in visible rows.")}</small>
         </article>
         <article class="${missingEmail ? "warning" : "ready"}">
           <span>Missing email</span>
@@ -20680,7 +20680,7 @@ function renderManageStaffSetupSummary(accounts = [], assignments = {}) {
         <div>
           <span>${escapeHtml(firstIssue ? "Review first" : "Current staff state")}</span>
           <strong>${escapeHtml(firstIssue?.account?.displayName || "No staff blocker is first in line")}</strong>
-          <p>${escapeHtml(firstIssue ? firstLabels : "Loaded staff rows do not show email, role, mentor, viewer, program, or site access gaps.")}</p>
+          <p>${escapeHtml(firstIssue ? firstLabels : "Current staff rows do not show email, role, mentor, viewer, program, or site access gaps.")}</p>
         </div>
         ${renderAdminActionControl(firstAction, "workspace-button workspace-button-secondary workspace-button-small", "staff-first")}
       </article>
@@ -22598,7 +22598,7 @@ async function openWorkspaceStudentSearch(searchValue = "") {
   siteStudentDetailState = defaultSiteStudentDetailState();
   activeSection = "students";
   syncSiteStudentUrlState({ clearFilters: !search });
-  await loadWorkspaceData(search ? `Showing student search results for "${search}".` : "Showing students in the current view.");
+  await loadWorkspaceData(search ? `Showing student search results for "${search}".` : "Showing students in the selected view.");
 }
 
 async function handleStudentFeedbackAction(event) {
@@ -25547,7 +25547,7 @@ function renderReviewQueueSummary(rows = [], options = {}) {
       id: "review-queue-clear",
       kicker: "Review workload",
       title: "No submitted or revision-requested work needs review right now",
-      detail: "This does not approve work by itself. It only means the loaded queue has no rows for the current school, program, or assigned-student list.",
+      detail: "This does not approve work by itself. It only means the queue has no rows for the current school, program, or assigned-student list.",
       reason: "The review queue returned no submitted or revision-requested rows.",
       owner: "Program Teacher",
       nextAction: "Open Review Work after new submissions arrive, or open Students if you need to inspect a specific visible record.",
@@ -25591,12 +25591,12 @@ function renderMentorCoverage(rows = [], summary = {}) {
   const mentorEmpty = !rows.length ? renderIntentionalEmptyState({
     id: "mentor-coverage-clear",
     kicker: "Mentor coverage",
-    title: noMentor ? "No mentor assignment rows are loaded yet" : "No mentor coverage gaps are visible right now",
+    title: noMentor ? "No mentor assignment rows are visible yet" : "No mentor coverage gaps are visible right now",
     detail: noMentor
       ? "The summary shows students without mentors, but this panel did not receive the matching assignment rows."
-      : "This means the loaded mentor coverage panel has no rows to review for this school or assigned-student list.",
+      : "This means the mentor coverage panel has no rows to review for this school or assigned-student list.",
     reason: noMentor
-      ? "Mentor coverage data is incomplete for the current view."
+      ? "Mentor coverage data is incomplete for the selected view."
       : "The mentor coverage list returned no assignment rows.",
     owner: "Site staff",
     nextAction: noMentor
@@ -25650,7 +25650,7 @@ function renderStatusBreakdown(rows = []) {
       kicker: "Student status",
       title: "No student status rows are available yet",
       detail: "Status rows appear after visible student records load for the selected school or program.",
-      reason: "The loaded status breakdown returned no rows this account can see.",
+      reason: "The status breakdown returned no rows this account can see.",
       owner: "Assigned school staff",
       nextAction: "Open Students to confirm the visible roster before treating the status view as quiet.",
       actions: [{ label: "Open students", section: "students" }],
@@ -25695,7 +25695,7 @@ function renderSnapshotRows(rows = [], type = "") {
       kicker: snapshotLabel,
       title: "No status rows are available yet",
       detail: "Snapshot rows appear after presentation, final-file, or operations data loads for this school or assigned-student list.",
-      reason: `The loaded ${snapshotLabel.toLowerCase()} returned no rows.`,
+      reason: `The ${snapshotLabel.toLowerCase()} returned no rows.`,
       owner: "Assigned staff",
       nextAction: "Open Operations when you need the detailed worklist, or refresh after new presentation or final-file activity.",
       actions: [
@@ -25754,8 +25754,8 @@ function renderAuditSummary(rows = [], options = {}) {
       id: "audit-summary-empty",
       kicker: "Audit",
       title: emptyMessage,
-      detail: "Audit summaries use redacted rows only. Empty does not prove that no changes happened outside the loaded result.",
-      reason: "The loaded audit summary returned no rows for this view.",
+      detail: "Audit summaries use redacted rows only. Empty does not prove that no changes happened outside the visible result.",
+      reason: "The audit summary returned no rows for this view.",
       owner: "Global admin",
       nextAction: "Open Audit or refresh after access, account, import, or review changes.",
       actions: [
@@ -25793,7 +25793,7 @@ function renderScopedStudentList(rows = []) {
       kicker: "Students",
       title: "No students are currently visible for this school view",
       detail: "This screen only shows students assigned to this account.",
-      reason: "The loaded student list returned no visible rows.",
+      reason: "The student list returned no visible rows.",
       owner: "Assigned school staff",
       nextAction: "Open Students to confirm site, program, and filter choices before changing access.",
       actions: [{ label: "Open students", section: "students", preset: "all-students" }],

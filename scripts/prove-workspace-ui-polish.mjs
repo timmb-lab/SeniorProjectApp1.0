@@ -262,7 +262,7 @@ const SCREENSHOT_PLAN = [
     url: workspaceUrl("?mode=admin&section=adminStudents&siteId=site-desert-valley-high"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
     expected: ["Students", "Current student accounts", "REVIEW FIRST", "Assign coverage", "Show setup counts"],
-    absent: ["Students loaded", "Roster fields", "Mentor gaps", "Viewer gaps"],
+    absent: ["Students visible", "Roster fields", "Mentor gaps", "Viewer gaps"],
     action: "scrollToPeopleScreen",
     proves: "Students opens on the first roster setup issue and real student rows, with setup counts collapsed.",
   },

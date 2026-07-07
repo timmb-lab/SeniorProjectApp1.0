@@ -869,7 +869,7 @@ test("workspace reports render accessible shared report bars with mobile fallbac
   assert.match(staffReports, /data-staff-report-question="students-needing-attention"[\s\S]*Students needing attention/);
   assert.match(staffReports, /data-staff-report-question="work-waiting-for-review"[\s\S]*Work waiting for review[\s\S]*data-section="teacher" data-section-preset="submitted"[\s\S]*Open review queue/);
   assert.match(staffReports, /data-staff-report-question="mentor-coverage"[\s\S]*Mentor coverage is/);
-  assert.match(staffReports, /data-staff-report-question="on-track"[\s\S]*Unknown or unloaded states are not counted as complete/);
+  assert.match(staffReports, /data-staff-report-question="on-track"[\s\S]*Unknown states are not counted as complete/);
   assert.match(staffReports, /data-staff-report-bars="true"/);
   assert.match(staffReports, /data-report-row="visible-students"[\s\S]*aria-label="Visible students:/);
   assert.match(staffReports, /data-staff-report-row="needs-review"[\s\S]*role="meter"[\s\S]*aria-valuetext=/);
@@ -7618,7 +7618,7 @@ test("admin console surfaces setup reasons across overview people students and r
   const students = workspaceRoot.innerHTML;
   assert.match(students, /data-admin-page-header="true" data-admin-page-section="adminStudents"/);
   assert.match(students, /data-admin-action-menu="adminStudents"[\s\S]*aria-label="More student actions menu for Students"[\s\S]*More student actions[\s\S]*Import students[\s\S]*Download student template/);
-  assert.match(students, /data-admin-student-setup-summary="true"[\s\S]*Students loaded[\s\S]*Roster fields[\s\S]*Mentor gaps[\s\S]*Viewer gaps/);
+  assert.match(students, /data-admin-student-setup-summary="true"[\s\S]*Students visible[\s\S]*Roster fields[\s\S]*Mentor gaps[\s\S]*Viewer gaps/);
   assert.match(students, /data-admin-student-first-action="[^"]+"[\s\S]*(Review first|Current roster state)/);
   assertMarkupOrder(
     students,
@@ -7657,9 +7657,9 @@ test("admin console surfaces setup reasons across overview people students and r
   assert.match(people, /data-admin-page-header="true" data-admin-page-section="adminPeople"/);
   assert.match(people, /data-admin-action-menu="adminPeople"[\s\S]*aria-label="More people actions menu for People"[\s\S]*More people actions[\s\S]*Import staff[\s\S]*Download staff template/);
   assert.doesNotMatch(people, /data-admin-action-menu="adminPeople"[\s\S]<summary aria-label="Actions menu for People">Actions<\/summary>/);
-  assert.match(people, /Staff Directory[\s\S]*selected school or allowed global scope/);
+  assert.match(people, /Staff Directory[\s\S]*selected school or every school this account can manage/);
   assert.doesNotMatch(visibleText(people), /inside the current view/i);
-  assert.match(people, /data-admin-staff-setup-summary="true"[\s\S]*Staff loaded[\s\S]*Needs setup[\s\S]*Coverage gaps/);
+  assert.match(people, /data-admin-staff-setup-summary="true"[\s\S]*Staff visible[\s\S]*Needs setup[\s\S]*Coverage gaps/);
   assert.match(people, /data-admin-staff-first-action="[^"]+"[\s\S]*(Review first|Current staff state)/);
   assert.match(people, /data-manage-staff-row="mentor-no-scope" data-manage-staff-setup="needs-review"/);
   assert.match(people, /data-admin-more-menu="staff-mentor-no-scope"[\s\S]*aria-label="More actions for Orphan Mentor"[\s\S]*More[\s\S]*Manage assignments/);
