@@ -290,6 +290,18 @@ const SCREENSHOT_PLAN = [
     proves: "CSV preview names the first row to fix and keeps final import blocked until errors are cleared.",
   },
   {
+    id: "78-csv-import-access-error",
+    label: "Admin Imports access error",
+    persona: "Site Admin Import Students access preview",
+    authRole: "site_admin",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?mode=admin&section=adminImports&siteId=site-desert-valley-high"),
+    viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    action: "previewStudentCsvAccessError",
+    absent: ["current scope", "role and scope combination"],
+    proves: "CSV preview explains unavailable school access in plain account language.",
+  },
+  {
     id: "20-student-admin-route-blocked",
     label: "Student admin route blocked",
     persona: "Student blocked from Admin Console",
@@ -1275,6 +1287,27 @@ async function previewStudentCsvWithError(client) {
   await scrollToSelector(client, "[data-csv-preview-next-action='students']", "CSV preview next action");
 }
 
+async function previewStudentCsvAccessError(client) {
+  await openV2SupportPanel(client);
+  await waitForSelectorState(client, "[data-csv-import-form][data-csv-import-kind='students']");
+  const previewed = await client.evaluate(`(() => {
+    const textarea = document.querySelector("[data-csv-text-input='students']");
+    const button = document.querySelector("[data-csv-preview-action='students']");
+    if (!textarea || !button) return false;
+    textarea.value = [
+      "first_name,last_name,email,site,program,cohort,graduation_year,status",
+      "Out,Access,out.access@senior-capstone.test,Other School,Information Technology,Class of 2026,2026,active"
+    ].join("\\n");
+    textarea.dispatchEvent(new Event("input", { bubbles: true }));
+    button.click();
+    return true;
+  })()`);
+  if (!previewed) throw new Error("Could not seed and preview student CSV access error state.");
+  await waitForSelectorState(client, "[data-csv-preview-next-action='students'][data-csv-preview-next-state='fix-errors']");
+  await openV2SupportPanel(client);
+  await scrollToSelector(client, "[data-csv-preview-next-action='students']", "Student CSV access preview next action");
+}
+
 async function performSinglePlanAction(client, action) {
   if (action === "scrollTop") {
     await client.evaluate(`(() => { window.scrollTo(0, 0); return true; })()`);
@@ -1292,6 +1325,10 @@ async function performSinglePlanAction(client, action) {
   }
   if (action === "previewStudentCsvWithError") {
     await previewStudentCsvWithError(client);
+    return;
+  }
+  if (action === "previewStudentCsvAccessError") {
+    await previewStudentCsvAccessError(client);
     return;
   }
   if (action === "scrollToReportExports") {
@@ -1446,6 +1483,9 @@ function expectedMarkersForPlanItem(planItem, pageState = {}) {
   }
   if (id.includes("csv-import-preview-errors")) {
     return ["Admin flow", "Preview one CSV before saving", "Fix this row first", "Unsupported column: guardian_phone", "Import stays blocked"];
+  }
+  if (id.includes("csv-import-access-error")) {
+    return ["Admin flow", "Preview one CSV before saving", "Fix this row first", "School is not available to this account", "Import stays blocked"];
   }
   if (planItem.authRole === "student") {
     if (section === "studentWork") return ["Student path", "Finish the next capstone item", "Keep the work screen on one requirement", "Open current item"];

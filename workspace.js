@@ -29097,8 +29097,8 @@ function validateStudentCsvRow(row, context, seenEmails, existingEmails) {
   if (seenEmails.has(emailKey)) return csvInvalid(row, "Duplicate email appears more than once in this CSV.");
   seenEmails.add(emailKey);
   if (existingEmails.has(emailKey)) return csvValid(row, null, true);
-  if (!site) return csvInvalid(row, "Site is not in your current scope.");
-  if (!program) return csvInvalid(row, "Program is not in your current scope.");
+  if (!site) return csvInvalid(row, "School is not available to this account.");
+  if (!program) return csvInvalid(row, "Program is not available to this account.");
   if (!status) return csvInvalid(row, "Status must be active or inactive.");
   if (graduationYear && !/^\d{4}$/.test(graduationYear)) return csvInvalid(row, "graduation_year must be a four-digit year.");
   if (mentorKey && context.studentsByEmail.has(mentorKey)) return csvInvalid(row, "Student users cannot be assigned as mentors.");
@@ -29148,15 +29148,15 @@ function validateStaffCsvRow(row, context, seenEmails, existingEmails) {
   if (roleId === "student") return csvInvalid(row, "Use Import Students for student rows.");
   if (!context.roleIds.has(roleId)) return csvInvalid(row, "This role is not allowed for your current account.");
   if (!status) return csvInvalid(row, "Status must be active or inactive.");
-  if (values.site && !site) return csvInvalid(row, "Site is not in your current scope.");
-  if (values.program && !program) return csvInvalid(row, "Program is not in your current scope.");
+  if (values.site && !site) return csvInvalid(row, "School is not available to this account.");
+  if (values.program && !program) return csvInvalid(row, "Program is not available to this account.");
   const siteIds = site ? [site.siteId] : [];
   const programIds = program ? [program.programId] : [];
   const assignedStudentEmails = splitCsvList(values.assigned_student_emails);
   const studentIds = [];
   for (const studentEmail of assignedStudentEmails) {
     const student = context.studentsByEmail.get(normalizeLookupKey(studentEmail));
-    if (!student) return csvInvalid(row, `Assigned student ${studentEmail} is outside your current scope.`);
+    if (!student) return csvInvalid(row, `Assigned student ${studentEmail} is not available to this account.`);
     studentIds.push(student.userId || student.studentId || student.id);
   }
   if ((roleId === "administration" || roleId === "site_admin") && !siteIds.length) return csvInvalid(row, "Site Admin and Administration rows need a site.");
@@ -29398,7 +29398,7 @@ function messageForAdminImportError(error, status) {
   if (error === "missing_admin_note" || error === "missing_reason") return "Add the admin note for this change.";
   if (error === "invalid_user") return "Check the email, name, role, sign-in method, and access before creating the account.";
   if (error === "duplicate_email" || error === "email_already_exists") return "That email is already included or already has an account.";
-  if (error === "invalid_role_scope") return "That role and scope combination is not available.";
+  if (error === "invalid_role_scope") return "That role and access combination is not available.";
   if (error === "program_not_found") return "That program was not found for the current school.";
   if (error === "site_not_found") return "That site was not found.";
   if (error === "student_not_found") return "That student was not found.";

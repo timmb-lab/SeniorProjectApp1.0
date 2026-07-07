@@ -10918,7 +10918,8 @@ test("People CSV import screens provide templates and row-level preview validati
   assert.match(workspaceRoot.innerHTML, /data-csv-preview="staff" data-csv-preview-state="errors"/);
   assert.match(workspaceRoot.innerHTML, /CSV import cannot create Global Admin accounts/);
   assert.match(workspaceRoot.innerHTML, /Use Import Students for student rows/);
-  assert.match(workspaceRoot.innerHTML, /Site is not in your current scope|Mentor and Viewer rows need a site or assigned students/);
+  assert.match(workspaceRoot.innerHTML, /School is not available to this account|Mentor and Viewer rows need a site or assigned students/);
+  assert.doesNotMatch(visibleText(workspaceRoot.innerHTML), /current scope|role and scope combination/i);
 });
 
 test("workspace renders recent role assignments for global admins before site access forms", async () => {

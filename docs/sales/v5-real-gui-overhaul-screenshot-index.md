@@ -12,12 +12,12 @@ Claim boundary: local fake-account browser UI proof only. This does not prove ho
 
 Counts:
 
-- Total screenshots captured: 77
+- Total screenshots captured: 78
 - Mobile screenshots captured: 32
 - Browser-proof failures: 0
 - V5 complete-run screenshot gate: met for screenshot count; runtime, hosted/live, accessibility, and real-student gates remain pending.
-- Started: `2026-07-07T06:43:19.313Z`
-- Completed: `2026-07-07T06:51:03.638Z`
+- Started: `2026-07-07T07:02:50.024Z`
+- Completed: `2026-07-07T07:10:28.991Z`
 
 ## Inventory
 
@@ -42,6 +42,7 @@ Counts:
 - `18-admin-students` - Admin Students - Site Admin Students - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/18-admin-students.png`
 - `19-csv-import-template` - Admin Imports templates - Site Admin Import Students - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/19-csv-import-template.png`
 - `76-csv-import-preview-errors` - Admin Imports preview errors - Site Admin Import Students preview - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/76-csv-import-preview-errors.png`
+- `78-csv-import-access-error` - Admin Imports access error - Site Admin Import Students access preview - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/78-csv-import-access-error.png`
 - `20-student-admin-route-blocked` - Student admin route blocked - Student blocked from Admin Console - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/20-student-admin-route-blocked.png`
 - `21-empty-student-search` - Empty student search - Site Admin empty search - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/21-empty-student-search.png`
 - `22-student-final-files-state` - Student Final Checklist - Student Final Checklist - desktop - `docs/sales/screenshots/2026-07-07-v5-real-gui-overhaul/22-student-final-files-state.png`
