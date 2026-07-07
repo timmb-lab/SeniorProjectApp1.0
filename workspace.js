@@ -20286,8 +20286,8 @@ function renderPeopleManagementScopeSummary(roleChoices = [], options = {}) {
   const roleSummary = roleChoices.map((choice) => choice.label).join(", ");
   const rows = [
     ["Access", options.canCreateGlobal ? "All schools where the APIs allow access" : scope.siteName || "Selected school only"],
-    ["Allowed roles", roleSummary || "No role choices available"],
-    ["Global Admin", hasGlobalAdminRole(roles) ? "Manual local account only" : "Not available from this account"],
+    ["Can create", roleSummary || "No role choices available"],
+    ["Platform owner", hasGlobalAdminRole(roles) ? "Manual local Global Admin only" : "Required for Global Admin accounts"],
   ];
   return `
     <div class="workspace-people-scope" data-people-scope-summary="true">
