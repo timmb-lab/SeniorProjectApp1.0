@@ -162,6 +162,22 @@
 - Remaining risks: local fake-account proof only; hosted and real-student gates remain unclaimed, and elapsed runtime is still below the 6-hour complete-run gate.
 - Next focus: continue Phase 8/9 with confirmation/action-result wording and any remaining route-backed dense surfaces.
 
+## Confirmation Message Checkpoint
+
+- Checkpoint local time: `2026-07-06 23:12:43 -07:00`
+- Elapsed minutes so far: about 170
+- Screens changed since the Empty-State checkpoint: Mentor assignment save status and Mentor meeting save status.
+- Role-specific work completed: Phase 8/9 mentor confirmations now tell users the related list/detail refreshed and what to confirm next after saving.
+- What users see differently: mentor assignment save says the coverage list refreshed and asks staff to confirm the student row shows the active mentor; mentor meeting save distinguishes held, missed, and make-up-required outcomes and confirms student detail refreshed.
+- What users do next more clearly: staff confirm coverage after assignment saves; mentors use the saved note, schedule make-up, or confirm the next check-in plan after meeting saves.
+- Mobile checked: no new layout surface was introduced; `npm run check:workspace-mobile` still passes.
+- Accessibility checked: no new controls were introduced; `npm run check:workspace-accessibility` still passes.
+- Screenshots captured: no new screenshots were added for this status-message-only slice; latest V5 browser proof remains green with 75 screenshots and 31 mobile screenshots from the previous checkpoint.
+- Tests run: `node --check workspace.js`; `node --check tests\workspace-app.test.mjs`; `npm run verify:functionality-language`; `npm run verify:dashboard-actions`; `node --test tests\workspace-app.test.mjs` (115 pass, 0 fail); `npm run check:workspace-accessibility`; `npm run check:workspace-mobile`; `git diff --check` (passed; line-ending warnings only).
+- Commit SHA(s): `a3832e3445be569e3445ef345dc1a7496be7455f`
+- Remaining risks: local fake-account proof only; hosted and real-student gates remain unclaimed, and elapsed runtime is still below the 6-hour complete-run gate.
+- Next focus: continue dense-surface polish, full verifier sweep, and final complete-run gate tracking.
+
 ## Working Log
 
 - `2026-07-06 20:22:33 -07:00`: start recorded after verifying `main`, clean status, and `origin/main` alignment.
@@ -178,3 +194,4 @@
 - `2026-07-06 22:40:32 -07:00`: Phase 7 Reports simplification committed as `2d1c3e1237944da0d88728531bd7d6132deefd67`; workspace tests pass at 115/115, mobile/accessibility contracts pass, and refreshed V5 browser proof is green with 75 screenshots, 31 mobile screenshots, and zero failures.
 - `2026-07-06 22:53:34 -07:00`: Phase 8 Student Admin Console blocked-state microcopy committed as `c015905279737ca11eb852c734feeb62d3f2fde4`; functionality-language, workspace tests, syntax checks, and refreshed V5 browser proof are green with 75 screenshots, 31 mobile screenshots, and zero failures.
 - `2026-07-06 23:09:38 -07:00`: Phase 8 empty-state and Mentor Dashboard focus-action work committed as `2c95d33a59c1a566eb4ddaaade79443941686571`; functionality-language, dashboard-action, mobile, accessibility, workspace tests, syntax checks, diff hygiene, and refreshed V5 browser proof are green.
+- `2026-07-06 23:12:43 -07:00`: Phase 8/9 mentor save-confirmation copy committed as `a3832e3445be569e3445ef345dc1a7496be7455f`; functionality-language, dashboard-action, mobile, accessibility, workspace tests, syntax checks, and diff hygiene are green.
