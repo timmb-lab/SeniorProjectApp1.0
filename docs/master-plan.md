@@ -295,8 +295,8 @@ Locked decisions for this pass:
 - Official product title: Capstone Project.
 - Do not use "The Capstone Project" as the official product title.
 - Product/app target domain: `thecapstoneproject.com`.
-- `www.thecapstoneproject.com` may be an alias if configured.
-- `app.thecapstoneproject.com` is optional only if the implementation still requires an app split.
+- `www.thecapstoneproject.com` redirects to the canonical apex.
+- No `app.*` hostname is used; both historical app subdomains remain retired.
 - East Tech guide future custom domain: TBD.
 - Product/app is school-agnostic, reusable, multi-school, nonprofit/SaaS-style, and tenant-ready.
 - East Tech/Titan branding belongs only to the East Tech public guide/school-specific surface.

@@ -9,7 +9,7 @@ import { RemoteWranglerD1Adapter, verifyRemoteSeedState } from "./seed-remote-de
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(SCRIPT_DIR, "..");
-const DEFAULT_BASE_URL = "https://thecapstoneapp.com";
+const DEFAULT_BASE_URL = "https://thecapstoneproject.com";
 const PRIMARY_SITE_ID = "site-desert-valley-high";
 
 class RemoteDemoProofError extends Error {
@@ -83,7 +83,7 @@ function parseArgs(values = process.argv.slice(2)) {
     } else if (value === "--local") {
       throw new RemoteDemoProofError("LOCAL_REFUSED", "The remote demo proof only accepts the hosted remote app.");
     } else if (value === "--help" || value === "-h") {
-      console.log("Usage: node scripts/prove-remote-demo-workspace.mjs [--credential-file .secrets/demo-remote-staff-logins-YYYYMMDD-HHMMSS.json] [--base-url https://thecapstoneapp.com]");
+      console.log("Usage: node scripts/prove-remote-demo-workspace.mjs [--credential-file .secrets/demo-remote-staff-logins-YYYYMMDD-HHMMSS.json] [--base-url https://thecapstoneproject.com]");
       process.exit(0);
     } else {
       throw new RemoteDemoProofError("INVALID_ARGUMENTS", `Unknown argument: ${value}`);

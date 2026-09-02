@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = resolve(repoRoot, "public-companion");
-const appUrl = "https://thecapstoneapp.com";
+const appUrl = "https://thecapstoneproject.com";
 
 const pages = [
   "index.html",

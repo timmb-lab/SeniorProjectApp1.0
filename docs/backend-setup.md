@@ -14,7 +14,7 @@ This records the first MVP backend foundation now configured for the Capstone Pr
 
 ## Production Surface Boundary
 
-`senior-capstone-app` is the canonical Capstone Project app/backend project. The app is served at `https://thecapstoneapp.com/`; `thecapstoneproject.com` redirects to it. The former `app.thecapstoneapp.com` hostname is retired. The production bundle excludes public guide and internal QA pages so normal users cannot land on those source-only routes.
+`senior-capstone-app` is the canonical Capstone Project app/backend project. The app is served at `https://thecapstoneproject.com/`; `thecapstoneapp.com` redirects to it. The `app.thecapstoneproject.com` and `app.thecapstoneapp.com` hostnames are retired. The production bundle excludes public guide and internal QA pages so normal users cannot land on those source-only routes.
 
 `senior-capstone-public` is a separate generated East Tech guide project. Its future custom domain is TBD; old guide hostnames remain legacy/current pending migration. It is production-safe public guidance, not the secure workflow app, and it must not proxy internal alpha/account/API routes.
 
@@ -26,7 +26,7 @@ Before a pilot-facing deploy, custom-domain cutover, or stakeholder option promo
 
 - Cloudflare account: `539e8f7c55e7b1472013626ad72f4c7f`.
 - Pages project: `senior-capstone-app`.
-- App/backend custom hostname: `https://thecapstoneapp.com/`.
+- App/backend custom hostname: `https://thecapstoneproject.com/`.
 - Pages URL: `https://senior-capstone-app.pages.dev` redirects to the canonical custom domain.
 - D1 database id: `3141d9ac-08b7-49c1-92ba-bbf50c1a611f`.
 - D1 region: `WNAM`.
@@ -110,7 +110,7 @@ AUTH_GOOGLE_SSO_ENABLED=true
 AUTH_LOCAL_LOGIN_ENABLED=true
 GOOGLE_OAUTH_CLIENT_ID=<Google web OAuth client id>
 GOOGLE_OAUTH_CLIENT_SECRET=<Cloudflare Pages secret>
-GOOGLE_OAUTH_REDIRECT_URI=https://thecapstoneapp.com/api/auth/google/callback
+GOOGLE_OAUTH_REDIRECT_URI=https://thecapstoneproject.com/api/auth/google/callback
 GOOGLE_OAUTH_ALLOWED_HOSTED_DOMAINS=<comma-separated Workspace domains>
 GOOGLE_OAUTH_ISSUER_ALLOWLIST=https://accounts.google.com,accounts.google.com
 TENANT_AUTO_PROVISION_DEFAULT=false
@@ -121,7 +121,7 @@ Store `GOOGLE_OAUTH_CLIENT_SECRET`, `PASSWORD_PEPPER`, `SESSION_PEPPER`, and Dri
 Google Cloud Console setup:
 
 1. Create an OAuth client for a web application.
-2. Add the production redirect URI `https://thecapstoneapp.com/api/auth/google/callback`.
+2. Add the production redirect URI `https://thecapstoneproject.com/api/auth/google/callback`.
 3. Add preview or Pages-dev redirect URIs only when explicitly needed for a safe test environment.
 4. Store the client ID as a Cloudflare Pages environment variable.
 5. Store the client secret as a Cloudflare Pages secret.
@@ -133,9 +133,9 @@ The Google Drive evidence service account is independent of Google Workspace SSO
 
 Custom-domain app health checks after activation:
 
-- `https://thecapstoneapp.com/api/health`
-- `https://thecapstoneapp.com/api/auth/me`
-- `https://thecapstoneapp.com/`
+- `https://thecapstoneproject.com/api/health`
+- `https://thecapstoneproject.com/api/auth/me`
+- `https://thecapstoneproject.com/`
 
 Signed-out `/api/auth/me` must return the expected unauthenticated/no-record response.
 
@@ -244,7 +244,7 @@ This seed exists only for local demos until legal/district approval, Google Work
 
 - Local credential-backed workspace smoke now passes against `http://127.0.0.1:8788`: fake student login, session restore, dashboard, evidence link, Drive-missing upload blocker, unsupported upload denial, logout, and role-route coverage for `program_teacher`, `mentor`, `admin`, `misc_admin`, and no-role.
 - In-app browser verification found and fixed a real workspace UI bug: `workspace.js` disabled evidence forms before reading `FormData`, causing the visible link form to post an undefined submission ID. The form data is now captured before controls are disabled.
-- The direct Pages project alias redirects to `https://thecapstoneapp.com/`; the canonical root loads the Capstone Project Workspace, `/api/auth/me` returns 401 `{ "authenticated": false }`, and signed-out logout returns `{ "ok": true }`.
+- The direct Pages project alias redirects to `https://thecapstoneproject.com/`; the canonical root loads the Capstone Project Workspace, `/api/auth/me` returns 401 `{ "authenticated": false }`, and signed-out logout returns `{ "ok": true }`.
 - Live fake student login succeeds with the ignored `.test` credential file; the hosted browser renders the Student Workspace with no console errors, and the live credential-backed smoke verifies dashboard, evidence link, Drive-missing upload blocker, unsupported upload denial, and logout. Role-wide live coverage was not run because the local no-role account is local-only.
 - Historical note, superseded on 2026-05-21: this run originally found stale Drive resource IDs because `/api/evidence/drive-probe` audited `rootStatus:404` and `indexStatus:404`. The Shared Drive root update below supersedes this as a current blocker.
 - Repo static Cloudflare checks pass, and non-interactive live Pages/D1 management is now verified with the scoped user-scope token. Earlier `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN` and `Invalid access token [code: 9109]` records are historical; the current Cloudflare state is resolved.

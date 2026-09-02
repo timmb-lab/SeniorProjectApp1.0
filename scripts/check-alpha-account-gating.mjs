@@ -331,7 +331,7 @@ async function main() {
 
   let liveOk = true;
   if (live) {
-    const baseUrl = String(process.env.ALPHA_ACCOUNT_GATING_BASE_URL || "https://thecapstoneapp.com").replace(/\/+$/, "/");
+    const baseUrl = String(process.env.ALPHA_ACCOUNT_GATING_BASE_URL || "https://thecapstoneproject.com").replace(/\/+$/, "/");
     const checks = await runLiveChecks(baseUrl, { productionExcluded: fixture.optionPolicy === "option-c" });
     liveOk = checks.every((check) => check.ok);
     for (const check of checks) {

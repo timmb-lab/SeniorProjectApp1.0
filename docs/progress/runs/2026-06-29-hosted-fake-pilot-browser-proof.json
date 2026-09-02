@@ -1,10 +1,10 @@
 {
   "proof": "hosted_fake_pilot_browser",
   "verdict": "GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF",
-  "baseUrl": "https://thecapstoneapp.com",
+  "baseUrl": "https://thecapstoneproject.com",
   "workspaceEntryPath": "/workspace",
-  "startedAt": "2026-09-02T19:00:36.720Z",
-  "completedAt": "2026-09-02T19:02:56.769Z",
+  "startedAt": "2026-09-02T19:12:43.701Z",
+  "completedAt": "2026-09-02T19:14:56.289Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
@@ -26,7 +26,7 @@
       "id": "01-signed-out-home",
       "label": "Signed-out workspace route",
       "role": "signed_out",
-      "url": "https://thecapstoneapp.com/",
+      "url": "https://thecapstoneproject.com/",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -52,7 +52,7 @@
       "id": "02-student-dashboard",
       "label": "Student dashboard",
       "role": "student",
-      "url": "https://thecapstoneapp.com/",
+      "url": "https://thecapstoneproject.com/",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -85,7 +85,7 @@
       "id": "03-program-teacher-dashboard",
       "label": "Program Teacher dashboard",
       "role": "program_teacher",
-      "url": "https://thecapstoneapp.com/",
+      "url": "https://thecapstoneproject.com/",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -118,7 +118,7 @@
       "id": "04-mentor-dashboard",
       "label": "Mentor dashboard",
       "role": "mentor",
-      "url": "https://thecapstoneapp.com/",
+      "url": "https://thecapstoneproject.com/",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -148,7 +148,7 @@
       "id": "05-viewer-directory",
       "label": "Viewer read-only student directory",
       "role": "viewer",
-      "url": "https://thecapstoneapp.com/",
+      "url": "https://thecapstoneproject.com/",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -179,7 +179,7 @@
       "id": "06-site-admin-dashboard",
       "label": "Site Admin dashboard",
       "role": "site_admin",
-      "url": "https://thecapstoneapp.com/",
+      "url": "https://thecapstoneproject.com/",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -211,7 +211,7 @@
       "id": "07-admin-command-center",
       "label": "Admin command center",
       "role": "admin",
-      "url": "https://thecapstoneapp.com/",
+      "url": "https://thecapstoneproject.com/",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -243,7 +243,7 @@
       "id": "08-misc-admin-readiness",
       "label": "Misc Admin readiness",
       "role": "misc_admin",
-      "url": "https://thecapstoneapp.com/",
+      "url": "https://thecapstoneproject.com/",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -273,7 +273,7 @@
       "id": "09-student-mobile-dashboard",
       "label": "Student mobile dashboard",
       "role": "student",
-      "url": "https://thecapstoneapp.com/",
+      "url": "https://thecapstoneproject.com/",
       "viewport": {
         "width": 390,
         "height": 844,
@@ -306,7 +306,7 @@
       "id": "10-site-admin-tablet-dashboard",
       "label": "Site Admin tablet dashboard",
       "role": "site_admin",
-      "url": "https://thecapstoneapp.com/",
+      "url": "https://thecapstoneproject.com/",
       "viewport": {
         "width": 820,
         "height": 900,

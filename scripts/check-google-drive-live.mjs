@@ -30,7 +30,7 @@ const EXPECTED = {
   indexMimeType: "application/vnd.google-apps.spreadsheet",
 };
 
-const DEFAULT_BASE_URL = "https://thecapstoneapp.com";
+const DEFAULT_BASE_URL = "https://thecapstoneproject.com";
 const DEFAULT_CREDENTIALS_FILE = ".secrets/test-accounts-2026-05-18.json";
 const PROOF_CONTENT = "SeniorProjectApp fake .test Google Drive live proof. No student data.";
 const LARGE_PROOF_BYTES = 5 * 1024 * 1024 + 64 * 1024;

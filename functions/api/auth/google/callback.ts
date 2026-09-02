@@ -106,7 +106,7 @@ function authErrorResponse(request: Request, code: string, returnTo: string, sta
     });
   }
 
-  const target = new URL(safeReturnTo(returnTo) || "/", "https://thecapstoneapp.com");
+  const target = new URL(safeReturnTo(returnTo) || "/", "https://thecapstoneproject.com");
   target.searchParams.set("authError", code);
   return redirect(`${target.pathname}${target.search}`, [clearOAuthStateCookie()]);
 }

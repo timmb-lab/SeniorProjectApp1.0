@@ -11,13 +11,14 @@ const INTERNAL_QA_PATHS = new Set([
   "/app-preview.html",
 ]);
 
-const CANONICAL_HOST = "thecapstoneapp.com";
+const CANONICAL_HOST = "thecapstoneproject.com";
 const REDIRECT_HOSTS = new Set([
-  "www.thecapstoneapp.com",
-  "thecapstoneproject.com",
   "www.thecapstoneproject.com",
+  "thecapstoneapp.com",
+  "www.thecapstoneapp.com",
   "senior-capstone-app.pages.dev",
-  // Safety net during DNS propagation. This hostname must not remain attached to Pages.
+  // Safety nets only. These hostnames must not remain attached to Pages or DNS.
+  "app.thecapstoneproject.com",
   "app.thecapstoneapp.com",
 ]);
 const LEGACY_WORKSPACE_PATHS = new Set(["/workspace", "/workspace/", "/workspace.html", "/index.html"]);

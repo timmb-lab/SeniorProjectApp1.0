@@ -14,7 +14,7 @@ const OWNER_EMAIL = "bryan.timm89@gmail.com";
 const OWNER_DISPLAY_NAME = "Bryan Timm";
 const DATABASE_NAME = "senior-capstone-db";
 const ACCOUNT_ID = "539e8f7c55e7b1472013626ad72f4c7f";
-const DEFAULT_BASE_URL = "https://thecapstoneapp.com";
+const DEFAULT_BASE_URL = "https://thecapstoneproject.com";
 const WRANGLER_JS = path.join(REPO_ROOT, "node_modules", "wrangler", "bin", "wrangler.js");
 
 class OwnerAdminEnsureError extends Error {
@@ -39,7 +39,7 @@ function parseArgs(values = process.argv.slice(2)) {
       parsed.baseUrl = values[index + 1] || "";
       index += 1;
     } else if (value === "--help" || value === "-h") {
-      console.log("Usage: node scripts/ensure-owner-admin-account.mjs --remote|--local [--base-url https://thecapstoneapp.com]");
+      console.log("Usage: node scripts/ensure-owner-admin-account.mjs --remote|--local [--base-url https://thecapstoneproject.com]");
       process.exit(0);
     } else {
       throw new OwnerAdminEnsureError("INVALID_ARGUMENTS", `Unknown argument: ${value}`);

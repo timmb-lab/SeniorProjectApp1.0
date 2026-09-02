@@ -8,7 +8,7 @@ import path from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 
 const ROOT = process.cwd();
-const BASE_URL = (process.env.HOSTED_BASE_URL || 'https://thecapstoneapp.com').replace(/\/$/, '');
+const BASE_URL = (process.env.HOSTED_BASE_URL || 'https://thecapstoneproject.com').replace(/\/$/, '');
 const WORKSPACE_ENTRY_PATH = normalizeWorkspaceEntryPath(process.env.WORKSPACE_BROWSER_ENTRY_PATH || '/workspace');
 const CREDENTIALS_PATH = process.env.TEST_ACCOUNTS_PATH || path.join('.secrets', 'test-accounts-2026-05-18.json');
 const SCREENSHOT_DIR = process.env.HOSTED_BROWSER_SCREENSHOT_DIR || path.join('docs', 'sales', 'screenshots', '2026-06-29');

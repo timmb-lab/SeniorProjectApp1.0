@@ -55,10 +55,11 @@ test("production blocks legacy internal QA pages and the mutable alpha API", asy
 test("production keeps one canonical app host and root path", async () => {
   const next = async () => new Response("workspace", { status: 200 });
   const aliases = [
-    "www.thecapstoneapp.com",
-    "thecapstoneproject.com",
     "www.thecapstoneproject.com",
+    "thecapstoneapp.com",
+    "www.thecapstoneapp.com",
     "senior-capstone-app.pages.dev",
+    "app.thecapstoneproject.com",
     "app.thecapstoneapp.com",
   ];
   for (const host of aliases) {
@@ -68,30 +69,30 @@ test("production keeps one canonical app host and root path", async () => {
       next,
     });
     assert.equal(response.status, 308, host);
-    assert.equal(response.headers.get("location"), "https://thecapstoneapp.com/?section=student", host);
+    assert.equal(response.headers.get("location"), "https://thecapstoneproject.com/?section=student", host);
   }
 
   for (const path of ["/workspace", "/workspace/", "/workspace.html", "/index.html"]) {
     const response = await onMiddleware({
-      request: new Request(`https://thecapstoneapp.com${path}?section=student`),
+      request: new Request(`https://thecapstoneproject.com${path}?section=student`),
       env: { APP_ENV: "production" },
       next,
     });
     assert.equal(response.status, 308, path);
-    assert.equal(response.headers.get("location"), "https://thecapstoneapp.com/?section=student", path);
+    assert.equal(response.headers.get("location"), "https://thecapstoneproject.com/?section=student", path);
   }
 
   const apiResponse = await onMiddleware({
-    request: new Request("https://thecapstoneproject.com/api/health?domain-check=1"),
+    request: new Request("https://thecapstoneapp.com/api/health?domain-check=1"),
     env: { APP_ENV: "production" },
     next,
   });
   assert.equal(apiResponse.status, 308);
-  assert.equal(apiResponse.headers.get("location"), "https://thecapstoneapp.com/api/health?domain-check=1");
+  assert.equal(apiResponse.headers.get("location"), "https://thecapstoneproject.com/api/health?domain-check=1");
 
   for (const oldPage of ["/phase-1", "/program.html", "/app", "/anything-else"]) {
     const response = await onMiddleware({
-      request: new Request(`https://thecapstoneapp.com${oldPage}`),
+      request: new Request(`https://thecapstoneproject.com${oldPage}`),
       env: { APP_ENV: "production" },
       next,
     });

@@ -1,6 +1,6 @@
 # Decision Log
 
-Last refreshed: 2026-05-21
+Last refreshed: 2026-09-02
 
 ## Current Automation Decision
 
@@ -14,7 +14,7 @@ Last refreshed: 2026-05-21
 
 - Official product title is Capstone Project, not "The Capstone Project".
 - The app target is a secure, database-backed Capstone Project application, not a static guide or visual-only prototype.
-- Product/app target domain is `thecapstoneproject.com`; `www.thecapstoneproject.com` may be an alias; `app.thecapstoneproject.com` is optional only if a split remains required.
+- Product/app canonical domain is `thecapstoneproject.com`; `www.thecapstoneproject.com`, `thecapstoneapp.com`, and `www.thecapstoneapp.com` redirect to it; no `app.*` hostname is used.
 - East Tech guide future custom domain is TBD.
 - East Tech/Titan branding belongs only in the East Tech guide.
 - Titan Blend and Back To Basics are retired as active stakeholder options.
@@ -31,6 +31,14 @@ Last refreshed: 2026-05-21
 - `reason`: Bryan ended the stakeholder option comparison and locked the reusable product/app identity separately from the East Tech school-specific guide.
 - `implementation rule`: Do not rewrite auth, D1, evidence, role permissions, API architecture, Google Workspace SSO, or automation cadence. Keep `https://app.thecapstoneapp.com/api/auth/google/callback` as the current SSO redirect until a later Google OAuth and Cloudflare env cutover is verified.
 - `validation`: Target-domain checks may report pending/initializing live state unless Cloudflare Pages custom-domain association, DNS/TLS, workspace/API health, and signed-out auth checks pass.
+
+## D-2026-09-02-022 - Canonical domain swap
+
+- `area`: production domain and public routing
+- `decision`: Make `thecapstoneproject.com` the single canonical app domain. Redirect `www.thecapstoneproject.com`, `thecapstoneapp.com`, `www.thecapstoneapp.com`, and the Pages project alias to it. Keep both `app.thecapstoneproject.com` and `app.thecapstoneapp.com` retired.
+- `applies to`: domain configuration, Pages middleware, public URLs, verification scripts, hosted browser proof, current deployment documentation, and any future Google OAuth callback configuration.
+- `reason`: Bryan selected the product-name domain as the public address and wants the former app domain to point to it.
+- `validation`: Deploy the reviewed Pages build, require active Pages associations for all four custom domains, verify permanent HTTPS redirects and API behavior, then rerun fake-account hosted role coverage on the canonical domain.
 
 ## D-2026-05-20-020 - Production app/site split and Student/Teacher website mode
 

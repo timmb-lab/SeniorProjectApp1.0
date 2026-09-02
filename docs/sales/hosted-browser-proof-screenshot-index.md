@@ -4,7 +4,7 @@ Date: 2026-06-29
 
 Latest refresh: 2026-09-01 reran `npm run prove:hosted-fake-pilot-browser`; the manifest is green with 10 current hosted fake-account screenshots and 0 failures. The proof covers desktop, tablet, and phone widths and rejects visible unavailable/load-failure states.
 
-Environment: `https://thecapstoneapp.com`
+Environment: `https://thecapstoneproject.com`
 
 Proof status: `GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF`
 

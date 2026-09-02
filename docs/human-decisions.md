@@ -12,7 +12,7 @@ Status values:
 
 ## Open Decisions
 
-No open external automation scheduler decisions are blocking the current scaffold. The Google Drive Shared Drive evidence root is selected, configured, and passes the live fake-upload gate; first-admin bootstrap is complete for `bryan.timm89@gmail.com`; the production setup key has been removed; Cloudflare live verification token decision is resolved; hosted fake `.test` role permission proof now covers student, program teacher, mentor, misc-admin denial, and admin allowed paths; the official product/domain decision is now Capstone Project at target `thecapstoneproject.com`; the East Tech guide future domain is TBD; stakeholder option comparison is retired; and the 1.0 setup is local-account-only with Google Workspace SSO disabled. Live custom-domain cutover remains separate and must not be claimed until Pages custom domains, DNS/TLS, product workspace/API health, and alpha/account exposure checks pass. Remaining setup work is configuration/implementation and policy: keep the broader district credential delivery policy open beyond the local-account setup flow, resolve future tenant Google Workspace SSO decisions before re-enabling SSO, live-prove Google Docs export with a fake native Docs fixture if approved, keep hosted upload/dashboard proof passing after deployment, and broaden remaining permission tests.
+No open external automation scheduler decisions are blocking the current scaffold. The Google Drive Shared Drive evidence root is selected, configured, and passes the live fake-upload gate; first-admin bootstrap is complete for `bryan.timm89@gmail.com`; the production setup key has been removed; Cloudflare live verification token decision is resolved; hosted fake `.test` role permission proof now covers student, program teacher, mentor, misc-admin denial, and admin allowed paths; the official product/domain decision is Capstone Project at canonical `thecapstoneproject.com`, with `thecapstoneapp.com` redirect-only; the East Tech guide future domain is TBD; stakeholder option comparison is retired; and the 1.0 setup is local-account-only with Google Workspace SSO disabled. Remaining setup work is policy: keep the broader district credential delivery policy open beyond the local-account setup flow, resolve future tenant Google Workspace SSO decisions before re-enabling SSO, live-prove Google Docs export with a fake native Docs fixture if approved, keep hosted upload/dashboard proof passing after deployment, and broaden remaining permission tests.
 
 ### HD-2026-05-21-010
 
@@ -29,7 +29,7 @@ No open external automation scheduler decisions are blocking the current scaffol
   - Should tenant evidence storage stay app-managed Google Drive for MVP or move to school-owned Drive before pilot?
   - What is the tenant offboarding policy for exports, retention, disabled accounts, and archive handoff?
   - Which Google Cloud project/OAuth client owns the production app?
-  - Which redirect URIs are approved beyond `https://thecapstoneapp.com/api/auth/google/callback`?
+  - Which redirect URIs are approved beyond `https://thecapstoneproject.com/api/auth/google/callback`?
   - Should product-domain app-owned accounts be treated as internal admin identities or normal tenant identities?
 - `current recommendation`: Keep Google Workspace SSO disabled for the 1.0 local-account setup until the Google Cloud OAuth client, Cloudflare Pages secrets/env vars, tenant-domain records, and hosted regression checks are complete. Keep local auth enabled for Bryan's account-building pass.
 - `implementation status`: Schema, safe auth config, SSO start/callback routes, workspace sign-in behavior, mocked integration tests, backend setup notes, and ADR-0002 are implemented as a fail-closed foundation. No production tenant domain has been added to the repo seed data.
@@ -141,12 +141,24 @@ No open external automation scheduler decisions are blocking the current scaffol
 
 ### HD-2026-09-02-001
 
-- `status`: accepted
+- `status`: superseded
 - `area`: canonical production domain consolidation
 - `owner`: Bryan
 - `severity`: P1
 - `decision`: Serve the app only at `https://thecapstoneapp.com/`. Permanently redirect the `www` alias, `thecapstoneproject.com`, its `www` alias, and the direct Pages project alias to the canonical domain. Retire `app.thecapstoneapp.com` completely. Redirect old workspace entry paths to `/` while leaving required API paths intact.
 - `SSO boundary`: Google Workspace SSO remains disabled. If approved later, use only `https://thecapstoneapp.com/api/auth/google/callback` as the production callback.
+- `accepted`: 2026-09-02
+- `superseded by`: HD-2026-09-02-003.
+
+### HD-2026-09-02-003
+
+- `status`: accepted
+- `area`: canonical production domain swap
+- `owner`: Bryan
+- `severity`: P1
+- `decision`: Serve the app only at `https://thecapstoneproject.com/`. Permanently redirect `www.thecapstoneproject.com`, `thecapstoneapp.com`, `www.thecapstoneapp.com`, and the direct Pages project alias to the canonical domain while preserving safe paths and query strings. Keep `app.thecapstoneproject.com` and `app.thecapstoneapp.com` retired with no Pages attachment or DNS record.
+- `SSO boundary`: Google Workspace SSO remains disabled. If approved later, use only `https://thecapstoneproject.com/api/auth/google/callback` as the production callback.
+- `source`: User request on 2026-09-02 to swap the two production domains and complete the public cutover without another confirmation.
 - `accepted`: 2026-09-02
 
 ### HD-2026-09-02-002

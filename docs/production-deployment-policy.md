@@ -1,6 +1,6 @@
 # Production Deployment Policy
 
-Date: 2026-09-01
+Date: 2026-09-02
 
 This policy defines how Capstone Project product surfaces, the East Tech guide, internal QA, and retired stakeholder outputs are deployed and validated.
 
@@ -16,10 +16,10 @@ Canonical product app and backend:
 - Backend: `functions/api/**`
 - Config: `wrangler.jsonc`
 - Canonical workspace route: `/`
-- Canonical product/app domain: `thecapstoneapp.com`
-- Canonical alias: `www.thecapstoneapp.com` redirects to the apex
-- Project-domain redirects: `thecapstoneproject.com` and `www.thecapstoneproject.com`
-- Retired app/SSO hostname: `app.thecapstoneapp.com` must have no DNS record and must not be attached to Pages
+- Canonical product/app domain: `thecapstoneproject.com`
+- Canonical alias: `www.thecapstoneproject.com` redirects to the apex
+- Legacy-domain redirects: `thecapstoneapp.com` and `www.thecapstoneapp.com`
+- Retired app/SSO hostnames: `app.thecapstoneproject.com` and `app.thecapstoneapp.com` must have no DNS records and must not be attached to Pages
 
 The repo root includes public guide source files, but the isolated product deployment copies the authenticated workspace entry as its root page and excludes the guide pages. Product copy must stay school-agnostic. East Tech, ECTA, Titans, Las Vegas, and CCSD references belong in the guide/public content, not reusable app internals.
 
@@ -39,14 +39,14 @@ The guide is production-safe public guidance for East Tech, but it is not the lo
 
 Canonical product/app state:
 
-- `thecapstoneapp.com` -> `senior-capstone-app`
-- `www.thecapstoneapp.com` -> permanent redirect to `thecapstoneapp.com`
-- `thecapstoneproject.com` -> permanent redirect to the matching path on `thecapstoneapp.com`
-- `www.thecapstoneproject.com` -> permanent redirect to the matching path on `thecapstoneapp.com`
-- `senior-capstone-app.pages.dev` -> permanent redirect to `thecapstoneapp.com`
-- `app.thecapstoneapp.com` -> retired, removed from DNS, and detached from Cloudflare Pages
+- `thecapstoneproject.com` -> `senior-capstone-app`
+- `www.thecapstoneproject.com` -> permanent redirect to `thecapstoneproject.com`
+- `thecapstoneapp.com` -> permanent redirect to the matching path on `thecapstoneproject.com`
+- `www.thecapstoneapp.com` -> permanent redirect to the matching path on `thecapstoneproject.com`
+- `senior-capstone-app.pages.dev` -> permanent redirect to `thecapstoneproject.com`
+- `app.thecapstoneproject.com` and `app.thecapstoneapp.com` -> retired, removed from DNS, and detached from Cloudflare Pages
 
-Only the canonical apex and the three redirect custom domains may remain attached to the app Pages project. The canonical Google OAuth redirect URI is `https://thecapstoneapp.com/api/auth/google/callback`; Google Workspace sign-in remains disabled unless separately approved and configured.
+Only the canonical apex and the three redirect custom domains may remain attached to the app Pages project. The canonical Google OAuth redirect URI is `https://thecapstoneproject.com/api/auth/google/callback`; Google Workspace sign-in remains disabled unless separately approved and configured.
 
 Cloudflare Pages custom-domain association is required before any hostname is considered cut over. DNS or CNAME evidence alone is not enough. Verify with the Pages Domains API or the Cloudflare dashboard Custom domains page before claiming live production-domain success.
 

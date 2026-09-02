@@ -2,7 +2,7 @@
 
 Date: 2026-09-02
 
-Bryan selected Option C. These pages remain useful for local QA, but they are not part of the canonical production deployment at `https://thecapstoneapp.com/`.
+Bryan selected Option C. These pages remain useful for local QA, but they are not part of the canonical production deployment at `https://thecapstoneproject.com/`.
 
 Current state:
 

@@ -1,6 +1,6 @@
 # Production Surface Registry
 
-Date: 2026-09-01
+Date: 2026-09-02
 
 Classification values: `production`, `internal-alpha`, `internal-smoke`, `generated-output`, `retired-stakeholder-option`, `preview`, `legacy`, `unknown`.
 
@@ -11,10 +11,10 @@ Production-safe means the surface is safe to present in its intended context. A 
 | Item | Current state | Target state | Validation |
 | --- | --- | --- | --- |
 | Official product title | Capstone Project | Capstone Project | Search must not treat "The Capstone Project" as official title |
-| Canonical product/app | Active | `thecapstoneapp.com` on `senior-capstone-app` | `npm run check:custom-domain-cutover` |
-| Canonical alias | Active | `www.thecapstoneapp.com` permanently redirects to the apex | `npm run check:custom-domain-cutover -- --live-required --live-http` |
-| Project-domain redirects | Active | `thecapstoneproject.com` and `www.thecapstoneproject.com` permanently redirect to matching canonical paths | Live HTTPS checks |
-| Retired app hostname | Removed | `app.thecapstoneapp.com` must not be attached to a Pages project or serve the app | Pages Domains API and live DNS/HTTPS checks |
+| Canonical product/app | Active | `thecapstoneproject.com` on `senior-capstone-app` | `npm run check:custom-domain-cutover` |
+| Canonical alias | Active | `www.thecapstoneproject.com` permanently redirects to the apex | `npm run check:custom-domain-cutover -- --live-required --live-http` |
+| Legacy-domain redirects | Active | `thecapstoneapp.com` and `www.thecapstoneapp.com` permanently redirect to matching canonical paths | Live HTTPS checks |
+| Retired app hostnames | Removed | `app.thecapstoneproject.com` and `app.thecapstoneapp.com` must not be attached to a Pages project or serve the app | Pages Domains API and live DNS/HTTPS checks |
 | Direct Pages alias | Redirect only | `senior-capstone-app.pages.dev` permanently redirects to the canonical apex | Live HTTPS checks |
 | East Tech guide future domain | `TBD` | `TBD` until Bryan buys/configures it | Search for invented guide domains |
 

@@ -9,22 +9,23 @@ const configPath = path.join(repoRoot, "config", "production-domains.json");
 
 const EXPECTED = {
   accountId: "539e8f7c55e7b1472013626ad72f4c7f",
-  productDomain: "thecapstoneapp.com",
-  canonicalUrl: "https://thecapstoneapp.com/",
+  productDomain: "thecapstoneproject.com",
+  canonicalUrl: "https://thecapstoneproject.com/",
   rootMode: "single-canonical-app-root-with-secondary-domain-redirect",
   targetHostnames: {
-    productApex: "thecapstoneapp.com",
+    productApex: "thecapstoneproject.com",
   },
   redirectHostnames: {
-    productWwwAlias: "www.thecapstoneapp.com",
-    secondaryApex: "thecapstoneproject.com",
-    secondaryWwwAlias: "www.thecapstoneproject.com",
+    productWwwAlias: "www.thecapstoneproject.com",
+    secondaryApex: "thecapstoneapp.com",
+    secondaryWwwAlias: "www.thecapstoneapp.com",
     pagesDevAlias: "senior-capstone-app.pages.dev",
   },
   retiredHostnames: {
-    appSubdomain: "app.thecapstoneapp.com",
+    projectAppSubdomain: "app.thecapstoneproject.com",
+    legacyAppSubdomain: "app.thecapstoneapp.com",
   },
-  currentSsoRedirectUri: "https://thecapstoneapp.com/api/auth/google/callback",
+  currentSsoRedirectUri: "https://thecapstoneproject.com/api/auth/google/callback",
   guideFutureCustomDomain: "TBD",
   pagesProjects: {
     publicGuide: "senior-capstone-public",
@@ -120,7 +121,7 @@ export function validateProductionDomainConfig(config) {
     return result;
   }
 
-  assertEqual(result, config.schemaVersion, 4, "schemaVersion");
+  assertEqual(result, config.schemaVersion, 5, "schemaVersion");
   assertEqual(result, config.productDomain, EXPECTED.productDomain, "productDomain");
   assertEqual(result, config.canonicalUrl, EXPECTED.canonicalUrl, "canonicalUrl");
   assertEqual(result, config.rootMode, EXPECTED.rootMode, "rootMode");
@@ -145,8 +146,8 @@ export function validateProductionDomainConfig(config) {
   assertEqual(result, policy.guideFutureDomainMustRemainTbd, true, "policy.guideFutureDomainMustRemainTbd");
   assertEqual(result, policy.doNotUseRedirectsFileForDomainLevelRedirects, true, "policy.doNotUseRedirectsFileForDomainLevelRedirects");
   assertEqual(result, policy.targetDomainLiveStatus, "active-cloudflare-dns-tls-verified", "policy.targetDomainLiveStatus");
-  assertEqual(result, policy.canonicalRedirectStatus, "all-user-facing-aliases-to-thecapstoneapp.com", "policy.canonicalRedirectStatus");
-  assertEqual(result, policy.retiredAppSubdomainStatus, "must-have-no-pages-attachment-or-dns-record", "policy.retiredAppSubdomainStatus");
+  assertEqual(result, policy.canonicalRedirectStatus, "all-user-facing-aliases-to-thecapstoneproject.com", "policy.canonicalRedirectStatus");
+  assertEqual(result, policy.retiredAppSubdomainStatus, "both-app-subdomains-must-have-no-pages-attachment-or-dns-record", "policy.retiredAppSubdomainStatus");
 
   const retiredStrings = [
     ...collectStrings(config.retiredPagesProjects),
@@ -170,15 +171,15 @@ export function validateCutoverDocs(files) {
   const policy = files["docs/production-deployment-policy.md"] || "";
 
   const requiredCutoverPhrases = [
-    "Product/app canonical domain: `thecapstoneapp.com`",
-    "Canonical app URL: `https://thecapstoneapp.com/`",
-    "Canonical product alias: `www.thecapstoneapp.com`",
-    "Secondary redirect hostnames: `thecapstoneproject.com`, `www.thecapstoneproject.com`",
-    "Retired app hostname: `app.thecapstoneapp.com`",
+    "Product/app canonical domain: `thecapstoneproject.com`",
+    "Canonical app URL: `https://thecapstoneproject.com/`",
+    "Canonical product alias: `www.thecapstoneproject.com`",
+    "Secondary redirect hostnames: `thecapstoneapp.com`, `www.thecapstoneapp.com`",
+    "Retired app hostnames: `app.thecapstoneproject.com`, `app.thecapstoneapp.com`",
     "must be absent from both DNS and the Pages domain list",
     "East Tech guide future custom domain: `TBD`",
-    "Permanent redirect target: `https://thecapstoneapp.com`",
-    "Google OAuth redirect URI: `https://thecapstoneapp.com/api/auth/google/callback`",
+    "Permanent redirect target: `https://thecapstoneproject.com`",
+    "Google OAuth redirect URI: `https://thecapstoneproject.com/api/auth/google/callback`",
     "GET /accounts/{account_id}/pages/projects/{project_name}/domains",
     "DELETE /accounts/{account_id}/pages/projects/{project_name}/domains/{domain_name}",
     "CNAME-only",
@@ -199,7 +200,7 @@ export function validateCutoverDocs(files) {
     EXPECTED.redirectHostnames.productWwwAlias,
     EXPECTED.redirectHostnames.secondaryApex,
     EXPECTED.redirectHostnames.secondaryWwwAlias,
-    EXPECTED.retiredHostnames.appSubdomain,
+    ...Object.values(EXPECTED.retiredHostnames),
   ]) {
     if (!registry.includes(hostname)) {
       result.failures.push(`production surface registry missing redirect/retired hostname ${hostname}`);
@@ -649,7 +650,9 @@ function printStaticLabels(config) {
   console.log(`REDIRECT_SECONDARY_WWW_ALIAS ${config.redirectHostnames.secondaryWwwAlias}`);
   console.log(`REDIRECT_PAGES_DEV_ALIAS ${config.redirectHostnames.pagesDevAlias}`);
   console.log(`GUIDE_FUTURE_DOMAIN ${config.guide.futureCustomDomain}`);
-  console.log(`RETIRED_APP_SUBDOMAIN ${config.retiredHostnames.appSubdomain}`);
+  for (const hostname of Object.values(config.retiredHostnames || {})) {
+    console.log(`RETIRED_APP_SUBDOMAIN ${hostname}`);
+  }
 }
 
 async function main() {

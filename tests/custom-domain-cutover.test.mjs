@@ -9,23 +9,24 @@ import {
 } from "../scripts/check-custom-domain-cutover.mjs";
 
 const validConfig = {
-  schemaVersion: 4,
-  productDomain: "thecapstoneapp.com",
-  canonicalUrl: "https://thecapstoneapp.com/",
+  schemaVersion: 5,
+  productDomain: "thecapstoneproject.com",
+  canonicalUrl: "https://thecapstoneproject.com/",
   rootMode: "single-canonical-app-root-with-secondary-domain-redirect",
   targetHostnames: {
-    productApex: "thecapstoneapp.com",
+    productApex: "thecapstoneproject.com",
   },
   redirectHostnames: {
-    productWwwAlias: "www.thecapstoneapp.com",
-    secondaryApex: "thecapstoneproject.com",
-    secondaryWwwAlias: "www.thecapstoneproject.com",
+    productWwwAlias: "www.thecapstoneproject.com",
+    secondaryApex: "thecapstoneapp.com",
+    secondaryWwwAlias: "www.thecapstoneapp.com",
     pagesDevAlias: "senior-capstone-app.pages.dev",
   },
   retiredHostnames: {
-    appSubdomain: "app.thecapstoneapp.com",
+    projectAppSubdomain: "app.thecapstoneproject.com",
+    legacyAppSubdomain: "app.thecapstoneapp.com",
   },
-  currentSsoRedirectUri: "https://thecapstoneapp.com/api/auth/google/callback",
+  currentSsoRedirectUri: "https://thecapstoneproject.com/api/auth/google/callback",
   guide: {
     futureCustomDomain: "TBD",
     currentDeploySource: "public-companion/",
@@ -56,22 +57,22 @@ const validConfig = {
     guideFutureDomainMustRemainTbd: true,
     doNotUseRedirectsFileForDomainLevelRedirects: true,
     targetDomainLiveStatus: "active-cloudflare-dns-tls-verified",
-    canonicalRedirectStatus: "all-user-facing-aliases-to-thecapstoneapp.com",
-    retiredAppSubdomainStatus: "must-have-no-pages-attachment-or-dns-record",
+    canonicalRedirectStatus: "all-user-facing-aliases-to-thecapstoneproject.com",
+    retiredAppSubdomainStatus: "both-app-subdomains-must-have-no-pages-attachment-or-dns-record",
   },
 };
 
 const currentDocs = {
   "docs/custom-domain-cutover-checklist.md": [
-    "Product/app canonical domain: `thecapstoneapp.com`",
-    "Canonical app URL: `https://thecapstoneapp.com/`",
-    "Canonical product alias: `www.thecapstoneapp.com`",
-    "Secondary redirect hostnames: `thecapstoneproject.com`, `www.thecapstoneproject.com`",
-    "Retired app hostname: `app.thecapstoneapp.com`",
+    "Product/app canonical domain: `thecapstoneproject.com`",
+    "Canonical app URL: `https://thecapstoneproject.com/`",
+    "Canonical product alias: `www.thecapstoneproject.com`",
+    "Secondary redirect hostnames: `thecapstoneapp.com`, `www.thecapstoneapp.com`",
+    "Retired app hostnames: `app.thecapstoneproject.com`, `app.thecapstoneapp.com`",
     "must be absent from both DNS and the Pages domain list",
     "East Tech guide future custom domain: `TBD`",
-    "Permanent redirect target: `https://thecapstoneapp.com`",
-    "Google OAuth redirect URI: `https://thecapstoneapp.com/api/auth/google/callback`",
+    "Permanent redirect target: `https://thecapstoneproject.com`",
+    "Google OAuth redirect URI: `https://thecapstoneproject.com/api/auth/google/callback`",
     "GET /accounts/{account_id}/pages/projects/{project_name}/domains",
     "DELETE /accounts/{account_id}/pages/projects/{project_name}/domains/{domain_name}",
     "CNAME-only warning",
@@ -82,6 +83,7 @@ const currentDocs = {
     "www.thecapstoneproject.com",
     "thecapstoneapp.com",
     "www.thecapstoneapp.com",
+    "app.thecapstoneproject.com",
     "app.thecapstoneapp.com",
     "npm run check:custom-domain-cutover",
     "npm run check:alpha-account-gating",
@@ -137,7 +139,7 @@ test("docs must include target, legacy, and SSO redirect state", () => {
 test("docs missing target domain fail", () => {
   const docs = {
     ...currentDocs,
-    "docs/custom-domain-cutover-checklist.md": "Permanent redirect target: `https://thecapstoneapp.com`",
+    "docs/custom-domain-cutover-checklist.md": "Permanent redirect target: `https://thecapstoneproject.com`",
   };
   const result = validateCutoverDocs(docs);
   assert.equal(result.ok, false);
@@ -209,8 +211,8 @@ test("retired app subdomain DNS absence passes", async () => {
     domains: validConfig,
     resolveRecordsImpl: async () => [],
   });
-  assert.equal(checks.length, 1);
-  assert.equal(checks[0].ok, true);
+  assert.equal(checks.length, 2);
+  assert.equal(checks.every((check) => check.ok), true);
 });
 
 test("retired app subdomain DNS record fails", async () => {
@@ -218,9 +220,9 @@ test("retired app subdomain DNS record fails", async () => {
     domains: validConfig,
     resolveRecordsImpl: async () => [{ type: "CNAME", value: "senior-capstone-app.pages.dev" }],
   });
-  assert.equal(checks.length, 1);
-  assert.equal(checks[0].ok, false);
-  assert.equal(checks[0].records, 1);
+  assert.equal(checks.length, 2);
+  assert.equal(checks.every((check) => !check.ok), true);
+  assert.equal(checks.every((check) => check.records === 1), true);
 });
 
 test("Pages API pending statuses produce pending", () => {

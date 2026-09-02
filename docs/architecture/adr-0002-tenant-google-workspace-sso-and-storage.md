@@ -68,7 +68,7 @@ For evidence and final-file organization, the current production direction is st
 - When can the legacy app-managed Drive recovery path and its service credential be removed completely?
 - What is the tenant offboarding policy for exports, retention, disabled accounts, and archive handoff?
 - Which Google Cloud project/OAuth client owns the production app?
-- Which additional redirect URIs, if any, are approved beyond `https://thecapstoneapp.com/api/auth/google/callback`?
+- Which additional redirect URIs, if any, are approved beyond `https://thecapstoneproject.com/api/auth/google/callback`?
 - Should product-domain app-owned accounts be treated as internal admin identities or normal tenant identities?
 
 ## Migration And Offboarding Plan

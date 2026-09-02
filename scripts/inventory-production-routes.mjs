@@ -351,14 +351,14 @@ const customDomainRows = [
     "npm run deploy",
     productionDomains.pagesDevFallbacks.appBackend,
   ],
-  [
-    productionDomains.retiredHostnames.appSubdomain,
+  ...Object.values(productionDomains.retiredHostnames || {}).map((hostname) => [
+    hostname,
     "retired hostname; must not be attached or serve the app",
     "none",
     "-",
     "none",
     "-",
-  ],
+  ]),
 ];
 
 const customDomainPolicyRows = [

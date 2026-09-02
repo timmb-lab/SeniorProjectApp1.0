@@ -34,7 +34,7 @@ test("auth config keeps Google SSO disabled unless required env is complete", as
       AUTH_GOOGLE_SSO_ENABLED: "true",
       GOOGLE_OAUTH_CLIENT_ID: "client-id",
       GOOGLE_OAUTH_CLIENT_SECRET: "client-secret",
-      GOOGLE_OAUTH_REDIRECT_URI: "https://thecapstoneapp.com/api/auth/google/callback",
+      GOOGLE_OAUTH_REDIRECT_URI: "https://thecapstoneproject.com/api/auth/google/callback",
     },
   });
   assert.equal((await enabled.json()).googleSsoEnabled, true);
@@ -333,7 +333,7 @@ function googleSsoEnv(db, { enabled = true } = {}) {
     AUTH_LOCAL_LOGIN_ENABLED: "true",
     GOOGLE_OAUTH_CLIENT_ID: enabled ? "google-client-id" : "",
     GOOGLE_OAUTH_CLIENT_SECRET: enabled ? "google-client-secret" : "",
-    GOOGLE_OAUTH_REDIRECT_URI: enabled ? "https://thecapstoneapp.com/api/auth/google/callback" : "",
+    GOOGLE_OAUTH_REDIRECT_URI: enabled ? "https://thecapstoneproject.com/api/auth/google/callback" : "",
     GOOGLE_OAUTH_ALLOWED_HOSTED_DOMAINS: "senior-capstone.test",
     EVIDENCE_STORAGE_PROVIDER: "google_drive",
   };

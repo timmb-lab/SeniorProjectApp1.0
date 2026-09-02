@@ -10,9 +10,9 @@ Capstone Project product/app:
 
 - Official title: Capstone Project.
 - Official title is not "The Capstone Project".
-- Canonical product/app domain: `thecapstoneapp.com`.
-- `www.thecapstoneapp.com` redirects to the canonical apex.
-- `thecapstoneproject.com` and `www.thecapstoneproject.com` redirect to the matching path on `thecapstoneapp.com`.
+- Canonical product/app domain: `thecapstoneproject.com`.
+- `www.thecapstoneproject.com` redirects to the canonical apex.
+- `thecapstoneapp.com` and `www.thecapstoneapp.com` redirect to the matching path on `thecapstoneproject.com`.
 - Canonical workspace route: `/`, deployed from the Cloudflare Pages project `senior-capstone-app`.
 - School-agnostic product copy and behavior: school, program, cohort, student, mentor, program teacher, administrator, organization, and tenant where technical context fits.
 
@@ -24,11 +24,12 @@ East Tech guide:
 - Future East Tech guide custom domain: TBD. Bryan will buy/configure it later.
 - East Tech/Titans branding belongs here, not inside reusable Capstone Project app internals.
 
-Current legacy domain state:
+Current domain state:
 
-- `thecapstoneapp.com` is the canonical production application hostname.
-- `app.thecapstoneapp.com` is retired and must not serve the app.
-- If Google Workspace SSO is approved later, its canonical callback is `https://thecapstoneapp.com/api/auth/google/callback`.
+- `thecapstoneproject.com` is the canonical production application hostname.
+- `thecapstoneapp.com` is a redirect-only legacy hostname.
+- `app.thecapstoneproject.com` and `app.thecapstoneapp.com` are retired and must not serve the app.
+- If Google Workspace SSO is approved later, its canonical callback is `https://thecapstoneproject.com/api/auth/google/callback`.
 
 ## Production Surface Boundary
 

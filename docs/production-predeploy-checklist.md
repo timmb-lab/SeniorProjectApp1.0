@@ -1,7 +1,7 @@
 # Production Predeploy Checklist
 
 Date: 2026-05-21
-Last updated: 2026-09-01
+Last updated: 2026-09-02
 
 Use this checklist before any pilot-facing deploy, preview promotion, or custom-domain cutover. It converts the production-surface cleanup into a gate: static checks may pass locally, but live Cloudflare checks are not complete unless `CLOUDFLARE_API_TOKEN` is available and read-only verification succeeds.
 
@@ -171,12 +171,12 @@ Pilot blocker:
 After a deploy or cutover, verify:
 
 - `GET /api/health` returns 200 on the app hostname.
-- `GET https://thecapstoneapp.com/api/health` returns 200 on the canonical domain.
+- `GET https://thecapstoneproject.com/api/health` returns 200 on the canonical domain.
 - Health output does not expose secret values.
 - Signed-out health does not expose D1, auth, roster, or storage configuration. Check those details only while signed in as a security administrator.
 - `GET /api/auth/me` returns an unauthenticated response without leaking user records when no session is present.
-- `GET https://thecapstoneproject.com/api/auth/me` returns 308 to the matching canonical API path.
-- `https://thecapstoneapp.com/` serves the workspace without adding a path to the address bar.
+- `GET https://thecapstoneapp.com/api/auth/me` returns 308 to the matching canonical API path.
+- `https://thecapstoneproject.com/` serves the workspace without adding a path to the address bar.
 - Internal alpha/account API routes remain internal QA only.
 
 Do not treat static local checks as API health proof.
@@ -201,11 +201,11 @@ Required result:
 
 Domain direction is resolved:
 
-- Product/app target: `thecapstoneapp.com` -> `senior-capstone-app`.
-- Product alias: `www.thecapstoneapp.com` -> permanent redirect to the canonical apex.
-- Secondary domain: `thecapstoneproject.com` and its `www` alias -> permanent redirect to the canonical apex.
+- Product/app target: `thecapstoneproject.com` -> `senior-capstone-app`.
+- Product alias: `www.thecapstoneproject.com` -> permanent redirect to the canonical apex.
+- Legacy domain: `thecapstoneapp.com` and its `www` alias -> permanent redirect to the canonical apex.
 - East Tech guide future custom domain: `TBD`.
-- Retired app hostname: `app.thecapstoneapp.com` must have no DNS record and must not be attached to Pages.
+- Retired app hostnames: `app.thecapstoneproject.com` and `app.thecapstoneapp.com` must have no DNS records and must not be attached to Pages.
 - Retired stakeholder options: no product hostname mapping and no active deploy scripts.
 
 Before claiming live cutover:
@@ -218,10 +218,10 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\ru
 
 Required live checks:
 
-- `https://thecapstoneapp.com/` reaches the product workspace directly.
-- Both `thecapstoneproject.com` variants redirect permanently to the canonical domain.
-- `https://thecapstoneapp.com/api/health` returns 200.
-- `https://thecapstoneapp.com/api/auth/me` signed out returns unauthenticated/no-record output.
+- `https://thecapstoneproject.com/` reaches the product workspace directly.
+- `www.thecapstoneproject.com`, `thecapstoneapp.com`, and `www.thecapstoneapp.com` redirect permanently to the canonical domain.
+- `https://thecapstoneproject.com/api/health` returns 200.
+- `https://thecapstoneproject.com/api/auth/me` signed out returns unauthenticated/no-record output.
 - Old workspace paths redirect permanently to the bare canonical root.
 
 Use `docs/custom-domain-cutover-checklist.md` for the detailed steps and rollback path.

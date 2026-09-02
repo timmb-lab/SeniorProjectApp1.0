@@ -11,7 +11,7 @@ import {
 } from "../scripts/ensure-owner-admin-account.mjs";
 
 test("owner-admin ensure is restricted to Bryan and explicit local/remote targets", () => {
-  assert.deepEqual(parseArgs(["--remote"]), { target: "remote", baseUrl: "https://thecapstoneapp.com" });
+  assert.deepEqual(parseArgs(["--remote"]), { target: "remote", baseUrl: "https://thecapstoneproject.com" });
   assert.deepEqual(parseArgs(["--local", "--base-url", "http://127.0.0.1:8788"]), {
     target: "local",
     baseUrl: "http://127.0.0.1:8788",

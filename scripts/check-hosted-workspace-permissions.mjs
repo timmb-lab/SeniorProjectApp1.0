@@ -5,7 +5,7 @@ import path from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 
 const repoRoot = process.cwd();
-const DEFAULT_BASE_URL = "https://thecapstoneapp.com";
+const DEFAULT_BASE_URL = "https://thecapstoneproject.com";
 const DEFAULT_CREDENTIALS_FILE = ".secrets/test-accounts-2026-05-18.json";
 const DEFAULT_SITE_ID = "site-desert-valley-high";
 
