@@ -317,6 +317,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const canOpenReviewQueue = optionSiteId
     ? await canViewReviewQueue(env, user, optionSiteId)
     : false;
+  const canMakeReviewDecision = canOpenReviewQueue
+    && (context.roleIds.includes("program_teacher") || context.roleIds.includes("mentor"));
   const availableStudents: StudentOptionRow[] = [];
   for (const candidate of optionRows) {
     if (isStudent || manageableSiteIds.includes(optionSiteId) || await canAccessStudent(env, user, candidate.id)) {
@@ -379,6 +381,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       canSubmitRequest: isStudent,
       canManageTemplates: manageableSiteIds.includes(optionSiteId),
       canOpenReviewQueue,
+      canMakeReviewDecision,
     },
   });
 };

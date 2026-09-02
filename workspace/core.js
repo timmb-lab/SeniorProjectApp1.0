@@ -2603,7 +2603,7 @@ function v2AdminScreenModel(sectionId = activeSection, sections = []) {
         job: "admin-student-record",
         action: "Open one student record.",
         reason: "Roster changes should be narrow and easy to verify.",
-        now: "Choose the student with the clearest roster, program, mentor, or viewer gap.",
+        now: "Choose the student with the clearest roster, program, or mentor gap. Viewer access is optional.",
         empty: "No roster issue is visible. Use import only when a real roster batch is ready.",
         confirm: "Stop when the student appears in the right school and program.",
       },
@@ -3412,7 +3412,7 @@ function roleCommandBoundaryTitle(primaryRole, roles = roleIds(currentUser), isA
   if (roles.has("viewer")) return "Read-only role";
   if (primaryRole === "student" || roles.has("student")) return "No staff tools";
   if (isAdminConsole && capabilities.readOnly) return "Monitor only";
-  if (isAdminConsole && hasGlobalAdminRole(roles)) return "Separated security";
+  if (isAdminConsole && hasGlobalAdminRole(roles)) return "Protected account";
   if (isAdminConsole) return "Limited edits";
   return "No hidden elevation";
 }
@@ -3422,7 +3422,7 @@ function roleCommandBoundaryText(primaryRole, roles = roleIds(currentUser), isAd
   if (roles.has("viewer")) return "Approve, import, assignment, schedule, review, and account controls stay hidden.";
   if (primaryRole === "student" || roles.has("student")) return "Students cannot open staff dashboards, staff preview tools, management consoles, or other student records.";
   if (isAdminConsole && capabilities.readOnly) return "Console rows are for monitoring only; edit controls stay hidden.";
-  if (isAdminConsole && hasGlobalAdminRole(roles)) return "Local Global Admin security remains separated from school SSO and student workspace activity.";
+  if (isAdminConsole && hasGlobalAdminRole(roles)) return "Global Admin account security stays separate from school sign-in and student work.";
   if (isAdminConsole) return "Writable controls stay limited to the selected school or program and this role's allowed section.";
   return "Workspace support actions stay limited to assigned students, school, program, or account settings.";
 }
@@ -3559,7 +3559,7 @@ function workspaceSectionTitle(sectionId = "") {
     staffReports: "Reports",
     adminDashboard: "Admin command center",
     readiness: "Readiness report",
-    adminUsers: "Users & Access",
+    adminUsers: "People & Assignments",
     adminPeople: "People",
     adminStudents: "Students",
     adminAssignments: "Assignments",
@@ -3696,7 +3696,11 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
     safeNumber(summary.noMentor),
     studentSetupRows.filter((row) => row.flagIds.includes("mentor")).length,
   );
-  const missingViewers = studentSetupRows.filter((row) => row.flagIds.includes("viewer")).length;
+  const viewerStudentIds = new Set(viewerAssignments.map((row) => row.studentId).filter(Boolean));
+  const missingViewers = students.filter((student) => {
+    const studentId = adminStudentId(student);
+    return !student.viewerUserId && !student.viewerName && !viewerStudentIds.has(studentId);
+  }).length;
   const missingProgramTeacherCoverage = Math.max(0, activePrograms.length - programTeacherAssignments.length);
   const projectsMissingMentor = safeNumber(projectSummary.missingMentor);
   const projectsMissingProgramTeacher = safeNumber(projectSummary.missingProgramTeacher);
@@ -3743,15 +3747,6 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
       tone: "warning",
       section: capabilities.sectionIds.has("adminStudents") ? "adminStudents" : consoleStudentSectionId(capabilities),
       action: "Open students",
-    } : null,
-    !programTeacherOnly && missingViewers ? {
-      id: "viewer-coverage",
-      title: "Viewer access unassigned",
-      detail: `${missingViewers} ${pluralize(missingViewers, "student")} have no read-only viewer listed in the visible roster.`,
-      count: missingViewers,
-      tone: "quiet",
-      section: capabilities.sectionIds.has("adminAssignments") ? "adminAssignments" : "overview",
-      action: "Open assignments",
     } : null,
     !programTeacherOnly && missingProgramTeacherCoverage ? {
       id: "program-teacher-coverage",
@@ -3826,7 +3821,7 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
     !programTeacherOnly ? { id: "programs", label: "Programs", value: activePrograms.length || safeNumber(summary.programsTotal), detail: "Active program mappings", tone: "programs" } : null,
     { id: "mentor-coverage", label: "Mentor Coverage", value: percentLabel(mentorCoveragePercent), detail: `${mentorAssignments.length} active mentor assignments`, tone: missingMentors ? "warning" : "ready" },
     { id: "project-adults", label: "Project Adults", value: visibleProjectCount ? `${projectsAdultsReady}/${visibleProjectCount}` : "No projects", detail: projectsMissingRequiredAdult ? `${projectsMissingRequiredAdult} projects need a Mentor or Program Teacher` : "Every visible project has both adults", tone: projectsMissingRequiredAdult ? "danger" : "ready" },
-    !programTeacherOnly ? { id: "viewer-coverage", label: "Viewer Coverage", value: percentLabel(viewerCoveragePercent), detail: `${viewerAssignments.length} active viewer assignments`, tone: missingViewers ? "warning" : "ready" } : null,
+    !programTeacherOnly ? { id: "viewer-coverage", label: "Viewer Access (Optional)", value: viewerAssignments.length, detail: "Read-only student access; add only when needed", tone: "quiet" } : null,
     { id: "roster-complete", label: "Roster Completeness", value: percentLabel(rosterCompletenessPercent), detail: `${rosterIncomplete} profile ${pluralize(rosterIncomplete, "gap")}`, tone: rosterIncomplete ? "warning" : "ready" },
     !programTeacherOnly ? { id: "staff-scope", label: "Staff Access", value: staffScopeGaps, detail: "Staff role, email, or assignment gaps", tone: staffScopeGaps ? "warning" : "ready" } : null,
     { id: "setup-issues", label: "Setup Issues", value: setupIssues.length, detail: "Prioritized issues above", tone: setupIssues.length ? "warning" : "ready" },
@@ -3867,6 +3862,7 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
       activeProgramRows: activePrograms.length,
       mentorCoverageDenominator: scopedStudentCount,
       viewerCoverageDenominator: students.length,
+      viewerAssignmentCount: viewerAssignments.length,
       rosterCompletenessDenominator: students.length,
       programCoverageDenominator: activePrograms.length,
       rosterCompletenessPercent,
@@ -3949,7 +3945,6 @@ function adminStudentGraduationValue(student = {}) {
 function adminStudentSetupFlags(student = {}, assignments = {}) {
   const studentId = adminStudentId(student);
   const mentorStudentIds = new Set((assignments.mentorStudent || []).map((row) => row.studentId).filter(Boolean));
-  const viewerStudentIds = new Set((assignments.viewerStudent || []).map((row) => row.studentId).filter(Boolean));
   const flags = [];
   if (!String(student.email || "").trim()) {
     flags.push({ id: "email", label: "Missing email" });
@@ -3962,9 +3957,6 @@ function adminStudentSetupFlags(student = {}, assignments = {}) {
   }
   if (!student.mentorUserId && !student.mentorName && student.hasActiveMentor !== true && !mentorStudentIds.has(studentId)) {
     flags.push({ id: "mentor", label: "No mentor" });
-  }
-  if (!student.viewerUserId && !student.viewerName && !viewerStudentIds.has(studentId)) {
-    flags.push({ id: "viewer", label: "No viewer" });
   }
   return flags;
 }
@@ -3986,8 +3978,6 @@ function adminStudentSetupRows(students = [], assignments = {}) {
 function adminStaffSetupFlags(staff = {}, assignments = {}) {
   const userId = staff.userId || staff.id || "";
   const roleIds = Array.isArray(staff.roleIds) ? staff.roleIds : [];
-  const mentorIds = new Set((assignments.mentorStudent || []).map((row) => row.mentorUserId).filter(Boolean));
-  const viewerIds = new Set((assignments.viewerStudent || []).map((row) => row.viewerUserId).filter(Boolean));
   const programTeacherIds = new Set((assignments.programTeacherProgram || []).map((row) => row.programTeacherUserId).filter(Boolean));
   const administrationIds = new Set((assignments.administrationSite || []).map((row) => row.userId).filter(Boolean));
   const siteAdminIds = new Set((assignments.siteAdminSite || []).map((row) => row.userId).filter(Boolean));
@@ -3997,12 +3987,6 @@ function adminStaffSetupFlags(staff = {}, assignments = {}) {
   }
   if (!roleIds.length) {
     flags.push({ id: "role", label: "Missing role" });
-  }
-  if (roleIds.includes("mentor") && !mentorIds.has(userId)) {
-    flags.push({ id: "mentor-scope", label: "No mentor students" });
-  }
-  if (roleIds.includes("viewer") && !viewerIds.has(userId)) {
-    flags.push({ id: "viewer-scope", label: "No viewer students" });
   }
   if (roleIds.includes("program_teacher") && !programTeacherIds.has(userId)) {
     flags.push({ id: "program-scope", label: "No program" });
@@ -4054,20 +4038,19 @@ function adminSetupReadinessRows({
   staffRows = [],
   activePrograms = [],
   missingMentors = 0,
-  missingViewers = 0,
   missingProgramTeacherCoverage = 0,
   rosterIncomplete = 0,
   missingProgramStudents = 0,
   importIssueCount = 0,
 } = {}) {
-  const studentIssueCount = Math.max(studentSetupRows.length, rosterIncomplete, missingProgramStudents, missingMentors, missingViewers);
+  const studentIssueCount = Math.max(studentSetupRows.length, rosterIncomplete, missingProgramStudents, missingMentors);
   return [
     {
       id: "students",
       label: "Student roster setup",
       count: studentIssueCount,
       detail: studentIssueCount
-        ? `${rosterIncomplete} profile, ${missingProgramStudents} program, ${missingMentors} mentor, ${missingViewers} viewer gaps.`
+        ? `${rosterIncomplete} profile, ${missingProgramStudents} program, and ${missingMentors} mentor gaps.`
         : `${students.length} student rows have setup fields visible here.`,
       sample: studentSetupRows.slice(0, 2).map(adminSetupSampleText),
       section: "adminStudents",
@@ -5479,7 +5462,7 @@ function screenOrientationFor(sectionId = "overview", primaryRole = primaryRoleF
       notFor: "Do not use aggregate rows as student-detail evidence.",
     },
     adminUsers: {
-      title: "Users & Access",
+      title: "People & Assignments",
       useFor: "Create or change access only after school access is clear.",
       start: "Review current access and preflight checks before saving.",
       notFor: "Do not create real accounts without approved setup-password delivery.",
@@ -5566,7 +5549,7 @@ function screenOrientationActionCandidates(sectionId = "overview", primaryRole =
     ],
     programs: [
       { label: "Back to Site Dashboard", section: "siteDashboard" },
-      { label: "Open Users & Access", section: "adminUsers" },
+      { label: "Open People & Assignments", section: "adminUsers" },
       { label: "Open Security", section: "security" },
     ],
     students: [
@@ -6110,7 +6093,7 @@ function screenVisibilityNotesFor(sectionId = "overview", primaryRole = primaryR
       ["Share only summaries", "Use aggregate numbers for planning and open source screens for protected detail.", "shared"],
     ],
     adminUsers: [
-      ["Authorized account staff", "Users & Access is for staff approved to manage accounts for the selected school or platform.", "staff"],
+      ["Authorized account staff", "People and Assignments is for staff approved to manage accounts for the selected school or platform.", "staff"],
       ["Setup passwords", "Temporary setup passwords are sensitive handoffs and should only be shared through the school-approved process.", "private"],
       ["Audit trail", "Account creation, access changes, and removals are logged for later review.", "context"],
     ],

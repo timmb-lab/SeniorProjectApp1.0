@@ -2013,7 +2013,7 @@ function renderStudentAccountPath(authConfig = authConfigForUi()) {
       label: "2",
       title: "Change only if you know the current password",
       detail: authConfig.googleSsoEnabled
-        ? "If you use Google sign-in, ask staff before changing a local password you do not use."
+        ? "If your school signs you in, ask staff before changing a password you do not use."
         : "Use this form only when you know the password that signs you into this workspace.",
       actionHtml: `<button class="workspace-link-button workspace-link-button-small" type="button" data-security-focus="password-form">Open password form</button>`,
     },
@@ -2109,10 +2109,10 @@ function renderSecurityActionMap({ roles = roleIds(currentUser), globalAdmin = h
       title: studentView ? "Use your school sign-in path" : "Use the approved sign-in path",
       detail: authConfig.googleSsoEnabled
         ? studentView
-          ? "Google sign-in is available; local password changes only affect this app's local password."
+          ? "School sign-in is available. Ask staff which sign-in button your school uses."
           : "School sign-in is available. Password changes only affect accounts that use email and password."
-        : "This environment uses local sign-in until the approved Google Workspace provider is ready.",
-      source: "Auth configuration",
+        : "Use the email and password provided by your school.",
+      source: "Sign-in settings",
       focus: "sign-in-mode",
       actionLabel: "Open sign-in note",
     },
@@ -2122,7 +2122,7 @@ function renderSecurityActionMap({ roles = roleIds(currentUser), globalAdmin = h
       owner: "Recovery",
       count: "Ask staff",
       title: "Know when to ask for help",
-      detail: studentView ? "If your current password is missing or your account looks wrong, ask staff instead of guessing." : "If the current password is missing, the account is disabled, or SSO is expected, use the support path instead of guessing.",
+      detail: studentView ? "If your current password is missing or your account looks wrong, ask staff instead of guessing." : "If the current password is missing, the account is disabled, or school sign-in is expected, use the support path instead of guessing.",
       source: "Support guide",
       focus: "support",
       actionLabel: "Open support",
@@ -2131,9 +2131,9 @@ function renderSecurityActionMap({ roles = roleIds(currentUser), globalAdmin = h
       id: "users",
       tone: canOpenUsersAccess ? "role" : "quiet",
       owner: "Other accounts",
-      count: canOpenUsersAccess ? "Users & Access" : "Protected",
-      title: "Use Users & Access for other people",
-      detail: "This screen only changes the signed-in account. Role grants, setup passwords, and removals belong in Users & Access.",
+      count: canOpenUsersAccess ? "People" : "Protected",
+      title: "Use People and Assignments for other people",
+      detail: "This screen only changes the signed-in account. Roles, setup passwords, and removals belong in People and Assignments.",
       source: canOpenUsersAccess ? "Account management source" : "No account-management access here",
       section: canOpenUsersAccess ? "adminUsers" : "",
       actionLabel: "Open users",
@@ -2208,7 +2208,7 @@ function renderSecuritySignInModePanel(authConfig = authConfigForUi(), options =
           <span>${escapeHtml(securitySignInModeLabel(authConfig, { studentView }))}</span>
           <small>${escapeHtml(authConfig.googleSsoEnabled
             ? studentView
-              ? "Google sign-in is available. A local password change only affects this app's local password."
+              ? "School sign-in is available. Ask staff which sign-in button your school uses."
               : "School sign-in is available. Password changes only update accounts that use email and password."
             : "Email and password is the sign-in method for this workspace.")}</small>
         </article>
@@ -2272,9 +2272,9 @@ function renderSecuritySupportGuide({ globalAdmin = false, canManageUsers = fals
           <small>Ask the approved account support person for a reset path instead of trying repeated passwords.</small>
         </article>
         <article>
-          <span>${escapeHtml(canManageUsers ? "Other users need Users & Access" : "Other users need account staff")}</span>
+          <span>${escapeHtml(canManageUsers ? "Other users need People and Assignments" : "Other users need account staff")}</span>
           <small>${escapeHtml(canManageUsers
-            ? "Use Users & Access for setup passwords, role changes, account removals, or school access."
+            ? "Use People and Assignments for setup passwords, role changes, account removals, or school access."
             : "Ask authorized account staff for setup passwords, role changes, account removals, or school access.")}</small>
         </article>
         <article>
@@ -2290,16 +2290,16 @@ function renderSecuritySupportGuide({ globalAdmin = false, canManageUsers = fals
 
 function securitySignInModeLabel(authConfig = authConfigForUi(), options = {}) {
   const studentView = Boolean(options.studentView);
-  if (authConfig.googleSsoEnabled && authConfig.localLoginEnabled) return studentView ? "Google sign-in + local" : "SSO + local";
-  if (authConfig.googleSsoEnabled) return studentView ? "Google sign-in" : "Google SSO";
-  if (authConfig.localLoginEnabled) return "Local only";
+  if (authConfig.googleSsoEnabled && authConfig.localLoginEnabled) return "School sign-in or email";
+  if (authConfig.googleSsoEnabled) return "School sign-in";
+  if (authConfig.localLoginEnabled) return "Email and password";
   return "Sign-in configured";
 }
 
 function renderAdminUsersSection() {
   const roles = roleIds(currentUser);
   if (!canUseUsersAccess(roles)) {
-    return renderPermissionDeniedSection("Users & Access", "account provisioning records");
+    return renderPermissionDeniedSection("People and Assignments", "account setup records");
   }
   const canCreateGlobal = hasGlobalAdminRole(roles);
   const roleChoices = adminRoleChoicesForRoles(roles);
@@ -2392,7 +2392,7 @@ function renderPeopleManagementScopeSummary(roleChoices = [], options = {}) {
   const rows = [
     ["Access", options.canCreateGlobal ? "All schools where the APIs allow access" : scope.siteName || "Selected school only"],
     ["Can create", roleSummary || "No role choices available"],
-    ["Platform owner", hasGlobalAdminRole(roles) ? "Global Admin uses email and password" : "Required for Global Admin accounts"],
+    ["Global Admin", hasGlobalAdminRole(roles) ? "This account can create the Global Admin role" : "Only a Global Admin can create this role"],
   ];
   return `
     <div class="workspace-people-scope" data-people-scope-summary="true">
@@ -2423,9 +2423,9 @@ function renderScopedAccountCreationForm(roleChoices = [], options = {}) {
     <section class="workspace-card" data-admin-section="users">
       <div class="workspace-card-head">
         <div>
-          <p class="workspace-kicker">Users & Access</p>
+          <p class="workspace-kicker">People and Assignments</p>
           <h2>Add account</h2>
-          <p class="workspace-muted">Create local accounts only for the roles this workspace is already allowed to manage.</p>
+          <p class="workspace-muted">Create accounts only for the roles this workspace is allowed to manage.</p>
         </div>
         <span class="workspace-chip">${escapeHtml(options.canCreateGlobal ? "Global Admin" : canUseStaffAccessManagement(roles) ? "School staff access" : "Student and mentor access")}</span>
       </div>
@@ -2433,7 +2433,7 @@ function renderScopedAccountCreationForm(roleChoices = [], options = {}) {
         ["Choose the smallest role", "Pick Student, Mentor, Viewer, Program Teacher, or school staff only for the job this person must do."],
         ["Confirm school, program, or student access", "Do not create broad access when a school, program, or assigned-student list will work."],
         ["Write the admin note", "Record why the account or access change is needed before saving."],
-        ["Use approved password delivery", "Local setup passwords appear once and must use the school's approved handoff process."],
+        ["Use approved password delivery", "Setup passwords appear once and must use the school's approved handoff process."],
       ], {
         detail: "This path keeps account setup understandable and prevents over-broad access.",
         badge: "Access path",
@@ -2579,10 +2579,10 @@ function renderManageStudentSetupSummary(students = [], assignments = {}) {
   const programGaps = rows.filter((row) => row.flags.some((flag) => flag.id === "program")).length;
   const profileGaps = rows.filter((row) => row.flags.some((flag) => flag.id === "profile" || flag.id === "email")).length;
   const mentorGaps = rows.filter((row) => row.flags.some((flag) => flag.id === "mentor")).length;
-  const viewerGaps = rows.filter((row) => row.flags.some((flag) => flag.id === "viewer")).length;
+  const viewerAssignments = Array.isArray(assignments.viewerStudent) ? assignments.viewerStudent : [];
   const firstIssue = issueRows[0] || null;
   const firstLabels = firstIssue ? firstIssue.flags.map((flag) => flag.label).join(", ") : "";
-  const firstHasCoverageGap = firstIssue?.flags?.some((flag) => flag.id === "mentor" || flag.id === "viewer");
+  const firstHasCoverageGap = firstIssue?.flags?.some((flag) => flag.id === "mentor");
   const sections = availableSectionIdsForAnyMode();
   const firstAction = firstIssue
     ? firstHasCoverageGap && sections.has("adminAssignments")
@@ -2597,7 +2597,7 @@ function renderManageStudentSetupSummary(students = [], assignments = {}) {
         <div>
           <span>${escapeHtml(firstIssue ? "Review first" : "Current roster state")}</span>
           <strong>${escapeHtml(firstIssue?.student?.displayName || "No student setup blocker is first in line")}</strong>
-          <p>${escapeHtml(firstIssue ? firstLabels : "Current student rows do not show program, profile, mentor, or viewer setup gaps.")}</p>
+          <p>${escapeHtml(firstIssue ? firstLabels : "Current student rows do not show program, profile, or mentor setup gaps.")}</p>
         </div>
         ${renderAdminActionControl(firstAction, "workspace-button workspace-button-secondary workspace-button-small", "student-first")}
       </article>
@@ -2622,10 +2622,10 @@ function renderManageStudentSetupSummary(students = [], assignments = {}) {
             <strong>${escapeHtml(String(mentorGaps))}</strong>
             <small>Students without active mentor coverage.</small>
           </article>
-          <article class="${viewerGaps ? "warning" : "ready"}">
-            <span>Viewer gaps</span>
-            <strong>${escapeHtml(String(viewerGaps))}</strong>
-            <small>Students without read-only viewer coverage.</small>
+          <article>
+            <span>Viewer access (optional)</span>
+            <strong>${escapeHtml(String(viewerAssignments.length))}</strong>
+            <small>Read-only student assignments added only when needed.</small>
           </article>
         </div>
       </details>
@@ -2789,7 +2789,6 @@ function renderManageStaffSetupSummary(accounts = [], assignments = {}) {
   }));
   const issueRows = rows.filter((row) => row.flags.length);
   const missingEmail = rows.filter((row) => row.flags.some((flag) => flag.id === "email")).length;
-  const missingMentorScope = rows.filter((row) => row.flags.some((flag) => flag.id === "mentor-scope")).length;
   const missingProgramScope = rows.filter((row) => row.flags.some((flag) => flag.id === "program-scope")).length;
   const firstIssue = issueRows[0] || null;
   const firstLabels = firstIssue ? firstIssue.flags.map((flag) => flag.label).join(", ") : "";
@@ -2817,17 +2816,17 @@ function renderManageStaffSetupSummary(accounts = [], assignments = {}) {
           <strong>${escapeHtml(String(missingEmail))}</strong>
           <small>Setup password delivery still needs an approved contact path.</small>
         </article>
-        <article class="${missingMentorScope + missingProgramScope ? "warning" : "ready"}">
-          <span>Coverage gaps</span>
-          <strong>${escapeHtml(String(missingMentorScope + missingProgramScope))}</strong>
-          <small>Mentor or Program Teacher coverage needs confirmation.</small>
+        <article class="${missingProgramScope ? "warning" : "ready"}">
+          <span>Required coverage gaps</span>
+          <strong>${escapeHtml(String(missingProgramScope))}</strong>
+          <small>Program Teacher coverage needs confirmation. Unassigned mentors and viewers remain ready to use.</small>
         </article>
       </div>
       <article class="workspace-admin-staff-first-action ${firstIssue ? "warning" : "ready"}" data-admin-staff-first-action="${escapeHtml(firstIssue?.account?.userId || "clear")}">
         <div>
           <span>${escapeHtml(firstIssue ? "Review first" : "Current staff state")}</span>
           <strong>${escapeHtml(firstIssue?.account?.displayName || "No staff blocker is first in line")}</strong>
-          <p>${escapeHtml(firstIssue ? firstLabels : "Current staff rows do not show email, role, mentor, viewer, program, or site access gaps.")}</p>
+          <p>${escapeHtml(firstIssue ? firstLabels : "Current staff rows do not show email, role, required Program Teacher, or school access gaps.")}</p>
         </div>
         ${renderAdminActionControl(firstAction, "workspace-button workspace-button-secondary workspace-button-small", "staff-first")}
       </article>
@@ -3013,7 +3012,7 @@ function renderAdminPersonSaveFooter(kind = "student", options = {}) {
       id: `${kind}-create-delivery`,
       name: "deliveryConfirmation",
       label: "I reviewed the role, school access, and setup-password delivery process before creating this account.",
-      detail: "Local setup passwords appear once and must use the school-approved handoff process.",
+      detail: "Setup passwords appear once and must use the school-approved handoff process.",
     })}
     <div class="workspace-form-actions">
       <button class="workspace-button workspace-button-primary" type="submit">${kind === "student" ? "Create student" : "Create staff member"}</button>
@@ -3359,7 +3358,7 @@ function renderCsvTemplateExample(kind = "students") {
   const contract = csvTemplateContractForKind(kind);
   return `
     <div class="workspace-csv-template-example" data-csv-template-example="${escapeHtml(contract.kind)}" aria-label="${escapeHtml(`${contract.title} example row`)}">
-      <span>Example row</span>
+      <span>Sample only — replace every value before preview</span>
       <code>${escapeHtml(contract.example.join(","))}</code>
     </div>
   `;
@@ -3417,7 +3416,7 @@ function renderUsersAccessActionMap(roleChoices = [], options = {}) {
       id: "create",
       tone: options.localAccountsOnly ? "handoff" : "role",
       owner: "Account setup",
-      count: options.localAccountsOnly ? "Local" : "Local / SSO",
+      count: options.localAccountsOnly ? "School account" : "Available setup",
       title: "Create with handoff ready",
       detail: "Use approved setup-password delivery and write the admin note before account creation.",
       source: "Account creation form",
@@ -3575,7 +3574,7 @@ function renderAccountLifecyclePolicy(options = {}) {
     ["Invite email", "Not sent from this app yet. Give setup information only through an approved school process."],
     ["Setup code", options.localAccountsOnly ? "Shown once after account creation; it expires in 30 minutes and lets the person make their own password." : "Only email-and-password accounts receive a one-time setup code."],
     ["School sign-in", options.localAccountsOnly ? "Not used in this workspace." : "Use only when the school is ready."],
-    ["Real local accounts", "Creation can be blocked by environment policy until credential delivery is approved."],
+    ["Email-and-password accounts", "Creation can be blocked until the school has an approved way to deliver setup information."],
   ];
   return `
     <section class="workspace-account-lifecycle-policy" data-account-lifecycle-policy="true">
@@ -4018,7 +4017,7 @@ function renderSiteAccountManagementPanel(users = {}, scope = {}, permissions = 
       ` : `
         <article class="workspace-empty-state-card" data-site-account-empty="true">
           <strong>No accounts are assigned to this school yet.</strong>
-          <p>Create a local account above as an allowed role. It will appear here with a Remove account control after it is assigned to this school.</p>
+          <p>Create an allowed account above. It will appear here with a Remove account control after it is assigned to this school.</p>
         </article>
       `}
     </div>

@@ -1136,6 +1136,9 @@ function staffReportQuestions({ roles, visibleStudents, reviewCount, setupSignal
   const canOpenStudents = hasSiteStudentDirectoryRole(roles);
   const canOpenReviewQueue = hasSiteReviewQueueRole(roles);
   const canOpenOperations = hasSiteOperationsRole(roles);
+  const reviewIsReadOnly = (roles.has("site_admin") || hasGlobalAdminRole(roles))
+    && !roles.has("program_teacher")
+    && !roles.has("mentor");
   const mentorCoverage = report?.mentorCoveragePercent;
   const mentorDenominator = safeNumber(report?.mentorCoverageDenominator || visibleStudents);
   const onTrackCount = Math.max(safeNumber(visibleStudents) - safeNumber(reviewCount) - safeNumber(setupSignalCount), 0);
@@ -1154,7 +1157,9 @@ function staffReportQuestions({ roles, visibleStudents, reviewCount, setupSignal
       id: "work-waiting-for-review",
       kicker: "Work waiting for review",
       title: safeNumber(reviewCount) ? `${safeNumber(reviewCount)} review ${pluralize(reviewCount, "item")}` : "No review queue is waiting",
-      detail: "Submitted or revision work should be handled in Review Work before report browsing.",
+      detail: reviewIsReadOnly
+        ? "Use Review Work to see what is waiting. The assigned reviewer saves the decision."
+        : "Handle submitted or revision work in Review Work before opening reports.",
       valueLabel: `${safeNumber(reviewCount)} waiting ${pluralize(reviewCount, "row")}`,
       section: canOpenReviewQueue ? "teacher" : "",
       preset: "submitted",
@@ -1188,6 +1193,9 @@ function staffReportQuestions({ roles, visibleStudents, reviewCount, setupSignal
 function renderStaffReportsSection() {
   const roles = roleIds(currentUser);
   const isMentor = roles.has("mentor");
+  const keepSupportingReportsCollapsed = roles.has("administration")
+    || roles.has("site_admin")
+    || hasGlobalAdminRole(roles);
   const visibleStudents = adminConsoleStudentCount();
   const reviewCount = adminConsoleReviewCount();
   const setupSignalCount = staffReportAttentionCount();
@@ -1277,7 +1285,7 @@ function renderStaffReportsSection() {
         </div>
       </div>
       ${renderStaffReportQuestionFlow(staffReportQuestions({ roles, visibleStudents, reviewCount, setupSignalCount, report }))}
-      ${roles.has("administration")
+      ${keepSupportingReportsCollapsed
         ? `
           <details class="workspace-admin-supporting-disclosure workspace-admin-report-supporting" data-staff-report-supporting="counts-and-downloads">
             <summary>
@@ -1289,7 +1297,7 @@ function renderStaffReportsSection() {
         `
         : reportDetailMarkup}
       ${availableSectionIdsForAnyMode().has("readiness")
-        ? roles.has("administration")
+        ? keepSupportingReportsCollapsed
           ? `
             <details class="workspace-admin-supporting-disclosure workspace-admin-report-supporting" data-staff-report-supporting="readiness">
               <summary>
@@ -1489,7 +1497,7 @@ function renderAdminConsoleStudentsSection() {
         kicker: "Students",
         title: "Student Roster Setup",
         id: "adminStudentsTitle",
-        detail: "Review roster profile, school/program placement, mentor and viewer signals, then add one student when needed.",
+        detail: "Review the student profile, school, program, and required mentor. Viewer access is optional.",
         badge: "Roster setup",
       })}
       ${renderPeopleManagementNav(screens.filter((screen) => screen.group === "Students" || screen.id === "assignments"), adminPeopleView)}
@@ -1797,7 +1805,7 @@ function renderAdminAssignmentCoverageSummary(model = adminAssignmentCoverageMod
   const missingTeacherPrograms = Array.isArray(model.missingTeacherPrograms) ? model.missingTeacherPrograms : [];
   const cards = [
     permissions.canAssignMentors ? { id: "mentor", label: "Missing Mentor Coverage", value: missingMentorStudents.length, detail: `${mentorAssignments.length} active mentor assignments`, tone: missingMentorStudents.length ? "warning" : "ready" } : null,
-    permissions.canAssignViewers ? { id: "viewer", label: "Missing Viewer Access", value: missingViewerStudents.length, detail: `${viewerAssignments.length} active viewer assignments`, tone: missingViewerStudents.length ? "warning" : "ready" } : null,
+    permissions.canAssignViewers ? { id: "viewer", label: "Viewer Access (Optional)", value: viewerAssignments.length, detail: "Read-only access; add only when needed", tone: "quiet" } : null,
     permissions.canAssignProgramTeachers ? { id: "program-teacher", label: "Program Teacher Gaps", value: missingTeacherPrograms.length, detail: `${programTeacherAssignments.length} active Program Teacher assignments`, tone: missingTeacherPrograms.length ? "warning" : "ready" } : null,
     permissions.canAssignAdministration || permissions.canAssignSiteAdmins ? { id: "admin", label: "School Admin Grants", value: safeNumber((assignments.administrationSite || []).length) + safeNumber((assignments.siteAdminSite || []).length), detail: "Administration and Site Admin access grants", tone: "quiet" } : null,
   ].filter(Boolean);
@@ -1829,15 +1837,6 @@ function renderAdminAssignmentFlowPanel(model = adminAssignmentCoverageModel()) 
       available: Boolean(permissions.canAssignMentors),
     },
     {
-      id: "viewer",
-      title: "Assign viewer access",
-      count: safeNumber(model.missingViewerStudents?.length),
-      detail: "Confirm read-only viewer coverage after mentor coverage is clear.",
-      tone: safeNumber(model.missingViewerStudents?.length) ? "warning" : "ready",
-      action: "Open viewer form",
-      available: Boolean(permissions.canAssignViewers),
-    },
-    {
       id: "program-teacher",
       title: "Confirm Program Teacher coverage",
       count: safeNumber(model.missingTeacherPrograms?.length),
@@ -1845,6 +1844,16 @@ function renderAdminAssignmentFlowPanel(model = adminAssignmentCoverageModel()) 
       tone: safeNumber(model.missingTeacherPrograms?.length) ? "warning" : "ready",
       action: "Open program form",
       available: Boolean(permissions.canAssignProgramTeachers),
+    },
+    {
+      id: "viewer",
+      title: "Add optional viewer access",
+      count: 0,
+      detail: "Add a read-only viewer only when the school wants another adult to follow a student.",
+      tone: "quiet",
+      action: "Open viewer form",
+      available: Boolean(permissions.canAssignViewers),
+      countLabel: `${safeNumber(model.viewerAssignments?.length)} active`,
     },
     {
       id: "school-access",
@@ -1872,7 +1881,7 @@ function renderAdminAssignmentFlowPanel(model = adminAssignmentCoverageModel()) 
         <div>
           <p class="workspace-kicker">Coverage Flow</p>
           <h3 id="adminAssignmentFlowTitle">Fix coverage in order</h3>
-          <p class="workspace-muted">Start with the first gap you can fix. Other access stays with a Site Admin.</p>
+          <p class="workspace-muted">${escapeHtml(primaryRoleForUser(currentUser) === "site_admin" ? "Start with required Mentor and Program Teacher coverage. Viewer access is optional." : "Start with the first gap you can fix. Other access stays with a Site Admin.")}</p>
         </div>
         <button class="workspace-button workspace-button-secondary workspace-button-small" type="button" data-users-access-focus="assignment-forms">Open forms</button>
       </div>
@@ -1882,7 +1891,7 @@ function renderAdminAssignmentFlowPanel(model = adminAssignmentCoverageModel()) 
             <span>${escapeHtml(`Step ${index + 1}`)}</span>
             <strong>${escapeHtml(lane.title)}</strong>
             <p>${escapeHtml(lane.detail)}</p>
-            <small>${escapeHtml(lane.id === "school-access" ? `${lane.count} active ${pluralize(lane.count, "grant")}` : lane.count ? `${lane.count} to review` : "No active gap")}</small>
+            <small>${escapeHtml(lane.countLabel || (lane.id === "school-access" ? `${lane.count} active ${pluralize(lane.count, "grant")}` : lane.count ? `${lane.count} to review` : "No active gap"))}</small>
             <button class="workspace-link-button workspace-link-button-small" type="button" data-users-access-focus="assignment-forms">${escapeHtml(lane.action)}</button>
           </article>
         `).join("")}
@@ -1928,7 +1937,7 @@ function renderAdminOperationalReportSummary(report = {}) {
     { id: "roster", label: "Roster completeness", value: report.rosterCompletenessPercent, max: 100, valueLabel: percentLabel(report.rosterCompletenessPercent), detail: `Students counted: ${safeNumber(report.rosterCompletenessDenominator)} roster rows`, tone: "student", dataAttrs: `data-admin-report-row="roster"` },
     { id: "mentor", label: "Mentor coverage", value: report.mentorCoveragePercent, max: 100, valueLabel: percentLabel(report.mentorCoveragePercent), detail: `Students counted: ${safeNumber(report.mentorCoverageDenominator)} visible students`, tone: "mentor", dataAttrs: `data-admin-report-row="mentor"` },
     { id: "project-adults", label: "Projects with both adults", value: safeNumber(report.projectsAdultsReady), max: Math.max(safeNumber(report.visibleProjectCount), 1), valueLabel: safeNumber(report.visibleProjectCount) ? `${safeNumber(report.projectsAdultsReady)} of ${safeNumber(report.visibleProjectCount)}` : "No projects", detail: safeNumber(report.projectsMissingRequiredAdult) ? `${safeNumber(report.projectsMissingRequiredAdult)} need a Mentor, Program Teacher, or both` : "Every visible project has both adults", tone: safeNumber(report.projectsMissingRequiredAdult) ? "danger" : "ready", dataAttrs: `data-admin-report-row="project-adults"` },
-    { id: "viewer", label: "Viewer coverage", value: report.viewerCoveragePercent, max: 100, valueLabel: percentLabel(report.viewerCoveragePercent), detail: `Students counted: ${safeNumber(report.viewerCoverageDenominator)} roster rows`, tone: "ready", dataAttrs: `data-admin-report-row="viewer"` },
+    { id: "viewer", label: "Viewer access (optional)", value: safeNumber(report.viewerAssignmentCount), max: Math.max(safeNumber(report.studentTotal), safeNumber(report.viewerAssignmentCount), 1), valueLabel: `${safeNumber(report.viewerAssignmentCount)} active`, detail: "Read-only student assignments added only when needed", tone: "ready", dataAttrs: `data-admin-report-row="viewer"` },
     { id: "program", label: "Program coverage", value: report.programCoveragePercent, max: 100, valueLabel: percentLabel(report.programCoveragePercent), detail: `Programs counted: ${safeNumber(report.programCoverageDenominator)} active programs`, tone: "teacher", dataAttrs: `data-admin-report-row="program"` },
     { id: "progress", label: "Progress follow-up", value: safeNumber(report.reviewFollowUp), max: Math.max(safeNumber(report.studentTotal), safeNumber(report.reviewFollowUp), 1), detail: "Submitted and revision-requested records", tone: safeNumber(report.reviewFollowUp) ? "warning" : "ready", dataAttrs: `data-admin-report-row="progress"` },
     { id: "issues", label: "Setup/import issues", value: safeNumber(report.setupIssueCount) + safeNumber(report.importIssueCount), max: Math.max(safeNumber(report.studentTotal), safeNumber(report.setupIssueCount) + safeNumber(report.importIssueCount), 1), detail: "Setup list and CSV preview issues", tone: safeNumber(report.setupIssueCount) + safeNumber(report.importIssueCount) ? "warning" : "ready", dataAttrs: `data-admin-report-row="issues"` },
@@ -1937,7 +1946,7 @@ function renderAdminOperationalReportSummary(report = {}) {
     id: "adminReportSummaryTitle",
     kicker: "Reports",
     title: "Operational coverage summary",
-    detail: "Roster completeness, mentor/viewer/program coverage, review status, setup, and import issues for this allowed view.",
+    detail: "Roster completeness, required adult coverage, optional viewer access, review status, setup, and import issues for this allowed view.",
     rows,
     className: "workspace-admin-report-summary",
     dataAttrs: `data-admin-report-summary="true"`,
@@ -2056,7 +2065,7 @@ function adminReportExportSpecs(model = adminConsoleOperationsModel()) {
       title: "Roster completeness",
       detail: "Student setup fields visible to this admin role.",
       filename: "capstone-admin-roster-completeness.csv",
-      headers: ["Student name", "Program", "Cohort", "Graduation year", "Mentor coverage", "Viewer coverage", "Setup flags"],
+      headers: ["Student name", "Program", "Cohort", "Graduation year", "Mentor coverage", "Viewer access (optional)", "Setup flags"],
       rows: rosterRows,
       boundary: "Uses only rows visible to this admin role; no passwords, private notes, or file links.",
     },
@@ -2141,16 +2150,19 @@ function adminRosterCompletenessExportRows() {
   const access = unwrap(currentData.accessAssignments) || {};
   const assignments = access.assignments || {};
   const students = Array.isArray(access.users?.students) ? access.users.students : [];
+  const viewerStudentIds = new Set((assignments.viewerStudent || []).map((row) => row.studentId).filter(Boolean));
   return students.map((student) => {
     const flags = adminStudentSetupFlags(student, assignments);
     const flagLabels = flags.map((flag) => flag.label).filter(Boolean);
+    const studentId = adminStudentId(student);
+    const hasViewer = Boolean(student.viewerUserId || student.viewerName || viewerStudentIds.has(studentId));
     return [
       reportCell(student.displayName || student.studentName, "Student"),
       reportCell(adminStudentProgramValue(student), "Not confirmed"),
       reportCell(adminStudentCohortValue(student), "Not confirmed"),
       reportCell(adminStudentGraduationValue(student), "Not confirmed"),
       flagLabels.includes("No mentor") ? "Missing" : "Confirmed",
-      flagLabels.includes("No viewer") ? "Missing" : "Confirmed",
+      hasViewer ? "Assigned" : "Not assigned (optional)",
       flagLabels.length ? flagLabels.join("; ") : "No setup flags",
     ];
   });
@@ -2344,7 +2356,7 @@ function renderReadOnlyEscalationGuide(audience = "viewer") {
   const rows = administration
     ? [
         ["Program Teacher approval needed", "Notify the assigned Program Teacher and share the submitted or revision student list.", "students", "submitted-students"],
-        ["Account or access issue", "Notify a Global Admin and share Users & Access context if your account cannot open it.", "adminUsers", ""],
+        ["Account or access issue", "Notify a Global Admin and share the People and Assignments screen if your account cannot open it.", "adminUsers", ""],
         ["Final-file or presentation blocker", "Notify site staff and share the Operations worklist row.", "operations", "needs-attention"],
       ]
     : [
@@ -2656,7 +2668,7 @@ function renderSiteDashboardActionMap(dashboard = {}, readOnly = false) {
       title: noMentor ? "Assign mentor coverage" : "Mentor coverage looks current",
       detail: noMentor
         ? `${noMentor} ${pluralize(noMentor, "student")} ${noMentor === 1 ? "needs" : "need"} an active mentor before normal check-ins can work.`
-        : "No missing-mentor count is visible on this dashboard.",
+        : "Every visible student has a mentor.",
       source: "Mentor assignment source",
       actionSection: availableSectionIdsForAnyMode().has("mentorAssignments") ? "mentorAssignments" : "students",
       actionPreset: availableSectionIdsForAnyMode().has("mentorAssignments") ? "no-mentor" : "missing-mentors",
@@ -2778,7 +2790,7 @@ function renderSiteAdminFirstDayChecklist(dashboard = {}) {
       label: "2. Check mentor coverage",
       detail: safeNumber(summary.studentsNoMentor)
         ? `${safeNumber(summary.studentsNoMentor)} ${pluralize(summary.studentsNoMentor, "student")} ${safeNumber(summary.studentsNoMentor) === 1 ? "needs" : "need"} a mentor assignment.`
-        : "No missing mentor count is visible right now.",
+        : "Every visible student has a mentor.",
       state: safeNumber(summary.studentsNoMentor) ? "blocked" : "ready",
       action: availableSectionIdsForAnyMode().has("mentorAssignments")
         ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="mentorAssignments" data-section-preset="no-mentor">Assign mentors</button>`
@@ -2977,7 +2989,7 @@ function renderSiteProgramsSetupFlow(activePrograms = [], availablePrograms = []
   const rows = [
     ["1. Confirm school", body?.scope?.siteName || "Current site", activeCount || availableCount ? "ready" : "context"],
     ["2. Add missing program", availableCount ? `${availableCount} active program ${pluralize(availableCount, "option")} can be added.` : "No additional active programs are waiting.", availableCount ? "needs_review" : "ready"],
-    ["3. Confirm Program Teacher access", "Use Users & Access after the program mapping is correct.", availableSectionIdsForAnyMode().has("adminUsers") ? "ready" : "context"],
+    ["3. Confirm Program Teacher access", "Use Assignments after the program mapping is correct.", availableSectionIdsForAnyMode().has("adminUsers") ? "ready" : "context"],
     ["4. Review before save", "Add or remove one school mapping at a time. Historical student and assignment records stay intact.", "configured"],
   ];
   return `
@@ -3634,9 +3646,12 @@ function studentDirectoryRowGuidance(student = {}, readOnly = false) {
     };
   }
   if (submission === "submitted" || review === "needs_review") {
+    const canSaveReviewDecision = roleIds(currentUser).has("program_teacher") || roleIds(currentUser).has("mentor");
     return {
       owner: "Program Teacher",
-      nextAction: "Open Review Work, check work and history, then record one decision.",
+      nextAction: canSaveReviewDecision
+        ? "Open Review Work, check work and history, then record one decision."
+        : "Open Review Work to see the work and history. The assigned reviewer saves the decision.",
     };
   }
   if (submission === "revision_requested" || review === "needs_revision") {
@@ -5117,7 +5132,7 @@ function renderSiteContextBlock(dashboard) {
         <span class="workspace-site-context-badge">${escapeHtml(siteAccessModeLabel(scope))}</span>
         <span class="workspace-site-context-badge">No student messaging</span>
       </div>
-      <p class="workspace-muted" data-site-selection-persistence="true">This selected school carries across Dashboard, Students, Review Work, Mentor Assignments, Operations, Programs, and Users & Access when your role can open them.</p>
+      <p class="workspace-muted" data-site-selection-persistence="true">This selected school carries across Dashboard, Students, Review Work, Mentor Assignments, Operations, Programs, People, and Assignments when your role can open them.</p>
       ${accessibleSites.length > 1 ? `
         <p class="workspace-muted">
           ${safeNumber(accessibleSites.length)} accessible site${accessibleSites.length === 1 ? "" : "s"} are available.
@@ -5337,7 +5352,7 @@ function renderAdminOverviewSection() {
               { label: "Teacher Review", detail: "Open submitted work", section: "teacher" },
               { label: "Presentation", detail: "Review schedule", section: "presentation" },
               { label: "Reports", detail: "Open readiness", section: "readiness" },
-              { label: "Users & Access", detail: "Create users", section: "adminUsers" },
+              { label: "People & Assignments", detail: "Create users", section: "adminUsers" },
               { label: "Audit", detail: "Review activity", section: "audit" },
               { label: "Final Files", detail: "Check packages", section: "archiveExports" },
             ]))}
@@ -5829,10 +5844,16 @@ function renderMentorAssignmentsSection() {
           `}
         </section>
       </div>
-      <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
-        ${renderDashboardCard("Mentor Coverage", "Mentor workload at this school", renderMentorCoverageRows(mentors))}
-        ${renderDashboardCard("Active Assignments", "Current assignments", renderMentorActiveAssignments(assignments, permissions))}
-      </div>
+      <details class="workspace-admin-supporting-disclosure" data-mentor-assignment-supporting="mentor-load">
+        <summary>
+          <span class="workspace-kicker">Mentor workload</span>
+          <strong>Show mentor load and current assignments</strong>
+        </summary>
+        <div class="workspace-dashboard-grid workspace-dashboard-grid-two">
+          ${renderDashboardCard("Mentor Coverage", "Mentor workload at this school", renderMentorCoverageRows(mentors))}
+          ${renderDashboardCard("Active Assignments", "Current assignments", renderMentorActiveAssignments(assignments, permissions))}
+        </div>
+      </details>
     </section>
   `;
 }
@@ -6493,7 +6514,7 @@ function renderOperationsRoleActionGuide(body = {}, dashboard = {}) {
     : [
         ["Assign coverage", "Use Mentor Assignments when students have no active mentor.", "mentorAssignments", "no-mentor"],
         ["Fix final-file blockers", "Use Operations when exports fail or storage setup is unavailable.", "operations", "archive-failed"],
-        ["Check account access", "Use Users & Access before removing accounts or changing school roles.", "adminUsers", ""],
+        ["Check account access", "Use People and Assignments before removing access or changing school roles.", "adminUsers", ""],
       ];
   return `
     <section class="workspace-operations-role-guide" data-operations-role-action-guide="true" data-operations-role-guide="${escapeHtml(isProgramTeacher ? "program-teacher" : "site-admin")}">
@@ -7491,7 +7512,7 @@ function renderAdminAuditActionMap(events = [], activeFilters = {}) {
       owner: "Access admin",
       count: `${accountCount} ${pluralize(accountCount, "change")}`,
       title: "Audit account changes",
-      detail: "Compare account work with current Users & Access rows before adding broader access.",
+      detail: "Compare account work with current People and Assignments rows before adding broader access.",
       source: "Account and role rows",
       action: "",
       entityType: "user_account",
@@ -7710,7 +7731,7 @@ function adminAuditAnomalyRows(events = []) {
       id: "import-attempts",
       label: "Import attempts",
       count: countWhere((event) => /user\.create|scope_validation|import/i.test(event.action || "")),
-      reviewCopy: "Review role, school, and program access, plus whether real local accounts were blocked by policy.",
+      reviewCopy: "Review role, school, and program access, plus whether email-and-password accounts were blocked by policy.",
       quietCopy: "No account-import attempts are visible in this audit view.",
       owner: "Access admin",
       nextAction: "Check role access and setup-password delivery before retrying account creation.",

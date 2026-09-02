@@ -199,7 +199,7 @@ export function projectAdultSetup(rows: ProjectAdultAssignmentRow[]): ProjectAdu
     pendingProgramTeacher: pendingTeacher ? assignmentResponse(pendingTeacher) : null,
     missingRoles,
     nextStep: ready
-      ? "Your Mentor and Program Teacher are confirmed."
+      ? "The project's Mentor and Program Teacher are confirmed."
       : pendingMentor || pendingTeacher
         ? "One or more adults still need to accept. You may keep working ahead."
         : "Tag a Mentor and Program Teacher. You may keep working ahead while they accept.",

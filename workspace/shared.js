@@ -2355,7 +2355,7 @@ const ROLE_WORKING_PROFILES = {
       "Start with Review Work when students have turned in work.",
       "Use Program Dashboard when you want the shortest list of students who need help.",
       "Open Students when you know the student's name.",
-      "Use Users & Access only when the student or mentor roster is wrong.",
+      "Use People and Assignments only when the student or mentor roster is wrong.",
     ],
     limits: [
       "You do not run district, platform, or security setup.",
@@ -2397,7 +2397,7 @@ const ROLE_WORKING_PROFILES = {
         title: "Fix roster access in Admin Console",
         detail: "Use People and Access for student, mentor, viewer, and Program Teacher roster corrections.",
         section: "adminUsers",
-        action: "Open Users & Access",
+        action: "Open People and Assignments",
       },
     ],
     see: [
@@ -2407,7 +2407,7 @@ const ROLE_WORKING_PROFILES = {
     ],
     do: [
       "Review the Site Dashboard for school-wide status.",
-      "Open Users & Access to add or remove students, mentors, viewers, and Program Teachers for assigned schools.",
+      "Open People and Assignments to add or remove students, mentors, viewers, and Program Teachers for assigned schools.",
       "Open Students, Operations, Presentation, and Readiness to find who needs staff follow-up.",
     ],
     limits: [
@@ -2416,7 +2416,7 @@ const ROLE_WORKING_PROFILES = {
     ],
     actions: [
       { section: "siteDashboard", label: "Open Site Dashboard", detail: "School-wide progress and needs." },
-      { section: "adminUsers", label: "Open Users & Access", detail: "Students, mentors, viewers, and Program Teachers." },
+      { section: "adminUsers", label: "Open People and Assignments", detail: "Students, mentors, viewers, and Program Teachers." },
       { section: "mentorAssignments", label: "Open Mentor Assignments", detail: "Coverage and assignment workflow." },
       { section: "students", label: "Open Students", detail: "Student directory and follow-up filters." },
       { section: "operations", label: "Open Operations", detail: "Presentation, final-file, and readiness blockers." },
@@ -2444,7 +2444,7 @@ const ROLE_WORKING_PROFILES = {
         title: "Fix People and Access",
         detail: "Use Admin Console when staff, viewer, mentor, Program Teacher, or student access needs correction.",
         section: "adminUsers",
-        action: "Open Users & Access",
+        action: "Open People and Assignments",
       },
       {
         id: "programs",
@@ -2472,7 +2472,7 @@ const ROLE_WORKING_PROFILES = {
     ],
     actions: [
       { section: "siteDashboard", label: "Open Site Dashboard", detail: "School-wide progress and needs." },
-      { section: "adminUsers", label: "Open Users & Access", detail: "Site users and role assignments." },
+      { section: "adminUsers", label: "Open People and Assignments", detail: "Site users and role assignments." },
       { section: "mentorAssignments", label: "Open Mentor Assignments", detail: "Coverage and assignment workflow." },
       { section: "programs", label: "Open Programs", detail: "Programs active at the school." },
       { section: "students", label: "Open Students", detail: "Student detail and filters." },
@@ -2499,7 +2499,7 @@ const ROLE_WORKING_PROFILES = {
         title: "Confirm access changes",
         detail: "Use People and Access for platform, site, staff, viewer, mentor, and student account work.",
         section: "adminUsers",
-        action: "Open Users & Access",
+        action: "Open People and Assignments",
       },
       {
         id: "audit",
@@ -2528,7 +2528,7 @@ const ROLE_WORKING_PROFILES = {
     actions: [
       { section: "adminDashboard", label: "Open Command Center", detail: "Platform risks and quick actions." },
       { section: "siteDashboard", label: "Open Site Dashboard", detail: "Selected school progress and needs." },
-      { section: "adminUsers", label: "Open Users & Access", detail: "Create users and manage access." },
+      { section: "adminUsers", label: "Open People and Assignments", detail: "Create users and manage access." },
       { section: "audit", label: "Open Audit", detail: "Protected activity review." },
       { section: "archiveExports", label: "Open Final Files", detail: "Closeout package status." },
       { section: "readiness", label: "Open Readiness", detail: "Aggregate readiness reports." },
@@ -5199,7 +5199,7 @@ function messageForAdminPasswordResetError(error, status) {
   if (error === "missing_confirmation") return "Check the box to confirm this person will be signed out.";
   if (error === "self_reset_not_allowed") return "You cannot reset the password for the account you are using.";
   if (error === "account_disabled") return "This account is disabled. Restore its access before resetting the password.";
-  if (error === "password_credential_missing") return "This person uses school sign-in, so there is no local password to reset here.";
+  if (error === "password_credential_missing") return "This person uses school sign-in, so their password is managed by the school.";
   if (error === "user_not_in_site" || error === "user_not_found" || status === 404) return "That person is not active in this school.";
   if (status === 403) return "You cannot reset this person’s password. Ask a higher-level admin for help.";
   return "The password reset was not saved. Try again.";

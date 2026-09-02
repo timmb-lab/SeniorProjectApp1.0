@@ -931,7 +931,8 @@ test("workspace reports render accessible shared report bars with mobile fallbac
   assert.match(adminReports, /data-report-export-empty="admin-import-result"/);
   assert.doesNotMatch(visibleText(adminReports), /current admin view|storage links|no IDs/i);
   const rosterCsv = reportExportCsv(adminReports, "admin-roster-completeness");
-  assert.match(rosterCsv, /^Student name,Program,Cohort,Graduation year,Mentor coverage,Viewer coverage,Setup flags/m);
+  assert.match(rosterCsv, /^Student name,Program,Cohort,Graduation year,Mentor coverage,Viewer access \(optional\),Setup flags/m);
+  assert.match(rosterCsv, /,Assigned,/);
   assert.match(rosterCsv, /Missing Mentor Demo 001/);
   assert.doesNotMatch(rosterCsv, /studentId|userId|storage|adminNote|temporaryPassword|demo-student-/i);
   const setupCsv = reportExportCsv(adminReports, "admin-setup-issues");
@@ -1729,7 +1730,7 @@ test("workspace explains who can see screen information", async () => {
   const adminUsers = await renderWorkspaceWithFetch(profileRoutesForRole("site_admin"), "adminUsers");
   assert.match(adminUsers, /data-screen-visibility-guide="adminUsers"/);
   assert.match(adminUsers, /data-visibility-note="authorized-account-staff" data-visibility-note-state="staff"/);
-  assert.match(adminUsers, /Users &amp; Access is for staff approved to manage accounts for the selected school or platform\./);
+  assert.match(adminUsers, /People and Assignments is for staff approved to manage accounts for the selected school or platform\./);
   assert.match(adminUsers, /data-visibility-note="setup-passwords" data-visibility-note-state="private"/);
   assert.match(adminUsers, /Temporary setup passwords are sensitive handoffs and should only be shared through the school-approved process\./);
 
@@ -5834,6 +5835,8 @@ test("workspace renders site-scoped Mentor Assignments with role-safe assignment
   assert.match(siteAdmin, /data-mentor-unassigned-list="true"/);
   assert.match(siteAdmin, /data-mentor-coverage-list="true"/);
   assert.match(siteAdmin, /data-mentor-active-assignments="true"/);
+  assert.match(siteAdmin, /data-mentor-assignment-supporting="mentor-load"[\s\S]*Show mentor load and current assignments/);
+  assert.doesNotMatch(siteAdmin, /data-mentor-assignment-supporting="mentor-load"[^>]*\sopen(?:\s|>)/);
   assert.match(siteAdmin, /data-mentor-assignment-wizard="true"/);
   assert.match(siteAdmin, /Assign one student at a time/);
   assert.match(siteAdmin, /Start with[\s\S]*Missing Mentor Demo 001/);
@@ -7583,18 +7586,20 @@ test("admin console surfaces setup reasons across overview people students and r
   assert.match(overview, /Roster profile incomplete/);
   assert.match(overview, /Staff access needs confirmation/);
   assert.match(overview, /CSV preview needs fixes/);
-  assert.match(overview, /data-admin-setup-readiness-row="students"[\s\S]*Student roster setup[\s\S]*1 profile, 1 program, 17 mentor, 1 viewer gaps/);
-  assert.match(overview, /No Year Student: Missing cohort\/year, No mentor, No viewer/);
-  assert.match(overview, /data-admin-setup-readiness-row="staff"[\s\S]*Orphan Mentor: Missing email, No mentor students/);
+  assert.match(overview, /data-admin-setup-readiness-row="students"[\s\S]*Student roster setup[\s\S]*1 profile, 1 program, and 17 mentor gaps/);
+  assert.match(overview, /No Year Student: Missing cohort\/year, No mentor/);
+  assert.doesNotMatch(overview, /Viewer access unassigned|No viewer/);
+  assert.match(overview, /data-admin-setup-readiness-row="staff"[\s\S]*Orphan Mentor: Missing email/);
+  assert.doesNotMatch(overview, /No mentor students|No viewer students/);
   assert.match(overview, /data-admin-setup-readiness-row="imports"[\s\S]*Student CSV: 0 valid \/ 1 to fix/);
 
   vm.runInContext('activeSection = "adminStudents"; adminPeopleView = "manage-students"; renderAppShell();', context);
   const students = workspaceRoot.innerHTML;
   assert.match(students, /data-admin-page-header="true" data-admin-page-section="adminStudents"/);
   assert.match(students, /data-admin-action-menu="adminStudents"[\s\S]*aria-label="More student actions menu for Students"[\s\S]*More student actions[\s\S]*Import students[\s\S]*Download student template/);
-  assert.match(students, /data-people-scope-summary="true"[\s\S]*Can create[\s\S]*Student, Mentor, Viewer, Program Teacher, School Admin[\s\S]*Platform owner[\s\S]*Required for Global Admin accounts/);
+  assert.match(students, /data-people-scope-summary="true"[\s\S]*Can create[\s\S]*Student, Mentor, Viewer, Program Teacher, School Admin[\s\S]*Global Admin[\s\S]*Only a Global Admin can create this role/);
   assert.doesNotMatch(visibleText(students), /Allowed roles|Not available from this account/i);
-  assert.match(students, /data-admin-student-setup-summary="true"[\s\S]*Students visible[\s\S]*Roster fields[\s\S]*Mentor gaps[\s\S]*Viewer gaps/);
+  assert.match(students, /data-admin-student-setup-summary="true"[\s\S]*Students visible[\s\S]*Roster fields[\s\S]*Mentor gaps[\s\S]*Viewer access \(optional\)/);
   assert.match(students, /data-admin-student-first-action="[^"]+"[\s\S]*(Review first|Current roster state)/);
   assert.match(students, /data-admin-directory="students"[\s\S]*Find a student account[\s\S]*data-admin-directory-search="students"/);
   assertMarkupOrder(
@@ -7614,14 +7619,15 @@ test("admin console surfaces setup reasons across overview people students and r
   assert.match(students, /data-admin-more-menu="student-student-needs-setup"[\s\S]*Reset password/);
   assert.match(students, /data-admin-setup-flag="profile"[\s\S]*Missing cohort\/year/);
   assert.match(students, /data-admin-setup-flag="mentor"[\s\S]*No mentor/);
-  assert.match(students, /data-admin-setup-flag="viewer"[\s\S]*No viewer/);
+  assert.doesNotMatch(students, /data-admin-setup-flag="viewer"|No viewer/);
 
   vm.runInContext('activeSection = "adminAssignments"; adminPeopleView = "assignments"; renderAppShell();', context);
   const assignments = workspaceRoot.innerHTML;
   assert.match(assignments, /data-admin-page-header="true" data-admin-page-section="adminAssignments"/);
   assert.match(assignments, /data-admin-assignment-flow="true" data-admin-assignment-flow-first="mentor"/);
   assert.match(assignments, /data-admin-assignment-flow-lane="mentor"[\s\S]*Assign mentor coverage[\s\S]*Open mentor form/);
-  assert.match(assignments, /data-admin-assignment-flow-lane="viewer"[\s\S]*Assign viewer access/);
+  assert.match(assignments, /data-admin-assignment-flow-lane="viewer"[\s\S]*Add optional viewer access[\s\S]*Open viewer form/);
+  assert.match(assignments, /Viewer Access \(Optional\)[\s\S]*Read-only access; add only when needed/);
   assert.match(assignments, /data-admin-assignment-flow-lane="program-teacher"[\s\S]*Program Teacher coverage/);
   assert.match(assignments, /data-admin-directory="site-accounts"[\s\S]*Find an account[\s\S]*data-admin-directory-search="site-accounts"/);
 
@@ -7638,9 +7644,9 @@ test("admin console surfaces setup reasons across overview people students and r
   assert.doesNotMatch(people, /data-admin-action-menu="adminPeople"[\s\S]<summary aria-label="Actions menu for People">Actions<\/summary>/);
   assert.match(people, /Staff Directory[\s\S]*Add people who help with projects[\s\S]*only see schools you can manage/);
   assert.doesNotMatch(visibleText(people), /inside the current view/i);
-  assert.match(people, /data-people-scope-summary="true"[\s\S]*Can create[\s\S]*Student, Mentor, Viewer, Program Teacher, School Admin[\s\S]*Platform owner[\s\S]*Required for Global Admin accounts/);
+  assert.match(people, /data-people-scope-summary="true"[\s\S]*Can create[\s\S]*Student, Mentor, Viewer, Program Teacher, School Admin[\s\S]*Global Admin[\s\S]*Only a Global Admin can create this role/);
   assert.doesNotMatch(visibleText(people), /Allowed roles|Not available from this account/i);
-  assert.match(people, /data-admin-staff-setup-summary="true"[\s\S]*Staff visible[\s\S]*Needs setup[\s\S]*Coverage gaps/);
+  assert.match(people, /data-admin-staff-setup-summary="true"[\s\S]*Staff visible[\s\S]*Needs setup[\s\S]*Required coverage gaps/);
   assert.match(people, /data-admin-staff-first-action="[^"]+"[\s\S]*(Review first|Current staff state)/);
   assert.match(people, /data-admin-directory="staff"[\s\S]*Find a staff account[\s\S]*data-admin-directory-search="staff"/);
   assert.match(people, /data-manage-staff-row="mentor-no-scope" data-manage-staff-setup="needs-review"/);
@@ -7648,7 +7654,7 @@ test("admin console surfaces setup reasons across overview people students and r
   assert.match(people, /data-admin-more-menu="staff-mentor-no-scope"[\s\S]*Reset password/);
   assert.doesNotMatch(people, /data-admin-more-menu="staff-mentor-no-scope"[\s\S]*View recent changes/);
   assert.match(people, /data-admin-setup-flag="email"[\s\S]*Missing email/);
-  assert.match(people, /data-admin-setup-flag="mentor-scope"[\s\S]*No mentor students/);
+  assert.doesNotMatch(people, /data-admin-setup-flag="mentor-scope"|data-admin-setup-flag="viewer-scope"|No mentor students|No viewer students/);
 
   vm.runInContext('activeSection = "adminImports"; adminPeopleView = "import-students"; renderAppShell();', context);
   const imports = workspaceRoot.innerHTML;
@@ -10094,7 +10100,7 @@ test("workspace renders self-service password rotation controls", async () => {
   assert.match(security, /Current password ready/);
   assert.match(security, /New password typed twice/);
   assert.match(security, /other active sessions for this account are closed/);
-  assert.match(security, /data-security-signin-mode="true"[\s\S]*Local only[\s\S]*Current account only/);
+  assert.match(security, /data-security-signin-mode="true"[\s\S]*Email and password[\s\S]*Current account only/);
   assert.match(security, /data-security-session-impact="true"[\s\S]*Other sessions close[\s\S]*Return to your workspace/);
   assert.match(security, /data-security-support-guide="true"[\s\S]*When to ask for help[\s\S]*Forgot current password[\s\S]*My Work looks wrong[\s\S]*Proof or feedback issue/);
   assert.match(security, /Use My Work for project files and teacher feedback/);
@@ -10108,11 +10114,11 @@ test("workspace renders self-service password rotation controls", async () => {
     localLoginEnabled: true,
   };
   const googleStudentSecurity = await renderWorkspaceWithFetch(googleStudentRoutes, "security");
-  assert.match(googleStudentSecurity, /data-security-action-map-card="sign-in"[\s\S]*Google sign-in \+ local/);
-  assert.match(googleStudentSecurity, /Google sign-in is available; local password changes only affect this app&#039;s local password/);
-  assert.match(googleStudentSecurity, /If you use Google sign-in, ask staff before changing a local password you do not use/);
-  assert.match(googleStudentSecurity, /data-security-signin-mode="true"[\s\S]*Google sign-in \+ local/);
-  assert.doesNotMatch(googleStudentSecurity, /Google SSO|SSO \+ local|local credentials/);
+  assert.match(googleStudentSecurity, /data-security-action-map-card="sign-in"[\s\S]*School sign-in or email/);
+  assert.match(googleStudentSecurity, /School sign-in is available\. Ask staff which sign-in button your school uses/);
+  assert.match(googleStudentSecurity, /If your school signs you in, ask staff before changing a password you do not use/);
+  assert.match(googleStudentSecurity, /data-security-signin-mode="true"[\s\S]*School sign-in or email/);
+  assert.doesNotMatch(googleStudentSecurity, /Google SSO|SSO \+ local|local credentials|local password/);
 
   const adminSecurity = await renderWorkspaceWithFetch(profileRoutesForRole("global_admin"), "security");
   assert.match(adminSecurity, /<strong>Security<\/strong>/);
@@ -10121,7 +10127,7 @@ test("workspace renders self-service password rotation controls", async () => {
   assert.match(adminSecurity, /data-security-action-map-card="users"[\s\S]*data-section="adminUsers"[\s\S]*Open users/);
   assert.match(adminSecurity, /data-security-action-map-card="audit"[\s\S]*data-section="audit"[\s\S]*Open audit/);
   assert.match(adminSecurity, /data-security-session-impact="true"[\s\S]*Admin work continues after sign-in/);
-  assert.match(adminSecurity, /data-security-support-guide="true"[\s\S]*Other users need Users &amp; Access[\s\S]*Audit activity belongs in Audit/);
+  assert.match(adminSecurity, /data-security-support-guide="true"[\s\S]*Other users need People and Assignments[\s\S]*Audit activity belongs in Audit/);
   assert.doesNotMatch(adminSecurity, /data-student-account-path="true"|Use Account in this order/);
 });
 
@@ -10591,7 +10597,7 @@ test("workspace renders admin import controls and one-time setup output", async 
   assert.match(adminUsers, /data-users-access-action-map-card="scope"[\s\S]*School[\s\S]*1 school[\s\S]*Confirm the current school[\s\S]*data-section="siteDashboard"[\s\S]*Review school/);
   assert.match(adminUsers, /data-users-access-action-map-card="role"[\s\S]*Smallest role[\s\S]*7 roles[\s\S]*Pick the smallest role[\s\S]*data-users-access-focus="create"[\s\S]*Pick role/);
   assert.match(adminUsers, /data-users-access-action-map-card="current-access"[\s\S]*Current access[\s\S]*4 active[\s\S]*Check active access first[\s\S]*data-users-access-focus="current-access"[\s\S]*Review access/);
-  assert.match(adminUsers, /data-users-access-action-map-card="create"[\s\S]*Account setup[\s\S]*Local[\s\S]*Create with handoff ready[\s\S]*data-users-access-focus="preflight"[\s\S]*Open preflight/);
+  assert.match(adminUsers, /data-users-access-action-map-card="create"[\s\S]*Account setup[\s\S]*School account[\s\S]*Create with handoff ready[\s\S]*data-users-access-focus="preflight"[\s\S]*Open preflight/);
   assert.match(adminUsers, /data-users-access-action-map-card="assign"[\s\S]*School grants[\s\S]*3 forms[\s\S]*Assign one area at a time[\s\S]*data-users-access-focus="assignment-forms"[\s\S]*Open forms/);
   assert.match(adminUsers, /data-users-access-action-map-card="remove"[\s\S]*Removal safety[\s\S]*5 removable[\s\S]*Read removal impact first[\s\S]*data-users-access-focus="removal"[\s\S]*Review warning/);
   assert.match(adminUsers, /data-users-access-action-map-card="history"[\s\S]*Access history[\s\S]*2 changes[\s\S]*Review recent changes[\s\S]*data-workspace-disclosure-scope="usersAccess"[\s\S]*data-workspace-disclosure-id="history"[\s\S]*Open changes/);
@@ -11898,7 +11904,7 @@ test("workspace keeps admin import setup output memory-only and gates non-admin 
   }, "adminUsers");
 
   assert.match(nonAdminImport, /data-workspace-state="permission-denied"/);
-  assert.match(nonAdminImport, /Access to Users &amp; Access is limited/);
+  assert.match(nonAdminImport, /Access to People &amp; Assignments is limited/);
   assert.doesNotMatch(nonAdminImport, /data-admin-action="import-users"/);
 });
 
@@ -14002,6 +14008,27 @@ test("project directory renders one paged worklist, one focused detail, and one 
   }, { canManage: true, canOpenReviewQueue: false })`, schoolAdminContext.context);
   assert.doesNotMatch(schoolAdminProject, /Review this project|data-project-action="review"/);
   assert.match(schoolAdminProject, /Open project/);
+
+  const siteAdminReviewProject = vm.runInContext(`renderProjectCard({
+    projectId: "project-review",
+    name: "Project waiting for review",
+    members: [{ studentId: "student-1", displayName: "Jordan Student" }],
+    waitingForReviewCount: 1,
+    nextSubmissionId: "submission-1",
+    adultSetup: { ready: true }
+  }, { canManage: true, canOpenReviewQueue: true, canMakeReviewDecision: false })`, context);
+  assert.match(siteAdminReviewProject, /data-project-action="review"[\s\S]*Open review details/);
+  assert.doesNotMatch(siteAdminReviewProject, />Review this project</);
+
+  const reviewerProject = vm.runInContext(`renderProjectCard({
+    projectId: "project-review",
+    name: "Project waiting for review",
+    members: [{ studentId: "student-1", displayName: "Jordan Student" }],
+    waitingForReviewCount: 1,
+    nextSubmissionId: "submission-1",
+    adultSetup: { ready: true }
+  }, { canManage: false, canOpenReviewQueue: true, canMakeReviewDecision: true })`, context);
+  assert.match(reviewerProject, /data-project-action="review"[\s\S]*Review this project/);
   assert.match(workspaceJs, /details\.workspace-project-card\[data-project-id=/);
 
   const picker = vm.runInContext(`renderProjectTeamPicker([
@@ -14145,6 +14172,29 @@ test("School Admin reports keep the full readiness dashboard behind one clear ch
   assert.match(workspaceRoot.innerHTML, /data-staff-report-supporting="readiness"[\s\S]*Open the full readiness dashboard/);
   assert.match(workspaceRoot.innerHTML, /current visible project page only/);
   assert.match(workspaceRoot.innerHTML, /current visible student page only/);
+});
+
+test("Site Admin reports keep charts and readiness behind clear choices", async () => {
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch(profileRoutesForRole("site_admin"));
+  vm.runInContext('activeSection = "staffReports"; renderAppShell();', context);
+  assert.match(workspaceRoot.innerHTML, /data-staff-reports="true"/);
+  assert.match(workspaceRoot.innerHTML, /data-staff-report-supporting="counts-and-downloads"[\s\S]*Open charts and downloads/);
+  assert.match(workspaceRoot.innerHTML, /data-staff-report-supporting="readiness"[\s\S]*Open the full readiness dashboard/);
+  assert.match(workspaceRoot.innerHTML, /The assigned reviewer saves the decision/);
+});
+
+test("Site Admin student detail points review work to the assigned reviewer", async () => {
+  const { context } = await createWorkspaceContextWithFetch(profileRoutesForRole("site_admin"));
+  const plan = JSON.parse(vm.runInContext(`JSON.stringify(studentDetailCasePlan({
+    student: { latestSubmissionStatus: "submitted" },
+    progress: {},
+    mentor: { active: true, mentorName: "Morgan Mentor" },
+    submissions: [{ id: "submission-1", status: "submitted", requirementTitle: "Proposal" }],
+    reviews: []
+  }, { readOnly: false }))`, context));
+  assert.equal(plan.owner, "Program Teacher");
+  assert.match(plan.nextAction, /The assigned reviewer saves the decision/);
+  assert.doesNotMatch(plan.nextAction, /record one decision/);
 });
 
 test("program teacher student search opens the student directory directly", async () => {
