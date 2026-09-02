@@ -3,8 +3,8 @@
   "verdict": "GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF",
   "baseUrl": "https://thecapstoneproject.com",
   "workspaceEntryPath": "/workspace",
-  "startedAt": "2026-09-02T19:49:53.302Z",
-  "completedAt": "2026-09-02T19:52:05.616Z",
+  "startedAt": "2026-09-02T20:27:59.317Z",
+  "completedAt": "2026-09-02T20:30:21.225Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
@@ -141,7 +141,7 @@
         "secretPatternMatches": []
       },
       "heading": "Your next check-in",
-      "textSample": "Skip to workspace Maya Senior Project READY / MENTOR Tools Mentor ROLE TM Test Mentor Rivera rivera.mentor@senior-capstone.test SC Capstone Staff Workspace MAYA SENIOR PROJECT Projects Projects › Work queue Today › Reviews Reports Reports › TM Test Mentor Rivera Mentor MENTOR Your next check-in Help one student move one project step forward. mentor assigned 1 assigned START HERE · TEST STUDENT MAYA Maya Senior Project A check-in is missing, missed, or needs make-up status. Needs me first 1 assigned 1 ASK When is your next mentor check-in, and what decision do you need from it? 2 HELP Update th",
+      "textSample": "Skip to workspace Maya Senior Project READY / MENTOR Tools Mentor ROLE TM Test Mentor Rivera rivera.mentor@senior-capstone.test SC Capstone Staff Workspace MAYA SENIOR PROJECT Projects Projects › Work queue Today › Work to review People Assigned students › Reports Reports › TM Test Mentor Rivera Mentor MENTOR Your next check-in Help one student move one project step forward. mentor assigned 1 assigned START HERE · TEST STUDENT MAYA Maya Senior Project A check-in is missing, missed, or needs make-up status. Needs me first 1 assigned 1 ASK When is your next mentor check-in, and what decision do ",
       "activeNav": []
     },
     {

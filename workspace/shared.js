@@ -1075,10 +1075,10 @@ function renderMentorDashboardFocusedStudent(row = {}, activeFilter = "all", tot
         <summary>More about this project</summary>
         <div class="workspace-chip-row workspace-mentor-compact-chips" data-mentor-dashboard-compact-signals="true">
           ${statusPill(row.submissionStatus || "not_started")}
-          ${attention.slice(0, 3).map((item) => `<span class="workspace-story-chip">${escapeHtml(statusText(item))}</span>`).join("")}
+          ${attention.slice(0, 3).map((item) => `<span class="workspace-story-chip">${escapeHtml(mentorDashboardAttentionLabel(item))}</span>`).join("")}
           ${safeNumber(row.evidenceCount) ? `<span class="workspace-site-context-badge">${escapeHtml(safeNumber(row.evidenceCount))} work ${pluralize(safeNumber(row.evidenceCount), "link")}</span>` : ""}
         </div>
-        ${isMentorDashboardRevisionSinceLastMeeting(row) ? `<p class="workspace-muted" data-mentor-revision-since-meeting="true">Revision since last meeting: compare the Program Teacher request with the newest proof before the next check-in.</p>` : ""}
+        ${isMentorDashboardRevisionSinceLastMeeting(row) ? `<p class="workspace-muted" data-mentor-revision-since-meeting="true">Revision since last meeting: compare the teacher's request with the newest work link before the next check-in.</p>` : ""}
         ${studentId ? `
           <div class="workspace-row-actions workspace-mentor-focus-actions">
             <button class="workspace-link-button workspace-link-button-small" type="button" data-mentor-dashboard-action="open-student" data-mentor-dashboard-student-id="${escapeHtml(studentId)}">Open student details</button>
@@ -1114,8 +1114,8 @@ function renderMentorStudentCards(rows = []) {
               <p class="workspace-muted" data-mentor-dashboard-summary="true">${escapeHtml(mentorDashboardCompactSummary(row, attention))}</p>
               <div class="workspace-chip-row workspace-mentor-compact-chips" data-mentor-dashboard-compact-signals="true">
                 ${statusPill(row.submissionStatus || "not_started")}
-                ${attention.slice(0, 2).map((item) => `<span class="workspace-story-chip">${escapeHtml(statusText(item))}</span>`).join("")}
-                ${safeNumber(row.evidenceCount) ? `<span class="workspace-site-context-badge">${escapeHtml(safeNumber(row.evidenceCount))} evidence</span>` : ""}
+                ${attention.slice(0, 2).map((item) => `<span class="workspace-story-chip">${escapeHtml(mentorDashboardAttentionLabel(item))}</span>`).join("")}
+                ${safeNumber(row.evidenceCount) ? `<span class="workspace-site-context-badge">${escapeHtml(safeNumber(row.evidenceCount))} work ${pluralize(safeNumber(row.evidenceCount), "link")}</span>` : ""}
               </div>
             </div>
             <div class="workspace-row-actions">
@@ -1164,7 +1164,7 @@ function renderMentorDashboardActionMap(rows = [], filteredRows = [], activeFilt
       label: "Revision follow-up",
       value: `${revisionRows.length} ${pluralize(revisionRows.length, "student")}`,
       detail: revisionSinceMeetingRows.length
-        ? "Compare the Program Teacher request with proof added after the last check-in."
+        ? "Compare the teacher's request with the work link added after the last check-in."
         : "Open when Program Teacher feedback says the student must fix work.",
       tone: revisionRows.length ? "revision" : "quiet",
       filter: "revision",
@@ -1264,7 +1264,7 @@ function renderMentorDashboardQueueGuide(rows = [], activeFilter = "all") {
         <span><b>${escapeHtml(presentationRows.length)}</b> presentation risk</span>
       </div>
       ${revisionSinceMeetingRows.length ? `
-        <p class="workspace-muted" data-mentor-revision-since-meeting="true">Revision since last meeting: compare the Program Teacher request with the newest proof before the next check-in.</p>
+        <p class="workspace-muted" data-mentor-revision-since-meeting="true">Revision since last meeting: compare the teacher's request with the newest work link before the next check-in.</p>
       ` : ""}
     </section>
   `;
@@ -1318,7 +1318,7 @@ function mentorDashboardPriority(row = {}, attention = []) {
       key: "revision",
       label: "Needs me first",
       detail: changedAfterMeeting
-        ? "Revision changed since the last mentor check-in. Compare the Program Teacher request with the new proof."
+        ? "Revision changed since the last mentor check-in. Compare the teacher's request with the new work link."
         : "Revision is open. Check what changed since the last mentor conversation.",
     };
   }
@@ -1358,19 +1358,19 @@ function renderMentorDashboardRowDetails(row = {}, attention = [], recentActivit
         ${renderMentorDashboardSignal("Meeting", statusText(meetingStatus))}
         ${renderMentorDashboardSignal("Presentation", statusText(presentationStatus))}
         ${renderMentorDashboardSignal("Outline", statusText(outlineStatus))}
-        ${renderMentorDashboardSignal("Evidence", `${safeNumber(row.evidenceCount)} item${safeNumber(row.evidenceCount) === 1 ? "" : "s"}`)}
+        ${renderMentorDashboardSignal("Work links", `${safeNumber(row.evidenceCount)} item${safeNumber(row.evidenceCount) === 1 ? "" : "s"}`)}
       </div>
       <p class="workspace-muted" data-mentor-dashboard-detail-priority="true">${escapeHtml(`${priority.label}: ${priority.detail}`)}</p>
       ${isMentorDashboardRevisionSinceLastMeeting(row) ? `
         <section class="workspace-mentor-revision-followup" data-mentor-revision-followup="true">
           <strong>Revision since the last mentor meeting</strong>
-          <p>Read the teacher note. Check the newest proof. Write what the student will fix before the next review.</p>
+          <p>Read the teacher note. Check the newest work link. Write what the student will fix before the next review.</p>
         </section>
       ` : ""}
       ${recentActivity ? `<p class="workspace-muted" data-mentor-dashboard-activity="true">${escapeHtml(recentActivity)}</p>` : ""}
       <p class="workspace-muted" data-mentor-dashboard-next-step="true">${escapeHtml(mentorDashboardNextStep(row, attention))}</p>
       <p class="workspace-muted" data-mentor-dashboard-question="true"><strong>Ask next:</strong> ${escapeHtml(mentorDashboardSuggestedQuestion(row, attention))}</p>
-      ${attention.length ? `<p class="workspace-muted">${escapeHtml(attention.map(statusText).join(", "))}</p>` : ""}
+      ${attention.length ? `<p class="workspace-muted">${escapeHtml(attention.map(mentorDashboardAttentionLabel).join(", "))}</p>` : ""}
       ${row.studentId ? `
         <div class="workspace-row-actions workspace-density-action-row">
           <button class="workspace-link-button workspace-link-button-small" type="button" data-mentor-dashboard-action="open-meetings" data-mentor-dashboard-student-id="${escapeHtml(row.studentId)}">
@@ -1573,6 +1573,14 @@ function mentorDashboardAttentionRank(row = {}) {
   return 3;
 }
 
+function mentorDashboardAttentionLabel(value) {
+  const normalized = normalizeStatus(value);
+  if (normalized === "mentor_meeting") return "Check-in due";
+  if (normalized === "presentation") return "Presentation not ready";
+  if (normalized === "revision_requested" || normalized === "revision") return "Teacher changes";
+  return statusText(value);
+}
+
 function renderMentorDashboardSignal(label, value) {
   return `
     <span>
@@ -1598,7 +1606,7 @@ function mentorDashboardRecentActivity(row = {}) {
 
 function mentorDashboardNextStep(row = {}, attention = []) {
   if (isMentorDashboardRevisionRow(row)) {
-    return "Open the student detail, compare the revision request with recent proof, and plan the next check-in.";
+    return "Open the student details. Read the teacher's note and the newest work link. Then plan the next check-in.";
   }
   if (attention.includes("mentor_meeting")) {
     return "Update the mentor meeting plan or make-up status before the next check-in.";
@@ -1606,12 +1614,12 @@ function mentorDashboardNextStep(row = {}, attention = []) {
   if (attention.includes("presentation")) {
     return "Check outline and presentation readiness with this student.";
   }
-  return "Keep monitoring progress and open detail when you need more context.";
+  return "Open the student details when you need to plan the next check-in.";
 }
 
 function mentorDashboardSuggestedQuestion(row = {}, attention = []) {
   if (isMentorDashboardRevisionRow(row)) {
-    return "What exactly did your Program Teacher ask you to change, and what proof will show the fix?";
+    return "What did your teacher ask you to change, and which work link shows the fix?";
   }
   if (attention.includes("mentor_meeting") || isMentorDashboardMeetingRow(row)) {
     return "When is your next mentor check-in, and what decision do you need from it?";
@@ -1619,7 +1627,7 @@ function mentorDashboardSuggestedQuestion(row = {}, attention = []) {
   if (attention.includes("presentation") || isMentorDashboardPresentationRow(row)) {
     return "Is your outline approved, and what still needs to be scheduled before presentation practice?";
   }
-  return "What is the next Senior Project item your Program Teacher has approved for you?";
+  return "What is the next project item your teacher said you can start?";
 }
 
 function safeNumber(value) {

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { onRequestGet } from "../functions/api/mentor/dashboard.ts";
+import { onRequestGet as onMentorAssignedGet } from "../functions/api/mentor/assigned.ts";
 import { buildRequest, readAuditActions, seedSession, seedUser } from "./helpers/auth-fixtures.mjs";
 import { createSqliteD1, foundationMigrations } from "./helpers/d1-sqlite.mjs";
 
@@ -50,6 +51,20 @@ test("mentor dashboard returns active assignments only and supports admin inspec
     assert.equal(JSON.stringify(body).includes("Student B"), false);
     assert.equal(JSON.stringify(body).includes("Student C"), false);
     assert.doesNotMatch(JSON.stringify(body), /drive_file_id|drive_parent_folder_id|storage_key|password|token|secret/i);
+  }
+
+  {
+    const response = await onMentorAssignedGet({
+      request: buildRequest("https://example.test/api/mentor/assigned", tokens.mentorA),
+      env,
+    });
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.assignedStudents.length, 1, "one assigned student must not repeat for each saved submission");
+    assert.equal(body.assignedStudents[0].studentId, "student-a");
+    assert.equal(body.assignedStudents[0].submissionId, "sub-a");
+    assert.equal(body.assignedStudents[0].submissionStatus, "revision_requested");
+    assert.equal(body.assignedStudents[0].evidenceCount, 1);
   }
 
   {
@@ -103,6 +118,7 @@ async function createFixture() {
   await db.prepare("INSERT INTO mentor_assignments (id, mentor_user_id, student_user_id, active) VALUES ('assign-c', 'mentor-b', 'student-c', 1)").run();
   await db.prepare("INSERT INTO requirements (id, phase, title) VALUES ('req-proposal', 'proposal', 'Core Proposal')").run();
   await db.prepare("INSERT INTO submissions (id, student_id, requirement_id, status, updated_at) VALUES ('sub-a', 'student-a', 'req-proposal', 'revision_requested', '2026-05-21T08:00:00.000Z')").run();
+  await db.prepare("INSERT INTO submissions (id, student_id, requirement_id, status, updated_at) VALUES ('sub-a-older', 'student-a', 'req-proposal', 'draft', '2026-05-20T08:00:00.000Z')").run();
   await db.prepare("INSERT INTO submissions (id, student_id, requirement_id, status, updated_at) VALUES ('sub-b', 'student-b', 'req-proposal', 'submitted', '2026-05-21T08:05:00.000Z')").run();
   await db.prepare("INSERT INTO submissions (id, student_id, requirement_id, status, updated_at) VALUES ('sub-c', 'student-c', 'req-proposal', 'approved', '2026-05-21T08:10:00.000Z')").run();
   await db.prepare("INSERT INTO evidence_artifacts (id, student_id, submission_id, artifact_type, source_kind, drive_file_id, title) VALUES ('ev-a', 'student-a', 'sub-a', 'reflection', 'google_drive_file', 'drive-secret-a', 'Evidence A')").run();

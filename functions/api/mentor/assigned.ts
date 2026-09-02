@@ -22,18 +22,30 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
        student.id AS student_id,
        student.display_name AS student_name,
        mentor_assignments.id AS assignment_id,
-       submissions.id AS submission_id,
-       submissions.status AS submission_status,
-       COUNT(evidence.id) AS evidence_count
+       (
+         SELECT submissions.id
+         FROM submissions
+         WHERE submissions.student_id = student.id
+         ORDER BY submissions.updated_at DESC, submissions.id DESC
+         LIMIT 1
+       ) AS submission_id,
+       (
+         SELECT submissions.status
+         FROM submissions
+         WHERE submissions.student_id = student.id
+         ORDER BY submissions.updated_at DESC, submissions.id DESC
+         LIMIT 1
+       ) AS submission_status,
+       (
+         SELECT COUNT(*)
+         FROM evidence_artifacts
+         WHERE evidence_artifacts.student_id = student.id
+           AND evidence_artifacts.deleted_at IS NULL
+       ) AS evidence_count
      FROM mentor_assignments
      JOIN user_accounts student ON student.id = mentor_assignments.student_user_id
-     LEFT JOIN submissions ON submissions.student_id = student.id
-     LEFT JOIN evidence_artifacts evidence
-       ON evidence.student_id = student.id
-      AND evidence.deleted_at IS NULL
      WHERE mentor_assignments.mentor_user_id = ?
        AND mentor_assignments.active = 1
-     GROUP BY mentor_assignments.id, submissions.id
      ORDER BY student.display_name ASC`,
   ).bind(user.id).all<AssignedStudentRow>();
 

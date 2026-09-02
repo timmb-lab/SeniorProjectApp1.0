@@ -1118,22 +1118,57 @@ async function loadProgress(env: Env, studentId: string, programId: string | nul
        (
          SELECT COUNT(*)
          FROM requirements
-         WHERE (? = '' OR requirements.program_id = ? OR requirements.program_id IS NULL)
+         WHERE requirements.required = 1
+           AND (? = '' OR requirements.program_id = ? OR requirements.program_id IS NULL)
        ) AS requirements_total,
        (
          SELECT COUNT(DISTINCT progress_records.requirement_id)
          FROM progress_records
+         INNER JOIN requirements
+           ON requirements.id = progress_records.requirement_id
          WHERE progress_records.student_id = ?
-          AND progress_records.status IN ('submitted', 'approved', 'archived')
+           AND progress_records.status IN ('approved', 'archived')
+           AND requirements.required = 1
+           AND (? = '' OR requirements.program_id = ? OR requirements.program_id IS NULL)
        ) AS requirements_complete,
        (
-         SELECT progress_records.phase
-         FROM progress_records
-         WHERE progress_records.student_id = ?
-         ORDER BY progress_records.updated_at DESC
+         SELECT requirements.phase
+         FROM requirements
+         WHERE requirements.required = 1
+           AND (? = '' OR requirements.program_id = ? OR requirements.program_id IS NULL)
+           AND NOT EXISTS (
+             SELECT 1
+             FROM progress_records
+             WHERE progress_records.student_id = ?
+               AND progress_records.requirement_id = requirements.id
+               AND progress_records.status IN ('approved', 'archived')
+           )
+         ORDER BY
+           CASE requirements.phase
+             WHEN 'start' THEN 1
+             WHEN 'phase-1' THEN 2
+             WHEN 'phase-2a' THEN 3
+             WHEN 'phase-2b' THEN 4
+             WHEN 'phase-3a' THEN 5
+             WHEN 'phase-3b' THEN 6
+             WHEN 'phase-4' THEN 7
+             WHEN 'finish' THEN 8
+             ELSE 99
+           END,
+           requirements.sort_order,
+           requirements.title
          LIMIT 1
        ) AS current_stage`,
-  ).bind(programId || "", programId || "", studentId, studentId).first<ProgressCountRow>();
+  ).bind(
+    programId || "",
+    programId || "",
+    studentId,
+    programId || "",
+    programId || "",
+    programId || "",
+    programId || "",
+    studentId,
+  ).first<ProgressCountRow>();
   const requirementsTotal = Number(row?.requirements_total || 0);
   const requirementsComplete = Math.min(Number(row?.requirements_complete || 0), requirementsTotal || Number(row?.requirements_complete || 0));
   const percentComplete = requirementsTotal > 0 ? Math.round((requirementsComplete / requirementsTotal) * 100) : 0;
@@ -1142,7 +1177,7 @@ async function loadProgress(env: Env, studentId: string, programId: string | nul
     requirementsTotal,
     requirementsComplete,
     percentComplete,
-    currentStage: row?.current_stage || "proposal",
+    currentStage: row?.current_stage || "finish",
     blockedReasons,
     nextAction: blockedReasons.length ? "Resolve the visible blockers before closeout." : "Continue the next capstone milestone.",
   };

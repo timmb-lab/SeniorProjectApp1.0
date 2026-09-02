@@ -175,8 +175,15 @@ test("site student detail and timeline are scoped, bounded, role-aware, and reda
   assert.deepEqual(teacherDenied.body, { error: "not_found" });
 
   const mentorAssignedStudent = await findAssignedStudentForMentor(env, "demo-mentor-001");
+  await db.prepare("DELETE FROM progress_records WHERE student_id = ?").bind(mentorAssignedStudent.id).run();
+  await db.prepare(
+    `INSERT INTO progress_records (id, student_id, requirement_id, phase, status, updated_at)
+     VALUES ('mentor-work-ahead-progress', ?, 'req-reflection-next-year-plan', 'phase-4', 'in_progress', '2026-05-29T12:00:00.000Z')`,
+  ).bind(mentorAssignedStudent.id).run();
   const mentor = await expectDetail(env, tokens.mentor, mentorAssignedStudent.id, `?siteId=${PRIMARY_SITE_ID}`);
   assert.equal(mentor.scope.role, "mentor");
+  assert.equal(mentor.progress.requirementsComplete, 0);
+  assert.equal(mentor.progress.currentStage, "start");
   assert.equal(mentor.visibility.staffOnlyComments, "omitted");
   assert.equal(mentor.mentorAssignmentHistory.every((assignment) => !assignment.assignedByName), true);
   for (const key of MUTATION_PERMISSION_KEYS) assert.equal(mentor.permissions[key], false, `mentor ${key}`);

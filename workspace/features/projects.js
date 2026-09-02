@@ -77,6 +77,7 @@ function renderProjectsSection() {
 
       ${renderProjectTemplateShelf(templates, {
         canManage: Boolean(body.permissions?.canManageTemplates),
+        isStudent,
         siteId: body.siteId || selectedSiteQueryValue() || projectsFirstSiteId(projects),
       })}
 
@@ -99,7 +100,11 @@ function renderProjectDirectoryWorklist(projects = [], options = {}) {
   const firstNumber = filteredTotal ? ((page - 1) * pageSize) + 1 : 0;
   const lastNumber = filteredTotal ? Math.min(filteredTotal, firstNumber + rows.length - 1) : 0;
   const selectedIndex = rows.findIndex((project) => project.projectId === activeProjectId);
-  const selectedProject = selectedIndex >= 0 ? rows[selectedIndex] : options.isStudent ? rows[0] || null : null;
+  const selectedProject = selectedIndex >= 0
+    ? rows[selectedIndex]
+    : (options.isStudent || rows.length === 1)
+      ? rows[0] || null
+      : null;
   const actualSelectedIndex = selectedProject ? rows.findIndex((project) => project.projectId === selectedProject.projectId) : -1;
 
   if (!rows.length && !hasFilters && safeNumber(options.summary?.total) === 0) {
@@ -259,6 +264,7 @@ function renderProjectSiteSelection(sites = []) {
 function renderProjectTemplateShelf(templates = [], options = {}) {
   const rows = Array.isArray(templates) ? templates : [];
   const canManage = Boolean(options.canManage);
+  const isStudent = Boolean(options.isStudent);
   if (!rows.length && !canManage) return "";
   const activeRows = rows.filter((template) => template.active !== false);
   const removedRows = canManage ? rows.filter((template) => template.active === false) : [];
@@ -268,7 +274,7 @@ function renderProjectTemplateShelf(templates = [], options = {}) {
   }).join("");
   return `
     <section class="workspace-project-template-shelf workspace-card" data-project-template-shelf="true" aria-labelledby="projectTemplateShelfTitle">
-      <details class="workspace-project-template-disclosure" ${canManage ? "" : "open"}>
+      <details class="workspace-project-template-disclosure" ${isStudent ? "open" : ""}>
         <summary>
           <span>
             <small class="workspace-kicker">Google Drive templates</small>
@@ -436,6 +442,10 @@ function renderProjectCard(project = {}, options = {}) {
       : { label: "In progress", tone: "in_progress" };
   const firstMember = members[0] || {};
   const memberNames = members.map((member) => member.displayName).join(", ") || "No students";
+  const isMentor = roleIds(currentUser).has("mentor");
+  const mentorNextAction = safeNumber(project.waitingForReviewCount) > 0
+    ? "Open the work. Read the student's link. Then choose the next step."
+    : "Open the check-in. Ask one clear question, agree on one next step, and save it.";
   return `
     <details class="workspace-project-card" data-project-id="${escapeHtml(project.projectId || "")}" data-project-search-text="${escapeHtml(`${project.name || ""} ${memberNames} ${phase.label} ${state.label}`.toLowerCase())}" ${options.open ? "open" : ""}>
       <summary>
@@ -451,7 +461,7 @@ function renderProjectCard(project = {}, options = {}) {
       <div class="workspace-project-card-body">
         <div class="workspace-project-next-step">
           <span>NEXT STEP</span>
-          <strong>${escapeHtml(project.nextAction || "Open the project and check the next step.")}</strong>
+          <strong>${escapeHtml(isMentor ? mentorNextAction : project.nextAction || "Open the project and check the next step.")}</strong>
         </div>
         ${renderProjectDriveFolderForStaff(project)}
         <div class="workspace-project-facts">
@@ -471,7 +481,10 @@ function renderProjectCard(project = {}, options = {}) {
         <div class="workspace-project-actions">
           ${project.nextSubmissionId && safeNumber(project.waitingForReviewCount) > 0 ? `
             <button class="workspace-primary-button" type="button" data-project-action="review" data-project-submission-id="${escapeHtml(project.nextSubmissionId)}" data-project-name="${escapeHtml(project.name || "Senior Project")}">Review this project</button>
+          ` : isMentor && firstMember.studentId ? `
+            <button class="workspace-primary-button" type="button" data-mentor-dashboard-action="open-meetings" data-mentor-dashboard-student-id="${escapeHtml(firstMember.studentId)}">Open check-in</button>
           ` : firstMember.studentId ? renderViewAsStudentAction(firstMember.studentId, project.name || firstMember.displayName, { sourceSection: "projects", label: "Open project" }) : ""}
+          ${isMentor && firstMember.studentId ? renderViewAsStudentAction(firstMember.studentId, project.name || firstMember.displayName, { sourceSection: "projects", label: "Preview student view" }) : ""}
           ${members.length > 1 ? `<small>Shared work belongs to the team. Personal reflections still belong to each student.</small>` : `<small>This is an individual project. It uses the same steps as a team project.</small>`}
         </div>
         ${renderProjectNavigator(project, options)}

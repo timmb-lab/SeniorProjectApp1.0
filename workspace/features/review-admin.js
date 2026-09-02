@@ -22,14 +22,15 @@ function renderTeacherSection() {
   const readOnly = scope.readOnly || !permissions.canReview;
   const emptyState = queue.length ? null : reviewQueueEmptyState(body, filters);
   const totalWaiting = safeNumber(pagination.filteredTotal || pagination.total || queue.length);
+  const isMentor = roleIds(currentUser).has("mentor");
   return `
     <section class="workspace-command-center workspace-review-queue" aria-label="Review one project">
       ${selected ? "" : `
         <div class="workspace-section-heading">
           <div>
-            <p class="workspace-kicker">Project work</p>
-            <h1 id="reviewQueueTitle">Review one project</h1>
-            <p>Open one project. Read the work. Then choose the next step.</p>
+            <p class="workspace-kicker">${isMentor ? "Student work" : "Project work"}</p>
+            <h1 id="reviewQueueTitle">${isMentor ? "Review student work" : "Review one project"}</h1>
+            <p>${isMentor ? "Open work from a student you mentor. Read it. Then choose the next step." : "Open one project. Read the work. Then choose the next step."}</p>
           </div>
           <div class="workspace-site-context">
             <span class="workspace-site-context-badge">${escapeHtml(scope.siteName || "Selected school")}</span>
@@ -147,7 +148,7 @@ function renderReviewQueueStartHere(queue = [], summary = {}, filters = {}, read
       preset: "presentation-pending-students",
       action: "View students",
       tone: "ready",
-      section: "students",
+      section: reviewQueueStudentSection(),
     },
     {
       id: "final-review",
@@ -157,7 +158,7 @@ function renderReviewQueueStartHere(queue = [], summary = {}, filters = {}, read
       preset: "archive-ready-students",
       action: "View students",
       tone: "ready",
-      section: "students",
+      section: reviewQueueStudentSection(),
     },
     {
       id: "high-priority",
@@ -190,7 +191,7 @@ function renderReviewQueueStartHere(queue = [], summary = {}, filters = {}, read
           <h2>No work is waiting for review right now.</h2>
           <p>You are caught up for now.</p>
         </div>
-        <button class="workspace-button workspace-button-secondary" type="button" data-section="students">View students</button>
+        <button class="workspace-button workspace-button-secondary" type="button" data-section="${escapeHtml(reviewQueueStudentSection())}">View assigned students</button>
       </section>
     `;
   }
@@ -258,10 +259,18 @@ function renderReviewQueueEmptyCard(emptyState = {}, filters = {}) {
       <p class="workspace-muted">${escapeHtml(emptyState?.nextAction || (filtered ? "Clear filters and try again." : "New work will show here when a student turns it in."))}</p>
       <div class="workspace-row-actions">
         ${filtered ? `<button class="workspace-button workspace-button-secondary" type="button" data-review-queue-action="reset-filters">Clear filters</button>` : ""}
-        <button class="workspace-button workspace-button-secondary" type="button" data-section="students">View students</button>
+        <button class="workspace-button workspace-button-secondary" type="button" data-section="${escapeHtml(reviewQueueStudentSection())}">${roleIds(currentUser).has("mentor") ? "View assigned students" : "View students"}</button>
       </div>
     </section>
   `;
+}
+
+function reviewQueueStudentSection() {
+  const sections = availableSectionIdsForAnyMode();
+  if (roleIds(currentUser).has("mentor") && sections.has("mentor")) return "mentor";
+  if (sections.has("students")) return "students";
+  if (sections.has("mentor")) return "mentor";
+  return "overview";
 }
 
 function renderReviewQueueDecisionGuide(queue = [], summary = {}) {

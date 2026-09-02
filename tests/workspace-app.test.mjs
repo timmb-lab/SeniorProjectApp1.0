@@ -4284,7 +4284,7 @@ test("student detail handles missing real-data fields conservatively", async () 
   assert.doesNotMatch(workspaceRoot.innerHTML, /0 of 0 work items done|0% complete \/ proposal|undefined|Invalid Date|\[object Object\]/);
 
   vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "work" } } })', context);
-  assert.match(workspaceRoot.innerHTML, /No submitted work is available for this student yet/);
+  assert.match(workspaceRoot.innerHTML, /This student has not saved any work yet/);
   assert.match(workspaceRoot.innerHTML, /No mentor assignment history is available for this student/);
   assert.match(workspaceRoot.innerHTML, /No mentor meetings are available for this student/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /undefined|Invalid Date|\[object Object\]/);
@@ -4297,7 +4297,7 @@ test("student detail handles missing real-data fields conservatively", async () 
   assert.doesNotMatch(workspaceRoot.innerHTML, /undefined|Invalid Date|Not set|\[object Object\]/);
 
   vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "evidence" } } })', context);
-  assert.match(workspaceRoot.innerHTML, /No files are uploaded for this student yet/);
+  assert.match(workspaceRoot.innerHTML, /This student has not added a work link yet/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /undefined|Invalid Date|\[object Object\]/);
 
   vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "timeline" } } })', context);
@@ -6979,7 +6979,7 @@ test("mentor dashboard assigned students open detail and meeting history without
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-focus-flow="true"/);
   assert.match(workspaceRoot.innerHTML, /Needs me first/);
   assert.match(workspaceRoot.innerHTML, />Ask</);
-  assert.match(workspaceRoot.innerHTML, /What exactly did your Program Teacher ask you to change/);
+  assert.match(workspaceRoot.innerHTML, /What did your teacher ask you to change/);
   assert.match(workspaceRoot.innerHTML, /Open check-in/);
   assert.match(workspaceRoot.innerHTML, /Open student details/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-focus-flow="true"[\s\S]*data-view-as-student-action="enter"[\s\S]*data-view-as-student-source-section="mentorDashboard"/);
@@ -7005,7 +7005,7 @@ test("mentor dashboard assigned students open detail and meeting history without
   assert.match(workspaceRoot.innerHTML, /1<\/b> presentation risk/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-priority="true"/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-queue-kind="revision"/);
-  assert.match(workspaceRoot.innerHTML, /Revision changed since the last mentor check-in\. Compare the Program Teacher request with the new proof/);
+  assert.match(workspaceRoot.innerHTML, /Revision changed since the last mentor check-in\. Compare the teacher&#039;s request with the new work link/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-collapsed-revision="true"/);
   assert.match(workspaceRoot.innerHTML, /Details include revision changes since the last mentor check-in/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-summary="true"/);
@@ -7026,16 +7026,16 @@ test("mentor dashboard assigned students open detail and meeting history without
   assert.match(workspaceRoot.innerHTML, /Meeting[\s\S]*Make-up required/);
   assert.match(workspaceRoot.innerHTML, /Presentation[\s\S]*Not scheduled/);
   assert.match(workspaceRoot.innerHTML, /Outline[\s\S]*Pending/);
-  assert.match(workspaceRoot.innerHTML, /Evidence[\s\S]*3 items/);
+  assert.match(workspaceRoot.innerHTML, /Work links[\s\S]*3 items/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-activity="true"/);
   assert.match(workspaceRoot.innerHTML, /Work updated May 28/);
   assert.match(workspaceRoot.innerHTML, /Meeting activity May 27/);
   assert.match(workspaceRoot.innerHTML, /Presentation May 29/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-detail-priority="true"/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-revision-followup="true"/);
-  assert.match(workspaceRoot.innerHTML, /Open the student detail, compare the revision request with recent proof, and plan the next check-in/);
+  assert.match(workspaceRoot.innerHTML, /Open the student details\. Read the teacher&#039;s note and the newest work link/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-question="true"/);
-  assert.match(workspaceRoot.innerHTML, /What exactly did your Program Teacher ask you to change/);
+  assert.match(workspaceRoot.innerHTML, /What did your teacher ask you to change/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-action="open-meetings"/);
   assert.match(workspaceRoot.innerHTML, /Open meeting history/);
 
@@ -7110,10 +7110,14 @@ test("mentor dashboard assigned students open detail and meeting history without
     "mentor dashboard detail should render before assigned student actions",
   );
   assert.match(workspaceRoot.innerHTML, /data-student-detail-section="mentor"/);
+  assert.match(workspaceRoot.innerHTML, /Read the teacher feedback together\. Agree on one change before the next check-in/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-student-detail-action="open-operations"|Open operations for this student/);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-phase-approval="true"/);
   assert.match(workspaceRoot.innerHTML, /Revision required before moving on|Waiting for Program Teacher approval/);
   assert.match(workspaceRoot.innerHTML, /data-student-detail-mentor-work-context="true"/);
   assert.match(workspaceRoot.innerHTML, /Work context for the next mentor conversation/);
+  assert.match(workspaceRoot.innerHTML, /Saved work/);
+  assert.match(workspaceRoot.innerHTML, /Drafts and work turned in/);
   assert.match(workspaceRoot.innerHTML, /Mentor Meetings/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-meeting-form="true"/);
   assert.match(workspaceRoot.innerHTML, /name="purpose"/);
@@ -7124,6 +7128,12 @@ test("mentor dashboard assigned students open detail and meeting history without
   assert.match(workspaceRoot.innerHTML, /Linked work: Senior Project Proposal Draft \(version 3, Revision requested\)/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /submission-101/);
   assert.match(workspaceRoot.innerHTML, /Assigned Students/);
+
+  await vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "evidence" } } })', context);
+  assert.match(workspaceRoot.innerHTML, /Project links/);
+  assert.match(workspaceRoot.innerHTML, /data-student-detail-evidence-link="true"[\s\S]*Open work link/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, />https:\/\/example\.com\/capstone-demo\/student101\/research</);
+  await vm.runInContext('selectSiteStudentDetailTab({ currentTarget: { dataset: { studentDetailTab: "work" } } })', context);
   assert.deepEqual(
     JSON.parse(vm.runInContext('JSON.stringify({ activeSection, sourceSection: siteStudentDetailState.sourceSection, activeTab: siteStudentDetailState.activeTab })', context)),
     { activeSection: "mentorDashboard", sourceSection: "mentorDashboard", activeTab: "work" },
@@ -7189,7 +7199,7 @@ test("workspace gates review queue visibility and refresh behavior by role", () 
   assert.match(workspaceJs, /function hasSiteReviewQueueRole\(roles\)/);
   assert.match(reviewRoleHelperBlock, /"platform_admin",\s+"global_admin",\s+"admin",\s+"site_admin",\s+"program_teacher",\s+"mentor"/);
   assert.doesNotMatch(reviewRoleHelperBlock, /"viewer"|"administration"|"student"|"misc_admin"/);
-  assert.match(availableSectionsBlock, /add\("teacher", "Reviews", "Work from your students"\)/);
+  assert.match(availableSectionsBlock, /add\("teacher", "Work to review", "Work from your students"\)/);
   assert.match(availableSectionsBlock, /add\("teacher", "Reviews", "Work waiting for review"\)/);
   assert.match(availableSectionsBlock, /add\("teacher", "Reviews", "Submitted work and follow-up"\)/);
   assert.match(loadWorkspaceDataBlock, /hasSiteReviewQueueRole\(roles\).*\/api\/site\/review-queue/s);
@@ -13975,6 +13985,110 @@ test("project directory renders one paged worklist, one focused detail, and one 
   assert.match(adultSelect, /Ari Field — ari\.one@example\.test/);
   assert.match(adultSelect, /Ari Field — ari\.two@example\.test/);
   assert.match(adultSelect, />Blair Keaton</);
+});
+
+test("mentor projects, students, reviews, and reports stay direct and action-ready", async () => {
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch(profileRoutesForRole("mentor"));
+  const projectHtml = vm.runInContext(`
+    activeProjectId = "";
+    renderProjectDirectoryWorklist([{
+      projectId: "mentor-project-1",
+      name: "Community Garden",
+      programName: "Environmental Science",
+      currentPhase: "phase-1",
+      members: [{ studentId: "student-1", displayName: "Jordan Student" }],
+      mentors: [{ displayName: "Mentor Detail" }],
+      adultSetup: { ready: true },
+      waitingForReviewCount: 0,
+      revisionRequestedCount: 0
+    }], {
+      availableStudents: [],
+      canManage: false,
+      isStudent: false,
+      pagination: { page: 1, pageSize: 25, total: 1, totalPages: 1, search: "", filter: "all" },
+      summary: { total: 1 }
+    })
+  `, context);
+  assert.match(projectHtml, /data-project-focused-detail="true"[\s\S]*Community Garden/);
+  assert.match(projectHtml, /data-mentor-dashboard-action="open-meetings"[\s\S]*Open check-in/);
+  assert.match(projectHtml, /Preview student view/);
+  assert.match(projectHtml, /Ask one clear question, agree on one next step, and save it/);
+
+  const staffTemplates = vm.runInContext(`renderProjectTemplateShelf([{
+    templateId: "template-1",
+    title: "Proposal template",
+    templateUrl: "https://docs.google.com/document/d/example/edit",
+    phase: "phase-1",
+    active: true
+  }], { canManage: false, isStudent: false })`, context);
+  assert.doesNotMatch(staffTemplates, /workspace-project-template-disclosure" open/);
+  const studentTemplates = vm.runInContext(`renderProjectTemplateShelf([{
+    templateId: "template-1",
+    title: "Proposal template",
+    templateUrl: "https://docs.google.com/document/d/example/edit",
+    phase: "phase-1",
+    active: true
+  }], { canManage: false, isStudent: true })`, context);
+  assert.match(studentTemplates, /workspace-project-template-disclosure" open/);
+
+  const missingWork = vm.runInContext(`renderStudentDetailMissingWork({
+    student: { riskFlags: [] },
+    mentor: { active: true, latestMeetingStatus: "held" },
+    progress: { requirementsTotal: 17, requirementsComplete: 0, currentStage: "start" },
+    presentation: { status: "scheduled" },
+    archive: { status: "missing" },
+    submissions: []
+  })`, context);
+  assert.match(missingWork, /17 project items still need work/);
+  assert.match(missingWork, /Start with Setup/);
+  assert.doesNotMatch(missingWork, /No missing work shown right now/);
+  const savedWork = vm.runInContext(`renderStudentDetailSubmissions({ submissions: [{
+    requirementTitle: "Reflection 5",
+    status: "draft",
+    version: 1,
+    evidenceCount: 0
+  }] })`, context);
+  assert.match(savedWork, /Draft saved/);
+  assert.doesNotMatch(savedWork, /Version 1/);
+
+  const emptyReview = vm.runInContext("renderReviewQueueEmptyCard({}, defaultReviewQueueFilters())", context);
+  assert.match(emptyReview, /data-section="mentor">View assigned students/);
+  assert.doesNotMatch(emptyReview, /data-section="students"/);
+
+  vm.runInContext('activeSection = "staffReports"; renderAppShell();', context);
+  assert.match(workspaceRoot.innerHTML, /data-v2-primary-surface="mentor-reports"/);
+  assert.match(workspaceRoot.innerHTML, /My students at a glance/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /Choose the student who needs you next/);
+
+  const mentorStudentRows = JSON.parse(vm.runInContext(`
+    currentData.siteStudents = null;
+    currentData.mentorDashboard = { ok: true, status: 200, body: {
+      assignedStudents: [{
+        studentId: "student-1",
+        studentName: "Jordan Student",
+        programName: "Environmental Science",
+        submissionStatus: "draft",
+        evidenceCount: 1,
+        needsAttention: ["mentor_meeting"]
+      }]
+    } };
+    JSON.stringify(staffVisibleStudentExportRows())
+  `, context));
+  assert.ok(mentorStudentRows.length > 0, "mentor report should export assigned students");
+  const adultRows = JSON.parse(vm.runInContext(`
+    currentData.projects = { ok: true, status: 200, body: { projects: [{
+      name: "Community Garden",
+      members: [{ displayName: "Jordan Student" }],
+      adultSetup: {
+        ready: true,
+        mentor: { displayName: "Morgan Mentor", status: "accepted" },
+        programTeacher: { displayName: "Taylor Teacher", status: "accepted" }
+      }
+    }] } };
+    JSON.stringify(visibleProjectAdultExportRows())
+  `, context));
+  assert.equal(adultRows[0][2], "Morgan Mentor");
+  assert.equal(adultRows[0][4], "Taylor Teacher");
 });
 
 test("project requests show teammate consent, exact move impact, confirmation, history, and undo", async () => {

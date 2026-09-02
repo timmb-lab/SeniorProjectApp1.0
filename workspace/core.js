@@ -1440,7 +1440,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   const mentorPrimarySection = !renderBlockedSectionOnly
     && !isAdminConsole
     && roles.has("mentor")
-    && ["overview", "mentor", "mentorDashboard", "teacher"].includes(activeSection);
+    && ["overview", "mentor", "mentorDashboard", "teacher", "staffReports"].includes(activeSection);
   const adminConsolePrimarySection = !renderBlockedSectionOnly
     && isAdminConsole
     && ["overview", "adminPeople", "adminStudents", "adminAssignments", "programs", "adminImports", "adminReports", "audit"].includes(activeSection);
@@ -1491,7 +1491,9 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
         ? "mentor-students"
         : activeSection === "teacher"
           ? "mentor-reviews"
-          : "mentor"
+          : activeSection === "staffReports"
+            ? "mentor-reports"
+            : "mentor"
       : viewerPrimarySection
         ? activeSection === "students"
           ? "viewer-students"
@@ -1844,7 +1846,7 @@ function renderV2ActiveScreen({
   }
   const directRoleSurface = Boolean(primarySectionMarkup) && (
     primarySectionKind.startsWith("student")
-    || ["mentor", "mentor-students", "mentor-reviews", "program-teacher", "program-teacher-dashboard", "teacher"].includes(primarySectionKind)
+    || ["mentor", "mentor-students", "mentor-reviews", "mentor-reports", "program-teacher", "program-teacher-dashboard", "teacher"].includes(primarySectionKind)
   );
   if (directRoleSurface) {
     return `
@@ -3646,7 +3648,7 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
   const studentSetupRows = adminStudentSetupRows(students, assignments);
   const staffSetupRows = adminStaffSetupRows(staffRows, assignments);
   const importSetupRows = adminImportSetupRows(adminCsvImportState);
-  const studentTotal = safeNumber(summary.studentsTotal ?? siteStudents.pagination?.total ?? students.length);
+  const studentTotal = safeNumber(summary.studentsTotal ?? siteStudents.pagination?.total ?? students.length) || adminConsoleStudentCount();
   const scopedStudentCount = studentTotal || students.length;
   const rosterIncomplete = studentSetupRows.filter((row) => row.flagIds.includes("profile") || row.flagIds.includes("email")).length;
   const missingProgramStudents = studentSetupRows.filter((row) => row.flagIds.includes("program")).length;
@@ -6416,8 +6418,8 @@ function availableWorkspaceSections(user = currentUser) {
 
   if (roles.has("mentor")) {
     add("projects", "Projects", "Projects you support");
-    add("mentor", "Students", "Assigned student rows", { hidden: true });
-    add("teacher", "Reviews", "Work from your students");
+    add("mentor", "Assigned students", "Students you support");
+    add("teacher", "Work to review", "Work from your students");
     add("mentorDashboard", "Mentor Dashboard", "Assigned student risks", { hidden: true });
     add("presentation", "Presentation", "Schedule, outline, and day-of status", { hidden: true });
   }

@@ -1187,6 +1187,7 @@ function staffReportQuestions({ roles, visibleStudents, reviewCount, setupSignal
 
 function renderStaffReportsSection() {
   const roles = roleIds(currentUser);
+  const isMentor = roles.has("mentor");
   const visibleStudents = adminConsoleStudentCount();
   const reviewCount = adminConsoleReviewCount();
   const setupSignalCount = staffReportAttentionCount();
@@ -1239,7 +1240,7 @@ function renderStaffReportsSection() {
       value: report.mentorCoveragePercent,
       max: 100,
       valueLabel: percentLabel(report.mentorCoveragePercent),
-      detail: `Students counted: ${safeNumber(report.mentorCoverageDenominator || visibleStudents)} visible students.`,
+      detail: `Students counted: ${safeNumber(report.mentorCoverageDenominator || visibleStudents)} visible ${pluralize(safeNumber(report.mentorCoverageDenominator || visibleStudents), "student")}.`,
       tone: "mentor",
       dataAttrs: `data-staff-report-row="mentor-coverage"`,
     },
@@ -1249,8 +1250,8 @@ function renderStaffReportsSection() {
       <div class="workspace-command-hero">
         <div>
           <p class="workspace-kicker">Reports</p>
-          <h1 id="staffReportsTitle">Student Progress Reports</h1>
-          <p>Use simple counts to spot review, setup, and readiness work inside this account's allowed area.</p>
+          <h1 id="staffReportsTitle">${isMentor ? "My students at a glance" : "Student Progress Reports"}</h1>
+          <p>${isMentor ? "Use these simple counts to plan check-ins and spot work that needs help." : "Use simple counts to spot review, setup, and readiness work inside this account's allowed area."}</p>
         </div>
       </div>
       ${renderStaffReportQuestionFlow(staffReportQuestions({ roles, visibleStudents, reviewCount, setupSignalCount, report }))}
@@ -2011,16 +2012,21 @@ function adminReportExportSpecs(model = adminConsoleOperationsModel()) {
 
 function staffVisibleStudentExportRows() {
   const body = unwrap(currentData.siteStudents) || {};
-  const students = Array.isArray(body.students) ? body.students : [];
+  const mentorBody = unwrap(currentData.mentorDashboard) || unwrap(currentData.mentorAssigned) || {};
+  const students = Array.isArray(body.students) && body.students.length
+    ? body.students
+    : Array.isArray(mentorBody.assignedStudents)
+      ? mentorBody.assignedStudents
+      : [];
   return students.map((student) => [
     reportCell(student.displayName || student.studentName, "Student"),
     reportCell(studentProgramDisplay(student, "Not confirmed"), "Not confirmed"),
-    statusText(student.latestSubmissionStatus || student.submissionStatus || student.status || "unknown"),
+    statusText(student.latestSubmissionStatus || student.submissionStatus || student.status || "not_started"),
     statusText(student.reviewStatus || student.latestReviewStatus || "unknown"),
-    statusText(student.evidenceStatus || "unknown"),
-    statusText(student.presentationStatus || "unknown"),
-    statusText(student.archiveStatus || "unknown"),
-    reportCell(student.nextAction, "Not confirmed"),
+    statusText(student.evidenceStatus || (safeNumber(student.evidenceCount) ? "attached" : "missing")),
+    statusText(student.presentationStatus || "not_scheduled"),
+    statusText(student.archiveStatus || "not_ready"),
+    reportCell(student.nextAction || mentorDashboardNextStep(student, Array.isArray(student.needsAttention) ? student.needsAttention : []), "Keep the next check-in focused on one step."),
   ]);
 }
 
@@ -2050,9 +2056,9 @@ function visibleProjectAdultExportRows() {
     return [
       reportCell(project.name, "Project"),
       students || "No active students",
-      reportCell(mentor.assigneeName || mentor.inviteeName, "Missing"),
+      reportCell(mentor.displayName || mentor.assigneeName || mentor.inviteeName, "Missing"),
       statusText(mentor.status || "missing"),
-      reportCell(teacher.assigneeName || teacher.inviteeName, "Missing"),
+      reportCell(teacher.displayName || teacher.assigneeName || teacher.inviteeName, "Missing"),
       statusText(teacher.status || "missing"),
       setup.ready ? "Ready" : "Needs people",
       reportCell(setup.nextStep, "Confirm both required adults."),
@@ -4340,7 +4346,7 @@ function renderStudentDetailProgress(detail) {
         <p>${escapeHtml(progressFacts.workItemsText)}</p>
         <p>${escapeHtml(progress.nextAction || "Continue the next capstone milestone.")}</p>
         <div class="workspace-chip-row">
-          <span class="workspace-site-context-badge">${escapeHtml(progressFacts.stageText)}</span>
+          <span class="workspace-site-context-badge">${escapeHtml(studentPhaseShortLabel(progress.currentStage, progressFacts.stageText))}</span>
           <span class="workspace-site-context-badge">${escapeHtml(progressFacts.percentText)}</span>
         </div>
       `)}
@@ -4356,9 +4362,17 @@ function renderStudentDetailProgress(detail) {
 
 function renderStudentDetailMissingWork(detail) {
   const flags = studentDetailAttentionFlags(detail).filter((flag) => ["missing_evidence", "evidence_missing", "missing_work", "behind"].includes(flag.key));
-  const rows = flags.length ? flags : [{
-    label: "No missing work shown right now",
-    detail: "Open Feedback or Timeline if you need more context.",
+  const progress = detail.progress || {};
+  const remaining = Math.max(0, safeNumber(progress.requirementsTotal) - safeNumber(progress.requirementsComplete));
+  const stage = studentPhaseShortLabel(progress.currentStage, "the current step");
+  const rows = flags.length ? flags : remaining ? [{
+    label: `${remaining} project ${pluralize(remaining, "item")} still need work`,
+    detail: `Start with ${stage}. Help the student choose one small next step.`,
+    status: "in_progress",
+  }] : [{
+    label: "No missing work is showing",
+    detail: "All required project items are marked done.",
+    status: "ready",
   }];
   return renderStudentDetailList("Missing work", "Files or work still needed", rows, "No missing work shown right now.", (row) => `
     <article class="workspace-row">
@@ -4366,18 +4380,18 @@ function renderStudentDetailMissingWork(detail) {
         <strong>${escapeHtml(row.label || "Missing work")}</strong>
         <p>${escapeHtml(row.detail || "Check the current work and feedback before following up.")}</p>
       </div>
-      ${statusPill(flags.length ? "blocked" : "ready")}
+      ${statusPill(flags.length ? "blocked" : row.status || "ready")}
     </article>
   `, { sectionId: "missing-work" });
 }
 
 function renderStudentDetailSubmissions(detail) {
   const rows = Array.isArray(detail.submissions) ? detail.submissions : [];
-  return renderStudentDetailList("Submitted work", "Newest work students sent in", rows, "No submitted work is available for this student yet.", (row) => `
+  return renderStudentDetailList("Saved work", "Drafts and work turned in", rows, "This student has not saved any work yet.", (row) => `
     <article class="workspace-row">
       <div>
         <strong>${escapeHtml(row.requirementTitle || "Senior Project work")}</strong>
-        <p>Version ${escapeHtml(row.version || 1)} / ${escapeHtml(row.evidenceCount || 0)} Google Drive ${pluralize(safeNumber(row.evidenceCount), "link")} saved</p>
+        <p>${escapeHtml(studentSavedWorkVersionText(row.version, row.status, "Not turned in yet"))} / ${escapeHtml(row.evidenceCount || 0)} Google Drive ${pluralize(safeNumber(row.evidenceCount), "link")} saved</p>
         <p class="workspace-muted">${escapeHtml(row.nextAction || "")}</p>
       </div>
       ${statusPill(row.status || "draft")}
@@ -4389,19 +4403,21 @@ function renderStudentDetailEvidence(detail) {
   const rows = Array.isArray(detail.evidence) ? detail.evidence : [];
   return `
     <section class="workspace-detail-section" ${studentDetailPanelAttrs("evidence")}>
-      ${renderStudentDetailList("Files uploaded", "Files and review status", rows, "No files are uploaded for this student yet.", (row) => `
+      ${renderStudentDetailList("Project links", "Google Drive links and review status", rows, "This student has not added a work link yet.", (row) => {
+        const url = cleanWorkspaceHttpsUrl(row.externalUrl);
+        return `
     <article class="workspace-row">
       <div>
-        <strong>${escapeHtml(row.title || "Uploaded file")}</strong>
+        <strong>${escapeHtml(row.title || "Project work")}</strong>
         <p>${escapeHtml(studentDetailFileTypeLabel(row.artifactType))} / ${escapeHtml(studentDetailFileTypeLabel(row.sourceKind))}</p>
-        <p class="workspace-muted">${row.externalUrl ? escapeHtml(row.externalUrl) : "File details are protected."}</p>
+        <p class="workspace-muted">${url ? "The student shared this link for review." : "No safe link is available for this item."}</p>
       </div>
       <div class="workspace-row-actions">
-        <span class="workspace-site-context-badge">Protected file details</span>
+        ${url ? `<a class="workspace-button workspace-button-secondary workspace-button-small" data-student-detail-evidence-link="true" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Open work link</a>` : ""}
         ${statusPill(row.reviewStatus || "pending_review")}
       </div>
     </article>
-      `)}
+      `;})}
     </section>
   `;
 }
@@ -4446,6 +4462,32 @@ function studentDetailCasePlan(detail = {}, scope = {}) {
   const latestSubmission = latestStudentDetailSubmission(detail);
   const latestReview = latestStudentDetailReview(detail);
   const flags = studentDetailAttentionFlags(detail);
+  if (roleIds(currentUser).has("mentor")) {
+    const currentStep = studentPhaseShortLabel(progress.currentStage, latestSubmission?.requirementTitle || "current project step");
+    const complete = safeNumber(progress.requirementsComplete);
+    const total = safeNumber(progress.requirementsTotal);
+    const remaining = Math.max(0, total - complete);
+    const reviewStatus = normalizeStatus(latestReview?.decision || latestSubmission?.status || student.latestSubmissionStatus || "");
+    const meetingStatus = normalizeStatus(mentor.latestMeetingStatus || student.mentorMeetingStatus || "not_recorded");
+    let nextAction = remaining
+      ? `Open Work. Talk about ${currentStep}. Agree on one small next step.`
+      : "Read the latest work together. Record what the student will do next.";
+    if (reviewStatus === "revision_requested") {
+      nextAction = "Read the teacher feedback together. Agree on one change before the next check-in.";
+    } else if (["not_recorded", "missed", "makeup_required"].includes(meetingStatus)) {
+      nextAction = "Record this check-in and the next step you agreed on.";
+    }
+    return {
+      currentStatus: statusText(latestSubmission?.status || student.latestSubmissionStatus || "not_started"),
+      currentStep,
+      coverage: mentor.mentorName || student.mentorName || currentUser?.displayName || "Assigned mentor",
+      attention: flags[0]?.label || "Regular check-in",
+      owner: "You and the student.",
+      nextAction,
+      access: "Assigned mentor view",
+      readOnly: Boolean(scope.readOnly),
+    };
+  }
   const rowLikeStudent = {
     ...student,
     hasActiveMentor: mentor.active,
@@ -4539,11 +4581,14 @@ function renderStudentDetailMentor(detail) {
   const mentor = detail.mentor || {};
   const history = Array.isArray(detail.mentorAssignmentHistory) ? detail.mentorAssignmentHistory : [];
   const meetings = Array.isArray(detail.mentorMeetings) ? detail.mentorMeetings : [];
+  const mentorNextAction = roleIds(currentUser).has("mentor") && mentor.active
+    ? "Record this check-in and the next step you agreed on."
+    : mentor.nextAction || "Continue mentor support.";
   return `
     <section class="workspace-detail-section" data-student-detail-section="mentor">
       ${renderDashboardCard("Mentor", mentor.active ? "Assigned support" : "Coverage needed", `
         <strong>${escapeHtml(mentor.active ? mentor.mentorName || "Assigned mentor" : "No active mentor")}</strong>
-        <p>${escapeHtml(mentor.nextAction || "Continue mentor support.")}</p>
+        <p>${escapeHtml(mentorNextAction)}</p>
         <div class="workspace-chip-row">
           <span class="workspace-site-context-badge">${escapeHtml(safeNumber(mentor.meetingCount))} meeting${safeNumber(mentor.meetingCount) === 1 ? "" : "s"}</span>
           ${statusPill(mentor.latestMeetingStatus || (mentor.active ? "approved" : "blocked"))}
@@ -4589,8 +4634,8 @@ function renderStudentDetailMentorWorkContext(detail = {}) {
           <b>${escapeHtml(approval.label)}</b>
         </article>
         <article>
-          <span>2. Linked work</span>
-          <b>${escapeHtml(latestSubmission?.requirementTitle || "No submitted work yet")}</b>
+          <span>2. Latest saved work</span>
+          <b>${escapeHtml(latestSubmission?.requirementTitle || "No saved work yet")}</b>
         </article>
         <article>
           <span>3. Ask about</span>
@@ -4796,6 +4841,7 @@ function renderStudentDetailArchive(detail) {
 }
 
 function studentDetailOperationsButton(studentId) {
+  if (!availableSectionIdsForAnyMode().has("operations")) return "";
   return studentId ? `
     <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="open-operations" data-student-detail-operations-student-id="${escapeHtml(studentId)}">
       Open operations for this student
@@ -4883,11 +4929,7 @@ function renderStudentDetailList(title, detail, rows, emptyText, rowRenderer, op
       ${safeRows.length ? `<div class="workspace-list">${safeRows.map(rowRenderer).join("")}</div>` : `
         <div class="workspace-empty-state-card">
           <strong>${escapeHtml(emptyText)}</strong>
-          ${renderProblemState({
-            reason: "This section has no records for the selected student.",
-            owner: "Assigned staff workspace.",
-            nextAction: "Use another detail section or return to the directory.",
-          })}
+          <p class="workspace-muted">${escapeHtml(options.emptyHelp || "There is nothing else to do in this section right now.")}</p>
         </div>
       `}
     </section>
