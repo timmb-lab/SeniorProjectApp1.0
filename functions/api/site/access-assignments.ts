@@ -305,25 +305,45 @@ async function loadSiteUsersByRole(env: Env, siteId: string, roleId: RoleId) {
            ORDER BY viewer_student_assignments.created_at DESC
            LIMIT 1
          ) AS viewer_user_id,
-         (
-           SELECT viewer.display_name
+          (
+            SELECT viewer.display_name
            FROM viewer_student_assignments
            JOIN user_accounts viewer ON viewer.id = viewer_student_assignments.viewer_user_id
            WHERE viewer_student_assignments.student_user_id = user_accounts.id
             AND viewer_student_assignments.active = 1
-           ORDER BY viewer_student_assignments.created_at DESC
-           LIMIT 1
-         ) AS viewer_name
+            ORDER BY viewer_student_assignments.created_at DESC
+            LIMIT 1
+          ) AS viewer_name,
+          COALESCE(student_program.program_id, '') AS program_id,
+          COALESCE(student_program.program_name, '') AS program_name
        FROM site_users
        JOIN user_accounts ON user_accounts.id = site_users.user_id
         AND user_accounts.status IN ('active', 'pending_reset')
        JOIN user_roles ON user_roles.user_id = user_accounts.id
         AND user_roles.role_id = 'student'
        ${rosterProfilesReady ? "LEFT JOIN student_roster_profiles ON student_roster_profiles.student_user_id = user_accounts.id" : ""}
+       LEFT JOIN (
+         SELECT user_id, program_id, program_name
+         FROM (
+           SELECT
+             group_memberships.user_id,
+             programs.id AS program_id,
+             programs.name AS program_name,
+             ROW_NUMBER() OVER (
+               PARTITION BY group_memberships.user_id
+               ORDER BY group_memberships.created_at DESC, programs.name ASC
+             ) AS program_rank
+           FROM group_memberships
+           JOIN groups ON groups.id = group_memberships.group_id
+           JOIN programs ON programs.id = groups.program_id
+            AND programs.active = 1
+         ) ranked_student_programs
+         WHERE program_rank = 1
+       ) student_program ON student_program.user_id = user_accounts.id
        WHERE site_users.site_id = ?
         AND site_users.membership_status = 'active'
        ORDER BY user_accounts.display_name ASC
-       LIMIT 200`,
+       LIMIT 1000`,
     ).bind(siteId).all<{
       id: string;
       display_name: string;
@@ -335,6 +355,8 @@ async function loadSiteUsersByRole(env: Env, siteId: string, roleId: RoleId) {
       mentor_name: string | null;
       viewer_user_id: string | null;
       viewer_name: string | null;
+      program_id: string | null;
+      program_name: string | null;
     }>();
     return (rows.results || []).map(studentUserOption);
   }
@@ -349,7 +371,7 @@ async function loadSiteUsersByRole(env: Env, siteId: string, roleId: RoleId) {
      WHERE site_users.site_id = ?
       AND site_users.membership_status = 'active'
      ORDER BY user_accounts.display_name ASC
-     LIMIT 200`,
+     LIMIT 1000`,
   ).bind(roleId, siteId).all<{ id: string; display_name: string; email: string; status: string }>();
   return (rows.results || []).map(userOption);
 }
@@ -597,6 +619,8 @@ function studentUserOption(row: {
   mentor_name: string | null;
   viewer_user_id: string | null;
   viewer_name: string | null;
+  program_id: string | null;
+  program_name: string | null;
 }) {
   return {
     userId: row.id,
@@ -609,6 +633,8 @@ function studentUserOption(row: {
     mentorName: row.mentor_name || "",
     viewerUserId: row.viewer_user_id || "",
     viewerName: row.viewer_name || "",
+    programId: row.program_id || "",
+    programName: row.program_name || "",
   };
 }
 

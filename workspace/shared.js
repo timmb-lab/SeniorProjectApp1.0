@@ -5029,6 +5029,9 @@ async function submitAdminPasswordReset(event) {
       : data?.alreadyRequired
         ? "This person already needs to make a new password."
         : "Password reset required. The person was signed out.");
+    const setupCode = document.querySelector?.("[data-admin-password-setup-code]");
+    setupCode?.scrollIntoView?.({ behavior: "smooth", block: "center" });
+    setupCode?.querySelector?.("[data-copy-secret]")?.focus?.();
   } catch (error) {
     renderAppShell(messageForNetworkError(error), "error");
   } finally {

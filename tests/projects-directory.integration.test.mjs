@@ -23,6 +23,7 @@ test("project directory returns truthful totals with server paging, search, and 
   assert.equal(firstBody.pagination.hasNext, true);
   assert.equal(firstBody.projects.length, 25);
   assert.equal(firstBody.availableStudents.length, 63);
+  assert.equal(firstBody.permissions.canOpenReviewQueue, true);
   assert.match(firstBody.availableStudents[0].email, /@senior-capstone\.test$/);
 
   const lastPage = await getProjects(fixture, token, "?siteId=site-project-directory&page=3&limit=25");
@@ -57,6 +58,28 @@ test("project paging keeps student access limited to their own project", async (
   assert.equal(body.projects.length, 1);
   assert.equal(body.projects[0].name, "Team Atlas");
   assert.equal(body.permissions.canManage, false);
+  assert.equal(body.permissions.canOpenReviewQueue, false);
+});
+
+test("project directory keeps School Admin project access separate from teacher review access", async () => {
+  const fixture = await createProjectDirectoryFixture();
+  await seedUser(fixture.db, {
+    id: "directory-school-admin",
+    displayName: "Directory School Admin",
+    roleId: "administration",
+    scopeType: "site",
+    scopeId: "site-project-directory",
+  });
+  await fixture.db.prepare(
+    "INSERT INTO site_users (site_id, user_id, membership_status) VALUES ('site-project-directory', 'directory-school-admin', 'active')",
+  ).run();
+  const token = await seedSession(fixture.db, fixture.env, "directory-school-admin");
+
+  const response = await getProjects(fixture, token, "?siteId=site-project-directory");
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.permissions.canManage, true);
+  assert.equal(body.permissions.canOpenReviewQueue, false);
 });
 
 test("project review status follows an active project member when older work has no project id", async () => {

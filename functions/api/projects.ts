@@ -18,6 +18,7 @@ import {
   canAccessSite,
   canAccessStudent,
   canManageProject,
+  canViewReviewQueue,
   getAccessibleSiteIds,
   getMentorAssignedStudentIds,
   getProgramTeacherScopedStudentIds,
@@ -313,6 +314,9 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const adultOptionRows = optionSiteId && (isStudent || manageableSiteIds.includes(optionSiteId))
     ? await loadAvailableProjectAdultsForSite(env, optionSiteId)
     : [];
+  const canOpenReviewQueue = optionSiteId
+    ? await canViewReviewQueue(env, user, optionSiteId)
+    : false;
   const availableStudents: StudentOptionRow[] = [];
   for (const candidate of optionRows) {
     if (isStudent || manageableSiteIds.includes(optionSiteId) || await canAccessStudent(env, user, candidate.id)) {
@@ -374,6 +378,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       canManage: manageableSiteIds.includes(optionSiteId),
       canSubmitRequest: isStudent,
       canManageTemplates: manageableSiteIds.includes(optionSiteId),
+      canOpenReviewQueue,
     },
   });
 };

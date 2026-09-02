@@ -2552,9 +2552,14 @@ function renderManageStudentsScreen() {
       </div>
       ${renderManageStudentSetupSummary(students, access.assignments || {})}
       ${students.length ? `
-        <div class="workspace-list">
-          ${students.map((student) => renderManageStudentRow(student)).join("")}
-        </div>
+        ${renderAdminDirectoryDisclosure({
+          id: "students",
+          title: "Find a student account",
+          detail: "Search before opening student details, assignments, or password help.",
+          rows: students,
+          renderRow: renderManageStudentRow,
+          open: Boolean(lastAdminPasswordResetResult?.userId && students.some((student) => student.userId === lastAdminPasswordResetResult.userId)),
+        })}
       ` : `
         <article class="workspace-empty-state-card" data-manage-students-empty="true">
           <strong>No students are available for this school yet.</strong>
@@ -2629,16 +2634,20 @@ function renderManageStudentSetupSummary(students = [], assignments = {}) {
 }
 
 function renderManageStudentRow(student = {}) {
-  const assignments = unwrap(currentData.accessAssignments)?.assignments || {};
+  const access = unwrap(currentData.accessAssignments) || {};
+  const assignments = access.assignments || {};
   const profileText = studentRosterProfileText(student);
   const assignmentText = studentAssignmentStatusText(student);
   const setupFlags = adminStudentSetupFlags(student, assignments);
   const moreActions = [
-    renderViewAsStudentAction(student.userId, student.displayName, { sourceSection: "adminUsers" }) ? { html: renderViewAsStudentAction(student.userId, student.displayName, { sourceSection: "adminUsers" }) } : null,
+    renderViewAsStudentAction(student.userId, student.displayName, { sourceSection: "adminStudents" }) ? { html: renderViewAsStudentAction(student.userId, student.displayName, { sourceSection: "adminStudents" }) } : null,
     availableSectionIdsForAnyMode().has("adminAssignments") ? { label: "Manage assignments", section: "adminAssignments" } : null,
+    activeSection !== "adminUsers" && access.permissions?.canRequirePasswordReset !== false && canResetSiteAccountRow(student)
+      ? { html: renderAdminPasswordResetControl(student, access.scope || {}) }
+      : null,
   ].filter(Boolean);
   return `
-    <article class="workspace-row" data-manage-student-row="${escapeHtml(student.userId || "")}" data-manage-student-setup="${escapeHtml(setupFlags.length ? "needs-review" : "ready")}">
+    <article class="workspace-row" data-admin-directory-row="true" data-manage-student-row="${escapeHtml(student.userId || "")}" data-manage-student-setup="${escapeHtml(setupFlags.length ? "needs-review" : "ready")}">
       <div>
         <strong>${escapeHtml(student.displayName || "Student")}</strong>
         <p>${escapeHtml(student.email || "")}</p>
@@ -2693,11 +2702,15 @@ function renderManageStaffScreen() {
       </div>
       ${renderManageStaffSetupSummary(accounts, assignments)}
       ${accounts.length ? `
-        <div class="workspace-list">
-          ${accounts.map((account) => {
+        ${renderAdminDirectoryDisclosure({
+          id: "staff",
+          title: "Find a staff account",
+          detail: "Search before changing assignments, reviewing history, or helping with a password.",
+          rows: accounts,
+          renderRow: (account) => {
             const setupFlags = adminStaffSetupFlags(account, assignments);
             return `
-            <article class="workspace-row" data-manage-staff-row="${escapeHtml(account.userId || "")}" data-manage-staff-setup="${escapeHtml(setupFlags.length ? "needs-review" : "ready")}">
+            <article class="workspace-row" data-admin-directory-row="true" data-manage-staff-row="${escapeHtml(account.userId || "")}" data-manage-staff-setup="${escapeHtml(setupFlags.length ? "needs-review" : "ready")}">
               <div>
                 <strong>${escapeHtml(account.displayName || "Staff account")}</strong>
                 <p>${escapeHtml(account.email || "")}</p>
@@ -2710,16 +2723,20 @@ function renderManageStaffScreen() {
                 ${renderAdminMoreMenu({
                   id: `staff-${account.userId || "row"}`,
                   contextLabel: account.displayName || "Staff account",
-                  actions: [
-                    { label: "Manage assignments", peopleView: "assignments" },
-                    availableSectionIdsForAnyMode().has("audit") ? { label: "View recent changes", section: "audit" } : null,
-                  ].filter(Boolean),
+                   actions: [
+                     { label: "Manage assignments", peopleView: "assignments" },
+                     availableSectionIdsForAnyMode().has("audit") ? { label: "View recent changes", section: "audit" } : null,
+                     activeSection !== "adminUsers" && access.permissions?.canRequirePasswordReset !== false && canResetSiteAccountRow(account)
+                       ? { html: renderAdminPasswordResetControl(account, access.scope || {}) }
+                       : null,
+                   ].filter(Boolean),
                 })}
               </div>
             </article>
           `;
-          }).join("")}
-        </div>
+          },
+          open: Boolean(lastAdminPasswordResetResult?.userId && accounts.some((account) => account.userId === lastAdminPasswordResetResult.userId)),
+        })}
       ` : `
         <article class="workspace-empty-state-card" data-manage-staff-empty="true">
           <strong>No staff accounts are available for this school yet.</strong>
@@ -2727,6 +2744,31 @@ function renderManageStaffScreen() {
         </article>
       `}
     </section>
+  `;
+}
+
+function renderAdminDirectoryDisclosure({ id = "accounts", title = "Find an account", detail = "Search this list before choosing an action.", rows = [], renderRow = () => "", open = false } = {}) {
+  const safeRows = Array.isArray(rows) ? rows : [];
+  return `
+    <details class="workspace-admin-supporting-disclosure workspace-admin-directory" data-admin-directory="${escapeHtml(id)}" ${open ? "open" : ""}>
+      <summary>
+        <span>
+          <strong>${escapeHtml(title)}</strong>
+          <small>${escapeHtml(detail)}</small>
+        </span>
+        <span class="workspace-summary-badge">${escapeHtml(String(safeRows.length))}</span>
+      </summary>
+      <div class="workspace-admin-directory-body">
+        <label class="workspace-label workspace-admin-directory-search">
+          Search by name, email, or role
+          <input class="workspace-input" type="search" autocomplete="off" data-admin-directory-search="${escapeHtml(id)}">
+        </label>
+        <p class="workspace-muted" data-admin-directory-search-count="${escapeHtml(id)}" aria-live="polite">${escapeHtml(String(safeRows.length))} accounts shown</p>
+        <div class="workspace-list" data-admin-directory-list="${escapeHtml(id)}">
+          ${safeRows.map((row) => renderRow(row)).join("")}
+        </div>
+      </div>
+    </details>
   `;
 }
 
@@ -3960,14 +4002,19 @@ function renderSiteAccountManagementPanel(users = {}, scope = {}, permissions = 
         <p class="workspace-muted">Use Reset password when a person cannot sign in. This signs them out and asks them to make a new password. Use Remove account only when the person should lose this school access.</p>
       </div>
       ${accounts.length ? `
-        <div class="workspace-list">
-          ${accounts.map((account) => renderSiteAccountRow(
+        ${renderAdminDirectoryDisclosure({
+          id: "site-accounts",
+          title: "Find an account",
+          detail: "Search before resetting a password or removing school access.",
+          rows: accounts,
+          renderRow: (account) => renderSiteAccountRow(
             account,
             scope,
             canManage && permissions.canAssignMentors !== false && canManageSiteAccountRow(account),
             permissions.canRequirePasswordReset !== false && canResetSiteAccountRow(account),
-          )).join("")}
-        </div>
+          ),
+          open: Boolean(lastAdminPasswordResetResult?.userId && accounts.some((account) => account.userId === lastAdminPasswordResetResult.userId)),
+        })}
       ` : `
         <article class="workspace-empty-state-card" data-site-account-empty="true">
           <strong>No accounts are assigned to this school yet.</strong>
@@ -4034,12 +4081,43 @@ function canResetSiteAccountRow(account = {}) {
   return targetRoles.every((roleId) => ["student", "mentor", "viewer", "program_teacher"].includes(roleId));
 }
 
+function renderAdminPasswordResetControl(account = {}, scope = {}) {
+  const resetResult = lastAdminPasswordResetResult?.userId === account.userId ? lastAdminPasswordResetResult : null;
+  return `
+    ${resetResult ? `
+      <section class="workspace-secret-card" data-admin-password-setup-code="true">
+        <strong>Copy this code now</strong>
+        <p>Share it with ${escapeHtml(resetResult.displayName)} in a private school-approved way. It expires in ${escapeHtml(resetResult.expiresInMinutes)} minutes. They choose “I have a setup code” on the sign-in page.</p>
+        <span class="workspace-secret-output">${escapeHtml(resetResult.setupCode)}</span>
+        <button class="workspace-button workspace-button-secondary workspace-button-small" type="button" data-copy-secret="${escapeHtml(resetResult.setupCode)}">Copy setup code</button>
+      </section>
+    ` : ""}
+    <details class="workspace-account-reset" data-admin-password-reset="${escapeHtml(account.userId || "")}">
+      <summary>Reset password</summary>
+      <form class="workspace-inline-action-form" data-admin-password-reset-form="true" data-admin-account-id="${escapeHtml(account.userId || "")}">
+        <input type="hidden" name="siteId" value="${escapeHtml(scope.siteId || currentAccessSiteId())}">
+        <p class="workspace-muted">This signs the person out and makes a one-time setup code. Copy the code after you save.</p>
+        ${renderDestructiveActionConfirmation({
+          id: `password-reset-${account.userId || "account"}`,
+          label: "I understand this signs the person out now.",
+          detail: "A one-time code will be shown once. Share it privately. It expires in 30 minutes.",
+        })}
+        <label class="workspace-label">
+          Why is this needed?
+          <input class="workspace-input" name="reason" maxlength="500" aria-describedby="passwordResetReason-${escapeHtml(account.userId || "account")}" required>
+          <small id="passwordResetReason-${escapeHtml(account.userId || "account")}">Example: The user asked for help signing in.</small>
+        </label>
+        <button class="workspace-button workspace-button-secondary" type="submit">Make setup code</button>
+      </form>
+    </details>
+  `;
+}
+
 function renderSiteAccountRow(account = {}, scope = {}, canManage = false, canResetPassword = false) {
   const isSelf = account.userId && currentUser?.id === account.userId;
   const accountStatus = account.status || "active";
-  const resetResult = lastAdminPasswordResetResult?.userId === account.userId ? lastAdminPasswordResetResult : null;
   return `
-    <article class="workspace-row" data-site-account-row="${escapeHtml(account.userId || "")}">
+    <article class="workspace-row" data-admin-directory-row="true" data-site-account-row="${escapeHtml(account.userId || "")}">
       <div>
         <strong>${escapeHtml(account.displayName || "Account")}</strong>
         <p>${escapeHtml(account.email || "")}</p>
@@ -4048,34 +4126,7 @@ function renderSiteAccountRow(account = {}, scope = {}, canManage = false, canRe
       <div class="workspace-row-actions">
         ${statusPill(accountStatus)}
       </div>
-      ${canResetPassword && !isSelf ? `
-        ${resetResult ? `
-          <section class="workspace-secret-card" data-admin-password-setup-code="true">
-            <strong>Copy this code now</strong>
-            <p>Share it with ${escapeHtml(resetResult.displayName)} in a private school-approved way. It expires in ${escapeHtml(resetResult.expiresInMinutes)} minutes. They choose “I have a setup code” on the sign-in page.</p>
-            <span class="workspace-secret-output">${escapeHtml(resetResult.setupCode)}</span>
-            <button class="workspace-button workspace-button-secondary workspace-button-small" type="button" data-copy-secret="${escapeHtml(resetResult.setupCode)}">Copy setup code</button>
-          </section>
-        ` : ""}
-        <details class="workspace-account-reset" data-admin-password-reset="${escapeHtml(account.userId || "")}">
-          <summary>Reset password</summary>
-          <form class="workspace-inline-action-form" data-admin-password-reset-form="true" data-admin-account-id="${escapeHtml(account.userId || "")}">
-            <input type="hidden" name="siteId" value="${escapeHtml(scope.siteId || currentAccessSiteId())}">
-            <p class="workspace-muted">This signs the person out and makes a one-time setup code. Copy the code after you save.</p>
-            ${renderDestructiveActionConfirmation({
-              id: `password-reset-${account.userId || "account"}`,
-              label: "I understand this signs the person out now.",
-              detail: "A one-time code will be shown once. Share it privately. It expires in 30 minutes.",
-            })}
-            <label class="workspace-label">
-              Why is this needed?
-              <input class="workspace-input" name="reason" maxlength="500" aria-describedby="passwordResetReason-${escapeHtml(account.userId || "account")}" required>
-              <small id="passwordResetReason-${escapeHtml(account.userId || "account")}">Example: The user asked for help signing in.</small>
-            </label>
-            <button class="workspace-button workspace-button-secondary" type="submit">Make setup code</button>
-          </form>
-        </details>
-      ` : ""}
+      ${canResetPassword && !isSelf ? renderAdminPasswordResetControl(account, scope) : ""}
       ${canManage && !isSelf ? `
         <details class="workspace-account-remove">
           <summary>Remove access</summary>
@@ -4101,6 +4152,13 @@ function renderSiteAccountRow(account = {}, scope = {}, canManage = false, canRe
 
 function renderSiteAccessAssignmentSummary(users = {}, programs = [], assignments = {}, permissions = {}) {
   const labels = accessAssignmentLabels(users, programs);
+  const assignmentCount = [
+    assignments.mentorStudent,
+    assignments.viewerStudent,
+    assignments.programTeacherProgram,
+    assignments.administrationSite,
+    assignments.siteAdminSite,
+  ].reduce((total, rows) => total + (Array.isArray(rows) ? rows.length : 0), 0);
   const sections = [
     renderAccessAssignmentSummaryRows({
       title: "Mentor student coverage",
@@ -4157,16 +4215,25 @@ function renderSiteAccessAssignmentSummary(users = {}, programs = [], assignment
   }
 
   return `
-    <div class="workspace-assignment-summary" data-site-access-assignment-summary="true">
-      <div>
-        <p class="workspace-kicker">Current access</p>
-        <h3>Active Assignments</h3>
-        <p class="workspace-muted">Use these rows to confirm current access before saving changes below.</p>
+    <details class="workspace-admin-supporting-disclosure workspace-admin-directory" data-site-access-assignment-summary="true">
+      <summary>
+        <span>
+          <strong>Current access</strong>
+          <small>Open this list only when you need to confirm an existing assignment.</small>
+        </span>
+        <span class="workspace-summary-badge">${escapeHtml(String(assignmentCount))}</span>
+      </summary>
+      <div class="workspace-assignment-summary">
+        <div>
+          <p class="workspace-kicker">Current access</p>
+          <h3>Active Assignments</h3>
+          <p class="workspace-muted">Use these rows to confirm current access before saving changes below.</p>
+        </div>
+        <div class="workspace-assignment-summary-grid">
+          ${sections.join("")}
+        </div>
       </div>
-      <div class="workspace-assignment-summary-grid">
-        ${sections.join("")}
-      </div>
-    </div>
+    </details>
   `;
 }
 

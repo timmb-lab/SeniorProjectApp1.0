@@ -1200,7 +1200,7 @@ async function handleProjectAction(event) {
     activeProjectId = projectId;
     managedProjectId = "";
     renderAppShell();
-    const card = document.querySelector(`[data-project-id="${projectId}"]`);
+    const card = document.querySelector(`details.workspace-project-card[data-project-id="${projectId}"]`);
     if (!card) {
       activeProjectId = "";
       renderAppShell("This project is no longer in the list. Refresh and choose another project.", "error");
@@ -1221,7 +1221,7 @@ async function handleProjectAction(event) {
     managedProjectId = managedProjectId === projectId ? "" : projectId;
     renderAppShell();
     if (managedProjectId) {
-      const card = document.querySelector(`[data-project-id="${managedProjectId}"]`);
+      const card = document.querySelector(`details.workspace-project-card[data-project-id="${managedProjectId}"]`);
       card?.setAttribute("open", "");
       card?.scrollIntoView?.({ behavior: "smooth", block: "center" });
     }

@@ -81,6 +81,9 @@ test("site access assignments route returns scoped recent access history without
   assert.equal(schoolAdmin.permissions.canAssignAdministration, false);
   assert.equal(schoolAdmin.permissions.canAssignSiteAdmins, false);
   assert.equal(schoolAdmin.permissions.canRequirePasswordReset, true);
+  const programStudent = schoolAdmin.users.students.find((student) => student.userId === "demo-student-001");
+  assert.equal(programStudent.programId, "it");
+  assert.equal(programStudent.programName, "IT");
 
   const programTeacher = await expectAccessAssignments(env, tokens.programTeacher, `?siteId=${PRIMARY_SITE_ID}`);
   assert.equal(programTeacher.permissions.canAssignMentors, true);
@@ -141,6 +144,8 @@ test("site access assignments renders student options safely before roster profi
   assert.equal(body.users.students[0].userId, "legacy-roster-student");
   assert.equal(body.users.students[0].cohort, "");
   assert.equal(body.users.students[0].graduationYear, "");
+  assert.equal(body.users.students[0].programId, "");
+  assert.equal(body.users.students[0].programName, "");
   assert.equal(body.permissions.canAssignMentors, true);
 });
 

@@ -1523,6 +1523,38 @@ body[data-page="workspace"] {
   grid-template-columns: minmax(0, 1fr) minmax(7.5rem, auto);
 }
 
+.workspace-admin-directory {
+  margin-top: 0.75rem;
+}
+
+.workspace-admin-directory > summary > span:first-child {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.workspace-admin-directory > summary small {
+  color: var(--abc-muted);
+  font-weight: 600;
+}
+
+.workspace-admin-directory-body {
+  display: grid;
+  gap: 0.65rem;
+  padding-top: 0.25rem;
+}
+
+.workspace-admin-directory-search {
+  max-width: 34rem;
+}
+
+.workspace-admin-directory-search + [data-admin-directory-search-count] {
+  margin: 0;
+}
+
+.workspace-admin-directory [data-admin-directory-row][hidden] {
+  display: none !important;
+}
+
 @media (max-width: 760px) {
   .workspace-user .workspace-v2-tools-panel {
     width: auto;

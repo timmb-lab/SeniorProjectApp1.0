@@ -32,6 +32,7 @@ function renderProjectsSection() {
   const summary = body.summary || {};
   const isStudent = roleIds(currentUser).has("student");
   const canManage = Boolean(body.permissions?.canManage);
+  const canOpenReviewQueue = body.permissions?.canOpenReviewQueue;
   const accessibleSites = accessibleSitesForWorkspace();
   if (!isStudent && accessibleSites.length > 1 && !selectedSiteQueryValue()) {
     return `
@@ -80,6 +81,7 @@ function renderProjectsSection() {
         pagination: body.pagination || {},
         summary,
         availableProjectAdults,
+        canOpenReviewQueue,
       })}
 
       ${canManage && requests.some((request) => request.status === "submitted") ? renderProjectRequestsForStaff(requests, availableProjectAdults) : ""}
@@ -188,6 +190,7 @@ function renderProjectDirectoryWorklist(projects = [], options = {}) {
             previousProject: rows[actualSelectedIndex - 1] || null,
             nextProject: rows[actualSelectedIndex + 1] || null,
             availableProjectAdults: options.availableProjectAdults || {},
+            canOpenReviewQueue: options.canOpenReviewQueue,
           }) : `<div class="workspace-project-focus-empty"><p>Select a project from the list.</p></div>`}
         </section>
       ` : `
@@ -452,6 +455,9 @@ function renderProjectCard(project = {}, options = {}) {
   const firstMember = members[0] || {};
   const memberNames = members.map((member) => member.displayName).join(", ") || "No students";
   const isMentor = roleIds(currentUser).has("mentor");
+  const canOpenReviewQueue = options.canOpenReviewQueue === undefined
+    ? hasSiteReviewQueueRole(roleIds(currentUser))
+    : Boolean(options.canOpenReviewQueue);
   const mentorNextAction = safeNumber(project.waitingForReviewCount) > 0
     ? "Open the work. Read the student's link. Then choose the next step."
     : "Open the check-in. Ask one clear question, agree on one next step, and save it.";
@@ -488,7 +494,7 @@ function renderProjectCard(project = {}, options = {}) {
           </div>
         </div>
         <div class="workspace-project-actions">
-          ${project.nextSubmissionId && safeNumber(project.waitingForReviewCount) > 0 ? `
+          ${canOpenReviewQueue && project.nextSubmissionId && safeNumber(project.waitingForReviewCount) > 0 ? `
             <button class="workspace-primary-button" type="button" data-project-action="review" data-project-submission-id="${escapeHtml(project.nextSubmissionId)}" data-project-name="${escapeHtml(project.name || "Senior Project")}">Review this project</button>
           ` : isMentor && firstMember.studentId ? `
             <button class="workspace-primary-button" type="button" data-mentor-dashboard-action="open-meetings" data-mentor-dashboard-student-id="${escapeHtml(firstMember.studentId)}">Open check-in</button>

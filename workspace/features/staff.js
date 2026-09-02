@@ -228,8 +228,8 @@ function renderStaffAdminTodayPlan(model = {}) {
       title: "Fix setup and access",
       value: setupCount,
       detail: "Use account, mentor, viewer, or final-file setup work after the daily student need is clear.",
-      section: "adminUsers",
-      action: "Open setup",
+      section: "adminAssignments",
+      action: "Open assignments",
       tone: setupCount ? "danger" : "ready",
     },
     {
@@ -1245,6 +1245,28 @@ function renderStaffReportsSection() {
       dataAttrs: `data-staff-report-row="mentor-coverage"`,
     },
   ];
+  const reportDetailMarkup = `
+    <div class="workspace-admin-console-metrics" data-staff-report-metrics="true">
+      ${renderMetricTile("Visible Students", adminConsoleStudentCount(), "Rows available to this role", "student", hasSiteStudentDirectoryRole(roles) ? "students" : "", { label: "Open Students" })}
+      ${renderMetricTile("Needs Review", adminConsoleReviewCount(), "Submitted or review-related rows", safeNumber(adminConsoleReviewCount()) ? "warning" : "teacher", hasSiteReviewQueueRole(roles) ? "teacher" : "", { label: "Open Reviews", preset: "submitted" })}
+      ${renderMetricTile("Setup Work", adminConsoleOperationsCount(), "Presentation, mentor, or final-file follow-up", safeNumber(adminConsoleOperationsCount()) ? "warning" : "mentor", hasSiteOperationsRole(roles) ? "operations" : "", { label: "Open Worklist", preset: "needs-attention" })}
+    </div>
+    ${renderReportBars({
+      id: "staffReportBarTitle",
+      kicker: "Staff reports",
+      title: "Visible students by status",
+      detail: "The bars show class work and setup work. Each bar also has a number. Work with no status stays separate.",
+      rows: reportRows,
+      className: "workspace-staff-report-summary",
+      dataAttrs: `data-staff-report-bars="true"`,
+    })}
+    ${renderReportExportPanel({
+      id: "staff",
+      title: "CSV downloads",
+      detail: "Downloads use only rows visible to this role and leave out passwords, private notes, and file links.",
+      exports: staffReportExportSpecs(),
+    })}
+  `;
   return `
     <section class="workspace-command-center workspace-staff-reports" data-staff-reports="true" aria-labelledby="staffReportsTitle">
       <div class="workspace-command-hero">
@@ -1255,27 +1277,30 @@ function renderStaffReportsSection() {
         </div>
       </div>
       ${renderStaffReportQuestionFlow(staffReportQuestions({ roles, visibleStudents, reviewCount, setupSignalCount, report }))}
-      <div class="workspace-admin-console-metrics" data-staff-report-metrics="true">
-        ${renderMetricTile("Visible Students", adminConsoleStudentCount(), "Rows available to this role", "student", hasSiteStudentDirectoryRole(roles) ? "students" : "", { label: "Open Students" })}
-        ${renderMetricTile("Needs Review", adminConsoleReviewCount(), "Submitted or review-related rows", safeNumber(adminConsoleReviewCount()) ? "warning" : "teacher", hasSiteReviewQueueRole(roles) ? "teacher" : "", { label: "Open Reviews", preset: "submitted" })}
-        ${renderMetricTile("Setup Work", adminConsoleOperationsCount(), "Presentation, mentor, or final-file follow-up", safeNumber(adminConsoleOperationsCount()) ? "warning" : "mentor", hasSiteOperationsRole(roles) ? "operations" : "", { label: "Open Worklist", preset: "needs-attention" })}
-      </div>
-      ${renderReportBars({
-        id: "staffReportBarTitle",
-        kicker: "Staff reports",
-        title: "Visible students by status",
-        detail: "The bars show class work and setup work. Each bar also has a number. Work with no status stays separate.",
-        rows: reportRows,
-        className: "workspace-staff-report-summary",
-        dataAttrs: `data-staff-report-bars="true"`,
-      })}
-      ${renderReportExportPanel({
-        id: "staff",
-        title: "CSV downloads",
-        detail: "Downloads use only rows visible to this role and leave out passwords, private notes, and file links.",
-        exports: staffReportExportSpecs(),
-      })}
-      ${availableSectionIdsForAnyMode().has("readiness") ? renderReadinessSection() : ""}
+      ${roles.has("administration")
+        ? `
+          <details class="workspace-admin-supporting-disclosure workspace-admin-report-supporting" data-staff-report-supporting="counts-and-downloads">
+            <summary>
+              <span class="workspace-kicker">More report details</span>
+              <strong>Open charts and downloads</strong>
+            </summary>
+            ${reportDetailMarkup}
+          </details>
+        `
+        : reportDetailMarkup}
+      ${availableSectionIdsForAnyMode().has("readiness")
+        ? roles.has("administration")
+          ? `
+            <details class="workspace-admin-supporting-disclosure workspace-admin-report-supporting" data-staff-report-supporting="readiness">
+              <summary>
+                <span class="workspace-kicker">School readiness</span>
+                <strong>Open the full readiness dashboard</strong>
+              </summary>
+              ${renderReadinessSection()}
+            </details>
+          `
+          : renderReadinessSection()
+        : ""}
     </section>
   `;
 }
@@ -1320,7 +1345,15 @@ function renderAdminReportsSection() {
         ${renderAdminSetupReadinessPanel(model.setupReadiness)}
         ${renderAdminOperationalReportSummary(model.report)}
       </details>
-      ${availableSectionIdsForAnyMode().has("readiness") ? renderReadinessSection() : ""}
+      ${availableSectionIdsForAnyMode().has("readiness") ? `
+        <details class="workspace-admin-supporting-disclosure workspace-admin-report-supporting" data-admin-report-supporting="readiness">
+          <summary>
+            <span class="workspace-kicker">School readiness</span>
+            <strong>Open the full readiness dashboard</strong>
+          </summary>
+          ${renderReadinessSection()}
+        </details>
+      ` : ""}
     </section>
   `;
 }
@@ -1354,6 +1387,8 @@ function renderAdminReportChoiceRow(spec = {}, index = 0, model = adminConsoleOp
   const setupIssues = safeNumber(model?.report?.setupIssueCount) + safeNumber(model?.report?.importIssueCount);
   const helper = id === "admin-roster-completeness"
     ? `${safeNumber(model?.report?.loadedStudentRows || model?.report?.studentTotal)} students visible to this admin role.`
+    : id === "admin-project-adults"
+      ? `${count} project record${count === 1 ? " is" : "s are"} available in this download.`
     : id === "admin-setup-issues"
       ? `${setupIssues} setup or import issue${setupIssues === 1 ? "" : "s"} need review.`
       : "Appears after a CSV preview or import result exists.";
@@ -1714,8 +1749,9 @@ function renderAdminMoreMenu({ id = "row", actions = [], label = "More", context
   if (!safeActions.length) return "";
   const safeContext = String(contextLabel || id || "row").replace(/[-_]+/g, " ").trim();
   const adminMoreMenuLabel = `${label} actions for ${safeContext || "row"}`;
+  const keepOpenForReset = Boolean(lastAdminPasswordResetResult?.userId && String(id).endsWith(lastAdminPasswordResetResult.userId));
   return `
-    <details class="workspace-row-more-menu workspace-admin-more-menu" data-admin-more-menu="${escapeHtml(id)}">
+    <details class="workspace-row-more-menu workspace-admin-more-menu" data-admin-more-menu="${escapeHtml(id)}" ${keepOpenForReset ? "open" : ""}>
       <summary aria-label="${escapeHtml(adminMoreMenuLabel)}">${escapeHtml(label)}</summary>
       <div class="workspace-row-more-menu-body">
         ${safeActions.map((action) => renderAdminActionControl(action, "workspace-link-button workspace-link-button-small", "row-more")).join("")}
@@ -1968,20 +2004,20 @@ function staffReportExportSpecs() {
     {
       id: "staff-project-adults",
       title: "Project adult ownership",
-      detail: "Mentor and Program Teacher setup for projects visible to this role.",
+      detail: "Mentor and Program Teacher setup on the current project page.",
       filename: "capstone-project-adults.csv",
       headers: ["Project", "Students", "Mentor", "Mentor status", "Program Teacher", "Program Teacher status", "Setup state", "Next step"],
       rows: projectAdultRows,
-      boundary: "Includes only projects visible to this account; no private notes or invite tokens.",
+      boundary: "Includes the current visible project page only; no private notes or invite tokens.",
     },
     {
       id: "staff-visible-students",
       title: "Visible students",
-      detail: "Current Student Directory rows visible to this role and site.",
+      detail: "Current Student Directory page visible to this role and site.",
       filename: "capstone-visible-students.csv",
       headers: ["Student name", "Program", "Latest submission", "Review status", "Evidence status", "Presentation", "Final files", "Next action"],
       rows: visibleStudentRows,
-      boundary: "Includes only students visible to this account; no passwords, private notes, or file links.",
+      boundary: "Includes the current visible student page only; no passwords, private notes, or file links.",
     },
     {
       id: "staff-pending-reviews",
@@ -2009,11 +2045,11 @@ function adminReportExportSpecs(model = adminConsoleOperationsModel()) {
     {
       id: "admin-project-adults",
       title: "Project adult ownership",
-      detail: "Shows whether each visible project has its required Mentor and Program Teacher.",
+      detail: "Shows whether each project on the current page has its required Mentor and Program Teacher.",
       filename: "capstone-admin-project-adults.csv",
       headers: ["Project", "Students", "Mentor", "Mentor status", "Program Teacher", "Program Teacher status", "Setup state", "Next step"],
       rows: projectAdultRows,
-      boundary: "Uses only projects visible to this admin role; no private notes or invite tokens.",
+      boundary: "Uses the current visible project page only; no private notes or invite tokens.",
     },
     {
       id: "admin-roster-completeness",
@@ -3157,12 +3193,15 @@ function renderStudentDirectoryStartHere(directory = {}) {
   const filters = directory.filters || {};
   const permissions = directory.permissions || {};
   const canSeeSetup = Boolean(permissions.canManageMentorAssignments);
+  const canReviewWork = Boolean(permissions.canViewReviewQueue);
   const actions = [
     {
       id: "review",
-      label: "Review work waiting for you",
+      label: canReviewWork ? "Review work waiting for you" : "Monitor work waiting for review",
       count: studentDirectoryMapCount(summary, students, ["needsReview", "submitted"], (student) => normalizeStatus(student?.reviewStatus) === "needs_review" || normalizeStatus(student?.latestSubmissionStatus) === "submitted"),
-      detail: "Open students whose work is ready for a teacher decision.",
+      detail: canReviewWork
+        ? "Open students whose work is ready for your decision."
+        : "See students whose work still needs an assigned teacher decision.",
       preset: "needs-review-students",
       tone: "teacher",
     },

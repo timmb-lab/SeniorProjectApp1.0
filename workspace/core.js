@@ -1468,6 +1468,10 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   const projectPrimarySection = !renderBlockedSectionOnly
     && !isAdminConsole
     && activeSection === "projects";
+  const operationalPrimarySection = !renderBlockedSectionOnly
+    && !isAdminConsole
+    && !studentExperience
+    && ["siteDashboard", "mentorAssignments", "operations", "presentation", "readiness", "archiveExports"].includes(activeSection);
   const detailSourceSection = cleanWorkspaceSection(siteStudentDetailState?.sourceSection || "");
   const siteStudentDetailPrimarySection = !renderBlockedSectionOnly
     && Boolean(siteStudentDetailState?.studentId)
@@ -1496,6 +1500,8 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
       ? "admin-student-search"
     : adminConsolePrimarySection
       ? `admin-${activeSection}`
+    : operationalPrimarySection
+      ? `operations-${activeSection}`
     : mentorPrimarySection
       ? activeSection === "mentor"
         ? "mentor-students"
@@ -1529,7 +1535,9 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
                   ? "program-teacher-reports"
                   : "program-teacher"
             : "";
-  const primarySectionMarkup = primarySectionKind ? activeSectionMarkup : "";
+  const primarySectionMarkup = primarySectionKind
+    ? `${activeSectionMarkup}${operationalPrimarySection ? screenGuidance : ""}`
+    : "";
   const supportMarkup = renderV2SupportPanel({
     activeSectionMarkup: primarySectionMarkup ? "" : activeSectionMarkup,
     primarySectionVisible: Boolean(primarySectionMarkup),
@@ -1677,6 +1685,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     button.addEventListener("click", () => handleSecurityFocusAction(button));
   });
   bindWorkspaceForms();
+  bindAdminDirectorySearches();
   flushPendingSiteStudentDetailFocus();
   flushPendingStudentRequirementFocus();
   flushPendingStudentSectionFocus();
@@ -1860,6 +1869,7 @@ function renderV2ActiveScreen({
   }
   const directRoleSurface = Boolean(primarySectionMarkup) && (
     primarySectionKind.startsWith("student")
+    || primarySectionKind.startsWith("operations-")
     || ["mentor", "mentor-students", "mentor-reviews", "mentor-reports", "program-teacher", "program-teacher-students", "program-teacher-dashboard", "program-teacher-reports", "teacher"].includes(primarySectionKind)
   );
   if (directRoleSurface) {
@@ -4858,9 +4868,46 @@ async function handleRoleAssignmentAction(event) {
   await loadWorkspaceData(successMessage);
 }
 
+function resetWorkspaceScrollPosition() {
+  const scrollingElement = document.scrollingElement || document.documentElement;
+  if (scrollingElement) {
+    scrollingElement.scrollTop = 0;
+    scrollingElement.scrollLeft = 0;
+  }
+  if (typeof window.scrollTo === "function") window.scrollTo(0, 0);
+  const stage = document.querySelector?.(".workspace-v2-stage");
+  if (stage && typeof stage.scrollTo === "function") stage.scrollTo(0, 0);
+}
+
+function bindAdminDirectorySearches() {
+  document.querySelectorAll?.("[data-admin-directory-search]").forEach((input) => {
+    input.addEventListener("input", () => {
+      const directory = input.closest?.("[data-admin-directory]");
+      if (!directory) return;
+      const query = String(input.value || "").trim().toLowerCase();
+      const rows = Array.from(directory.querySelectorAll?.("[data-admin-directory-row]") || []);
+      let visible = 0;
+      rows.forEach((row) => {
+        const matches = !query || String(row.textContent || "").toLowerCase().includes(query);
+        row.hidden = !matches;
+        if (matches) visible += 1;
+      });
+      const count = directory.querySelector?.("[data-admin-directory-search-count]");
+      if (count) count.textContent = query
+        ? `${visible} of ${rows.length} accounts shown`
+        : `${rows.length} accounts shown`;
+    });
+  });
+}
+
 async function openWorkspaceSection(button) {
-  const section = button?.dataset?.section;
-  if (!section) return;
+  const requestedSection = button?.dataset?.section;
+  if (!requestedSection) return;
+  const requestedAdminPeopleView = cleanAdminPeopleView(button?.dataset?.adminPeopleView || "");
+  const section = requestedSection === "adminUsers"
+    ? adminSectionForPeopleView(requestedAdminPeopleView || "manage-students", "adminUsers")
+    : requestedSection;
+  resetWorkspaceScrollPosition();
   await ensureWorkspaceModulesForSection(section, currentUser);
   const sectionMode = modeForAvailableSection(section);
   if (!sectionMode) {
@@ -4869,7 +4916,6 @@ async function openWorkspaceSection(button) {
   }
   activeWorkspaceMode = sectionMode;
   blockedWorkspaceMode = "";
-  const requestedAdminPeopleView = cleanAdminPeopleView(button?.dataset?.adminPeopleView || "");
   if (requestedAdminPeopleView) {
     adminPeopleView = requestedAdminPeopleView;
   }

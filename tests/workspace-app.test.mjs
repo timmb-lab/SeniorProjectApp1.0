@@ -908,7 +908,7 @@ test("workspace reports render accessible shared report bars with mobile fallbac
   assert.match(staffReports, /data-report-export-panel="staff"/);
   assert.match(staffReports, /data-report-confidence-note="staff"[\s\S]*unknown states are not counted as complete/);
   assert.match(staffReports, /data-report-export-card="staff-visible-students"[\s\S]*capstone-visible-students\.csv/);
-  assert.match(staffReports, /data-report-export-boundary="staff-visible-students"[\s\S]*Includes only students visible to this account/);
+  assert.match(staffReports, /data-report-export-boundary="staff-visible-students"[\s\S]*Includes the current visible student page only/);
   assert.doesNotMatch(visibleText(staffReports), /current admin view|storage links|no IDs/i);
   const visibleStudentsCsv = reportExportCsv(staffReports, "staff-visible-students");
   assert.match(visibleStudentsCsv, /^Student name,Program,Latest submission,Review status,Evidence status,Presentation,Final files,Next action/m);
@@ -961,7 +961,7 @@ test("workspace report exports stay scoped for viewer and unavailable to student
   assert.match(viewerReports, /data-staff-report-question="work-waiting-for-review"[\s\S]*Summary only/);
   assert.doesNotMatch(viewerReports, /data-staff-report-question="work-waiting-for-review"[\s\S]*data-section="teacher"/);
   assert.match(viewerReports, /data-report-export-panel="staff"/);
-  assert.match(viewerReports, /data-report-export-boundary="staff-visible-students"[\s\S]*Includes only students visible to this account/);
+  assert.match(viewerReports, /data-report-export-boundary="staff-visible-students"[\s\S]*Includes the current visible student page only/);
   assert.doesNotMatch(visibleText(viewerReports), /current admin view|storage links|no IDs/i);
   assert.doesNotMatch(viewerReports, /data-report-export-panel="admin"|data-report-export-card="admin-/);
   assert.doesNotMatch(viewerReports, /data-csv-import-kind="students"|data-mentor-assignment-form="true"|data-review-decision="approved"|data-admin-action="import-users"/);
@@ -3954,6 +3954,18 @@ test("student directory Start Here actions apply real directory filters", async 
   assert.match(workspaceRoot.innerHTML, /data-student-directory-start-action="final-files-help"[\s\S]*aria-pressed="true"[\s\S]*Viewing this group/);
 });
 
+test("School Admin student directory describes review work as monitoring instead of a teacher decision", async () => {
+  const { context } = await createWorkspaceContextWithFetch(profileRoutesForRole("administration"));
+  const markup = vm.runInContext(`renderStudentDirectoryStartHere({
+    permissions: { canViewReviewQueue: false, canManageMentorAssignments: true },
+    summary: { needsReview: 3 },
+    students: []
+  })`, context);
+  assert.match(markup, /Monitor work waiting for review/);
+  assert.match(markup, /needs an assigned teacher decision/);
+  assert.doesNotMatch(markup, /Review work waiting for you|ready for your decision/);
+});
+
 test("workspace opens real student detail, loads timeline, and preserves directory state", async () => {
   const filteredDirectory = siteStudentsFixture({
     readOnly: true,
@@ -6196,11 +6208,8 @@ test("workspace renders site-scoped Operations readiness worklists without mutat
   assert.match(siteAdmin, /data-section="operations"/);
   assert.match(siteAdmin, /Operations/);
   assert.match(siteAdmin, /<p class="workspace-kicker">Operations<\/p>/);
-  assert.match(siteAdmin, /data-screen-orientation-section="operations"/);
-  assert.match(siteAdmin, /Triage presentation, final-file, and readiness issues/);
-  assert.match(siteAdmin, /Use the ranked actions before opening longer worklists/);
-  assert.match(siteAdmin, /Do not mark completion from this summary/);
-  assert.match(siteAdmin, /data-screen-orientation-actions="true"/);
+  assert.match(siteAdmin, /data-v2-primary-surface="operations-operations"/);
+  assert.doesNotMatch(siteAdmin, /data-v2-support-panel="true"[\s\S]*workspace-operations-readiness/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="presentation-pending"[\s\S]*Presentation follow-up/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="archive-failed"[\s\S]*Final-file failures/);
   assert.match(siteAdmin, /data-section="operations" data-section-preset="evidence-missing"[\s\S]*Missing work/);
@@ -7481,6 +7490,7 @@ test("workspace wide admin console keeps operations readable and source actions 
   assert.match(workspaceCss, /\.workspace-admin-action-menu-body\s*\{[\s\S]*position:\s*absolute;/);
   assert.match(workspaceCss, /\.workspace-admin-action-menu\[open\] > summary,[\s\S]*\.workspace-admin-issue-details\[open\] > summary\s*\{[\s\S]*border-color:/);
   assert.match(workspaceCss, /\.workspace-admin-filter-bar\s*\{[\s\S]*grid-template-columns:/);
+  assert.match(workspaceCss, /\.workspace-admin-directory \[data-admin-directory-row\]\[hidden\]\s*\{[\s\S]*display:\s*none !important;/);
   assert.equal(adminReadableWidthForViewport(1920), 1560);
 
   const wideContext = await createWorkspaceContextWithFetch(profileRoutesForRole("global_admin"), {
@@ -7586,6 +7596,7 @@ test("admin console surfaces setup reasons across overview people students and r
   assert.doesNotMatch(visibleText(students), /Allowed roles|Not available from this account/i);
   assert.match(students, /data-admin-student-setup-summary="true"[\s\S]*Students visible[\s\S]*Roster fields[\s\S]*Mentor gaps[\s\S]*Viewer gaps/);
   assert.match(students, /data-admin-student-first-action="[^"]+"[\s\S]*(Review first|Current roster state)/);
+  assert.match(students, /data-admin-directory="students"[\s\S]*Find a student account[\s\S]*data-admin-directory-search="students"/);
   assertMarkupOrder(
     students,
     'data-admin-student-first-action=',
@@ -7600,6 +7611,7 @@ test("admin console surfaces setup reasons across overview people students and r
   );
   assert.match(students, /data-manage-student-row="student-needs-setup" data-manage-student-setup="needs-review"/);
   assert.match(students, /data-admin-more-menu="student-student-needs-setup"[\s\S]*aria-label="More actions for No Year Student"[\s\S]*More[\s\S]*View as Student[\s\S]*Manage assignments/);
+  assert.match(students, /data-admin-more-menu="student-student-needs-setup"[\s\S]*Reset password/);
   assert.match(students, /data-admin-setup-flag="profile"[\s\S]*Missing cohort\/year/);
   assert.match(students, /data-admin-setup-flag="mentor"[\s\S]*No mentor/);
   assert.match(students, /data-admin-setup-flag="viewer"[\s\S]*No viewer/);
@@ -7611,6 +7623,7 @@ test("admin console surfaces setup reasons across overview people students and r
   assert.match(assignments, /data-admin-assignment-flow-lane="mentor"[\s\S]*Assign mentor coverage[\s\S]*Open mentor form/);
   assert.match(assignments, /data-admin-assignment-flow-lane="viewer"[\s\S]*Assign viewer access/);
   assert.match(assignments, /data-admin-assignment-flow-lane="program-teacher"[\s\S]*Program Teacher coverage/);
+  assert.match(assignments, /data-admin-directory="site-accounts"[\s\S]*Find an account[\s\S]*data-admin-directory-search="site-accounts"/);
 
   vm.runInContext('activeSection = "programs"; renderAppShell();', context);
   const programs = workspaceRoot.innerHTML;
@@ -7629,8 +7642,10 @@ test("admin console surfaces setup reasons across overview people students and r
   assert.doesNotMatch(visibleText(people), /Allowed roles|Not available from this account/i);
   assert.match(people, /data-admin-staff-setup-summary="true"[\s\S]*Staff visible[\s\S]*Needs setup[\s\S]*Coverage gaps/);
   assert.match(people, /data-admin-staff-first-action="[^"]+"[\s\S]*(Review first|Current staff state)/);
+  assert.match(people, /data-admin-directory="staff"[\s\S]*Find a staff account[\s\S]*data-admin-directory-search="staff"/);
   assert.match(people, /data-manage-staff-row="mentor-no-scope" data-manage-staff-setup="needs-review"/);
   assert.match(people, /data-admin-more-menu="staff-mentor-no-scope"[\s\S]*aria-label="More actions for Orphan Mentor"[\s\S]*More[\s\S]*Manage assignments/);
+  assert.match(people, /data-admin-more-menu="staff-mentor-no-scope"[\s\S]*Reset password/);
   assert.doesNotMatch(people, /data-admin-more-menu="staff-mentor-no-scope"[\s\S]*View recent changes/);
   assert.match(people, /data-admin-setup-flag="email"[\s\S]*Missing email/);
   assert.match(people, /data-admin-setup-flag="mentor-scope"[\s\S]*No mentor students/);
@@ -7653,6 +7668,8 @@ test("admin console surfaces setup reasons across overview people students and r
   assertMarkupOrder(reports, 'data-v2-primary-surface="admin-adminReports"', 'data-v3-start-state="true"', "Admin Reports content should lead before shared guidance");
   assert.match(reports, /data-admin-page-header="true" data-admin-page-section="adminReports"/);
   assert.match(reports, /data-admin-report-choice-flow="true"[\s\S]*Pick the report you need now/);
+  assert.match(reports, /data-admin-report-supporting="readiness"[\s\S]*Open the full readiness dashboard/);
+  assert.match(reports, /data-admin-report-choice="admin-project-adults"[\s\S]*project records are available in this download/);
   assertMarkupOrder(
     reports,
     'data-admin-report-choice-flow="true"',
@@ -11654,6 +11671,7 @@ test("workspace renders current site access assignments before management forms"
   const adminUsers = workspaceRoot.innerHTML;
 
   assert.match(adminUsers, /data-site-access-assignment-summary="true"/);
+  assert.match(adminUsers, /Open this list only when you need to confirm an existing assignment/);
   assert.match(adminUsers, /data-site-access-removal-warning="true"/);
   assert.match(adminUsers, /data-destructive-confirmation="account-remove"/);
   assert.match(adminUsers, /I reviewed what account removal does for this person/);
@@ -13973,6 +13991,19 @@ test("project directory renders one paged worklist, one focused detail, and one 
   assert.match(html, /Mentor: Still needed · Program Teacher: Still needed/);
   assert.equal((html.match(/class="workspace-project-card"/g) || []).length, 1, "only the selected project renders full details");
 
+  const schoolAdminContext = await createWorkspaceContextWithFetch(profileRoutesForRole("administration"));
+  const schoolAdminProject = vm.runInContext(`renderProjectCard({
+    projectId: "project-review",
+    name: "Project waiting for review",
+    members: [{ studentId: "student-1", displayName: "Jordan Student" }],
+    waitingForReviewCount: 1,
+    nextSubmissionId: "submission-1",
+    adultSetup: { ready: true }
+  }, { canManage: true, canOpenReviewQueue: false })`, schoolAdminContext.context);
+  assert.doesNotMatch(schoolAdminProject, /Review this project|data-project-action="review"/);
+  assert.match(schoolAdminProject, /Open project/);
+  assert.match(workspaceJs, /details\.workspace-project-card\[data-project-id=/);
+
   const picker = vm.runInContext(`renderProjectTeamPicker([
     { studentId: "student-1", displayName: "Jordan Student", email: "jordan@example.test" },
     { studentId: "student-2", displayName: "Taylor Student", email: "taylor@example.test" }
@@ -14102,7 +14133,18 @@ test("program teacher reports open as the direct report screen", async () => {
   assert.match(workspaceRoot.innerHTML, /data-v2-screen="program-teacher-reports"/);
   assert.match(workspaceRoot.innerHTML, /data-v2-primary-surface="program-teacher-reports"/);
   assert.match(workspaceRoot.innerHTML, /data-staff-reports="true"/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-staff-report-supporting="counts-and-downloads"/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /Review queue before reports/);
+});
+
+test("School Admin reports keep the full readiness dashboard behind one clear choice", async () => {
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch(profileRoutesForRole("administration"));
+  vm.runInContext('activeSection = "staffReports"; renderAppShell();', context);
+  assert.match(workspaceRoot.innerHTML, /data-staff-reports="true"/);
+  assert.match(workspaceRoot.innerHTML, /data-staff-report-supporting="counts-and-downloads"[\s\S]*Open charts and downloads/);
+  assert.match(workspaceRoot.innerHTML, /data-staff-report-supporting="readiness"[\s\S]*Open the full readiness dashboard/);
+  assert.match(workspaceRoot.innerHTML, /current visible project page only/);
+  assert.match(workspaceRoot.innerHTML, /current visible student page only/);
 });
 
 test("program teacher student search opens the student directory directly", async () => {
