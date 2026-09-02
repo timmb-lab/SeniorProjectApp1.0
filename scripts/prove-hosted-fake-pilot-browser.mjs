@@ -46,7 +46,7 @@ const SCREENSHOT_PLAN = [
     label: 'Student dashboard',
     url: workspaceUrl('?section=student'),
     viewport: desktopViewport(),
-    expected: ['My Capstone', 'What do I do next?'],
+    expected: ['My Capstone', 'Your next step', 'Show progress, feedback, and checklist'],
     absent: ['unavailable', 'could not load'],
     authRole: 'student'
   },
@@ -55,7 +55,7 @@ const SCREENSHOT_PLAN = [
     label: 'Program Teacher dashboard',
     url: workspaceUrl('?section=programDashboard'),
     viewport: desktopViewport(),
-    expected: ['Pick the project that needs attention'],
+    expected: ['Projects that need you', 'Start here', 'Program list and reports'],
     absent: ['unavailable', 'could not load'],
     authRole: 'program_teacher'
   },
@@ -64,7 +64,7 @@ const SCREENSHOT_PLAN = [
     label: 'Mentor dashboard',
     url: workspaceUrl('?section=mentorDashboard'),
     viewport: desktopViewport(),
-    expected: ['Choose the student who needs you next'],
+    expected: ['Your next check-in', 'Open check-in', 'Show filters and other students'],
     absent: ['unavailable', 'could not load'],
     authRole: 'mentor'
   },
@@ -109,7 +109,7 @@ const SCREENSHOT_PLAN = [
     label: 'Student mobile dashboard',
     url: workspaceUrl('?section=student'),
     viewport: mobileViewport(),
-    expected: ['My Capstone', 'What do I do next?'],
+    expected: ['My Capstone', 'Your next step', 'Show progress, feedback, and checklist'],
     absent: ['unavailable', 'could not load'],
     authRole: 'student'
   },

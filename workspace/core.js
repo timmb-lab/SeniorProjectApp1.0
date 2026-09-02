@@ -1842,6 +1842,19 @@ function renderV2ActiveScreen({
       </section>
     `;
   }
+  const directRoleSurface = Boolean(primarySectionMarkup) && (
+    primarySectionKind.startsWith("student")
+    || ["mentor", "mentor-students", "mentor-reviews", "program-teacher", "program-teacher-dashboard", "teacher"].includes(primarySectionKind)
+  );
+  if (directRoleSurface) {
+    return `
+      <section class="workspace-v2-screen workspace-v2-role-screen" data-v2-screen="${escapeHtml(primarySectionKind)}" aria-label="${escapeHtml(sectionLabelForTopbar(sections, sectionId))}">
+        <div class="workspace-v2-primary-surface" data-v2-primary-surface="${escapeHtml(primarySectionKind)}">
+          ${primarySectionMarkup}
+        </div>
+      </section>
+    `;
+  }
   const model = v2ScreenModel({ isAdminConsole, studentExperience, sectionId, sections, primaryRole, roles, primarySectionKind });
   const primarySurfaceMarkup = primarySectionMarkup ? `
     <div class="workspace-v2-primary-surface" data-v2-primary-surface="${escapeHtml(primarySectionKind || "primary")}">

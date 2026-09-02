@@ -567,54 +567,39 @@ test("workspace opens students on guidance and staff on the project workspace", 
   assert.doesNotMatch(studentText, /Access to Overview is limited|This screen is not open for this account/);
   assert.doesNotMatch(studentText, /My Capstone ready\./);
   assert.match(studentText, /My Capstone/);
-  assert.match(studentText, /What to do next/);
+  assert.match(studentText, /Your next step/);
   assert.match(student, /data-v2-primary-surface="student"/);
-  assertMarkupOrder(student, 'data-v2-primary-surface="student"', 'data-v3-start-state="true"', "student's real work surface should come before shared shell guidance");
-  assert.match(student, /data-v3-start-state="true"/);
-  assert.match(student, /data-v3-one-job="student-next-step"/);
-  assert.match(studentText, /Start here/);
-  assert.match(studentText, /Open My Project first\./);
-  assert.match(studentText, /Right now/);
-  assert.match(studentText, /Finish by/);
-  assert.match(student, /data-v5-flow-board="student-next-step-flow"/);
-  assert.match(studentText, /Student next-step flow/);
-  assert.match(studentText, /Your next capstone move/);
-  assert.match(student, /data-v5-flow-target="studentWork"[\s\S]*Open My Project/);
-  assert.match(studentText, /Start with the next action, then use feedback or checklist only when it applies/);
+  assert.match(student, /workspace-student-focus-layout/);
+  assert.equal((student.match(/data-student-primary-action=/g) || []).length, 1);
+  assert.doesNotMatch(student, /data-v3-start-state="true"|data-v5-flow-board=/);
   assert.doesNotMatch(studentText, legacyWorkflowMetaCopy, "student landing should avoid meta app-design copy");
 
   const studentWorkLanding = await renderWorkspaceWithFetch(profileRoutesForRole("student"), "studentWork");
   const studentWorkText = visibleText(studentWorkLanding);
   assert.match(studentWorkLanding, /data-v2-primary-surface="student-work"[\s\S]*data-student-screen="work"/);
-  assertMarkupOrder(studentWorkLanding, 'data-v2-primary-surface="student-work"', 'data-v3-start-state="true"', "student work should show the real work screen before shared start guidance");
-  assertMarkupOrder(studentWorkLanding, 'data-student-screen="work"', 'data-v3-start-state="true"', "student work rows should lead before shared work explanation");
-  assert.match(studentWorkText, /Finish one item/);
-  assert.match(studentWorkText, /Keep one requirement in focus/);
+  assert.doesNotMatch(studentWorkLanding, /data-v3-start-state="true"|data-v5-flow-board=/);
+  assert.match(studentWorkText, /Project work/);
+  assert.match(studentWorkText, /Pick one step\. Do the work\. Turn it in/);
   assert.doesNotMatch(studentWorkText, legacyWorkflowMetaCopy, "student work landing should avoid stale screen meta-copy");
 
   const studentFeedbackLanding = await renderWorkspaceWithFetch(profileRoutesForRole("student"), "studentFeedback");
   const studentFeedbackText = visibleText(studentFeedbackLanding);
   assert.match(studentFeedbackLanding, /data-v2-primary-surface="student-feedback"[\s\S]*data-student-screen="feedback"/);
-  assertMarkupOrder(studentFeedbackLanding, 'data-v2-primary-surface="student-feedback"', 'data-v3-start-state="true"', "student feedback should show the real feedback screen before shared start guidance");
-  assertMarkupOrder(studentFeedbackLanding, 'data-student-screen="feedback"', 'data-v3-start-state="true"', "student feedback rows should lead before shared feedback explanation");
-  assert.match(studentFeedbackText, /Fix one feedback note/);
-  assert.match(studentFeedbackText, /Fix one action note/);
+  assert.doesNotMatch(studentFeedbackLanding, /data-v3-start-state="true"|data-v5-flow-board=/);
+  assert.match(studentFeedbackText, /Read feedback\. Fix work if asked/);
   assert.doesNotMatch(studentFeedbackText, /Read the note and fix one thing|Fix the feedback that asks for action/, "student feedback landing should use short student task copy");
 
   const studentFinalLanding = await renderWorkspaceWithFetch(profileRoutesForRole("student"), "studentFinalChecklist");
   assert.match(studentFinalLanding, /data-v2-primary-surface="student-final-checklist"[\s\S]*data-student-screen="final-checklist"/);
-  assertMarkupOrder(studentFinalLanding, 'data-v2-primary-surface="student-final-checklist"', 'data-v3-start-state="true"', "student final checklist should show the real checklist before shared start guidance");
-  assertMarkupOrder(studentFinalLanding, 'data-student-screen="final-checklist"', 'data-v3-start-state="true"', "student final checklist rows should lead before shared final explanation");
+  assert.doesNotMatch(studentFinalLanding, /data-v3-start-state="true"|data-v5-flow-board=/);
 
   const studentPresentationLanding = await renderWorkspaceWithFetch(profileRoutesForRole("student"), "presentation");
   assert.match(studentPresentationLanding, /data-v2-primary-surface="student-presentation"[\s\S]*data-presentation-schedule="true"/);
-  assert.match(visibleText(studentPresentationLanding), /Know your presentation plan/);
-  assertMarkupOrder(studentPresentationLanding, 'data-v2-primary-surface="student-presentation"', 'data-v3-start-state="true"', "student presentation should show the real presentation plan before shared start guidance");
+  assert.doesNotMatch(studentPresentationLanding, /data-v3-start-state="true"|data-v5-flow-board=/);
 
   const studentArchiveLanding = await renderWorkspaceWithFetch(profileRoutesForRole("student"), "archive");
   assert.match(studentArchiveLanding, /data-v2-primary-surface="student-final-files"[\s\S]*workspace-archive-dashboard/);
-  assert.match(visibleText(studentArchiveLanding), /Save final files/);
-  assertMarkupOrder(studentArchiveLanding, 'data-v2-primary-surface="student-final-files"', 'data-v3-start-state="true"', "student final files should show readiness before shared start guidance");
+  assert.doesNotMatch(studentArchiveLanding, /data-v3-start-state="true"|data-v5-flow-board=/);
 
   const staffCases = [
     {
@@ -675,13 +660,18 @@ test("workspace opens students on guidance and staff on the project workspace", 
     const text = visibleText(markup);
     assert.match(markup, /data-experience="staff-workspace"/, `${roleId} staff experience`);
     assert.match(markup, /aria-label="Staff Workspace navigation"/, `${roleId} staff nav label`);
-    assert.match(markup, /data-v3-start-state="true"/, `${roleId} V3 start state`);
-    assert.match(text, /Start here/, `${roleId} start cue`);
-    assert.match(text, /Right now/, `${roleId} current cue`);
-    assert.match(text, /Finish by/, `${roleId} confirmation cue`);
-    assert.match(markup, new RegExp(`data-v5-flow-board="${escapeRegExp(flow)}"`), `${roleId} V5 flow board`);
-    assert.match(text, flowText, `${roleId} V5 flow text`);
-    assert.match(text, workflowText, `${roleId} workflow question`);
+    if (["mentor", "program_teacher"].includes(roleId)) {
+      assert.doesNotMatch(markup, /data-v3-start-state="true"|data-v5-flow-board=/, `${roleId} uses its real work surface without a duplicate guide`);
+      assert.match(text, roleId === "mentor" ? /Your next check-in/ : /Projects that need you/, `${roleId} starts with one role task`);
+    } else {
+      assert.match(markup, /data-v3-start-state="true"/, `${roleId} V3 start state`);
+      assert.match(text, /Start here/, `${roleId} start cue`);
+      assert.match(text, /Right now/, `${roleId} current cue`);
+      assert.match(text, /Finish by/, `${roleId} confirmation cue`);
+      assert.match(markup, new RegExp(`data-v5-flow-board="${escapeRegExp(flow)}"`), `${roleId} V5 flow board`);
+      assert.match(text, flowText, `${roleId} V5 flow text`);
+      assert.match(text, workflowText, `${roleId} workflow question`);
+    }
     assert.doesNotMatch(text, legacyWorkflowMetaCopy, `${roleId} avoids meta app-design copy`);
     assert.doesNotMatch(text, /Staff Workspace ready\./, `${roleId} suppresses default ready banner`);
     assert.doesNotMatch(text, /working profile|Role context|Demo boundary|What this role can manage or monitor/, `${roleId} no role-proof landing`);
@@ -691,36 +681,15 @@ test("workspace opens students on guidance and staff on the project workspace", 
   }
 
   const mentorLanding = await renderWorkspaceWithFetch(profileRoutesForRole("mentor"), "overview");
-  assert.match(visibleText(mentorLanding), /Start with the assigned-student list, then open one detail view and record one follow-up/);
-  assert.match(visibleText(mentorLanding), /Pick one assigned student, then use meetings, presentation details, or reports only when that student needs it/);
-  assert.match(visibleText(mentorLanding), /Mentor view shows assigned students only/);
-  assert.doesNotMatch(visibleText(mentorLanding), /Mentor view is scoped/);
-  assert.match(mentorLanding, /data-v2-primary-surface="mentor"[\s\S]*data-staff-workspace-today="true"/);
-  assertMarkupOrder(mentorLanding, 'data-v2-primary-surface="mentor"', 'data-v3-start-state="true"', "mentor landing should show assigned-student work before shared shell guidance");
-  assert.match(mentorLanding, /data-mentor-today-plan="true"/);
-  assertMarkupOrder(mentorLanding, 'data-mentor-today-plan="true"', 'id="staffWorkspaceTodayTitle"', "mentor plan should lead before shared Staff Workspace header");
-  assert.match(mentorLanding, /Choose one assigned student first/);
-  assert.match(mentorLanding, /data-mentor-primary-step="true"[\s\S]*data-today-primary-step="assigned-student"[\s\S]*data-section="mentorDashboard"/);
-  assert.match(mentorLanding, /data-mentor-today-plan-card="student-list"[\s\S]*data-section="mentor"/);
-  assert.match(mentorLanding, /data-mentor-today-plan-card="presentation"[\s\S]*data-section="presentation"/);
+  assert.match(visibleText(mentorLanding), /Your next check-in/);
+  assert.match(mentorLanding, /data-v2-primary-surface="mentor"[\s\S]*data-mentor-dashboard-flow="true"/);
+  assert.doesNotMatch(mentorLanding, /data-v3-start-state="true"|data-v5-flow-board=|data-mentor-today-plan="true"/);
   assert.doesNotMatch(mentorLanding, /data-review-decision="approved"|data-mentor-assignment-form="true"|data-admin-action="import-users"/);
 
   const teacherLanding = await renderWorkspaceWithFetch(profileRoutesForRole("program_teacher"), "overview");
-  assert.match(visibleText(teacherLanding), /Start with the next submitted project, read the work, then save a decision/);
-  assert.match(teacherLanding, /data-v2-primary-surface="program-teacher"[\s\S]*data-staff-workspace-today="true"/);
-  assertMarkupOrder(teacherLanding, 'data-v2-primary-surface="program-teacher"', 'data-v3-start-state="true"', "program teacher landing should show real review work before shared shell guidance");
-  assert.match(teacherLanding, /data-program-teacher-today-plan="true"/);
-  assert.match(teacherLanding, /workspace-program-teacher-simple-today/);
-  assert.match(teacherLanding, /Review one project/);
-  assert.match(teacherLanding, /Open the next project\. Read the work\. Accept it or ask for changes\./);
-  assert.match(teacherLanding, /data-program-teacher-primary-step="true"[\s\S]*data-today-primary-step="review"[\s\S]*data-section="teacher" data-section-preset="submitted"/);
-  assert.match(teacherLanding, /Start review/);
-  assert.doesNotMatch(teacherLanding, /data-program-teacher-plan-card="review"/);
-  assert.match(teacherLanding, /data-program-teacher-more="true"[\s\S]*See other teacher tasks/);
-  assert.match(teacherLanding, /data-program-teacher-plan-card="revision"[\s\S]*data-section="teacher" data-section-preset="revision-requested"/);
-  assert.match(teacherLanding, /data-program-teacher-plan-card="missing-work"[\s\S]*data-section="students" data-section-preset="missing-evidence-students"/);
-  assert.doesNotMatch(teacherLanding, /data-staff-primary-list="true"|data-staff-queue-student-row="true"/);
-  assert.doesNotMatch(teacherLanding, /data-v2-support-panel="true"/);
+  assert.match(visibleText(teacherLanding), /Projects that need you/);
+  assert.match(teacherLanding, /data-v2-primary-surface="program-teacher"[\s\S]*data-program-review-first="true"/);
+  assert.doesNotMatch(teacherLanding, /data-v3-start-state="true"|data-v5-flow-board=|data-program-teacher-today-plan="true"/);
 
   const viewerLanding = await renderWorkspaceWithFetch(profileRoutesForRole("viewer"), "overview");
   assert.match(visibleText(viewerLanding), /Use read-only views to review students and reports without showing edit controls/);
@@ -1725,7 +1694,7 @@ test("workspace renders screen-specific plain-language term guides", async () =>
 test("workspace explains what clicks do before users act", async () => {
   const student = await renderWorkspaceWithFetch(profileRoutesForRole("student"), "student");
   assert.match(student, /data-experience="student"/);
-  assert.match(student, /What to do next/);
+  assert.match(student, /Your next step/);
   assert.doesNotMatch(student, /data-screen-action-impact-guide="student"/);
 
   const teacher = await renderWorkspaceWithFetch(profileRoutesForRole("program_teacher"), "teacher");
@@ -1773,7 +1742,7 @@ test("workspace explains who can see screen information", async () => {
 test("workspace explains what users need before starting a screen", async () => {
   const student = await renderWorkspaceWithFetch(profileRoutesForRole("student"), "student");
   assert.match(student, /data-experience="student"/);
-  assert.match(student, /What to do next/);
+  assert.match(student, /Your next step/);
   assert.doesNotMatch(student, /workspace-rail-card[\s\S]*Start with the next capstone action/);
   assert.doesNotMatch(student, /data-screen-start-guide="student"/);
 
@@ -3298,36 +3267,39 @@ test("program teacher dashboard rows open existing student detail", async () => 
   vm.runInContext('activeSection = "programDashboard"; renderAppShell();', context);
   const programTeacher = workspaceRoot.innerHTML;
 
-  assert.match(programTeacher, /Program Dashboard/);
-  assert.match(programTeacher, /Program Teacher Dashboard/);
-  assert.match(programTeacher, /Total Students/);
-  assert.match(programTeacher, /On Track/);
-  assert.match(programTeacher, /Behind \/ Needs Support/);
-  assert.match(programTeacher, /Missing Proof/);
-  assert.match(programTeacher, /Needs Review/);
-  assert.match(programTeacher, /Missing Mentor/);
-  assert.match(programTeacher, /data-section="students" data-section-preset="all-students"/);
-  assert.match(programTeacher, /data-section="students" data-section-preset="on-track-students"/);
-  assert.match(programTeacher, /data-section="students" data-section-preset="behind-students"/);
-  assert.match(programTeacher, /data-section="students" data-section-preset="missing-evidence-students"/);
-  assert.match(programTeacher, /Students without active mentors[\s\S]*data-section="students" data-section-preset="missing-mentors"/);
-  assert.match(programTeacher, /Submitted work needs review[\s\S]*data-section="teacher" data-section-preset="submitted"/);
-  assert.match(programTeacher, /Proof is missing[\s\S]*data-section="students" data-section-preset="missing-evidence-students"/);
-  assert.match(programTeacher, /Students need support[\s\S]*data-section="students" data-section-preset="behind-students"/);
-  assert.match(programTeacher, /Revision loop active[\s\S]*data-section="teacher" data-section-preset="revision-requested"/);
-  assert.match(programTeacher, /Presentation readiness pending[\s\S]*data-section="operations" data-section-preset="presentation-pending"/);
-  assert.match(programTeacher, /Mentor meeting follow-up[\s\S]*data-section="students" data-section-preset="mentor-meeting-follow-up-students"/);
+  assert.match(programTeacher, /Projects that need you/);
+  assert.match(programTeacher, /Review this project/);
+  assert.match(programTeacher, /Program Student One/);
+  assert.match(programTeacher, /Core Concept Proposal/);
+  assert.match(programTeacher, /2 work links/);
+  assert.match(programTeacher, /data-summary-concept="Needs Review"/);
+  assert.match(programTeacher, /data-summary-concept="Needs Revision"/);
+  assert.match(programTeacher, /data-summary-concept="Behind \/ Needs Support"/);
+  assert.match(programTeacher, /data-summary-concept="Missing Mentor"/);
   assert.doesNotMatch(programTeacher, /data-rail-access-summary="full"/);
   assert.doesNotMatch(programTeacher, /Review work and student support stay inside your assigned program/);
   assert.match(programTeacher, /data-workspace-disclosure-panel="dashboard:programDashboard"/);
   assert.match(programTeacher, /aria-expanded="false"/);
-  assert.doesNotMatch(programTeacher, /Students by program|Assigned student list|Recent Activity|Core Concept Proposal \/ 2 proof items/);
+  assert.doesNotMatch(programTeacher, /Students by program|Assigned student list|Recent Activity|Total Students|On Track|Missing Proof/);
 
   openWorkspaceDisclosure(context, "dashboard", "programDashboard");
   const expandedProgramTeacher = workspaceRoot.innerHTML;
   assert.match(expandedProgramTeacher, /Students by program/);
   assert.match(expandedProgramTeacher, /Assigned student list/);
   assert.match(expandedProgramTeacher, /Recent Activity/);
+  assert.match(expandedProgramTeacher, /Total Students/);
+  assert.match(expandedProgramTeacher, /On Track/);
+  assert.match(expandedProgramTeacher, /Missing Proof/);
+  assert.match(expandedProgramTeacher, /data-section="students" data-section-preset="all-students"/);
+  assert.match(expandedProgramTeacher, /data-section="students" data-section-preset="on-track-students"/);
+  assert.match(expandedProgramTeacher, /data-section="students" data-section-preset="missing-evidence-students"/);
+  assert.match(expandedProgramTeacher, /Students without active mentors[\s\S]*data-section="students" data-section-preset="missing-mentors"/);
+  assert.match(expandedProgramTeacher, /Submitted work needs review[\s\S]*data-section="teacher" data-section-preset="submitted"/);
+  assert.match(expandedProgramTeacher, /Proof is missing[\s\S]*data-section="students" data-section-preset="missing-evidence-students"/);
+  assert.match(expandedProgramTeacher, /Students need support[\s\S]*data-section="students" data-section-preset="behind-students"/);
+  assert.match(expandedProgramTeacher, /Revision loop active[\s\S]*data-section="teacher" data-section-preset="revision-requested"/);
+  assert.match(expandedProgramTeacher, /Presentation readiness pending[\s\S]*data-section="operations" data-section-preset="presentation-pending"/);
+  assert.match(expandedProgramTeacher, /Mentor meeting follow-up[\s\S]*data-section="students" data-section-preset="mentor-meeting-follow-up-students"/);
   assert.match(expandedProgramTeacher, /Program Student One/);
   assert.match(expandedProgramTeacher, /Core Concept Proposal \/ 2 proof items/);
   assert.match(expandedProgramTeacher, /data-site-student-action="view-detail"/);
@@ -7000,18 +6972,18 @@ test("mentor dashboard assigned students open detail and meeting history without
 
   vm.runInContext('activeSection = "mentorDashboard"; renderAppShell();', context);
   assert.match(workspaceRoot.innerHTML, /data-v2-primary-surface="mentor"[\s\S]*data-mentor-dashboard-flow="true"/);
-  assertMarkupOrder(workspaceRoot.innerHTML, 'data-v2-primary-surface="mentor"', 'data-v3-start-state="true"', "mentor dashboard focus should come before shared shell guidance");
-  assert.match(workspaceRoot.innerHTML, /Assigned Student Focus/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-v3-start-state="true"|data-v5-flow-board=/);
+  assert.match(workspaceRoot.innerHTML, /Your next check-in/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-flow="true"/);
-  assert.match(workspaceRoot.innerHTML, /Start with one assigned student, ask one useful question, then record the next check-in/);
+  assert.match(workspaceRoot.innerHTML, /Help one student move one project step forward/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-focus-flow="true"/);
   assert.match(workspaceRoot.innerHTML, /Needs me first/);
-  assert.match(workspaceRoot.innerHTML, /Ask next/);
+  assert.match(workspaceRoot.innerHTML, />Ask</);
   assert.match(workspaceRoot.innerHTML, /What exactly did your Program Teacher ask you to change/);
-  assert.match(workspaceRoot.innerHTML, /Open meeting plan/);
-  assert.match(workspaceRoot.innerHTML, /Open student detail/);
+  assert.match(workspaceRoot.innerHTML, /Open check-in/);
+  assert.match(workspaceRoot.innerHTML, /Open student details/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-focus-flow="true"[\s\S]*data-view-as-student-action="enter"[\s\S]*data-view-as-student-source-section="mentorDashboard"/);
-  assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-preview-boundary="true"[\s\S]*Preview is read-only and limited to this assigned student/);
+  assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-preview-boundary="true"[\s\S]*Student preview is read-only/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-first-use-guide="mentor-dashboard"|data-mentor-action-map="true"|Choose one mentor action|Use this map before scanning every assigned student row/);
   assert.ok(
     workspaceRoot.innerHTML.indexOf("Zoe Needs Help") < workspaceRoot.innerHTML.indexOf("Avery On Track"),
@@ -7042,10 +7014,9 @@ test("mentor dashboard assigned students open detail and meeting history without
   assert.match(workspaceRoot.innerHTML, /No action needed today beyond regular check-ins/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-mentor-dashboard-row-detail="true"/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-mentor-dashboard-activity="true"/);
-  assert.match(workspaceRoot.innerHTML, /data-mentor-next-meeting-plan="true"/);
-  assert.match(workspaceRoot.innerHTML, /Next meeting plan/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-mentor-next-meeting-plan="true"|Next meeting plan/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-revision-since-meeting="true"/);
-  assert.match(workspaceRoot.innerHTML, /Open meeting history/);
+  assert.match(workspaceRoot.innerHTML, /More about this project/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-action="open-student"/);
   assert.match(workspaceRoot.innerHTML, /data-mentor-dashboard-student-id="demo-student-101"/);
 
@@ -8383,18 +8354,17 @@ test("workspace renders a progress-first student homepage with safe language", a
 
   assert.match(student, /data-student-screen="today"/);
   assert.match(student, /My Capstone/);
-  assert.match(student, /What to do next/);
+  assert.match(student, /Your next step/);
   assert.match(student, /workspace-student-next-action-hero/);
-  assert.match(student, /data-student-primary-action="continue-work"[\s\S]*Fix Work/);
-  assert.match(student, /data-student-next-action-card="true"[\s\S]*One thing now/);
+  assert.match(student, /data-student-primary-action="read-feedback"[\s\S]*Read feedback/);
+  assert.match(student, /data-student-next-action-card="true"[\s\S]*Your next step/);
   assert.match(student, /data-student-today-map="true"/);
   assert.match(student, /data-student-today-map-state="needs-changes"/);
-  assert.match(student, /Read feedback, then fix the item/);
-  assert.match(student, /data-student-today-map-lane="read-feedback"[\s\S]*Open Feedback/);
-  assert.match(student, /data-student-today-map-lane="fix-work"[\s\S]*Fix Work/);
+  assert.match(student, /Read your feedback\. Fix your work\. Turn it in again/);
+  assert.match(student, /data-student-today-map-lane="read-feedback"[\s\S]*Read feedback first/);
+  assert.match(student, /data-student-today-map-lane="fix-work"[\s\S]*Fix the item/);
   assert.match(student, /data-student-today-map-lane="turn-in-again"[\s\S]*Turn it in again/);
-  assert.match(student, /data-student-current-step-card="true"[\s\S]*data-student-current-step-status="true"[\s\S]*Status: Needs changes/);
-  assert.match(student, /data-student-today-current-details="true"[\s\S]*Show current item details/);
+  assert.doesNotMatch(student, /data-student-current-step-card="true"|data-student-today-current-details="true"/);
   assert.match(student, /data-student-next-action-card="true"[\s\S]*data-student-next-action-path="true"[\s\S]*Read your feedback\. Fix your work\. Turn it in again/);
   assert.match(student, /data-student-today-support-details="true"[\s\S]*Show progress, feedback, and checklist/);
   assert.match(student, /Progress/);
@@ -8451,10 +8421,10 @@ test("student Today next-step map changes for waiting and no-work states", async
     ],
   }), "student");
   assert.match(waiting, /data-student-today-map-state="waiting-review"/);
-  assert.match(waiting, /Your teacher is reviewing this/);
-  assert.match(waiting, /data-student-today-map-lane="view-sent-work"[\s\S]*View Work/);
+  assert.match(waiting, /View what you turned in\. Wait for your teacher/);
+  assert.match(waiting, /data-student-today-map-lane="view-sent-work"[\s\S]*View what you sent/);
   assert.match(waiting, /data-student-today-map-lane="wait"[\s\S]*Do not upload another copy unless your teacher asks/);
-  assert.match(waiting, /data-student-today-map-lane="watch-feedback"[\s\S]*Open Feedback/);
+  assert.match(waiting, /data-student-today-map-lane="watch-feedback"[\s\S]*Check feedback later/);
   assertStudentPlainLanguageSurface(waiting);
 
   const caughtUp = await renderWorkspaceWithFetch(studentRoutes({
@@ -8470,16 +8440,16 @@ test("student Today next-step map changes for waiting and no-work states", async
     },
   }), "student");
   assert.match(caughtUp, /data-student-today-map-state="caught-up"/);
-  assert.match(caughtUp, /You are caught up for now/);
-  assert.match(caughtUp, /data-student-today-map-lane="check-feedback"[\s\S]*Open Feedback/);
-  assert.match(caughtUp, /data-student-today-map-lane="check-finish"[\s\S]*Open Final Checklist/);
+  assert.match(caughtUp, /You are caught up right now/);
+  assert.match(caughtUp, /data-student-today-map-lane="check-feedback"[\s\S]*Check feedback/);
+  assert.match(caughtUp, /data-student-today-map-lane="check-finish"[\s\S]*Check final readiness/);
   assert.match(caughtUp, /Ask before starting a new phase/);
   assertStudentPlainLanguageSurface(caughtUp);
 
   const noWork = await renderWorkspaceWithFetch(studentRoutes(), "student");
   assert.match(noWork, /data-student-today-map-state="no-work-yet"/);
-  assert.match(noWork, /Wait for your teacher to add work/);
-  assert.match(noWork, /data-student-today-map-lane="open-work"[\s\S]*Open My Work/);
+  assert.match(noWork, /Check your work\. Ask your teacher before skipping ahead/);
+  assert.match(noWork, /data-student-today-map-lane="open-work"[\s\S]*Check My Work/);
   assert.match(noWork, /data-student-today-map-lane="do-not-skip"[\s\S]*Start a new phase only when it appears in My Work/);
   assertStudentPlainLanguageSurface(noWork);
 
@@ -8771,7 +8741,7 @@ test("student upcoming deadlines panel lists nearest incomplete work and reuses 
   assertMarkupOrder(student, "Senior Project Proposal", "Presentation Outline", "nearest dated deadline should render first");
   assertMarkupOrder(student, "Presentation Outline", "Portfolio Reflection", "label-only deadline should render after dated deadlines");
   assert.match(student, /Open item/);
-  assert.match(student, /Fix Work/);
+  assert.match(student, /Read feedback/);
   assert.match(student, /Finish earlier phase first/);
   assert.match(student, /Open Final Checklist/);
   assert.doesNotMatch(student, /data-student-upcoming-row="true"[\s\S]*Completed checkpoint/);

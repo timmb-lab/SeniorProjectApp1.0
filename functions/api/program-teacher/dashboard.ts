@@ -26,6 +26,7 @@ interface NeedsReviewRow {
   submission_id: string;
   student_id: string;
   student_name: string;
+  project_name: string | null;
   requirement_title: string | null;
   status: string;
   evidence_count: number;
@@ -134,6 +135,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       submissionId: row.submission_id,
       studentId: row.student_id,
       studentName: row.student_name,
+      projectName: row.project_name || `${row.student_name} Project`,
       requirementTitle: row.requirement_title || "Senior Project submission",
       status: row.status,
       evidenceCount: Number(row.evidence_count || 0),
@@ -303,19 +305,21 @@ async function loadNeedsReview(env: Env, studentIds: string[]): Promise<NeedsRev
        submissions.id AS submission_id,
        submissions.student_id,
        user_accounts.display_name AS student_name,
+       projects.name AS project_name,
        requirements.title AS requirement_title,
        submissions.status,
        submissions.updated_at,
        COUNT(evidence_artifacts.id) AS evidence_count
      FROM submissions
      JOIN user_accounts ON user_accounts.id = submissions.student_id
+     LEFT JOIN projects ON projects.id = submissions.project_id
      LEFT JOIN requirements ON requirements.id = submissions.requirement_id
      LEFT JOIN evidence_artifacts
        ON evidence_artifacts.submission_id = submissions.id
       AND evidence_artifacts.deleted_at IS NULL
      WHERE submissions.student_id IN (__IDS__)
        AND submissions.status IN ('submitted', 'revision_requested')
-     GROUP BY submissions.id, submissions.student_id, user_accounts.display_name, requirements.title, submissions.status, submissions.updated_at
+     GROUP BY submissions.id, submissions.student_id, user_accounts.display_name, projects.name, requirements.title, submissions.status, submissions.updated_at
      ORDER BY submissions.updated_at DESC
      LIMIT 25`,
     studentIds,

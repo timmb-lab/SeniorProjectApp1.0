@@ -1033,44 +1033,59 @@ function renderMentorDashboardFocusedStudent(row = {}, activeFilter = "all", tot
   const nextStep = mentorDashboardNextStep(row, attention);
   const studentId = cleanDirectoryFilter(row.studentId || "");
   const filterLabel = mentorDashboardFilterKicker(activeFilter);
+  const projectName = row.projectName || `${row.studentName || "Student"}'s project`;
   return `
     <section class="workspace-dashboard-card workspace-mentor-focus-flow" data-mentor-dashboard-focus-flow="true" data-mentor-dashboard-active-queue="${escapeHtml(activeFilter)}">
       <div class="workspace-card-head workspace-mentor-focus-head">
         <div>
-          <p class="workspace-kicker">Start here</p>
-          <h2>${escapeHtml(row.studentName || "Assigned student")}</h2>
-          <p>${escapeHtml(`${priority.label}: ${priority.detail}`)}</p>
+          <p class="workspace-kicker">Start here · ${escapeHtml(row.studentName || "Assigned student")}</p>
+          <h2>${escapeHtml(projectName)}</h2>
+          <p>${escapeHtml(priority.detail)}</p>
         </div>
         <div class="workspace-row-actions">
           <span class="workspace-chip">${escapeHtml(filterLabel)}</span>
           <span class="workspace-chip">${escapeHtml(totalAssigned)} assigned</span>
         </div>
       </div>
-      <div class="workspace-mentor-focus-question" data-mentor-dashboard-question="true">
-        <span>Ask next</span>
-        <strong>${escapeHtml(question)}</strong>
+      <div class="workspace-mentor-checkin-layout">
+        <ol class="workspace-mentor-checkin-steps" aria-label="Next mentor check-in plan">
+          <li>
+            <span>1</span>
+            <div><small>Ask</small><strong data-mentor-dashboard-question="true">${escapeHtml(question)}</strong></div>
+          </li>
+          <li>
+            <span>2</span>
+            <div><small>Help</small><strong data-mentor-dashboard-next-step="true">${escapeHtml(nextStep)}</strong></div>
+          </li>
+          <li>
+            <span>3</span>
+            <div><small>Record</small><strong>${escapeHtml(isMentorDashboardMeetingRow(row) ? "Update the meeting or make-up status." : "Save the next check-in after the student answers.")}</strong></div>
+          </li>
+        </ol>
+        ${studentId ? `
+          <div class="workspace-mentor-focus-primary">
+            <button class="workspace-button workspace-button-primary" type="button" data-mentor-dashboard-action="open-meetings" data-mentor-dashboard-student-id="${escapeHtml(studentId)}">
+              Open check-in
+            </button>
+            <small>Meeting notes and project work open together.</small>
+          </div>
+        ` : ""}
       </div>
-      <p class="workspace-muted" data-mentor-dashboard-next-step="true">${escapeHtml(nextStep)}</p>
-      ${studentId ? `
-        <div class="workspace-row-actions workspace-mentor-focus-actions">
-          <button class="workspace-button workspace-button-primary" type="button" data-mentor-dashboard-action="open-meetings" data-mentor-dashboard-student-id="${escapeHtml(studentId)}">
-            Open meeting plan
-          </button>
-          <button class="workspace-link-button workspace-link-button-small" type="button" data-mentor-dashboard-action="open-student" data-mentor-dashboard-student-id="${escapeHtml(studentId)}">
-            Open student detail
-          </button>
-          ${renderViewAsStudentAction(studentId, row.studentName, { sourceSection: "mentorDashboard", label: "Preview student view" })}
-        </div>
-        <p class="workspace-muted workspace-mentor-preview-note" data-mentor-dashboard-preview-boundary="true">Preview is read-only and limited to this assigned student.</p>
-      ` : ""}
       <details class="workspace-mentor-focus-context" data-mentor-dashboard-focus-context="true">
-        <summary>Show why this student is first</summary>
+        <summary>More about this project</summary>
         <div class="workspace-chip-row workspace-mentor-compact-chips" data-mentor-dashboard-compact-signals="true">
           ${statusPill(row.submissionStatus || "not_started")}
           ${attention.slice(0, 3).map((item) => `<span class="workspace-story-chip">${escapeHtml(statusText(item))}</span>`).join("")}
-          ${safeNumber(row.evidenceCount) ? `<span class="workspace-site-context-badge">${escapeHtml(safeNumber(row.evidenceCount))} evidence</span>` : ""}
+          ${safeNumber(row.evidenceCount) ? `<span class="workspace-site-context-badge">${escapeHtml(safeNumber(row.evidenceCount))} work ${pluralize(safeNumber(row.evidenceCount), "link")}</span>` : ""}
         </div>
         ${isMentorDashboardRevisionSinceLastMeeting(row) ? `<p class="workspace-muted" data-mentor-revision-since-meeting="true">Revision since last meeting: compare the Program Teacher request with the newest proof before the next check-in.</p>` : ""}
+        ${studentId ? `
+          <div class="workspace-row-actions workspace-mentor-focus-actions">
+            <button class="workspace-link-button workspace-link-button-small" type="button" data-mentor-dashboard-action="open-student" data-mentor-dashboard-student-id="${escapeHtml(studentId)}">Open student details</button>
+            ${renderViewAsStudentAction(studentId, row.studentName, { sourceSection: "mentorDashboard", label: "Preview student view" })}
+          </div>
+          <p class="workspace-muted workspace-mentor-preview-note" data-mentor-dashboard-preview-boundary="true">Student preview is read-only.</p>
+        ` : ""}
       </details>
     </section>
   `;

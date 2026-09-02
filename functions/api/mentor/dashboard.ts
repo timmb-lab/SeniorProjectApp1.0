@@ -8,6 +8,7 @@ interface AssignedStudentRow {
   student_name: string;
   mentor_id: string;
   mentor_name: string;
+  project_name: string | null;
   submission_status: string | null;
   latest_submission_updated_at: string | null;
   evidence_count: number;
@@ -59,6 +60,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       studentName: row.student_name,
       mentorId: admin ? row.mentor_id : undefined,
       mentorName: admin ? row.mentor_name : undefined,
+      projectName: row.project_name || `${row.student_name} Project`,
       submissionStatus: row.submission_status || "not_started",
       latestSubmissionUpdatedAt: row.latest_submission_updated_at || "",
       evidenceCount: Number(row.evidence_count || 0),
@@ -100,6 +102,15 @@ async function loadAssignedStudents(env: Env, whereClause: string, binds: string
        student.display_name AS student_name,
        mentor.id AS mentor_id,
        mentor.display_name AS mentor_name,
+       (
+         SELECT projects.name
+         FROM project_members
+         JOIN projects ON projects.id = project_members.project_id
+         WHERE project_members.student_user_id = student.id
+           AND project_members.active = 1
+         ORDER BY projects.updated_at DESC
+         LIMIT 1
+       ) AS project_name,
        (
          SELECT submissions.status
          FROM submissions

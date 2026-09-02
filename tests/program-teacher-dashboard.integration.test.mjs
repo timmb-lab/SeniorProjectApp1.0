@@ -57,6 +57,10 @@ test("program teacher dashboard scopes records by valid program/cohort role", as
     assert.deepEqual(body.students.map((row) => row.studentId).sort(), ["student-a", "student-b"]);
     assert.equal(JSON.stringify(body).includes("Student C"), false);
     assert.equal(body.needsReview.length, 2);
+    assert.deepEqual(
+      body.needsReview.map((row) => row.projectName).sort(),
+      ["Student A Project", "Student B Project"],
+    );
     assert.ok(body.programBreakdown.every((row) => row.programId === "it"));
     assert.deepEqual(
       body.needsAttention.map((row) => ({

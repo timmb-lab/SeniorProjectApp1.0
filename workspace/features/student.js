@@ -101,16 +101,16 @@ function renderStudentMyWorkScreen(context = {}) {
         kicker: "My Project",
         title: project?.name || "My Project",
         titleId: "studentMyWorkTitle",
-        question: "See your team. Open one step. Turn in work.",
+        question: "Pick one step. Do the work. Turn it in.",
         badgeHtml: studentStatusBadge(summary.currentStatus),
-        primaryHtml: renderStudentRouteButton("studentWork", "Continue", "workspace-button-primary", "data-student-primary-action=\"open-current-work\""),
+        primaryHtml: renderStudentRouteButton("student", "Back to Today", "workspace-button-secondary", "data-student-primary-action=\"back-to-today\""),
       })}
       <section class="workspace-student-section" data-student-work-section="current" aria-labelledby="studentCurrentWorkTitle">
         <div class="workspace-student-section-head">
           <div>
             <p class="workspace-kicker">Do this next</p>
-            <h2 id="studentCurrentWorkTitle">Your project steps</h2>
-            <p>${escapeHtml(requirements.length ? "Open one item. Add a Google Drive link if the item asks for work. Turn it in when it is ready." : "Your teacher has not added work yet.")}</p>
+            <h2 id="studentCurrentWorkTitle">Project work</h2>
+            <p>${escapeHtml(requirements.length ? "Open the first unfinished item. Add the Google Drive link it asks for. Turn it in when it is ready." : "Your teacher has not added work yet.")}</p>
           </div>
         </div>
         ${renderStudentRequirementPanelBody(requirements, summary, feedback, studentRequirementDetailState, evidence, studentFeedbackHistoryState)}
@@ -538,42 +538,56 @@ function studentPrimaryRouteLabel(action = {}) {
 }
 
 function renderStudentTodayActionSection(action = {}, summary = {}) {
+  const map = studentTodayMapModel(action, summary);
+  const checklist = map.lanes.slice(0, 3);
   return `
     <section class="workspace-student-section workspace-student-next-action workspace-student-next-action-hero" data-student-today-section="next-action" aria-labelledby="studentTodayTitle">
-      <div class="workspace-student-section-head">
-        <div>
-          <p class="workspace-kicker">Today</p>
-          <h1 id="studentTodayTitle">What to do next</h1>
-          <p>${escapeHtml(studentPrimaryCommandCopy(action, summary))}</p>
-        </div>
-        <div class="workspace-student-screen-actions">
-          ${studentStatusPill(action.status || action.submissionStatus || "pending")}
-          ${renderStudentRouteButton("studentWork", studentPrimaryRouteLabel(action), "workspace-button-primary", "data-student-primary-action=\"continue-work\"")}
-        </div>
-      </div>
-      <div class="workspace-student-action-summary workspace-student-action-summary-primary">
-        <article data-student-next-action-card="true">
-          <span>One thing now</span>
-          <strong>${escapeHtml(action.owner || "Your action")}</strong>
-          <p>${escapeHtml(action.when || "Open My Project before starting anything new.")}</p>
-          <p class="workspace-muted" data-student-next-action-path="true">${escapeHtml(studentNextActionPathCopy(action))}</p>
-          <div class="workspace-row-actions">
-            ${renderStudentStepButtons(action, "Open item") || renderStudentRouteButton("studentWork", "Continue My Project", "workspace-button-primary")}
+      <div class="workspace-student-focus-layout" data-student-next-action-card="true">
+        <div class="workspace-student-focus-copy">
+          <div class="workspace-student-focus-meta">
+            <p class="workspace-kicker">Your next step</p>
+            ${studentStatusPill(action.status || action.submissionStatus || "pending")}
           </div>
-        </article>
+          <h1 id="studentTodayTitle">${escapeHtml(action.itemTitle || action.title || summary.currentPhaseLabel || "Your project work")}</h1>
+          <p class="workspace-student-focus-command">${escapeHtml(studentPrimaryCommandCopy(action, summary))}</p>
+          <p class="workspace-muted" data-student-next-action-path="true">${escapeHtml(studentNextActionPathCopy(action))}</p>
+          <div class="workspace-row-actions workspace-student-focus-action">
+            ${renderStudentTodayPrimaryAction(action, summary)}
+          </div>
+        </div>
+        <ol class="workspace-student-focus-checklist" data-student-today-map="true" data-student-today-map-state="${escapeHtml(map.state)}" aria-label="Three steps for this item">
+          ${checklist.map((step, index) => `
+            <li data-student-today-map-lane="${escapeHtml(step.id)}">
+              <span>${escapeHtml(index + 1)}</span>
+              <div>
+                <strong>${escapeHtml(step.title)}</strong>
+                <small>${escapeHtml(step.detail)}</small>
+              </div>
+            </li>
+          `).join("")}
+        </ol>
       </div>
-      ${renderStudentTodayMap(action, summary)}
-      <details class="workspace-student-today-disclosure" data-student-today-current-details="true">
-        <summary>Show current item details</summary>
-        <article data-student-current-step-card="true">
-          <span>Current work</span>
-          <strong>${escapeHtml(action.itemTitle || action.title || summary.currentPhaseLabel || "Current capstone item")}</strong>
-          <p>${escapeHtml(action.detail || "Open My Project to see this item.")}</p>
-          <p class="workspace-muted" data-student-current-step-status="true">Status: ${escapeHtml(studentConservativeStatusText(action.status || action.submissionStatus))}</p>
-        </article>
-      </details>
     </section>
   `;
+}
+
+function renderStudentTodayPrimaryAction(action = {}, summary = {}) {
+  const status = normalizeStatus(action.status || action.submissionStatus);
+  if (status === "revision_requested") {
+    return renderStudentRouteButton("studentFeedback", "Read feedback", "workspace-button-primary", "data-student-primary-action=\"read-feedback\"");
+  }
+  if (["submitted", "under_review", "pending_review"].includes(status)) {
+    return renderStudentRouteButton("studentWork", "View what I sent", "workspace-button-primary", "data-student-primary-action=\"view-sent-work\"");
+  }
+  const requirementId = cleanDirectoryFilter(action.requirementId || "");
+  if (requirementId) {
+    const label = studentPrimaryRouteLabel(action) === "Start" ? "Start this step" : "Continue this step";
+    return `<button class="workspace-button workspace-button-primary" type="button" data-student-primary-action="open-current-item" data-student-requirement-action="open-detail" data-student-requirement-id="${escapeHtml(requirementId)}" aria-label="${escapeHtml(`${label}: ${studentRequirementActionLabel(action)}`)}">${escapeHtml(label)}</button>`;
+  }
+  if (!safeNumber(summary.requirementsTotal)) {
+    return renderStudentRouteButton("studentWork", "Check My Project", "workspace-button-primary", "data-student-primary-action=\"check-project\"");
+  }
+  return renderStudentRouteButton("studentWork", studentPrimaryRouteLabel(action), "workspace-button-primary", "data-student-primary-action=\"continue-work\"");
 }
 
 function renderStudentTodaySupportDetails({ summary = {}, requirements = [], feedback = [], nextSteps = [] } = {}) {

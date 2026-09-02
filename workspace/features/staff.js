@@ -3,8 +3,8 @@ function renderOverviewSection() {
   if (["platform_admin", "global_admin", "admin", "site_admin"].includes(primaryRole)) return renderStaffWorkspaceTodaySection();
   if (primaryRole === "administration") return renderStaffWorkspaceTodaySection();
   if (primaryRole === "viewer") return renderStaffWorkspaceTodaySection();
-  if (primaryRole === "program_teacher") return renderStaffWorkspaceTodaySection();
-  if (primaryRole === "mentor") return renderStaffWorkspaceTodaySection();
+  if (primaryRole === "program_teacher") return renderProgramTeacherDashboardSection();
+  if (primaryRole === "mentor") return renderMentorDashboardSection();
   if (primaryRole === "student") return renderStudentSection();
   if (primaryRole === "misc_admin") return renderStaffReportsSection();
   return `
@@ -5312,54 +5312,45 @@ function renderProgramTeacherDashboardSection() {
   const scopeIdLabel = programDashboardScopeIdLabel(dashboard.scope);
   return `
     <section class="workspace-command-center">
-      <div class="workspace-command-hero">
+      <div class="workspace-command-hero workspace-role-focus-hero">
         <div>
-          <p class="workspace-kicker">Program Dashboard</p>
-          <h1>Program Teacher Dashboard</h1>
-          <p>Track your students, review proof, and find who needs support in your assigned program.</p>
+          <p class="workspace-kicker">Program Teacher</p>
+          <h1>Projects that need you</h1>
+          <p>Review one project. Make one decision. The student will see what to do next.</p>
         </div>
         <div class="workspace-command-hero-grid">
           <span class="workspace-chip">${escapeHtml(scopeTypeLabel)}</span>
           <span class="workspace-chip">${escapeHtml(scopeIdLabel)}</span>
         </div>
       </div>
-      <div class="workspace-dashboard-grid">
-        ${renderMetricTile("Total Students", summary.totalStudents ?? summary.scopedStudents, "Students in your program view", "teacher", "students", { label: "View students", preset: "all-students" })}
-        ${renderMetricTile("Behind / Needs Support", summary.behindSupport, "Risk or stale activity signals", safeNumber(summary.behindSupport) ? "danger" : "admin", "students", { label: "View students", preset: "behind-students" })}
-        ${renderMetricTile("Missing Proof", summary.missingEvidence, "Students without attached proof", safeNumber(summary.missingEvidence) ? "warning" : "mentor", "students", { label: "View students", preset: "missing-evidence-students" })}
-        ${renderMetricTile("Needs Review", summary.needsReview ?? summary.submitted, "Submitted work awaiting Program Teacher review", "teacher", "teacher", { label: "Review", preset: "submitted" })}
-        ${renderMetricTile("Missing Mentor", summary.missingMentor ?? summary.noMentor, "Needs mentor coverage", safeNumber(summary.missingMentor ?? summary.noMentor) ? "warning" : "mentor", "students", { label: "View students", preset: "missing-mentors" })}
-        ${renderMetricTile("Needs Revision", summary.revisionRequested, "Returned work needing follow-up", safeNumber(summary.revisionRequested) ? "warning" : "student", "teacher", { label: "Review", preset: "revision-requested" })}
-      </div>
-      ${renderSummaryStrip([
-        {
-          label: "On Track",
-          value: safeNumber(summary.onTrack),
-          detail: "No urgent support signal.",
-          tone: "student",
-          concept: "On Track",
-          actionHtml: availableSectionIdsForAnyMode().has("students")
-            ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="students" data-section-preset="on-track-students">View students</button>`
-            : `<span class="workspace-summary-badge">Summary only</span>`,
-        },
-      ], { label: "Program dashboard summary-only metrics" })}
       ${renderProgramTeacherReviewFirstList(dashboard)}
+      ${renderSummaryStrip([
+        { label: "Waiting", value: safeNumber(summary.needsReview ?? summary.submitted), detail: "Ready for your decision.", tone: "teacher", concept: "Needs Review" },
+        { label: "Needs changes", value: safeNumber(summary.revisionRequested), detail: "Students are fixing work.", tone: "warning", concept: "Needs Revision" },
+        { label: "Needs support", value: safeNumber(summary.behindSupport), detail: "Students may be stuck.", tone: safeNumber(summary.behindSupport) ? "danger" : "admin", concept: "Behind / Needs Support" },
+        { label: "No mentor", value: safeNumber(summary.missingMentor ?? summary.noMentor), detail: "Projects need a mentor.", tone: safeNumber(summary.missingMentor ?? summary.noMentor) ? "warning" : "mentor", concept: "Missing Mentor" },
+      ], { label: "Program work summary", className: "workspace-role-summary-strip" })}
       ${siteStudentDetailState?.sourceSection === "programDashboard" ? renderSiteStudentDetailSurface({
         students: (dashboard.students || []).map((row) => ({
           studentId: row.studentId,
           displayName: row.studentName,
         })),
       }) : ""}
-      ${renderDashboardCard("Needs Attention", "Priority follow-up", renderNeedsAttention(dashboard.needsAttention))}
       ${renderWorkspaceDisclosurePanel({
         scope: "dashboard",
         id: "programDashboard",
-        kicker: "Program details",
-        title: "Review And Student Detail Panels",
-        summary: "Submitted rows, activity, program breakdown, and assigned-student lists stay reachable without repeating every dashboard concept on load.",
-        openLabel: "Open program details",
+        kicker: "More tools",
+        title: "Program list and reports",
+        summary: "Open this when you need all students, totals, activity, or program reports.",
+        openLabel: "Show program details",
         closeLabel: "Hide program details",
         bodyHtml: `
+          <div class="workspace-dashboard-grid">
+            ${renderMetricTile("Total Students", summary.totalStudents ?? summary.scopedStudents, "Students in your program", "teacher", "students", { label: "View students", preset: "all-students" })}
+            ${renderMetricTile("On Track", summary.onTrack, "No urgent support signal", "student", "students", { label: "View students", preset: "on-track-students" })}
+            ${renderMetricTile("Missing Proof", summary.missingEvidence, "Students without a work link", safeNumber(summary.missingEvidence) ? "warning" : "mentor", "students", { label: "View students", preset: "missing-evidence-students" })}
+          </div>
+          ${renderDashboardCard("Needs Attention", "Priority follow-up", renderNeedsAttention(dashboard.needsAttention))}
           <div class="workspace-dashboard-grid workspace-dashboard-grid-two workspace-dashboard-secondary-grid">
             ${renderDashboardCard("Needs Review", "Submitted and revision records", renderReviewQueueSummary(dashboard.needsReview, { allowStudentDetail: true }))}
             ${renderDashboardCard("Recent Activity", "Latest student updates", renderRecentProgramActivity(dashboard.recentActivity))}
@@ -5376,25 +5367,24 @@ function renderProgramTeacherReviewFirstList(dashboard = {}) {
   const rows = Array.isArray(dashboard.needsReview) ? dashboard.needsReview : [];
   const attentionRows = Array.isArray(dashboard.needsAttention) ? dashboard.needsAttention : [];
   const focusRows = rows.length ? rows : attentionRows.filter((row) => normalizeStatus(row.status || row.submissionStatus) === "submitted");
-  const visibleRows = focusRows.slice(0, 3);
+  const focus = focusRows[0] || null;
+  const waitingCount = safeNumber(dashboard?.summary?.needsReview ?? dashboard?.summary?.submitted ?? focusRows.length);
   return `
     <section class="workspace-dashboard-card workspace-program-review-first" data-program-review-first="true">
-      <div class="workspace-card-head">
+      <div class="workspace-program-review-focus">
         <div>
           <p class="workspace-kicker">Start here</p>
-          <h2>Review First</h2>
-          <p>${escapeHtml(visibleRows.length ? "Manual approvals and revision requests control student next steps." : "No submitted work is waiting in this dashboard slice.")}</p>
+          <h2>${escapeHtml(focus ? focus.projectName || `${focus.studentName || "Student"}'s project` : "No work is waiting")}</h2>
+          <p>${escapeHtml(focus ? `${focus.studentName || "Student"} turned in ${focus.requirementTitle || focus.title || "project work"}.` : "Students can keep working. Check the support list only if someone needs help.")}</p>
         </div>
-        ${availableSectionIdsForAnyMode().has("teacher") ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="teacher" data-section-preset="submitted">Open Review Work</button>` : ""}
+        <div class="workspace-program-review-focus-action">
+          <span class="workspace-chip">${escapeHtml(waitingCount)} waiting</span>
+          ${focus ? statusPill(focus.status || focus.submissionStatus || "submitted") : statusPill("ready")}
+          ${waitingCount && availableSectionIdsForAnyMode().has("teacher") ? `<button class="workspace-button workspace-button-primary" type="button" data-section="teacher" data-section-preset="submitted">${focus ? "Review this project" : "Open review queue"}</button>` : ""}
+          ${safeNumber(dashboard?.summary?.revisionRequested) && availableSectionIdsForAnyMode().has("teacher") ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="teacher" data-section-preset="revision-requested">Check revisions</button>` : ""}
+        </div>
       </div>
-      <div class="workspace-list">
-        ${visibleRows.length ? visibleRows.map((row) => renderProgramTeacherReviewFirstRow(row)).join("") : `
-          <article class="workspace-empty-state-card" data-program-review-first-empty="true">
-            <strong>No review decision is first right now.</strong>
-            <p>Use student support lists only after the manual approval queue is clear.</p>
-          </article>
-        `}
-      </div>
+      ${focus ? renderProgramTeacherReviewFirstRow(focus) : `<p class="workspace-muted" data-program-review-first-empty="true">You are caught up with reviews.</p>`}
     </section>
   `;
 }
@@ -5410,15 +5400,19 @@ function renderProgramTeacherReviewFirstRow(row = {}) {
       ? "Hold approval until proof is attached or clarified."
       : "Follow up without changing phase approval.";
   return `
-    <article class="workspace-row" data-program-review-first-row="true" data-program-review-first-state="${escapeHtml(status)}">
+    <article class="workspace-program-review-brief" data-program-review-first-row="true" data-program-review-first-state="${escapeHtml(status)}">
       <div>
+        <span>Student</span>
         <strong>${escapeHtml(name)}</strong>
-        <p>${escapeHtml(title)}</p>
-        <p class="workspace-muted">${escapeHtml(decision)}</p>
       </div>
-      <div class="workspace-row-meta">
-        ${statusPill(status)}
-        <span>${escapeHtml(proofCount)} proof</span>
+      <div>
+        <span>Work</span>
+        <strong>${escapeHtml(title)}</strong>
+      </div>
+      <div>
+        <span>Check</span>
+        <strong>${escapeHtml(proofCount ? `${proofCount} work ${pluralize(proofCount, "link")}` : "No work link yet")}</strong>
+        <small>${escapeHtml(decision)}</small>
       </div>
     </article>
   `;
@@ -5551,23 +5545,27 @@ function renderMentorDashboardSection() {
 
   return `
     <section class="workspace-command-center workspace-mentor-dashboard" data-mentor-dashboard-flow="true">
-      <div class="workspace-command-hero">
+      <div class="workspace-command-hero workspace-role-focus-hero">
         <div>
-          <p class="workspace-kicker">Mentor workspace</p>
-          <h1>Assigned Student Focus</h1>
-          <p>Start with one assigned student, ask one useful question, then record the next check-in.</p>
+          <p class="workspace-kicker">Mentor</p>
+          <h1>Your next check-in</h1>
+          <p>Help one student move one project step forward.</p>
         </div>
         <div class="workspace-command-hero-grid">
           <span class="workspace-chip">${escapeHtml(statusText(body.scope || "mentor_assigned"))}</span>
           <span class="workspace-chip">${safeNumber(summary.assignedCount)} assigned</span>
         </div>
       </div>
-      ${assigned.length ? mentorSummaryMetrics : ""}
       ${focusStudent ? renderMentorDashboardFocusedStudent(focusStudent, activeFilter, assigned.length) : mentorSecondaryContent}
-      ${focusStudent ? renderMentorNextMeetingPlan([focusStudent], activeFilter) : ""}
+      ${assigned.length ? renderSummaryStrip([
+        { label: "Assigned", value: safeNumber(summary.assignedCount || assigned.length), detail: "Students you mentor.", tone: "mentor", concept: "Assigned" },
+        { label: "Needs help", value: safeNumber(summary.needsRevision), detail: "Work needs changes.", tone: safeNumber(summary.needsRevision) ? "warning" : "ready", concept: "Needs Revision" },
+        { label: "Check-in due", value: safeNumber(summary.missingMeeting), detail: "Meetings need follow-up.", tone: safeNumber(summary.missingMeeting) ? "warning" : "ready", concept: "Meetings" },
+      ], { label: "Mentor work summary", className: "workspace-role-summary-strip" }) : ""}
       ${assigned.length ? `
         <details class="workspace-mentor-dashboard-secondary" data-mentor-dashboard-secondary="true">
           <summary>Show filters and other students</summary>
+          ${mentorSummaryMetrics}
           ${mentorSecondaryContent}
         </details>
       ` : ""}

@@ -40,6 +40,7 @@ test("mentor dashboard returns active assignments only and supports admin inspec
     assert.equal(body.assignedStudents.length, 1);
     assert.equal(body.assignedStudents[0].studentId, "student-a");
     assert.equal(body.assignedStudents[0].studentName, "Student A");
+    assert.equal(body.assignedStudents[0].projectName, "Student A Project");
     assert.equal(body.assignedStudents[0].submissionStatus, "revision_requested");
     assert.equal(body.assignedStudents[0].latestSubmissionUpdatedAt, "2026-05-21T08:00:00.000Z");
     assert.equal(body.assignedStudents[0].mentorMeetingStatus, "makeup_required");

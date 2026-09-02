@@ -1051,6 +1051,335 @@ body[data-page="workspace"] {
   margin: 0;
 }
 
+/* Role home screens: one project, one next action, then supporting detail. */
+.workspace-role-focus-hero {
+  min-height: 0;
+  padding: 0.2rem 0 0.35rem;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.workspace-role-focus-hero h1 {
+  max-width: 22ch;
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.workspace-role-focus-hero p:not(.workspace-kicker) {
+  max-width: 58ch;
+}
+
+.workspace-role-summary-strip {
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: 0.65rem;
+}
+
+.workspace-role-summary-strip .workspace-summary-strip-item {
+  min-height: 74px;
+  padding: 0.7rem 0.8rem;
+  background: var(--ticket-panel);
+  box-shadow: none;
+}
+
+.workspace-role-summary-strip .workspace-summary-badge {
+  display: none;
+}
+
+.workspace-role-summary-strip .workspace-summary-strip-item.warning {
+  border-left-color: #d97706;
+}
+
+.workspace-role-summary-strip .workspace-summary-strip-item.danger {
+  border-left-color: #dc3545;
+}
+
+.workspace-role-summary-strip .workspace-summary-strip-item.ready {
+  border-left-color: #16834b;
+}
+
+/* Student Today is intentionally one large decision surface, not stacked maps. */
+.workspace-student-next-action-hero {
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--school-primary) 34%, var(--ticket-border));
+  border-left: 0;
+  background: var(--ticket-panel) !important;
+}
+
+.workspace-student-focus-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(20rem, 0.88fr);
+  min-height: 20rem;
+}
+
+.workspace-student-focus-copy {
+  display: grid;
+  align-content: center;
+  gap: 0.85rem;
+  min-width: 0;
+  padding: clamp(1.3rem, 3vw, 2.4rem);
+  border-left: 6px solid var(--school-primary);
+  background:
+    radial-gradient(circle at 92% 8%, color-mix(in srgb, var(--school-accent) 12%, transparent) 0 6rem, transparent 6.1rem),
+    linear-gradient(135deg, color-mix(in srgb, var(--school-primary) 7%, var(--ticket-panel)), var(--ticket-panel) 68%);
+}
+
+.workspace-student-focus-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+
+.workspace-student-focus-meta .workspace-kicker {
+  margin: 0;
+}
+
+.workspace-student-focus-copy h1 {
+  max-width: 18ch;
+  margin: 0;
+  color: var(--ticket-text);
+  font-size: clamp(2rem, 4vw, 3.15rem);
+  line-height: 1.02;
+}
+
+.workspace-student-focus-command {
+  max-width: 50ch;
+  margin: 0;
+  color: var(--ticket-text);
+  font-size: 1.08rem;
+  line-height: 1.45;
+}
+
+.workspace-student-focus-copy > .workspace-muted {
+  max-width: 56ch;
+  margin: 0;
+}
+
+.workspace-student-focus-action {
+  margin-top: 0.25rem;
+}
+
+.workspace-student-focus-action .workspace-button {
+  min-width: 11.5rem;
+  min-height: 46px;
+}
+
+.workspace-student-focus-checklist,
+.workspace-mentor-checkin-steps {
+  display: grid;
+  align-content: center;
+  gap: 0;
+  margin: 0;
+  padding: 1.1rem 1.2rem;
+  list-style: none;
+  background: var(--ticket-panel-raised);
+}
+
+.workspace-student-focus-checklist li,
+.workspace-mentor-checkin-steps li {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--ticket-border);
+}
+
+.workspace-student-focus-checklist li:last-child,
+.workspace-mentor-checkin-steps li:last-child {
+  border-bottom: 0;
+}
+
+.workspace-student-focus-checklist li > span,
+.workspace-mentor-checkin-steps li > span {
+  display: grid;
+  place-items: center;
+  align-self: start;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--school-primary) 13%, var(--ticket-panel));
+  color: color-mix(in srgb, var(--school-primary) 88%, var(--ticket-text));
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.workspace-student-focus-checklist li > div,
+.workspace-mentor-checkin-steps li > div {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.workspace-student-focus-checklist strong,
+.workspace-mentor-checkin-steps strong {
+  color: var(--ticket-text);
+  font-size: 0.96rem;
+  line-height: 1.25;
+}
+
+.workspace-student-focus-checklist small,
+.workspace-mentor-checkin-steps small {
+  color: var(--ticket-muted);
+  line-height: 1.4;
+}
+
+/* Program Teacher: make the first review look like a project handoff. */
+.workspace-program-review-first {
+  overflow: hidden;
+  padding: 0;
+  border-top: 5px solid var(--school-primary) !important;
+}
+
+.workspace-program-review-focus {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.35rem;
+  background: linear-gradient(120deg, color-mix(in srgb, var(--school-primary) 7%, var(--ticket-panel)), var(--ticket-panel) 62%);
+}
+
+.workspace-program-review-focus h2 {
+  margin: 0.18rem 0 0;
+  color: var(--ticket-text);
+  font-size: clamp(1.55rem, 3vw, 2.15rem);
+}
+
+.workspace-program-review-focus p:not(.workspace-kicker) {
+  margin: 0.4rem 0 0;
+  color: var(--ticket-muted);
+}
+
+.workspace-program-review-focus-action {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+
+.workspace-program-review-focus-action .workspace-button {
+  min-height: 44px;
+}
+
+.workspace-program-review-brief {
+  display: grid;
+  grid-template-columns: minmax(9rem, 0.8fr) minmax(12rem, 1.15fr) minmax(15rem, 1.35fr);
+  gap: 0;
+  border-top: 1px solid var(--ticket-border);
+  background: var(--ticket-panel-raised);
+}
+
+.workspace-program-review-brief > div {
+  display: grid;
+  align-content: start;
+  gap: 0.25rem;
+  min-width: 0;
+  padding: 0.9rem 1rem;
+  border-right: 1px solid var(--ticket-border);
+}
+
+.workspace-program-review-brief > div:last-child {
+  border-right: 0;
+}
+
+.workspace-program-review-brief span,
+.workspace-program-review-brief small {
+  color: var(--ticket-muted);
+  font-size: 0.72rem;
+}
+
+.workspace-program-review-brief span {
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.workspace-program-review-brief strong {
+  color: var(--ticket-text);
+  font-size: 0.92rem;
+  line-height: 1.32;
+}
+
+/* Mentor: the question, help, and record steps belong in one check-in card. */
+.workspace-mentor-focus-flow {
+  overflow: hidden;
+  padding: 0;
+  border-left: 0;
+  border-top: 5px solid #16834b !important;
+}
+
+.workspace-mentor-focus-head {
+  padding: 1.15rem 1.25rem;
+  background: linear-gradient(120deg, color-mix(in srgb, #16834b 7%, var(--ticket-panel)), var(--ticket-panel) 64%);
+}
+
+.workspace-mentor-focus-head h2 {
+  margin-top: 0.2rem;
+  color: var(--ticket-text);
+  font-size: clamp(1.55rem, 3vw, 2.05rem);
+}
+
+.workspace-mentor-checkin-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(13rem, 0.34fr);
+  border-top: 1px solid var(--ticket-border);
+}
+
+.workspace-mentor-checkin-steps {
+  padding: 0.35rem 1.25rem;
+  background: var(--ticket-panel);
+}
+
+.workspace-mentor-checkin-steps li > div > small:first-child {
+  color: #16834b;
+  font-size: 0.7rem;
+  font-weight: 820;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.workspace-mentor-focus-primary {
+  display: grid;
+  align-content: center;
+  gap: 0.55rem;
+  padding: 1.25rem;
+  border-left: 1px solid var(--ticket-border);
+  background: var(--ticket-panel-raised);
+}
+
+.workspace-mentor-focus-primary small {
+  color: var(--ticket-muted);
+  line-height: 1.35;
+}
+
+.workspace-mentor-focus-context {
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--ticket-border);
+  border-radius: 0;
+  background: var(--ticket-panel);
+  padding: 0.75rem 1.25rem;
+}
+
+.workspace-mentor-focus-context summary {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 38px;
+  border: 0;
+  background: transparent;
+  color: var(--ticket-blue-bright);
+  padding: 0.35rem 0.2rem;
+  font-size: 0.82rem;
+}
+
+:root[data-theme="dark"] .workspace-mentor-checkin-steps li > div > small:first-child {
+  color: #70d99b;
+}
+
 @media (max-width: 1180px) {
   .workspace-project-summary {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1122,6 +1451,16 @@ body[data-page="workspace"] {
   .workspace-phase-timeline {
     min-width: 50rem;
   }
+
+  .workspace-student-focus-layout,
+  .workspace-mentor-checkin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-mentor-focus-primary {
+    border-top: 1px solid var(--ticket-border);
+    border-left: 0;
+  }
 }
 
 @media (max-width: 760px) {
@@ -1159,6 +1498,36 @@ body[data-page="workspace"] {
 
   .workspace-project-template-disclosure > summary {
     align-items: flex-start;
+  }
+
+  .workspace-program-review-focus,
+  .workspace-program-review-brief {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-program-review-focus-action {
+    justify-content: flex-start;
+  }
+
+  .workspace-program-review-brief > div {
+    border-right: 0;
+    border-bottom: 1px solid var(--ticket-border);
+  }
+
+  .workspace-program-review-brief > div:last-child {
+    border-bottom: 0;
+  }
+
+  .workspace-role-summary-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .workspace-role-summary-strip .workspace-summary-strip-item {
+    min-height: 68px;
+  }
+
+  .workspace-role-summary-strip .workspace-summary-strip-item small {
+    display: none;
   }
 }
 

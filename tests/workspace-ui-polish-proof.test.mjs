@@ -5,9 +5,9 @@ import test from "node:test";
 
 const repoRoot = path.resolve(".");
 const scriptPath = "scripts/prove-workspace-ui-polish.mjs";
-const manifestPath = "docs/progress/runs/2026-06-30-workspace-ui-polish-browser-proof.json";
-const screenshotIndexPath = "docs/sales/workspace-ui-polish-screenshot-index.md";
-const screenshotDir = "docs/sales/screenshots/2026-06-30-ui-polish";
+const manifestPath = "docs/progress/runs/2026-09-02-usability-pass-browser-proof.json";
+const screenshotIndexPath = "docs/sales/usability-pass-screenshot-index.md";
+const screenshotDir = "docs/sales/screenshots/2026-09-02-usability-pass";
 
 function read(relativePath) {
   return readFileSync(path.join(repoRoot, relativePath), "utf8").replace(/^\uFEFF/, "");
