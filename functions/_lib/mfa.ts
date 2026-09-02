@@ -3,7 +3,9 @@ import { newRandomToken, randomId, sha256Hex } from "./crypto.ts";
 
 const MFA_WINDOW_SECONDS = 30;
 const MFA_CHALLENGE_MINUTES = 10;
-const STAFF_ROLES = ["program_teacher", "administration", "site_admin", "global_admin", "platform_admin", "admin", "misc_admin", "viewer"];
+const MFA_REQUIRED_ROLES = ["program_teacher", "viewer"];
+const MFA_EXEMPT_ADMIN_ROLES = ["administration", "site_admin", "global_admin", "platform_admin", "admin", "misc_admin"];
+const MFA_RELEVANT_ROLES = [...new Set([...MFA_REQUIRED_ROLES, ...MFA_EXEMPT_ADMIN_ROLES])];
 
 export interface MfaChallengeResult {
   challengeToken: string;
@@ -18,12 +20,13 @@ export function staffMfaEnabled(env: Env): boolean {
 
 export async function userNeedsStaffMfa(env: Env, userId: string): Promise<boolean> {
   if (!staffMfaEnabled(env)) return false;
-  const row = await env.DB.prepare(
-    `SELECT 1 AS ok FROM user_roles
-     WHERE user_id = ? AND role_id IN (${STAFF_ROLES.map(() => "?").join(", ")})
-     LIMIT 1`,
-  ).bind(userId, ...STAFF_ROLES).first<{ ok: number }>();
-  return Boolean(row?.ok);
+  const rows = await env.DB.prepare(
+    `SELECT role_id FROM user_roles
+     WHERE user_id = ? AND role_id IN (${MFA_RELEVANT_ROLES.map(() => "?").join(", ")})`,
+  ).bind(userId, ...MFA_RELEVANT_ROLES).all<{ role_id: string }>();
+  const roleIds = new Set((rows.results || []).map((row) => row.role_id));
+  if (MFA_EXEMPT_ADMIN_ROLES.some((roleId) => roleIds.has(roleId))) return false;
+  return MFA_REQUIRED_ROLES.some((roleId) => roleIds.has(roleId));
 }
 
 export async function beginMfaChallenge(env: Env, user: { id: string; email: string }): Promise<MfaChallengeResult> {

@@ -49,4 +49,4 @@ All seven roles completed their visible primary navigation in the production bro
 
 ## Real-User Boundary
 
-This proves fake-data usability and role behavior. It does not approve a real-student launch. Google Workspace SSO remains intentionally disabled. Staff TOTP MFA with one-use recovery codes is now enforced, and the local backup/restore rehearsal passes. The production import gate remains closed until the named privacy, support, retention, incident, data-owner, roster, and managed credential-delivery approvals are recorded.
+This proves fake-data usability and role behavior. It does not approve a real-student launch. Google Workspace SSO remains intentionally disabled. Program Teacher and viewer TOTP MFA with one-use recovery codes is enforced; administrative roles are exempt by owner decision `HD-2026-09-02-002`. The local backup/restore rehearsal passes. The production import gate remains closed until the named privacy, support, retention, incident, data-owner, roster, and managed credential-delivery approvals are recorded.

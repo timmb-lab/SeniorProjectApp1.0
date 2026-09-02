@@ -149,6 +149,17 @@ No open external automation scheduler decisions are blocking the current scaffol
 - `SSO boundary`: Google Workspace SSO remains disabled. If approved later, use only `https://thecapstoneapp.com/api/auth/google/callback` as the production callback.
 - `accepted`: 2026-09-02
 
+### HD-2026-09-02-002
+
+- `status`: accepted
+- `area`: administrative account MFA requirement
+- `owner`: Bryan
+- `severity`: P1
+- `decision`: Administrative roles do not receive the extra authenticator setup or MFA sign-in step. This covers Administration, Site Admin, Global Admin, Platform Admin, legacy Admin, and Misc Admin. Program Teachers and viewers keep the existing MFA requirement; mentors and students keep their existing sign-in behavior.
+- `security consequence`: Admin accounts rely on strong local passwords, reset controls, login rate limits, secure sessions, and audit logging without a second factor. This is an explicit owner decision and must be reviewed before real administrative accounts are approved.
+- `source`: User request on 2026-09-02: "turn this off for admin"
+- `accepted`: 2026-09-02
+
 ### HD-2026-05-20-006
 
 - `status`: accepted

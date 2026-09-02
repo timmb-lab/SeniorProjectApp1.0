@@ -39,4 +39,4 @@ Migration readiness: the browser proof records a redacted `/api/health` summary.
 - The proof covers first-load click-around surfaces and role boundaries; it does not submit destructive or mutation-heavy workflow actions.
 - `student_archive_manifest_download` remains a Future pilot item and is `skipped_not_ready` in the hosted dashboard gate unless a scoped student manifest download is actually available.
 - Generated remote staff credential files are not the walkthrough credential source; the proof uses the approved hosted fake `.test` accounts in ignored local secrets.
-- Google Workspace SSO is not approved for this launch. Real-student onboarding still needs an approved managed-local credential-delivery plan, staff MFA/passkeys, support, retention, data ownership, and policy approval work.
+- Google Workspace SSO is not approved for this launch. Administrative roles are exempt from app MFA by owner decision `HD-2026-09-02-002`; real-user onboarding therefore needs an explicit admin-authentication risk review in addition to the managed-local credential-delivery, support, retention, data-ownership, and policy approvals.

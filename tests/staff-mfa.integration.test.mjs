@@ -8,7 +8,7 @@ import { onRequestPost as onVerifyMfa } from "../functions/api/auth/mfa/verify.t
 import { seedUser } from "./helpers/auth-fixtures.mjs";
 import { createSqliteD1, foundationMigrations } from "./helpers/d1-sqlite.mjs";
 
-test("staff must enroll in MFA, can sign in with TOTP, and can use each recovery code once", async () => {
+test("non-admin staff must enroll in MFA, can sign in with TOTP, and can use each recovery code once", async () => {
   const fixture = await createFixture();
   const enrollment = await login(fixture, fixture.teacherEmail);
   assert.equal(enrollment.status, 202);
@@ -60,6 +60,24 @@ test("student sign-in does not require the staff MFA step", async () => {
   assert.match(response.headers.get("set-cookie") || "", /sc_session=/);
 });
 
+test("administrative roles sign in without the extra MFA step", async () => {
+  const fixture = await createFixture();
+  const response = await login(fixture, fixture.adminEmail);
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("set-cookie") || "", /sc_session=/);
+  assert.equal(await fixture.db.prepare("SELECT COUNT(*) AS count FROM auth_mfa_challenges WHERE user_id = 'mfa-admin'").first().then((row) => row.count), 0);
+});
+
+test("an administrative role exempts a multi-role account from the extra MFA step", async () => {
+  const fixture = await createFixture();
+  await fixture.db.prepare(
+    "INSERT INTO user_roles (user_id, role_id, scope_type, scope_id) VALUES ('mfa-admin', 'program_teacher', 'program', 'it')",
+  ).run();
+  const response = await login(fixture, fixture.adminEmail);
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("set-cookie") || "", /sc_session=/);
+});
+
 async function createFixture() {
   const db = createSqliteD1({ migrations: foundationMigrations() });
   const env = {
@@ -74,16 +92,18 @@ async function createFixture() {
   const password = "Strong!MfaPass2026";
   const teacherEmail = "teacher.mfa@example.test";
   const studentEmail = "student.mfa@example.test";
+  const adminEmail = "admin.mfa@example.test";
   await seedUser(db, { id: "mfa-teacher", email: teacherEmail, displayName: "MFA Teacher", roleId: "program_teacher", scopeType: "program", scopeId: "it" });
   await seedUser(db, { id: "mfa-student", email: studentEmail, displayName: "MFA Student", roleId: "student" });
-  for (const userId of ["mfa-teacher", "mfa-student"]) {
+  await seedUser(db, { id: "mfa-admin", email: adminEmail, displayName: "MFA Admin", roleId: "admin" });
+  for (const userId of ["mfa-teacher", "mfa-student", "mfa-admin"]) {
     const credential = await hashPassword(password, env.PASSWORD_PEPPER);
     await db.prepare(
       `INSERT INTO password_credentials (user_id, password_hash, password_salt, algorithm, iterations, requires_reset)
        VALUES (?, ?, ?, ?, ?, 0)`,
     ).bind(userId, credential.hash, credential.salt, credential.algorithm, credential.iterations).run();
   }
-  return { db, env, password, teacherEmail, studentEmail };
+  return { db, env, password, teacherEmail, studentEmail, adminEmail };
 }
 
 function login(fixture, email) {

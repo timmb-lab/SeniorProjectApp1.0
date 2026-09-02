@@ -21,7 +21,7 @@ Date: 2026-09-02
 - Light and dark views, responsive phone/tablet/desktop layouts, East Tech typography, and data-driven school themes are implemented.
 - The visible browser address stays on the one app address while in-app state is kept in bounded browser history.
 - Local sign-in remains the approved identity model. Normal users are not shown Google/local implementation language.
-- Production security includes staff MFA, scoped authorization, mutation-origin checks, rate limiting, redacted audits, strict response headers, content-versioned assets, and a CSP that blocks inline style attributes.
+- Production security includes MFA for Program Teachers and viewers, scoped authorization, mutation-origin checks, rate limiting, redacted audits, strict response headers, content-versioned assets, and a CSP that blocks inline style attributes. Administrative roles are exempt from MFA by owner decision `HD-2026-09-02-002`.
 - The primary domain and both `www` aliases are active. The secondary domain redirects to the primary domain, and the retired `app.` hostname check passes.
 
 ## Evidence
