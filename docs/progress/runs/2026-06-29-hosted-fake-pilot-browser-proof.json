@@ -3,8 +3,8 @@
   "verdict": "GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF",
   "baseUrl": "https://thecapstoneapp.com",
   "workspaceEntryPath": "/workspace",
-  "startedAt": "2026-09-02T18:05:29.602Z",
-  "completedAt": "2026-09-02T18:07:46.767Z",
+  "startedAt": "2026-09-02T19:00:36.720Z",
+  "completedAt": "2026-09-02T19:02:56.769Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
@@ -74,8 +74,8 @@
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "What do I do next?",
-      "textSample": "Skip to workspace Maya Senior Project TODAY / STUDENT Tools TS Test Student Maya maya.student@senior-capstone.test SC My Capstone My Capstone MAYA SENIOR PROJECT Today My Project Feedback Final Checklist TS Test Student Maya Student TODAY What to do next Open this item. Finish the work. Add a Google Drive link if needed. Missing Start One thing now Your action Due Before using cycle documents Open the matching item in My Project. Open item NEXT STEP MAP Start the listed item Open the item, add its Google Drive link if asked, then turn it in when ready. START Open My Work Use the item named at ",
+      "heading": "Senior Project Workspace",
+      "textSample": "Skip to workspace Maya Senior Project TODAY / STUDENT Tools TS Test Student Maya maya.student@senior-capstone.test SC My Capstone My Capstone MAYA SENIOR PROJECT Today My Project Feedback Final Checklist TS Test Student Maya Student YOUR NEXT STEP Missing Senior Project Workspace Open this item. Finish the work. Add a Google Drive link if needed. Open the matching item in My Project. Start this step 1 Open My Work Use the item named at the top before opening anything else. 2 Add what it asks for Add the Google Drive link that matches the item. 3 Turn it in Stop when the item says it is waiting",
       "activeNav": [
         "1\n        Today\n        What to finish next",
         "1\n        Today"
@@ -108,8 +108,8 @@
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "Pick the project that needs attention",
-      "textSample": "Skip to workspace All projects READY / PROGRAM TEACHER Tools Program Teacher ROLE TT Test Teacher Chen chen.teacher@senior-capstone.test SC Capstone Staff Workspace ALL PROJECTS Projects Projects › Work queue Today › Reviews Reports Reports › TT Test Teacher Chen Program Teacher PROGRAM DASHBOARD Program Teacher Dashboard Track your students, review proof, and find who needs support in your assigned program. Program assignment it TOTAL STUDENTS 46 Students in your program view View students BEHIND / NEEDS SUPPORT 45 Risk or stale activity signals View students MISSING PROOF 3 Students without ",
+      "heading": "Projects that need you",
+      "textSample": "Skip to workspace All projects READY / PROGRAM TEACHER Tools Program Teacher ROLE TT Test Teacher Chen chen.teacher@senior-capstone.test SC Capstone Staff Workspace ALL PROJECTS Projects Projects › Work queue Today › Reviews Reports Reports › TT Test Teacher Chen Program Teacher PROGRAM TEACHER Projects that need you Review one project. Make one decision. The student will see what to do next. Program assignment it START HERE Revision Loop Demo 04 Project Revision Loop Demo 04 turned in Senior Project Proposal Draft. 20 waiting Revision requested Review this project Check revisions STUDENT Revi",
       "activeNav": [
         "Workspace"
       ]
@@ -140,8 +140,8 @@
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "Choose the student who needs you next",
-      "textSample": "Skip to workspace Maya Senior Project READY / MENTOR Tools Mentor ROLE TM Test Mentor Rivera rivera.mentor@senior-capstone.test SC Capstone Staff Workspace MAYA SENIOR PROJECT Projects Projects › Work queue Today › Reviews Reports Reports › TM Test Mentor Rivera Mentor MENTOR WORKSPACE Assigned Student Focus Start with one assigned student, ask one useful question, then record the next check-in. mentor assigned 1 assigned ASSIGNED 1 Students assigned to this mentor Show all NEEDS REVISION 0 Students with teacher changes to discuss Focus list MEETINGS 1 Check-ins missing, missed, or needing mak",
+      "heading": "Your next check-in",
+      "textSample": "Skip to workspace Maya Senior Project READY / MENTOR Tools Mentor ROLE TM Test Mentor Rivera rivera.mentor@senior-capstone.test SC Capstone Staff Workspace MAYA SENIOR PROJECT Projects Projects › Work queue Today › Reviews Reports Reports › TM Test Mentor Rivera Mentor MENTOR Your next check-in Help one student move one project step forward. mentor assigned 1 assigned START HERE · TEST STUDENT MAYA Maya Senior Project A check-in is missing, missed, or needs make-up status. Needs me first 1 assigned 1 ASK When is your next mentor check-in, and what decision do you need from it? 2 HELP Update th",
       "activeNav": []
     },
     {
@@ -295,8 +295,8 @@
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "What do I do next?",
-      "textSample": "Skip to workspace Menu SC My Capstone Tools TS TODAY What to do next Open this item. Finish the work. Add a Google Drive link if needed. Missing Start One thing now Your action Due Before using cycle documents Open the matching item in My Project. Open item NEXT STEP MAP Start the listed item Open the item, add its Google Drive link if asked, then turn it in when ready. START Open My Work Use the item named at the top before opening anything else. Open My Work THEN Add what it asks for Add the Google Drive link that matches the item. DONE WHEN Turn it in Stop when the item says it is waiting f",
+      "heading": "Senior Project Workspace",
+      "textSample": "Skip to workspace Menu SC My Capstone Tools TS YOUR NEXT STEP Missing Senior Project Workspace Open this item. Finish the work. Add a Google Drive link if needed. Open the matching item in My Project. Start this step 1 Open My Work Use the item named at the top before opening anything else. 2 Add what it asks for Add the Google Drive link that matches the item. 3 Turn it in Stop when the item says it is waiting for teacher review. YOUR PROJECT Maya Senior Project Test Student Maya 1 student Mentor: Test Mentor Rivera Teacher: Gray Quinn Show progress, feedback, and checklist 17 items still nee",
       "activeNav": [
         "1\n        Today\n        What to finish next",
         "1\n        Today"
