@@ -2,7 +2,7 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "senior-capstone-app",
   "compatibility_date": "2026-05-18",
-  "pages_build_output_dir": ".",
+  "pages_build_output_dir": ".deploy-app",
   "d1_databases": [
     {
       "binding": "DB",
@@ -16,11 +16,12 @@
     "AUTH_MODE": "hardened_username_password",
     "AUTH_GOOGLE_SSO_ENABLED": "false",
     "AUTH_LOCAL_LOGIN_ENABLED": "true",
-    "EVIDENCE_STORAGE_PROVIDER": "google_drive",
+    "AUTH_STAFF_MFA_REQUIRED": "true",
+    "EVIDENCE_STORAGE_PROVIDER": "link_only",
     "GOOGLE_DRIVE_EVIDENCE_ROOT_ID": "0AJHkstxfN-dTUk9PVA",
     "GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID": "1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0",
     "ARCHIVE_DOWNLOAD_WINDOW_DAYS": "14",
     "ARCHIVE_RETENTION_POLICY_STATUS": "policy_review_required",
-    "SESSION_COOKIE_NAME": "sc_session"
+    "SESSION_COOKIE_NAME": "__Host-sc_session"
   }
 }

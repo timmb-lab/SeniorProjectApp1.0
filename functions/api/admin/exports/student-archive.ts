@@ -115,9 +115,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     requestedBy: user.id,
     reason,
   });
-  let drivePackage;
+  const linkOnly = env.EVIDENCE_STORAGE_PROVIDER === "link_only";
+  let drivePackage = null;
   try {
-    drivePackage = await uploadStudentArchiveDrivePackage(env, artifact);
+    if (!linkOnly) drivePackage = await uploadStudentArchiveDrivePackage(env, artifact);
   } catch {
     const completedAt = new Date().toISOString();
     await env.DB.prepare(
@@ -171,7 +172,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   await env.DB.prepare(
     `INSERT INTO exports (id, export_type, requested_by, target_user_id, drive_file_id, status, completed_at)
      VALUES (?, 'student_archive', ?, ?, ?, 'complete', ?)`,
-  ).bind(exportId, user.id, studentId, drivePackage.fileId, artifact.generatedAt).run();
+  ).bind(exportId, user.id, studentId, drivePackage?.fileId || null, artifact.generatedAt).run();
 
   await env.DB.prepare(
     `INSERT INTO export_artifacts (
@@ -217,9 +218,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       itemCounts: artifact.itemCounts,
       providerStatus: provider.status,
       retention: artifact.retention,
-      drivePackageReady: true,
-      drivePackageName: drivePackage.name,
-      drivePackageMimeType: drivePackage.mimeType,
+      drivePackageReady: Boolean(drivePackage),
+      drivePackageName: drivePackage?.name || null,
+      drivePackageMimeType: drivePackage?.mimeType || null,
       signedDownloadReady: false,
       scopedDownloadReady: true,
       storageIdentifiersRedacted: true,
@@ -237,8 +238,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       artifactId: artifact.id,
       artifactType: artifact.artifactType,
       packageBytes: artifact.byteLength,
-      drivePackageReady: true,
-      drivePackageName: drivePackage.name,
+      drivePackageReady: Boolean(drivePackage),
+      drivePackageName: drivePackage?.name || null,
       downloadExpiresAt: artifact.expiresAt,
       retention: artifact.retention,
       signedDownloadReady: false,

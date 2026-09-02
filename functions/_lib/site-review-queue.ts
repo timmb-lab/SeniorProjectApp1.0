@@ -11,12 +11,13 @@ import {
   canManageSecurity,
   canManageUsers,
   canViewReviewQueue,
+  getMentorAssignedStudentIds,
   getProgramTeacherScopedStudentIds,
   getViewerRoleContext,
 } from "./permissions.ts";
 
-const DEFAULT_LIMIT = 50;
-const MAX_LIMIT = 100;
+const DEFAULT_LIMIT = 10;
+const MAX_LIMIT = 50;
 const REVIEW_STATUS_VALUES = ["submitted", "revision_requested", "approved"];
 const CANONICAL_STORY_VALUES = ["model_excellent", "missing_mentor", "awaiting_review", "revision_requested", "presentation_pending", "archive_ready", "archive_failed", "high_risk", "rich_timeline"];
 const RISK_VALUES = ["any", "high", "medium", "low", "stale", "no_mentor"];
@@ -45,6 +46,10 @@ interface ProgramOptionRow {
 
 interface QueueRow {
   submission_id: string;
+  project_id: string | null;
+  project_name: string | null;
+  project_member_count: number;
+  project_member_names: string | null;
   student_id: string;
   student_name: string;
   site_id: string;
@@ -60,6 +65,8 @@ interface QueueRow {
   submitted_at: string | null;
   updated_at: string;
   evidence_count: number;
+  written_response_length: number;
+  written_response_text: string | null;
   review_count: number;
   comment_count: number;
   story_bucket: string;
@@ -131,7 +138,7 @@ export async function handleSiteReviewQueueRequest({
     context,
     requestedSiteId,
     canViewSite: (siteId) => canViewReviewQueue(env, user, siteId),
-    defaultSiteRoleIds: ["platform_admin", "global_admin", "admin", "program_teacher"],
+    defaultSiteRoleIds: ["platform_admin", "global_admin", "admin", "program_teacher", "mentor"],
   });
 
   if (selection.kind === "denied") {
@@ -164,6 +171,9 @@ export async function handleSiteReviewQueueRequest({
   const teacherScope = context.roleIds.includes("program_teacher")
     ? await getProgramTeacherScopedStudentIds(env, user)
     : null;
+  const mentorStudentIds = context.roleIds.includes("mentor")
+    ? await getMentorAssignedStudentIds(env, user)
+    : null;
   if (teacherScope && !teacherScope.valid) {
     await auditReviewQueue(env, request, user, context, "review_queue_denied", {
       reason: "invalid_program_teacher_scope",
@@ -173,9 +183,10 @@ export async function handleSiteReviewQueueRequest({
     return json({ error: "forbidden", reason: "invalid_program_teacher_scope" }, { status: 403 });
   }
 
-  const canReview = Boolean(teacherScope?.valid);
+  const reviewStudentIds = teacherScope?.valid ? teacherScope.studentIds : mentorStudentIds;
+  const canReview = Boolean(teacherScope?.valid || mentorStudentIds);
   const readOnly = isReadOnlyViewer(context.roleIds) || !canReview;
-  const scopeSql = buildQueueScopeSql(site.id, teacherScope ? teacherScope.studentIds : null);
+  const scopeSql = buildQueueScopeSql(site.id, reviewStudentIds || null);
   const baseWhere = defaultQueueWhere();
   const filterWhere = buildFilterWhere(filters);
   const [total, filteredTotal] = await Promise.all([
@@ -251,6 +262,7 @@ function canUseSiteReviewQueueRole(roleIds: RoleId[]): boolean {
     || roleId === "admin"
     || roleId === "site_admin"
     || roleId === "program_teacher"
+    || roleId === "mentor"
   ));
 }
 
@@ -275,12 +287,24 @@ async function loadPermissions(env: Env, user: UserAccount, siteId: string, read
 }
 
 function buildQueueScopeSql(siteId: string, scopedStudentIds: string[] | null) {
-  const studentScopeClause = scopedStudentIds
+  const submissionScopeClause = scopedStudentIds
     ? scopedStudentIds.length
-      ? `AND student.id IN (${scopedStudentIds.map(() => "?").join(", ")})`
+      ? `AND (
+          scoped_students.student_id IN (SELECT value FROM json_each(?))
+          OR submissions.project_id IN (
+            SELECT project_members.project_id
+            FROM project_members
+            WHERE project_members.student_user_id IN (SELECT value FROM json_each(?))
+              AND project_members.active = 1
+          )
+        )`
       : "AND 1 = 0"
     : "";
-  const binds = scopedStudentIds ? [siteId, ...scopedStudentIds] : [siteId];
+  const binds = scopedStudentIds
+    ? scopedStudentIds.length
+      ? [siteId, JSON.stringify(scopedStudentIds), JSON.stringify(scopedStudentIds)]
+      : [siteId]
+    : [siteId];
   return {
     binds,
     sql: `
@@ -305,11 +329,25 @@ function buildQueueScopeSql(siteId: string, scopedStudentIds: string[] | null) {
          AND tenants.status = 'active'
         WHERE site_users.site_id = ?
          AND site_users.membership_status = 'active'
-         ${studentScopeClause}
       ),
       queue_rows AS (
         SELECT
           submissions.id AS submission_id,
+          submissions.project_id,
+          projects.name AS project_name,
+          COALESCE((
+            SELECT COUNT(*)
+            FROM project_members
+            WHERE project_members.project_id = submissions.project_id
+              AND project_members.active = 1
+          ), 1) AS project_member_count,
+          COALESCE((
+            SELECT GROUP_CONCAT(member.display_name, ', ')
+            FROM project_members
+            JOIN user_accounts member ON member.id = project_members.student_user_id
+            WHERE project_members.project_id = submissions.project_id
+              AND project_members.active = 1
+          ), scoped_students.display_name) AS project_member_names,
           scoped_students.student_id,
           scoped_students.display_name AS student_name,
           scoped_students.site_id,
@@ -363,6 +401,18 @@ function buildQueueScopeSql(siteId: string, scopedStudentIds: string[] | null) {
              AND evidence_artifacts.deleted_at IS NULL
              AND evidence_artifacts.review_status != 'archived'
           ) AS evidence_count,
+          COALESCE((
+            SELECT LENGTH(TRIM(student_work_responses.response_text))
+            FROM student_work_responses
+            WHERE student_work_responses.submission_id = submissions.id
+            LIMIT 1
+          ), 0) AS written_response_length,
+          (
+            SELECT student_work_responses.response_text
+            FROM student_work_responses
+            WHERE student_work_responses.submission_id = submissions.id
+            LIMIT 1
+          ) AS written_response_text,
           (
             SELECT COUNT(*)
             FROM reviews
@@ -388,9 +438,14 @@ function buildQueueScopeSql(siteId: string, scopedStudentIds: string[] | null) {
             ELSE ''
           END AS story_bucket,
           CASE WHEN EXISTS (
+            SELECT 1
+            FROM project_mentor_assignments
+            WHERE project_mentor_assignments.project_id = submissions.project_id
+              AND project_mentor_assignments.active = 1
+          ) OR EXISTS (
             SELECT 1 FROM mentor_assignments
             WHERE mentor_assignments.student_user_id = scoped_students.student_id
-             AND mentor_assignments.active = 1
+              AND mentor_assignments.active = 1
           ) THEN 1 ELSE 0 END AS has_active_mentor,
           CASE
             WHEN scoped_students.display_name LIKE 'High Risk Demo%' THEN 1
@@ -399,9 +454,13 @@ function buildQueueScopeSql(siteId: string, scopedStudentIds: string[] | null) {
           END AS stale_flag,
           (
             CASE WHEN NOT EXISTS (
+              SELECT 1 FROM project_mentor_assignments
+              WHERE project_mentor_assignments.project_id = submissions.project_id
+                AND project_mentor_assignments.active = 1
+            ) AND NOT EXISTS (
               SELECT 1 FROM mentor_assignments
               WHERE mentor_assignments.student_user_id = scoped_students.student_id
-               AND mentor_assignments.active = 1
+                AND mentor_assignments.active = 1
             ) THEN 4 ELSE 0 END
             + CASE WHEN submissions.status = 'revision_requested' THEN 3 ELSE 0 END
             + CASE WHEN submissions.status = 'submitted' THEN 2 ELSE 0 END
@@ -410,13 +469,20 @@ function buildQueueScopeSql(siteId: string, scopedStudentIds: string[] | null) {
               WHERE evidence_artifacts.submission_id = submissions.id
                AND evidence_artifacts.deleted_at IS NULL
                AND evidence_artifacts.review_status != 'archived'
+            ) AND NOT EXISTS (
+              SELECT 1 FROM student_work_responses
+              WHERE student_work_responses.submission_id = submissions.id
+               AND LENGTH(TRIM(student_work_responses.response_text)) > 0
             ) THEN 2 ELSE 0 END
             + CASE WHEN scoped_students.display_name LIKE 'High Risk Demo%' THEN 2 ELSE 0 END
             + CASE WHEN julianday('now') - julianday(COALESCE(submissions.updated_at, 'now')) > 14 THEN 1 ELSE 0 END
           ) AS risk_score
         FROM submissions
         JOIN scoped_students ON scoped_students.student_id = submissions.student_id
+        LEFT JOIN projects ON projects.id = submissions.project_id
         LEFT JOIN requirements ON requirements.id = submissions.requirement_id
+        WHERE 1 = 1
+        ${submissionScopeClause}
       )
     `,
   };
@@ -438,10 +504,10 @@ async function loadSummary(env: Env, scopeSql: ReturnType<typeof buildQueueScope
      SELECT
        SUM(CASE WHEN status = 'submitted' THEN 1 ELSE 0 END) AS submitted,
        SUM(CASE WHEN status = 'revision_requested' THEN 1 ELSE 0 END) AS revision_requested,
-       SUM(CASE WHEN status = 'submitted' AND evidence_count > 0 THEN 1 ELSE 0 END) AS ready_to_review,
+       SUM(CASE WHEN status = 'submitted' AND (evidence_count > 0 OR written_response_length > 0) THEN 1 ELSE 0 END) AS ready_to_review,
        SUM(CASE WHEN stale_flag = 1 THEN 1 ELSE 0 END) AS overdue_or_stale,
-       SUM(CASE WHEN evidence_count > 0 THEN 1 ELSE 0 END) AS evidence_attached,
-       SUM(CASE WHEN evidence_count = 0 THEN 1 ELSE 0 END) AS evidence_missing,
+       SUM(CASE WHEN evidence_count > 0 OR written_response_length > 0 THEN 1 ELSE 0 END) AS evidence_attached,
+       SUM(CASE WHEN evidence_count = 0 AND written_response_length = 0 THEN 1 ELSE 0 END) AS evidence_missing,
        SUM(CASE WHEN risk_score >= 7 THEN 1 ELSE 0 END) AS high_risk,
        SUM(CASE WHEN has_active_mentor = 0 THEN 1 ELSE 0 END) AS no_mentor
      FROM queue_rows
@@ -543,8 +609,10 @@ function buildFilterWhere(filters: ReviewQueueFilters): FilterWhere {
       lower(student_name) LIKE ? ESCAPE '\\'
       OR lower(COALESCE(requirement_title, '')) LIKE ? ESCAPE '\\'
       OR lower(COALESCE(program_name, '')) LIKE ? ESCAPE '\\'
+      OR lower(COALESCE(project_name, '')) LIKE ? ESCAPE '\\'
+      OR lower(COALESCE(project_member_names, '')) LIKE ? ESCAPE '\\'
     )`);
-    binds.push(like, like, like);
+    binds.push(like, like, like, like, like);
   }
 
   if (filters.story) {
@@ -561,10 +629,10 @@ function buildFilterWhere(filters: ReviewQueueFilters): FilterWhere {
   }
 
   if (filters.evidenceStatus === "attached") {
-    clauses.push("evidence_count > 0");
+    clauses.push("(evidence_count > 0 OR written_response_length > 0)");
   }
   if (filters.evidenceStatus === "missing") {
-    clauses.push("evidence_count = 0");
+    clauses.push("(evidence_count = 0 AND written_response_length = 0)");
   }
 
   return {
@@ -576,9 +644,14 @@ function buildFilterWhere(filters: ReviewQueueFilters): FilterWhere {
 function queueResponse(row: QueueRow) {
   const riskFlags = riskFlagsFor(row);
   const evidenceCount = Number(row.evidence_count || 0);
-  const decisionAvailability = decisionAvailabilityForQueue(row.status, evidenceCount);
+  const writtenResponseLength = Number(row.written_response_length || 0);
+  const decisionAvailability = decisionAvailabilityForQueue(row.status, evidenceCount, writtenResponseLength);
   return {
     submissionId: row.submission_id,
+    projectId: row.project_id || "",
+    projectName: row.project_name || `${row.student_name} Project`,
+    projectMemberCount: Number(row.project_member_count || 1),
+    projectMemberNames: String(row.project_member_names || row.student_name),
     studentId: row.student_id,
     studentName: row.student_name,
     siteId: row.site_id,
@@ -594,6 +667,9 @@ function queueResponse(row: QueueRow) {
     submittedAt: row.submitted_at || "",
     updatedAt: row.updated_at || "",
     evidenceCount,
+    writtenResponseLength,
+    hasWrittenResponse: writtenResponseLength > 0,
+    writtenResponseText: writtenResponseLength > 0 ? String(row.written_response_text || "") : "",
     reviewCount: Number(row.review_count || 0),
     commentCount: Number(row.comment_count || 0),
     storyBucket: row.story_bucket || "",
@@ -603,7 +679,7 @@ function queueResponse(row: QueueRow) {
     approvalBlockedReason: decisionAvailability.approvalBlockedReason,
     availableDecisions: decisionAvailability.availableDecisions,
     decisionGuidance: decisionAvailability.guidance,
-    nextAction: nextActionForQueue(row.status, evidenceCount, riskFlags),
+    nextAction: nextActionForQueue(row.status, evidenceCount, writtenResponseLength, riskFlags),
   };
 }
 
@@ -612,22 +688,22 @@ function riskFlagsFor(row: QueueRow): string[] {
   if (Number(row.has_active_mentor || 0) === 0) flags.push("no_mentor");
   if (row.status === "revision_requested") flags.push("revision_requested");
   if (row.status === "submitted") flags.push("awaiting_review");
-  if (Number(row.evidence_count || 0) === 0) flags.push("missing_evidence");
+  if (Number(row.evidence_count || 0) === 0 && Number(row.written_response_length || 0) === 0) flags.push("missing_evidence");
   if (Number(row.stale_flag || 0) === 1) flags.push("stale");
   if (Number(row.risk_score || 0) >= 7) flags.push("high");
   return flags;
 }
 
-function nextActionForQueue(status: string, evidenceCount: number, riskFlags: string[]): string {
-  if (status === "submitted" && evidenceCount > 0) return "Review evidence and record teacher feedback.";
-  if (status === "submitted") return "Confirm evidence before approval.";
+function nextActionForQueue(status: string, evidenceCount: number, writtenResponseLength: number, riskFlags: string[]): string {
+  if (status === "submitted" && (evidenceCount > 0 || writtenResponseLength > 0)) return "Read the student's work, then accept it or ask for changes.";
+  if (status === "submitted") return "Ask the student to add their work before accepting it.";
   if (status === "revision_requested") return "Wait for student revision before recording another decision.";
   if (riskFlags.includes("high")) return "Prioritize teacher follow-up.";
   return "Review status and student detail context.";
 }
 
-function decisionAvailabilityForQueue(status: string, evidenceCount: number) {
-  if (status === "submitted" && evidenceCount > 0) {
+function decisionAvailabilityForQueue(status: string, evidenceCount: number, writtenResponseLength: number) {
+  if (status === "submitted" && (evidenceCount > 0 || writtenResponseLength > 0)) {
     return {
       state: "decision-ready",
       approvalBlockedReason: "",
@@ -636,7 +712,7 @@ function decisionAvailabilityForQueue(status: string, evidenceCount: number) {
         revision_requested: true,
         comment_only: true,
       },
-      guidance: "Decision needed: active proof is attached. Review history, then approve next steps or request revision.",
+      guidance: "Read the work, then accept it or ask for changes.",
     };
   }
   if (status === "submitted") {
@@ -648,7 +724,7 @@ function decisionAvailabilityForQueue(status: string, evidenceCount: number) {
         revision_requested: true,
         comment_only: true,
       },
-      guidance: "Approval locked: active proof is missing. Request revision or add comment-only guidance until proof is attached.",
+      guidance: "Accept is locked because no work was sent. Ask the student to add their work.",
     };
   }
   if (status === "revision_requested") {

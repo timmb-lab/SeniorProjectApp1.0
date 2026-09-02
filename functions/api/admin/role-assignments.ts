@@ -85,7 +85,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
        CASE
          WHEN user_roles.scope_type = 'site' THEN sites.name
          WHEN user_roles.scope_type = 'program' THEN programs.name
-         WHEN user_roles.scope_type = 'cohort' THEN cohorts.name
+         WHEN user_roles.scope_type = 'cohort' THEN cohorts.label
          ELSE NULL
        END AS scope_name,
        user_roles.assigned_by,

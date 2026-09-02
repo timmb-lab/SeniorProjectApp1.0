@@ -1,7 +1,7 @@
 import type { Env, RoleId, UserAccount } from "../../../_types.ts";
 import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
 import { isGoogleSsoEnabled, isManagedLocalAccountCreationEnabled } from "../../../_lib/auth-config.ts";
-import { hashPassword, newRandomToken, normalizeEmail, randomId, validatePassword } from "../../../_lib/crypto.ts";
+import { hashPassword, newRandomToken, normalizeEmail, randomId, sha256Hex, validatePassword } from "../../../_lib/crypto.ts";
 import {
   canActorCreateRole,
   loadEffectiveAccess,
@@ -29,6 +29,8 @@ interface ImportUserInput {
   graduation_year?: unknown;
   mentorUserId?: unknown;
   mentor_user_id?: unknown;
+  programTeacherUserId?: unknown;
+  program_teacher_user_id?: unknown;
   viewerUserId?: unknown;
   viewer_user_id?: unknown;
   identityType?: unknown;
@@ -55,6 +57,7 @@ interface NormalizedImportUser {
   cohort: string;
   graduationYear: string;
   mentorUserId: string;
+  programTeacherUserId: string;
   viewerUserId: string;
   legacyScopeType: RoleScopeType;
   legacyScopeId: string;
@@ -73,6 +76,8 @@ interface RoleExistsRow {
 interface StudentAssignmentSummary {
   mentorAssignmentsCreated: number;
   mentorAssignmentsSkipped: number;
+  projectMentorsCreated: number;
+  projectProgramTeachersCreated: number;
   viewerAssignmentsCreated: number;
   viewerAssignmentsSkipped: number;
 }
@@ -129,6 +134,29 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const realLocalUserCount = normalizedUsers.filter((user) => (
     user.identityType === "local" && user.status !== "inactive" && !isFakeTestEmail(user.emailNorm)
   )).length;
+  const realActiveUserCount = normalizedUsers.filter((user) => (
+    user.status !== "inactive" && !isFakeTestEmail(user.emailNorm)
+  )).length;
+  if (env.APP_ENV === "production" && realActiveUserCount > 0 && env.REAL_STUDENT_PILOT_APPROVED !== "true") {
+    await writeAudit(env, {
+      actorUserId: caller.id,
+      action: "user.create_rejected",
+      entityType: "user_import_batch",
+      entityId: null,
+      request,
+      metadata: {
+        reason: "pilot_approval_required",
+        userCount: normalizedUsers.length,
+        realActiveUserCount,
+        approvalGateEnabled: true,
+      },
+    });
+    return json({
+      ok: false,
+      error: "pilot_approval_required",
+      message: "Real accounts stay blocked until school privacy, support, retention, and data-owner approval is recorded.",
+    }, { status: 409 });
+  }
   if (realLocalUserCount > 0 && !isManagedLocalAccountCreationEnabled(env)) {
     await writeAudit(env, {
       actorUserId: caller.id,
@@ -167,12 +195,14 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const imported = [];
   for (const user of normalizedUsers) {
     const userId = randomId("user");
-    const temporaryPassword = user.identityType === "local" && user.status !== "inactive" ? generateTemporaryPassword(user) : "";
+    const usesLocalPassword = user.identityType === "local" && user.status !== "inactive";
+    const hiddenInitialPassword = usesLocalPassword ? generateTemporaryPassword(user) : "";
+    const setupCode = usesLocalPassword ? `SET-${newRandomToken(18)}` : "";
     const accountStatus = user.status === "inactive"
       ? "disabled"
       : user.identityType === "local" ? "pending_reset" : "active";
-    const credential = temporaryPassword
-      ? await hashPassword(temporaryPassword, env.PASSWORD_PEPPER || "")
+    const credential = hiddenInitialPassword
+      ? await hashPassword(hiddenInitialPassword, env.PASSWORD_PEPPER || "")
       : null;
 
     await env.DB.prepare(
@@ -198,6 +228,12 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
          )
          VALUES (?, ?, ?, ?, ?, 1)`,
       ).bind(userId, credential.hash, credential.salt, credential.algorithm, credential.iterations).run();
+
+      const setupCodeHash = await sha256Hex(`${env.SESSION_PEPPER || ""}:password-setup:${setupCode}`);
+      await env.DB.prepare(
+        `INSERT INTO auth_password_setup_tokens (id, user_id, token_hash, created_by, expires_at)
+         VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '+30 minutes'))`,
+      ).bind(randomId("password_setup"), userId, setupCodeHash, caller.id).run();
     }
 
     const assignmentSummary = await createRoleAndAssignments(env, {
@@ -226,7 +262,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
             }
           : undefined,
         assignmentSummary,
-        temporaryCredentialReturnedOnce: Boolean(temporaryPassword),
+        oneTimeSetupCodeIssued: Boolean(setupCode),
       },
     });
 
@@ -260,9 +296,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
           }
         : undefined,
       assignmentSummary,
-      temporaryPassword: temporaryPassword || undefined,
-      delivery: temporaryPassword ? "one_time_admin_display" : "sso_first_sign_in",
-      mustReset: Boolean(temporaryPassword),
+      setupCode: setupCode || undefined,
+      setupCodeExpiresInMinutes: setupCode ? 30 : undefined,
+      delivery: setupCode ? "one_time_admin_display" : "sso_first_sign_in",
+      mustReset: Boolean(setupCode),
       nextSteps: nextStepsFor(user),
     });
   }
@@ -278,7 +315,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       importedCount: imported.length,
       roleIds: Array.from(new Set(normalizedUsers.map((user) => user.roleId))),
       assignmentSummary: aggregateStudentAssignmentSummary(imported.map((user) => user.assignmentSummary)),
-      temporaryCredentialsReturnedOnce: imported.some((user) => Boolean(user.temporaryPassword)),
+      oneTimeSetupCodesIssued: imported.some((user) => Boolean(user.setupCode)),
     },
   });
 
@@ -342,6 +379,7 @@ function normalizeUserInput(value: unknown): NormalizedImportUser | null {
     cohort: cleanRosterText(input.cohort, 80),
     graduationYear,
     mentorUserId: cleanId(input.mentorUserId ?? input.mentor_user_id),
+    programTeacherUserId: cleanId(input.programTeacherUserId ?? input.program_teacher_user_id),
     viewerUserId: cleanId(input.viewerUserId ?? input.viewer_user_id),
     legacyScopeType,
     legacyScopeId,
@@ -412,6 +450,9 @@ async function validateUser(
     if (user.mentorUserId) {
       const mentorValidation = await validateNewStudentAssignmentTarget(env, actorAccess, user, "mentor_student", user.mentorUserId, "mentor");
       if (!mentorValidation.ok) return mentorValidation;
+    }
+    if (user.programTeacherUserId && !await activeProgramTeacherTarget(env, user.programTeacherUserId, user.programIds)) {
+      return reject(403, "program_teacher_assignment_target_forbidden", "Choose a Program Teacher assigned to this student's program.");
     }
     if (user.viewerUserId) {
       const viewerValidation = await validateNewStudentAssignmentTarget(env, actorAccess, user, "viewer_student", user.viewerUserId, "viewer");
@@ -573,6 +614,27 @@ async function activeScopedAssignmentTarget(
   return Boolean(row);
 }
 
+async function activeProgramTeacherTarget(env: Env, targetUserId: string, programIds: string[]): Promise<boolean> {
+  if (!targetUserId || !programIds.length) return false;
+  const row = await env.DB.prepare(
+    `SELECT user_accounts.id
+     FROM user_accounts
+     JOIN user_roles target_role ON target_role.user_id = user_accounts.id
+      AND target_role.role_id = 'program_teacher'
+      AND target_role.scope_type = 'program'
+      AND target_role.scope_id IN (SELECT value FROM json_each(?))
+     WHERE user_accounts.id = ?
+      AND user_accounts.status IN ('active', 'pending_reset')
+      AND NOT EXISTS (
+        SELECT 1 FROM user_roles elevated_role
+        WHERE elevated_role.user_id = user_accounts.id
+         AND elevated_role.role_id IN ('global_admin', 'admin', 'platform_admin')
+      )
+     LIMIT 1`,
+  ).bind(JSON.stringify(programIds), targetUserId).first<{ id: string }>();
+  return Boolean(row);
+}
+
 async function upsertStudentRosterProfile(env: Env, studentUserId: string, user: NormalizedImportUser): Promise<void> {
   await env.DB.prepare(
     `INSERT INTO student_roster_profiles (student_user_id, cohort, graduation_year)
@@ -595,6 +657,27 @@ async function createNewStudentSideAssignments(
   const summary = emptyStudentAssignmentSummary();
   const { actorId, studentUserId, user } = input;
 
+  const projectId = `project-${studentUserId}`;
+  const siteId = user.siteIds[0] || "";
+  if (siteId) {
+    await env.DB.prepare(
+      `INSERT INTO projects (id, site_id, program_id, name, summary, status, current_phase, created_by)
+       VALUES (?, ?, ?, ?, 'Your Senior Project workspace.', 'active', 'start', ?)
+       ON CONFLICT(id) DO UPDATE SET
+         site_id = excluded.site_id,
+         program_id = COALESCE(excluded.program_id, projects.program_id),
+         status = 'active',
+         updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`,
+    ).bind(projectId, siteId, user.programIds[0] || null, `${user.displayName} Project`, studentUserId).run();
+    await env.DB.prepare(
+      `INSERT INTO project_members (project_id, student_user_id, member_role, active, assigned_by)
+       VALUES (?, ?, 'lead', 1, ?)
+       ON CONFLICT(project_id, student_user_id) DO UPDATE SET
+         member_role = 'lead', active = 1, assigned_by = excluded.assigned_by,
+         updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`,
+    ).bind(projectId, studentUserId, actorId).run();
+  }
+
   if (user.mentorUserId) {
     const existing = await activeMentorAssignmentExists(env, user.mentorUserId, studentUserId);
     await env.DB.prepare(
@@ -605,6 +688,25 @@ async function createNewStudentSideAssignments(
     if (existing) summary.mentorAssignmentsSkipped += 1;
     else summary.mentorAssignmentsCreated += 1;
     for (const siteId of user.siteIds) await insertSiteMembership(env, siteId, user.mentorUserId);
+    if (siteId) {
+      summary.projectMentorsCreated += await addImportedProjectAdult(env, {
+        actorId,
+        projectId,
+        siteId,
+        adultRole: "mentor",
+        assigneeUserId: user.mentorUserId,
+      });
+    }
+  }
+
+  if (user.programTeacherUserId && siteId) {
+    summary.projectProgramTeachersCreated += await addImportedProjectAdult(env, {
+      actorId,
+      projectId,
+      siteId,
+      adultRole: "program_teacher",
+      assigneeUserId: user.programTeacherUserId,
+    });
   }
 
   if (user.viewerUserId) {
@@ -620,6 +722,66 @@ async function createNewStudentSideAssignments(
   }
 
   return summary;
+}
+
+async function addImportedProjectAdult(
+  env: Env,
+  input: {
+    actorId: string;
+    projectId: string;
+    siteId: string;
+    adultRole: "mentor" | "program_teacher";
+    assigneeUserId: string;
+  },
+): Promise<number> {
+  const assignmentId = randomId("project_adult");
+  const result = await env.DB.prepare(
+    `INSERT OR IGNORE INTO project_adult_assignments (
+       id, project_id, site_id, adult_role, assignee_user_id,
+       status, nominated_by, responded_by, responded_at
+     ) VALUES (?, ?, ?, ?, ?, 'accepted', ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+  ).bind(
+    assignmentId,
+    input.projectId,
+    input.siteId,
+    input.adultRole,
+    input.assigneeUserId,
+    input.actorId,
+    input.actorId,
+  ).run();
+  if (!Number(result.meta.changes || 0)) return 0;
+
+  await env.DB.prepare(
+    `INSERT INTO project_adult_assignment_events (
+       id, assignment_id, actor_user_id, action, detail_json
+     ) VALUES (?, ?, ?, 'accepted', ?)`,
+  ).bind(
+    randomId("project_adult_event"),
+    assignmentId,
+    input.actorId,
+    JSON.stringify({ reason: "Added during student account setup." }),
+  ).run();
+  await env.DB.prepare(
+    `INSERT INTO user_notifications (id, user_id, kind, entity_type, entity_id, title, message)
+     VALUES (?, ?, 'project_adult_accepted', 'project', ?, ?, ?)`,
+  ).bind(
+    randomId("notice"),
+    input.assigneeUserId,
+    input.projectId,
+    input.adultRole === "mentor" ? "You are this project's Mentor" : "You are this project's Program Teacher",
+    "Open the project to see the team and what comes next.",
+  ).run();
+
+  if (input.adultRole === "mentor") {
+    await env.DB.prepare(
+      `INSERT INTO project_mentor_assignments (id, project_id, mentor_user_id, active, assigned_by)
+       VALUES (?, ?, ?, 1, ?)
+       ON CONFLICT(project_id, mentor_user_id) DO UPDATE SET
+         active = 1, assigned_by = excluded.assigned_by,
+         updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`,
+    ).bind(randomId("project_mentor"), input.projectId, input.assigneeUserId, input.actorId).run();
+  }
+  return 1;
 }
 
 async function activeMentorAssignmentExists(env: Env, mentorUserId: string, studentUserId: string): Promise<boolean> {
@@ -650,6 +812,8 @@ function emptyStudentAssignmentSummary(): StudentAssignmentSummary {
   return {
     mentorAssignmentsCreated: 0,
     mentorAssignmentsSkipped: 0,
+    projectMentorsCreated: 0,
+    projectProgramTeachersCreated: 0,
     viewerAssignmentsCreated: 0,
     viewerAssignmentsSkipped: 0,
   };
@@ -659,6 +823,8 @@ function aggregateStudentAssignmentSummary(summaries: Array<StudentAssignmentSum
   return summaries.reduce<StudentAssignmentSummary>((total, summary) => ({
     mentorAssignmentsCreated: total.mentorAssignmentsCreated + Number(summary?.mentorAssignmentsCreated || 0),
     mentorAssignmentsSkipped: total.mentorAssignmentsSkipped + Number(summary?.mentorAssignmentsSkipped || 0),
+    projectMentorsCreated: total.projectMentorsCreated + Number(summary?.projectMentorsCreated || 0),
+    projectProgramTeachersCreated: total.projectProgramTeachersCreated + Number(summary?.projectProgramTeachersCreated || 0),
     viewerAssignmentsCreated: total.viewerAssignmentsCreated + Number(summary?.viewerAssignmentsCreated || 0),
     viewerAssignmentsSkipped: total.viewerAssignmentsSkipped + Number(summary?.viewerAssignmentsSkipped || 0),
   }), emptyStudentAssignmentSummary());

@@ -6,6 +6,8 @@ import { onRequestGet as onCallback } from "../functions/api/auth/google/callbac
 import { onRequestGet as onStart } from "../functions/api/auth/google/start.ts";
 import { seedUser } from "./helpers/auth-fixtures.mjs";
 import { createSqliteD1, foundationMigrations } from "./helpers/d1-sqlite.mjs";
+import { sha256Hex } from "../functions/_lib/crypto.ts";
+import { securityFingerprint } from "../functions/_lib/auth.ts";
 
 test("auth config keeps Google SSO disabled unless required env is complete", async () => {
   const disabled = await onConfig({
@@ -32,7 +34,7 @@ test("auth config keeps Google SSO disabled unless required env is complete", as
       AUTH_GOOGLE_SSO_ENABLED: "true",
       GOOGLE_OAUTH_CLIENT_ID: "client-id",
       GOOGLE_OAUTH_CLIENT_SECRET: "client-secret",
-      GOOGLE_OAUTH_REDIRECT_URI: "https://app.thecapstoneapp.com/api/auth/google/callback",
+      GOOGLE_OAUTH_REDIRECT_URI: "https://thecapstoneapp.com/api/auth/google/callback",
     },
   });
   assert.equal((await enabled.json()).googleSsoEnabled, true);
@@ -82,7 +84,7 @@ test("Google SSO start fails closed when disabled and stores hashed state when e
   globalThis.fetch = mockGoogleFetch({ jwks });
   try {
     const response = await onStart({
-      request: new Request("https://example.test/api/auth/google/start?returnTo=/workspace.html&domain=senior-capstone.test"),
+      request: new Request("https://example.test/api/auth/google/start?returnTo=/&domain=senior-capstone.test"),
       env,
     });
     assert.equal(response.status, 302);
@@ -105,6 +107,25 @@ test("Google SSO start fails closed when disabled and stores hashed state when e
   } finally {
     restoreFetch();
   }
+});
+
+test("Google SSO start is rate-limited by client IP before creating more state", async () => {
+  const fixture = await createFixture();
+  const ipHash = await securityFingerprint(fixture.env, "ip:203.0.113.200");
+  for (let index = 0; index < 30; index += 1) {
+    await fixture.db.prepare(
+      `INSERT INTO audit_events (id, action, entity_type, ip_hash)
+       VALUES (?, 'google_sso_start_attempt', 'auth_session', ?)`,
+    ).bind(`sso-rate-${index}`, ipHash).run();
+  }
+  const response = await onStart({
+    request: new Request("https://example.test/api/auth/google/start", {
+      headers: { "cf-connecting-ip": "203.0.113.200" },
+    }),
+    env: fixture.env,
+  });
+  assert.equal(response.status, 429);
+  assert.deepEqual(await response.json(), { ok: false, error: "rate_limited" });
 });
 
 test("Google SSO callback rejects invalid states, OAuth errors, replay, and unsafe claims", async () => {
@@ -207,6 +228,63 @@ test("Google SSO callback rejects invalid states, OAuth errors, replay, and unsa
     assert.equal((await replay.json()).error, "sso_invalid_state");
     fixture.restoreFetch();
   }
+
+  {
+    const fixture = await createFixture();
+    await seedUser(fixture.db, {
+      id: "disabled-membership-user",
+      displayName: "Disabled Membership User",
+      email: "google.user@senior-capstone.test",
+      roleId: "student",
+    });
+    const firstStart = await startSso(fixture);
+    const firstLogin = await onCallback({
+      request: jsonRequest(`https://example.test/api/auth/google/callback?code=first-membership&state=${firstStart.state}`, firstStart.cookie),
+      env: fixture.env,
+    });
+    assert.equal(firstLogin.status, 302);
+    await fixture.db.prepare(
+      "UPDATE tenant_users SET membership_status = 'suspended' WHERE user_id = 'disabled-membership-user'",
+    ).run();
+
+    const secondStart = await startSso(fixture);
+    const denied = await onCallback({
+      request: jsonRequest(`https://example.test/api/auth/google/callback?code=disabled-membership&state=${secondStart.state}`, secondStart.cookie),
+      env: fixture.env,
+    });
+    assert.equal(denied.status, 400);
+    assert.equal((await denied.json()).error, "sso_account_not_provisioned");
+    fixture.restoreFetch();
+  }
+
+  {
+    const fixture = await createFixture();
+    await seedUser(fixture.db, {
+      id: "recreated-account-user",
+      displayName: "Recreated Account User",
+      email: "google.user@senior-capstone.test",
+      roleId: "student",
+    });
+    const originalStart = await startSso(fixture);
+    const originalLogin = await onCallback({
+      request: jsonRequest(`https://example.test/api/auth/google/callback?code=original-subject&state=${originalStart.state}`, originalStart.cookie),
+      env: fixture.env,
+    });
+    assert.equal(originalLogin.status, 302);
+
+    const recreatedStart = await startSso(fixture, { claims: { sub: "recreated-google-subject" } });
+    const denied = await onCallback({
+      request: jsonRequest(`https://example.test/api/auth/google/callback?code=recreated-subject&state=${recreatedStart.state}`, recreatedStart.cookie),
+      env: fixture.env,
+    });
+    assert.equal(denied.status, 400);
+    assert.equal((await denied.json()).error, "sso_account_not_provisioned");
+    const identities = await fixture.db.prepare(
+      "SELECT provider_subject FROM auth_identities WHERE email_norm = 'google.user@senior-capstone.test'",
+    ).all();
+    assert.deepEqual(identities.results.map((row) => row.provider_subject), ["google-subject-1"]);
+    fixture.restoreFetch();
+  }
 });
 
 async function createFixture({ enabled = true, suspendedTenant = false } = {}) {
@@ -255,7 +333,7 @@ function googleSsoEnv(db, { enabled = true } = {}) {
     AUTH_LOCAL_LOGIN_ENABLED: "true",
     GOOGLE_OAUTH_CLIENT_ID: enabled ? "google-client-id" : "",
     GOOGLE_OAUTH_CLIENT_SECRET: enabled ? "google-client-secret" : "",
-    GOOGLE_OAUTH_REDIRECT_URI: enabled ? "https://app.thecapstoneapp.com/api/auth/google/callback" : "",
+    GOOGLE_OAUTH_REDIRECT_URI: enabled ? "https://thecapstoneapp.com/api/auth/google/callback" : "",
     GOOGLE_OAUTH_ALLOWED_HOSTED_DOMAINS: "senior-capstone.test",
     EVIDENCE_STORAGE_PROVIDER: "google_drive",
   };
@@ -264,7 +342,7 @@ function googleSsoEnv(db, { enabled = true } = {}) {
 async function startSso(fixture, { claims = {} } = {}) {
   globalThis.fetch = mockGoogleFetch({ jwks: fixture.jwks });
   const startResponse = await onStart({
-    request: new Request("https://example.test/api/auth/google/start?returnTo=/workspace.html&domain=senior-capstone.test"),
+    request: new Request("https://example.test/api/auth/google/start?returnTo=/&domain=senior-capstone.test"),
     env: fixture.env,
   });
   assert.equal(startResponse.status, 302);

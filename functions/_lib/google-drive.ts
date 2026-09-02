@@ -1,6 +1,6 @@
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
 const TOKEN_AUDIENCE = "https://oauth2.googleapis.com/token";
-const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive";
+const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
 const DRIVE_UPLOAD_URL = "https://www.googleapis.com/upload/drive/v3/files";
 const DRIVE_FILE_URL = "https://www.googleapis.com/drive/v3/files";
 export const GOOGLE_WORKSPACE_DOCUMENT_MIME_TYPE = "application/vnd.google-apps.document";
@@ -170,8 +170,10 @@ export async function getGoogleDriveAccessToken(
   });
 
   if (!response.ok) {
-    const text = await response.text().catch(() => "");
-    throw new Error(`google_drive_token_exchange_failed:${response.status}:${text || response.statusText}`);
+    // Do not copy provider response bodies into application errors: OAuth
+    // responses can contain identifiers or diagnostic details that do not
+    // belong in audit metadata.
+    throw new Error(`google_drive_token_exchange_failed:${response.status}`);
   }
 
   const json = await response.json().catch((): unknown => null);

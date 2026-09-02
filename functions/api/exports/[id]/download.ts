@@ -1,7 +1,7 @@
 import type { Env } from "../../../_types.ts";
 import { archiveArtifactExpired, STUDENT_ARCHIVE_MANIFEST_TYPE } from "../../../_lib/archive-export.ts";
 import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
-import { json } from "../../../_lib/http.ts";
+import { applyApiSecurityHeaders, json } from "../../../_lib/http.ts";
 import { canAccessStudent, isAdmin } from "../../../_lib/permissions.ts";
 import { workflowError } from "../../../_lib/workflow.ts";
 
@@ -183,6 +183,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
   });
 
   const headers = new Headers();
+  applyApiSecurityHeaders(headers);
   headers.set("cache-control", "no-store");
   headers.set("content-type", artifact.mime_type || "application/json");
   headers.set("content-disposition", contentDispositionAttachment(artifact.title));

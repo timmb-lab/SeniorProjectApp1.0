@@ -221,6 +221,48 @@ test("admin users import allows real local accounts by default in local-only mod
   assert.doesNotMatch(JSON.stringify(fixture.db.data.auditEvents), /student\.real@example\.edu/i);
 });
 
+test("production keeps real accounts blocked until operating approvals are recorded", async () => {
+  const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
+  fixture.env.APP_ENV = "production";
+  fixture.env.SESSION_PEPPER = "production-session-pepper-for-test";
+  fixture.db.data.sessions[0].token_hash = await sha256Hex(`${fixture.env.SESSION_PEPPER}${fixture.token}`);
+  const productionCookie = `__Host-sc_session=${fixture.token}`;
+
+  const response = await onRequestPost({
+    request: buildJsonRequest(
+      "https://example.test/api/admin/users/import",
+      {
+        reason: "Try to start a real pilot before approvals.",
+        users: [studentInput({ email: "real.student@example.edu", displayName: "Real Student" })],
+      },
+      { cookie: productionCookie },
+    ),
+    env: fixture.env,
+    params: {},
+  });
+
+  assert.equal(response.status, 409);
+  const body = await response.json();
+  assert.equal(body.error, "pilot_approval_required");
+  assert.equal(fixture.db.data.userAccounts.some((row) => row.email_norm === "real.student@example.edu"), false);
+  assert.equal(fixture.db.data.auditEvents.at(-1).metadata.approvalGateEnabled, true);
+
+  fixture.env.REAL_STUDENT_PILOT_APPROVED = "true";
+  const approved = await onRequestPost({
+    request: buildJsonRequest(
+      "https://example.test/api/admin/users/import",
+      {
+        reason: "Recorded school approval for the real pilot.",
+        users: [studentInput({ email: "real.student@example.edu", displayName: "Real Student" })],
+      },
+      { cookie: productionCookie },
+    ),
+    env: fixture.env,
+    params: {},
+  });
+  assert.equal(approved.status, 200);
+});
+
 test("admin users import still blocks real local accounts outside local-only mode without explicit override", async () => {
   const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
   fixture.env.AUTH_MODE = "hybrid_google_workspace_local";
@@ -248,7 +290,7 @@ test("admin users import still blocks real local accounts outside local-only mod
   assert.doesNotMatch(JSON.stringify(fixture.db.data.auditEvents), /student\.real@example\.edu/i);
 });
 
-test("admin users import allows real non-.test temporary credentials in hybrid mode with explicit override", async () => {
+test("admin users import allows real non-.test setup codes in hybrid mode with explicit override", async () => {
   const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
   fixture.env.AUTH_MODE = "hybrid_google_workspace_local";
   fixture.env.ALLOW_REAL_TEMP_CREDENTIAL_IMPORT = "true";
@@ -272,13 +314,11 @@ test("admin users import allows real non-.test temporary credentials in hybrid m
   assert.equal(body.importedCount, 1);
   assert.equal(body.users[0].email, "student.allowed@example.edu");
   assert.equal(body.users[0].delivery, "one_time_admin_display");
-  assert.equal(validatePassword(body.users[0].temporaryPassword, {
-    email: body.users[0].email,
-    displayName: body.users[0].displayName,
-  }).length, 0);
+  assert.match(body.users[0].setupCode, /^SET-/);
+  assert.equal(body.users[0].temporaryPassword, undefined);
   assert.equal(fixture.db.data.auditEvents.some((row) => row.action === "user.create_rejected"), false);
-  assert.equal(fixture.db.data.auditEvents.at(-1).metadata.temporaryCredentialsReturnedOnce, true);
-  assert.equal(JSON.stringify(fixture.db.data.auditEvents).includes(body.users[0].temporaryPassword), false);
+  assert.equal(fixture.db.data.auditEvents.at(-1).metadata.oneTimeSetupCodesIssued, true);
+  assert.equal(JSON.stringify(fixture.db.data.auditEvents).includes(body.users[0].setupCode), false);
 });
 
 test("admin users import creates pending-reset users, role assignments, credentials, and redacted audits", async () => {
@@ -316,9 +356,11 @@ test("admin users import creates pending-reset users, role assignments, credenti
   assert.equal(student.mustReset, true);
   assert.equal(student.delivery, "one_time_admin_display");
   assert.deepEqual(student.role, { roleId: "student", scopeType: "global", scopeId: "" });
-  assert.equal(validatePassword(student.temporaryPassword, { email: student.email, displayName: student.displayName }).length, 0);
-  assert.equal(validatePassword(teacher.temporaryPassword, { email: teacher.email, displayName: teacher.displayName }).length, 0);
-  assert.notEqual(student.temporaryPassword, teacher.temporaryPassword);
+  assert.match(student.setupCode, /^SET-/);
+  assert.match(teacher.setupCode, /^SET-/);
+  assert.equal(student.temporaryPassword, undefined);
+  assert.equal(teacher.temporaryPassword, undefined);
+  assert.notEqual(student.setupCode, teacher.setupCode);
   assert.match(student.id, /^user_/);
 
   const createdStudent = fixture.db.data.userAccounts.find((row) => row.id === student.id);
@@ -330,7 +372,7 @@ test("admin users import creates pending-reset users, role assignments, credenti
   const studentCredential = fixture.db.data.passwordCredentials.find((row) => row.user_id === student.id);
   assert.equal(studentCredential.requires_reset, 1);
   assert.equal(studentCredential.password_version, 1);
-  assert.equal(await verifyPassword(student.temporaryPassword, studentCredential.password_hash, studentCredential.password_salt, ""), true);
+  assert.equal(await verifyPassword(student.setupCode, studentCredential.password_hash, studentCredential.password_salt, ""), false);
 
   assert.equal(
     fixture.db.data.userRoles.some(
@@ -351,9 +393,9 @@ test("admin users import creates pending-reset users, role assignments, credenti
   assert.equal(fixture.db.data.auditEvents[2].action, "user.create_batch_completed");
 
   const auditJson = JSON.stringify(fixture.db.data.auditEvents);
-  assert.equal(auditJson.includes(student.temporaryPassword), false);
-  assert.equal(auditJson.includes(teacher.temporaryPassword), false);
-  assert.equal(fixture.db.data.auditEvents[0].metadata.temporaryCredentialReturnedOnce, true);
+  assert.equal(auditJson.includes(student.setupCode), false);
+  assert.equal(auditJson.includes(teacher.setupCode), false);
+  assert.equal(fixture.db.data.auditEvents[0].metadata.oneTimeSetupCodeIssued, true);
   assert.equal(fixture.db.data.auditEvents[2].metadata.importedCount, 2);
 });
 
@@ -407,6 +449,60 @@ test("admin users import persists student roster profile fields and creates scop
   assert.equal(fixture.db.data.viewerStudentAssignments.some((row) => row.viewer_user_id === "viewer-scope" && row.student_user_id === created.id && Number(row.active) === 1), true);
   assert.equal(fixture.db.data.siteUsers.some((row) => row.site_id === "site-a" && row.user_id === "mentor-scope" && row.membership_status === "active"), true);
   assert.equal(fixture.db.data.siteUsers.some((row) => row.site_id === "site-a" && row.user_id === "viewer-scope" && row.membership_status === "active"), true);
+});
+
+test("student import creates a project and records both required project adults when supplied", async () => {
+  const fixture = await createFixtureWithSession({
+    userId: "admin-import-adults",
+    roleId: "global_admin",
+    roles: ["student", "mentor", "program_teacher", "global_admin"],
+  });
+  seedScopedStaff(fixture.db, {
+    userId: "mentor-import-adults",
+    roleId: "mentor",
+    siteId: "site-a",
+    email: "mentor-import-adults@senior-capstone.test",
+  });
+  fixture.db.data.userAccounts.push(buildUser(
+    "teacher-import-adults",
+    "teacher-import-adults@senior-capstone.test",
+    "Teacher Import Adults",
+  ));
+  fixture.db.data.userRoles.push({
+    user_id: "teacher-import-adults",
+    role_id: "program_teacher",
+    scope_type: "program",
+    scope_id: "it",
+  });
+  fixture.db.data.siteUsers.push({
+    site_id: "site-a",
+    user_id: "teacher-import-adults",
+    membership_status: "active",
+  });
+
+  const response = await onRequestPost({
+    request: buildJsonRequest("https://example.test/api/admin/users/import", {
+      adminNote: "Create a student project with both required adults.",
+      users: [studentInput({
+        email: "project-adults-student@senior-capstone.test",
+        programIds: ["it"],
+        mentorUserId: "mentor-import-adults",
+        programTeacherUserId: "teacher-import-adults",
+      })],
+    }, { cookie: `sc_session=${fixture.token}` }),
+    env: fixture.env,
+  });
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.summary.projectMentorsCreated, 1);
+  assert.equal(body.summary.projectProgramTeachersCreated, 1);
+  assert.equal(fixture.db.data.projects.length, 1);
+  assert.equal(fixture.db.data.projectMembers.length, 1);
+  assert.deepEqual(
+    fixture.db.data.projectAdultAssignments.map((row) => row.adult_role).sort(),
+    ["mentor", "program_teacher"],
+  );
 });
 
 test("admin users import blocks student creation until roster profile migration is applied", async () => {
@@ -704,22 +800,24 @@ test("admin users import enforces reset-first login and keeps credential values 
   const credential = fixture.db.data.passwordCredentials.find((row) => row.user_id === importedUser.id);
   assert.equal(createdUser.status, "pending_reset");
   assert.equal(credential.requires_reset, 1);
-  assert.equal(await verifyPassword(importedUser.temporaryPassword, credential.password_hash, credential.password_salt, ""), true);
+  assert.match(importedUser.setupCode, /^SET-/);
+  assert.equal(importedUser.temporaryPassword, undefined);
+  assert.equal(await verifyPassword(importedUser.setupCode, credential.password_hash, credential.password_salt, ""), false);
 
   const resetRequiredLogin = await onLogin({
     request: buildJsonRequest("https://example.test/api/auth/login", {
       email: importedUser.email,
-      password: importedUser.temporaryPassword,
+      password: importedUser.setupCode,
     }),
     env: fixture.env,
   });
-  assert.equal(resetRequiredLogin.status, 403);
-  assert.deepEqual(await resetRequiredLogin.json(), { error: "password_reset_required" });
+  assert.equal(resetRequiredLogin.status, 401);
+  assert.deepEqual(await resetRequiredLogin.json(), { error: "invalid_credentials" });
 
   const resetResponse = await onCompleteReset({
     request: buildJsonRequest("https://example.test/api/auth/complete-reset", {
       email: importedUser.email,
-      currentPassword: importedUser.temporaryPassword,
+      currentPassword: importedUser.setupCode,
       newPassword,
     }),
     env: fixture.env,
@@ -735,7 +833,7 @@ test("admin users import enforces reset-first login and keeps credential values 
   const oldTemporaryPasswordLogin = await onLogin({
     request: buildJsonRequest("https://example.test/api/auth/login", {
       email: importedUser.email,
-      password: importedUser.temporaryPassword,
+      password: importedUser.setupCode,
     }),
     env: fixture.env,
   });
@@ -759,7 +857,7 @@ test("admin users import enforces reset-first login and keeps credential values 
   assert.equal(meBody.user.roles.some((row) => row.role_id === "student"), true);
 
   const auditJson = JSON.stringify(fixture.db.data.auditEvents);
-  assert.equal(auditJson.includes(importedUser.temporaryPassword), false);
+  assert.equal(auditJson.includes(importedUser.setupCode), false);
   assert.equal(auditJson.includes(newPassword), false);
   assert.equal(fixture.db.data.auditEvents.some((row) => row.action === "password_reset_completed"), true);
 });
@@ -813,6 +911,7 @@ function createFixture(options = {}) {
   const db = new MockD1Database({
     userAccounts: [],
     passwordCredentials: [],
+    passwordSetupTokens: [],
     loginAttempts: [],
     sessions: [],
     userRoles: [],
@@ -832,6 +931,12 @@ function createFixture(options = {}) {
     sitePrograms: [{ site_id: "site-a", program_id: "it", active: 1 }],
     siteUsers: [],
     mentorAssignments: [],
+    projects: [],
+    projectMembers: [],
+    projectAdultAssignments: [],
+    projectAdultAssignmentEvents: [],
+    userNotifications: [],
+    projectMentorAssignments: [],
     viewerStudentAssignments: [],
     studentRosterProfiles: [],
     studentRosterProfilesTableExists: true,
@@ -958,6 +1063,8 @@ class MockPreparedStatement {
         status: user.status,
         password_hash: credential.password_hash,
         password_salt: credential.password_salt,
+        algorithm: credential.algorithm,
+        iterations: credential.iterations,
         password_version: credential.password_version ?? 1,
         requires_reset: credential.requires_reset ?? 0,
       };
@@ -1000,6 +1107,17 @@ class MockPreparedStatement {
       return exists ? { ok: 1 } : null;
     }
 
+    if (this.sql.startsWith("select id from auth_password_setup_tokens")) {
+      const [userId, tokenHash] = this.params.map(String);
+      const now = Date.now();
+      return this.data.passwordSetupTokens.find((row) => (
+        row.user_id === userId
+        && row.token_hash === tokenHash
+        && !row.used_at
+        && new Date(row.expires_at).getTime() > now
+      )) ?? null;
+    }
+
     if (this.sql.startsWith("select 1 from user_roles where user_id = ? and role_id in (")) {
       const [userId, ...roleIds] = this.params.map(String);
       const exists = this.data.userRoles.some((row) => row.user_id === userId && roleIds.includes(row.role_id));
@@ -1021,6 +1139,16 @@ class MockPreparedStatement {
     if (this.sql.startsWith("select 1 from sites where id = ? and status = 'active' limit 1")) {
       const [siteId] = this.params.map(String);
       return this.data.sites.some((row) => row.id === siteId && row.status === "active") ? { ok: 1 } : null;
+    }
+
+    if (this.sql.startsWith("select user_accounts.id from user_accounts join user_roles target_role") && this.sql.includes("target_role.role_id = 'program_teacher'")) {
+      const [programIdsJson, targetUserIdValue] = this.params;
+      const targetUserId = String(targetUserIdValue);
+      const programIds = JSON.parse(String(programIdsJson));
+      const user = this.data.userAccounts.find((row) => row.id === targetUserId && ["active", "pending_reset"].includes(row.status));
+      const hasProgramRole = this.data.userRoles.some((row) => row.user_id === targetUserId && row.role_id === "program_teacher" && row.scope_type === "program" && programIds.includes(row.scope_id));
+      const elevated = this.data.userRoles.some((row) => row.user_id === targetUserId && ["global_admin", "admin", "platform_admin"].includes(row.role_id));
+      return user && hasProgramRole && !elevated ? { id: targetUserId } : null;
     }
 
     if (this.sql.startsWith("select user_accounts.id from user_accounts join user_roles target_role")) {
@@ -1174,6 +1302,14 @@ class MockPreparedStatement {
   }
 
   async run() {
+    if (this.sql.startsWith("delete from sessions where user_id = ?")) {
+      return { success: true };
+    }
+
+    if (this.sql.startsWith("update sessions set revoked_at = strftime") && this.sql.includes("limit -1 offset 9")) {
+      return { success: true };
+    }
+
     if (this.sql.startsWith("insert into login_attempts")) {
       const [id, identifierHash, ipHash, success, reason] = this.params;
       this.data.loginAttempts.push({
@@ -1281,6 +1417,26 @@ class MockPreparedStatement {
       return { success: true };
     }
 
+    if (this.sql.startsWith("insert into auth_password_setup_tokens")) {
+      const [id, userId, tokenHash, createdBy] = this.params;
+      this.data.passwordSetupTokens.push({
+        id: String(id),
+        user_id: String(userId),
+        token_hash: String(tokenHash),
+        created_by: String(createdBy),
+        expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+        used_at: null,
+      });
+      return { success: true };
+    }
+
+    if (this.sql.startsWith("update auth_password_setup_tokens set used_at = strftime")) {
+      const [tokenId] = this.params.map(String);
+      const token = this.data.passwordSetupTokens.find((row) => row.id === tokenId && !row.used_at);
+      if (token) token.used_at = new Date().toISOString();
+      return { success: true };
+    }
+
     if (this.sql.startsWith("insert into student_roster_profiles")) {
       const [studentUserId, cohort, graduationYear] = this.params.map(String);
       const existing = this.data.studentRosterProfiles.find((row) => row.student_user_id === studentUserId);
@@ -1295,6 +1451,31 @@ class MockPreparedStatement {
         });
       }
       return { success: true };
+    }
+
+    if (this.sql.startsWith("insert into projects")) {
+      const [id, siteId, programId, name, createdBy] = this.params;
+      const existing = this.data.projects.find((row) => row.id === String(id));
+      const row = {
+        id: String(id),
+        site_id: String(siteId),
+        program_id: programId == null ? null : String(programId),
+        name: String(name),
+        created_by: String(createdBy),
+        status: "active",
+      };
+      if (existing) Object.assign(existing, row);
+      else this.data.projects.push(row);
+      return { success: true, meta: { changes: 1 } };
+    }
+
+    if (this.sql.startsWith("insert into project_members")) {
+      const [projectId, studentUserId, assignedBy] = this.params.map(String);
+      const existing = this.data.projectMembers.find((row) => row.project_id === projectId && row.student_user_id === studentUserId);
+      const row = { project_id: projectId, student_user_id: studentUserId, member_role: "lead", active: 1, assigned_by: assignedBy };
+      if (existing) Object.assign(existing, row);
+      else this.data.projectMembers.push(row);
+      return { success: true, meta: { changes: 1 } };
     }
 
     if (this.sql.startsWith("insert or ignore into site_users")) {
@@ -1315,6 +1496,43 @@ class MockPreparedStatement {
         this.data.mentorAssignments.push({ id, mentor_user_id: mentorUserId, student_user_id: studentUserId, assigned_by: assignedBy, active: 1 });
       }
       return { success: true };
+    }
+
+    if (this.sql.startsWith("insert or ignore into project_adult_assignments")) {
+      assert.doesNotMatch(this.sql, /invitation_kind/, "student setup must use the deployed project-adult schema");
+      const [id, projectId, siteId, adultRole, assigneeUserId, nominatedBy, respondedBy] = this.params.map(String);
+      const duplicate = this.data.projectAdultAssignments.some((row) => row.project_id === projectId && row.adult_role === adultRole && row.status === "accepted");
+      if (duplicate) return { success: true, meta: { changes: 0 } };
+      this.data.projectAdultAssignments.push({
+        id,
+        project_id: projectId,
+        site_id: siteId,
+        adult_role: adultRole,
+        assignee_user_id: assigneeUserId,
+        status: "accepted",
+        nominated_by: nominatedBy,
+        responded_by: respondedBy,
+      });
+      return { success: true, meta: { changes: 1 } };
+    }
+
+    if (this.sql.startsWith("insert into project_adult_assignment_events")) {
+      assert.match(this.sql, /action, detail_json/, "student setup events must use the deployed event schema");
+      const [id, assignmentId, actorUserId] = this.params.map(String);
+      this.data.projectAdultAssignmentEvents.push({ id, assignment_id: assignmentId, actor_user_id: actorUserId, action: "accepted" });
+      return { success: true, meta: { changes: 1 } };
+    }
+
+    if (this.sql.startsWith("insert into user_notifications")) {
+      const [id, userId, entityId, title, message] = this.params.map(String);
+      this.data.userNotifications.push({ id, user_id: userId, entity_id: entityId, title, message });
+      return { success: true, meta: { changes: 1 } };
+    }
+
+    if (this.sql.startsWith("insert into project_mentor_assignments")) {
+      const [id, projectId, mentorUserId, assignedBy] = this.params.map(String);
+      this.data.projectMentorAssignments.push({ id, project_id: projectId, mentor_user_id: mentorUserId, assigned_by: assignedBy, active: 1 });
+      return { success: true, meta: { changes: 1 } };
     }
 
     if (this.sql.startsWith("insert into viewer_student_assignments")) {

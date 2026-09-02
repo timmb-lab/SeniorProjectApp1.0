@@ -2,11 +2,23 @@ import type { Env } from "../../_types.ts";
 import { getCurrentUser, writeAudit } from "../../_lib/auth.ts";
 import { json } from "../../_lib/http.ts";
 import { getGoogleDriveAccessToken, googleDriveCredentialParts, probeGoogleDriveFile } from "../../_lib/google-drive.ts";
+import { canManageSecurity } from "../../_lib/permissions.ts";
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const user = await getCurrentUser(request, env);
   if (!user) {
     return workflowError("unauthorized", 401);
+  }
+  if (!await canManageSecurity(env, user)) {
+    await writeAudit(env, {
+      actorUserId: user.id,
+      action: "google_drive_probe_denied",
+      entityType: "evidence_repository",
+      entityId: "default-google-drive",
+      request,
+      metadata: { reason: "security_admin_required" },
+    });
+    return workflowError("forbidden", 403);
   }
 
   const rootFolderId = String(env.GOOGLE_DRIVE_EVIDENCE_ROOT_ID || "").trim();

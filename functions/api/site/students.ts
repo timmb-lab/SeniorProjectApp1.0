@@ -208,6 +208,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       siteId: site.id,
       siteName: site.name,
       schoolYear: site.school_year || "",
+      brandTheme: site.brand_theme || "default",
       role: context.primaryRole,
       readOnly,
       selectionMode: selection.selectionMode,
@@ -735,16 +736,16 @@ function buildFilterWhere(filters: DirectoryFilters): FilterWhere {
   const binds: Array<string | number> = [];
 
   if (filters.search) {
-    const like = `%${escapeLike(filters.search.toLowerCase())}%`;
+    const needle = filters.search.toLowerCase();
     clauses.push(`(
-      lower(display_name) LIKE ? ESCAPE '\\'
-      OR lower(email) LIKE ? ESCAPE '\\'
-      OR lower(COALESCE(program_name, '')) LIKE ? ESCAPE '\\'
-      OR lower(COALESCE(roster_cohort, '')) LIKE ? ESCAPE '\\'
-      OR lower(COALESCE(graduation_year, '')) LIKE ? ESCAPE '\\'
-      OR lower(COALESCE(mentor_name, '')) LIKE ? ESCAPE '\\'
+      instr(lower(display_name), ?) > 0
+      OR instr(lower(email), ?) > 0
+      OR instr(lower(COALESCE(program_name, '')), ?) > 0
+      OR instr(lower(COALESCE(roster_cohort, '')), ?) > 0
+      OR instr(lower(COALESCE(graduation_year, '')), ?) > 0
+      OR instr(lower(COALESCE(mentor_name, '')), ?) > 0
     )`);
-    binds.push(like, like, like, like, like, like);
+    binds.push(needle, needle, needle, needle, needle, needle);
   }
   if (filters.programId) {
     clauses.push("program_id = ?");
@@ -1036,10 +1037,6 @@ function clampNumber(value: string | null, defaultValue: number, min: number, ma
 
 function cleanSearch(value: string | null): string {
   return String(value || "").replace(/[^\p{L}\p{N}\s@._'-]/gu, " ").replace(/\s+/g, " ").trim().slice(0, 80);
-}
-
-function escapeLike(value: string): string {
-  return value.replace(/[\\%_]/g, (match) => `\\${match}`);
 }
 
 async function auditStudentDirectory(

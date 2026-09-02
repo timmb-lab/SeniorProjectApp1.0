@@ -2,6 +2,7 @@ import type { Env } from "../../_types.ts";
 import { getSessionToken } from "../../_lib/auth.ts";
 import { sha256Hex } from "../../_lib/crypto.ts";
 import { json } from "../../_lib/http.ts";
+import { authSecretsConfigured } from "../../_lib/auth-config.ts";
 
 interface SessionRow {
   id: string;
@@ -20,6 +21,9 @@ interface SessionUserRow {
 }
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
+  if (!authSecretsConfigured(env)) {
+    return json({ authenticated: false, error: "auth_not_configured" }, { status: 503 });
+  }
   const token = getSessionToken(request, env);
   if (!token) {
     return json({ authenticated: false }, { status: 401 });

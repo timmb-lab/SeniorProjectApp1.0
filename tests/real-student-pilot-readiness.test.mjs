@@ -318,7 +318,6 @@ test("pilot readiness preflight is exposed, non-mutating, and reports all status
     summary.missingRequiredManualProofIds,
     [
       "role_scoped_pilot_account_proof",
-      "backup_restore_rehearsal_evidence",
       "real_roster_validation_evidence",
       "privacy_support_retention_approval",
       "sso_or_managed_local_credential_delivery",
@@ -327,7 +326,7 @@ test("pilot readiness preflight is exposed, non-mutating, and reports all status
   assert.equal(
     summary.expectedEvidenceManifests.some((item) =>
       item.id === "backup_restore_rehearsal_evidence"
-        && item.present === false
+        && item.present === true
         && item.statusWhenMissing === "MANUAL_PROOF_REQUIRED"
     ),
     true,

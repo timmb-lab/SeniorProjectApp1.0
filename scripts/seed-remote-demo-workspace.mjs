@@ -33,7 +33,7 @@ const DATABASE_NAME = "senior-capstone-db";
 const WRANGLER_JS = path.join(REPO_ROOT, "node_modules", "wrangler", "bin", "wrangler.js");
 const DEFAULT_REMOTE_SEED = "capstone-remote-demo-2026-v1";
 const CONFIRMATION = "SEED_REMOTE_DEMO";
-const DEFAULT_REMOTE_DEMO_URL = "https://senior-capstone-app.pages.dev/workspace.html";
+const DEFAULT_REMOTE_DEMO_URL = "https://thecapstoneapp.com/";
 const KNOWN_BRYAN_EMAILS = Object.freeze([
   "bryan@learntechonline.com",
   "bryan.timm89@gmail.com",

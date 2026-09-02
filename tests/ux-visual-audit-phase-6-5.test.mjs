@@ -1,13 +1,14 @@
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
+import { readWorkspaceCssSource, readWorkspaceJavaScriptSource } from "../scripts/lib/workspace-sources.mjs";
 import test from "node:test";
 
 const auditPath = "docs/design/ux-visual-audit-phase-6-5.md";
 const audit = await readFile(auditPath, "utf8");
 const workspaceHtml = await readFile("workspace.html", "utf8");
-const workspaceJs = await readFile("workspace.js", "utf8");
-const workspaceCss = await readFile("workspace.css", "utf8");
+const workspaceJs = await readWorkspaceJavaScriptSource();
+const workspaceCss = await readWorkspaceCssSource();
 
 test("Phase 6.5 UX visual audit documents live Figma source context", () => {
   assert.equal(existsSync(auditPath), true);

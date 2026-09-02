@@ -19,7 +19,7 @@ test("hosted fake pilot browser manifest records green role coverage", () => {
   assert.equal(existsSync(path.join(repoRoot, manifestPath)), true);
   const manifest = readJson(manifestPath);
   assert.equal(manifest.proof, "hosted_fake_pilot_browser");
-  assert.equal(manifest.baseUrl, "https://senior-capstone-app.pages.dev");
+  assert.equal(manifest.baseUrl, "https://thecapstoneapp.com");
   assert.equal(manifest.verdict, "GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF");
   assert.equal(manifest.realStudentProductionStatus, "NOT_CLAIMED_READY");
   assert.deepEqual(manifest.failures, []);
@@ -42,11 +42,13 @@ test("hosted fake pilot browser manifest records green role coverage", () => {
     "site_admin",
     "admin",
     "misc_admin",
-    "student"
+    "student",
+    "site_admin"
   ]);
 
   for (const screenshot of manifest.screenshots) {
     assert.equal(screenshot.checks.expectedTextPresent, true, `${screenshot.id} expected text`);
+    assert.equal(screenshot.checks.unexpectedTextAbsent, true, `${screenshot.id} unavailable/error text`);
     assert.equal(screenshot.checks.noVisiblePasswordValues, true, `${screenshot.id} password values`);
     assert.equal(screenshot.checks.noSecretLikeText, true, `${screenshot.id} secret-like text`);
     assert.equal(existsSync(path.join(repoRoot, screenshot.screenshot)), true, `${screenshot.screenshot} exists`);

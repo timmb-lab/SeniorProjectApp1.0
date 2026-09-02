@@ -2,6 +2,12 @@ import type { Env, RoleAssignment, UserAccount } from "../../_types.ts";
 import { getCurrentUser, writeAudit } from "../../_lib/auth.ts";
 import { json } from "../../_lib/http.ts";
 import { canAccessStudent, getRoleAssignments, hasRole } from "../../_lib/permissions.ts";
+import {
+  assignmentResponse,
+  loadProjectAdultAssignments,
+  projectAdultSetup,
+} from "../../_lib/project-adults.ts";
+import { loadSiteBrandTheme } from "../../_lib/site-scope.ts";
 
 interface ProgressRow {
   id: string;
@@ -21,6 +27,8 @@ interface SubmissionSummaryRow {
   updated_at: string;
   requirement_title: string | null;
   evidence_count: number;
+  response_text: string | null;
+  response_updated_at: string | null;
 }
 
 interface EvidenceSummaryRow {
@@ -93,6 +101,7 @@ interface RequirementRow {
   description: string | null;
   required: number;
   sort_order: number;
+  work_scope: "project" | "individual";
   due_at: string | null;
   due_label: string | null;
   quality_prompt: string | null;
@@ -154,6 +163,42 @@ interface StudentRequirementDetail {
   qualityPrompt: string | null;
   lastUpdatedAt: string | null;
   nextAction: string;
+  draftText: string;
+  draftWordCount: number;
+  hasWrittenResponse: boolean;
+  workScope: "project" | "individual";
+}
+
+interface StudentProjectRow {
+  project_id: string;
+  site_id: string;
+  project_name: string;
+  project_summary: string | null;
+  drive_folder_url: string | null;
+  drive_folder_updated_at: string | null;
+  drive_folder_check_status: string;
+  drive_folder_checked_at: string | null;
+  current_phase: string;
+  program_id: string | null;
+  program_name: string | null;
+  student_user_id: string;
+  member_name: string;
+  member_role: string;
+}
+
+interface StudentProjectMentorRow {
+  mentor_user_id: string;
+  mentor_name: string;
+}
+
+interface StudentProjectTemplateRow {
+  id: string;
+  phase: string;
+  title: string;
+  description: string | null;
+  template_url: string;
+  link_check_status: string;
+  link_checked_at: string | null;
 }
 
 const BOOKLET_PHASE_LABELS: Record<string, string> = {
@@ -234,7 +279,29 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
 
   const student = await loadStudentAccountSummary(env, studentId);
   const isStudentSelf = user.id === studentId && await hasRole(env, user.id, "student");
-  const progress = await env.DB.prepare(
+  const project = await loadStudentProject(env, studentId);
+  const projectId = project?.projectId || "";
+  const templates = project ? await loadStudentProjectTemplates(env, project.siteId, project.programId) : [];
+  const progress = projectId ? await env.DB.prepare(
+    `SELECT
+       progress.id,
+       progress.requirement_id,
+       progress.phase,
+       progress.status,
+       progress.updated_at,
+       requirements.title AS requirement_title
+     FROM progress_records progress
+     LEFT JOIN requirements ON requirements.id = progress.requirement_id
+     WHERE (
+       requirements.work_scope = 'project' AND progress.project_id = ?
+     ) OR (
+       COALESCE(requirements.work_scope, 'individual') = 'individual' AND progress.student_id = ?
+     ) OR (
+       ? = '' AND progress.student_id = ?
+     )
+     ORDER BY progress.updated_at DESC
+     LIMIT 20`,
+  ).bind(projectId, studentId, projectId, studentId).all<ProgressRow>() : await env.DB.prepare(
     `SELECT
        progress.id,
        progress.requirement_id,
@@ -249,7 +316,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
      LIMIT 20`,
   ).bind(studentId).all<ProgressRow>();
 
-  const submissions = await env.DB.prepare(
+  const submissions = projectId ? await env.DB.prepare(
     `SELECT
        submissions.id,
        submissions.requirement_id,
@@ -264,7 +331,58 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
          WHERE evidence_artifacts.submission_id = submissions.id
            AND evidence_artifacts.deleted_at IS NULL
            AND evidence_artifacts.review_status != 'archived'
-       ) AS evidence_count
+       ) AS evidence_count,
+       (
+         SELECT student_work_responses.response_text
+         FROM student_work_responses
+         WHERE student_work_responses.submission_id = submissions.id
+         LIMIT 1
+       ) AS response_text,
+       (
+         SELECT student_work_responses.updated_at
+         FROM student_work_responses
+         WHERE student_work_responses.submission_id = submissions.id
+         LIMIT 1
+       ) AS response_updated_at
+     FROM submissions
+     LEFT JOIN requirements ON requirements.id = submissions.requirement_id
+     WHERE (
+       requirements.work_scope = 'project' AND submissions.project_id = ?
+     ) OR (
+       COALESCE(requirements.work_scope, 'individual') = 'individual' AND submissions.student_id = ?
+     ) OR (
+       ? = '' AND submissions.student_id = ?
+     )
+     ORDER BY submissions.updated_at DESC
+     LIMIT 20`,
+  ).bind(projectId, studentId, projectId, studentId).all<SubmissionSummaryRow>() : await env.DB.prepare(
+    `SELECT
+       submissions.id,
+       submissions.requirement_id,
+       submissions.status,
+       submissions.version,
+       submissions.submitted_at,
+       submissions.updated_at,
+       requirements.title AS requirement_title,
+       (
+         SELECT COUNT(evidence_artifacts.id)
+         FROM evidence_artifacts
+         WHERE evidence_artifacts.submission_id = submissions.id
+           AND evidence_artifacts.deleted_at IS NULL
+           AND evidence_artifacts.review_status != 'archived'
+       ) AS evidence_count,
+       (
+         SELECT student_work_responses.response_text
+         FROM student_work_responses
+         WHERE student_work_responses.submission_id = submissions.id
+         LIMIT 1
+       ) AS response_text,
+       (
+         SELECT student_work_responses.updated_at
+         FROM student_work_responses
+         WHERE student_work_responses.submission_id = submissions.id
+         LIMIT 1
+       ) AS response_updated_at
      FROM submissions
      LEFT JOIN requirements ON requirements.id = submissions.requirement_id
      WHERE submissions.student_id = ?
@@ -272,22 +390,47 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
      LIMIT 20`,
   ).bind(studentId).all<SubmissionSummaryRow>();
 
-  const evidence = await env.DB.prepare(
-    `SELECT id, submission_id, title, artifact_type, source_kind, external_url, mime_type, size_bytes, review_status, created_at
+  const evidence = projectId
+    ? await env.DB.prepare(
+      `SELECT
+       evidence_artifacts.id,
+       evidence_artifacts.submission_id,
+       evidence_artifacts.title,
+       evidence_artifacts.artifact_type,
+       evidence_artifacts.source_kind,
+       evidence_artifacts.external_url,
+       evidence_artifacts.mime_type,
+       evidence_artifacts.size_bytes,
+       evidence_artifacts.review_status,
+       evidence_artifacts.created_at
      FROM evidence_artifacts
-     WHERE student_id = ? AND deleted_at IS NULL
-     ORDER BY created_at DESC
+     LEFT JOIN submissions ON submissions.id = evidence_artifacts.submission_id
+     LEFT JOIN requirements ON requirements.id = submissions.requirement_id
+     WHERE evidence_artifacts.deleted_at IS NULL
+       AND (
+         (requirements.work_scope = 'project' AND COALESCE(evidence_artifacts.project_id, submissions.project_id) = ?)
+         OR (COALESCE(requirements.work_scope, 'individual') = 'individual' AND evidence_artifacts.student_id = ?)
+         OR (? = '' AND evidence_artifacts.student_id = ?)
+       )
+     ORDER BY evidence_artifacts.created_at DESC
      LIMIT 20`,
-  ).bind(studentId).all<EvidenceSummaryRow>();
+    ).bind(projectId, studentId, projectId, studentId).all<EvidenceSummaryRow>()
+    : await env.DB.prepare(
+      `SELECT id, submission_id, title, artifact_type, source_kind, external_url, mime_type, size_bytes, review_status, created_at
+       FROM evidence_artifacts
+       WHERE student_id = ? AND deleted_at IS NULL
+       ORDER BY created_at DESC
+       LIMIT 20`,
+    ).bind(studentId).all<EvidenceSummaryRow>();
 
   const requirements = await loadRequiredRequirements(env, studentId);
-  const mentor = await loadActiveMentor(env, studentId);
+  const mentor = await loadActiveMentor(env, studentId, projectId);
 
   const progressRows = progress.results || [];
   const submissionRows = submissions.results || [];
   const evidenceRows = evidence.results || [];
   const requirementRows = requirements.results || [];
-  const feedback = await loadStudentVisibleFeedback(env, studentId);
+  const feedback = await loadStudentVisibleFeedback(env, studentId, projectId);
   const summary = buildStudentProgressSummary(requirementRows, progressRows, submissionRows, evidenceRows, mentor);
   const nextSteps = buildStudentNextSteps(requirementRows, progressRows, submissionRows, summary);
   const requirementDetails = buildStudentRequirementDetails(requirementRows, progressRows, submissionRows);
@@ -307,6 +450,16 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       displayName: safeStudentText(student?.display_name, "Selected student", 160),
       email: safeStudentText(student?.email, "", 240) || null,
     },
+    project,
+    templates: templates.map((template) => ({
+      templateId: template.id,
+      phase: template.phase,
+      title: template.title,
+      description: template.description || "",
+      templateUrl: template.template_url,
+      linkCheckStatus: template.link_check_status || "not_checked",
+      linkCheckedAt: template.link_checked_at || "",
+    })),
     viewer: {
       id: user.id,
       email: user.email,
@@ -329,6 +482,101 @@ function loadStudentAccountSummary(env: Env, studentId: string) {
   ).bind(studentId).first<StudentAccountRow>();
 }
 
+async function loadStudentProject(env: Env, studentId: string) {
+  let rows;
+  try {
+    rows = await env.DB.prepare(
+    `SELECT
+       projects.id AS project_id,
+       projects.site_id,
+       projects.name AS project_name,
+       projects.summary AS project_summary,
+       projects.drive_folder_url,
+       projects.drive_folder_updated_at,
+       projects.drive_folder_check_status,
+       projects.drive_folder_checked_at,
+       projects.current_phase,
+       projects.program_id,
+       programs.name AS program_name,
+       all_members.student_user_id,
+       member.display_name AS member_name,
+       all_members.member_role
+     FROM project_members
+     JOIN projects ON projects.id = project_members.project_id
+       AND projects.status = 'active'
+     JOIN project_members all_members ON all_members.project_id = projects.id
+       AND all_members.active = 1
+     JOIN user_accounts member ON member.id = all_members.student_user_id
+     LEFT JOIN programs ON programs.id = projects.program_id
+     WHERE project_members.student_user_id = ?
+       AND project_members.active = 1
+     ORDER BY CASE all_members.member_role WHEN 'lead' THEN 0 ELSE 1 END, member.display_name ASC`,
+    ).bind(studentId).all<StudentProjectRow>();
+  } catch {
+    return null;
+  }
+  const projectRows = rows.results || [];
+  if (!projectRows.length) return null;
+  const projectId = projectRows[0].project_id;
+  const brandTheme = await loadSiteBrandTheme(env, projectRows[0].site_id);
+  const mentors = await env.DB.prepare(
+    `SELECT
+       project_mentor_assignments.mentor_user_id,
+       user_accounts.display_name AS mentor_name
+     FROM project_mentor_assignments
+     JOIN user_accounts ON user_accounts.id = project_mentor_assignments.mentor_user_id
+     WHERE project_mentor_assignments.project_id = ?
+       AND project_mentor_assignments.active = 1
+     ORDER BY user_accounts.display_name ASC`,
+  ).bind(projectId).all<StudentProjectMentorRow>();
+  const adultAssignments = await loadProjectAdultAssignments(env, [projectId], []);
+  return {
+    projectId,
+    siteId: projectRows[0].site_id,
+    brandTheme,
+    name: projectRows[0].project_name,
+    summary: projectRows[0].project_summary || "",
+    driveFolderUrl: projectRows[0].drive_folder_url || "",
+    driveFolderUpdatedAt: projectRows[0].drive_folder_updated_at || "",
+    driveFolderCheckStatus: projectRows[0].drive_folder_check_status || "not_checked",
+    driveFolderCheckedAt: projectRows[0].drive_folder_checked_at || "",
+    currentPhase: projectRows[0].current_phase,
+    programId: projectRows[0].program_id || "",
+    programName: projectRows[0].program_name || "Program not set",
+    memberCount: projectRows.length,
+    members: projectRows.map((row) => ({
+      studentId: row.student_user_id,
+      displayName: row.member_name,
+      role: row.member_role,
+      isCurrentStudent: row.student_user_id === studentId,
+    })),
+    mentors: (mentors.results || []).map((row) => ({
+      mentorId: row.mentor_user_id,
+      displayName: row.mentor_name,
+    })),
+    adultSetup: projectAdultSetup(adultAssignments),
+    adultAssignments: adultAssignments.map(assignmentResponse),
+  };
+}
+
+async function loadStudentProjectTemplates(env: Env, siteId: string, programId: string) {
+  const rows = await env.DB.prepare(
+    `SELECT id, phase, title, description, template_url, link_check_status, link_checked_at
+     FROM project_templates
+     WHERE site_id = ?
+       AND active = 1
+       AND (program_id IS NULL OR program_id = ?)
+     ORDER BY
+       CASE phase
+         WHEN 'start' THEN 0 WHEN 'phase-1' THEN 1 WHEN 'phase-2a' THEN 2 WHEN 'phase-2b' THEN 3
+         WHEN 'phase-3a' THEN 4 WHEN 'phase-3b' THEN 5 WHEN 'phase-4' THEN 6 WHEN 'finish' THEN 7 ELSE 8
+       END,
+       title ASC
+     LIMIT 50`,
+  ).bind(siteId, programId || "").all<StudentProjectTemplateRow>();
+  return rows.results || [];
+}
+
 function loadRequiredRequirements(env: Env, studentId: string) {
   return env.DB.prepare(
     `SELECT
@@ -339,6 +587,7 @@ function loadRequiredRequirements(env: Env, studentId: string) {
        requirements.description,
        requirements.required,
        requirements.sort_order,
+       requirements.work_scope,
        (
          SELECT candidate.due_at
          FROM deadlines candidate
@@ -424,25 +673,58 @@ function loadRequiredRequirements(env: Env, studentId: string) {
   ).bind(studentId, studentId, studentId, studentId, studentId).all<RequirementRow>();
 }
 
-async function loadActiveMentor(env: Env, studentId: string): Promise<MentorSupportRow | null> {
-  return await env.DB.prepare(
+async function loadActiveMentor(env: Env, studentId: string, projectId: string): Promise<MentorSupportRow | null> {
+  const projectMentor = projectId ? await env.DB.prepare(
     `SELECT
        mentor.display_name AS mentor_name,
-       mentor_assignments.created_at
-     FROM mentor_assignments
-     JOIN user_accounts mentor ON mentor.id = mentor_assignments.mentor_user_id
+       project_mentor_assignments.created_at
+     FROM project_mentor_assignments
+     JOIN user_accounts mentor ON mentor.id = project_mentor_assignments.mentor_user_id
       AND mentor.status = 'active'
      JOIN user_roles mentor_role ON mentor_role.user_id = mentor.id
       AND mentor_role.role_id = 'mentor'
-     WHERE mentor_assignments.student_user_id = ?
-       AND mentor_assignments.active = 1
+     WHERE project_mentor_assignments.project_id = ?
+       AND project_mentor_assignments.active = 1
+     ORDER BY project_mentor_assignments.created_at DESC
+     LIMIT 1`,
+  ).bind(projectId).first<MentorSupportRow>() : null;
+  if (projectMentor) return projectMentor;
+  return env.DB.prepare(
+    `SELECT mentor.display_name AS mentor_name, mentor_assignments.created_at
+     FROM mentor_assignments
+     JOIN user_accounts mentor ON mentor.id = mentor_assignments.mentor_user_id AND mentor.status = 'active'
+     WHERE mentor_assignments.student_user_id = ? AND mentor_assignments.active = 1
      ORDER BY mentor_assignments.created_at DESC
      LIMIT 1`,
   ).bind(studentId).first<MentorSupportRow>();
 }
 
-async function loadStudentVisibleFeedback(env: Env, studentId: string): Promise<StudentFeedback[]> {
-  const rows = await env.DB.prepare(
+async function loadStudentVisibleFeedback(env: Env, studentId: string, projectId: string): Promise<StudentFeedback[]> {
+  const rows = projectId ? await env.DB.prepare(
+    `SELECT
+       reviews.id,
+       reviews.submission_id,
+       requirements.title AS requirement_title,
+       submissions.status AS submission_status,
+       submissions.version AS submission_version,
+       reviews.decision,
+       reviews.feedback,
+       reviews.created_at,
+       reviewer.display_name AS reviewer_name
+     FROM reviews
+     JOIN submissions ON submissions.id = reviews.submission_id
+     LEFT JOIN requirements ON requirements.id = submissions.requirement_id
+     LEFT JOIN user_accounts reviewer ON reviewer.id = reviews.reviewer_user_id
+     WHERE (
+       requirements.work_scope = 'project' AND submissions.project_id = ?
+     ) OR (
+       COALESCE(requirements.work_scope, 'individual') = 'individual' AND submissions.student_id = ?
+     ) OR (
+       ? = '' AND submissions.student_id = ?
+     )
+     ORDER BY reviews.created_at DESC
+     LIMIT 5`,
+  ).bind(projectId, studentId, projectId, studentId).all<FeedbackRow>() : await env.DB.prepare(
     `SELECT
        reviews.id,
        reviews.submission_id,
@@ -635,6 +917,7 @@ function buildStudentRequirementDetails(
     const submission = submissionsByRequirement.get(requirement.id) || null;
     const status = studentRequirementStatus(progress, submission);
     const evidenceCount = safeNumber(submission?.evidence_count);
+    const draftText = safeStudentDraftText(submission?.response_text);
     const phase = studentBookletPhaseKey(requirement);
     return {
       requirementId: requirement.id,
@@ -655,10 +938,24 @@ function buildStudentRequirementDetails(
         progress?.updated_at || null,
         submission?.updated_at || null,
         submission?.submitted_at || null,
+        submission?.response_updated_at || null,
       ]),
       nextAction: studentRequirementNextAction(requirement, progress, submission, status, evidenceCount),
+      draftText,
+      draftWordCount: wordCount(draftText),
+      hasWrittenResponse: Boolean(draftText),
+      workScope: requirement.work_scope,
     };
   });
+}
+
+function safeStudentDraftText(value: unknown): string {
+  return typeof value === "string" ? value.replace(/\r\n/g, "\n").slice(0, 6000) : "";
+}
+
+function wordCount(value: string): number {
+  const words = value.trim().match(/\S+/g);
+  return words ? words.length : 0;
 }
 
 function studentRequirementStatus(

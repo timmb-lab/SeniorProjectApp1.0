@@ -1,7 +1,8 @@
 import { readFileSync } from "node:fs";
+import { readWorkspaceCssSource, readWorkspaceJavaScriptSource } from "./lib/workspace-sources.mjs";
 
-const workspaceCss = readFileSync("workspace.css", "utf8");
-const workspaceJs = readFileSync("workspace.js", "utf8");
+const workspaceCss = await readWorkspaceCssSource();
+const workspaceJs = await readWorkspaceJavaScriptSource();
 
 const failures = [];
 

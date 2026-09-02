@@ -52,6 +52,8 @@ test("site access assignments route returns scoped recent access history without
   assert.equal(siteAdmin.permissions.canAssignProgramTeachers, true);
   assert.equal(siteAdmin.permissions.canAssignAdministration, false);
   assert.equal(siteAdmin.permissions.canAssignSiteAdmins, false);
+  assert.equal(siteAdmin.permissions.canRequirePasswordReset, true);
+  assert.equal(siteAdmin.users.students.every((user) => ["active", "pending_reset"].includes(user.status)), true);
   assert.equal(Array.isArray(siteAdmin.history), true);
   assert.equal(siteAdmin.history.length, 2);
   assert.deepEqual(siteAdmin.history.map((entry) => entry.action), ["assign", "remove"]);
@@ -78,6 +80,7 @@ test("site access assignments route returns scoped recent access history without
   assert.equal(schoolAdmin.permissions.canAssignProgramTeachers, true);
   assert.equal(schoolAdmin.permissions.canAssignAdministration, false);
   assert.equal(schoolAdmin.permissions.canAssignSiteAdmins, false);
+  assert.equal(schoolAdmin.permissions.canRequirePasswordReset, true);
 
   const programTeacher = await expectAccessAssignments(env, tokens.programTeacher, `?siteId=${PRIMARY_SITE_ID}`);
   assert.equal(programTeacher.permissions.canAssignMentors, true);
@@ -85,6 +88,7 @@ test("site access assignments route returns scoped recent access history without
   assert.equal(programTeacher.permissions.canAssignProgramTeachers, false);
   assert.equal(programTeacher.permissions.canAssignAdministration, false);
   assert.equal(programTeacher.permissions.canAssignSiteAdmins, false);
+  assert.equal(programTeacher.permissions.canRequirePasswordReset, false);
 
   const teacherMentorPost = await routeAccessAssignmentsPost(env, tokens.programTeacher, {
     siteId: PRIMARY_SITE_ID,

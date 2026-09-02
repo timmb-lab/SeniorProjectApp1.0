@@ -28,7 +28,7 @@ const PHASE_14_BROWSER_MANIFEST = "docs/progress/runs/2026-05-24-hosted-browser-
 
 function parseArgs(values = process.argv.slice(2)) {
   const parsed = {
-    baseUrl: process.env.WORKSPACE_SMOKE_BASE_URL || "https://senior-capstone-app.pages.dev",
+    baseUrl: process.env.WORKSPACE_SMOKE_BASE_URL || "https://thecapstoneapp.com",
   };
   for (let index = 0; index < values.length; index += 1) {
     const value = values[index];
@@ -38,7 +38,7 @@ function parseArgs(values = process.argv.slice(2)) {
     } else if (value === "--local") {
       throw new Error("Hosted sales demo proof is read-only remote proof and refuses --local.");
     } else if (value === "--help" || value === "-h") {
-      console.log("Usage: node scripts/prove-sales-demo-hosted.mjs [--base-url https://senior-capstone-app.pages.dev]");
+      console.log("Usage: node scripts/prove-sales-demo-hosted.mjs [--base-url https://thecapstoneapp.com]");
       process.exit(0);
     } else {
       throw new Error(`Unknown argument: ${value}`);
@@ -51,7 +51,7 @@ async function runHostedSalesDemoProof(args = {}, options = {}) {
   const repoRoot = options.repoRoot || REPO_ROOT;
   const repo = options.verifyRepo === false ? null : assertRepoIdentity(repoRoot);
   const adapter = options.adapter || new RemoteWranglerD1Adapter({ repoRoot, env: options.env || process.env });
-  const baseUrl = new URL(args.baseUrl || "https://senior-capstone-app.pages.dev").origin;
+  const baseUrl = new URL(args.baseUrl || "https://thecapstoneapp.com").origin;
   const wranglerPresent = existsSync(path.join(repoRoot, "node_modules", "wrangler", "bin", "wrangler.js"));
   const tokenPresent = Boolean(String((options.env || process.env).CLOUDFLARE_API_TOKEN || "").trim());
 

@@ -90,6 +90,12 @@ test("Option C selected while files still served fails", () => {
   assert.match(result.failures.map((failure) => failure.code).join("\n"), /OPTION_C_INTERNAL_FILES_STILL_SERVED/);
 });
 
+test("Option C passes when internal pages are excluded from production", () => {
+  const fixture = cloneFixture({ optionPolicy: "option-c", optionCProductionExclusion: true });
+  const result = evaluateAlphaAccountGatingFixture(fixture);
+  assert.equal(result.ok, true);
+});
+
 test("stakeholder alpha link without internal QA label fails", () => {
   const fixture = cloneFixture();
   fixture.stakeholderFiles["old/stakeholder-options/titan-blend/index.html"] = '<a href="alpha.html">Open alpha</a>';

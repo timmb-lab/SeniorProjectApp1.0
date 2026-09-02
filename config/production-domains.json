@@ -1,18 +1,21 @@
 {
-  "schemaVersion": 2,
-  "productDomain": "thecapstoneproject.com",
-  "rootMode": "product-root-target-guide-temporary",
+  "schemaVersion": 4,
+  "productDomain": "thecapstoneapp.com",
+  "canonicalUrl": "https://thecapstoneapp.com/",
+  "rootMode": "single-canonical-app-root-with-secondary-domain-redirect",
   "targetHostnames": {
-    "productApex": "thecapstoneproject.com",
-    "productWwwAlias": "www.thecapstoneproject.com",
-    "appSubdomainIfNeeded": "app.thecapstoneproject.com"
+    "productApex": "thecapstoneapp.com"
   },
-  "currentLegacyHostnames": {
-    "publicApex": "thecapstoneapp.com",
-    "publicWww": "www.thecapstoneapp.com",
-    "app": "app.thecapstoneapp.com"
+  "redirectHostnames": {
+    "productWwwAlias": "www.thecapstoneapp.com",
+    "secondaryApex": "thecapstoneproject.com",
+    "secondaryWwwAlias": "www.thecapstoneproject.com",
+    "pagesDevAlias": "senior-capstone-app.pages.dev"
   },
-  "currentSsoRedirectUri": "https://app.thecapstoneapp.com/api/auth/google/callback",
+  "retiredHostnames": {
+    "appSubdomain": "app.thecapstoneapp.com"
+  },
+  "currentSsoRedirectUri": "https://thecapstoneapp.com/api/auth/google/callback",
   "guide": {
     "futureCustomDomain": "TBD",
     "currentDeploySource": "public-companion/",
@@ -39,9 +42,11 @@
     "stakeholderOptionsMayUseProductDomain": false,
     "retiredStakeholderOptionsMayDeploy": false,
     "realUserOnboardingPolicyChangeAllowed": false,
-    "disablePagesDevFallbackBeforeCutover": false,
+    "redirectAppPagesDevAliasToCanonical": true,
     "guideFutureDomainMustRemainTbd": true,
     "doNotUseRedirectsFileForDomainLevelRedirects": true,
-    "targetDomainLiveStatus": "pending-cloudflare-dns-tls-verification"
+    "targetDomainLiveStatus": "active-cloudflare-dns-tls-verified",
+    "canonicalRedirectStatus": "all-user-facing-aliases-to-thecapstoneapp.com",
+    "retiredAppSubdomainStatus": "must-have-no-pages-attachment-or-dns-record"
   }
 }

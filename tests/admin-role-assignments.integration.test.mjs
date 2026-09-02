@@ -227,7 +227,7 @@ test("admin role assignments returns scope names plus mapped school ids for site
   fixture.db.data.sites.push({ id: "site-b", name: "Canyon Ridge Career Academy", status: "active" });
   fixture.db.data.programs.push({ id: "program-biotech", name: "Biotechnology" });
   fixture.db.data.sitePrograms.push({ site_id: "site-a", program_id: "program-biotech", active: 1 });
-  fixture.db.data.cohorts.push({ id: "cohort-spring-showcase", name: "Spring Showcase Cohort" });
+  fixture.db.data.cohorts.push({ id: "cohort-spring-showcase", label: "Spring Showcase Cohort" });
   fixture.db.data.groups.push({ id: "group-spring-showcase", cohort_id: "cohort-spring-showcase" });
   fixture.db.data.groupMemberships.push({ group_id: "group-spring-showcase", user_id: "cohort-student-a" });
   fixture.db.data.userRoles.push({
@@ -412,7 +412,7 @@ function createFixture(options = {}) {
     siteUsers: [],
     passwordCredentials: [],
     authIdentities: [],
-    cohorts: [{ id: "cohort-a", name: "Demo Cohort A" }],
+    cohorts: [{ id: "cohort-a", label: "Demo Cohort A" }],
     auditEvents: [],
   });
 
@@ -570,6 +570,10 @@ class MockPreparedStatement {
   }
 
   async all() {
+    if (this.sql.includes("cohorts.name")) {
+      throw new Error("no such column: cohorts.name");
+    }
+
     if (this.sql.startsWith("select role_id, scope_type, scope_id from user_roles where user_id = ?")) {
       const [userId] = this.params.map(String);
       return {
@@ -762,7 +766,7 @@ function resolveScopeName(data, scopeType, scopeId) {
     return data.programs.find((program) => program.id === scopeId)?.name ?? null;
   }
   if (scopeType === "cohort") {
-    return data.cohorts.find((cohort) => cohort.id === scopeId)?.name ?? null;
+    return data.cohorts.find((cohort) => cohort.id === scopeId)?.label ?? null;
   }
   return null;
 }

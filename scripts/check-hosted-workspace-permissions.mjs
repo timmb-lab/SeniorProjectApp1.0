@@ -3,9 +3,9 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 const repoRoot = process.cwd();
-const DEFAULT_BASE_URL = "https://senior-capstone-app.pages.dev";
+const DEFAULT_BASE_URL = "https://thecapstoneapp.com";
 const DEFAULT_CREDENTIALS_FILE = ".secrets/test-accounts-2026-05-18.json";
-const DEFAULT_SITE_ID = "site-test-high-school";
+const DEFAULT_SITE_ID = "site-desert-valley-high";
 
 class WorkspacePermissionCheckError extends Error {
   constructor(classification, message, details = {}) {
@@ -356,15 +356,29 @@ async function runHostedWorkspacePermissionCheck() {
 
   log(`Hosted workspace permission proof target: ${baseUrl.origin}`);
 
-  const workspaceHtml = await fetch(new URL("/workspace.html", baseUrl));
-  const workspaceJs = await fetch(new URL("/workspace.js", baseUrl));
-  if (workspaceHtml.status !== 200 || workspaceJs.status !== 200) {
+  const workspaceAssetPaths = [
+    "/workspace.html",
+    "/workspace.js",
+    "/workspace/core.js",
+    "/workspace/shared.js",
+    "/workspace/features/actions.js",
+    "/workspace/features/projects.js",
+    "/workspace/features/review-admin.js",
+    "/workspace/features/staff.js",
+    "/workspace/features/student.js",
+  ];
+  const workspaceAssets = await Promise.all(workspaceAssetPaths.map(async (pathname) => {
+    const response = await fetch(new URL(pathname, baseUrl));
+    return { pathname, response };
+  }));
+  const failedAsset = workspaceAssets.find(({ response }) => response.status !== 200);
+  if (failedAsset) {
     throw new WorkspacePermissionCheckError("hosted_deployment_stale", "Hosted canonical workspace assets did not load.", {
-      workspaceHtmlStatus: workspaceHtml.status,
-      workspaceScriptStatus: workspaceJs.status,
+      pathname: failedAsset.pathname,
+      status: failedAsset.response.status,
     });
   }
-  const workspaceText = `${await workspaceHtml.text()}\n${await workspaceJs.text()}`;
+  const workspaceText = (await Promise.all(workspaceAssets.map(({ response }) => response.text()))).join("\n");
   assertHostedWorkspaceSafe(workspaceText, "hosted workspace assets");
   const workspaceMarkers = [
     { name: "no_assignment_state", marker: 'data-workspace-state="no-active-assignment"' },

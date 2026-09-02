@@ -247,7 +247,9 @@ test("protected app deployment includes baseline anti-clickjacking headers", () 
   assert.match(rootHeaders, /Referrer-Policy: strict-origin-when-cross-origin/);
   assert.match(rootHeaders, /Permissions-Policy: camera=\(\), microphone=\(\), geolocation=\(\)/);
   assert.match(rootHeaders, /X-Frame-Options: DENY/);
-  assert.match(rootHeaders, /Content-Security-Policy: frame-ancestors 'none'/);
+  assert.match(rootHeaders, /Content-Security-Policy:[^\r\n]*frame-ancestors 'none'/);
+  assert.match(rootHeaders, /Content-Security-Policy:[^\r\n]*script-src 'self'/);
+  assert.doesNotMatch(rootHeaders, /script-src[^;\r\n]*'unsafe-inline'/);
   assert.match(rootHeaders, /Cross-Origin-Resource-Policy: same-origin/);
   assert.match(rootHeaders, /^\/api\/\*/m);
   assert.match(rootHeaders, /\/api\/\*[\s\S]*Cache-Control: no-store/);

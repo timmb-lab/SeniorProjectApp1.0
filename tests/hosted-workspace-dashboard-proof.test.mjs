@@ -39,7 +39,7 @@ test("hosted workspace dashboard proof covers presentation and archive dashboard
   assert.match(dashboardProofScript, /viewer_mutation_denials/);
   assert.match(dashboardProofScript, /site_admin_site_operations/);
   assert.match(dashboardProofScript, /site_admin_privilege_boundary/);
-  assert.match(dashboardProofScript, /site-test-high-school/);
+  assert.match(dashboardProofScript, /site-desert-valley-high/);
 });
 
 test("hosted dashboard proof has an explicit npm alias outside default local check", () => {

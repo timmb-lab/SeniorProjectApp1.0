@@ -56,6 +56,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
     }
     return badRequest(urlValidation.error || "invalid_https_evidence_url");
   }
+  if (!isGoogleDriveWorkUrl(externalUrl)) {
+    return badRequest("google_drive_link_required");
+  }
 
   const title = cleanWorkflowText(body.title, "Capstone evidence link", 160);
   const artifactType = cleanWorkflowText(body.artifactType, "planning_document", 80).replace(/[^a-z0-9_-]/gi, "_");
@@ -66,6 +69,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
        id,
        repository_id,
        student_id,
+       project_id,
        submission_id,
        artifact_type,
        source_kind,
@@ -74,8 +78,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
        review_status,
        created_by
      )
-     VALUES (?, 'default-google-drive', ?, ?, ?, 'external_link', ?, ?, 'pending_review', ?)`,
-  ).bind(evidenceId, submission.student_id, submission.id, artifactType, externalUrl, title, user.id).run();
+     VALUES (?, 'default-google-drive', ?, ?, ?, ?, 'external_link', ?, ?, 'pending_review', ?)`,
+  ).bind(evidenceId, submission.student_id, submission.project_id, submission.id, artifactType, externalUrl, title, user.id).run();
 
   await auditEvidenceLink(env, request, user, "evidence_link_attached", "evidence_artifact", evidenceId, {
     submissionId: submission.id,
@@ -103,6 +107,15 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
     },
   });
 };
+
+function isGoogleDriveWorkUrl(value: string): boolean {
+  try {
+    const hostname = new URL(value).hostname.toLowerCase();
+    return hostname === "drive.google.com" || hostname === "docs.google.com";
+  } catch {
+    return false;
+  }
+}
 
 async function auditEvidenceLink(
   env: Env,

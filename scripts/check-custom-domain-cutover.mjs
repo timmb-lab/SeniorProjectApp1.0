@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { readFile } from "node:fs/promises";
+import { resolve4, resolve6, resolveCname } from "node:dns/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -8,19 +9,22 @@ const configPath = path.join(repoRoot, "config", "production-domains.json");
 
 const EXPECTED = {
   accountId: "539e8f7c55e7b1472013626ad72f4c7f",
-  productDomain: "thecapstoneproject.com",
-  rootMode: "product-root-target-guide-temporary",
+  productDomain: "thecapstoneapp.com",
+  canonicalUrl: "https://thecapstoneapp.com/",
+  rootMode: "single-canonical-app-root-with-secondary-domain-redirect",
   targetHostnames: {
-    productApex: "thecapstoneproject.com",
-    productWwwAlias: "www.thecapstoneproject.com",
-    appSubdomainIfNeeded: "app.thecapstoneproject.com",
+    productApex: "thecapstoneapp.com",
   },
-  currentLegacyHostnames: {
-    publicApex: "thecapstoneapp.com",
-    publicWww: "www.thecapstoneapp.com",
-    app: "app.thecapstoneapp.com",
+  redirectHostnames: {
+    productWwwAlias: "www.thecapstoneapp.com",
+    secondaryApex: "thecapstoneproject.com",
+    secondaryWwwAlias: "www.thecapstoneproject.com",
+    pagesDevAlias: "senior-capstone-app.pages.dev",
   },
-  currentSsoRedirectUri: "https://app.thecapstoneapp.com/api/auth/google/callback",
+  retiredHostnames: {
+    appSubdomain: "app.thecapstoneapp.com",
+  },
+  currentSsoRedirectUri: "https://thecapstoneapp.com/api/auth/google/callback",
   guideFutureCustomDomain: "TBD",
   pagesProjects: {
     publicGuide: "senior-capstone-public",
@@ -40,7 +44,12 @@ const EXPECTED = {
   },
 };
 
-const REQUIRED_TARGET_HOSTNAMES = new Set(Object.values(EXPECTED.targetHostnames));
+const REQUIRED_TARGET_HOSTNAMES = new Set([
+  ...Object.values(EXPECTED.targetHostnames),
+  EXPECTED.redirectHostnames.productWwwAlias,
+  EXPECTED.redirectHostnames.secondaryApex,
+  EXPECTED.redirectHostnames.secondaryWwwAlias,
+]);
 const ACTIVE_STATUS = new Set(["active"]);
 const PENDING_STATUS = new Set(["initializing", "pending"]);
 const FAIL_STATUS = new Set(["blocked", "deactivated", "error"]);
@@ -111,11 +120,13 @@ export function validateProductionDomainConfig(config) {
     return result;
   }
 
-  assertEqual(result, config.schemaVersion, 2, "schemaVersion");
+  assertEqual(result, config.schemaVersion, 4, "schemaVersion");
   assertEqual(result, config.productDomain, EXPECTED.productDomain, "productDomain");
+  assertEqual(result, config.canonicalUrl, EXPECTED.canonicalUrl, "canonicalUrl");
   assertEqual(result, config.rootMode, EXPECTED.rootMode, "rootMode");
   assertNested(result, config.targetHostnames, EXPECTED.targetHostnames, "targetHostnames");
-  assertNested(result, config.currentLegacyHostnames, EXPECTED.currentLegacyHostnames, "currentLegacyHostnames");
+  assertNested(result, config.redirectHostnames, EXPECTED.redirectHostnames, "redirectHostnames");
+  assertNested(result, config.retiredHostnames, EXPECTED.retiredHostnames, "retiredHostnames");
   assertEqual(result, config.currentSsoRedirectUri, EXPECTED.currentSsoRedirectUri, "currentSsoRedirectUri");
   assertEqual(result, config.guide?.futureCustomDomain, EXPECTED.guideFutureCustomDomain, "guide.futureCustomDomain");
   assertEqual(result, config.guide?.currentDeploySource, "public-companion/", "guide.currentDeploySource");
@@ -130,10 +141,12 @@ export function validateProductionDomainConfig(config) {
   assertEqual(result, policy.stakeholderOptionsMayUseProductDomain, false, "policy.stakeholderOptionsMayUseProductDomain");
   assertEqual(result, policy.retiredStakeholderOptionsMayDeploy, false, "policy.retiredStakeholderOptionsMayDeploy");
   assertEqual(result, policy.realUserOnboardingPolicyChangeAllowed, false, "policy.realUserOnboardingPolicyChangeAllowed");
-  assertEqual(result, policy.disablePagesDevFallbackBeforeCutover, false, "policy.disablePagesDevFallbackBeforeCutover");
+  assertEqual(result, policy.redirectAppPagesDevAliasToCanonical, true, "policy.redirectAppPagesDevAliasToCanonical");
   assertEqual(result, policy.guideFutureDomainMustRemainTbd, true, "policy.guideFutureDomainMustRemainTbd");
   assertEqual(result, policy.doNotUseRedirectsFileForDomainLevelRedirects, true, "policy.doNotUseRedirectsFileForDomainLevelRedirects");
-  assertEqual(result, policy.targetDomainLiveStatus, "pending-cloudflare-dns-tls-verification", "policy.targetDomainLiveStatus");
+  assertEqual(result, policy.targetDomainLiveStatus, "active-cloudflare-dns-tls-verified", "policy.targetDomainLiveStatus");
+  assertEqual(result, policy.canonicalRedirectStatus, "all-user-facing-aliases-to-thecapstoneapp.com", "policy.canonicalRedirectStatus");
+  assertEqual(result, policy.retiredAppSubdomainStatus, "must-have-no-pages-attachment-or-dns-record", "policy.retiredAppSubdomainStatus");
 
   const retiredStrings = [
     ...collectStrings(config.retiredPagesProjects),
@@ -157,14 +170,17 @@ export function validateCutoverDocs(files) {
   const policy = files["docs/production-deployment-policy.md"] || "";
 
   const requiredCutoverPhrases = [
-    "Product/app target domain: `thecapstoneproject.com`",
-    "Target product alias: `www.thecapstoneproject.com`",
-    "Optional app split hostname: `app.thecapstoneproject.com`",
+    "Product/app canonical domain: `thecapstoneapp.com`",
+    "Canonical app URL: `https://thecapstoneapp.com/`",
+    "Canonical product alias: `www.thecapstoneapp.com`",
+    "Secondary redirect hostnames: `thecapstoneproject.com`, `www.thecapstoneproject.com`",
+    "Retired app hostname: `app.thecapstoneapp.com`",
+    "must be absent from both DNS and the Pages domain list",
     "East Tech guide future custom domain: `TBD`",
-    "Current legacy hostnames pending migration: `thecapstoneapp.com`, `www.thecapstoneapp.com`, `app.thecapstoneapp.com`",
-    "Current Google OAuth redirect URI remains `https://app.thecapstoneapp.com/api/auth/google/callback`",
+    "Permanent redirect target: `https://thecapstoneapp.com`",
+    "Google OAuth redirect URI: `https://thecapstoneapp.com/api/auth/google/callback`",
     "GET /accounts/{account_id}/pages/projects/{project_name}/domains",
-    "POST /accounts/{account_id}/pages/projects/{project_name}/domains",
+    "DELETE /accounts/{account_id}/pages/projects/{project_name}/domains/{domain_name}",
     "CNAME-only",
     "`_redirects`",
   ];
@@ -179,9 +195,14 @@ export function validateCutoverDocs(files) {
       result.failures.push(`production surface registry missing target hostname ${hostname}`);
     }
   }
-  for (const hostname of Object.values(EXPECTED.currentLegacyHostnames)) {
+  for (const hostname of [
+    EXPECTED.redirectHostnames.productWwwAlias,
+    EXPECTED.redirectHostnames.secondaryApex,
+    EXPECTED.redirectHostnames.secondaryWwwAlias,
+    EXPECTED.retiredHostnames.appSubdomain,
+  ]) {
     if (!registry.includes(hostname)) {
-      result.failures.push(`production surface registry missing legacy hostname ${hostname}`);
+      result.failures.push(`production surface registry missing redirect/retired hostname ${hostname}`);
     }
   }
 
@@ -264,10 +285,9 @@ export function evaluatePagesDomainAssociations({
   const summaries = [];
   const expectedMappings = [
     { hostname: expected.targetHostnames.productApex, project: expected.pagesProjects.appBackend, role: "product apex" },
-    { hostname: expected.targetHostnames.productWwwAlias, project: expected.pagesProjects.appBackend, role: "product www alias" },
-  ];
-  const optionalMappings = [
-    { hostname: expected.targetHostnames.appSubdomainIfNeeded, project: expected.pagesProjects.appBackend, role: "optional app split" },
+    { hostname: expected.redirectHostnames.productWwwAlias, project: expected.pagesProjects.appBackend, role: "product www redirect" },
+    { hostname: expected.redirectHostnames.secondaryApex, project: expected.pagesProjects.appBackend, role: "secondary redirect apex" },
+    { hostname: expected.redirectHostnames.secondaryWwwAlias, project: expected.pagesProjects.appBackend, role: "secondary redirect www" },
   ];
   const retiredProjects = Object.values(expected.retiredPagesProjects || {});
   const domainsByProject = projectDomains || {};
@@ -278,7 +298,7 @@ export function evaluatePagesDomainAssociations({
     }
   }
 
-  for (const mapping of [...expectedMappings, ...optionalMappings]) {
+  for (const mapping of expectedMappings) {
     const record = (domainsByProject[mapping.project] || []).find((entry) => domainRecordName(entry) === mapping.hostname);
     if (!record) {
       const cnameOnly = dnsRecords.some((entry) => (
@@ -289,10 +309,10 @@ export function evaluatePagesDomainAssociations({
       ));
       findings.push({
         code: cnameOnly ? "CNAME_ONLY_WITHOUT_PAGES_ASSOCIATION" : "PAGES_DOMAIN_ASSOCIATION_MISSING",
-        label: mapping.role === "optional app split" ? "OPTIONAL_APP_DOMAIN_NOT_CONFIGURED" : "PAGES_DOMAIN_ASSOCIATION_MISSING",
+        label: "PAGES_DOMAIN_ASSOCIATION_MISSING",
         project: mapping.project,
         hostname: mapping.hostname,
-        optional: mapping.role === "optional app split",
+        optional: false,
         message: cnameOnly
           ? `${mapping.hostname} has CNAME-looking evidence but no Pages custom-domain association on ${mapping.project}`
           : `${mapping.hostname} is missing from ${mapping.project}`,
@@ -307,7 +327,7 @@ export function evaluatePagesDomainAssociations({
         label: "PAGES_DOMAIN_ASSOCIATION_ACTIVE",
         project: mapping.project,
         hostname: mapping.hostname,
-        optional: mapping.role === "optional app split",
+        optional: false,
         message: `${mapping.hostname} is active on ${mapping.project}`,
       });
     } else if (bucket === "pending") {
@@ -316,7 +336,7 @@ export function evaluatePagesDomainAssociations({
         label: "PAGES_DOMAIN_ASSOCIATION_PENDING",
         project: mapping.project,
         hostname: mapping.hostname,
-        optional: mapping.role === "optional app split",
+        optional: false,
         message: `${mapping.hostname} is pending on ${mapping.project}`,
       });
     } else {
@@ -325,8 +345,24 @@ export function evaluatePagesDomainAssociations({
         label: bucket === "fail" ? "PAGES_DOMAIN_ASSOCIATION_FAILED" : "PAGES_DOMAIN_ASSOCIATION_PENDING",
         project: mapping.project,
         hostname: mapping.hostname,
-        optional: mapping.role === "optional app split",
+        optional: false,
         message: `${mapping.hostname} is not active on ${mapping.project}`,
+      });
+    }
+  }
+
+  const retiredHostnames = new Set(Object.values(expected.retiredHostnames || {}));
+  for (const [project, entries] of Object.entries(domainsByProject)) {
+    for (const entry of entries || []) {
+      const hostname = domainRecordName(entry);
+      if (!retiredHostnames.has(hostname)) continue;
+      findings.push({
+        code: "RETIRED_HOSTNAME_STILL_ATTACHED",
+        label: "RETIRED_HOSTNAME_STILL_ATTACHED",
+        project,
+        hostname,
+        optional: false,
+        message: `${hostname} must be detached from ${project}`,
       });
     }
   }
@@ -350,7 +386,7 @@ export function evaluatePagesDomainAssociations({
   const activeCount = requiredFindings.filter((finding) => finding.code === "PAGES_DOMAIN_ASSOCIATION_ACTIVE").length;
   const pendingCount = requiredFindings.filter((finding) => finding.code === "PAGES_DOMAIN_ASSOCIATION_PENDING" || finding.label === "PAGES_DOMAIN_ASSOCIATION_PENDING").length;
   const missingCount = requiredFindings.filter((finding) => finding.code === "PAGES_DOMAIN_ASSOCIATION_MISSING" || finding.code === "CNAME_ONLY_WITHOUT_PAGES_ASSOCIATION").length;
-  const failCount = findings.filter((finding) => /FAILED|STAKEHOLDER|NOT_ACTIVE/.test(finding.code) && !finding.optional).length;
+  const failCount = findings.filter((finding) => /FAILED|STAKEHOLDER|NOT_ACTIVE|RETIRED_HOSTNAME/.test(finding.code) && !finding.optional).length;
 
   return {
     ok: activeCount === expectedMappings.length && failCount === 0,
@@ -391,6 +427,7 @@ async function cloudflareRequest(fetchImpl, apiPath, token) {
       : "";
     const permission = response.status === 401 || response.status === 403 || /permission|auth|scope|forbidden/i.test(errors);
     const error = new Error(`Cloudflare API ${apiPath} failed with HTTP ${response.status}${errors ? `: ${errors}` : ""}`);
+    error.status = response.status;
     error.insufficientScope = permission;
     throw error;
   }
@@ -406,12 +443,20 @@ export async function fetchPagesDomainAssociations({ token, accountId, fetchImpl
   ];
   const projectDomains = {};
   for (const projectName of projectNames) {
-    const data = await cloudflareRequest(
-      fetchImpl,
-      `/accounts/${encodeURIComponent(accountId)}/pages/projects/${encodeURIComponent(projectName)}/domains`,
-      token,
-    );
-    projectDomains[projectName] = resultArray(data);
+    try {
+      const data = await cloudflareRequest(
+        fetchImpl,
+        `/accounts/${encodeURIComponent(accountId)}/pages/projects/${encodeURIComponent(projectName)}/domains`,
+        token,
+      );
+      projectDomains[projectName] = resultArray(data);
+    } catch (error) {
+      if (error?.status === 404 && projectName !== EXPECTED.pagesProjects.appBackend) {
+        projectDomains[projectName] = [];
+        continue;
+      }
+      throw error;
+    }
   }
   return projectDomains;
 }
@@ -455,13 +500,13 @@ function responseLooksUnsafe(response) {
   return /senior-capstone-option-(titan|primary)|alpha\.html|account\.html/i.test(`${urls}\n${text}`);
 }
 
-export async function runHttpsLiveChecks({ fetchImpl = fetch, hostnames = EXPECTED.targetHostnames } = {}) {
+export async function runHttpsLiveChecks({ fetchImpl = fetch, domains = EXPECTED } = {}) {
   const checks = [];
   const productTargets = [
-    { label: "product root", url: `https://${hostnames.productApex}/` },
-    { label: "product workspace", url: `https://${hostnames.productApex}/workspace.html` },
-    { label: "product api health", url: `https://${hostnames.productApex}/api/health` },
-    { label: "product api auth me", url: `https://${hostnames.productApex}/api/auth/me` },
+    { label: "product root", url: `https://${domains.targetHostnames.productApex}/` },
+    { label: "legacy workspace path", url: `https://${domains.targetHostnames.productApex}/workspace?domain-check=1` },
+    { label: "product api health", url: `https://${domains.targetHostnames.productApex}/api/health` },
+    { label: "product api auth me", url: `https://${domains.targetHostnames.productApex}/api/auth/me` },
   ];
   for (const target of productTargets) {
     try {
@@ -473,8 +518,24 @@ export async function runHttpsLiveChecks({ fetchImpl = fetch, hostnames = EXPECT
       if (target.label === "product api health") {
         ok = response.status === 200 && /environment|ok|healthy|authMode/i.test(response.text || "");
       }
-      if (target.label === "product workspace") {
-        ok = [200, 301, 302, 307, 308].includes(response.status) && !responseLooksUnsafe(response);
+      if (target.label === "product root") {
+        const finalUrl = response.finalUrl ? new URL(response.finalUrl) : null;
+        ok = response.status === 200
+          && finalUrl?.hostname === domains.targetHostnames.productApex
+          && finalUrl?.pathname === "/"
+          && !responseLooksUnsafe(response);
+      }
+      if (target.label === "legacy workspace path") {
+        const firstHop = response.visited?.[0];
+        const redirectLocation = firstHop?.location ? new URL(firstHop.location, target.url) : null;
+        const finalUrl = response.finalUrl ? new URL(response.finalUrl) : null;
+        ok = firstHop?.status === 308
+          && redirectLocation?.hostname === domains.targetHostnames.productApex
+          && redirectLocation?.pathname === "/"
+          && redirectLocation?.search === "?domain-check=1"
+          && finalUrl?.pathname === "/"
+          && response.status === 200
+          && !responseLooksUnsafe(response);
       }
       checks.push({
         ...target,
@@ -485,6 +546,80 @@ export async function runHttpsLiveChecks({ fetchImpl = fetch, hostnames = EXPECT
       });
     } catch (error) {
       checks.push({ ...target, ok: false, status: null, finalUrl: "", reason: error instanceof Error ? error.message : String(error) });
+    }
+  }
+
+  const redirectTargets = [
+    { label: "product www redirect", url: `https://${domains.redirectHostnames.productWwwAlias}/workspace?domain-check=1`, expectedPath: "/" },
+    { label: "secondary redirect apex", url: `https://${domains.redirectHostnames.secondaryApex}/workspace?domain-check=1`, expectedPath: "/" },
+    { label: "secondary redirect www", url: `https://${domains.redirectHostnames.secondaryWwwAlias}/workspace?domain-check=1`, expectedPath: "/" },
+    { label: "Pages alias redirect", url: `https://${domains.redirectHostnames.pagesDevAlias}/workspace?domain-check=1`, expectedPath: "/" },
+  ];
+  for (const target of redirectTargets) {
+    try {
+      const response = await fetchWithRedirects(target.url, { fetchImpl });
+      const firstHop = response.visited?.[0];
+      const redirectLocation = firstHop?.location ? new URL(firstHop.location, target.url) : null;
+      const finalUrl = response.finalUrl ? new URL(response.finalUrl) : null;
+      checks.push({
+        ...target,
+        ok: firstHop?.status === 308
+          && redirectLocation?.hostname === domains.targetHostnames.productApex
+          && redirectLocation?.pathname === target.expectedPath
+          && redirectLocation?.search === "?domain-check=1"
+          && finalUrl?.hostname === domains.targetHostnames.productApex
+          && finalUrl?.pathname === target.expectedPath
+          && response.status === 200,
+        status: response.status || null,
+        finalUrl: response.finalUrl || "",
+        reason: response.reason || "",
+      });
+    } catch (error) {
+      checks.push({ ...target, ok: false, status: null, finalUrl: "", reason: error instanceof Error ? error.message : String(error) });
+    }
+  }
+  return checks;
+}
+
+async function resolveRetiredHostnameRecords(hostname) {
+  const lookups = [
+    ["A", resolve4],
+    ["AAAA", resolve6],
+    ["CNAME", resolveCname],
+  ];
+  const records = [];
+  for (const [type, lookup] of lookups) {
+    try {
+      const values = await lookup(hostname);
+      for (const value of values || []) records.push({ type, value });
+    } catch (error) {
+      const code = String(error?.code || "").toUpperCase();
+      if (code !== "ENOTFOUND" && code !== "ENODATA") throw error;
+    }
+  }
+  return records;
+}
+
+export async function runRetiredHostnameDnsChecks({ resolveRecordsImpl = resolveRetiredHostnameRecords, domains = EXPECTED } = {}) {
+  const checks = [];
+  for (const hostname of Object.values(domains.retiredHostnames || {})) {
+    try {
+      const records = await resolveRecordsImpl(hostname);
+      checks.push({
+        label: "retired hostname DNS",
+        hostname,
+        ok: records.length === 0,
+        records: Array.isArray(records) ? records.length : 0,
+        reason: records.length === 0 ? "no A, AAAA, or CNAME record" : "retired hostname still resolves",
+      });
+    } catch (error) {
+      checks.push({
+        label: "retired hostname DNS",
+        hostname,
+        ok: false,
+        records: 0,
+        reason: error instanceof Error ? error.message : String(error),
+      });
     }
   }
   return checks;
@@ -506,12 +641,15 @@ async function loadDocsForValidation() {
 
 function printStaticLabels(config) {
   console.log(`PRODUCT_DOMAIN_TARGET ${config.productDomain}`);
+  console.log(`CANONICAL_URL ${config.canonicalUrl}`);
   console.log(`ROOT_MODE_TARGET ${config.rootMode}`);
   console.log(`TARGET_PRODUCT_APEX ${config.targetHostnames.productApex}`);
-  console.log(`TARGET_PRODUCT_WWW_ALIAS ${config.targetHostnames.productWwwAlias}`);
-  console.log(`TARGET_APP_SUBDOMAIN_IF_NEEDED ${config.targetHostnames.appSubdomainIfNeeded}`);
+  console.log(`REDIRECT_PRODUCT_WWW_ALIAS ${config.redirectHostnames.productWwwAlias}`);
+  console.log(`REDIRECT_SECONDARY_APEX ${config.redirectHostnames.secondaryApex}`);
+  console.log(`REDIRECT_SECONDARY_WWW_ALIAS ${config.redirectHostnames.secondaryWwwAlias}`);
+  console.log(`REDIRECT_PAGES_DEV_ALIAS ${config.redirectHostnames.pagesDevAlias}`);
   console.log(`GUIDE_FUTURE_DOMAIN ${config.guide.futureCustomDomain}`);
-  console.log(`CURRENT_LEGACY_APP_HOSTNAME ${config.currentLegacyHostnames.app}`);
+  console.log(`RETIRED_APP_SUBDOMAIN ${config.retiredHostnames.appSubdomain}`);
 }
 
 async function main() {
@@ -575,8 +713,9 @@ async function main() {
   }
 
   let httpsVerified = false;
+  let retiredDnsVerified = false;
   if (liveHttp) {
-    const checks = await runHttpsLiveChecks({ hostnames: config.targetHostnames });
+    const checks = await runHttpsLiveChecks({ domains: config });
     httpsVerified = checks.every((check) => check.ok);
     for (const check of checks) {
       const label = check.ok ? "PASS live" : "FAIL live";
@@ -586,10 +725,18 @@ async function main() {
       console.log("DNS_OR_TLS_PENDING one or more HTTPS target-domain checks did not pass.");
       if (liveRequired) exitCode = 1;
     }
+
+    const retiredDnsChecks = await runRetiredHostnameDnsChecks({ domains: config });
+    retiredDnsVerified = retiredDnsChecks.every((check) => check.ok);
+    for (const check of retiredDnsChecks) {
+      const label = check.ok ? "PASS live" : "FAIL live";
+      console.log(`${label}: ${check.label} ${check.hostname} records=${check.records}${check.reason ? ` reason=${redactKnownSecrets(check.reason)}` : ""}`);
+    }
+    if (!retiredDnsVerified && liveRequired) exitCode = 1;
   }
 
-  if (associationsVerified && (!liveHttp || httpsVerified)) {
-    console.log("CUSTOM_DOMAIN_CUTOVER_VERIFIED target product domain Pages custom-domain associations and requested HTTPS checks passed.");
+  if (associationsVerified && (!liveHttp || (httpsVerified && retiredDnsVerified))) {
+    console.log("CUSTOM_DOMAIN_CUTOVER_VERIFIED target product domain associations, HTTPS behavior, and retired-hostname DNS checks passed.");
   } else {
     console.log("CUSTOM_DOMAIN_CUTOVER_NOT_VERIFIED target product domain cutover is pending, blocked, or not requested.");
   }

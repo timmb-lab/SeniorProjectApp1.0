@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
+import { readWorkspaceJavaScriptSource } from "./lib/workspace-sources.mjs";
 
 const protectedUiFiles = [
   "workspace.html",
-  "workspace.js",
   "functions/api/site/dashboard.ts",
   "functions/_lib/site-review-queue.ts",
   "functions/_lib/site-mentor-assignments.ts",
@@ -282,6 +282,11 @@ for (const file of protectedUiFiles) {
   }
 }
 
+const workspaceSource = await readWorkspaceJavaScriptSource();
+for (const rule of hardFailures) {
+  if (rule.pattern.test(workspaceSource)) failures.push(`workspace modules: ${rule.message}`);
+}
+
 for (const file of reviewOnlyFiles) {
   let text = "";
   try {
@@ -312,5 +317,5 @@ if (failures.length) {
 }
 
 console.log("Functionality language verification passed.");
-console.log(`Checked protected UI files: ${protectedUiFiles.join(", ")}`);
+console.log(`Checked protected UI files: ${[...protectedUiFiles, "workspace modules"].join(", ")}`);
 if (notices.length) console.log(`Review-only notices: ${notices.length}`);

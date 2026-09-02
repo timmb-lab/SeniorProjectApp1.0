@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { readWorkspaceCssSource, readWorkspaceJavaScriptSource } from "./lib/workspace-sources.mjs";
 
 const files = {
   workspaceJs: "workspace.js",
@@ -7,8 +8,8 @@ const files = {
 };
 
 const source = {
-  workspaceJs: readFileSync(files.workspaceJs, "utf8"),
-  workspaceCss: readFileSync(files.workspaceCss, "utf8"),
+  workspaceJs: await readWorkspaceJavaScriptSource(),
+  workspaceCss: await readWorkspaceCssSource(),
   packageJson: readFileSync(files.packageJson, "utf8"),
 };
 

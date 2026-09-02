@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { readWorkspaceJavaScriptSource } from "../scripts/lib/workspace-sources.mjs";
 import { existsSync } from "node:fs";
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -32,7 +33,7 @@ const reviewQueueRoute = await readFile("functions/api/teacher/review-queue.ts",
 const submitRoute = await readFile("functions/api/submissions/[id]/submit.ts", "utf8");
 const reviewRoute = await readFile("functions/api/reviews/[submissionId]/decision.ts", "utf8");
 const workflowLib = await readFile("functions/_lib/workflow.ts", "utf8");
-const workspaceJs = await readFile("workspace.js", "utf8");
+const workspaceJs = await readWorkspaceJavaScriptSource();
 const localDemoSeed = await readFile("scripts/seed-local-demo-workspace.mjs", "utf8");
 const remoteDemoSeed = await readFile("scripts/seed-remote-demo-workspace.mjs", "utf8");
 const localDemoProof = await readFile("scripts/prove-local-demo-workspace.mjs", "utf8");
@@ -240,8 +241,8 @@ test("site review queue route is site-scoped, role-aware, bounded, and redacted"
   assert.match(siteReviewQueueLib, /getProgramTeacherScopedStudentIds/);
   assert.match(siteReviewQueueLib, /site_users/);
   assert.match(siteReviewQueueLib, /student_role\.role_id = 'student'/);
-  assert.match(siteReviewQueueLib, /DEFAULT_LIMIT = 50/);
-  assert.match(siteReviewQueueLib, /MAX_LIMIT = 100/);
+  assert.match(siteReviewQueueLib, /DEFAULT_LIMIT = 10/);
+  assert.match(siteReviewQueueLib, /MAX_LIMIT = 50/);
   assert.match(siteReviewQueueLib, /LIMIT \? OFFSET \?/);
   assert.match(siteReviewQueueLib, /review_queue_viewed/);
   assert.match(siteReviewQueueLib, /review_queue_denied/);
@@ -250,6 +251,7 @@ test("site review queue route is site-scoped, role-aware, bounded, and redacted"
   assert.match(siteReviewQueueLib, /canRequestRevision/);
   assert.match(siteReviewQueueLib, /canCommentOnly/);
   assert.match(siteReviewQueueLib, /"program_teacher"/);
+  assert.match(siteReviewQueueLib, /"mentor"/);
   assert.doesNotMatch(siteReviewQueueLib, /"viewer"/);
   assert.doesNotMatch(siteReviewQueueLib, /from "\.\.\/admin\/dashboard|\/api\/admin\/dashboard|drive_file_id|drive_parent_folder_id|storage_key|password_hash|password_salt|token_hash|client_secret|refresh_token|access_token|private_key|temporaryPassword|setupPassword|content_sha256|body_json/i);
 });

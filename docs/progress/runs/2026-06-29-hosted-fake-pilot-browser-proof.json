@@ -1,10 +1,10 @@
 {
   "proof": "hosted_fake_pilot_browser",
   "verdict": "GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF",
-  "baseUrl": "https://senior-capstone-app.pages.dev",
-  "workspaceEntryPath": "/workspace.html",
-  "startedAt": "2026-07-05T18:05:07.727Z",
-  "completedAt": "2026-07-05T18:06:16.951Z",
+  "baseUrl": "https://thecapstoneapp.com",
+  "workspaceEntryPath": "/workspace",
+  "startedAt": "2026-09-02T01:07:17.321Z",
+  "completedAt": "2026-09-02T01:08:48.107Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
@@ -13,17 +13,20 @@
   "manifestPath": "docs/progress/runs/2026-06-29-hosted-fake-pilot-browser-proof.json",
   "realStudentProductionStatus": "NOT_CLAIMED_READY",
   "health": {
+    "publicEndpointReachable": true,
+    "publicResponseMinimal": true,
+    "protectedReadinessChecked": true,
     "databaseReady": true,
     "studentRosterProfilesReady": true,
     "authMode": "hardened_username_password",
-    "evidenceStorageProvider": "google_drive"
+    "evidenceStorageProvider": "link_only"
   },
   "screenshots": [
     {
       "id": "01-signed-out-home",
       "label": "Signed-out workspace route",
       "role": "signed_out",
-      "url": "https://senior-capstone-app.pages.dev/workspace",
+      "url": "https://thecapstoneapp.com/workspace",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -35,19 +38,21 @@
       "checks": {
         "expectedTextPresent": true,
         "missingExpectedText": [],
+        "unexpectedTextAbsent": true,
+        "unexpectedTextPresent": [],
         "noVisiblePasswordValues": true,
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "Capstone Project Workspace",
-      "textSample": "Skip to workspace SC Capstone Project SCHOOL WORKSPACE PROTECTED PROJECT WORKSPACE Capstone Project Workspace The workspace keeps Senior Project work, proof, Program Teacher feedback, mentor help, and presentation preparation organized for students and assigned school staff. What this workspace does Students can see their booklet phases, add proof, send work for review, read feedback, and prepare for presentations. Staff views follow assigned roles, so mentors, Program Teachers, administration, site admins, and global admins only see the tools and student information their access allows. Welco",
+      "heading": "Welcome back",
+      "textSample": "Skip to workspace SC Capstone Project ☾ Dark view SENIOR PROJECT WORKSPACE Welcome back Sign in to see what to do next. Email Password Sign in Need help signing in? Ask your teacher or project coordinator.",
       "activeNav": []
     },
     {
       "id": "02-student-dashboard",
       "label": "Student dashboard",
       "role": "student",
-      "url": "https://senior-capstone-app.pages.dev/workspace?section=student",
+      "url": "https://thecapstoneapp.com/workspace",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -62,21 +67,24 @@
       "checks": {
         "expectedTextPresent": true,
         "missingExpectedText": [],
+        "unexpectedTextAbsent": true,
+        "unexpectedTextPresent": [],
         "noVisiblePasswordValues": true,
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "My Capstone",
-      "textSample": "Skip to workspace Menu SC My Capstone My Capstone Today Student ROLE TS Test Student Maya maya.student@senior-capstone.test YOUR ACCESS Student Your project Only your own project work and feedback are visible here. Today What to finish next My Work Current requirements and proof Feedback Reviews and revision notes Final Checklist Presentation and final files TODAY Start with the next capstone action. My Capstone ready. MY CAPSTONE My Capstone What do I need to do next? Today My Work Feedback Final Checklist Your project TODAY My Capstone What do I need to do next? GETTING STARTED Continue My W",
+      "heading": "What do I do next?",
+      "textSample": "Skip to workspace My Capstone TODAY Tools TS Test Student Maya maya.student@senior-capstone.test SC My Capstone My Capstone STUDENT PROJECT WORKSPACE Today My Project Feedback Final Checklist TS Test Student Maya Student TODAY What to do next Open this item. Finish the work. Add a Google Drive link if needed. Missing Start One thing now Your action Due Before using cycle documents Open the matching item in My Project. Open item NEXT STEP MAP Start the listed item Open the item, add its Google Drive link if asked, then turn it in when ready. START Open My Work Use the item named at the top befo",
       "activeNav": [
-        "My Work\n        Today\n        What to finish next"
+        "1\n        Today\n        What to finish next",
+        "1\n        Today"
       ]
     },
     {
       "id": "03-program-teacher-dashboard",
       "label": "Program Teacher dashboard",
       "role": "program_teacher",
-      "url": "https://senior-capstone-app.pages.dev/workspace?section=programDashboard",
+      "url": "https://thecapstoneapp.com/workspace",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -91,12 +99,14 @@
       "checks": {
         "expectedTextPresent": true,
         "missingExpectedText": [],
+        "unexpectedTextAbsent": true,
+        "unexpectedTextPresent": [],
         "noVisiblePasswordValues": true,
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Ready FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Program Teacher ROLE TT Test Teacher Chen chen.teacher@senior-capstone.test YOUR ACCESS Program Teacher Assigned program: IT Review work and student support stay inside your assigned program. Today Students needing attention Students Program-scoped student rows Reviews Submitted work waiting for feedback Reports Progress and setup summary NEXT STEP Review submitted work and follow up where students need feedback. Staff Works",
+      "heading": "Pick the project that needs attention",
+      "textSample": "Skip to workspace Staff Workspace READY Tools Program Teacher ROLE TT Test Teacher Chen chen.teacher@senior-capstone.test SC Capstone Staff Workspace SCHOOL TEAM WORKSPACE Today Today › Projects Projects › Review and support Reviews › Reports Reports › TT Test Teacher Chen Program Teacher PROGRAM DASHBOARD Program Teacher Dashboard Track your students, review proof, and find who needs support in your assigned program. Program assignment it TOTAL STUDENTS 46 Students in your program view View students BEHIND / NEEDS SUPPORT 45 Risk or stale activity signals View students MISSING PROOF 3 Student",
       "activeNav": [
         "Workspace"
       ]
@@ -105,7 +115,7 @@
       "id": "04-mentor-dashboard",
       "label": "Mentor dashboard",
       "role": "mentor",
-      "url": "https://senior-capstone-app.pages.dev/workspace?section=mentorDashboard",
+      "url": "https://thecapstoneapp.com/workspace",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -120,19 +130,21 @@
       "checks": {
         "expectedTextPresent": true,
         "missingExpectedText": [],
+        "unexpectedTextAbsent": true,
+        "unexpectedTextPresent": [],
         "noVisiblePasswordValues": true,
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Ready Mentor ROLE TM Test Mentor Rivera rivera.mentor@senior-capstone.test YOUR ACCESS Mentor Assigned students Start with assigned students, meetings, and presentation prep. Today Students needing attention STUDENTS Students Assigned student rows Reports Progress and setup summary NEXT STEP Check assigned students before mentor meetings and presentation preparation. Staff Workspace ready. Staff Workspace Mentor / Assigned students Student progress Private proof Mentor coverage Review queue Presentation readiness Assigned students SCREEN G",
+      "heading": "Choose the student who needs you next",
+      "textSample": "Skip to workspace Staff Workspace READY Tools Mentor ROLE TM Test Mentor Rivera rivera.mentor@senior-capstone.test SC Capstone Staff Workspace SCHOOL TEAM WORKSPACE Today Today › Projects Projects › Review and support Reviews › Reports Reports › TM Test Mentor Rivera Mentor MENTOR WORKSPACE Assigned Student Focus Start with one assigned student, ask one useful question, then record the next check-in. mentor assigned 2 assigned ASSIGNED 2 Students assigned to this mentor Show all NEEDS REVISION 0 Students with teacher changes to discuss Focus list MEETINGS 2 Check-ins missing, missed, or needin",
       "activeNav": []
     },
     {
       "id": "05-viewer-directory",
       "label": "Viewer read-only student directory",
       "role": "viewer",
-      "url": "https://senior-capstone-app.pages.dev/workspace?section=students",
+      "url": "https://thecapstoneapp.com/workspace",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -147,21 +159,21 @@
       "checks": {
         "expectedTextPresent": true,
         "missingExpectedText": [],
+        "unexpectedTextAbsent": true,
+        "unexpectedTextPresent": [],
         "noVisiblePasswordValues": true,
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Students FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Viewer READ-ONLY TV Test Viewer Sam sam.viewer@senior-capstone.test YOUR ACCESS Viewer Assigned students Assigned student records only. Change controls stay hidden. Today Students needing attention Students Assigned read-only student records Reports Progress and setup summary NEXT STEP Review assigned students in read-only mode. Staff Workspace ready. Staff Workspace Viewer / Test High School Student progress Private proof Mentor coverage Review",
-      "activeNav": [
-        "Students\n        Students\n        Assigned read-only student records"
-      ]
+      "heading": "Open one assigned student",
+      "textSample": "Skip to workspace Staff Workspace READY Tools Viewer READ-ONLY TV Test Viewer Sam sam.viewer@senior-capstone.test SC Capstone Staff Workspace SCHOOL TEAM WORKSPACE Today Today › Projects Projects › Reports Reports › TV Test Viewer Sam Viewer STUDENTS Students Find a student by picking one group, then open one record to read context. Read-only Desert Canyon Test School Start Here No students need attention right now. View all students You are caught up. Search for a student or view the full list when you need someone specific. Test Student Maya On track. IT / Alpha Test Cohort 2026 Last update ",
+      "activeNav": []
     },
     {
       "id": "06-site-admin-dashboard",
       "label": "Site Admin dashboard",
       "role": "site_admin",
-      "url": "https://senior-capstone-app.pages.dev/workspace?section=siteDashboard",
+      "url": "https://thecapstoneapp.com/workspace",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -176,12 +188,14 @@
       "checks": {
         "expectedTextPresent": true,
         "missingExpectedText": [],
+        "unexpectedTextAbsent": true,
+        "unexpectedTextPresent": [],
         "noVisiblePasswordValues": true,
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Ready Current site Test High School Only one site FIND A STUDENT Open students Uses the current Student Directory scope and permissions. Workspace Admin Console Site Admin ROLE TS Test Site Admin Parker parker.siteadmin@senior-capstone.test YOUR ACCESS Site Admin Assigned school: Test High School Site tools stay tied to the selected or assigned school. Today Students needing attention Students Site student rows Reviews Submitted work and follow-up Reports Progress and setup summary NEXT STEP Review site progress, student readiness, mentor ",
+      "heading": "Start with the worklist",
+      "textSample": "Skip to workspace Staff Workspace READY Tools Site Admin ROLE TS Test Site Admin Parker parker.siteadmin@senior-capstone.test SC Capstone Staff Workspace SCHOOL TEAM WORKSPACE Today Today › Projects Projects › Review and support Reviews › Reports Reports › TS Test Site Admin Parker Site Admin SITE ADMIN Start with the worklist Start with one student group, one student record, or one report question before opening supporting details. Open students One focused task START HERE Open students. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Choose one student",
       "activeNav": [
         "Workspace"
       ]
@@ -190,7 +204,7 @@
       "id": "07-admin-command-center",
       "label": "Admin command center",
       "role": "admin",
-      "url": "https://senior-capstone-app.pages.dev/workspace?section=adminDashboard",
+      "url": "https://thecapstoneapp.com/workspace",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -205,12 +219,14 @@
       "checks": {
         "expectedTextPresent": true,
         "missingExpectedText": [],
+        "unexpectedTextAbsent": true,
+        "unexpectedTextPresent": [],
         "noVisiblePasswordValues": true,
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Ready Current site Choose site East Career & Technical Academy Test High School FIND A STUDENT Open students Choose a site first to search student records. Workspace Admin Console Global Admin ROLE TA Test Admin Lee lee.admin@senior-capstone.test YOUR ACCESS Global Admin Entire platform Platform tools live in Admin Console; daily Workspace stays calm. Today Students needing attention Students Site student rows Reviews Submitted work and follow-up Reports Progress and setup summary NEXT STEP Review platform setup and multisite readiness ava",
+      "heading": "Start with the worklist",
+      "textSample": "Skip to workspace Staff Workspace READY Tools Global Admin ROLE TA Test Admin Lee lee.admin@senior-capstone.test SC Capstone Staff Workspace SCHOOL TEAM WORKSPACE Today Today › Projects Projects › Review and support Reviews › Reports Reports › TA Test Admin Lee Global Admin GLOBAL ADMIN Start with the worklist Start with one student group, one student record, or one report question before opening supporting details. Open students One focused task START HERE Open students. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Choose one student group that needs",
       "activeNav": [
         "Workspace"
       ]
@@ -219,7 +235,7 @@
       "id": "08-misc-admin-readiness",
       "label": "Misc Admin readiness",
       "role": "misc_admin",
-      "url": "https://senior-capstone-app.pages.dev/workspace?section=readiness",
+      "url": "https://thecapstoneapp.com/workspace",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -234,19 +250,21 @@
       "checks": {
         "expectedTextPresent": true,
         "missingExpectedText": [],
+        "unexpectedTextAbsent": true,
+        "unexpectedTextPresent": [],
         "noVisiblePasswordValues": true,
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "Staff Workspace",
-      "textSample": "Skip to workspace Menu SC Capstone App Staff Workspace Ready Reporting Admin ROLE TR Test Reporting Admin reporting.miscadmin@senior-capstone.test YOUR ACCESS Legacy Reporting Admin Legacy readiness reporting Aggregate readiness only; student-level operations stay hidden. Today Students needing attention Reports Progress and setup summary NEXT STEP Review aggregate readiness without opening individual student records. Staff Workspace ready. Staff Workspace Legacy Reporting Admin / Legacy readiness reporting Student progress Private proof Mentor coverage Review queue Presentation readiness Lega",
+      "heading": "Check one report question",
+      "textSample": "Skip to workspace Staff Workspace READY Tools Reporting Admin ROLE TR Test Reporting Admin reporting.miscadmin@senior-capstone.test SC Capstone Staff Workspace SCHOOL TEAM WORKSPACE Today Today › Reports Reports › TR Test Reporting Admin Reporting Admin LEGACY REPORTING ADMIN Check one report question Start with one student group, one student record, or one report question before opening supporting details. Open report One focused task START HERE Open one report. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Answer one report question. IF EMPTY Nothing",
       "activeNav": []
     },
     {
       "id": "09-student-mobile-dashboard",
       "label": "Student mobile dashboard",
       "role": "student",
-      "url": "https://senior-capstone-app.pages.dev/workspace?section=student",
+      "url": "https://thecapstoneapp.com/workspace",
       "viewport": {
         "width": 390,
         "height": 844,
@@ -261,14 +279,48 @@
       "checks": {
         "expectedTextPresent": true,
         "missingExpectedText": [],
+        "unexpectedTextAbsent": true,
+        "unexpectedTextPresent": [],
         "noVisiblePasswordValues": true,
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "My Capstone",
-      "textSample": "Skip to workspace Menu SC My Capstone Student TS My Capstone ready. MY CAPSTONE My Capstone What do I need to do next? Today My Work Feedback Final Checklist Your project TODAY My Capstone What do I need to do next? GETTING STARTED Continue My Work CURRENT STEP / NEXT ACTION Current Step / Next Action open this checklist item, complete the work, attach proof, and send it to your Program Teacher for review. Missing CURRENT STEP Senior Project Workspace Open Start: Setup and finish Senior Project Workspace. Add the requested proof before sending it for review. Status: Missing NEXT ACTION Your ac",
+      "heading": "What do I do next?",
+      "textSample": "Skip to workspace Menu SC My Capstone Tools TS TODAY What to do next Open this item. Finish the work. Add a Google Drive link if needed. Missing Start One thing now Your action Due Before using cycle documents Open the matching item in My Project. Open item NEXT STEP MAP Start the listed item Open the item, add its Google Drive link if asked, then turn it in when ready. START Open My Work Use the item named at the top before opening anything else. Open My Work THEN Add what it asks for Add the Google Drive link that matches the item. DONE WHEN Turn it in Stop when the item says it is waiting f",
       "activeNav": [
-        "My Work\n        Today\n        What to finish next"
+        "1\n        Today\n        What to finish next",
+        "1\n        Today"
+      ]
+    },
+    {
+      "id": "10-site-admin-tablet-dashboard",
+      "label": "Site Admin tablet dashboard",
+      "role": "site_admin",
+      "url": "https://thecapstoneapp.com/workspace",
+      "viewport": {
+        "width": 820,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "screenshot": "docs/sales/screenshots/2026-06-29/10-site-admin-tablet-dashboard.png",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "unexpectedTextAbsent": true,
+        "unexpectedTextPresent": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": []
+      },
+      "heading": "Start with the worklist",
+      "textSample": "Skip to workspace Menu SC Capstone Staff Workspace READY Tools Site Admin ROLE TS Test Site Admin Parker parker.siteadmin@senior-capstone.test SITE ADMIN Start with the worklist Start with one student group, one student record, or one report question before opening supporting details. Open students One focused task START HERE Open students. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Choose one student group that needs attention. IF EMPTY Nothing needs your attention right now. Leave setup and access work in Admin Console. FINISH BY Stop when the all",
+      "activeNav": [
+        "Workspace"
       ]
     }
   ],

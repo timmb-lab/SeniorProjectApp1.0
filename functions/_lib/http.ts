@@ -8,7 +8,20 @@ export function json(data: unknown, init: ResponseInit = {}): Response {
   headers.set("cache-control", "no-store");
   headers.set("x-content-type-options", "nosniff");
   headers.set("referrer-policy", "strict-origin-when-cross-origin");
+  applyApiSecurityHeaders(headers);
   return new Response(body, { ...init, headers });
+}
+
+export function applyApiSecurityHeaders(headers: Headers): Headers {
+  headers.set("x-content-type-options", "nosniff");
+  headers.set("referrer-policy", "strict-origin-when-cross-origin");
+  headers.set("permissions-policy", "camera=(), microphone=(), geolocation=(), payment=(), usb=()");
+  headers.set("x-frame-options", "DENY");
+  headers.set("content-security-policy", "default-src 'none'; base-uri 'none'; frame-ancestors 'none'");
+  headers.set("cross-origin-resource-policy", "same-origin");
+  headers.set("cross-origin-opener-policy", "same-origin");
+  headers.set("strict-transport-security", "max-age=31536000; includeSubDomains");
+  return headers;
 }
 
 const MAX_JSON_BODY_BYTES = 16 * 1024;

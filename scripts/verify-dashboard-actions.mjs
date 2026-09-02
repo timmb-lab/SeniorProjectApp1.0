@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { readWorkspaceJavaScriptSource } from "./lib/workspace-sources.mjs";
 
 const files = {
   workspaceHtml: "workspace.html",
@@ -11,6 +12,7 @@ const files = {
 const source = Object.fromEntries(
   Object.entries(files).map(([key, file]) => [key, readFileSync(file, "utf8")]),
 );
+source.workspaceJs = await readWorkspaceJavaScriptSource();
 
 const failures = [];
 

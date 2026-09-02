@@ -30,7 +30,7 @@ export async function createOAuthState(
     stateHash,
     nonceHash,
     cleanOptionalHint(input.tenantHint),
-    safeReturnTo(input.returnTo || "") || "/workspace.html",
+    safeReturnTo(input.returnTo || "") || "/",
     expiresAt,
   ).run();
 

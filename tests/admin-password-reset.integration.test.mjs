@@ -10,6 +10,7 @@ test("admin password reset returns 401 when session is missing", async () => {
   const response = await onRequestPost({
     request: buildJsonRequest("https://example.test/api/admin/users/student-a/require-password-reset", {
       reason: "Teacher reported account recovery need.",
+      confirmImpact: true,
     }),
     env,
     params: { id: "student-a" },
@@ -25,7 +26,7 @@ test("admin password reset returns 403 when caller is not admin", async () => {
   const response = await onRequestPost({
     request: buildJsonRequest(
       "https://example.test/api/admin/users/student-a/require-password-reset",
-      { reason: "Teacher reported account recovery need." },
+      { reason: "Teacher reported account recovery need.", confirmImpact: true },
       { cookie: `sc_session=${fixture.token}` },
     ),
     env: fixture.env,
@@ -43,6 +44,7 @@ test("admin password reset validates target id, json, and reason", async () => {
     const response = await onRequestPost({
       request: buildJsonRequest("https://example.test/api/admin/users/%5Bbad%5D/require-password-reset", {
         reason: "Teacher reported account recovery need.",
+        confirmImpact: true,
       }, { cookie: `sc_session=${fixture.token}` }),
       env: fixture.env,
       params: { id: "[bad]" },
@@ -69,7 +71,7 @@ test("admin password reset validates target id, json, and reason", async () => {
     const response = await onRequestPost({
       request: buildJsonRequest(
         "https://example.test/api/admin/users/student-a/require-password-reset",
-        { reason: "   " },
+        { reason: "   ", confirmImpact: true },
         { cookie: `sc_session=${fixture.token}` },
       ),
       env: fixture.env,
@@ -77,6 +79,20 @@ test("admin password reset validates target id, json, and reason", async () => {
     });
     assert.equal(response.status, 400);
     assert.deepEqual(await response.json(), { error: "missing_reason" });
+  }
+
+  {
+    const response = await onRequestPost({
+      request: buildJsonRequest(
+        "https://example.test/api/admin/users/student-a/require-password-reset",
+        { reason: "Teacher reported account recovery need." },
+        { cookie: `sc_session=${fixture.token}` },
+      ),
+      env: fixture.env,
+      params: { id: "student-a" },
+    });
+    assert.equal(response.status, 400);
+    assert.deepEqual(await response.json(), { error: "missing_confirmation" });
   }
 });
 
@@ -87,7 +103,7 @@ test("admin password reset rejects missing, disabled, credentialless, and self t
     const response = await onRequestPost({
       request: buildJsonRequest(
         "https://example.test/api/admin/users/missing-user/require-password-reset",
-        { reason: "Teacher reported account recovery need." },
+        { reason: "Teacher reported account recovery need.", confirmImpact: true },
         { cookie: `sc_session=${fixture.token}` },
       ),
       env: fixture.env,
@@ -101,7 +117,7 @@ test("admin password reset rejects missing, disabled, credentialless, and self t
     const response = await onRequestPost({
       request: buildJsonRequest(
         "https://example.test/api/admin/users/disabled-a/require-password-reset",
-        { reason: "Teacher reported account recovery need." },
+        { reason: "Teacher reported account recovery need.", confirmImpact: true },
         { cookie: `sc_session=${fixture.token}` },
       ),
       env: fixture.env,
@@ -117,7 +133,7 @@ test("admin password reset rejects missing, disabled, credentialless, and self t
     const response = await onRequestPost({
       request: buildJsonRequest(
         "https://example.test/api/admin/users/no-credential-a/require-password-reset",
-        { reason: "Teacher reported account recovery need." },
+        { reason: "Teacher reported account recovery need.", confirmImpact: true },
         { cookie: `sc_session=${fixture.token}` },
       ),
       env: fixture.env,
@@ -133,7 +149,7 @@ test("admin password reset rejects missing, disabled, credentialless, and self t
     const response = await onRequestPost({
       request: buildJsonRequest(
         "https://example.test/api/admin/users/admin-a/require-password-reset",
-        { reason: "Administrative self-test should be blocked." },
+        { reason: "Administrative self-test should be blocked.", confirmImpact: true },
         { cookie: `sc_session=${fixture.token}` },
       ),
       env: fixture.env,
@@ -152,7 +168,7 @@ test("admin password reset marks active users pending-reset, revokes sessions, a
   const response = await onRequestPost({
     request: buildJsonRequest(
       "https://example.test/api/admin/users/student-a/require-password-reset",
-      { reason: "Teacher reported account recovery need." },
+      { reason: "Teacher reported account recovery need.", confirmImpact: true },
       {
         cookie: `sc_session=${fixture.token}`,
         "cf-connecting-ip": "203.0.113.77",
@@ -169,6 +185,8 @@ test("admin password reset marks active users pending-reset, revokes sessions, a
   assert.equal(body.resetRequired, true);
   assert.equal(body.alreadyRequired, false);
   assert.equal(body.activeSessionsRevoked, 1);
+  assert.match(body.setupCode, /^SET-[A-Za-z0-9_-]+$/);
+  assert.equal(body.setupCodeExpiresInMinutes, 30);
   assert.deepEqual(body.user, {
     id: "student-a",
     email: "student-a@senior-capstone.test",
@@ -197,6 +215,9 @@ test("admin password reset marks active users pending-reset, revokes sessions, a
     previousRequiresReset: false,
     alreadyRequired: false,
     activeSessionsRevoked: 1,
+    oneTimeSetupCodeIssued: true,
+    siteId: "",
+    actorRole: "global_admin",
   });
 });
 
@@ -206,7 +227,7 @@ test("admin password reset is idempotent for already reset-required users", asyn
   const response = await onRequestPost({
     request: buildJsonRequest(
       "https://example.test/api/admin/users/pending-reset-a/require-password-reset",
-      { reason: "Repeat reset notice after staff request." },
+      { reason: "Repeat reset notice after staff request.", confirmImpact: true },
       { cookie: `sc_session=${fixture.token}` },
     ),
     env: fixture.env,
@@ -221,6 +242,79 @@ test("admin password reset is idempotent for already reset-required users", asyn
   assert.equal(fixture.db.data.auditEvents.length, 1);
   assert.equal(fixture.db.data.auditEvents[0].metadata.previousStatus, "pending_reset");
   assert.equal(fixture.db.data.auditEvents[0].metadata.previousRequiresReset, true);
+});
+
+test("School Admin and Site Admin can require a new password for a lower-role user in their school", async () => {
+  for (const roleId of ["administration", "site_admin"]) {
+    const fixture = await createFixtureWithSession({ userId: `${roleId}-a`, roleId, scopeType: "site", scopeId: "site-a" });
+    const response = await onRequestPost({
+      request: buildJsonRequest(
+        "https://example.test/api/admin/users/student-a/require-password-reset",
+        {
+          siteId: "site-a",
+          reason: "The student asked for help signing in.",
+          confirmImpact: true,
+        },
+        { cookie: `sc_session=${fixture.token}` },
+      ),
+      env: fixture.env,
+      params: { id: "student-a" },
+    });
+
+    assert.equal(response.status, 200, roleId);
+    const body = await response.json();
+    assert.equal(body.ok, true);
+    assert.equal(body.user.status, "pending_reset");
+    assert.equal(fixture.db.data.auditEvents.at(-1).metadata.siteId, "site-a");
+    assert.equal(fixture.db.data.auditEvents.at(-1).metadata.actorRole, roleId);
+  }
+});
+
+test("school-scoped password resets block cross-school, admin-level, and Program Teacher actions", async () => {
+  {
+    const fixture = await createFixtureWithSession({ userId: "site-admin-a", roleId: "site_admin", scopeType: "site", scopeId: "site-a" });
+    const response = await onRequestPost({
+      request: buildJsonRequest(
+        "https://example.test/api/admin/users/student-b/require-password-reset",
+        { siteId: "site-a", reason: "Cross-school check.", confirmImpact: true },
+        { cookie: `sc_session=${fixture.token}` },
+      ),
+      env: fixture.env,
+      params: { id: "student-b" },
+    });
+    assert.equal(response.status, 404);
+    assert.deepEqual(await response.json(), { error: "user_not_in_site", ok: false });
+  }
+
+  {
+    const fixture = await createFixtureWithSession({ userId: "site-admin-a", roleId: "site_admin", scopeType: "site", scopeId: "site-a" });
+    const response = await onRequestPost({
+      request: buildJsonRequest(
+        "https://example.test/api/admin/users/school-admin-target/require-password-reset",
+        { siteId: "site-a", reason: "Higher-role check.", confirmImpact: true },
+        { cookie: `sc_session=${fixture.token}` },
+      ),
+      env: fixture.env,
+      params: { id: "school-admin-target" },
+    });
+    assert.equal(response.status, 403);
+    assert.deepEqual(await response.json(), { error: "forbidden", ok: false });
+  }
+
+  {
+    const fixture = await createFixtureWithSession({ userId: "teacher-a", roleId: "program_teacher", scopeType: "program", scopeId: "program-a" });
+    const response = await onRequestPost({
+      request: buildJsonRequest(
+        "https://example.test/api/admin/users/student-a/require-password-reset",
+        { siteId: "site-a", reason: "Program Teacher boundary check.", confirmImpact: true },
+        { cookie: `sc_session=${fixture.token}` },
+      ),
+      env: fixture.env,
+      params: { id: "student-a" },
+    });
+    assert.equal(response.status, 403);
+    assert.deepEqual(await response.json(), { error: "forbidden", ok: false });
+  }
 });
 
 function buildJsonRequest(url, data, headers = {}) {
@@ -241,15 +335,33 @@ function createFixture() {
       buildUser("disabled-a", "Disabled A", "disabled"),
       buildUser("no-credential-a", "No Credential A"),
       buildUser("pending-reset-a", "Pending Reset A", "pending_reset"),
+      buildUser("student-b", "Student B"),
+      buildUser("school-admin-target", "School Admin Target"),
     ],
     passwordCredentials: [
       { user_id: "student-a", requires_reset: 0 },
       { user_id: "disabled-a", requires_reset: 0 },
       { user_id: "pending-reset-a", requires_reset: 1 },
+      { user_id: "student-b", requires_reset: 0 },
+      { user_id: "school-admin-target", requires_reset: 0 },
     ],
     sessions: [],
-    userRoles: [],
+    userRoles: [
+      { user_id: "student-a", role_id: "student", scope_type: "global", scope_id: "" },
+      { user_id: "student-b", role_id: "student", scope_type: "global", scope_id: "" },
+      { user_id: "school-admin-target", role_id: "administration", scope_type: "site", scope_id: "site-a" },
+    ],
+    sites: [
+      { id: "site-a", status: "active" },
+      { id: "site-b", status: "active" },
+    ],
+    siteUsers: [
+      { site_id: "site-a", user_id: "student-a", membership_status: "active" },
+      { site_id: "site-b", user_id: "student-b", membership_status: "active" },
+      { site_id: "site-a", user_id: "school-admin-target", membership_status: "active" },
+    ],
     auditEvents: [],
+    passwordSetupTokens: [],
   });
 
   return {
@@ -263,10 +375,10 @@ function createFixture() {
   };
 }
 
-async function createFixtureWithSession({ userId, roleId }) {
+async function createFixtureWithSession({ userId, roleId, scopeType = "global", scopeId = "" }) {
   const base = createFixture();
   base.db.data.userAccounts.push(buildUser(userId, userId === "admin-a" ? "Admin A" : "Mentor A"));
-  base.db.data.userRoles.push({ user_id: userId, role_id: roleId, scope_type: "global", scope_id: "" });
+  base.db.data.userRoles.push({ user_id: userId, role_id: roleId, scope_type: scopeType, scope_id: scopeId });
   const token = await base.seedSessionForUser?.(userId, `session-${userId}`);
   if (!token) {
     const sessionToken = `session-${userId}`;
@@ -354,6 +466,25 @@ class MockPreparedStatement {
       return exists ? { ok: 1 } : null;
     }
 
+    if (this.sql.startsWith("select 1 from user_roles join sites on sites.id = user_roles.scope_id")) {
+      const [userId, siteId] = this.params.map(String);
+      const role = this.data.userRoles.find((row) => row.user_id === userId
+        && ["site_admin", "administration"].includes(row.role_id)
+        && row.scope_type === "site"
+        && row.scope_id === siteId);
+      const site = this.data.sites.find((row) => row.id === siteId && row.status === "active");
+      return role && site ? { ok: 1 } : null;
+    }
+
+    if (this.sql.startsWith("select 1 from site_users join sites on sites.id = site_users.site_id")) {
+      const [userId, siteId] = this.params.map(String);
+      const membership = this.data.siteUsers.find((row) => row.user_id === userId
+        && row.site_id === siteId
+        && row.membership_status === "active");
+      const site = this.data.sites.find((row) => row.id === siteId && row.status === "active");
+      return membership && site ? { ok: 1 } : null;
+    }
+
     if (this.sql.includes("from user_accounts u left join password_credentials c")) {
       const [userId] = this.params.map(String);
       const user = this.data.userAccounts.find((row) => row.id === userId);
@@ -379,6 +510,14 @@ class MockPreparedStatement {
     throw new Error(`Unmocked D1 first() query: ${this.sql}`);
   }
 
+  async all() {
+    if (this.sql === "select role_id, scope_type, scope_id from user_roles where user_id = ?") {
+      const [userId] = this.params.map(String);
+      return { results: this.data.userRoles.filter((row) => row.user_id === userId) };
+    }
+    throw new Error(`Unmocked D1 all() query: ${this.sql}`);
+  }
+
   async run() {
     if (this.sql.startsWith("update sessions set last_seen_at = strftime(")) {
       const [sessionId] = this.params.map(String);
@@ -391,6 +530,26 @@ class MockPreparedStatement {
       const [userId] = this.params.map(String);
       const credential = this.data.passwordCredentials.find((row) => row.user_id === userId);
       if (credential) credential.requires_reset = 1;
+      return { success: true };
+    }
+
+    if (this.sql.startsWith("update auth_password_setup_tokens set used_at = strftime(")) {
+      const [userId] = this.params.map(String);
+      for (const token of this.data.passwordSetupTokens) {
+        if (token.user_id === userId && !token.used_at) token.used_at = new Date().toISOString();
+      }
+      return { success: true };
+    }
+
+    if (this.sql.startsWith("insert into auth_password_setup_tokens")) {
+      const [id, userId, tokenHash, createdBy] = this.params.map(String);
+      this.data.passwordSetupTokens.push({
+        id,
+        user_id: userId,
+        token_hash: tokenHash,
+        created_by: createdBy,
+        used_at: null,
+      });
       return { success: true };
     }
 

@@ -15,6 +15,7 @@ export interface SiteRow {
   tenant_name: string;
   name: string;
   school_year: string | null;
+  brand_theme?: string | null;
 }
 
 export interface SiteResponse {
@@ -23,7 +24,18 @@ export interface SiteResponse {
   siteId: string;
   siteName: string;
   schoolYear: string;
+  brandTheme: SiteBrandTheme;
 }
+
+export type SiteBrandTheme = "default" | "east-tech" | "desert-valley" | "canyon-ridge" | "north-valley";
+
+const SITE_BRAND_THEMES = new Set<SiteBrandTheme>([
+  "default",
+  "east-tech",
+  "desert-valley",
+  "canyon-ridge",
+  "north-valley",
+]);
 
 export type SiteSelection =
   | { kind: "ok"; site: SiteRow; accessibleSites: SiteResponse[]; selectionMode: string }
@@ -79,7 +91,7 @@ export async function resolveSiteSelection({
 }
 
 export async function loadSite(env: Env, siteId: string): Promise<SiteRow | null> {
-  return env.DB.prepare(
+  const site = await env.DB.prepare(
     `SELECT
        sites.id,
        sites.tenant_id,
@@ -93,6 +105,9 @@ export async function loadSite(env: Env, siteId: string): Promise<SiteRow | null
       AND sites.status = 'active'
      LIMIT 1`,
   ).bind(siteId).first<SiteRow>();
+  if (!site) return null;
+  const themes = await loadSiteBrandThemesByIds(env, [site.id]);
+  return { ...site, brand_theme: themes.get(site.id) || "default" };
 }
 
 export async function loadSitesByIds(env: Env, siteIds: string[]): Promise<SiteRow[]> {
@@ -112,7 +127,35 @@ export async function loadSitesByIds(env: Env, siteIds: string[]): Promise<SiteR
       AND sites.status = 'active'
      ORDER BY sites.name`,
   ).bind(...siteIds).all<SiteRow>();
-  return rows.results || [];
+  const sites = rows.results || [];
+  const themes = await loadSiteBrandThemesByIds(env, sites.map((site) => site.id));
+  return sites.map((site) => ({ ...site, brand_theme: themes.get(site.id) || "default" }));
+}
+
+export async function loadSiteBrandThemesByIds(env: Env, siteIds: string[]): Promise<Map<string, SiteBrandTheme>> {
+  const themes = new Map<string, SiteBrandTheme>();
+  if (!siteIds.length) return themes;
+  try {
+    const placeholders = siteIds.map(() => "?").join(", ");
+    const rows = await env.DB.prepare(
+      `SELECT site_id, theme_key
+       FROM site_branding
+       WHERE site_id IN (${placeholders})`,
+    ).bind(...siteIds).all<{ site_id: string; theme_key: string }>();
+    for (const row of rows.results || []) themes.set(row.site_id, cleanSiteBrandTheme(row.theme_key));
+  } catch {
+    // Older local fixtures can still render with the neutral theme before migration 0030 is applied.
+  }
+  return themes;
+}
+
+export async function loadSiteBrandTheme(env: Env, siteId: string): Promise<SiteBrandTheme> {
+  return (await loadSiteBrandThemesByIds(env, siteId ? [siteId] : [])).get(siteId) || "default";
+}
+
+export function cleanSiteBrandTheme(value: unknown): SiteBrandTheme {
+  const theme = String(value || "").trim() as SiteBrandTheme;
+  return SITE_BRAND_THEMES.has(theme) ? theme : "default";
 }
 
 export function siteResponse(site: SiteRow): SiteResponse {
@@ -122,6 +165,7 @@ export function siteResponse(site: SiteRow): SiteResponse {
     siteId: site.id,
     siteName: site.name,
     schoolYear: site.school_year || "",
+    brandTheme: cleanSiteBrandTheme(site.brand_theme),
   };
 }
 

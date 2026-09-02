@@ -7,8 +7,8 @@ import path from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 
 const ROOT = process.cwd();
-const BASE_URL = (process.env.HOSTED_BASE_URL || 'https://senior-capstone-app.pages.dev').replace(/\/$/, '');
-const WORKSPACE_ENTRY_PATH = normalizeWorkspaceEntryPath(process.env.WORKSPACE_BROWSER_ENTRY_PATH || '/workspace.html');
+const BASE_URL = (process.env.HOSTED_BASE_URL || 'https://thecapstoneapp.com').replace(/\/$/, '');
+const WORKSPACE_ENTRY_PATH = normalizeWorkspaceEntryPath(process.env.WORKSPACE_BROWSER_ENTRY_PATH || '/workspace');
 const CREDENTIALS_PATH = process.env.TEST_ACCOUNTS_PATH || path.join('.secrets', 'test-accounts-2026-05-18.json');
 const SCREENSHOT_DIR = process.env.HOSTED_BROWSER_SCREENSHOT_DIR || path.join('docs', 'sales', 'screenshots', '2026-06-29');
 const MANIFEST_PATH =
@@ -45,7 +45,8 @@ const SCREENSHOT_PLAN = [
     label: 'Student dashboard',
     url: workspaceUrl('?section=student'),
     viewport: desktopViewport(),
-    expected: ['My Capstone', 'What do I need to do next?', 'Current Step / Next Action'],
+    expected: ['My Capstone', 'What do I do next?'],
+    absent: ['unavailable', 'could not load'],
     authRole: 'student'
   },
   {
@@ -53,7 +54,8 @@ const SCREENSHOT_PLAN = [
     label: 'Program Teacher dashboard',
     url: workspaceUrl('?section=programDashboard'),
     viewport: desktopViewport(),
-    expected: ['Program Dashboard'],
+    expected: ['Pick the project that needs attention'],
+    absent: ['unavailable', 'could not load'],
     authRole: 'program_teacher'
   },
   {
@@ -61,7 +63,8 @@ const SCREENSHOT_PLAN = [
     label: 'Mentor dashboard',
     url: workspaceUrl('?section=mentorDashboard'),
     viewport: desktopViewport(),
-    expected: ['Mentor Dashboard'],
+    expected: ['Choose the student who needs you next'],
+    absent: ['unavailable', 'could not load'],
     authRole: 'mentor'
   },
   {
@@ -69,7 +72,8 @@ const SCREENSHOT_PLAN = [
     label: 'Viewer read-only student directory',
     url: workspaceUrl('?section=students'),
     viewport: desktopViewport(),
-    expected: ['Student Directory'],
+    expected: ['Open one assigned student'],
+    absent: ['unavailable', 'could not load'],
     authRole: 'viewer'
   },
   {
@@ -77,7 +81,8 @@ const SCREENSHOT_PLAN = [
     label: 'Site Admin dashboard',
     url: workspaceUrl('?section=siteDashboard'),
     viewport: desktopViewport(),
-    expected: ['Site Dashboard'],
+    expected: ['Start with the worklist'],
+    absent: ['unavailable', 'could not load'],
     authRole: 'site_admin'
   },
   {
@@ -85,7 +90,8 @@ const SCREENSHOT_PLAN = [
     label: 'Admin command center',
     url: workspaceUrl('?section=adminDashboard'),
     viewport: desktopViewport(),
-    expected: ['Admin Command Center'],
+    expected: ['Start with the worklist'],
+    absent: ['unavailable', 'could not load'],
     authRole: 'admin'
   },
   {
@@ -93,7 +99,8 @@ const SCREENSHOT_PLAN = [
     label: 'Misc Admin readiness',
     url: workspaceUrl('?section=readiness'),
     viewport: desktopViewport(),
-    expected: ['Readiness'],
+    expected: ['Check one report question'],
+    absent: ['unavailable', 'could not load'],
     authRole: 'misc_admin'
   },
   {
@@ -101,8 +108,18 @@ const SCREENSHOT_PLAN = [
     label: 'Student mobile dashboard',
     url: workspaceUrl('?section=student'),
     viewport: mobileViewport(),
-    expected: ['My Capstone', 'What do I need to do next?', 'Current Step / Next Action'],
+    expected: ['My Capstone', 'What do I do next?'],
+    absent: ['unavailable', 'could not load'],
     authRole: 'student'
+  },
+  {
+    id: '10-site-admin-tablet-dashboard',
+    label: 'Site Admin tablet dashboard',
+    url: workspaceUrl('?section=siteDashboard'),
+    viewport: tabletViewport(),
+    expected: ['Site Admin', 'Start with the worklist'],
+    absent: ['unavailable', 'could not load'],
+    authRole: 'site_admin'
   }
 ];
 
@@ -121,6 +138,10 @@ function desktopViewport() {
 
 function mobileViewport() {
   return { width: 390, height: 844, deviceScaleFactor: 2, mobile: true };
+}
+
+function tabletViewport() {
+  return { width: 820, height: 900, deviceScaleFactor: 1, mobile: false };
 }
 
 function absoluteRepoPath(repoRelativePath) {
@@ -182,27 +203,67 @@ async function fetchJson(url, options = {}) {
 
 async function verifyHostedMigrationReadiness(result) {
   const health = await fetchJson(`${BASE_URL}/api/health`);
-  const reportsRosterProfileReadiness = Object.hasOwn(health, 'studentRosterProfilesReady');
+  const publicFields = Object.keys(health).sort();
+  const publicResponseMinimal = publicFields.length === 1 && publicFields[0] === 'ok' && health.ok === true;
   result.health = {
-    databaseReady: health.databaseReady === true,
-    studentRosterProfilesReady: reportsRosterProfileReadiness
-      ? health.studentRosterProfilesReady === true
-      : 'not_reported_by_deployed_health',
-    authMode: health.authMode || null,
-    evidenceStorageProvider: health.evidenceStorageProvider || null
+    publicEndpointReachable: true,
+    publicResponseMinimal,
+    protectedReadinessChecked: false,
+    databaseReady: null,
+    studentRosterProfilesReady: null,
+    authMode: null,
+    evidenceStorageProvider: null
   };
-  if (reportsRosterProfileReadiness && health.studentRosterProfilesReady !== true) {
+  if (!publicResponseMinimal) {
     result.failures.push({
-      id: 'migration-0016',
+      id: 'public-health-details',
       role: 'system',
-      status: MISSING_0016_STATUS,
+      status: 'PUBLIC_HEALTH_DETAILS_EXPOSED',
       checks: {
         healthEndpointReachable: true,
-        databaseReady: health.databaseReady === true,
-        studentRosterProfilesReady: false
+        publicResponseMinimal: false,
+        publicFields
       }
     });
-    throw new Error(`${MISSING_0016_STATUS}: hosted health reports studentRosterProfilesReady=false. Repair migration 0016 through an approved deployment/migration gate outside the live demo, then rerun hosted browser proof.`);
+    throw new Error('PUBLIC_HEALTH_DETAILS_EXPOSED: signed-out health must return only ok:true. Deploy the reviewed health route, then rerun hosted browser proof.');
+  }
+}
+
+async function verifyProtectedMigrationReadiness(client, result) {
+  const healthResult = await client.evaluate(
+    `(async () => {
+      const response = await fetch('/api/health', { credentials: 'include', headers: { accept: 'application/json' } });
+      const body = await response.json().catch(() => ({}));
+      return { status: response.status, body };
+    })()`,
+    { awaitPromise: true }
+  );
+  const readiness = healthResult?.body?.readiness;
+  const ready = healthResult?.status === 200
+    && healthResult?.body?.ok === true
+    && readiness
+    && readiness.databaseReady === true
+    && readiness.studentRosterProfilesReady === true;
+  result.health = {
+    ...result.health,
+    protectedReadinessChecked: true,
+    databaseReady: readiness?.databaseReady === true,
+    studentRosterProfilesReady: readiness?.studentRosterProfilesReady === true,
+    authMode: readiness?.authMode || null,
+    evidenceStorageProvider: readiness?.evidenceStorageProvider || null
+  };
+  if (!ready) {
+    result.failures.push({
+      id: 'migration-0016',
+      role: 'admin',
+      status: MISSING_0016_STATUS,
+      checks: {
+        protectedHealthStatus: healthResult?.status || null,
+        databaseReady: readiness?.databaseReady === true,
+        studentRosterProfilesReady: readiness?.studentRosterProfilesReady === true
+      }
+    });
+    throw new Error(`${MISSING_0016_STATUS}: protected health is not ready. Sign in with the fake platform-admin account, use the approved deployment/migration gate outside the live demo if needed, then rerun hosted browser proof.`);
   }
 }
 
@@ -310,20 +371,22 @@ async function navigate(client, targetUrl) {
 
 async function waitForStableWorkspace(client) {
   const deadline = Date.now() + 20_000;
+  let lastState = null;
   while (Date.now() < deadline) {
     const state = await client.evaluate(`(() => ({
       readyState: document.readyState,
       bodyText: document.body ? document.body.innerText.slice(0, 1000) : '',
       workspaceRoot: Boolean(document.querySelector('#workspaceRoot, [data-workspace-app]'))
     }))()`);
-    const loading = /Loading (your )?workspace|Checking your session|Signing in/i.test(state.bodyText || '');
-    if (state.readyState === 'complete' && !loading) {
-      await sleep(600);
+    lastState = state;
+    const authShellStillLoading = /(^|\n)(Checking your session(?:\.\.\.)?|Signing in(?:\.\.\.)?|Loading your workspace(?:\.\.\.)?)(\n|$)/i.test(state.bodyText || '');
+    if (state.readyState === 'complete' && !authShellStillLoading) {
+      await sleep(1_000);
       return;
     }
     await sleep(300);
   }
-  throw new Error('Timed out waiting for hosted workspace UI to settle.');
+  throw new Error(`Timed out waiting for hosted workspace UI to settle (ready=${lastState?.readyState || 'unknown'}, sample=${JSON.stringify(String(lastState?.bodyText || '').slice(0, 160))}).`);
 }
 
 async function setViewport(client, viewport) {
@@ -404,10 +467,13 @@ async function collectPageState(client) {
 function checkPage(planItem, pageState) {
   const text = `${pageState.heading || ''}\n${pageState.text || ''}`;
   const missingExpectedText = planItem.expected.filter((marker) => !text.includes(marker));
+  const unexpectedTextPresent = (planItem.absent || []).filter((marker) => text.toLowerCase().includes(marker.toLowerCase()));
   const secretMatches = SECRET_PATTERNS.filter((pattern) => pattern.test(text)).map((pattern) => pattern.source);
   return {
     expectedTextPresent: missingExpectedText.length === 0,
     missingExpectedText,
+    unexpectedTextAbsent: unexpectedTextPresent.length === 0,
+    unexpectedTextPresent,
     noVisiblePasswordValues: pageState.visiblePasswordValueCount === 0,
     noSecretLikeText: secretMatches.length === 0,
     secretPatternMatches: secretMatches
@@ -485,13 +551,16 @@ async function run() {
       if (planItem.authRole) {
         loginResult = await login(client, accountsByRole.get(planItem.authRole));
       }
+      if (planItem.authRole === 'admin') {
+        await verifyProtectedMigrationReadiness(client, result);
+      }
       await navigate(client, `${BASE_URL}${planItem.url}`);
       const pageState = await collectPageState(client);
       const checks = checkPage(planItem, pageState);
       const relativePath = path.join(SCREENSHOT_DIR, `${planItem.id}.png`).replaceAll('\\', '/');
       const absolutePath = absoluteRepoPath(relativePath);
       await captureScreenshot(client, absolutePath);
-      const passed = checks.expectedTextPresent && checks.noVisiblePasswordValues && checks.noSecretLikeText;
+      const passed = checks.expectedTextPresent && checks.unexpectedTextAbsent && checks.noVisiblePasswordValues && checks.noSecretLikeText;
       if (!passed) {
         result.failures.push({
           id: planItem.id,

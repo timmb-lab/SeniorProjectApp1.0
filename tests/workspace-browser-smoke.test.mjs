@@ -34,19 +34,29 @@ const forbiddenProductionCopy = [
 ];
 
 test("workspace route signed-out smoke over local HTTP", { skip: !baseUrl }, async () => {
-  const htmlResponse = await fetchFromBase("/workspace.html");
+  const htmlResponse = await fetchFromBase("/");
   assert.equal(htmlResponse.status, 200);
-  assert.ok(htmlResponse.url.endsWith("/workspace") || htmlResponse.url.endsWith("/workspace.html"));
+  assert.equal(new URL(htmlResponse.url).pathname, "/");
   assert.equal(htmlResponse.headers.get("content-type")?.includes("text/html"), true);
 
   const html = await htmlResponse.text();
   assert.match(html, /<title>Capstone Project Workspace<\/title>/);
   assert.match(html, /workspaceMain/);
   assert.match(html, /workspace\.css/);
-  assert.match(html, /workspace\.js/);
-  assertSafeProductionCopy("workspace.html", html);
+  assert.match(html, /workspace\/loader\.js/);
+  assert.match(html, /workspace\/core\.js/);
+  assertSafeProductionCopy("canonical app root", html);
 
-  const script = await fetchTextAsset("/workspace.js");
+  const script = (await Promise.all([
+    "/workspace/loader.js",
+    "/workspace/shared.js",
+    "/workspace/core.js",
+    "/workspace/features/projects.js",
+    "/workspace/features/staff.js",
+    "/workspace/features/student.js",
+    "/workspace/features/review-admin.js",
+    "/workspace/features/actions.js",
+  ].map(fetchTextAsset))).join("\n");
   assert.match(script, /<h1 id="signInTitle">Capstone Project Workspace<\/h1>/);
   assert.match(script, /<h2>Sign in to continue<\/h2>/);
   assert.match(script, /Sign in to continue/);
@@ -55,7 +65,7 @@ test("workspace route signed-out smoke over local HTTP", { skip: !baseUrl }, asy
   assert.match(script, /data-auth-action="change-password"/);
   assert.match(script, /data-auth-action="complete-reset"/);
   assert.match(script, /data-admin-action="import-users"/);
-  assert.match(script, /data-admin-import-result="one-time-setup-passwords"/);
+  assert.match(script, /data-admin-import-result="one-time-setup-codes"/);
   assert.match(script, /Create a new password/);
   assert.match(script, /Return to the guide/);
   assert.match(script, /\/api\/auth\/login/);
@@ -95,7 +105,12 @@ test("workspace route signed-out smoke over local HTTP", { skip: !baseUrl }, asy
   assert.doesNotMatch(script, /Your file was received[^.]*storage is not configured/i);
   assertSafeProductionCopy("workspace.js", script);
 
-  const styles = await fetchTextAsset("/workspace.css");
+  const styles = (await Promise.all([
+    "/workspace/styles/01-workspace.css",
+    "/workspace/styles/02-workspace.css",
+    "/workspace/styles/03-workspace.css",
+    "/workspace/styles/04-workspace.css",
+  ].map(fetchTextAsset))).join("\n");
   assert.match(styles, /\.workspace-auth/);
   assert.match(styles, /\.workspace-app/);
   assertSafeProductionCopy("workspace.css", styles);
@@ -136,7 +151,7 @@ test("workspace route credential-backed student smoke over local HTTP", {
   assert.equal(me.body.user.email, student.email);
   assert.deepEqual(roleIds(me.body.user.roles), ["student"]);
 
-  const htmlResponse = await client.fetch("/workspace.html");
+  const htmlResponse = await client.fetch("/");
   assert.equal(htmlResponse.status, 200, "authenticated workspace reload status");
   assert.match(await htmlResponse.text(), /Capstone Project Workspace/);
 
@@ -351,17 +366,17 @@ test("workspace route credential-backed admin import reset-first proof over loca
   assert.equal(importedUser.mustReset, true);
   assert.equal(importedUser.delivery, "one_time_admin_display");
   assert.equal(importedUser.role.roleId, "student");
-  assert.equal(typeof importedUser.temporaryPassword, "string");
-  assert.ok(importedUser.temporaryPassword.length >= 14, "temporary setup credential is present");
+  assert.equal(importedUser.temporaryPassword, undefined);
+  assert.match(importedUser.setupCode, /^SET-/, "one-time setup code is present");
 
   const imported = new SessionClient();
   const resetRequiredLogin = await imported.fetchJson("/api/auth/login", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ email: importedEmail, password: importedUser.temporaryPassword }),
+    body: JSON.stringify({ email: importedEmail, password: importedUser.setupCode }),
   });
-  assert.equal(resetRequiredLogin.response.status, 403, "imported user first login status");
-  assert.equal(resetRequiredLogin.body.error, "password_reset_required");
+  assert.equal(resetRequiredLogin.response.status, 401, "setup code is not a password");
+  assert.equal(resetRequiredLogin.body.error, "invalid_credentials");
   assert.equal(imported.hasCookie("sc_session"), false, "reset-required login does not create a session");
 
   const signedOutMe = await imported.fetchJson("/api/auth/me");
@@ -373,7 +388,7 @@ test("workspace route credential-backed admin import reset-first proof over loca
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
       email: importedEmail,
-      currentPassword: importedUser.temporaryPassword,
+      currentPassword: importedUser.setupCode,
       newPassword: replacementPassword,
     }),
   });
@@ -390,7 +405,7 @@ test("workspace route credential-backed admin import reset-first proof over loca
   const oldCredentialLogin = await new SessionClient().fetchJson("/api/auth/login", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ email: importedEmail, password: importedUser.temporaryPassword }),
+    body: JSON.stringify({ email: importedEmail, password: importedUser.setupCode }),
   });
   assert.equal(oldCredentialLogin.response.status, 401, "old setup credential is rejected after reset");
 
@@ -408,7 +423,7 @@ test("workspace route credential-backed admin import reset-first proof over loca
   assert.ok(audit.body.events.some((event) => event.action === "admin_users_import_denied"));
   assert.ok(audit.body.events.some((event) => event.action === "admin_user_imported"));
   assert.ok(audit.body.events.some((event) => event.action === "password_reset_completed"));
-  assertNoCredentialLeak(audit.body, [importedUser.temporaryPassword, replacementPassword]);
+  assertNoCredentialLeak(audit.body, [importedUser.setupCode, replacementPassword]);
 });
 
 async function fetchTextAsset(pathname) {

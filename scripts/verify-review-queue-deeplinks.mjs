@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
+import { readWorkspaceJavaScriptSource } from "./lib/workspace-sources.mjs";
 
-const workspaceJs = readFileSync("workspace.js", "utf8");
+const workspaceJs = await readWorkspaceJavaScriptSource();
 const workspaceTest = readFileSync("tests/workspace-app.test.mjs", "utf8");
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 
@@ -133,8 +134,8 @@ assertMatches(
 );
 assertMatches(
   workspaceJs,
-  /window\.history\[method\]\?\.\(\{ section: "teacher" \}/,
-  "review queue filter changes must sync through history state",
+  /writeWorkspaceHistoryState\(url, options, \{ section: "teacher" \}\)/,
+  "review queue filter changes must sync through static-address history state",
 );
 assertMatches(
   workspaceJs,

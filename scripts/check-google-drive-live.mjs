@@ -30,7 +30,7 @@ const EXPECTED = {
   indexMimeType: "application/vnd.google-apps.spreadsheet",
 };
 
-const DEFAULT_BASE_URL = "https://senior-capstone-app.pages.dev";
+const DEFAULT_BASE_URL = "https://thecapstoneapp.com";
 const DEFAULT_CREDENTIALS_FILE = ".secrets/test-accounts-2026-05-18.json";
 const PROOF_CONTENT = "SeniorProjectApp fake .test Google Drive live proof. No student data.";
 const LARGE_PROOF_BYTES = 5 * 1024 * 1024 + 64 * 1024;
@@ -192,6 +192,14 @@ export function validateWranglerDriveConfig(wranglerConfig) {
   };
 }
 
+export function validateWranglerLinkOnlyConfig(wranglerConfig) {
+  const vars = wranglerConfig?.vars || {};
+  return {
+    providerConfigured: vars.EVIDENCE_STORAGE_PROVIDER === "link_only",
+    productionUploadRetired: vars.EVIDENCE_STORAGE_PROVIDER !== "google_drive",
+  };
+}
+
 function readCredentialFile(relativePath) {
   const resolvedPath = path.resolve(repoRoot, relativePath);
   if (!existsSync(resolvedPath)) {
@@ -337,7 +345,8 @@ async function login(client, account, label) {
     body: JSON.stringify({ email: account.email, password: account.password }),
   });
 
-  if (result.response.status !== 200 || result.body?.ok !== true || !client.hasCookie("sc_session")) {
+  const sessionCookiePresent = client.hasCookie("__Host-sc_session") || client.hasCookie("sc_session");
+  if (result.response.status !== 200 || result.body?.ok !== true || !sessionCookiePresent) {
     throw new DriveLiveCheckError(
       DRIVE_FAILURES.UNKNOWN_FAILURE,
       `${label} fake .test login failed.`,
@@ -345,6 +354,72 @@ async function login(client, account, label) {
     );
   }
   return result.body;
+}
+
+async function runLinkOnlyLiveCheck({ baseUrl, credentialsFile, studentKey, logs, log }) {
+  const publicHealth = await fetch(new URL("/api/health", baseUrl), { headers: { accept: "application/json" } });
+  const healthBody = await publicHealth.json().catch(() => null);
+  const healthFields = healthBody && typeof healthBody === "object" ? Object.keys(healthBody).sort() : [];
+  if (publicHealth.status !== 200 || healthBody?.ok !== true || healthFields.length !== 1 || healthFields[0] !== "ok") {
+    throw new DriveLiveCheckError(
+      DRIVE_FAILURES.CONFIG_MISSING,
+      "Signed-out health must be reachable without exposing storage readiness details.",
+      { status: publicHealth.status, publicFields: healthFields },
+    );
+  }
+  log("PASS health: signed-out health is minimal and does not expose storage details.");
+
+  const credentials = readCredentialFile(credentialsFile);
+  const student = requireFakeCredential(credentials, studentKey);
+  const studentClient = new SessionClient(baseUrl);
+  await login(studentClient, student, "student");
+  log("PASS auth: fake .test student login succeeded with the production cookie.");
+
+  const dashboard = await studentClient.fetchJson("/api/student/dashboard");
+  if (dashboard.response.status !== 200 || dashboard.body?.ok !== true || !Array.isArray(dashboard.body.submissions) || dashboard.body.submissions.length === 0) {
+    throw new DriveLiveCheckError(DRIVE_FAILURES.UNKNOWN_FAILURE, "Fake student dashboard did not expose a seeded submission.", {
+      status: dashboard.response.status,
+    });
+  }
+  assertNoForbiddenStorageLeak(dashboard.body, "/api/student/dashboard");
+  const submissionId = dashboard.body.submissions[0].id;
+
+  const upload = await studentClient.fetchJson(`/api/submissions/${encodeURIComponent(submissionId)}/evidence/upload`, {
+    method: "POST",
+  });
+  if (upload.response.status !== 410 || upload.body?.error !== "use_google_drive_link") {
+    throw new DriveLiveCheckError(DRIVE_FAILURES.UPLOAD_DENIED, "Production upload route did not direct the student to save a Drive link.", {
+      status: upload.response.status,
+      error: upload.body?.error || null,
+    });
+  }
+  log("PASS storage: direct file upload is retired before a file body is parsed.");
+
+  const studentFeature = await fetch(new URL("/workspace/features/student.js", baseUrl));
+  const studentFeatureText = await studentFeature.text();
+  if (studentFeature.status !== 200 || !studentFeatureText.includes("Save Drive link") || !studentFeatureText.includes("data-evidence-link=\"external\"")) {
+    throw new DriveLiveCheckError(DRIVE_FAILURES.UNKNOWN_FAILURE, "Hosted student workspace does not expose the Drive-link workflow.", {
+      status: studentFeature.status,
+      saveLinkAction: studentFeatureText.includes("Save Drive link"),
+      openLinkAction: studentFeatureText.includes("data-evidence-link=\"external\""),
+    });
+  }
+  assertNoForbiddenStorageLeak(studentFeatureText, "hosted student feature module");
+  log("PASS workspace: the student view saves and opens Google Drive links.");
+
+  return {
+    ok: true,
+    mode: "link_only",
+    classification: null,
+    baseUrl: baseUrl.origin,
+    config: { providerConfigured: true, productionUploadRetired: true },
+    health: { publicResponseMinimal: true },
+    student: { login: true, submissionDiscovered: true },
+    storage: { uploadRetired: true, nextStep: "save_google_drive_link" },
+    workspace: { saveDriveLinkAction: true, openDriveLinkAction: true },
+    security: { noSecretValuesPrinted: true, rawDriveIdsInBrowserOutput: false, realStudentDataUsed: false },
+    logs,
+  };
 }
 
 async function expectUploadDenial({ client, submissionId, expectedStatus, expectedError, label, form }) {
@@ -651,6 +726,11 @@ async function runDriveLiveCheck(options = {}) {
   log("Drive live verification uses ignored fake .test credentials; passwords are not printed.");
 
   const wranglerConfig = readJsonc("wrangler.jsonc");
+  const linkOnlyConfig = validateWranglerLinkOnlyConfig(wranglerConfig);
+  if (linkOnlyConfig.providerConfigured) {
+    log("PASS config: production stores student-owned Google Drive links and does not manage the folder.");
+    return runLinkOnlyLiveCheck({ baseUrl, credentialsFile, studentKey, logs, log });
+  }
   const config = validateWranglerDriveConfig(wranglerConfig);
   if (!config.providerConfigured || !config.rootConfigured || !config.indexConfigured) {
     throw new DriveLiveCheckError(

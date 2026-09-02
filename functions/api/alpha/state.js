@@ -1,4 +1,5 @@
 import { ALPHA_STATE_KEY, applyAlphaAction, createAlphaSeedState, deriveAlphaNextStep, deriveAlphaWalkthroughSteps, deriveMetrics } from "../../_lib/alpha-flow-model.js";
+import { requirePost } from "../../_lib/http.ts";
 
 const JSON_HEADERS = {
   "content-type": "application/json; charset=utf-8",
@@ -6,6 +7,7 @@ const JSON_HEADERS = {
 };
 
 export async function onRequestGet({ env }) {
+  if (!isInternalQaEnabled(env)) return json({ error: "not_found" }, 404);
   const state = await loadAlphaState(env);
   state.metrics = deriveMetrics(state);
   state.walkthrough = deriveAlphaWalkthroughSteps(state);
@@ -14,6 +16,9 @@ export async function onRequestGet({ env }) {
 }
 
 export async function onRequestPost({ request, env }) {
+  if (!isInternalQaEnabled(env)) return json({ error: "not_found" }, 404);
+  const methodError = requirePost(request);
+  if (methodError) return methodError;
   let body;
   try {
     body = await readJson(request);
@@ -105,4 +110,8 @@ function json(data, status = 200) {
     status,
     headers: JSON_HEADERS,
   });
+}
+
+function isInternalQaEnabled(env) {
+  return ["local", "development", "test"].includes(String(env?.APP_ENV || "").trim().toLowerCase());
 }

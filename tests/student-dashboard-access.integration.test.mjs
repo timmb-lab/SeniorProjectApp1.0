@@ -113,6 +113,9 @@ test("student dashboard returns own rows without storage ids and audits the view
         qualityPrompt: "Name the problem, who benefits, and the proof that shows your work.",
         lastUpdatedAt: "2026-05-20T08:10:00.000Z",
         nextAction: "Send Core Concept Proposal for teacher review.",
+        draftText: "",
+        draftWordCount: 0,
+        hasWrittenResponse: false,
       },
   ]);
   assert.equal(body.progress.length, 1);

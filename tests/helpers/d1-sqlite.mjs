@@ -23,6 +23,20 @@ export function foundationMigrations() {
     "migrations/0014_local_only_empty_test_schools.sql",
     "migrations/0015_remove_org_admin_role.sql",
     "migrations/0016_student_roster_profiles.sql",
+    "migrations/0017_guided_student_writing.sql",
+    "migrations/0018_project_workspaces.sql",
+    "migrations/0019_project_requests.sql",
+    "migrations/0020_missing_student_projects.sql",
+    "migrations/0021_project_drive_folder_links.sql",
+    "migrations/0022_project_drive_templates.sql",
+    "migrations/0023_security_rate_limit_indexes.sql",
+    "migrations/0024_project_request_safety.sql",
+    "migrations/0025_required_project_adults.sql",
+    "migrations/0026_drive_link_checks.sql",
+    "migrations/0027_starter_guidance_templates.sql",
+    "migrations/0028_staff_mfa.sql",
+    "migrations/0029_password_setup_codes.sql",
+    "migrations/0030_site_branding.sql",
   ];
 }
 
@@ -37,6 +51,19 @@ class SqliteD1Database {
 
   exec(sql) {
     this.sqlite.exec(sql);
+  }
+
+  async batch(statements) {
+    this.sqlite.exec("BEGIN IMMEDIATE;");
+    try {
+      const results = [];
+      for (const statement of statements) results.push(await statement.run());
+      this.sqlite.exec("COMMIT;");
+      return results;
+    } catch (error) {
+      this.sqlite.exec("ROLLBACK;");
+      throw error;
+    }
   }
 }
 

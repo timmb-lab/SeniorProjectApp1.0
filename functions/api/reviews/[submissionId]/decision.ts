@@ -3,7 +3,9 @@ import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
 import { randomId } from "../../../_lib/crypto.ts";
 import { badRequest, json, readJson, requirePost } from "../../../_lib/http.ts";
 import { cleanId } from "../../../_lib/site-scope.ts";
+import { loadProjectAdultAssignments, projectAdultSetup } from "../../../_lib/project-adults.ts";
 import {
+  canAccessProject,
   canAccessSite,
   getProgramTeacherScopedStudentIds,
   getRoleAssignments,
@@ -89,14 +91,37 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
   }
 
   if (decision === "approved") {
+    if (submission.project_id) {
+      const adultSetup = projectAdultSetup(await loadProjectAdultAssignments(env, [submission.project_id], []));
+      if (!adultSetup.ready) {
+        await auditReviewDecisionAccess(env, request, user, "review_decision_blocked_missing_project_adults", submission.id, {
+          reason: "project_adults_not_ready",
+          studentId: submission.student_id,
+          projectId: submission.project_id,
+          siteId: siteId || undefined,
+          missingRoles: adultSetup.missingRoles,
+          decision,
+        });
+        return json({
+          error: "project_adults_not_ready",
+          message: "The project needs a confirmed Mentor and Program Teacher before this work can be accepted.",
+          adultSetup,
+        }, { status: 409 });
+      }
+    }
     const evidenceCount = await countActiveEvidenceForSubmission(env, submission.id);
-    if (evidenceCount <= 0) {
+    const writtenResponse = await env.DB.prepare(
+      "SELECT response_text FROM student_work_responses WHERE submission_id = ? LIMIT 1",
+    ).bind(submission.id).first<{ response_text: string }>();
+    const writtenResponseLength = String(writtenResponse?.response_text || "").trim().length;
+    if (evidenceCount <= 0 && writtenResponseLength <= 0) {
       await auditReviewDecisionAccess(env, request, user, "review_decision_blocked_missing_evidence", submission.id, {
         reason: "missing_required_evidence",
         studentId: submission.student_id,
         siteId: siteId || undefined,
         decision,
         evidenceCount,
+        writtenResponseLength,
       });
       return workflowError("submission_missing_evidence", 409);
     }
@@ -105,10 +130,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
   const feedback = cleanWorkflowText(
     body.feedback,
     decision === "approved"
-      ? "Approved for the next capstone phase."
+      ? "Accepted. You can start the next step."
       : decision === "revision_requested"
-        ? "Revision requested before approval."
-        : "Comment added for review.",
+        ? "Please make these changes, then turn it in again."
+        : "A note was added for you.",
   );
   const reviewId = randomId("review");
   const commentId = randomId("comment");
@@ -138,8 +163,13 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
        SET status = ?,
            updated_by = ?,
            updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
-       WHERE student_id = ? AND requirement_id = ?`,
-    ).bind(decision, user.id, submission.student_id, submission.requirement_id).run();
+       WHERE requirement_id = ?
+         AND (
+           (project_id = ? AND EXISTS (SELECT 1 FROM requirements WHERE requirements.id = progress_records.requirement_id AND requirements.work_scope = 'project'))
+           OR (student_id = ? AND EXISTS (SELECT 1 FROM requirements WHERE requirements.id = progress_records.requirement_id AND requirements.work_scope = 'individual'))
+           OR (? IS NULL AND student_id = ?)
+         )`,
+    ).bind(decision, user.id, submission.requirement_id, submission.project_id, submission.student_id, submission.project_id, submission.student_id).run();
 
     await writeStatusHistory(env, {
       studentId: submission.student_id,
@@ -149,6 +179,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
       toStatus: decision,
       changedBy: user.id,
       reason: feedback,
+      projectId: submission.project_id,
     });
   }
 
@@ -162,6 +193,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
       reviewId,
       commentId,
       studentId: submission.student_id,
+      projectId: submission.project_id,
       siteId: siteId || undefined,
       fromStatus: submission.status,
       toStatus: statusChanged ? decision : submission.status,
@@ -218,9 +250,23 @@ async function canReviewSubmissionForSite(
   }
 
   if (!await hasRole(env, user.id, "program_teacher")) {
+    if (await hasRole(env, user.id, "mentor")) {
+      if (submission.project_id && await canAccessProject(env, user, submission.project_id)) return { ok: true };
+      const assigned = await env.DB.prepare(
+        `SELECT 1
+         FROM mentor_assignments
+         WHERE mentor_user_id = ?
+           AND student_user_id = ?
+           AND active = 1
+         LIMIT 1`,
+      ).bind(user.id, submission.student_id).first();
+      if (assigned) return { ok: true };
+      return { ok: false, status: 404, error: "not_found", reason: "submission_not_in_mentor_scope", includeStudent: false };
+    }
     return { ok: false, status: 403, error: "forbidden", reason: "role_not_allowed_for_site_review_decision", includeStudent: true };
   }
 
+  if (submission.project_id && await canAccessProject(env, user, submission.project_id)) return { ok: true };
   const teacherScope = await getProgramTeacherScopedStudentIds(env, user);
   if (!teacherScope.valid || !teacherScope.studentIds.includes(submission.student_id)) {
     return { ok: false, status: 404, error: "not_found", reason: "submission_not_in_program_teacher_scope", includeStudent: false };

@@ -2,6 +2,7 @@ import type { Env, RoleAssignment, UserAccount } from "../../_types.ts";
 import { getCurrentUser, writeAudit } from "../../_lib/auth.ts";
 import { json } from "../../_lib/http.ts";
 import {
+  canAccessSite,
   canViewProgramTeacherDashboard,
   getAllActiveStudentIds,
   getProgramTeacherScopedStudentIds,
@@ -62,6 +63,18 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   }
 
   const context = await getViewerRoleContext(env, user);
+  const url = new URL(request.url);
+  const requestedSiteId = cleanId(url.searchParams.get("siteId"));
+  if (url.searchParams.has("siteId") && !requestedSiteId) {
+    return json({ error: "invalid_site_id" }, { status: 400 });
+  }
+  if (requestedSiteId && !await canAccessSite(env, user, requestedSiteId)) {
+    await auditProgramDashboard(env, request, user, "program_teacher_dashboard_denied", {
+      reason: "site_not_allowed",
+      siteId: requestedSiteId,
+    });
+    return json({ error: "forbidden" }, { status: 403 });
+  }
   const admin = context.isGlobalAdmin || context.isPlatformAdmin || context.isAdmin;
   const teacherScope = admin
     ? { valid: true, invalidScopeCount: 0, studentIds: await getAllActiveStudentIds(env), scopeSummary: [{ scopeType: "global", scopeId: "" }] }
@@ -75,11 +88,14 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     return json({ error: "forbidden" }, { status: 403 });
   }
 
-  const studentIds = teacherScope.studentIds;
+  const studentIds = requestedSiteId
+    ? await filterStudentIdsForSite(env, teacherScope.studentIds, requestedSiteId)
+    : teacherScope.studentIds;
   const scope = {
     role: admin ? "admin" as const : "program_teacher" as const,
     scopeType: scopeTypeSummary(teacherScope.scopeSummary),
     scopeId: scopeIdSummary(teacherScope.scopeSummary),
+    siteId: requestedSiteId,
   };
 
   const summary = studentIds.length
@@ -143,6 +159,23 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     })),
   });
 };
+
+async function filterStudentIdsForSite(env: Env, studentIds: string[], siteId: string): Promise<string[]> {
+  if (!studentIds.length) return [];
+  const rows = await env.DB.prepare(
+    `SELECT DISTINCT user_id
+     FROM site_users
+     WHERE site_id = ?
+       AND membership_status = 'active'
+       AND user_id IN (SELECT value FROM json_each(?))`,
+  ).bind(siteId, JSON.stringify(studentIds)).all<{ user_id: string }>();
+  return (rows.results || []).map((row) => row.user_id);
+}
+
+function cleanId(value: unknown): string {
+  const normalized = String(value || "").trim();
+  return /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(normalized) ? normalized : "";
+}
 
 async function loadScopedSummary(env: Env, studentIds: string[]) {
   const scopedStudents = studentIds.length;

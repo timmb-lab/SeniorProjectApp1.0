@@ -35,6 +35,20 @@ test("drive probe returns 503 and audits when Drive config is missing", async ()
   assert.equal(db.data.auditEvents[0].action, "google_drive_probe_missing_config");
 });
 
+test("drive probe rejects authenticated non-admin users before contacting Google", async () => {
+  const { env, db, token } = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+  const response = await onRequestGet({
+    request: new Request("https://example.test/api/evidence/drive-probe", {
+      headers: { cookie: `sc_session=${token}`, "cf-connecting-ip": "203.0.113.29", "user-agent": "integration-test" },
+    }),
+    env,
+  });
+
+  assert.equal(response.status, 403);
+  assert.deepEqual(await response.json(), { error: "forbidden", ok: false });
+  assert.equal(db.data.auditEvents[0].action, "google_drive_probe_denied");
+});
+
 test("drive probe returns 503 and audits when Drive credentials are missing", async () => {
   const { env, db, token } = await createFixtureWithSession({ userId: "admin-a" });
   env.GOOGLE_DRIVE_CLIENT_EMAIL = "";
@@ -191,6 +205,7 @@ function createFixture() {
   const db = new MockD1Database({
     userAccounts: [],
     sessions: [],
+    userRoles: [],
     auditEvents: [],
   });
 
@@ -213,7 +228,7 @@ function createFixture() {
   };
 }
 
-async function createFixtureWithSession({ userId }) {
+async function createFixtureWithSession({ userId, roleId = "global_admin" }) {
   const base = createFixture();
   const token = `token-${userId}`;
   const tokenHash = await sha256Hex(token);
@@ -232,6 +247,7 @@ async function createFixtureWithSession({ userId }) {
     revoked_at: null,
     expires_at: new Date("2099-01-01T00:00:00.000Z").toISOString(),
   });
+  base.db.data.userRoles.push({ user_id: userId, role_id: roleId, scope_type: roleId === "global_admin" ? "global" : "site", scope_id: roleId === "global_admin" ? "" : "site-a" });
 
   return { ...base, token };
 }
@@ -274,10 +290,23 @@ class MockPreparedStatement {
       return this.data.userAccounts.find((row) => row.id === userId && row.status === "active") ?? null;
     }
 
+    if (this.sql.startsWith("select 1 from user_roles where user_id = ? and role_id = ? limit 1")) {
+      const [userId, roleId] = this.params;
+      return this.data.userRoles.some((row) => row.user_id === userId && row.role_id === roleId) ? { 1: 1 } : null;
+    }
+
     throw new Error(`Unmocked D1 first() query: ${this.sql}`);
   }
 
   async run() {
+    if (this.sql.startsWith("delete from sessions where user_id = ?")) {
+      return { success: true };
+    }
+
+    if (this.sql.startsWith("update sessions set revoked_at = strftime") && this.sql.includes("limit -1 offset 9")) {
+      return { success: true };
+    }
+
     if (this.sql.startsWith("update sessions set last_seen_at = strftime(")) {
       return { success: true };
     }

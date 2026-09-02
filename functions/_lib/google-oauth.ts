@@ -281,18 +281,39 @@ export async function linkOrCreateUserForGoogleIdentity(
 ): Promise<UserAccount> {
   const emailNorm = normalizeEmail(claims.email);
   const existingIdentity = await env.DB.prepare(
-    `SELECT user_accounts.id, user_accounts.email, user_accounts.email_norm, user_accounts.display_name, user_accounts.status
+    `SELECT user_accounts.id, user_accounts.email, user_accounts.email_norm, user_accounts.display_name, user_accounts.status,
+            auth_identities.tenant_id AS identity_tenant_id,
+            tenant_users.membership_status
      FROM auth_identities
      JOIN user_accounts ON user_accounts.id = auth_identities.user_id
+     LEFT JOIN tenant_users
+       ON tenant_users.tenant_id = auth_identities.tenant_id
+      AND tenant_users.user_id = auth_identities.user_id
      WHERE auth_identities.provider = 'google_workspace'
        AND auth_identities.provider_subject = ?
      LIMIT 1`,
-  ).bind(claims.sub).first<UserAccount>();
+  ).bind(claims.sub).first<UserAccount & { identity_tenant_id: string; membership_status: string | null }>();
 
   if (existingIdentity) {
-    if (existingIdentity.status !== "active") throw new GoogleOAuthError("sso_account_not_provisioned");
+    if (
+      existingIdentity.status !== "active"
+      || existingIdentity.identity_tenant_id !== tenant.tenant.id
+      || existingIdentity.membership_status !== "active"
+    ) throw new GoogleOAuthError("sso_account_not_provisioned");
     await markIdentityLogin(env, claims.sub);
     return existingIdentity;
+  }
+
+  const emailIdentity = await env.DB.prepare(
+    `SELECT user_id, tenant_id, provider_subject
+     FROM auth_identities
+     WHERE provider = 'google_workspace' AND email_norm = ?
+     LIMIT 1`,
+  ).bind(emailNorm).first<{ user_id: string; tenant_id: string; provider_subject: string }>();
+  if (emailIdentity) {
+    // A Workspace address can be deleted and recreated with a new Google
+    // subject. Never silently attach that new identity to the old account.
+    throw new GoogleOAuthError("sso_account_not_provisioned");
   }
 
   const existingUser = await env.DB.prepare(
@@ -301,11 +322,19 @@ export async function linkOrCreateUserForGoogleIdentity(
 
   if (existingUser) {
     if (existingUser.status !== "active") throw new GoogleOAuthError("sso_account_not_provisioned");
+    const membership = await env.DB.prepare(
+      `SELECT membership_status FROM tenant_users WHERE tenant_id = ? AND user_id = ? LIMIT 1`,
+    ).bind(tenant.tenant.id, existingUser.id).first<{ membership_status: string }>();
+    if (membership && membership.membership_status !== "active") {
+      throw new GoogleOAuthError("sso_account_not_provisioned");
+    }
+    if (!membership) {
+      await env.DB.prepare(
+        `INSERT INTO tenant_users (tenant_id, user_id, membership_status)
+         VALUES (?, ?, 'active')`,
+      ).bind(tenant.tenant.id, existingUser.id).run();
+    }
     await linkIdentity(env, existingUser.id, tenant.tenant.id, claims.sub, emailNorm);
-    await env.DB.prepare(
-      `INSERT OR IGNORE INTO tenant_users (tenant_id, user_id, membership_status)
-       VALUES (?, ?, 'active')`,
-    ).bind(tenant.tenant.id, existingUser.id).run();
     return existingUser;
   }
 
@@ -335,10 +364,11 @@ export async function linkOrCreateUserForGoogleIdentity(
 }
 
 async function linkIdentity(env: Env, userId: string, tenantId: string, subject: string, emailNorm: string): Promise<void> {
-  await env.DB.prepare(
-    `INSERT OR IGNORE INTO auth_identities (id, user_id, tenant_id, provider, provider_subject, email_norm, last_login_at)
+  const result = await env.DB.prepare(
+    `INSERT INTO auth_identities (id, user_id, tenant_id, provider, provider_subject, email_norm, last_login_at)
      VALUES (?, ?, ?, 'google_workspace', ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
   ).bind(randomId("auth-identity"), userId, tenantId, subject, emailNorm).run();
+  if (!result.meta.changes) throw new GoogleOAuthError("sso_account_not_provisioned");
   await markIdentityLogin(env, subject);
 }
 

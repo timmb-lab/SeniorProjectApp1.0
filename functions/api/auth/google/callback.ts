@@ -8,8 +8,9 @@ import {
   resolveTenantForGoogleIdentity,
   verifyGoogleIdToken,
 } from "../../../_lib/google-oauth.ts";
-import { json } from "../../../_lib/http.ts";
+import { applyApiSecurityHeaders, json } from "../../../_lib/http.ts";
 import { clearOAuthStateCookie, consumeOAuthState, safeReturnTo } from "../../../_lib/oauth-state.ts";
+import { authSecretsConfigured } from "../../../_lib/auth-config.ts";
 
 const SAFE_SSO_ERRORS = new Set([
   "sso_not_configured",
@@ -23,11 +24,14 @@ const SAFE_SSO_ERRORS = new Set([
 ]);
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
+  if (!authSecretsConfigured(env)) {
+    return authErrorResponse(request, "sso_not_configured", "/", 503);
+  }
   if (!isGoogleSsoEnabled(env)) {
-    return authErrorResponse(request, "sso_not_configured", "/workspace.html", 503);
+    return authErrorResponse(request, "sso_not_configured", "/", 503);
   }
 
-  let returnTo = "/workspace.html";
+  let returnTo = "/";
   let actorUserId: string | null = null;
   try {
     const url = new URL(request.url);
@@ -41,7 +45,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
 
     const oauthState = await consumeOAuthState(env, state, request.headers.get("cookie"));
     if (!oauthState) throw new GoogleOAuthError("sso_invalid_state");
-    returnTo = safeReturnTo(oauthState.return_to || "") || "/workspace.html";
+    returnTo = safeReturnTo(oauthState.return_to || "") || "/";
 
     const tokens = await exchangeGoogleCodeForTokens({
       code,
@@ -102,16 +106,16 @@ function authErrorResponse(request: Request, code: string, returnTo: string, sta
     });
   }
 
-  const target = new URL(safeReturnTo(returnTo) || "/workspace.html", "https://app.thecapstoneapp.com");
+  const target = new URL(safeReturnTo(returnTo) || "/", "https://thecapstoneapp.com");
   target.searchParams.set("authError", code);
   return redirect(`${target.pathname}${target.search}`, [clearOAuthStateCookie()]);
 }
 
 function redirect(location: string, cookies: string[]): Response {
-  const headers = new Headers({
+  const headers = applyApiSecurityHeaders(new Headers({
     location,
     "cache-control": "no-store",
-  });
+  }));
   for (const cookie of cookies) {
     headers.append("set-cookie", cookie);
   }

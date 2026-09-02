@@ -29,7 +29,7 @@ No open external automation scheduler decisions are blocking the current scaffol
   - Should tenant evidence storage stay app-managed Google Drive for MVP or move to school-owned Drive before pilot?
   - What is the tenant offboarding policy for exports, retention, disabled accounts, and archive handoff?
   - Which Google Cloud project/OAuth client owns the production app?
-  - Which redirect URIs are approved beyond the current legacy `https://app.thecapstoneapp.com/api/auth/google/callback`?
+  - Which redirect URIs are approved beyond `https://thecapstoneapp.com/api/auth/google/callback`?
   - Should product-domain app-owned accounts be treated as internal admin identities or normal tenant identities?
 - `current recommendation`: Keep Google Workspace SSO disabled for the 1.0 local-account setup until the Google Cloud OAuth client, Cloudflare Pages secrets/env vars, tenant-domain records, and hosted regression checks are complete. Keep local auth enabled for Bryan's account-building pass.
 - `implementation status`: Schema, safe auth config, SSO start/callback routes, workspace sign-in behavior, mocked integration tests, backend setup notes, and ADR-0002 are implemented as a fail-closed foundation. No production tenant domain has been added to the repo seed data.
@@ -96,6 +96,19 @@ No open external automation scheduler decisions are blocking the current scaffol
 - `decision workflow`: `functions/_lib/google-drive.ts`, `functions/api/evidence/[id]/download.ts`, and `functions/_lib/archive-export.ts`
 - `created`: 2026-05-21
 
+## Rejected Decisions
+
+### HD-2026-09-01-001
+
+- `status`: rejected
+- `area`: Google Workspace SSO for the current launch
+- `owner`: Bryan
+- `severity`: P1
+- `decision`: Do not enable Google Workspace SSO for the current launch. Keep `AUTH_GOOGLE_SSO_ENABLED=false`, keep hardened local username/password sign-in enabled, and do not configure or use Google OAuth credentials for staff sign-in.
+- `security consequence`: This decision does not make MFA complete. Staff account hardening continues through strong local passwords, reset controls, rate limits, secure sessions, and audit logging. App-native MFA or passkeys remain a future security decision if stronger authentication is required.
+- `scope`: The dormant SSO schema and fail-closed routes may remain in the codebase, but they must not be presented as an approved production login path.
+- `rejected`: 2026-09-01
+
 ## Accepted Decisions
 
 ### HD-2026-05-20-002
@@ -115,7 +128,7 @@ No open external automation scheduler decisions are blocking the current scaffol
 
 ### HD-2026-05-21-011
 
-- `status`: accepted
+- `status`: superseded
 - `area`: final product naming, domain, and surface split
 - `owner`: Bryan
 - `severity`: P1
@@ -124,6 +137,17 @@ No open external automation scheduler decisions are blocking the current scaffol
 - `live cutover state`: Bryan registered `thecapstoneproject.com` in Cloudflare during the Part 2 run and authorized live target-domain work. Live success must still be based on Pages custom-domain association, DNS/TLS, workspace/API health, and final verification output.
 - `decision workflow`: `docs/custom-domain-cutover-checklist.md`, `docs/production-surface-registry.md`, `docs/stakeholder-option-lifecycle.md`
 - `accepted`: 2026-05-21
+- `superseded by`: Bryan's 2026-09-02 domain consolidation decision: `thecapstoneapp.com` is the only serving app domain, `thecapstoneproject.com` redirects to it, and the app subdomain is retired.
+
+### HD-2026-09-02-001
+
+- `status`: accepted
+- `area`: canonical production domain consolidation
+- `owner`: Bryan
+- `severity`: P1
+- `decision`: Serve the app only at `https://thecapstoneapp.com/`. Permanently redirect the `www` alias, `thecapstoneproject.com`, its `www` alias, and the direct Pages project alias to the canonical domain. Retire `app.thecapstoneapp.com` completely. Redirect old workspace entry paths to `/` while leaving required API paths intact.
+- `SSO boundary`: Google Workspace SSO remains disabled. If approved later, use only `https://thecapstoneapp.com/api/auth/google/callback` as the production callback.
+- `accepted`: 2026-09-02
 
 ### HD-2026-05-20-006
 

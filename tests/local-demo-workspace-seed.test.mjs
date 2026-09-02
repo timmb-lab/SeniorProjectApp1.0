@@ -37,6 +37,10 @@ const MIGRATIONS = [
   "migrations/0012_users_access_v5.sql",
   "migrations/0015_remove_org_admin_role.sql",
   "migrations/0016_student_roster_profiles.sql",
+  "migrations/0017_guided_student_writing.sql",
+  "migrations/0018_project_workspaces.sql",
+  "migrations/0019_project_requests.sql",
+  "migrations/0020_missing_student_projects.sql",
 ];
 
 test("demo seeder refuses remote mode", () => {
@@ -107,7 +111,7 @@ test("demo seed creates deterministic fake workspace rows and preserves admins",
   assert.equal(result.finalVerification.primaryAvailablePrograms >= DEMO_ADDABLE_PROGRAMS.length, true);
   assert.equal(result.finalVerification.viewerStudentAssignments, 3);
   assert.equal(result.finalVerification.studentRosterProfiles, 370);
-  assert.equal(result.finalVerification.studentCredentials, 0);
+  assert.equal(result.finalVerification.studentCredentials, 1);
   assert.equal("announcements" in result.generatedCounts, false);
   assert.equal(result.finalVerification.announcements, 0);
   assert.equal(result.finalVerification.foreignKeyViolations, 0);
@@ -182,7 +186,7 @@ test("demo seed creates deterministic fake workspace rows and preserves admins",
   assert.equal(credentialPayload.personaLogins.length, 6);
   assert.equal(credentialPayload.programTeacherLogins.length, 3);
   assert.equal(credentialPayload.mentorLogins.length, 3);
-  assert.equal(credentialPayload.sampleStudentLogins.length, 0);
+  assert.equal(credentialPayload.sampleStudentLogins.length, 1);
   assert.doesNotMatch(JSON.stringify(result), /DemoLocal!/);
 });
 

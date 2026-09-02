@@ -61,6 +61,7 @@ export interface ArchiveProviderReadiness {
   ready: boolean;
   status:
     | "ready"
+    | "link_only"
     | "drive_config_missing"
     | "drive_credentials_missing"
     | "drive_token_exchange_failed"
@@ -103,6 +104,19 @@ export function getArchiveRetentionPolicy(env: Pick<Env, "ARCHIVE_DOWNLOAD_WINDO
 }
 
 export function getArchiveProviderConfiguration(env: Env): ArchiveProviderReadiness {
+  if (env.EVIDENCE_STORAGE_PROVIDER === "link_only") {
+    return {
+      ready: true,
+      status: "link_only",
+      error: null,
+      httpStatus: 200,
+      retry: null,
+      rootConfigured: false,
+      indexConfigured: false,
+      credentialParts: { clientEmail: false, privateKey: false },
+      message: "Student files stay in Google Drive. The app creates only a link-based archive list.",
+    };
+  }
   const rootConfigured = configured(env.GOOGLE_DRIVE_EVIDENCE_ROOT_ID);
   const indexConfigured = configured(env.GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID);
   const credentialParts = googleDriveCredentialParts(env);
@@ -151,6 +165,7 @@ export function getArchiveProviderConfiguration(env: Env): ArchiveProviderReadin
 export async function verifyArchiveProviderReady(env: Env): Promise<ArchiveProviderReadiness> {
   const configuration = getArchiveProviderConfiguration(env);
   if (!configuration.ready) return configuration;
+  if (configuration.status === "link_only") return configuration;
 
   let accessToken = "";
   try {

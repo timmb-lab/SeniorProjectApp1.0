@@ -2,9 +2,9 @@
 
 Date: 2026-06-29
 
-Latest refresh: 2026-07-05 Prompt 11 reran `npm run prove:hosted-fake-pilot-browser`; the manifest stayed green with 9 hosted fake-account screenshots and 0 failures.
+Latest refresh: 2026-09-01 reran `npm run prove:hosted-fake-pilot-browser`; the manifest is green with 10 current hosted fake-account screenshots and 0 failures. The proof covers desktop, tablet, and phone widths and rejects visible unavailable/load-failure states.
 
-Environment: `https://senior-capstone-app.pages.dev`
+Environment: `https://thecapstoneapp.com`
 
 Proof status: `GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF`
 
@@ -31,6 +31,7 @@ Migration readiness: the browser proof records a redacted `/api/health` summary.
 | `docs/sales/screenshots/2026-06-29/07-admin-command-center.png` | Global Admin | Fake `.test` demo-only account | Admin Command Center | Fake-account click-around proof only | Admin lands on platform command-center navigation. |
 | `docs/sales/screenshots/2026-06-29/08-misc-admin-readiness.png` | misc_admin | Fake `.test` demo-only account | Readiness / limited legacy reporting | Fake-account click-around proof only | misc_admin is limited to aggregate readiness, matching expected behavior. |
 | `docs/sales/screenshots/2026-06-29/09-student-mobile-dashboard.png` | Student mobile | Fake `.test` demo-only account | Mobile student workspace | Fake-account mobile smoke proof only | Narrow viewport is usable for fake-account smoke testing. |
+| `docs/sales/screenshots/2026-06-29/10-site-admin-tablet-dashboard.png` | Site Admin tablet | Fake `.test` demo-only account | Tablet staff workspace | Fake-account tablet smoke proof only | Half-width navigation and the first staff action remain usable at 820 pixels. |
 
 ## Known Limits
 
@@ -38,4 +39,4 @@ Migration readiness: the browser proof records a redacted `/api/health` summary.
 - The proof covers first-load click-around surfaces and role boundaries; it does not submit destructive or mutation-heavy workflow actions.
 - `student_archive_manifest_download` remains a Future pilot item and is `skipped_not_ready` in the hosted dashboard gate unless a scoped student manifest download is actually available.
 - Generated remote staff credential files are not the walkthrough credential source; the proof uses the approved hosted fake `.test` accounts in ignored local secrets.
-- Real-student onboarding still needs SSO, support, retention, data ownership, and policy approval work.
+- Google Workspace SSO is not approved for this launch. Real-student onboarding still needs an approved managed-local credential-delivery plan, staff MFA/passkeys, support, retention, data ownership, and policy approval work.

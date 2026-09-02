@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
+import { readWorkspaceJavaScriptSource } from "./lib/workspace-sources.mjs";
 
-const workspace = readFileSync("workspace.js", "utf8");
+const workspace = await readWorkspaceJavaScriptSource();
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 const failures = [];
 
@@ -41,10 +42,13 @@ for (const [label, parser, syncer, query] of contracts) {
 }
 
 assertIncludes("WORKSPACE_URL_FILTER_PARAMS", "central URL filter registry must exist");
+assertIncludes("WORKSPACE_HISTORY_ROUTE_KEY", "workspace route state must have a private history-state key");
+assertIncludes("writeWorkspaceHistoryState", "workspace route changes must use the static-address history writer");
 assertIncludes("syncCurrentWorkspaceUrlState", "central URL sync dispatcher must exist");
 assertIncludes("applyWorkspaceUrlState", "initial URL state restore must exist");
 assertIncludes("bindWorkspaceUrlEvents", "popstate binding must exist");
-assertIncludes("Reload or share this view with the current browser URL", "users must see shareable URL guidance");
+assertIncludes("Back and Forward keep your recent views. The browser address stays clean.", "users must see static-address navigation guidance");
+assertMatches(/function writeWorkspaceHistoryState\(url, options = \{\}, state = \{\}\)[\s\S]*WORKSPACE_HISTORY_ROUTE_KEY[\s\S]*canonicalPath/, "history state must retain route data while writing only the canonical path");
 assertMatches(/selectWorkspaceSite\(siteId\)[\s\S]*clearFilters: true, replace: true/, "site switch must clear stale URL filters");
 assertMatches(/SITE_STUDENT_DETAIL_URL_PARAMS = \["detailStudentId", "detailTab", "detailTimelineType"\]/, "student detail URL state must stay bounded to safe params");
 assertMatches(/VIEW_AS_STUDENT_URL_PARAMS = \["viewAsStudentId", "viewAsReturnSection", "viewAsReturnMode"\]/, "view-as student URL state must stay bounded to safe params");
@@ -61,4 +65,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log("Workspace URL-state verification passed: all major worklists and detail views have bounded shareable state.");
+console.log("Workspace URL-state verification passed: major worklists keep bounded history state behind one stable browser address.");

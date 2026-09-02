@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { readWorkspaceJavaScriptSource } from "./lib/workspace-sources.mjs";
 
 const files = {
   permissions: "functions/_lib/permissions.ts",
@@ -10,6 +11,7 @@ const files = {
 const source = Object.fromEntries(
   Object.entries(files).map(([key, file]) => [key, readFileSync(file, "utf8")]),
 );
+source.workspace = await readWorkspaceJavaScriptSource();
 const failures = [];
 
 function fail(message) {
@@ -56,9 +58,10 @@ for (const [pattern, message] of [
   [/canManageSecurity\(env, users\.teacherIt\), false/, "Program Teacher must not manage security"],
   [/canManageMentorAssignments\(env, users\.teacherIt, "site-a1"\), true/, "Program Teacher mentor coverage permission must remain explicit"],
   [/canMutateReviewDecision\(env, users\.teacherIt, "submission-b1"\), false/, "Program Teacher must not review outside scoped students"],
-  [/mentor can access assigned students only and never mutates reviews or full directories/, "Mentor boundary integration test must exist"],
+  [/mentor can review assigned students only and never opens full directories/, "Mentor boundary integration test must exist"],
   [/canViewStudentDirectory\(env, users\.mentorA1, "site-a1"\), false/, "Mentor must not gain full directory access"],
-  [/canMutateReviewDecision\(env, users\.mentorA1, "submission-a1"\), false/, "Mentor must not mutate review decisions"],
+  [/canMutateReviewDecision\(env, users\.mentorA1, "submission-a1"\), true/, "Mentor may review work for an assigned student"],
+  [/canMutateReviewDecision\(env, users\.mentorA1, "submission-a2"\), false/, "Mentor must not review work for an unassigned student"],
   [/canManageUsers\(env, users\.mentorA1\), false/, "Mentor must not manage users"],
   [/canManageSecurity\(env, users\.mentorA1\), false/, "Mentor must not manage security"],
 ]) {

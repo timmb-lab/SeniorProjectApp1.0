@@ -75,14 +75,28 @@ function cleanFilter(value: string | null): string {
 function redactMetadata(value: string | null): Record<string, unknown> | null {
   if (!value) return null;
   try {
-    const parsed = JSON.parse(value) as Record<string, unknown>;
-    for (const key of Object.keys(parsed)) {
-      if (/token|password|secret|hash|pepper|driveFileId|drive_file_id/i.test(key)) {
-        parsed[key] = "[redacted]";
-      }
-    }
-    return parsed;
+    return redactAuditValue(JSON.parse(value), "", 0) as Record<string, unknown>;
   } catch {
     return { parseError: true };
   }
+}
+
+function redactAuditValue(value: unknown, key: string, depth: number): unknown {
+  if (depth > 6) return "[depth-limited]";
+  const sensitiveKey = /token|password|secret|hash|pepper|authorization|cookie|credential|private[_-]?key|drive[_-]?file[_-]?id/i.test(key);
+  if (sensitiveKey && typeof value === "string") return "[redacted]";
+  if (sensitiveKey && value && typeof value === "object") {
+    if (Array.isArray(value)) return value.slice(0, 100).map((item) => redactAuditValue(item, key, depth + 1));
+    return Object.fromEntries(Object.entries(value as Record<string, unknown>).slice(0, 100)
+      .map(([childKey, childValue]) => [childKey, redactAuditValue(childValue, `${key}.${childKey}`, depth + 1)]));
+  }
+  if (Array.isArray(value)) return value.slice(0, 100).map((item) => redactAuditValue(item, "", depth + 1));
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.entries(value as Record<string, unknown>).slice(0, 100)
+      .map(([childKey, childValue]) => [childKey, redactAuditValue(childValue, childKey, depth + 1)]));
+  }
+  if (typeof value === "string" && /-----BEGIN [^-]*PRIVATE KEY-----|\bBearer\s+[A-Za-z0-9._~-]+|(?:access_token|client_secret|password)=/i.test(value)) {
+    return "[redacted]";
+  }
+  return value;
 }

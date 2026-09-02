@@ -1,2 +1,5 @@
-# Product root points to the authenticated Capstone Project workspace.
-/ /workspace.html 302
+# The authenticated workspace lives at the bare canonical domain.
+/workspace / 308
+/workspace/ / 308
+/workspace.html / 308
+/index.html / 308

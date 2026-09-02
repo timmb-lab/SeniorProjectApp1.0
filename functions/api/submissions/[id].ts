@@ -13,6 +13,11 @@ interface EvidenceSummaryRow {
   created_at: string;
 }
 
+interface WrittenResponseRow {
+  response_text: string;
+  updated_at: string;
+}
+
 export const onRequestGet: PagesFunction<Env> = async ({ request, env, params }) => {
   const submissionId = String(params?.id || "").trim();
   if (!submissionId) return workflowError("missing_submission_id", 400);
@@ -36,7 +41,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
     return workflowError("forbidden", 403);
   }
 
-  const evidence = await env.DB.prepare(
+  const [evidence, writtenResponse] = await Promise.all([
+    env.DB.prepare(
     `SELECT id, title, artifact_type, source_kind, review_status, created_at
      FROM evidence_artifacts
      WHERE submission_id = ?
@@ -44,7 +50,14 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
        AND review_status != 'archived'
      ORDER BY created_at ASC
      LIMIT 50`,
-  ).bind(submission.id).all<EvidenceSummaryRow>();
+    ).bind(submission.id).all<EvidenceSummaryRow>(),
+    env.DB.prepare(
+      `SELECT response_text, updated_at
+       FROM student_work_responses
+       WHERE submission_id = ?
+       LIMIT 1`,
+    ).bind(submission.id).first<WrittenResponseRow>(),
+  ]);
 
   const evidenceRows = evidence.results || [];
   await auditSubmissionDetail(env, request, user, "submission_detail_viewed", submission.id, {
@@ -52,6 +65,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
     requirementId: submission.requirement_id,
     status: submission.status,
     evidenceCount: evidenceRows.length,
+    hasWrittenResponse: Boolean(String(writtenResponse?.response_text || "").trim()),
   });
 
   return json({
@@ -71,12 +85,24 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
       reviewStatus: artifact.review_status,
       createdAt: artifact.created_at,
     })),
+    writtenResponse: String(writtenResponse?.response_text || "").trim()
+      ? {
+          text: String(writtenResponse?.response_text || "").trim(),
+          updatedAt: writtenResponse?.updated_at || "",
+          wordCount: countWords(writtenResponse?.response_text || ""),
+        }
+      : null,
     storage: {
       provider: "google_drive",
       storageIdentifiersRedacted: true,
     },
   });
 };
+
+function countWords(value: string): number {
+  const text = String(value || "").trim();
+  return text ? text.split(/\s+/).length : 0;
+}
 
 async function auditSubmissionDetail(
   env: Env,

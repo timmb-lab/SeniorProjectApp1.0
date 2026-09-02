@@ -6,7 +6,7 @@ import path from "node:path";
 const EXPECTED = {
   accountId: "539e8f7c55e7b1472013626ad72f4c7f",
   projectName: "senior-capstone-app",
-  pagesOutputDir: ".",
+  pagesOutputDir: ".deploy-app",
   d1Binding: "DB",
   d1DatabaseName: "senior-capstone-db",
   d1DatabaseId: "3141d9ac-08b7-49c1-92ba-bbf50c1a611f",

@@ -547,6 +547,14 @@ class MockD1PreparedStatement {
   async first() {
     const sql = this.normalizedSql();
 
+    if (sql.startsWith("select 1 from password_credentials where user_id = ?")) {
+      return { ok: 1 };
+    }
+
+    if (sql.startsWith("select 1 from auth_identities where user_id = ?")) {
+      return null;
+    }
+
     if (sql.startsWith("select id, user_id, token_hash, expires_at, revoked_at from sessions where token_hash = ?")) {
       const [tokenHash] = this.params;
       const nowIso = this.db.nowIso();
@@ -678,6 +686,44 @@ class MockD1PreparedStatement {
       };
     }
 
+    if (
+      sql.includes("from site_users")
+      || sql.includes("from site_programs")
+      || sql.includes("from mentor_assignments join site_users")
+      || sql.includes("from viewer_student_assignments join site_users")
+    ) {
+      return { results: [] };
+    }
+
+    if (sql.includes("select distinct student_user_id as id from mentor_assignments")) {
+      const [mentorId] = this.params;
+      return {
+        results: this.db.data.mentorAssignments
+          .filter((row) => row.mentor_user_id === mentorId && Number(row.active) === 1)
+          .map((row) => ({ id: row.student_user_id })),
+      };
+    }
+
+    if (sql.includes("from viewer_student_assignments")) {
+      return { results: [] };
+    }
+
+    if (
+      sql.includes("join group_memberships on group_memberships.user_id = user_accounts.id")
+      && sql.includes("join groups on groups.id = group_memberships.group_id")
+    ) {
+      const [scopeId] = this.params;
+      const scopeColumn = sql.includes("groups.cohort_id = ?") ? "cohort_id" : "program_id";
+      const allowedGroupIds = this.db.data.groups
+        .filter((group) => group[scopeColumn] === scopeId)
+        .map((group) => group.id);
+      return {
+        results: this.db.data.groupMemberships
+          .filter((membership) => allowedGroupIds.includes(membership.group_id))
+          .map((membership) => ({ id: membership.user_id })),
+      };
+    }
+
     if (sql.includes("from presentation_slots") && sql.includes("join user_accounts student")) {
       const locationFilter = sql.includes("where lower(presentation_slots.location) = lower(?)")
         ? String(this.params[0] || "").toLowerCase()
@@ -685,6 +731,11 @@ class MockD1PreparedStatement {
       const results = this.db.data.presentationSlots
         .filter((row) => row.status !== "cancelled")
         .filter((row) => !locationFilter || String(row.location).toLowerCase() === locationFilter)
+        .filter((row) => !sql.includes("and 1 = 0"))
+        .filter((row) => {
+          if (!sql.includes("presentation_slots.student_user_id in")) return true;
+          return this.params.includes(row.student_user_id);
+        })
         .sort((a, b) => String(a.scheduled_for).localeCompare(String(b.scheduled_for)))
         .map((row) => {
           const student = this.db.data.userAccounts.find((user) => user.id === row.student_user_id);

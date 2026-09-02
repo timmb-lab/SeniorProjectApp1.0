@@ -1,0 +1,180 @@
+/*
+ * Brand and type foundations.
+ * Load this before 06-visual-polish.css, which owns the final component overrides.
+ */
+@font-face {
+  font-family: "Barlow Semi Condensed";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url("/assets/fonts/barlow-semi-condensed-latin-600-normal-5.3.0.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Barlow Semi Condensed";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700 950;
+  src: url("/assets/fonts/barlow-semi-condensed-latin-700-normal-5.3.0.woff2") format("woff2");
+}
+
+:root {
+  --font-ui: "Segoe UI", Arial, Verdana, sans-serif;
+  --font-display: "Segoe UI", Arial, Verdana, sans-serif;
+  --school-display-font: var(--font-display);
+  --school-primary: #2463a6;
+  --school-primary-strong: #173f70;
+  --school-accent: #39c7bc;
+  --school-on-primary: #ffffff;
+  --type-page-title: clamp(1.85rem, 1.45rem + 1.45vw, 2.45rem);
+  --type-section-title: clamp(1.25rem, 1.1rem + 0.6vw, 1.65rem);
+  --type-body: 1rem;
+  --type-small: 0.875rem;
+  --type-label: 0.75rem;
+}
+
+/* Approved school palette and display type. */
+:root[data-school-theme="east-tech"] {
+  --school-primary: #1d50a2;
+  --school-primary-strong: #163d7c;
+  --school-accent: #c0c1c3;
+  --school-display-font: "Barlow Semi Condensed", "Arial Narrow", Arial, sans-serif;
+}
+
+:root[data-school-theme="desert-valley"] {
+  --school-primary: #166b80;
+  --school-primary-strong: #0c4658;
+  --school-accent: #56c8c0;
+}
+
+:root[data-school-theme="canyon-ridge"] {
+  --school-primary: #875b14;
+  --school-primary-strong: #5b3a08;
+  --school-accent: #e4b44f;
+}
+
+:root[data-school-theme="north-valley"] {
+  --school-primary: #176d5d;
+  --school-primary-strong: #0c493f;
+  --school-accent: #75c7b5;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+body[data-page="workspace"],
+.workspace-shell,
+.workspace-auth,
+.workspace-app {
+  font-family: var(--font-ui);
+  font-size: var(--type-body);
+  line-height: 1.5;
+}
+
+:root[data-theme="light"] body[data-page="workspace"],
+:root[data-theme="light"] .workspace-shell,
+:root[data-theme="light"] .workspace-auth,
+:root[data-theme="light"] .workspace-app {
+  --ticket-bg: #f4f7fb;
+  --ticket-bg-soft: #edf2f7;
+  --ticket-panel: #ffffff;
+  --ticket-panel-raised: #f8fafc;
+  --ticket-border: #d5deea;
+  --ticket-border-bright: #b8c5d6;
+  --ticket-text: #172033;
+  --ticket-muted: #566477;
+  --ticket-faint: #6c7888;
+  --ticket-blue: var(--school-primary);
+  --ticket-blue-bright: var(--school-primary);
+  --ticket-cyan: var(--school-accent);
+  --surface-page: var(--ticket-bg);
+  --surface-card: var(--ticket-panel);
+  --surface-muted: #f1f5f9;
+  --surface-section: #f8fafc;
+  --surface-row: #ffffff;
+  --surface-raised: var(--ticket-panel-raised);
+  --text-primary: var(--ticket-text);
+  --text-secondary: #2c3747;
+  --text-muted: var(--ticket-muted);
+  --action-primary: var(--school-primary);
+  --action-primary-strong: var(--school-primary-strong);
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--school-primary) 24%, transparent);
+}
+
+:root[data-theme="dark"] body[data-page="workspace"],
+:root[data-theme="dark"] .workspace-shell,
+:root[data-theme="dark"] .workspace-auth,
+:root[data-theme="dark"] .workspace-app {
+  --ticket-bg: #08111f;
+  --ticket-bg-soft: #0b1728;
+  --ticket-panel: #0f1b2e;
+  --ticket-panel-raised: #14233a;
+  --ticket-border: #2a3b56;
+  --ticket-border-bright: #3b5272;
+  --ticket-text: #f3f7fc;
+  --ticket-muted: #a9b6c8;
+  --ticket-faint: #8999ad;
+  --ticket-blue: color-mix(in srgb, var(--school-primary) 68%, #9ed2ff);
+  --ticket-blue-bright: color-mix(in srgb, var(--school-primary) 48%, #d6eaff);
+  --ticket-cyan: color-mix(in srgb, var(--school-accent) 78%, #ffffff);
+  --surface-page: var(--ticket-bg);
+  --surface-card: var(--ticket-panel);
+  --surface-muted: #0b1728;
+  --surface-section: #0d1b2d;
+  --surface-row: #0f1b2e;
+  --surface-raised: var(--ticket-panel-raised);
+  --text-primary: var(--ticket-text);
+  --text-secondary: #d6e0eb;
+  --text-muted: var(--ticket-muted);
+  --action-primary: var(--school-primary);
+  --action-primary-strong: var(--school-primary-strong);
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--school-primary) 52%, #ffffff);
+}
+
+.workspace-v2-sidebar-brand strong,
+.workspace-landing-brand-row .workspace-brand > span:last-child {
+  font-family: var(--school-display-font);
+}
+
+.workspace-v2-hero h1,
+.workspace-review-queue .workspace-section-heading h1,
+.workspace-section-heading h1 {
+  font-family: var(--font-display);
+  font-size: var(--type-page-title);
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+
+.workspace-landing-copy h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.65rem, 4.5vw, 3.75rem);
+  line-height: 1.02;
+}
+
+.workspace-v2-hero p:not(.workspace-v2-kicker),
+.workspace-section-heading p,
+.workspace-review-queue .workspace-section-heading p {
+  font-size: var(--type-body);
+  line-height: 1.55;
+}
+
+.workspace-v2-kicker,
+.workspace-label,
+.workspace-review-eyebrow {
+  font-size: var(--type-label);
+  letter-spacing: 0.09em;
+}
+
+.workspace-button,
+.workspace-link-button,
+.workspace-v2-step,
+.workspace-input,
+.workspace-select,
+.workspace-textarea {
+  font-family: var(--font-ui);
+}

@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { readWorkspaceCssSource, readWorkspaceJavaScriptSource } from "./lib/workspace-sources.mjs";
 
 const files = {
   workspaceHtml: "workspace.html",
@@ -11,6 +12,8 @@ const files = {
 const source = Object.fromEntries(
   Object.entries(files).map(([key, file]) => [key, readFileSync(file, "utf8")]),
 );
+source.workspaceJs = await readWorkspaceJavaScriptSource();
+source.workspaceCss = await readWorkspaceCssSource();
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 const failures = [];
 
@@ -170,7 +173,7 @@ assertMatches("workspaceJs", /renderReadOnlyBanner\(\)[\s\S]*Read-only workspace
 assertMatches("workspaceJs", /function renderAdminConsoleOverviewSection\(capabilities = adminConsoleCapabilitiesFor\(currentUser\)\)[\s\S]*data-admin-console-setup-list="true"[\s\S]*data-admin-console-health="true"[\s\S]*data-admin-console-quick-actions="true"[\s\S]*data-admin-console-recent-activity="true"/, "Admin Console overview must render setup issues, health, quick actions, and recent activity");
 assertMatches("workspaceJs", /function renderAdminSetupIssues\(issues = \[\]\)[\s\S]*Needs Setup[\s\S]*No setup issues found/, "Admin Console overview must prioritize setup issues without proof copy");
 assertMatches("workspaceJs", /function adminConsoleSectionsForRoles\(roles\)[\s\S]*add\("adminPeople", "People"[\s\S]*add\("adminStudents", "Students"[\s\S]*add\("adminAssignments", "Assignments"[\s\S]*add\("programs", "Programs"[\s\S]*add\("adminImports", "Imports"[\s\S]*add\("adminReports", "Reports"[\s\S]*add\("audit", "Audit"/, "Admin Console nav must follow the operations IA order");
-assertMatches("workspaceJs", /data-review-queue-read-only="true"[\s\S]*only assigned Program Teachers can save feedback or decisions/, "Read-only Review Queue must not expose decision controls");
+assertMatches("workspaceJs", /data-review-queue-read-only="true"[\s\S]*only the assigned reviewer can save a decision/, "Read-only Review Queue must not expose decision controls");
 assertMatches("workspaceJs", /data-mentor-assignment-controls-hidden="true"[\s\S]*Assignment changes unavailable/, "Read-only Mentor Assignments must hide mutation controls");
 assertMatches("workspaceJs", /data-operations-read-only="true"[\s\S]*Read-only operations worklists/, "Operations view must remain monitoring-only");
 assertMatches("workspaceJs", /\/api\/site\/programs/, "Programs section must load the scoped site-programs route");
@@ -183,7 +186,7 @@ assertMatches("workspaceJs", /renderSiteProgramForm\("assign", "Add program"/, "
 assertMatches("workspaceJs", /renderSiteProgramForm\("remove", "Remove program"/, "Programs section must expose a real remove-program form");
 
 assertMatches("workspaceJs", /renderActiveFilterSummary\(/, "Workspace lists must expose active filter summaries");
-assertMatches("workspaceJs", /Reload or share this view with the current browser URL/, "Filtered worklists must explain reloadable/shareable URL state");
+assertMatches("workspaceJs", /Back and Forward keep your recent views\. The browser address stays clean\./, "Filtered worklists must explain static-address browser history");
 for (const fn of [
   "siteStudentFiltersFromSearchParams",
   "siteStudentDetailUrlStateFromSearchParams",
@@ -200,8 +203,9 @@ for (const fn of [
   "syncCurrentWorkspaceUrlState",
   "syncWorkspaceSectionOnlyUrlState",
 ]) {
-  assertMatches("workspaceJs", new RegExp(`function ${fn}\\b`), `${fn} must exist for shareable worklist URL state`);
+  assertMatches("workspaceJs", new RegExp(`function ${fn}\\b`), `${fn} must exist for bounded worklist history state`);
 }
+assertMatches("workspaceJs", /function writeWorkspaceHistoryState\b[\s\S]*canonicalPath[\s\S]*WORKSPACE_HISTORY_ROUTE_KEY/, "Workspace navigation must keep route state in history while the address stays canonical");
 assertMatches("workspaceJs", /SITE_STUDENT_DETAIL_URL_PARAMS = \["detailStudentId", "detailTab", "detailTimelineType"\]/, "Student detail URL state must use dedicated safe params");
 assertMatches("workspaceJs", /SITE_STUDENT_DETAIL_URL_SECTIONS = new Set\(\[[\s\S]*"adminDashboard"[\s\S]*"siteDashboard"[\s\S]*"students"[\s\S]*"teacher"[\s\S]*"mentorAssignments"[\s\S]*"mentorDashboard"[\s\S]*"programDashboard"[\s\S]*"operations"[\s\S]*\]\)/, "Student detail URL state must include the Admin Command Center alongside existing scoped worklist sections");
 assertMatches("workspaceJs", /openSiteStudentDetail\(studentId, options = \{\}\)[\s\S]*syncCurrentWorkspaceUrlState\(\)/, "Opening student detail must sync shareable URL state");
@@ -215,7 +219,7 @@ assertMatches("workspaceJs", /activeSection === "presentation"[\s\S]*syncPresent
 assertMatches("workspaceJs", /function handlePresentationFilterAction\(event\)[\s\S]*syncPresentationScheduleUrlState\(\{ clearFilters: presentationSlotFilter === "all" \}\)/, "Presentation schedule filter controls must update shareable URL state");
 assertMatches("workspaceJs", /selectWorkspaceSite\(siteId\)[\s\S]*syncCurrentWorkspaceUrlState\(\{ clearFilters: true, replace: true \}\)/, "Site switching must clear stale worklist filters from URL state");
 assertMatches("workspaceCss", /\.workspace-active-filters/, "Active filter summaries must have stable styling");
-assertMatches("workspaceCss", /\.workspace-active-filter-note/, "Shareable filter URL note must have stable styling");
+assertMatches("workspaceCss", /\.workspace-active-filter-note/, "Static-address filter history note must have stable styling");
 assertIncludes("dashboardVerifier", "unsupported dashboard action preset", "dashboard verifier should still guard unsupported presets");
 assertIncludes("reviewQueueVerifier", "Review Queue URL parsing", "review queue deep-link verifier should be present");
 

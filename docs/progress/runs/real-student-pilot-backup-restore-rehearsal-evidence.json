@@ -1,0 +1,36 @@
+{
+  "proof": "local_non_production_backup_restore_rehearsal",
+  "runDate": "2026-09-01T20:47:11.981-07:00",
+  "technicalOwner": "Application technical operator",
+  "reviewStatus": "TECHNICAL_REHEARSAL_PASSED",
+  "dataClassification": "synthetic_non_production",
+  "databaseTarget": "temporary isolated local SQLite database",
+  "productionDataTouched": false,
+  "remoteD1Queries": 0,
+  "method": "Applied every repository migration, created a synthetic marker, used SQLite VACUUM INTO for the backup, copied it to a separate restore target, opened the restore read-only, and verified integrity, marker recovery, and required tables.",
+  "migrationCount": 29,
+  "lastMigration": "0029_password_setup_codes.sql",
+  "restoredTableCount": 63,
+  "requiredTables": [
+    "user_accounts",
+    "projects",
+    "project_members",
+    "submissions",
+    "audit_events",
+    "auth_mfa_totp",
+    "auth_password_setup_tokens"
+  ],
+  "missingTables": [],
+  "integrityCheck": "ok",
+  "markerRecovered": true,
+  "temporaryFilesRemoved": true,
+  "recoveryOwner": "Application technical operator",
+  "expectedRecoveryTime": "Must be measured during a separately approved Cloudflare D1 recovery exercise before real-user launch.",
+  "result": "PASS",
+  "limitations": [
+    "This verifies the repository schema and an isolated backup/restore path only.",
+    "It does not authorize a destructive production restore.",
+    "It does not satisfy school or district privacy, retention, support, incident-response, roster-owner, or credential-delivery approval."
+  ],
+  "reproduce": "npm run prove:backup-restore:local"
+}

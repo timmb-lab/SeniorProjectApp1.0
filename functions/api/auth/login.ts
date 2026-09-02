@@ -1,7 +1,9 @@
 import type { Env } from "../../_types.ts";
-import { createSession, sessionCookie, writeAudit } from "../../_lib/auth.ts";
-import { normalizeEmail, randomId, sha256Hex, verifyPassword } from "../../_lib/crypto.ts";
+import { createSession, securityFingerprint, sessionCookie, writeAudit } from "../../_lib/auth.ts";
+import { hashPassword, normalizeEmail, PASSWORD_ITERATIONS, randomId, verifyPassword } from "../../_lib/crypto.ts";
 import { badRequest, getClientIp, json, readJson, requirePost } from "../../_lib/http.ts";
+import { authSecretsConfigured } from "../../_lib/auth-config.ts";
+import { beginMfaChallenge, userNeedsStaffMfa } from "../../_lib/mfa.ts";
 
 interface LoginBody {
   email?: string;
@@ -16,15 +18,21 @@ interface CredentialRow {
   status: string;
   password_hash: string;
   password_salt: string;
+  algorithm: string;
+  iterations: number;
   requires_reset: number;
 }
 
 const WINDOW_MINUTES = 15;
 const MAX_FAILURES = 10;
+const MAX_IP_FAILURES = 30;
 
 export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
   const methodError = requirePost(request);
   if (methodError) return methodError;
+  if (!authSecretsConfigured(env, { password: true })) {
+    return json({ error: "auth_not_configured" }, { status: 503 });
+  }
 
   let body: LoginBody;
   try {
@@ -34,8 +42,8 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
   }
   const emailNorm = normalizeEmail(body.email || "");
   const password = body.password || "";
-  const identifierHash = await sha256Hex(emailNorm);
-  const ipHash = await sha256Hex(getClientIp(request));
+  const identifierHash = await securityFingerprint(env, `login-id:${emailNorm}`);
+  const ipHash = await securityFingerprint(env, `ip:${getClientIp(request)}`);
 
   const recentFailures = await env.DB.prepare(
     `SELECT COUNT(*) AS count
@@ -44,22 +52,31 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
        AND success = 0
        AND created_at > strftime('%Y-%m-%dT%H:%M:%fZ', 'now', ?)`,
   ).bind(identifierHash, `-${WINDOW_MINUTES} minutes`).first<{ count: number }>();
+  const recentIpFailures = await env.DB.prepare(
+    `SELECT COUNT(*) AS count
+     FROM login_attempts
+     WHERE ip_hash = ?
+       AND success = 0
+       AND created_at > strftime('%Y-%m-%dT%H:%M:%fZ', 'now', ?)`,
+  ).bind(ipHash, `-${WINDOW_MINUTES} minutes`).first<{ count: number }>();
 
-  if ((recentFailures?.count || 0) >= MAX_FAILURES) {
+  if ((recentFailures?.count || 0) >= MAX_FAILURES || (recentIpFailures?.count || 0) >= MAX_IP_FAILURES) {
     await recordAttempt(env, identifierHash, ipHash, false, "rate_limited");
     return json({ error: "rate_limited" }, { status: 429 });
   }
 
   const row = await env.DB.prepare(
-    `SELECT u.id AS user_id, u.email, u.email_norm, u.display_name, u.status, c.password_hash, c.password_salt, c.requires_reset
+    `SELECT u.id AS user_id, u.email, u.email_norm, u.display_name, u.status, c.password_hash, c.password_salt, c.algorithm, c.iterations, c.requires_reset
      FROM user_accounts u
      JOIN password_credentials c ON c.user_id = u.id
      WHERE u.email_norm = ?`,
   ).bind(emailNorm).first<CredentialRow>();
 
-  const valid = row
-    ? await verifyPassword(password, row.password_hash, row.password_salt, env.PASSWORD_PEPPER || "")
-    : false;
+  // Always perform a password derivation so unknown accounts do not have a
+  // materially faster response than known accounts.
+  const valid = row && row.algorithm === "PBKDF2-SHA-256"
+    ? await verifyPassword(password, row.password_hash, row.password_salt, env.PASSWORD_PEPPER || "", Number(row.iterations))
+    : await verifyPassword(password, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", env.PASSWORD_PEPPER || "");
 
   if (!row || !valid) {
     await recordAttempt(env, identifierHash, ipHash, false, "invalid_credentials");
@@ -74,6 +91,39 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
   if (row.status !== "active") {
     await recordAttempt(env, identifierHash, ipHash, false, "invalid_credentials");
     return json({ error: "invalid_credentials" }, { status: 401 });
+  }
+
+  if (Number(row.iterations) < PASSWORD_ITERATIONS) {
+    const upgraded = await hashPassword(password, env.PASSWORD_PEPPER || "");
+    await env.DB.prepare(
+      `UPDATE password_credentials
+       SET password_hash = ?, password_salt = ?, algorithm = ?, iterations = ?,
+           password_changed_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+       WHERE user_id = ?`,
+    ).bind(upgraded.hash, upgraded.salt, upgraded.algorithm, upgraded.iterations, row.user_id).run();
+  }
+
+  if (await userNeedsStaffMfa(env, row.user_id)) {
+    const challenge = await beginMfaChallenge(env, { id: row.user_id, email: row.email });
+    await recordAttempt(env, identifierHash, ipHash, true, "mfa_pending");
+    await writeAudit(env, {
+      actorUserId: row.user_id,
+      action: "login_password_verified_mfa_pending",
+      entityType: "user_account",
+      entityId: row.user_id,
+      request,
+      metadata: { challengeType: challenge.challengeType },
+    });
+    return json({
+      ok: false,
+      error: challenge.challengeType === "enroll" ? "mfa_enrollment_required" : "mfa_required",
+      challengeToken: challenge.challengeToken,
+      mfa: {
+        mode: challenge.challengeType,
+        secret: challenge.secret || "",
+        otpauthUrl: challenge.otpauthUrl || "",
+      },
+    }, { status: 202 });
   }
 
   await recordAttempt(env, identifierHash, ipHash, true, null);

@@ -1,8 +1,15 @@
-import type { Env } from "../_types";
-import { json } from "../_lib/http";
-import { studentRosterProfilesTableExists } from "../_lib/student-roster-profiles";
+import type { Env } from "../_types.ts";
+import { getCurrentUser } from "../_lib/auth.ts";
+import { json } from "../_lib/http.ts";
+import { canManageSecurity } from "../_lib/permissions.ts";
+import { studentRosterProfilesTableExists } from "../_lib/student-roster-profiles.ts";
 
-export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
+export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
+  const user = await getCurrentUser(request, env);
+  const mayViewReadiness = user ? await canManageSecurity(env, user) : false;
+  if (!mayViewReadiness) {
+    return json({ ok: true });
+  }
   const [row, rosterProfilesReady] = await Promise.all([
     env.DB.prepare("SELECT 1 AS ready").first<{ ready: number }>(),
     studentRosterProfilesTableExists(env),
@@ -14,19 +21,20 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
   const driveIndexConfigured = isConfiguredSecret(env.GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID);
   return json({
     ok: true,
-    app: "senior-capstone-app",
-    environment: env.APP_ENV || null,
-    authMode: env.AUTH_MODE,
-    databaseReady: row?.ready === 1,
-    studentRosterProfilesReady: rosterProfilesReady,
-    evidenceStorageProvider: env.EVIDENCE_STORAGE_PROVIDER,
-    evidenceRootConfigured: driveRootConfigured,
-    evidenceIndexConfigured: driveIndexConfigured,
-    googleDriveProviderConfigured: driveProviderConfigured,
-    googleDriveRootIdConfigured: driveRootConfigured,
-    googleDriveIndexConfigured: driveIndexConfigured,
-    googleDriveCredentialsConfigured: driveClientEmailConfigured && drivePrivateKeyConfigured,
-    googleDriveLiveProbeSupported: true,
+    readiness: {
+      environment: env.APP_ENV || null,
+      authMode: env.AUTH_MODE,
+      databaseReady: row?.ready === 1,
+      studentRosterProfilesReady: rosterProfilesReady,
+      evidenceStorageProvider: env.EVIDENCE_STORAGE_PROVIDER,
+      evidenceRootConfigured: driveRootConfigured,
+      evidenceIndexConfigured: driveIndexConfigured,
+      googleDriveProviderConfigured: driveProviderConfigured,
+      googleDriveRootIdConfigured: driveRootConfigured,
+      googleDriveIndexConfigured: driveIndexConfigured,
+      googleDriveCredentialsConfigured: driveClientEmailConfigured && drivePrivateKeyConfigured,
+      googleDriveLiveProbeSupported: true,
+    },
   });
 };
 

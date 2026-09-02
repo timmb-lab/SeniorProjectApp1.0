@@ -1,4 +1,10 @@
-const PASSWORD_ITERATIONS = 100000;
+// Cloudflare Workers' Web Crypto implementation caps PBKDF2 at 100,000
+// iterations. A server-side pepper plus login throttling provide the remaining
+// defense in depth without generating hashes the production runtime cannot
+// verify.
+export const PASSWORD_ITERATIONS = 100000;
+const MIN_SUPPORTED_PASSWORD_ITERATIONS = 100000;
+const MAX_SUPPORTED_PASSWORD_ITERATIONS = 100000;
 
 function bytesToBase64Url(bytes: Uint8Array): string {
   let binary = "";
@@ -57,7 +63,17 @@ export async function sha256Hex(value: string): Promise<string> {
     .join("");
 }
 
-async function derivePasswordBits(password: string, salt: Uint8Array, pepper = ""): Promise<ArrayBuffer> {
+async function derivePasswordBits(
+  password: string,
+  salt: Uint8Array,
+  pepper = "",
+  iterations = PASSWORD_ITERATIONS,
+): Promise<ArrayBuffer> {
+  if (!Number.isInteger(iterations)
+    || iterations < MIN_SUPPORTED_PASSWORD_ITERATIONS
+    || iterations > MAX_SUPPORTED_PASSWORD_ITERATIONS) {
+    throw new Error("Unsupported password hash work factor.");
+  }
   const passwordBytes = new TextEncoder().encode(`${pepper}${password}`);
   const key = await crypto.subtle.importKey(
     "raw",
@@ -71,14 +87,14 @@ async function derivePasswordBits(password: string, salt: Uint8Array, pepper = "
       name: "PBKDF2",
       hash: "SHA-256",
       salt: toArrayBuffer(salt),
-      iterations: PASSWORD_ITERATIONS,
+      iterations,
     },
     key,
     256,
   );
 }
 
-export async function hashPassword(password: string, pepper = ""): Promise<{
+export async function hashPassword(password: string, pepper = "", iterations = PASSWORD_ITERATIONS): Promise<{
   hash: string;
   salt: string;
   algorithm: "PBKDF2-SHA-256";
@@ -86,12 +102,12 @@ export async function hashPassword(password: string, pepper = ""): Promise<{
 }> {
   const salt = new Uint8Array(24);
   crypto.getRandomValues(salt);
-  const derived = new Uint8Array(await derivePasswordBits(password, salt, pepper));
+  const derived = new Uint8Array(await derivePasswordBits(password, salt, pepper, iterations));
   return {
     hash: bytesToBase64Url(derived),
     salt: bytesToBase64Url(salt),
     algorithm: "PBKDF2-SHA-256",
-    iterations: PASSWORD_ITERATIONS,
+    iterations,
   };
 }
 
@@ -100,10 +116,30 @@ export async function verifyPassword(
   storedHash: string,
   storedSalt: string,
   pepper = "",
+  iterations = PASSWORD_ITERATIONS,
 ): Promise<boolean> {
-  const salt = base64UrlToBytes(storedSalt);
-  const derived = new Uint8Array(await derivePasswordBits(password, salt, pepper));
-  return equalBytes(derived, base64UrlToBytes(storedHash));
+  try {
+    const salt = base64UrlToBytes(storedSalt);
+    const derived = new Uint8Array(await derivePasswordBits(password, salt, pepper, iterations));
+    return equalBytes(derived, base64UrlToBytes(storedHash));
+  } catch {
+    return false;
+  }
+}
+
+export async function hmacSha256Hex(secret: string, value: string): Promise<string> {
+  if (!secret) throw new Error("Fingerprint key is required.");
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(signature))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 export function validatePassword(password: string, context: { email?: string; displayName?: string } = {}): string[] {

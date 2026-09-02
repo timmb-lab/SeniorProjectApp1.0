@@ -1,6 +1,6 @@
 # Production Surface Registry
 
-Date: 2026-05-21
+Date: 2026-09-01
 
 Classification values: `production`, `internal-alpha`, `internal-smoke`, `generated-output`, `retired-stakeholder-option`, `preview`, `legacy`, `unknown`.
 
@@ -11,11 +11,11 @@ Production-safe means the surface is safe to present in its intended context. A 
 | Item | Current state | Target state | Validation |
 | --- | --- | --- | --- |
 | Official product title | Capstone Project | Capstone Project | Search must not treat "The Capstone Project" as official title |
-| Product/app target | Cloudflare association in progress when live tooling permits | `thecapstoneproject.com` on `senior-capstone-app` | `npm run check:custom-domain-cutover` |
-| Product alias | Optional | `www.thecapstoneproject.com` on `senior-capstone-app` if configured | `npm run check:custom-domain-cutover -- --live-required --live-http` |
-| Optional app split | Not required by this pass | `app.thecapstoneproject.com` only if deployment/SSO split requires it later | Manual Cloudflare plus Google OAuth redirect URI cutover |
-| Current legacy guide hostnames | `thecapstoneapp.com`, `www.thecapstoneapp.com` | Legacy/current pending migration | Historical/live checks only |
-| Current legacy app/SSO hostname | `app.thecapstoneapp.com` | Keep as current Google OAuth redirect host until later SSO cutover | Google SSO tests and docs |
+| Canonical product/app | Active | `thecapstoneapp.com` on `senior-capstone-app` | `npm run check:custom-domain-cutover` |
+| Canonical alias | Active | `www.thecapstoneapp.com` permanently redirects to the apex | `npm run check:custom-domain-cutover -- --live-required --live-http` |
+| Project-domain redirects | Active | `thecapstoneproject.com` and `www.thecapstoneproject.com` permanently redirect to matching canonical paths | Live HTTPS checks |
+| Retired app hostname | Removed | `app.thecapstoneapp.com` must not be attached to a Pages project or serve the app | Pages Domains API and live DNS/HTTPS checks |
+| Direct Pages alias | Redirect only | `senior-capstone-app.pages.dev` permanently redirects to the canonical apex | Live HTTPS checks |
 | East Tech guide future domain | `TBD` | `TBD` until Bryan buys/configures it | Search for invented guide domains |
 
 Repo edits do not equal Cloudflare custom-domain changes. Live state is verified only when the Pages Domains API and HTTPS checks pass.
@@ -24,8 +24,8 @@ Repo edits do not equal Cloudflare custom-domain changes. Live state is verified
 
 | Surface | Path | Deploy project | Classification | Audience | Production-safe | Reason | Validation |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Capstone Project product app | `workspace.html`, `workspace.js`, `workspace.css`; product root redirects to `workspace.html` | `senior-capstone-app` | `production` | Authenticated students, mentors, program teachers, admins, misc admins | Partial | Canonical protected workspace route with role-aware dashboards, auth/session APIs, D1-backed data, evidence workflows, and school-agnostic copy. | `npm run test`; `npm run check:production-surfaces`; hosted workspace checks when credentials exist |
-| East Tech guide source | `index.html`, public route pages, `app.js`, `styles.css`, `assets/`, `templates/` | `senior-capstone-app` source and `senior-capstone-public` generated mirror | `production` / `generated-output` | East Tech students, families, staff, mentors | Yes as public guide | School-specific Student Guide / Teacher Guide content with East Tech/Titans branding. Not the long-term product root. | `npm run build:public-site`; `npm run check:generated-output-drift`; `npm run check:production-surfaces` |
+| Capstone Project product app | `/` with `workspace.css` and `workspace/**`; old workspace entry paths redirect to `/` | `senior-capstone-app` | `production` | Authenticated students, mentors, program teachers, admins, misc admins | Yes | One canonical protected workspace root with role-aware dashboards, auth/session APIs, D1-backed data, evidence workflows, and school-agnostic copy. | `npm run test`; `npm run check:production-surfaces`; hosted workspace checks when credentials exist |
+| East Tech guide source | `index.html`, public route pages, `app.js`, `styles.css`, `assets/`, `templates/` | Source only in the repo; generated to `senior-capstone-public` | `production` / `generated-output` | East Tech students, families, staff, mentors | Yes as public guide | School-specific Student Guide / Teacher Guide content is excluded from the product deployment bundle. | `npm run build:public-site`; `npm run check:generated-output-drift`; `npm run check:production-surfaces` |
 | Internal alpha page | `alpha.html` | `senior-capstone-app` | `internal-alpha` | Bryan and QA testers | No for public navigation | Internal seeded alpha walkthrough. | `npm run check:alpha-contract`; `npm run check:alpha-account-gating`; `npm run test` |
 | Internal account page | `account.html` | `senior-capstone-app` | `internal-smoke` | Bryan and QA testers | No for public navigation | Fake `.test` account/session/evidence smoke workflow. | `npm run check:alpha-account-gating`; `npm run test` |
 | App workflow preview | `app-preview.html` | `senior-capstone-app`, copied to `public-companion/` | `preview` | Public stakeholders and staff | No as canonical app | Clearly labeled workflow preview only. | `npm run check:production-surfaces` |
@@ -36,7 +36,7 @@ Repo edits do not equal Cloudflare custom-domain changes. Live state is verified
 
 | Surface | Deploy command | Project | Current role | Notes |
 | --- | --- | --- | --- | --- |
-| Capstone Project app/backend | `npm run deploy` | `senior-capstone-app` | Canonical product app/backend | Cloudflare project name remains a legacy technical identifier. |
+| Capstone Project app/backend | `npm run deploy` | `senior-capstone-app` | Canonical product app/backend | Deploys the isolated `.deploy-app/` bundle. |
 | East Tech guide | `npm run deploy:public-site` | `senior-capstone-public` | Temporary/current guide deployment | Future custom guide domain remains TBD. |
 | Preview branch | `npm run deploy:preview` | `senior-capstone-app` branch `alpha` | Internal preview | Not canonical production. |
 

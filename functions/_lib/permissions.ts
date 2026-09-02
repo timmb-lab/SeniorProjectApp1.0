@@ -128,7 +128,7 @@ export async function canViewStudentEvidence(env: Env, viewer: UserAccount, stud
 
 export async function canReviewSubmission(env: Env, viewer: UserAccount, submissionId: string): Promise<boolean> {
   if (await isGlobalAdmin(env, viewer.id)) return true;
-  if (!await hasRole(env, viewer.id, "program_teacher")) return false;
+  if (!await hasRole(env, viewer.id, "program_teacher") && !await hasRole(env, viewer.id, "mentor")) return false;
   const submission = await env.DB.prepare(
     "SELECT student_id FROM submissions WHERE id = ? LIMIT 1",
   ).bind(submissionId).first<{ student_id: string }>();
@@ -331,6 +331,10 @@ export async function canViewReviewQueue(env: Env, viewer: UserAccount, siteId?:
   if (await hasAnyRole(env, viewer.id, ["site_admin"])) {
     return siteId ? canAccessSite(env, viewer, siteId) : (await getAccessibleSiteIds(env, viewer)).length > 0;
   }
+  if (await hasRole(env, viewer.id, "mentor")) {
+    if (siteId && !await canAccessSite(env, viewer, siteId)) return false;
+    return (await getMentorAssignedStudentIds(env, viewer)).length > 0;
+  }
   if (!await hasRole(env, viewer.id, "program_teacher")) return false;
   if (siteId && !await canAccessSite(env, viewer, siteId)) return false;
   return (await getProgramTeacherScopedStudentIds(env, viewer)).valid;
@@ -343,6 +347,7 @@ export async function canMutateReviewDecision(env: Env, viewer: UserAccount, sub
   if (await hasAnyRole(env, viewer.id, ["site_admin"])) {
     return canViewScopedStudentRecord(env, viewer, studentId);
   }
+  if (await hasRole(env, viewer.id, "mentor")) return canAccessStudent(env, viewer, studentId);
   if (!await hasRole(env, viewer.id, "program_teacher")) return false;
   return canAccessStudent(env, viewer, studentId);
 }
@@ -537,6 +542,52 @@ export async function canAccessStudent(env: Env, viewer: UserAccount, studentId:
      LIMIT 1`,
   ).bind(studentId, viewer.id).first();
   return Boolean(teacherRow);
+}
+
+export async function canAccessProject(env: Env, viewer: UserAccount, projectId: string): Promise<boolean> {
+  const normalizedProjectId = normalizeScopeId(projectId);
+  if (!normalizedProjectId) return false;
+
+  if (await isGlobalAdmin(env, viewer.id)) {
+    return Boolean(await env.DB.prepare(
+      "SELECT 1 FROM projects WHERE id = ? AND status != 'archived' LIMIT 1",
+    ).bind(normalizedProjectId).first());
+  }
+
+  const project = await env.DB.prepare(
+    "SELECT site_id FROM projects WHERE id = ? AND status != 'archived' LIMIT 1",
+  ).bind(normalizedProjectId).first<{ site_id: string }>();
+  if (!project) return false;
+
+  if (await hasAnyRole(env, viewer.id, ["site_admin", "administration"]) && await canAccessSite(env, viewer, project.site_id)) {
+    return true;
+  }
+
+  const members = await env.DB.prepare(
+    `SELECT student_user_id
+     FROM project_members
+     WHERE project_id = ?
+       AND active = 1
+     ORDER BY created_at ASC`,
+  ).bind(normalizedProjectId).all<{ student_user_id: string }>();
+
+  for (const member of members.results || []) {
+    if (await canAccessStudent(env, viewer, member.student_user_id)) return true;
+  }
+  return false;
+}
+
+export async function canManageProject(env: Env, viewer: UserAccount, projectIdOrSiteId: string): Promise<boolean> {
+  const normalizedId = normalizeScopeId(projectIdOrSiteId);
+  if (!normalizedId) return false;
+  if (await isGlobalAdmin(env, viewer.id)) return true;
+  if (!await hasAnyRole(env, viewer.id, ["site_admin", "administration", "program_teacher"])) return false;
+
+  const project = await env.DB.prepare(
+    "SELECT site_id FROM projects WHERE id = ? LIMIT 1",
+  ).bind(normalizedId).first<{ site_id: string }>();
+  const siteId = project?.site_id || normalizedId;
+  return canAccessSite(env, viewer, siteId);
 }
 
 export async function canManageUsers(env: Env, viewer: UserAccount): Promise<boolean> {

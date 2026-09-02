@@ -3,16 +3,17 @@ import { getCurrentUser, writeAudit } from "../../_lib/auth.ts";
 import { loadEffectiveAccess } from "../../_lib/effective-access.ts";
 import { badRequest, json, readJson, requirePost } from "../../_lib/http.ts";
 import { canManageSitePrograms } from "../../_lib/permissions.ts";
-import { cleanId, resolveSiteSelection, type SiteScopeContext } from "../../_lib/site-scope.ts";
+import { cleanId, cleanSiteBrandTheme, resolveSiteSelection, type SiteScopeContext } from "../../_lib/site-scope.ts";
 
 interface SiteProgramBody {
   action?: unknown;
   siteId?: unknown;
   programId?: unknown;
   adminNote?: unknown;
+  brandTheme?: unknown;
 }
 
-type SiteProgramAction = "assign" | "remove";
+type SiteProgramAction = "assign" | "remove" | "update_branding";
 
 interface SiteProgramRow {
   id: string;
@@ -71,6 +72,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       siteId,
       siteName: selection.site.name,
       schoolYear: selection.site.school_year || "",
+      brandTheme: cleanSiteBrandTheme(selection.site.brand_theme),
       role: context.primaryRole,
       accessibleSites: selection.accessibleSites,
     },
@@ -105,8 +107,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const programId = cleanId(typeof body.programId === "string" ? body.programId : null);
   const adminNote = typeof body.adminNote === "string" ? body.adminNote.trim().slice(0, 500) : "";
 
-  if (!action || !siteId || !programId) return badRequest("missing_fields");
-  if (!adminNote) return badRequest("missing_admin_note");
+  if (!action || !siteId) return badRequest("missing_fields");
   if (!await canManageSitePrograms(env, user, siteId)) {
     await auditSitePrograms(env, request, user, context, "security.denied_access", {
       reason: "site_not_manageable",
@@ -116,6 +117,30 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     });
     return json({ error: "forbidden" }, { status: 403 });
   }
+
+  if (action === "update_branding") {
+    const requestedBrandTheme = String(body.brandTheme || "").trim();
+    const brandTheme = cleanSiteBrandTheme(requestedBrandTheme);
+    if (brandTheme !== requestedBrandTheme) return badRequest("invalid_brand_theme");
+    await env.DB.prepare(
+      `INSERT INTO site_branding (site_id, theme_key, updated_by_user_id, updated_at)
+       VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+       ON CONFLICT(site_id) DO UPDATE SET
+         theme_key = excluded.theme_key,
+         updated_by_user_id = excluded.updated_by_user_id,
+         updated_at = excluded.updated_at`,
+    ).bind(siteId, brandTheme, user.id).run();
+    await auditSitePrograms(env, request, user, context, "site_brand_updated", {
+      action,
+      siteId,
+      brandTheme,
+      result: "success",
+    });
+    return json({ ok: true, action, siteId, brandTheme });
+  }
+
+  if (!programId) return badRequest("missing_fields");
+  if (!adminNote) return badRequest("missing_admin_note");
 
   if (action === "assign") {
     if (!await activeProgramExists(env, programId)) {
@@ -242,7 +267,7 @@ function programOption(row: SiteProgramRow) {
 
 function cleanProgramAction(value: unknown): SiteProgramAction | "" {
   const normalized = String(value || "").trim();
-  return normalized === "assign" || normalized === "remove" ? normalized : "";
+  return normalized === "assign" || normalized === "remove" || normalized === "update_branding" ? normalized : "";
 }
 
 function auditActionFor(action: SiteProgramAction): string {
@@ -260,7 +285,7 @@ async function auditSitePrograms(
   await writeAudit(env, {
     actorUserId: user.id,
     action,
-    entityType: "site_program_assignment",
+    entityType: action === "site_brand_updated" ? "site_branding" : "site_program_assignment",
     entityId: cleanId(String(metadata.siteId || metadata.requestedSiteId || "")) || null,
     request,
     metadata: {

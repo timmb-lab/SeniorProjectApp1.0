@@ -124,6 +124,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       siteId,
       siteName: selection.site.name,
       schoolYear: selection.site.school_year || "",
+      brandTheme: selection.site.brand_theme || "default",
       role: context.primaryRole,
       accessibleSites: selection.accessibleSites,
     },
@@ -151,6 +152,9 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       canAssignAdministration: canManageAccessAssignmentType(actorAccess, "administration_site"),
       canAssignSiteAdmins: canManageAccessAssignmentType(actorAccess, "site_admin_site"),
       canCreateGlobalAdmin: actorAccess.isGlobalAdmin,
+      canRequirePasswordReset: actorAccess.isGlobalAdmin
+        || actorAccess.canonicalRoleIds.includes("site_admin")
+        || actorAccess.canonicalRoleIds.includes("administration"),
     },
   });
 };
@@ -273,6 +277,7 @@ async function loadSiteUsersByRole(env: Env, siteId: string, roleId: RoleId) {
          user_accounts.id,
          user_accounts.display_name,
          user_accounts.email,
+         user_accounts.status,
          ${rosterProfilesReady ? "COALESCE(student_roster_profiles.cohort, '')" : "''"} AS cohort,
          ${rosterProfilesReady ? "COALESCE(student_roster_profiles.graduation_year, '')" : "''"} AS graduation_year,
          (
@@ -323,6 +328,7 @@ async function loadSiteUsersByRole(env: Env, siteId: string, roleId: RoleId) {
       id: string;
       display_name: string;
       email: string;
+      status: string;
       cohort: string | null;
       graduation_year: string | null;
       mentor_user_id: string | null;
@@ -334,7 +340,7 @@ async function loadSiteUsersByRole(env: Env, siteId: string, roleId: RoleId) {
   }
 
   const rows = await env.DB.prepare(
-    `SELECT DISTINCT user_accounts.id, user_accounts.display_name, user_accounts.email
+    `SELECT DISTINCT user_accounts.id, user_accounts.display_name, user_accounts.email, user_accounts.status
      FROM site_users
      JOIN user_accounts ON user_accounts.id = site_users.user_id
       AND user_accounts.status IN ('active', 'pending_reset')
@@ -344,7 +350,7 @@ async function loadSiteUsersByRole(env: Env, siteId: string, roleId: RoleId) {
       AND site_users.membership_status = 'active'
      ORDER BY user_accounts.display_name ASC
      LIMIT 200`,
-  ).bind(roleId, siteId).all<{ id: string; display_name: string; email: string }>();
+  ).bind(roleId, siteId).all<{ id: string; display_name: string; email: string; status: string }>();
   return (rows.results || []).map(userOption);
 }
 
@@ -571,11 +577,12 @@ async function ensureSiteMembership(env: Env, siteId: string, userId: string): P
   ).bind(siteId, userId).run();
 }
 
-function userOption(row: { id: string; display_name: string; email: string }) {
+function userOption(row: { id: string; display_name: string; email: string; status: string }) {
   return {
     userId: row.id,
     displayName: row.display_name,
     email: row.email,
+    status: row.status,
   };
 }
 
@@ -583,6 +590,7 @@ function studentUserOption(row: {
   id: string;
   display_name: string;
   email: string;
+  status: string;
   cohort: string | null;
   graduation_year: string | null;
   mentor_user_id: string | null;
@@ -594,6 +602,7 @@ function studentUserOption(row: {
     userId: row.id,
     displayName: row.display_name,
     email: row.email,
+    status: row.status,
     cohort: row.cohort || "",
     graduationYear: row.graduation_year || "",
     mentorUserId: row.mentor_user_id || "",

@@ -4,7 +4,7 @@ import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
 const repoRoot = process.cwd();
-const appUrl = "https://senior-capstone-app.pages.dev";
+const appUrl = "https://thecapstoneapp.com";
 
 const publicPages = [
   "index.html",

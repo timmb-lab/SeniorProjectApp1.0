@@ -2,6 +2,7 @@ import type { Env } from "../../_types.ts";
 import { hashPassword, normalizeEmail, randomId, validatePassword } from "../../_lib/crypto.ts";
 import { badRequest, json, readJson, requirePost } from "../../_lib/http.ts";
 import { writeAudit } from "../../_lib/auth.ts";
+import { authSecretsConfigured } from "../../_lib/auth-config.ts";
 
 interface BootstrapBody {
   setupKey?: string;
@@ -13,6 +14,7 @@ interface BootstrapBody {
 export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
   const methodError = requirePost(request);
   if (methodError) return methodError;
+  if (!authSecretsConfigured(env, { password: true })) return json({ error: "auth_not_configured" }, { status: 503 });
 
   if (!env.BOOTSTRAP_SETUP_KEY) {
     return json({ error: "bootstrap_disabled" }, { status: 403 });
@@ -46,10 +48,14 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
 
   try {
     const credential = await hashPassword(password, env.PASSWORD_PEPPER || "");
-    await env.DB.prepare(
+    const claim = await env.DB.prepare(
       `INSERT INTO user_accounts (id, email, email_norm, display_name, status)
-       VALUES (?, ?, ?, ?, 'active')`,
+       SELECT ?, ?, ?, ?, 'active'
+       WHERE NOT EXISTS (SELECT 1 FROM user_accounts)`,
     ).bind(userId, email.trim(), emailNorm, displayName).run();
+    if (Number(claim.meta?.changes || 0) !== 1) {
+      return json({ error: "bootstrap_already_completed" }, { status: 409 });
+    }
     await env.DB.prepare(
       `INSERT INTO password_credentials (user_id, password_hash, password_salt, algorithm, iterations)
        VALUES (?, ?, ?, ?, ?)`,

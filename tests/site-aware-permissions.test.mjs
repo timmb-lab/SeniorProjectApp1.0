@@ -151,7 +151,7 @@ test("program teacher remains program scoped and only manages mentor coverage", 
   assert.equal(await canMutateReviewDecision(env, users.teacherEmpty, "submission-a1"), false);
 });
 
-test("mentor can access assigned students only and never mutates reviews or full directories", async () => {
+test("mentor can review assigned students only and never opens full directories", async () => {
   const { env, users } = await createSitePermissionFixture();
 
   assert.equal(await isMentor(env, users.mentorA1.id), true);
@@ -161,7 +161,9 @@ test("mentor can access assigned students only and never mutates reviews or full
   assert.equal(await canAccessSite(env, users.mentorA1, "site-a1"), true);
   assert.equal(await canViewSiteStudentDetail(env, users.mentorA1, "student-a1", "site-a1"), true);
   assert.equal(await canViewStudentDirectory(env, users.mentorA1, "site-a1"), false);
-  assert.equal(await canMutateReviewDecision(env, users.mentorA1, "submission-a1"), false);
+  assert.equal(await canViewReviewQueue(env, users.mentorA1, "site-a1"), true);
+  assert.equal(await canMutateReviewDecision(env, users.mentorA1, "submission-a1"), true);
+  assert.equal(await canMutateReviewDecision(env, users.mentorA1, "submission-a2"), false);
   assert.equal(await canManageUsers(env, users.mentorA1), false);
   assert.equal(await canManageSecurity(env, users.mentorA1), false);
 });

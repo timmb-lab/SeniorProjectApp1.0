@@ -1,5 +1,5 @@
 import type { Env } from "../../../_types.ts";
-import { writeAudit } from "../../../_lib/auth.ts";
+import { securityFingerprint, writeAudit } from "../../../_lib/auth.ts";
 import {
   allowedGoogleDomains,
   authMode,
@@ -7,13 +7,19 @@ import {
   isGoogleSsoEnabled,
 } from "../../../_lib/auth-config.ts";
 import { buildGoogleAuthUrl, getGoogleDiscovery, GoogleOAuthError } from "../../../_lib/google-oauth.ts";
-import { json } from "../../../_lib/http.ts";
+import { applyApiSecurityHeaders, getClientIp, json } from "../../../_lib/http.ts";
 import { createOAuthState, safeReturnTo } from "../../../_lib/oauth-state.ts";
+import { authSecretsConfigured } from "../../../_lib/auth-config.ts";
 
 type GoogleSsoStartStep = "env_check" | "request" | "oauth_state" | "google_discovery" | "auth_url" | "audit";
+const SSO_START_WINDOW_MINUTES = 15;
+const MAX_SSO_STARTS_PER_IP = 30;
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const allowedDomains = allowedGoogleDomains(env);
+  if (!authSecretsConfigured(env)) {
+    return json({ ok: false, error: "sso_not_configured" }, { status: 503 });
+  }
   if (!isGoogleSsoEnabled(env)) {
     logGoogleSsoStartFailure(env, {
       reason: "sso_env_disabled",
@@ -23,15 +29,40 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     return json({ ok: false, error: "sso_not_configured" }, { status: 503 });
   }
 
+  const ipHash = await securityFingerprint(env, `ip:${getClientIp(request)}`);
+  const recentStarts = await env.DB.prepare(
+    `SELECT COUNT(*) AS count
+     FROM audit_events
+     WHERE action = 'google_sso_start_attempt'
+       AND ip_hash = ?
+       AND created_at > strftime('%Y-%m-%dT%H:%M:%fZ', 'now', ?)`,
+  ).bind(ipHash, `-${SSO_START_WINDOW_MINUTES} minutes`).first<{ count: number }>();
+  if (Number(recentStarts?.count || 0) >= MAX_SSO_STARTS_PER_IP) {
+    return json({ ok: false, error: "rate_limited" }, { status: 429 });
+  }
+  await writeAudit(env, {
+    actorUserId: null,
+    action: "google_sso_start_attempt",
+    entityType: "auth_session",
+    entityId: null,
+    request,
+    metadata: { allowedDomainConfigured: allowedDomains.length > 0 },
+  });
+
   let step: GoogleSsoStartStep = "request";
   try {
+    step = "oauth_state";
+    await env.DB.prepare(
+      `DELETE FROM oauth_states
+       WHERE expires_at <= strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+          OR (used_at IS NOT NULL AND used_at <= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-1 day'))`,
+    ).run();
     const url = new URL(request.url);
-    const returnTo = safeReturnTo(url.searchParams.get("returnTo") || "") || "/workspace.html";
+    const returnTo = safeReturnTo(url.searchParams.get("returnTo") || "") || "/";
     const domainHint = cleanDomainHint(url.searchParams.get("domain") || url.searchParams.get("tenant"));
     const hostedDomain = domainHint && (allowedDomains.length === 0 || allowedDomains.includes(domainHint))
       ? domainHint
       : allowedDomains[0] || "";
-    step = "oauth_state";
     const state = await createOAuthState(env, { tenantHint: hostedDomain || domainHint || null, returnTo });
     step = "google_discovery";
     const discovery = await getGoogleDiscovery(fetch);
@@ -58,13 +89,14 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       },
     });
 
+    const headers = applyApiSecurityHeaders(new Headers({
+      location,
+      "set-cookie": state.stateCookie,
+      "cache-control": "no-store",
+    }));
     return new Response(null, {
       status: 302,
-      headers: {
-        location,
-        "set-cookie": state.stateCookie,
-        "cache-control": "no-store",
-      },
+      headers,
     });
   } catch (error) {
     const code = error instanceof GoogleOAuthError ? error.code : "sso_not_configured";

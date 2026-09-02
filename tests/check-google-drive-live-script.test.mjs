@@ -8,6 +8,7 @@ import {
   stripJsonComments,
   validateDriveProbeMimes,
   validateWranglerDriveConfig,
+  validateWranglerLinkOnlyConfig,
 } from "../scripts/check-google-drive-live.mjs";
 
 test("Drive live script validates JSONC Drive config without exposing ids", () => {
@@ -24,6 +25,21 @@ test("Drive live script validates JSONC Drive config without exposing ids", () =
     providerConfigured: true,
     rootConfigured: true,
     indexConfigured: true,
+  });
+});
+
+test("Drive live script recognizes the production link-only storage contract", () => {
+  assert.deepEqual(validateWranglerLinkOnlyConfig({
+    vars: { EVIDENCE_STORAGE_PROVIDER: "link_only" },
+  }), {
+    providerConfigured: true,
+    productionUploadRetired: true,
+  });
+  assert.deepEqual(validateWranglerLinkOnlyConfig({
+    vars: { EVIDENCE_STORAGE_PROVIDER: "google_drive" },
+  }), {
+    providerConfigured: false,
+    productionUploadRetired: false,
   });
 });
 

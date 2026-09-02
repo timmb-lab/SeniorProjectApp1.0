@@ -1,17 +1,17 @@
 # Alpha And Account Deployment Decision
 
-Date: 2026-05-21
+Date: 2026-09-02
 
-Bryan still needs to choose how `alpha.html` and `account.html` should be handled before pilot users or real student records enter the app. These pages are useful internal QA surfaces, but they are not canonical production navigation. The current legacy app/backend custom hostname is `app.thecapstoneapp.com`; the target product domain is `thecapstoneproject.com`.
+Bryan selected Option C. These pages remain useful for local QA, but they are not part of the canonical production deployment at `https://thecapstoneapp.com/`.
 
 Current state:
 
 - `alpha.html`, `alpha.js`, and `alpha.css` are classified as `internal-alpha`.
 - `account.html`, `account.js`, and `account.css` are classified as `internal-smoke`.
-- They are deployed from the root `senior-capstone-app` project today, but removed from normal public navigation and labeled internal QA.
+- They are excluded from the `.deploy-app/` production bundle and blocked by production middleware.
 - Production-surface validation allows alpha/smoke language only on these internal QA surfaces.
-- Current enforceable state is Option A safety: deployed but unlinked and internal-labeled.
-- Option B or C remains open before broader pilot unless Bryan explicitly accepts direct URL exposure.
+- Current enforceable state is Option C: source files remain for local QA, but the isolated production bundle excludes them and production middleware returns 404 for their paths.
+- The decision is closed unless Bryan explicitly asks to restore a protected internal QA deployment.
 
 ## Option A: Keep Deployed But Unlinked And Clearly Internal QA
 
@@ -123,6 +123,6 @@ Bryan decision needed:
 
 ## Current Recommendation
 
-No final choice is recorded yet. The current docs recommend Option A through the Day 7 alpha, then Option B or C before pilot use with real records. Bryan must explicitly accept the final policy.
+Option C was accepted as part of the 2026-09-02 domain cleanup. Internal QA files remain available only from local source workflows; they are not copied to `.deploy-app/` and are not served by the production app.
 
 Run `npm run check:alpha-account-gating` after any navigation, public companion, stakeholder option, alpha/account, or internal QA API change.

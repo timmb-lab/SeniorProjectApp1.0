@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
+import { readWorkspaceCssSource, readWorkspaceJavaScriptSource, workspaceCssFiles, workspaceJavaScriptFiles } from "./lib/workspace-sources.mjs";
 
 const repoRoot = process.cwd();
 
@@ -39,6 +40,9 @@ const productionAssetFiles = new Set([
   "styles.css",
   "workspace.js",
   "workspace.css",
+  ...workspaceJavaScriptFiles,
+  "workspace/bootstrap.js",
+  ...workspaceCssFiles,
 ]);
 
 const textExtensions = new Set([".html", ".js", ".css", ".md"]);
@@ -305,15 +309,11 @@ if (missingPublicGuideToggleRequirements.length > 0) {
   );
 }
 
-const workspaceText = await Promise.all(
-  ["workspace.html", "workspace.js", "workspace.css"].map(async (relativePath) => {
-    try {
-      return [relativePath, await readFile(path.join(repoRoot, relativePath), "utf8")];
-    } catch {
-      return [relativePath, ""];
-    }
-  }),
-);
+const workspaceText = [
+  ["workspace.html", await readFile(path.join(repoRoot, "workspace.html"), "utf8").catch(() => "")],
+  ["workspace modules", await readWorkspaceJavaScriptSource()],
+  ["workspace styles", await readWorkspaceCssSource()],
+];
 const schoolSpecificWorkspacePatterns = [
   ["East Tech", /\bEast\s+Tech\b/i],
   ["East Career", /\bEast\s+Career\b/i],
@@ -324,9 +324,15 @@ const schoolSpecificWorkspacePatterns = [
   ["titan-blue token", /--titan-blue\b/i],
   ["titan-silver token", /--titan-silver\b/i],
 ];
+const approvedWorkspaceSchoolBrandingLabels = [
+  '["east-tech", "East Tech Titans"],',
+];
 for (const [relativePath, text] of workspaceText) {
+  const textForSchoolLeakScan = relativePath === "workspace modules"
+    ? approvedWorkspaceSchoolBrandingLabels.reduce((source, label) => source.replaceAll(label, ""), text)
+    : text;
   for (const [label, pattern] of schoolSpecificWorkspacePatterns) {
-    const match = pattern.exec(text);
+    const match = pattern.exec(textForSchoolLeakScan);
     if (!match) continue;
     const { line, column } = findLineAndColumn(text, match.index);
     findings.push({ relativePath, phrase: `school-specific workspace leakage: ${label}`, line, column });

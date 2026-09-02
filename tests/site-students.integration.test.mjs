@@ -145,6 +145,11 @@ test("site student directory is site-scoped, paginated, filterable, role-gated, 
   assert.equal(revisionSearch.pagination.filteredTotal >= 10, true);
   assert.equal(revisionSearch.students.every((student) => /Revision Loop Demo/.test(student.displayName)), true);
 
+  const emailSearchTarget = revisionSearch.students[0];
+  const emailSearch = await expectDirectory(env, tokens.platformAdmin, `?siteId=${PRIMARY_SITE_ID}&search=${encodeURIComponent(emailSearchTarget.email)}&limit=100`);
+  assert.equal(emailSearch.pagination.filteredTotal, 1);
+  assert.equal(emailSearch.students[0]?.studentId, emailSearchTarget.studentId);
+
   const revisionStatus = await expectDirectory(env, tokens.platformAdmin, `?siteId=${PRIMARY_SITE_ID}&status=revision_requested&limit=100`);
   assert.equal(revisionStatus.pagination.filteredTotal > 0, true);
   assert.equal(revisionStatus.students.every((student) => student.latestSubmissionStatus === "revision_requested"), true);
@@ -184,7 +189,7 @@ test("site student directory is site-scoped, paginated, filterable, role-gated, 
 
   assert.ok(primary.filterOptions.progressStatuses.includes("mentor_meeting_follow_up"));
 
-  for (const body of [primary, legacyPrimary, orgPrimary, siteAdminPrimary, viewer, teacher, limit100, offset50, canyon, north, missingMentor, noMentor, revisionSearch, revisionStatus, mentorMeetingFollowUp, archiveFailed, noMatches]) {
+  for (const body of [primary, legacyPrimary, orgPrimary, siteAdminPrimary, viewer, teacher, limit100, offset50, canyon, north, missingMentor, noMentor, revisionSearch, emailSearch, revisionStatus, mentorMeetingFollowUp, archiveFailed, noMatches]) {
     assert.doesNotMatch(JSON.stringify(body), FORBIDDEN_RESPONSE_FIELDS);
   }
 

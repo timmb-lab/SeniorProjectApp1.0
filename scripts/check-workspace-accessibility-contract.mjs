@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { readWorkspaceCssSource, readWorkspaceJavaScriptSource } from "./lib/workspace-sources.mjs";
 
 const files = {
   workspaceHtml: "workspace.html",
@@ -8,6 +9,8 @@ const files = {
 const source = Object.fromEntries(
   Object.entries(files).map(([key, file]) => [key, readFileSync(file, "utf8")]),
 );
+source.workspaceJs = await readWorkspaceJavaScriptSource();
+source.workspaceCss = await readWorkspaceCssSource();
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 const failures = [];
 
@@ -29,7 +32,7 @@ if (!String(packageJson.scripts?.["check:workspace-accessibility"] || "").includ
 
 assertMatches("workspaceHtml", /<main[^>]+id="workspaceMain"[^>]*>/, "workspace must keep a main landmark");
 assertMatches("workspaceJs", /aria-label="\$\{workspaceNavCollapsed \? "Open menu" : "Close menu"\}"/, "nav collapse button needs dynamic aria-label");
-assertMatches("workspaceJs", /aria-pressed="\$\{workspaceNavCollapsed \? "true" : "false"\}"/, "nav collapse button needs aria-pressed state");
+assertMatches("workspaceJs", /aria-pressed="\$\{workspaceNavCollapsed \? "false" : "true"\}"/, "nav collapse button needs an aria-pressed state that is true only while the menu is open");
 assertMatches("workspaceJs", /const adminActionMenuLabel = `\$\{label\} menu for \$\{workspaceSectionTitle\(id\)\}`[\s\S]*aria-label="\$\{escapeHtml\(adminActionMenuLabel\)\}"/, "admin action menu summaries need section-aware aria labels");
 assertMatches("workspaceJs", /const adminMoreMenuLabel = `\$\{label\} actions for \$\{safeContext \|\| "row"\}`[\s\S]*aria-label="\$\{escapeHtml\(adminMoreMenuLabel\)\}"/, "admin row more menus need row-context aria labels");
 assertMatches("workspaceJs", /handleWorkspaceKeydown[\s\S]*Escape[\s\S]*closeWorkspaceMenu\(\)/, "Escape key should close the workspace rail");

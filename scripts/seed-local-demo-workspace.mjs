@@ -37,6 +37,7 @@ const DEMO_SITES = Object.freeze([
     studentCount: 250,
     programIds: "all",
     mentorPrefix: "demo-mentor-",
+    brandTheme: "desert-valley",
     primary: true,
   },
   {
@@ -48,6 +49,7 @@ const DEMO_SITES = Object.freeze([
     studentCount: 60,
     programIds: ["it", "culinary", "construction", "sports-medicine", "medical-professions"],
     mentorPrefix: "demo-mentor-canyon-ridge-career-",
+    brandTheme: "canyon-ridge",
     primary: false,
   },
   {
@@ -59,6 +61,7 @@ const DEMO_SITES = Object.freeze([
     studentCount: 60,
     programIds: ["it", "hospitality-marketing", "mechanical-technology", "teaching-training", "early-childhood-education"],
     mentorPrefix: "demo-mentor-north-valley-tech-",
+    brandTheme: "north-valley",
     primary: false,
   },
 ]);
@@ -323,6 +326,7 @@ const OPTIONAL_TABLES = Object.freeze([
   "presentation_slots",
   "exports",
   "export_artifacts",
+  "site_branding",
 ]);
 
 const REQUIRED_TABLE_COLUMNS = Object.freeze({
@@ -360,6 +364,7 @@ const OPTIONAL_TABLE_COLUMNS = Object.freeze({
   presentation_slots: ["id", "student_user_id", "submission_id", "requirement_id", "scheduled_for", "duration_minutes", "location", "status", "outline_status", "checked_out_at", "checked_in_at", "notes", "created_by"],
   exports: ["id", "export_type", "requested_by", "target_user_id", "drive_file_id", "status", "completed_at"],
   export_artifacts: ["id", "export_id", "artifact_type", "title", "mime_type", "byte_length", "content_sha256", "body_json"],
+  site_branding: ["site_id", "theme_key", "updated_by_user_id", "updated_at"],
 });
 
 class DemoSeedError extends Error {
@@ -752,6 +757,10 @@ function deleteSpecs(schema) {
   const demoSubmissions = "SELECT id FROM submissions WHERE id LIKE 'demo-%' OR student_id IN (SELECT id FROM user_accounts WHERE id LIKE 'demo-%' OR email_norm LIKE '%@demo-student.capstone.test' OR email_norm LIKE '%@demo-staff.capstone.test')";
   const demoSites = DEMO_SITES.map((site) => sqlString(site.id)).join(", ");
   const specs = [
+    ["project_adult_assignment_events", "assignment_id IN (SELECT id FROM project_adult_assignments WHERE project_id LIKE 'project-demo-%' OR request_id LIKE 'demo-%' OR nominated_by IN (__DEMO_USERS__)) OR actor_user_id IN (__DEMO_USERS__)"],
+    ["user_notifications", "id LIKE 'demo-%' OR user_id IN (__DEMO_USERS__) OR entity_id LIKE 'project-demo-%' OR entity_id LIKE 'demo-%'"],
+    ["project_adult_assignments", "id LIKE 'demo-%' OR project_id LIKE 'project-demo-%' OR request_id LIKE 'demo-%' OR nominated_by IN (__DEMO_USERS__) OR assignee_user_id IN (__DEMO_USERS__)"],
+    ["project_mentor_assignments", "id LIKE 'demo-%' OR project_id LIKE 'project-demo-%' OR mentor_user_id IN (__DEMO_USERS__) OR assigned_by IN (__DEMO_USERS__)"],
     ["export_artifacts", "id LIKE 'demo-%' OR export_id IN (SELECT id FROM exports WHERE id LIKE 'demo-%' OR requested_by IN (__DEMO_USERS__) OR target_user_id IN (__DEMO_USERS__)) OR title LIKE '%DEMO_SEED%' OR body_json LIKE '%DEMO_SEED%'"],
     ["exports", "id LIKE 'demo-%' OR requested_by IN (__DEMO_USERS__) OR target_user_id IN (__DEMO_USERS__)"],
     ["comments", "id LIKE 'demo-%' OR entity_id LIKE 'demo-%' OR author_user_id IN (__DEMO_USERS__) OR body LIKE '%DEMO_SEED%'"],
@@ -802,6 +811,7 @@ async function buildDemoDataset({
   mentorCount = 25,
   credentialTeacherProgramIds = ["it", "culinary", "sports-medicine"],
   credentialMentorCount = 3,
+  credentialStudentCount = 0,
   suggestedDemoUrl = "http://127.0.0.1:8788/workspace.html",
   includeDemoAdmin = false,
   demoAdminId = "demo-admin-001",
@@ -821,6 +831,7 @@ async function buildDemoDataset({
   const credentialTeacherPrograms = new Set(credentialTeacherProgramIds);
   const resolvedMentorCount = positiveInteger(mentorCount, 25);
   const resolvedCredentialMentorCount = Math.min(positiveInteger(credentialMentorCount, 0), resolvedMentorCount);
+  const resolvedCredentialStudentCount = positiveInteger(credentialStudentCount, 0);
   const stagePool = deterministicShuffle(expandStagePool(), `${seed}:stages`);
   const students = [];
   const teachersByProgram = new Map();
@@ -839,6 +850,12 @@ async function buildDemoDataset({
       status: "active",
       timezone: "America/Los_Angeles",
       school_year: site.schoolYear,
+    });
+    rows.siteBranding.push({
+      site_id: site.id,
+      theme_key: site.brandTheme || "default",
+      updated_by_user_id: null,
+      updated_at: "2026-08-15T12:00:00.000Z",
     });
     for (const program of programsForSite(site)) {
       rows.sitePrograms.push({
@@ -1220,6 +1237,18 @@ async function buildDemoDataset({
         user_id: id,
         membership_role: "student",
       });
+      if (studentNumber <= resolvedCredentialStudentCount) {
+        const password = passwordFor(id, email, displayName, seed, passwordPrefix);
+        rows.passwordCredentials.push(await credentialRow(id, password, passwordPepper, seed));
+        credentials.sampleStudentLogins.push({
+          email,
+          displayName,
+          role: "student",
+          scope: `site:${PRIMARY_SITE_ID}`,
+          suggestedDemoUrl,
+          password,
+        });
+      }
     }
   }
 
@@ -1657,6 +1686,7 @@ function emptyRows() {
     programs: [],
     sites: [],
     sitePrograms: [],
+    siteBranding: [],
     cohorts: [],
     groups: [],
     userAccounts: [],
@@ -1824,6 +1854,7 @@ function buildSeedSql(dataset, schema, { includeDeletes = true, includeTransacti
   pushRows(statements, "tenants", rows.tenants);
   pushRows(statements, "programs", rows.programs || []);
   pushRows(statements, "sites", rows.sites);
+  if (schema.tableNames.has("site_branding")) pushRows(statements, "site_branding", rows.siteBranding || []);
   pushRows(statements, "site_programs", rows.sitePrograms);
   pushRows(statements, "cohorts", rows.cohorts);
   pushRows(statements, "groups", rows.groups);
@@ -1835,6 +1866,162 @@ function buildSeedSql(dataset, schema, { includeDeletes = true, includeTransacti
   pushRows(statements, "site_users", rows.siteUsers);
   pushRows(statements, "group_memberships", rows.groupMemberships);
   pushRows(statements, "mentor_assignments", rows.mentorAssignments);
+  if (schema.tableNames.has("projects")) {
+    statements.push(`UPDATE projects
+      SET program_id = COALESCE(program_id, (
+        SELECT groups.program_id
+        FROM project_members
+        JOIN group_memberships ON group_memberships.user_id = project_members.student_user_id
+        JOIN groups ON groups.id = group_memberships.group_id
+        WHERE project_members.project_id = projects.id
+          AND project_members.active = 1
+          AND groups.program_id IS NOT NULL
+        ORDER BY groups.program_id LIMIT 1
+      )),
+      cohort_id = COALESCE(cohort_id, (
+        SELECT groups.cohort_id
+        FROM project_members
+        JOIN group_memberships ON group_memberships.user_id = project_members.student_user_id
+        JOIN groups ON groups.id = group_memberships.group_id
+        WHERE project_members.project_id = projects.id
+          AND project_members.active = 1
+          AND groups.cohort_id IS NOT NULL
+        ORDER BY groups.cohort_id LIMIT 1
+      ))
+      WHERE projects.id LIKE 'project-demo-%';`);
+  }
+  if (schema.tableNames.has("project_adult_assignments")) {
+    statements.push(`INSERT OR IGNORE INTO project_adult_assignments (
+      id, project_id, site_id, program_id, adult_role, assignee_user_id,
+      invited_name, invited_email, status, nominated_by, responded_by, responded_at
+    )
+    SELECT
+      'demo-adult-mentor-' || projects.id,
+      projects.id,
+      projects.site_id,
+      projects.program_id,
+      'mentor',
+      mentor.id,
+      mentor.display_name,
+      mentor.email,
+      'accepted',
+      mentor.id,
+      mentor.id,
+      strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+    FROM projects
+    JOIN user_accounts mentor ON mentor.id = COALESCE(
+      (
+        SELECT mentor_assignments.mentor_user_id
+        FROM project_members
+        JOIN mentor_assignments ON mentor_assignments.student_user_id = project_members.student_user_id
+          AND mentor_assignments.active = 1
+        WHERE project_members.project_id = projects.id AND project_members.active = 1
+        ORDER BY mentor_assignments.created_at, mentor_assignments.mentor_user_id
+        LIMIT 1
+      ),
+      (
+        SELECT eligible.id
+        FROM user_roles eligible_role
+        JOIN user_accounts eligible ON eligible.id = eligible_role.user_id AND eligible.status = 'active'
+        JOIN site_users eligible_site ON eligible_site.user_id = eligible.id
+          AND eligible_site.site_id = projects.site_id AND eligible_site.membership_status = 'active'
+        WHERE eligible_role.role_id = 'mentor'
+        ORDER BY eligible.display_name, eligible.id
+        LIMIT 1
+      )
+    )
+    WHERE projects.id LIKE 'project-demo-%'
+      AND NOT EXISTS (
+        SELECT 1 FROM project_adult_assignments existing
+        WHERE existing.project_id = projects.id AND existing.adult_role = 'mentor' AND existing.status = 'accepted'
+      )
+    GROUP BY projects.id;`);
+    statements.push(`INSERT OR IGNORE INTO project_adult_assignments (
+      id, project_id, site_id, program_id, adult_role, assignee_user_id,
+      invited_name, invited_email, status, nominated_by, responded_by, responded_at
+    )
+    SELECT
+      'demo-adult-teacher-' || projects.id,
+      projects.id,
+      projects.site_id,
+      projects.program_id,
+      'program_teacher',
+      teacher.id,
+      teacher.display_name,
+      teacher.email,
+      'accepted',
+      teacher.id,
+      teacher.id,
+      strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+    FROM projects
+    JOIN user_accounts teacher ON teacher.id = (
+      SELECT eligible.id
+      FROM user_roles eligible_role
+      JOIN user_accounts eligible ON eligible.id = eligible_role.user_id AND eligible.status = 'active'
+      JOIN site_users eligible_site ON eligible_site.user_id = eligible.id
+        AND eligible_site.site_id = projects.site_id AND eligible_site.membership_status = 'active'
+      WHERE eligible_role.role_id = 'program_teacher'
+        AND eligible_role.scope_type = 'program'
+        AND eligible_role.scope_id = projects.program_id
+      ORDER BY eligible.display_name, eligible.id
+      LIMIT 1
+    )
+    WHERE projects.id LIKE 'project-demo-%'
+      AND projects.program_id IS NOT NULL
+      AND NOT EXISTS (
+        SELECT 1 FROM project_adult_assignments existing
+        WHERE existing.project_id = projects.id AND existing.adult_role = 'program_teacher' AND existing.status = 'accepted'
+      );`);
+    if (schema.tableNames.has("project_mentor_assignments")) {
+      statements.push(`INSERT INTO project_mentor_assignments (id, project_id, mentor_user_id, active, assigned_by)
+        SELECT 'demo-project-mentor-' || project_adult_assignments.project_id,
+          project_adult_assignments.project_id,
+          project_adult_assignments.assignee_user_id,
+          1,
+          project_adult_assignments.nominated_by
+        FROM project_adult_assignments
+        WHERE project_adult_assignments.project_id LIKE 'project-demo-%'
+          AND project_adult_assignments.adult_role = 'mentor'
+          AND project_adult_assignments.status = 'accepted'
+        ON CONFLICT(project_id, mentor_user_id) DO UPDATE SET active = 1, assigned_by = excluded.assigned_by;`);
+    }
+    statements.push(`UPDATE mentor_assignments
+      SET active = 0
+      WHERE student_user_id IN (
+        SELECT project_members.student_user_id
+        FROM project_members
+        WHERE project_members.project_id LIKE 'project-demo-%' AND project_members.active = 1
+      )
+      AND NOT EXISTS (
+        SELECT 1
+        FROM project_members
+        JOIN project_adult_assignments
+          ON project_adult_assignments.project_id = project_members.project_id
+         AND project_adult_assignments.adult_role = 'mentor'
+         AND project_adult_assignments.status = 'accepted'
+        WHERE project_members.student_user_id = mentor_assignments.student_user_id
+          AND project_members.active = 1
+          AND project_adult_assignments.assignee_user_id = mentor_assignments.mentor_user_id
+      );`);
+    statements.push(`INSERT INTO mentor_assignments (id, mentor_user_id, student_user_id, assigned_by, active)
+      SELECT
+        'demo-project-student-mentor-' || project_members.student_user_id,
+        project_adult_assignments.assignee_user_id,
+        project_members.student_user_id,
+        project_adult_assignments.nominated_by,
+        1
+      FROM project_members
+      JOIN project_adult_assignments
+        ON project_adult_assignments.project_id = project_members.project_id
+       AND project_adult_assignments.adult_role = 'mentor'
+       AND project_adult_assignments.status = 'accepted'
+      WHERE project_members.project_id LIKE 'project-demo-%'
+        AND project_members.active = 1
+        AND project_adult_assignments.assignee_user_id IS NOT NULL
+      ON CONFLICT(mentor_user_id, student_user_id) DO UPDATE SET
+        assigned_by = excluded.assigned_by,
+        active = 1;`);
+  }
   pushRows(statements, "viewer_student_assignments", rows.viewerStudentAssignments);
   pushRows(statements, "progress_records", rows.progressRecords);
   pushRows(statements, "submissions", rows.submissions);
@@ -1970,7 +2157,7 @@ async function verifySeedState(adapter, schema) {
     || summary.siteAdmins !== 3
     || summary.viewers !== 1
     || summary.viewerStudentAssignments !== 3
-    || summary.studentCredentials !== 0
+    || summary.studentCredentials !== 1
     || summary.studentRosterProfiles !== 370
     || summary.announcements !== 0
     || !storyBucketsOk
@@ -2059,6 +2246,7 @@ async function runDemoSeed(args, options = {}) {
     lookups,
     seed: args.seed || DEFAULT_SEED,
     passwordPepper: options.passwordPepper ?? process.env.PASSWORD_PEPPER ?? "",
+    credentialStudentCount: 1,
   });
   const base = {
     ok: true,

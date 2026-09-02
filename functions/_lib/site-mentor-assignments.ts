@@ -1,7 +1,7 @@
 import type { Env, RoleAssignment, RoleId, UserAccount } from "../_types.ts";
 import { getCurrentUser, writeAudit } from "./auth.ts";
 import { randomId } from "./crypto.ts";
-import { json, requirePost } from "./http.ts";
+import { json, readJson, requirePost } from "./http.ts";
 import {
   cleanId,
   isReadOnlyViewer,
@@ -225,7 +225,7 @@ export async function handleSiteMentorAssignmentsPost({
 
   let body: { siteId?: string; studentId?: string; mentorUserId?: string; reason?: string };
   try {
-    body = await request.json();
+    body = await readJson(request);
   } catch {
     return json({ error: "invalid_json", ok: false }, { status: 400 });
   }

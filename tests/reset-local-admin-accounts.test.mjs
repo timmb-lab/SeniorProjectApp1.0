@@ -35,13 +35,13 @@ test("account reset CLI and write gates fail closed", () => {
     target: "local",
     mode: "dryrun",
     confirm: "",
-    baseUrl: "https://senior-capstone-app.pages.dev",
+    baseUrl: "https://thecapstoneapp.com",
   });
   assert.deepEqual(parseArgs(["--remote", "--write", "--confirm", "RESET_ALL_ACCOUNTS"]), {
     target: "remote",
     mode: "write",
     confirm: "RESET_ALL_ACCOUNTS",
-    baseUrl: "https://senior-capstone-app.pages.dev",
+    baseUrl: "https://thecapstoneapp.com",
   });
   assert.throws(() => parseArgs(["--local", "--write"]), AccountResetError);
   assert.throws(() => parseArgs(["--local", "--remote", "--dry-run"]), AccountResetError);

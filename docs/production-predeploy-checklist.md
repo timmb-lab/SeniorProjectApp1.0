@@ -1,6 +1,7 @@
 # Production Predeploy Checklist
 
 Date: 2026-05-21
+Last updated: 2026-09-01
 
 Use this checklist before any pilot-facing deploy, preview promotion, or custom-domain cutover. It converts the production-surface cleanup into a gate: static checks may pass locally, but live Cloudflare checks are not complete unless `CLOUDFLARE_API_TOKEN` is available and read-only verification succeeds.
 
@@ -38,9 +39,9 @@ Required result:
 - Alpha/account gating check passes for internal labels, no normal production navigation links, and no public companion proxying.
 - Cloudflare live check passes token verify plus Pages/D1 lookup. Scoped-token `wrangler whoami` warnings are acceptable only when token verify, Pages project lookup, D1 database lookup, and D1 id match all pass.
 - Production cutover aggregate passes only when live-only checks are not blocked and the domain/API/app proof succeeds.
-- Production cutover aggregate runs the hosted workspace evidence gate once; run `check:drive:live` separately when you need the standalone Drive alias proof so the fake student's upload quota is not consumed twice in the same aggregate.
-- Drive live check passes before accepting real student file bytes: runtime credential parts configured, service-account token exchange works, root folder is visible as a folder, index sheet is visible as a Google Sheet, fake `.test` upload succeeds, D1 metadata/audit are verified without selecting raw Drive IDs, and browser/API output stays redacted.
-- Hosted workspace evidence check passes or is explicitly skipped for missing ignored fake `.test` credentials; it must prove canonical `workspace.html` upload/download, including one >5MB resumable upload, before real student evidence is accepted.
+- Production cutover aggregate runs the hosted workspace evidence gate once. The `check:drive:live` name remains as a compatibility alias, but its production path now proves the student-owned Drive-link contract rather than app-managed file storage.
+- Drive-link live check proves signed-out health is minimal, a fake student can sign in, direct upload returns `use_google_drive_link` before a file body is parsed, and the hosted student view can save and open Drive links.
+- Hosted workspace evidence check passes or is explicitly skipped for missing ignored fake `.test` credentials; it must prove the canonical student Drive-link path before real student links are accepted.
 - Hosted workspace permission check passes or is explicitly skipped for missing ignored fake `.test` credentials; it must not use real accounts.
 - Tests pass.
 - Aggregate `check` passes.
@@ -65,7 +66,7 @@ Before pilot deploy:
 - Confirm `.secrets/` remains ignored and any local test-account JSON stays untracked.
 - Confirm `wrangler.jsonc` contains no secret values, private keys, or `CLOUDFLARE_API_TOKEN`.
 - Confirm real non-`.test` admin-visible temporary credential imports remain blocked unless Bryan has accepted a delivery policy and `ALLOW_REAL_TEMP_CREDENTIAL_IMPORT=true` is intentionally configured.
-- Confirm real student records are not entered into alpha/pilot until auth, permissions, Drive upload, D1 metadata, and account lifecycle checks pass.
+- Confirm real student records are not entered into alpha/pilot until auth, permissions, Drive-link handling, D1 metadata, and account lifecycle checks pass.
 
 Validation:
 
@@ -83,7 +84,7 @@ These must be decided before pilot users or real records enter the app:
 - Stakeholder option lifecycle: final decision is retire active options; Titan direction is absorbed into the East Tech guide.
 - Custom-domain live cutover: product/app target is `thecapstoneproject.com`; East Tech guide future custom domain is `TBD`; live activation remains separate until Pages domains, DNS/TLS, and product workspace/API health pass.
 - Real-user temporary credential delivery policy: choose HD-2026-05-21-001 before importing real pilot users.
-- Google Drive upload permission/policy: keep `npm run check:drive:live` passing against the configured Shared Drive evidence root.
+- Google Drive sharing policy: students own their folders and files. The app stores only HTTPS links. Keep `npm run check:drive:live` passing against that link-only contract.
 
 ## Cloudflare Static Gate
 
@@ -96,7 +97,7 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\ru
 Required result:
 
 - `wrangler.jsonc` project name is `senior-capstone-app`.
-- Pages output directory is `.`.
+- Pages output directory is `.deploy-app/`.
 - D1 binding `DB` points to `senior-capstone-db`.
 - D1 database id matches the recorded production database.
 - Migrations directory exists.
@@ -125,7 +126,7 @@ Required result:
 
 If the token is missing, record `LIVE_CLOUDFLARE_BLOCKED_NO_TOKEN`. Do not claim live verification passed.
 
-## Google Drive Live Gate
+## Student Drive Link Live Gate
 
 Live Drive gate command:
 
@@ -133,24 +134,22 @@ Live Drive gate command:
 powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\run-npm-script.ps1 check:drive:live
 ```
 
-Required result before real student file bytes:
+Required result before real student Drive links:
 
-- Live `/api/health` reports `EVIDENCE_STORAGE_PROVIDER=google_drive`, root configured, index configured, and both Google Drive credential parts configured without exposing secret values.
-- The deployed runtime service account can exchange its JWT for an access token.
-- The configured root id is visible to the service account and has MIME type `application/vnd.google-apps.folder`.
-- The configured index id is visible to the service account and has MIME type `application/vnd.google-apps.spreadsheet`.
-- A fake `.test` student can upload one tiny text proof through `/api/submissions/:id/evidence/upload`.
-- Remote D1 has the `evidence_artifacts` row and `evidence_file_uploaded` audit event; the verification must not select or print raw Drive file IDs.
-- Signed-out, non-student, unsupported, empty, and oversized upload denials still fail before provider success.
-- Upload response and browser/API refresh output do not include `drive_file_id`, `driveFileId`, parent folder ids, access tokens, private keys, or fake account passwords.
+- Signed-out `/api/health` returns only `{ "ok": true }`. A signed-in security administrator can view protected readiness details.
+- A fake `.test` student can sign in and load a seeded submission.
+- Direct upload through `/api/submissions/:id/evidence/upload` returns `410 use_google_drive_link` before multipart parsing or provider work.
+- The hosted student view includes clear Save Drive link and Open work link actions.
+- Browser/API output does not include `drive_file_id`, `driveFileId`, parent folder ids, access tokens, private keys, or fake account passwords.
+- A signed-in fake platform administrator can read protected database and migration readiness during the hosted browser proof.
 
-Current 2026-05-21 PT status:
+Current 2026-09-01 production status:
 
-- Cloudflare Pages runtime credential parts are configured.
-- The Drive evidence root now points at Shared Drive folder `0AJHkstxfN-dTUk9PVA`; the Evidence Index sheet remains `1BCrBQ-5AKLmhvZr7tjJf3o1tibg13p_U21BiuN_ivN0`.
-- After a production Pages deploy, `npm run check:drive:live` passes token exchange, root folder visibility, index sheet visibility, fake `.test` upload, D1 metadata/audit verification, denial guards, and storage-ID leak checks.
-- `npm run check:workspace:hosted-evidence` is the explicit hosted workspace alias for the same fake `.test` upload/download gate, including the >5MB resumable upload/download path.
-- `npm run check:workspace:hosted-permissions` is the explicit hosted permission-state gate for fake `.test` role/scope accounts; it skips honestly if the ignored credential file or env credentials are unavailable.
+- `wrangler.jsonc` uses `EVIDENCE_STORAGE_PROVIDER=link_only`; the app does not access a student's folder.
+- Legacy app-managed Drive recovery remains in code with the narrower `drive.file` scope, but the production upload route is retired.
+- `npm run check:drive:live` and `npm run check:workspace:hosted-evidence` use the link-only verification path when the committed provider is `link_only`.
+- The reviewed build is deployed. `npm run check:workspace:hosted-evidence` passes against the live link-only contract with the repaired fake student fixture.
+- `npm run check:workspace:hosted-permissions` passes for the fake `.test` role/scope accounts, including negative viewer/misc-admin/site-admin boundaries.
 
 ## D1 Binding Gate
 
@@ -161,7 +160,7 @@ Before deploy:
 - Any new remote migration is applied and verified only when authorized token/session exists.
 - Remote D1 verification is recorded before real student records enter the app.
 
-Current 2026-05-21 PT status: remote D1 migrations `0001` through `0009` are applied and recorded by Wrangler; required MVP tables including `export_artifacts` and `presentation_slots` were verified remotely without selecting student rows.
+Current 2026-09-01 PT status: authorized Wrangler execution applied `0024_project_request_safety.sql`; no remote migration remains pending. Only fake `.test` account fixtures were repaired.
 
 Pilot blocker:
 
@@ -172,12 +171,12 @@ Pilot blocker:
 After a deploy or cutover, verify:
 
 - `GET /api/health` returns 200 on the app hostname.
-- `GET https://thecapstoneproject.com/api/health` returns 200 after target product custom-domain activation.
+- `GET https://thecapstoneapp.com/api/health` returns 200 on the canonical domain.
 - Health output does not expose secret values.
-- D1 and evidence configuration fields report expected readiness state.
+- Signed-out health does not expose D1, auth, roster, or storage configuration. Check those details only while signed in as a security administrator.
 - `GET /api/auth/me` returns an unauthenticated response without leaking user records when no session is present.
-- `GET https://thecapstoneproject.com/api/auth/me` signed out returns the expected unauthenticated response.
-- `https://thecapstoneproject.com/workspace.html` reaches the canonical workspace or app navigation points there.
+- `GET https://thecapstoneproject.com/api/auth/me` returns 308 to the matching canonical API path.
+- `https://thecapstoneapp.com/` serves the workspace without adding a path to the address bar.
 - Internal alpha/account API routes remain internal QA only.
 
 Do not treat static local checks as API health proof.
@@ -202,11 +201,11 @@ Required result:
 
 Domain direction is resolved:
 
-- Product/app target: `thecapstoneproject.com` -> `senior-capstone-app`.
-- Product alias if configured: `www.thecapstoneproject.com` -> `senior-capstone-app`.
-- Optional split app hostname only if needed: `app.thecapstoneproject.com`.
+- Product/app target: `thecapstoneapp.com` -> `senior-capstone-app`.
+- Product alias: `www.thecapstoneapp.com` -> permanent redirect to the canonical apex.
+- Secondary domain: `thecapstoneproject.com` and its `www` alias -> permanent redirect to the canonical apex.
 - East Tech guide future custom domain: `TBD`.
-- Current legacy hostnames pending migration: `thecapstoneapp.com`, `www.thecapstoneapp.com`, and `app.thecapstoneapp.com`.
+- Retired app hostname: `app.thecapstoneapp.com` must have no DNS record and must not be attached to Pages.
 - Retired stakeholder options: no product hostname mapping and no active deploy scripts.
 
 Before claiming live cutover:
@@ -219,11 +218,11 @@ powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\scripts\ru
 
 Required live checks:
 
-- `https://thecapstoneproject.com` reaches the product root/workspace safely.
-- `https://www.thecapstoneproject.com` loads or redirects safely if the alias is configured.
-- `https://thecapstoneproject.com/api/health` returns 200.
-- `https://thecapstoneproject.com/api/auth/me` signed out returns unauthenticated/no-record output.
-- `https://thecapstoneproject.com/workspace.html` is reachable.
+- `https://thecapstoneapp.com/` reaches the product workspace directly.
+- Both `thecapstoneproject.com` variants redirect permanently to the canonical domain.
+- `https://thecapstoneapp.com/api/health` returns 200.
+- `https://thecapstoneapp.com/api/auth/me` signed out returns unauthenticated/no-record output.
+- Old workspace paths redirect permanently to the bare canonical root.
 
 Use `docs/custom-domain-cutover-checklist.md` for the detailed steps and rollback path.
 

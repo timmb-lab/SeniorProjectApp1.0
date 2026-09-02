@@ -166,7 +166,7 @@ export function evaluateAlphaAccountGatingFixture(fixture) {
       report(failures, "OPTION_B_ACCESS_GATE_MISSING", "docs/alpha-account-deployment-decision.md", "Option B requires verified Access/equivalent deny evidence");
     }
   } else if (optionPolicy === "option-c") {
-    if (alphaHtml || accountHtml || fixture.alphaServed || fixture.accountServed) {
+    if (!fixture.optionCProductionExclusion || fixture.alphaServed || fixture.accountServed) {
       report(failures, "OPTION_C_INTERNAL_FILES_STILL_SERVED", "alpha.html/account.html", "Option C requires alpha/account files to be absent or not served from production");
     }
   }
@@ -208,7 +208,13 @@ async function loadFixtureFromRepo() {
       productionFiles[file] = await readText(file);
     }
   }
-  for (const file of ["app.js", "styles.css", "workspace.js", "workspace.css"]) {
+  for (const file of [
+    "app.js",
+    "styles.css",
+    "workspace.js",
+    "workspace.css",
+    ...await listFiles("workspace"),
+  ]) {
     if (await existsFile(file)) {
       productionFiles[file] = await readText(file);
     }
@@ -231,6 +237,7 @@ async function loadFixtureFromRepo() {
   }
 
   const policyDocs = await readText("docs/alpha-account-deployment-decision.md");
+  const productionBuildSource = await readText("scripts/build-app-deploy.mjs");
   return {
     productionFiles,
     publicCompanionFiles,
@@ -240,9 +247,12 @@ async function loadFixtureFromRepo() {
     alphaApiSource: await readText("functions/api/alpha/state.js"),
     testAccountsSource: await readText("functions/api/admin/test-accounts.ts"),
     policyDocs,
-    optionPolicy: /Current enforceable state is Option A safety/i.test(policyDocs)
-      ? "option-a-open"
+    optionPolicy: /Current enforceable state is Option C/i.test(policyDocs)
+      ? "option-c"
       : "option-a-open",
+    optionCProductionExclusion: /appRootAssets/.test(productionBuildSource)
+      && /workspaceEntry/.test(productionBuildSource)
+      && !/readdir\(repoRoot/.test(productionBuildSource),
   };
 }
 
@@ -265,7 +275,7 @@ async function fetchWithTimeout(url, timeoutMs = 8000) {
   }
 }
 
-async function runLiveChecks(baseUrl) {
+async function runLiveChecks(baseUrl, { productionExcluded = false } = {}) {
   const urls = [
     "/alpha.html",
     "/account.html",
@@ -279,7 +289,9 @@ async function runLiveChecks(baseUrl) {
       const response = await fetchWithTimeout(url);
       const safeText = response.text.slice(0, 2000);
       let ok = true;
-      if (suffix.endsWith("alpha.html")) {
+      if (productionExcluded && ["/alpha.html", "/account.html", "/api/alpha/state"].includes(suffix)) {
+        ok = response.status === 404 && !containsLeak(safeText);
+      } else if (suffix.endsWith("alpha.html")) {
         ok = response.status === 200 && hasInternalQaLabel(safeText) && !containsLeak(safeText);
       } else if (suffix.endsWith("account.html")) {
         ok = response.status === 200 && hasInternalQaLabel(safeText) && !containsLeak(safeText);
@@ -319,8 +331,8 @@ async function main() {
 
   let liveOk = true;
   if (live) {
-    const baseUrl = String(process.env.ALPHA_ACCOUNT_GATING_BASE_URL || "https://app.thecapstoneapp.com").replace(/\/+$/, "/");
-    const checks = await runLiveChecks(baseUrl);
+    const baseUrl = String(process.env.ALPHA_ACCOUNT_GATING_BASE_URL || "https://thecapstoneapp.com").replace(/\/+$/, "/");
+    const checks = await runLiveChecks(baseUrl, { productionExcluded: fixture.optionPolicy === "option-c" });
     liveOk = checks.every((check) => check.ok);
     for (const check of checks) {
       const label = check.ok ? "PASS live" : "FAIL live";

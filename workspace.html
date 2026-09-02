@@ -8,8 +8,8 @@
       content="Sign in to the Capstone Project workspace to review project status, submit evidence, and see role-specific capstone tasks."
     >
     <title>Capstone Project Workspace</title>
-    <link rel="stylesheet" href="styles.css?v=20260518-polish10">
-    <link rel="stylesheet" href="workspace.css?v=20260630-admin-density">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="workspace.css">
   </head>
   <body data-page="workspace">
     <a class="skip-link" href="#workspaceMain">Skip to workspace</a>
@@ -19,6 +19,9 @@
         <p>Opening your Capstone Project workspace...</p>
       </section>
     </main>
-    <script type="module" src="workspace.js?v=20260630-admin-density"></script>
+    <script defer src="workspace/loader.js"></script>
+    <script defer src="workspace/shared.js"></script>
+    <script defer src="workspace/core.js"></script>
+    <script defer src="workspace/bootstrap.js"></script>
   </body>
 </html>

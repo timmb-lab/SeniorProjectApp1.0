@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { hashPassword, normalizeEmail, sha256Hex } from "../functions/_lib/crypto.ts";
+import { hashPassword, normalizeEmail, PASSWORD_ITERATIONS, sha256Hex } from "../functions/_lib/crypto.ts";
+import { securityFingerprint } from "../functions/_lib/auth.ts";
 import { onRequestPost as onChangePassword } from "../functions/api/auth/change-password.ts";
 import { onRequest as onCompleteReset } from "../functions/api/auth/complete-reset.ts";
 import { onRequest as onLogin } from "../functions/api/auth/login.ts";
@@ -400,6 +401,48 @@ test("auth login/me/logout covers active, disabled, reset-required, invalid, and
   }
 });
 
+test("login accepts the Workers-compatible password work factor and rate-limits password spraying by IP", async () => {
+  const fixture = await createFixture();
+  const credential = fixture.db.data.passwordCredentials.find((row) => row.user_id === fixture.activeUser.id);
+  const legacy = await hashPassword(fixture.password, fixture.env.PASSWORD_PEPPER, 100000);
+  Object.assign(credential, {
+    password_hash: legacy.hash,
+    password_salt: legacy.salt,
+    algorithm: legacy.algorithm,
+    iterations: legacy.iterations,
+  });
+
+  await loginAndExtractCookie({
+    env: fixture.env,
+    email: fixture.activeUser.email,
+    password: fixture.password,
+  });
+  assert.equal(credential.iterations, PASSWORD_ITERATIONS);
+  assert.equal(credential.password_hash, legacy.hash);
+
+  const rateFixture = await createFixture();
+  const ipHash = await securityFingerprint(rateFixture.env, "ip:unknown");
+  for (let index = 0; index < 30; index += 1) {
+    rateFixture.db.data.loginAttempts.push({
+      id: `ip-failure-${index}`,
+      identifier_hash: `identifier-${index}`,
+      ip_hash: ipHash,
+      success: 0,
+      reason: "invalid_credentials",
+      created_at: new Date().toISOString(),
+    });
+  }
+  const response = await onLogin({
+    request: buildJsonRequest("https://example.test/api/auth/login", {
+      email: rateFixture.activeUser.email,
+      password: rateFixture.password,
+    }),
+    env: rateFixture.env,
+  });
+  assert.equal(response.status, 429);
+  assert.deepEqual(await response.json(), { error: "rate_limited" });
+});
+
 function buildJsonRequest(url, data, headers = {}) {
   return new Request(url, {
     method: "POST",
@@ -470,6 +513,8 @@ async function createFixture() {
         user_id: activeUser.id,
         password_hash: credentialActive.hash,
         password_salt: credentialActive.salt,
+        algorithm: credentialActive.algorithm,
+        iterations: credentialActive.iterations,
         password_version: 1,
         requires_reset: 0,
       },
@@ -477,6 +522,8 @@ async function createFixture() {
         user_id: disabledUser.id,
         password_hash: credentialDisabled.hash,
         password_salt: credentialDisabled.salt,
+        algorithm: credentialDisabled.algorithm,
+        iterations: credentialDisabled.iterations,
         password_version: 1,
         requires_reset: 0,
       },
@@ -484,6 +531,8 @@ async function createFixture() {
         user_id: pendingResetUser.id,
         password_hash: credentialPendingReset.hash,
         password_salt: credentialPendingReset.salt,
+        algorithm: credentialPendingReset.algorithm,
+        iterations: credentialPendingReset.iterations,
         password_version: 1,
         requires_reset: 0,
       },
@@ -491,6 +540,8 @@ async function createFixture() {
         user_id: requiresResetUser.id,
         password_hash: credentialRequiresReset.hash,
         password_salt: credentialRequiresReset.salt,
+        algorithm: credentialRequiresReset.algorithm,
+        iterations: credentialRequiresReset.iterations,
         password_version: 1,
         requires_reset: 1,
       },
@@ -576,9 +627,10 @@ class MockD1PreparedStatement {
     const sql = this.normalizedSql();
 
     if (sql.startsWith("select count(*) as count from login_attempts")) {
-      const [identifierHash] = this.params;
+      const [lookupHash] = this.params;
+      const lookupByIp = sql.includes("where ip_hash = ?");
       const count = this.db.data.loginAttempts.filter(
-        (row) => row.identifier_hash === identifierHash && row.success === 0,
+        (row) => (lookupByIp ? row.ip_hash === lookupHash : row.identifier_hash === lookupHash) && row.success === 0,
       ).length;
       return { count };
     }
@@ -600,9 +652,15 @@ class MockD1PreparedStatement {
         status: user.status,
         password_hash: credential.password_hash,
         password_salt: credential.password_salt,
+        algorithm: credential.algorithm,
+        iterations: credential.iterations,
         password_version: credential.password_version ?? 1,
         requires_reset: credential.requires_reset ?? 0,
       };
+    }
+
+    if (sql.startsWith("select id from auth_password_setup_tokens")) {
+      return null;
     }
 
     if (sql.startsWith("select count(*) as count from sessions where user_id = ?")) {
@@ -681,6 +739,14 @@ class MockD1PreparedStatement {
   async run() {
     const sql = this.normalizedSql();
 
+    if (sql.startsWith("delete from sessions where user_id = ?")) {
+      return { success: true, results: [] };
+    }
+
+    if (sql.startsWith("update sessions set revoked_at = strftime") && sql.includes("limit -1 offset 9")) {
+      return { success: true, results: [] };
+    }
+
     if (sql.startsWith("insert into login_attempts")) {
       const [id, identifierHash, ipHash, success, reason] = this.params;
       this.db.data.loginAttempts.push({
@@ -729,7 +795,9 @@ class MockD1PreparedStatement {
         credential.password_salt = passwordSalt;
         credential.algorithm = algorithm;
         credential.iterations = iterations;
-        credential.password_version = Number(credential.password_version || 1) + 1;
+        if (sql.includes("password_version = password_version + 1")) {
+          credential.password_version = Number(credential.password_version || 1) + 1;
+        }
         credential.requires_reset = 0;
         credential.password_changed_at = this.db.nowIso();
       }

@@ -4,6 +4,7 @@
 .env.*
 node_modules/
 .wrangler/
+.deploy-app/
 public-site/
 .automation-log-outbox/
 automation/qol/state/*.bak

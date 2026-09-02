@@ -13,6 +13,7 @@ import { cleanWorkflowText, getSubmission, workflowError } from "../../../../_li
 
 const MULTIPART_UPLOAD_MAX_BYTES = 5 * 1024 * 1024;
 const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
+const MAX_MULTIPART_REQUEST_BYTES = MAX_UPLOAD_BYTES + 256 * 1024;
 const UPLOAD_RATE_LIMIT_WINDOW_MINUTES = 10;
 const MAX_RECENT_UPLOADS_PER_SUBMISSION = 8;
 const ALLOWED_UPLOAD_MIME_TYPES = new Set([
@@ -137,6 +138,40 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
     return workflowError("forbidden", 403);
   }
 
+  if (env.EVIDENCE_STORAGE_PROVIDER === "link_only") {
+    await writeAudit(env, {
+      actorUserId: user.id,
+      action: "evidence_upload_retired",
+      entityType: "submission",
+      entityId: submission.id,
+      request,
+      metadata: { nextStep: "save_google_drive_link" },
+    });
+    return workflowError("use_google_drive_link", 410);
+  }
+
+  if (declaredRequestTooLarge(request)) {
+    return badRequest("file_too_large");
+  }
+
+  // Check the server-owned upload count before parsing a multipart body so a
+  // rate-limited user cannot repeatedly force large request buffering.
+  if (await recentUploadCountExceeded(env, submission.student_id, submission.id)) {
+    await writeAudit(env, {
+      actorUserId: user.id,
+      action: "evidence_upload_rate_limited",
+      entityType: "submission",
+      entityId: submission.id,
+      request,
+      metadata: {
+        studentId: submission.student_id,
+        windowMinutes: UPLOAD_RATE_LIMIT_WINDOW_MINUTES,
+        maxRecentUploads: MAX_RECENT_UPLOADS_PER_SUBMISSION,
+      },
+    });
+    return workflowError("rate_limited", 429);
+  }
+
   let formData: FormData;
   try {
     formData = await request.formData();
@@ -156,22 +191,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
   }
   if (!isAllowedUploadFile(file)) {
     return badRequest("unsupported_file_type");
-  }
-
-  if (await recentUploadCountExceeded(env, submission.student_id, submission.id)) {
-    await writeAudit(env, {
-      actorUserId: user.id,
-      action: "evidence_upload_rate_limited",
-      entityType: "submission",
-      entityId: submission.id,
-      request,
-      metadata: {
-        studentId: submission.student_id,
-        windowMinutes: UPLOAD_RATE_LIMIT_WINDOW_MINUTES,
-        maxRecentUploads: MAX_RECENT_UPLOADS_PER_SUBMISSION,
-      },
-    });
-    return workflowError("rate_limited", 429);
   }
 
   const bytes = new Uint8Array(await file.arrayBuffer());
@@ -355,4 +374,11 @@ async function recentUploadCountExceeded(env: Env, studentId: string, submission
        AND created_at > strftime('%Y-%m-%dT%H:%M:%fZ', 'now', ?)`,
   ).bind(studentId, submissionId, `-${UPLOAD_RATE_LIMIT_WINDOW_MINUTES} minutes`).first<{ count: number }>();
   return Number(row?.count || 0) >= MAX_RECENT_UPLOADS_PER_SUBMISSION;
+}
+
+function declaredRequestTooLarge(request: Request): boolean {
+  const value = request.headers.get("content-length");
+  if (!value) return false;
+  const byteLength = Number(value);
+  return !Number.isFinite(byteLength) || byteLength < 0 || byteLength > MAX_MULTIPART_REQUEST_BYTES;
 }

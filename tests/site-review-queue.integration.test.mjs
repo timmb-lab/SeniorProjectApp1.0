@@ -26,6 +26,10 @@ const MIGRATIONS = [
   "migrations/0012_users_access_v5.sql",
   "migrations/0015_remove_org_admin_role.sql",
   "migrations/0016_student_roster_profiles.sql",
+  "migrations/0017_guided_student_writing.sql",
+  "migrations/0018_project_workspaces.sql",
+  "migrations/0019_project_requests.sql",
+  "migrations/0020_missing_student_projects.sql",
 ];
 
 const PRIMARY_SITE_ID = "site-desert-valley-high";
@@ -116,7 +120,7 @@ test("site review queue is scoped, read-only by role, mutable for program teache
     revision_requested: true,
     comment_only: true,
   });
-  assert.match(approvalReadyRow.decisionGuidance, /active proof is attached/i);
+  assert.match(approvalReadyRow.decisionGuidance, /read the work.*accept it or ask for changes/i);
   const evidenceMissing = await expectQueue(env, tokens.programTeacher, `?siteId=${PRIMARY_SITE_ID}&evidenceStatus=missing&limit=100`);
   assert.equal(evidenceMissing.queue.length > 0, true);
   assert.equal(evidenceMissing.queue.every((row) => row.evidenceCount === 0), true);
@@ -132,7 +136,7 @@ test("site review queue is scoped, read-only by role, mutable for program teache
     revision_requested: true,
     comment_only: true,
   });
-  assert.match(archivedOnlyProofRow.decisionGuidance, /active proof is missing/i);
+  assert.match(archivedOnlyProofRow.decisionGuidance, /no work was sent/i);
   const missingMentor = await expectQueue(env, tokens.programTeacher, `?siteId=${PRIMARY_SITE_ID}&risk=no_mentor&limit=100`);
   assert.equal(missingMentor.queue.length > 0, true);
   assert.equal(missingMentor.queue.every((row) => row.riskFlags.includes("no_mentor")), true);
@@ -147,8 +151,19 @@ test("site review queue is scoped, read-only by role, mutable for program teache
     nextAction: "Clear or adjust filters to return to submitted work this view can access.",
   });
 
+  const mentorReviewWork = await ensureMentorReviewableSubmission(env, "demo-mentor-001");
+  const mentorQueue = await expectQueue(env, tokens.mentor, `?siteId=${PRIMARY_SITE_ID}`);
+  assert.equal(mentorQueue.scope.role, "mentor");
+  assert.equal(mentorQueue.scope.readOnly, false);
+  for (const key of MUTATION_PERMISSION_KEYS) assert.equal(mentorQueue.permissions[key], true, `mentor ${key}`);
+  assert.equal(mentorQueue.queue.length > 0, true);
+  const mentorAssignments = await env.DB.prepare(
+    "SELECT student_user_id FROM mentor_assignments WHERE mentor_user_id = ? AND active = 1",
+  ).bind("demo-mentor-001").all();
+  const mentorStudentIds = new Set((mentorAssignments.results || []).map((row) => row.student_user_id));
+  assert.equal(mentorQueue.queue.every((row) => mentorStudentIds.has(row.studentId)), true);
+
   for (const [label, token] of [
-    ["mentor", tokens.mentor],
     ["student", tokens.student],
     ["misc", tokens.miscAdmin],
   ]) {
@@ -156,6 +171,16 @@ test("site review queue is scoped, read-only by role, mutable for program teache
     assert.equal(denied.response.status, 403, label);
     assert.deepEqual(denied.body, { error: "forbidden" }, label);
   }
+
+  const mentorSubmitted = mentorQueue.queue.find((row) => row.submissionId === mentorReviewWork.id);
+  assert.ok(mentorSubmitted);
+  const mentorComment = await routeDecision(env, tokens.mentor, mentorSubmitted.submissionId, "comment_only", "Mentor note for the assigned student.", `?siteId=${PRIMARY_SITE_ID}`);
+  assert.equal(mentorComment.response.status, 200);
+  assert.equal(mentorComment.body.review.decision, "comment_only");
+  const mentorOutOfScope = teacher.queue.find((row) => row.studentId !== mentorSubmitted.studentId);
+  assert.ok(mentorOutOfScope);
+  const mentorDenied = await routeDecision(env, tokens.mentor, mentorOutOfScope.submissionId, "comment_only", "Should not reach this student.", `?siteId=${PRIMARY_SITE_ID}`);
+  assert.equal(mentorDenied.response.status, 404);
 
   const approved = await routeDecision(env, tokens.programTeacher, submittedIt[0].id, "approved", "Approved after reviewing private evidence.", `?siteId=${PRIMARY_SITE_ID}`);
   assert.equal(approved.response.status, 200);
@@ -191,7 +216,6 @@ test("site review queue is scoped, read-only by role, mutable for program teache
     ["viewer", tokens.viewerPrimary],
     ["administration", tokens.orgAdmin],
     ["site_admin", tokens.siteAdminPrimary],
-    ["mentor", tokens.mentor],
     ["student", tokens.student],
     ["misc", tokens.miscAdmin],
   ]) {
@@ -344,6 +368,29 @@ async function ensureActiveEvidenceForSubmission(env, submission) {
     `https://example.com/capstone-demo/proof/${encodeURIComponent(submission.id)}`,
     submission.studentId,
   ).run();
+}
+
+async function ensureMentorReviewableSubmission(env, mentorUserId) {
+  const submission = await env.DB.prepare(
+    `SELECT submissions.id, submissions.student_id
+     FROM mentor_assignments
+     JOIN submissions ON submissions.student_id = mentor_assignments.student_user_id
+     WHERE mentor_assignments.mentor_user_id = ?
+       AND mentor_assignments.active = 1
+     ORDER BY submissions.updated_at DESC, submissions.id ASC
+     LIMIT 1`,
+  ).bind(mentorUserId).first();
+  assert.ok(submission, "mentor needs one assigned submission for review testing");
+  await env.DB.prepare(
+    `UPDATE submissions
+     SET status = 'submitted',
+         submitted_at = COALESCE(submitted_at, strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+         updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+     WHERE id = ?`,
+  ).bind(submission.id).run();
+  const normalized = { id: submission.id, studentId: submission.student_id };
+  await ensureActiveEvidenceForSubmission(env, normalized);
+  return normalized;
 }
 
 async function insertArchivedEvidenceForSubmission(env, submission) {

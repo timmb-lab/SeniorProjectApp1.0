@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
+import { readWorkspaceJavaScriptSource } from "./lib/workspace-sources.mjs";
 
-const workspaceJs = readFileSync("workspace.js", "utf8");
+const workspaceJs = await readWorkspaceJavaScriptSource();
 const failures = [];
 
 function requirePattern(label, text, pattern) {
@@ -88,7 +89,7 @@ const actionErrorMappers = [
   ["review decision", "messageForReviewDecisionError", /status === 401[\s\S]*Sign in again before saving review feedback/],
   ["mentor assignment", "messageForMentorAssignmentError", /status === 401[\s\S]*Sign in again before assigning a mentor/],
   ["mentor meeting", "messageForMentorMeetingError", /status === 401[\s\S]*Sign in again before recording a mentor meeting/],
-  ["work link", "messageForEvidenceError", /status === 401[\s\S]*Sign in again before adding a file or link/],
+  ["work link", "messageForEvidenceError", /status === 401[\s\S]*Sign in again before adding a Google Drive link/],
   ["turn in work", "messageForStudentSubmissionError", /status === 401[\s\S]*Sign in again before turning in work/],
   ["file upload", "messageForUploadError", /status === 401[\s\S]*Sign in again before uploading a file/],
   ["presentation transition", "messageForPresentationActionError", /status === 401[\s\S]*Sign in again before updating a presentation slot/],

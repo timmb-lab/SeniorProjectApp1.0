@@ -183,7 +183,7 @@ test("evidence link attach stores scoped metadata and omits Drive storage ids", 
       body: {
         title: "Research proposal source notes",
         artifactType: "planning document",
-        url: "https://example.test/source-notes",
+        url: "https://docs.google.com/document/d/example-source-notes/edit",
       },
     }),
     env: fixture.env,
@@ -224,6 +224,7 @@ function buildSubmission(id, studentId) {
     requirement_id: "req-proposal-draft",
     status: "draft",
     version: 1,
+    project_id: null,
   };
 }
 
@@ -329,7 +330,7 @@ class MockPreparedStatement {
       return this.data.userAccounts.find((row) => row.id === userId && row.status === "active") ?? null;
     }
 
-    if (this.sql.startsWith("select id, student_id, requirement_id, status, version from submissions where id = ?")) {
+    if (this.sql.startsWith("select id, student_id, requirement_id, status, version, project_id from submissions where id = ?")) {
       const [submissionId] = this.params;
       return this.data.submissions.find((row) => row.id === submissionId) ?? null;
     }
@@ -369,6 +370,7 @@ class MockPreparedStatement {
       const [
         evidenceId,
         studentId,
+        projectId,
         submissionId,
         artifactType,
         externalUrl,
@@ -379,6 +381,7 @@ class MockPreparedStatement {
         id: evidenceId,
         repository_id: "default-google-drive",
         student_id: studentId,
+        project_id: projectId,
         submission_id: submissionId,
         artifact_type: artifactType,
         source_kind: "external_link",

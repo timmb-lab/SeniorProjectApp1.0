@@ -237,7 +237,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       scope: viewerScope(env, user, requestedStudentId, roleAssignments),
     },
     storage: {
-      provider: "google_drive",
+      provider: env.EVIDENCE_STORAGE_PROVIDER,
       providerStatus: provider.status,
       providerMessage: provider.message,
       rootConfigured: provider.rootConfigured,

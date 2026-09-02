@@ -1,0 +1,1176 @@
+/*
+ * Cohesive visual polish.
+ * This final layer keeps projects and next actions visually ahead of setup tools.
+ */
+:root {
+  --font-ui: "Segoe UI Variable", "Aptos", "Segoe UI", Arial, sans-serif;
+  --font-display: "Segoe UI Variable Display", "Aptos Display", "Segoe UI", Arial, sans-serif;
+  --radius-control: 0.65rem;
+  --radius-card: 0.9rem;
+  --radius-panel: 1.05rem;
+  --shadow-soft: 0 1px 2px rgba(15, 32, 53, 0.04), 0 8px 24px rgba(15, 32, 53, 0.045);
+  --shadow-card: 0 1px 2px rgba(15, 32, 53, 0.05), 0 14px 34px rgba(15, 32, 53, 0.06);
+}
+
+:root[data-school-theme="east-tech"] {
+  --school-primary: #1d50a2;
+  --school-primary-strong: #163d7c;
+  --school-accent: #c0c1c3;
+  --school-display-font: "Barlow Semi Condensed", "Bahnschrift SemiCondensed", "Arial Narrow", var(--font-display);
+}
+
+:root[data-school-theme="east-tech"] .workspace-v2-app :where(
+  .workspace-v2-hero h1,
+  .workspace-section-heading h1,
+  .workspace-command-hero h1,
+  .workspace-card-head h2,
+  .workspace-v2-sidebar-brand strong
+) {
+  font-family: var(--school-display-font);
+  font-weight: 700;
+}
+
+:root[data-theme="light"] body[data-page="workspace"],
+:root[data-theme="light"] .workspace-app {
+  --ticket-bg: #f3f6fa;
+  --ticket-bg-soft: #eaf0f6;
+  --ticket-panel: #ffffff;
+  --ticket-panel-raised: #f8fafc;
+  --ticket-border: #d7e0ea;
+  --ticket-border-bright: #bdcad8;
+  --ticket-text: #142033;
+  --ticket-muted: #48596f;
+  --ticket-faint: #58697e;
+  --surface-muted-quiet: #f7f9fc;
+  --border-divider: #e4eaf1;
+}
+
+:root[data-theme="dark"] body[data-page="workspace"],
+:root[data-theme="dark"] .workspace-app {
+  --ticket-bg: #09111d;
+  --ticket-bg-soft: #0d1828;
+  --ticket-panel: #111e30;
+  --ticket-panel-raised: #16263b;
+  --ticket-border: #2a3b51;
+  --ticket-border-bright: #405570;
+  --ticket-text: #f4f7fb;
+  --ticket-muted: #aab8c9;
+  --ticket-faint: #8e9eb1;
+  --surface-muted-quiet: #0d1929;
+  --border-divider: #26384e;
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.24), 0 12px 30px rgba(0, 0, 0, 0.14);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.28), 0 18px 42px rgba(0, 0, 0, 0.17);
+}
+
+:root[data-theme="dark"] .workspace-phase-progress {
+  --phase-setup: #7db7ff;
+  --phase-proposal: #b794f6;
+  --phase-build-one: #4dc9e7;
+  --phase-build-two: #4fd1c5;
+  --phase-present: #fbbf24;
+  --phase-celebrate: #f472b6;
+  --phase-reflect: #4ade80;
+  --phase-finish: #9bbde0;
+}
+
+:root[data-theme="light"] .workspace-phase-progress {
+  --phase-setup: #1e65b8;
+  --phase-proposal: #6d28d9;
+  --phase-build-one: #0e7490;
+  --phase-build-two: #0f766e;
+  --phase-present: #a15304;
+  --phase-celebrate: #be185d;
+  --phase-reflect: #167a3b;
+  --phase-finish: #31547a;
+}
+
+:root[data-theme="light"] .workspace-account-avatar {
+  border-color: #173650;
+  background: #173650;
+  color: #ffffff;
+}
+
+:root[data-theme="light"] .workspace-v2-app :where(
+  .workspace-admin-action-menu > summary,
+  .workspace-admin-more-menu > summary,
+  .workspace-row-more-menu > summary
+) {
+  border-color: var(--ticket-border-bright);
+  background: var(--ticket-panel) !important;
+  color: var(--ticket-text);
+}
+
+:root[data-theme="light"] .workspace-v2-app :where(
+  .workspace-detail-drawer,
+  .workspace-detail-panel,
+  .workspace-student-detail-supporting-details,
+  .workspace-student-detail-case-details,
+  .workspace-student-detail-more-context,
+  .workspace-student-detail-overview-item,
+  .workspace-student-detail-case-item,
+  .workspace-read-only-banner
+) {
+  border-color: var(--ticket-border);
+  background: var(--ticket-panel) !important;
+  color: var(--ticket-text);
+}
+
+:root[data-theme="light"] .workspace-v2-app .workspace-student-detail-next-action {
+  border-color: var(--ticket-border);
+  background: var(--ticket-panel-raised) !important;
+  color: var(--ticket-text);
+}
+
+:root[data-theme="light"] .workspace-v2-app .workspace-student-detail-next-action :where(h3, p, small),
+:root[data-theme="light"] .workspace-v2-app .workspace-detail-tab {
+  color: var(--ticket-text);
+}
+
+:root[data-theme="light"] .workspace-v2-app .workspace-detail-tab {
+  border-color: var(--ticket-border-bright);
+  background: var(--ticket-panel-raised);
+}
+
+:root[data-theme="light"] .workspace-v2-app .workspace-detail-tab.is-active {
+  border-color: var(--school-primary);
+  background: color-mix(in srgb, var(--school-primary) 9%, var(--ticket-panel));
+}
+
+:root[data-theme="light"] .workspace-v2-app :where(
+  .workspace-people-nav,
+  .workspace-people-scope article,
+  .workspace-csv-summary-grid article,
+  .workspace-csv-preview
+) {
+  border-color: var(--ticket-border);
+  background: var(--ticket-panel) !important;
+  color: var(--ticket-text);
+}
+
+.workspace-v2-app .workspace-admin-coverage-summary article {
+  border-color: var(--ticket-border);
+  background: var(--ticket-panel) !important;
+  color: var(--ticket-text);
+}
+
+.workspace-v2-app .workspace-admin-coverage-summary article.warning {
+  background: color-mix(in srgb, #f59e0b 8%, var(--ticket-panel)) !important;
+}
+
+.workspace-v2-app .workspace-admin-coverage-summary article :where(span, strong, small) {
+  color: var(--ticket-text);
+}
+
+.workspace-v2-app :where(.workspace-account-reset, .workspace-account-remove) > summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0.3rem 0.45rem;
+}
+
+.workspace-v2-app [data-site-branding-form] select {
+  min-height: 40px;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--ticket-border-bright);
+  border-radius: var(--radius-control);
+  background: var(--ticket-panel);
+  color: var(--ticket-text);
+  font: inherit;
+}
+
+:root[data-theme="light"] .workspace-v2-app :where(
+  .workspace-people-nav-group > span,
+  .workspace-people-scope span,
+  .workspace-csv-summary-grid span
+) {
+  color: var(--ticket-muted);
+}
+
+:root[data-theme="light"] .workspace-v2-app :where(
+  .workspace-people-scope strong,
+  .workspace-csv-summary-grid strong,
+  .workspace-csv-preview strong,
+  .workspace-csv-preview .workspace-problem-state-value
+) {
+  color: var(--ticket-text);
+}
+
+.workspace-view-as-safety > summary {
+  min-height: 32px;
+  padding: 0.35rem 0.55rem;
+}
+
+:root[data-theme="dark"] .workspace-v2-app :where(
+  .workspace-admin-action-menu > summary,
+  .workspace-admin-more-menu > summary,
+  .workspace-row-more-menu > summary
+) {
+  background: #102238 !important;
+  color: #f4f7fb;
+}
+
+.workspace-admin-supporting-disclosure > summary,
+.workspace-admin-issue-disclosure > summary {
+  min-height: 40px;
+  padding-block: 0.55rem;
+}
+
+body[data-page="workspace"] {
+  background: var(--ticket-bg);
+  color: var(--ticket-text);
+  font-variant-numeric: tabular-nums;
+  text-rendering: optimizeLegibility;
+}
+
+.workspace-v2-app {
+  background:
+    radial-gradient(circle at 74% -22%, color-mix(in srgb, var(--school-primary) 13%, transparent), transparent 36rem),
+    var(--ticket-bg);
+}
+
+.workspace-v2-topbar {
+  width: calc(100% - 242px);
+  min-height: 60px;
+  margin-left: 242px;
+  padding-inline: clamp(18px, 2.4vw, 34px);
+}
+
+:root[data-theme="light"] .workspace-v2-topbar {
+  background: color-mix(in srgb, #fff 91%, transparent);
+  box-shadow: 0 1px 0 rgba(20, 32, 51, 0.03);
+}
+
+:root[data-theme="dark"] .workspace-v2-topbar {
+  background: color-mix(in srgb, var(--ticket-bg) 88%, transparent);
+}
+
+.workspace-v2-stage {
+  gap: 1rem;
+  max-width: 1680px;
+  margin-left: 242px;
+  padding: 28px clamp(22px, 3.2vw, 52px) 72px;
+}
+
+.workspace-v2-drawer {
+  width: 242px;
+  padding: 17px 14px;
+  border-right-color: var(--ticket-border);
+  background: color-mix(in srgb, var(--ticket-panel) 96%, var(--school-primary));
+}
+
+:root[data-theme="dark"] .workspace-v2-drawer {
+  background: #0a1524;
+}
+
+.workspace-v2-sidebar-brand {
+  padding: 5px 5px 17px;
+}
+
+.workspace-v2-sidebar-brand strong {
+  color: var(--ticket-text);
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+}
+
+.workspace-v2-sidebar-context {
+  margin-bottom: 18px;
+  border-color: color-mix(in srgb, var(--school-primary) 24%, var(--ticket-border));
+  background: color-mix(in srgb, var(--school-primary) 7%, var(--ticket-panel));
+  color: color-mix(in srgb, var(--school-primary) 84%, var(--ticket-text));
+}
+
+.workspace-v2-drawer-list {
+  gap: 3px;
+}
+
+.workspace-v2-drawer-list .workspace-v2-step,
+.workspace-staff-nav-major {
+  min-height: 44px;
+  border-radius: 0.65rem;
+}
+
+.workspace-v2-drawer-list .workspace-v2-step strong,
+.workspace-staff-nav-major strong {
+  font-size: 0.81rem;
+  font-weight: 680;
+}
+
+.workspace-v2-drawer-list .workspace-v2-step.is-active,
+.workspace-staff-nav-major.is-active,
+.workspace-staff-nav-group.is-active > .workspace-staff-nav-major {
+  border-color: color-mix(in srgb, var(--school-primary) 30%, var(--ticket-border));
+  background: color-mix(in srgb, var(--school-primary) 11%, var(--ticket-panel));
+  box-shadow: inset 3px 0 0 var(--school-primary);
+}
+
+.workspace-staff-nav-minor {
+  margin-left: 0.9rem;
+  border-left-color: color-mix(in srgb, var(--school-primary) 22%, var(--ticket-border));
+}
+
+.workspace-staff-nav-minor button {
+  min-height: 34px;
+  font-size: 0.74rem;
+}
+
+.workspace-v2-screen,
+.workspace-student-screen,
+.workspace-command-center {
+  gap: 1rem;
+}
+
+.workspace-v2-app :where(h1, h2, h3, strong) {
+  letter-spacing: -0.012em;
+}
+
+.workspace-v2-hero h1,
+.workspace-section-heading h1,
+.workspace-command-hero h1,
+.workspace-student-screen-header h1 {
+  color: var(--ticket-text);
+  font-size: clamp(2rem, 1.55rem + 1.7vw, 2.8rem);
+  line-height: 1.05;
+}
+
+.workspace-v2-app :where(.workspace-card, .workspace-panel, .workspace-dashboard-card, .workspace-student-section, .workspace-student-screen-header) {
+  border-color: var(--ticket-border);
+  border-radius: var(--radius-card);
+  background: var(--ticket-panel) !important;
+  box-shadow: var(--shadow-soft);
+}
+
+.workspace-v2-app :where(.workspace-button, .workspace-link-button, .workspace-primary-button) {
+  min-height: 38px;
+  border-radius: var(--radius-control);
+  font-weight: 720;
+  letter-spacing: -0.005em;
+}
+
+.workspace-v2-app :where(.workspace-button-primary, .workspace-primary-button) {
+  border-color: var(--school-primary-strong);
+  background: var(--school-primary);
+  color: var(--school-on-primary, #fff);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--school-primary) 17%, transparent);
+}
+
+/* Beat older high-specificity rules so every primary action uses the school token. */
+.workspace-v2-app .workspace-button-primary,
+.workspace-v2-app .workspace-primary-button {
+  border-color: var(--school-primary-strong);
+  background: var(--school-primary);
+  color: var(--school-on-primary, #fff);
+}
+
+.workspace-v2-app .workspace-mark {
+  background-color: #68c6dc;
+}
+
+:root[data-theme="dark"] .workspace-v2-app .workspace-metric-tile {
+  background: var(--ticket-panel);
+}
+
+:root[data-theme="dark"] .workspace-v2-app .workspace-metric-tile.warning {
+  background: color-mix(in srgb, #f59e0b 9%, var(--ticket-panel));
+}
+
+:root[data-theme="dark"] .workspace-v2-app .workspace-metric-tile.danger {
+  background: color-mix(in srgb, #ef4444 9%, var(--ticket-panel));
+}
+
+:root[data-theme="dark"] .workspace-v2-app .workspace-metric-tile.student {
+  background: color-mix(in srgb, #fbbf24 8%, var(--ticket-panel));
+}
+
+:root[data-theme="dark"] .workspace-v2-app .workspace-metric-tile :where(span, strong, p) {
+  color: var(--ticket-text);
+}
+
+:root[data-theme="dark"] .workspace-v2-app .workspace-mentor-plan-grid article {
+  border-color: var(--ticket-border);
+  background: var(--ticket-panel-raised);
+}
+
+:root[data-theme="dark"] .workspace-v2-app :where(
+  .workspace-project-adult-controls > summary,
+  .workspace-project-external-mentor > summary,
+  .workspace-project-adult-history > summary
+) {
+  color: var(--ticket-blue-bright);
+}
+
+.workspace-v2-app :where(.workspace-button-primary, .workspace-primary-button):hover {
+  background: var(--school-primary-strong);
+  transform: translateY(-1px);
+}
+
+.workspace-v2-app :where(.workspace-button, .workspace-link-button, .workspace-primary-button):active {
+  transform: translateY(0);
+}
+
+.workspace-v2-app :where(input, select, textarea) {
+  border-radius: var(--radius-control);
+}
+
+.workspace-kicker,
+.workspace-v2-kicker,
+.workspace-label,
+.workspace-review-eyebrow {
+  color: color-mix(in srgb, var(--school-primary) 82%, var(--ticket-text));
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.095em;
+}
+
+/* Staff preview stays obvious without becoming the page's largest card. */
+.workspace-view-as-banner {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 0.75rem;
+  padding: 0.72rem 0.85rem;
+  border: 1px solid color-mix(in srgb, #16834b 32%, var(--ticket-border));
+  border-left: 4px solid #16834b;
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, #16834b 6%, var(--ticket-panel));
+  color: var(--ticket-text);
+  box-shadow: none;
+}
+
+.workspace-view-as-banner-copy {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+}
+
+.workspace-view-as-banner-copy > span {
+  font-size: 0.92rem;
+  font-weight: 780;
+}
+
+.workspace-view-as-banner-copy > small {
+  color: var(--ticket-muted);
+  font-size: 0.78rem;
+}
+
+.workspace-view-as-safety {
+  justify-self: end;
+}
+
+.workspace-view-as-safety > summary {
+  cursor: pointer;
+  color: color-mix(in srgb, #16834b 80%, var(--ticket-text));
+  font-size: 0.76rem;
+  font-weight: 760;
+}
+
+.workspace-view-as-safety[open] {
+  grid-column: 1 / -1;
+  justify-self: stretch;
+  padding-top: 0.55rem;
+  border-top: 1px solid color-mix(in srgb, #16834b 18%, var(--ticket-border));
+}
+
+.workspace-view-as-safety[open] > small {
+  display: block;
+  margin-top: 0.4rem;
+  color: var(--ticket-muted);
+}
+
+.workspace-view-as-banner-chips {
+  margin-top: 0.5rem;
+}
+
+.workspace-view-as-chip {
+  min-height: 24px;
+  border-color: color-mix(in srgb, #16834b 22%, var(--ticket-border));
+  background: var(--ticket-panel);
+  color: color-mix(in srgb, #16834b 78%, var(--ticket-text));
+  font-size: 0.7rem;
+}
+
+.workspace-view-as-readonly {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid color-mix(in srgb, #16834b 24%, var(--ticket-border));
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, #16834b 5%, var(--ticket-panel));
+  color: var(--ticket-text);
+}
+
+.workspace-view-as-readonly p {
+  margin: 0;
+  color: var(--ticket-muted);
+  font-size: 0.78rem;
+}
+
+/* Projects: the live worklist comes first; setup tools stay available below it. */
+.workspace-project-directory {
+  width: min(100%, 80rem);
+  gap: 1rem;
+}
+
+.workspace-project-hero {
+  align-items: center;
+  padding: 0.2rem 0 0.45rem;
+}
+
+.workspace-project-hero h1 {
+  font-size: clamp(2.1rem, 4vw, 3rem);
+}
+
+.workspace-project-summary-disclosure,
+.workspace-project-request-disclosure,
+.workspace-student-project-tools {
+  overflow: clip;
+  border: 1px solid var(--ticket-border);
+  border-radius: var(--radius-card);
+  background: var(--ticket-panel);
+  box-shadow: none;
+}
+
+.workspace-project-summary-disclosure > summary,
+.workspace-project-request-disclosure > summary,
+.workspace-student-project-tools > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  min-height: 54px;
+  padding: 0.7rem 0.9rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.workspace-project-summary-disclosure > summary::-webkit-details-marker,
+.workspace-project-request-disclosure > summary::-webkit-details-marker,
+.workspace-student-project-tools > summary::-webkit-details-marker {
+  display: none;
+}
+
+.workspace-project-summary-disclosure > summary > span:first-child,
+.workspace-project-request-disclosure > summary > span:first-child,
+.workspace-student-project-tools > summary > span:first-child {
+  display: grid;
+  gap: 0.08rem;
+}
+
+.workspace-project-summary-disclosure > summary strong,
+.workspace-project-request-disclosure > summary strong,
+.workspace-student-project-tools > summary strong {
+  color: var(--ticket-text);
+  font-size: 0.92rem;
+}
+
+.workspace-project-summary-disclosure > summary small,
+.workspace-project-request-disclosure > summary small,
+.workspace-student-project-tools > summary small {
+  color: var(--ticket-muted);
+  font-size: 0.7rem;
+}
+
+.workspace-student-project-tools > summary > span:last-child {
+  color: var(--ticket-muted);
+  font-weight: 800;
+}
+
+.workspace-project-summary-disclosure > summary::after,
+.workspace-project-request-disclosure > summary::after {
+  order: 3;
+  color: var(--ticket-muted);
+  content: "+";
+  font-size: 1.15rem;
+}
+
+.workspace-project-summary-disclosure[open] > summary::after,
+.workspace-project-request-disclosure[open] > summary::after {
+  content: "−";
+}
+
+.workspace-project-summary-disclosure > .workspace-project-summary {
+  margin: 0 0.9rem 0.9rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--border-divider);
+}
+
+.workspace-project-summary {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.workspace-project-summary article {
+  position: relative;
+  min-height: 82px;
+  overflow: hidden;
+  padding: 0.8rem 0.85rem 0.72rem;
+  border-radius: var(--radius-card);
+  box-shadow: none;
+}
+
+.workspace-project-summary article::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--school-primary);
+  content: "";
+}
+
+.workspace-project-summary article:nth-child(2)::before { background: #7c4ac7; }
+.workspace-project-summary article:nth-child(3)::before { background: #d97706; }
+.workspace-project-summary article:nth-child(4)::before { background: #16834b; }
+.workspace-project-summary article:nth-child(5)::before { background: #227fcf; }
+
+.workspace-project-summary strong {
+  font-size: 1.55rem;
+}
+
+.workspace-project-summary span,
+.workspace-project-summary small {
+  line-height: 1.25;
+}
+
+.workspace-project-worklist {
+  gap: 0.8rem;
+  padding: 1.05rem;
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-card);
+}
+
+.workspace-project-section-head h2 {
+  font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+}
+
+.workspace-project-directory-filters {
+  border-radius: var(--radius-control);
+  background: var(--ticket-panel-raised);
+}
+
+.workspace-project-list {
+  border-radius: var(--radius-control);
+}
+
+.workspace-project-directory-row {
+  min-height: 62px;
+  transition: background-color 140ms ease, box-shadow 140ms ease;
+}
+
+.workspace-project-directory-row:hover {
+  background: color-mix(in srgb, var(--school-primary) 6%, var(--ticket-panel));
+}
+
+.workspace-project-directory-row.is-selected {
+  background: color-mix(in srgb, var(--school-primary) 9%, var(--ticket-panel));
+  box-shadow: inset 4px 0 0 var(--school-primary);
+}
+
+:root[data-theme="dark"] .workspace-project-view-switch button.is-active,
+:root[data-theme="dark"] .workspace-project-directory-row > span:last-child {
+  color: var(--ticket-blue-bright);
+}
+
+.workspace-project-focused-detail {
+  margin-top: 0.1rem;
+  padding-top: 1rem;
+}
+
+.workspace-project-template-shelf {
+  padding: 0;
+  overflow: visible;
+  border-left: 0;
+  box-shadow: none;
+}
+
+.workspace-project-template-disclosure > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.82rem 0.95rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.workspace-project-template-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.workspace-project-template-disclosure > summary > span:first-child {
+  display: grid;
+  gap: 0.12rem;
+}
+
+.workspace-project-template-disclosure > summary strong {
+  color: var(--ticket-text);
+  font-size: 1rem;
+}
+
+.workspace-project-template-disclosure > summary::after {
+  order: 3;
+  color: var(--ticket-muted);
+  content: "+";
+  font-size: 1.2rem;
+}
+
+.workspace-project-template-disclosure[open] > summary::after {
+  content: "−";
+}
+
+.workspace-project-template-content {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0 0.95rem 0.95rem;
+  border-top: 1px solid var(--border-divider);
+}
+
+.workspace-project-template-content > p {
+  margin: 0.75rem 0 0;
+  color: var(--ticket-muted);
+  font-size: 0.84rem;
+}
+
+.workspace-project-template-row {
+  background: var(--ticket-panel-raised);
+}
+
+.workspace-project-requests {
+  display: block;
+}
+
+.workspace-project-request-disclosure {
+  border-left: 4px solid #d97706;
+}
+
+.workspace-project-request-content {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.85rem 0.95rem 0.95rem;
+  border-top: 1px solid var(--border-divider);
+}
+
+.workspace-project-request-content > p {
+  margin: 0;
+  color: var(--ticket-muted);
+  font-size: 0.84rem;
+}
+
+/* Student work reads like one clear course page, with one continuous timeline. */
+.workspace-app[data-experience="student"] .workspace-v2-stage {
+  max-width: 1540px;
+}
+
+.workspace-app[data-experience="student"] .workspace-student-screen {
+  width: min(100%, 78rem);
+  margin-inline: auto;
+}
+
+.workspace-student-screen-header {
+  position: relative;
+  overflow: hidden;
+  padding: 1.1rem 1.2rem;
+  background:
+    linear-gradient(115deg, color-mix(in srgb, var(--school-primary) 8%, var(--ticket-panel)), var(--ticket-panel) 58%) !important;
+}
+
+.workspace-student-screen-header::after {
+  position: absolute;
+  top: -4rem;
+  right: -3rem;
+  width: 12rem;
+  height: 12rem;
+  border: 2rem solid color-mix(in srgb, var(--school-accent) 10%, transparent);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+.workspace-student-project-overview-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.85rem;
+}
+
+.workspace-student-project-tools > summary {
+  border-left: 4px solid #0f9488;
+}
+
+.workspace-student-project-tools > summary > span:last-child {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--ticket-border);
+  border-radius: 50%;
+  color: var(--ticket-blue-bright);
+  font-size: 1.15rem;
+}
+
+.workspace-student-project-tools[open] > summary > span:last-child {
+  transform: rotate(45deg);
+}
+
+.workspace-student-project-tools-body {
+  display: grid;
+  gap: 0.85rem;
+  padding: 0.9rem;
+  border-top: 1px solid var(--border-divider);
+  background: var(--ticket-panel-raised);
+}
+
+.workspace-student-project-team,
+.workspace-student-project-folder {
+  align-content: start;
+  min-width: 0;
+  height: 100%;
+  padding: 0.95rem 1rem;
+  border: 1px solid var(--ticket-border);
+  border-top: 4px solid var(--school-primary);
+  border-left-width: 1px;
+  border-radius: var(--radius-card);
+  background: var(--ticket-panel);
+  box-shadow: var(--shadow-soft);
+}
+
+.workspace-student-project-folder {
+  border-top-color: #0f9488;
+}
+
+.workspace-student-project-team h2,
+.workspace-student-project-folder h2 {
+  font-size: clamp(1.15rem, 2vw, 1.45rem);
+}
+
+.workspace-student-project-team-help {
+  text-align: left;
+}
+
+.workspace-student-template-shelf {
+  border: 1px solid var(--ticket-border);
+  border-top: 4px solid #7c4ac7;
+  border-left-width: 1px;
+  border-radius: var(--radius-card);
+}
+
+.workspace-student-section[data-student-work-section="current"] {
+  border-top: 4px solid var(--school-primary);
+  box-shadow: var(--shadow-card);
+}
+
+.workspace-phase-progress {
+  gap: 0.85rem;
+  overflow: hidden;
+  padding: 0.9rem 1rem 0.8rem;
+  border-radius: var(--radius-card);
+  background: var(--ticket-panel);
+}
+
+.workspace-phase-progress-head {
+  align-items: center;
+}
+
+.workspace-phase-progress-head strong {
+  font-size: 0.95rem;
+}
+
+.workspace-phase-timeline {
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  overflow: visible;
+}
+
+.workspace-phase-timeline::before {
+  display: none;
+}
+
+.workspace-meter-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+}
+
+.workspace-meter-fill {
+  fill: var(--workspace-primary);
+}
+
+.workspace-meter-fill.warning,
+.workspace-report-row.warning .workspace-meter-fill {
+  fill: var(--color-warning);
+}
+
+.workspace-meter-fill.danger,
+.workspace-report-row.danger .workspace-meter-fill {
+  fill: var(--color-danger);
+}
+
+.workspace-meter-fill.teacher {
+  fill: var(--abc-blue);
+}
+
+.workspace-meter-fill.admin {
+  fill: var(--abc-red);
+}
+
+.workspace-meter-fill.mentor,
+.workspace-report-row.ready .workspace-meter-fill,
+.workspace-upload-status-complete .workspace-meter-fill {
+  fill: var(--abc-green);
+}
+
+.workspace-upload-status-failed .workspace-meter-fill {
+  fill: var(--color-danger);
+}
+
+.workspace-phase-timeline-meter {
+  position: absolute;
+  top: 17px;
+  right: 6.25%;
+  left: 6.25%;
+  z-index: 0;
+  width: 87.5%;
+  height: 4px;
+  min-height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+}
+
+.workspace-phase-timeline-meter .workspace-meter-track {
+  fill: var(--border-soft);
+}
+
+.workspace-phase-timeline-meter .workspace-meter-fill {
+  fill: var(--school-primary);
+}
+
+.workspace-phase-stop {
+  min-height: 70px;
+}
+
+.workspace-phase-stop-dot {
+  background: var(--ticket-panel);
+  box-shadow: 0 0 0 4px var(--ticket-panel);
+}
+
+.workspace-phase-stop.is-current .workspace-phase-stop-dot {
+  border-color: var(--phase-accent);
+  background: var(--ticket-text);
+  color: var(--ticket-panel);
+}
+
+.workspace-phase-stop strong {
+  font-size: clamp(0.7rem, 0.75vw, 0.8rem);
+}
+
+.workspace-phase-stop.is-selected strong {
+  text-decoration: none;
+}
+
+.workspace-phase-stop.is-selected::after {
+  position: absolute;
+  right: 18%;
+  bottom: 0;
+  left: 18%;
+  height: 3px;
+  border-radius: 99px;
+  background: var(--phase-accent);
+  content: "";
+}
+
+.workspace-student-phase-path {
+  overflow-x: auto;
+  border-radius: var(--radius-card);
+  background: var(--ticket-panel);
+}
+
+.workspace-student-phase-path-list {
+  min-width: 0;
+}
+
+/* Review screens: a completed/read-only item is a quiet status, not a giant error. */
+.workspace-review-panel > .workspace-card-head h2 {
+  font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+}
+
+.workspace-review-panel .workspace-empty-state-card[data-review-mutation-disabled="true"] {
+  gap: 0.45rem;
+  padding: 0.75rem 0.85rem;
+  border-left: 4px solid var(--ticket-faint);
+  box-shadow: none;
+}
+
+.workspace-review-panel .workspace-empty-state-card[data-review-mutation-disabled="true"] > h2 {
+  margin: 0;
+  font-size: 0.98rem;
+}
+
+.workspace-review-panel [data-review-mutation-disabled="true"] .workspace-problem-state {
+  gap: 0.45rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.workspace-review-panel [data-review-mutation-disabled="true"] .workspace-problem-state-grid {
+  grid-template-columns: minmax(0, 1.35fr) minmax(9rem, 0.65fr) minmax(0, 1.35fr);
+  gap: 0.75rem;
+}
+
+.workspace-review-panel [data-review-mutation-disabled="true"] .workspace-problem-state-value {
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.workspace-review-panel [data-review-mutation-disabled="true"] .workspace-problem-state-actions {
+  justify-content: flex-start;
+  padding-top: 0.5rem;
+}
+
+.workspace-auth-setup {
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--workspace-border);
+}
+
+.workspace-auth-setup > summary {
+  width: fit-content;
+  cursor: pointer;
+  color: var(--workspace-accent-strong);
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.workspace-auth-setup[open] > summary {
+  margin-bottom: 0.75rem;
+}
+
+.workspace-auth-setup .workspace-reset-panel {
+  margin: 0;
+}
+
+@media (max-width: 1180px) {
+  .workspace-project-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .workspace-student-project-overview-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .workspace-v2-topbar {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .workspace-v2-stage {
+    margin-left: 0;
+  }
+
+  .workspace-v2-drawer {
+    width: min(19rem, calc(100vw - 2rem));
+  }
+
+  :root[data-theme="light"] .workspace-v2-brand,
+  :root[data-theme="light"] .workspace-v2-menu-toggle {
+    border-color: var(--ticket-border-bright);
+    background: var(--ticket-panel);
+    color: var(--ticket-text);
+  }
+
+  :root[data-theme="light"] .workspace-v2-drawer,
+  :root[data-theme="light"] .workspace-v2-drawer-header {
+    border-color: var(--ticket-border-bright);
+    background: var(--ticket-panel);
+    color: var(--ticket-text);
+  }
+
+  :root[data-theme="light"] .workspace-v2-drawer {
+    box-shadow: 0 22px 60px rgba(20, 32, 51, 0.22);
+  }
+
+  :root[data-theme="light"] .workspace-v2-drawer-list .workspace-v2-step {
+    background: transparent;
+    color: var(--ticket-blue-bright);
+  }
+
+  :root[data-theme="light"] .workspace-v2-drawer-list .workspace-v2-step.is-active {
+    background: color-mix(in srgb, var(--school-primary) 9%, var(--ticket-panel));
+    color: var(--ticket-text);
+  }
+
+  :root[data-theme="dark"] .workspace-v2-brand,
+  :root[data-theme="dark"] .workspace-v2-menu-toggle {
+    border-color: var(--ticket-border-bright);
+    background: #0b1b2d;
+    color: #f4f7fb;
+  }
+
+  .workspace-phase-progress {
+    overflow-x: auto;
+  }
+
+  .workspace-phase-progress-head {
+    position: sticky;
+    left: 0;
+  }
+
+  .workspace-phase-timeline {
+    min-width: 50rem;
+  }
+}
+
+@media (max-width: 760px) {
+  .workspace-v2-stage {
+    padding: 18px 14px 56px;
+  }
+
+  .workspace-project-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace-view-as-banner {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-view-as-banner-copy {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-view-as-safety {
+    justify-self: start;
+  }
+
+  .workspace-view-as-banner > .workspace-button {
+    width: 100%;
+  }
+
+  .workspace-view-as-readonly {
+    display: grid;
+  }
+
+  .workspace-review-panel [data-review-mutation-disabled="true"] .workspace-problem-state-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-project-template-disclosure > summary {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 460px) {
+  .workspace-project-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workspace-v2-app :where(*, *::before, *::after) {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

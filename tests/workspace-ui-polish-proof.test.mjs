@@ -34,6 +34,13 @@ test("workspace UI polish proof script and package alias exist", () => {
   assert.match(script, /GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF/);
   assert.match(script, /WORKSPACE_UI_POLISH_BASE_URL/);
   assert.match(script, /admin-console-local-browser-accounts\.json/);
+  assert.match(script, /test-accounts-2026-05-18\.json/);
+  assert.match(script, /credentialAccounts/);
+  assert.match(script, /build-app-deploy\.mjs/);
+  assert.match(script, /pages[\s\S]*dev[\s\S]*\.deploy-app/);
+  assert.match(script, /WORKSPACE_UI_POLISH_IDS/);
+  assert.match(script, /wcagTextContrast/);
+  assert.match(script, /noTinyTargets/);
   assert.match(script, /realStudentProductionStatus:\s*"NOT_CLAIMED_READY"/);
   assert.match(script, /Local fake-account browser UI proof only/);
   assert.doesNotMatch(script, /seed:demo:remote|reset:accounts:remote|db:migrate:remote|deploy:preview|deploy:public-site/);
@@ -52,54 +59,14 @@ test("workspace UI polish manifest records durable local fake-account screenshot
   assert.equal(manifest.manifestPath, manifestPath);
   assert.deepEqual(manifest.failures, []);
   assert.equal(Array.isArray(manifest.screenshots), true);
-  const requiredIds = [
-    "01-admin-console-global-admin-desktop",
-    "02-workspace-site-admin-desktop",
-    "03-program-teacher-workspace",
-    "04-mentor-workspace",
-    "05-viewer-read-only-workspace",
-    "06-student-today-desktop",
-    "07-student-today-phone",
-    "08-staff-view-as-student-phone",
-    "09-admin-console-half-screen",
-    "10-workspace-half-screen",
-    "11-drawer-open-phone",
-    "12-drawer-open-half-screen",
-    "13-site-admin-student-detail-click",
-    "14-viewer-read-only-detail-click",
-    "15-view-as-student-entered-desktop",
-    "16-view-as-student-exited-return",
-    "17-people-access-landing",
-    "18-admin-students",
-    "19-csv-import-template",
-    "20-student-admin-route-blocked",
-    "21-empty-student-search",
-    "22-student-final-files-state",
-    "24-student-my-work-desktop",
-    "43-student-my-work-phone",
-    "25-student-feedback-desktop",
-    "26-administration-workspace-today",
-    "27-global-admin-workspace-today",
-    "28-student-detail-evidence",
-    "29-workspace-reports",
-    "30-mobile-mentor-today",
-    "31-mobile-student-detail",
-    "44-mobile-staff-students",
-    "45-mobile-student-detail-evidence",
-    "32-admin-console-site-admin-overview",
-    "33-admin-assignments",
-    "34-admin-programs",
-    "35-admin-reports",
-    "36-admin-audit",
-    "37-mobile-admin-overview",
-    "38-mobile-admin-imports",
-    "42-mobile-admin-reports",
-    "39-viewer-students-directory",
-    "46-mobile-viewer-students",
-    "40-staff-reviews",
-    "41-student-detail-timeline",
-    "23-student-detail-phone",
-  ];
+  const proofScript = read(scriptPath);
+  const planSource = proofScript.slice(
+    proofScript.indexOf("const SCREENSHOT_PLAN = ["),
+    proofScript.indexOf("SCREENSHOT_PLAN.push"),
+  );
+  const requiredIds = [...planSource.matchAll(/^\s*id:\s*"([^"]+)"/gm)].map((match) => match[1]);
+  assert.equal(requiredIds.length, 100, "the canonical role and viewport plan must contain 100 screens");
+  assert.equal(new Set(requiredIds).size, requiredIds.length, "screenshot plan ids must be unique");
   assert.equal(manifest.screenshots.length, requiredIds.length);
   assert.deepEqual(manifest.screenshots.map((screenshot) => screenshot.id), requiredIds);
 
@@ -117,6 +84,15 @@ test("workspace UI polish manifest records durable local fake-account screenshot
     assert.equal(screenshot.checks.noSecretLikeText, true, `${screenshot.id} secret-like text`);
     assert.equal(screenshot.checks.noHorizontalOverflow, true, `${screenshot.id} horizontal overflow`);
     assert.equal(screenshot.checks.drawerOpenWhenRequested, true, `${screenshot.id} drawer check`);
+    assert.equal(screenshot.checks.expectedThemeApplied, true, `${screenshot.id} theme check`);
+    assert.equal(screenshot.checks.expectedSchoolThemeApplied, true, `${screenshot.id} school theme check`);
+    assert.equal(screenshot.checks.expectedHeadingFontApplied, true, `${screenshot.id} heading font check`);
+    assert.equal(screenshot.checks.readableBaseType, true, `${screenshot.id} base type check`);
+    assert.equal(screenshot.checks.wcagTextContrast, true, `${screenshot.id} text contrast`);
+    assert.equal(screenshot.checks.noTinyTargets, true, `${screenshot.id} target size`);
+    assert.equal(screenshot.checks.keyboardFocusMoves, true, `${screenshot.id} keyboard forward movement`);
+    assert.equal(screenshot.checks.keyboardFocusIsShown, true, `${screenshot.id} visible keyboard focus`);
+    assert.equal(screenshot.checks.keyboardReverseMoves, true, `${screenshot.id} keyboard reverse movement`);
     assert.equal(typeof screenshot.markers, "object", `${screenshot.id} markers`);
     const absoluteScreenshot = path.join(repoRoot, screenshot.screenshot);
     assert.equal(existsSync(absoluteScreenshot), true, `${screenshot.screenshot} exists`);
@@ -161,6 +137,9 @@ test("workspace UI polish manifest records durable local fake-account screenshot
   assert.equal(byId.get("20-student-admin-route-blocked").markers.problemState, true);
   assert.equal(byId.get("21-empty-student-search").markers.intentionalEmptyState, true);
   assert.equal(byId.get("22-student-final-files-state").markers.finalFiles, true);
+  assert.equal(byId.get("97-dark-global-admin-east-tech").presentation.schoolTheme, "east-tech");
+  assert.match(byId.get("97-dark-global-admin-east-tech").presentation.headingFontFamily, /Barlow Semi Condensed/);
+  assert.equal(byId.get("97-dark-global-admin-east-tech").presentation.eastTechFontLoaded, true);
 });
 
 test("workspace UI polish screenshot index preserves fake-account and no-go caveats", () => {

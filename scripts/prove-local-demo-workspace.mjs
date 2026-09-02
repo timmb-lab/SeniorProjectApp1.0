@@ -4,6 +4,7 @@ import { DatabaseSync } from "node:sqlite";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { workspaceCssFiles, workspaceJavaScriptFiles } from "./lib/workspace-sources.mjs";
 
 import { onRequest as onLogin } from "../functions/api/auth/login.ts";
 import { onRequestGet as onMe } from "../functions/api/auth/me.ts";
@@ -211,8 +212,8 @@ function sourceAddsSections(source, sectionIds) {
 }
 
 function verifyWorkspaceAdminConsoleArchitectureProof(repoRoot) {
-  const workspaceJs = readFileSync(path.join(repoRoot, "workspace.js"), "utf8");
-  const workspaceCss = readFileSync(path.join(repoRoot, "workspace.css"), "utf8");
+  const workspaceJs = workspaceJavaScriptFiles.map((file) => readFileSync(path.join(repoRoot, file), "utf8")).join("\n");
+  const workspaceCss = workspaceCssFiles.map((file) => readFileSync(path.join(repoRoot, file), "utf8")).join("\n");
   const userAccessBlock = extractSourceBlock(workspaceJs, "function canUseUsersAccess");
   const siteProgramsBlock = extractSourceBlock(workspaceJs, "function canUseSitePrograms");
   const siteDashboardRoleBlock = extractSourceBlock(workspaceJs, "function hasSiteDashboardRole");

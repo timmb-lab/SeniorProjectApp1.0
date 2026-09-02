@@ -200,6 +200,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       siteId: site.id,
       siteName: site.name,
       schoolYear: site.school_year || "",
+      brandTheme: site.brand_theme || "default",
       role: context.primaryRole,
       readOnly,
       selectionMode: selection.selectionMode,

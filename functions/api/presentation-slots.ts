@@ -2,8 +2,9 @@ import type { Env, RoleAssignment } from "../_types.ts";
 import { getCurrentUser, writeAudit } from "../_lib/auth.ts";
 import { randomId } from "../_lib/crypto.ts";
 import { badRequest, json, readJson, requirePost } from "../_lib/http.ts";
-import { canAccessStudent, getRoleAssignments, hasRole, isAdmin } from "../_lib/permissions.ts";
+import { canAccessStudent, hasRole, isAdmin } from "../_lib/permissions.ts";
 import { cleanWorkflowText, workflowError } from "../_lib/workflow.ts";
+import { loadEffectiveAccess } from "../_lib/effective-access.ts";
 
 interface PresentationSlotRow {
   id: string;
@@ -50,7 +51,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     return workflowError("unauthorized", 401);
   }
 
-  const roleAssignments = await getRoleAssignments(env, user.id);
+  const access = await loadEffectiveAccess(env, user);
+  const roleAssignments = access.roles;
   if (!hasPresentationViewerRole(roleAssignments)) {
     await writeAudit(env, {
       actorUserId: user.id,
@@ -66,6 +68,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     return workflowError("forbidden", 403);
   }
 
+  const accessibleStudentIds = new Set(access.studentIds);
   const rows = await env.DB.prepare(
     `SELECT
        presentation_slots.id,
@@ -89,12 +92,9 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
      LIMIT 100`,
   ).all<PresentationSlotRow>();
 
-  const slots = [];
-  for (const row of rows.results || []) {
-    if (await canAccessStudent(env, user, row.student_id)) {
-      slots.push(formatSlot(row));
-    }
-  }
+  const slots = (rows.results || [])
+    .filter((row) => access.isGlobalAdmin || accessibleStudentIds.has(row.student_id))
+    .map(formatSlot);
 
   await writeAudit(env, {
     actorUserId: user.id,

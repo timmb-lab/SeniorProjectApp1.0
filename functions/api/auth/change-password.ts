@@ -1,7 +1,8 @@
 import type { Env } from "../../_types.ts";
-import { createSession, getCurrentUser, sessionCookie, writeAudit } from "../../_lib/auth.ts";
-import { hashPassword, validatePassword, verifyPassword } from "../../_lib/crypto.ts";
-import { badRequest, json, readJson, requirePost } from "../../_lib/http.ts";
+import { createSession, getCurrentUser, securityFingerprint, sessionCookie, writeAudit } from "../../_lib/auth.ts";
+import { hashPassword, randomId, validatePassword, verifyPassword } from "../../_lib/crypto.ts";
+import { badRequest, getClientIp, json, readJson, requirePost } from "../../_lib/http.ts";
+import { authSecretsConfigured } from "../../_lib/auth-config.ts";
 
 interface ChangePasswordBody {
   currentPassword?: unknown;
@@ -15,16 +16,34 @@ interface CredentialRow {
   status: string;
   password_hash: string;
   password_salt: string;
+  algorithm: string;
+  iterations: number;
   password_version: number;
   requires_reset: number;
 }
 
+const CHANGE_WINDOW_MINUTES = 15;
+const MAX_CHANGE_FAILURES = 10;
+const MAX_CHANGE_IP_FAILURES = 30;
+
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const methodError = requirePost(request);
   if (methodError) return methodError;
+  if (!authSecretsConfigured(env, { password: true })) return json({ error: "auth_not_configured" }, { status: 503 });
 
   const user = await getCurrentUser(request, env);
   if (!user) return json({ error: "unauthorized" }, { status: 401 });
+
+  const identifierHash = await securityFingerprint(env, `password-change:${user.id}`);
+  const ipHash = await securityFingerprint(env, `ip:${getClientIp(request)}`);
+  const [recentFailures, recentIpFailures] = await Promise.all([
+    countRecentChangeFailures(env, "identifier_hash", identifierHash),
+    countRecentChangeFailures(env, "ip_hash", ipHash),
+  ]);
+  if (recentFailures >= MAX_CHANGE_FAILURES || recentIpFailures >= MAX_CHANGE_IP_FAILURES) {
+    await recordChangeAttempt(env, identifierHash, ipHash, false, "rate_limited");
+    return json({ error: "rate_limited" }, { status: 429 });
+  }
 
   let body: ChangePasswordBody;
   try {
@@ -47,6 +66,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
        u.status,
        c.password_hash,
        c.password_salt,
+       c.algorithm,
+       c.iterations,
        c.password_version,
        c.requires_reset
      FROM user_accounts u
@@ -62,13 +83,15 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     return json({ error: "password_reset_required" }, { status: 403 });
   }
 
-  const currentPasswordValid = await verifyPassword(
+  const currentPasswordValid = row.algorithm === "PBKDF2-SHA-256" && await verifyPassword(
     currentPassword,
     row.password_hash,
     row.password_salt,
     env.PASSWORD_PEPPER || "",
+    Number(row.iterations),
   );
   if (!currentPasswordValid) {
+    await recordChangeAttempt(env, identifierHash, ipHash, false, "invalid_current_password");
     await writeAudit(env, {
       actorUserId: row.user_id,
       action: "password_change_denied",
@@ -90,6 +113,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     row.password_hash,
     row.password_salt,
     env.PASSWORD_PEPPER || "",
+    Number(row.iterations),
   );
   if (matchesCurrentPassword) {
     return json({ error: "password_must_change" }, { status: 400 });
@@ -118,6 +142,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   ).bind(row.user_id).run();
 
   const session = await createSession(request, env, row.user_id);
+  await recordChangeAttempt(env, identifierHash, ipHash, true, null);
   await writeAudit(env, {
     actorUserId: row.user_id,
     action: "password_changed_by_user",
@@ -139,6 +164,34 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     { headers: { "set-cookie": sessionCookie(session.token, env) } },
   );
 };
+
+async function countRecentChangeFailures(
+  env: Env,
+  column: "identifier_hash" | "ip_hash",
+  value: string,
+): Promise<number> {
+  const row = await env.DB.prepare(
+    `SELECT COUNT(*) AS count
+     FROM login_attempts
+     WHERE ${column} = ?
+       AND success = 0
+       AND created_at > strftime('%Y-%m-%dT%H:%M:%fZ', 'now', ?)`,
+  ).bind(value, `-${CHANGE_WINDOW_MINUTES} minutes`).first<{ count: number }>();
+  return Number(row?.count || 0);
+}
+
+async function recordChangeAttempt(
+  env: Env,
+  identifierHash: string,
+  ipHash: string,
+  success: boolean,
+  reason: string | null,
+): Promise<void> {
+  await env.DB.prepare(
+    `INSERT INTO login_attempts (id, identifier_hash, ip_hash, success, reason)
+     VALUES (?, ?, ?, ?, ?)`,
+  ).bind(randomId("password_change"), identifierHash, ipHash, success ? 1 : 0, reason).run();
+}
 
 async function countActiveSessions(env: Env, userId: string): Promise<number> {
   const row = await env.DB.prepare(

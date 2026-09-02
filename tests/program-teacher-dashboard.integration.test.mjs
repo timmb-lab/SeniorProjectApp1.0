@@ -47,6 +47,7 @@ test("program teacher dashboard scopes records by valid program/cohort role", as
     assert.equal(body.scope.role, "program_teacher");
     assert.equal(body.scope.scopeType, "program");
     assert.equal(body.scope.scopeId, "it");
+    assert.equal(body.scope.siteId, "");
     assert.equal(body.summary.scopedStudents, 2);
     assert.equal(body.summary.submitted, 1);
     assert.equal(body.summary.revisionRequested, 1);
@@ -73,6 +74,26 @@ test("program teacher dashboard scopes records by valid program/cohort role", as
       ],
     );
     assert.doesNotMatch(JSON.stringify(body), /drive_file_id|drive_parent_folder_id|storage_key|password|token|secret/i);
+  }
+
+  {
+    const response = await onRequestGet({
+      request: buildRequest("https://example.test/api/program-teacher/dashboard?siteId=site-a", tokens.teacherIt),
+      env,
+    });
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.scope.siteId, "site-a");
+    assert.deepEqual(body.students.map((row) => row.studentId), ["student-a"]);
+    assert.equal(body.summary.scopedStudents, 1);
+  }
+
+  {
+    const response = await onRequestGet({
+      request: buildRequest("https://example.test/api/program-teacher/dashboard?siteId=site-b", tokens.teacherIt),
+      env,
+    });
+    assert.equal(response.status, 403);
   }
 
   {
@@ -113,6 +134,14 @@ async function createFixture() {
   await seedUser(db, { id: "student-a", displayName: "Student A", roleId: "student" });
   await seedUser(db, { id: "student-b", displayName: "Student B", roleId: "student" });
   await seedUser(db, { id: "student-c", displayName: "Student C", roleId: "student" });
+
+  await db.prepare("INSERT INTO tenants (id, name, slug) VALUES ('tenant-a', 'Tenant A', 'tenant-a')").run();
+  await db.prepare("INSERT INTO sites (id, tenant_id, name, slug) VALUES ('site-a', 'tenant-a', 'Site A', 'site-a')").run();
+  await db.prepare("INSERT INTO sites (id, tenant_id, name, slug) VALUES ('site-b', 'tenant-a', 'Site B', 'site-b')").run();
+  await db.prepare("INSERT INTO site_programs (site_id, program_id, active) VALUES ('site-a', 'it', 1)").run();
+  await db.prepare("INSERT INTO site_users (site_id, user_id, membership_status) VALUES ('site-a', 'teacher-it', 'active')").run();
+  await db.prepare("INSERT INTO site_users (site_id, user_id, membership_status) VALUES ('site-a', 'student-a', 'active')").run();
+  await db.prepare("INSERT INTO site_users (site_id, user_id, membership_status) VALUES ('site-b', 'student-b', 'active')").run();
 
   await db.prepare("INSERT INTO group_memberships (group_id, user_id) VALUES ('group-it', 'student-a')").run();
   await db.prepare("INSERT INTO group_memberships (group_id, user_id) VALUES ('group-it', 'student-b')").run();

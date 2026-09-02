@@ -28,6 +28,7 @@ const MIGRATIONS = [
   "migrations/0012_users_access_v5.sql",
   "migrations/0015_remove_org_admin_role.sql",
   "migrations/0016_student_roster_profiles.sql",
+  "migrations/0030_site_branding.sql",
 ];
 
 const PRIMARY_SITE_ID = "site-desert-valley-high";
@@ -47,12 +48,35 @@ test("site programs route stays scoped and supports add/remove site mappings", a
   const siteAdmin = await expectProgramsGet(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}`);
   assert.equal(siteAdmin.scope.siteId, PRIMARY_SITE_ID);
   assert.equal(siteAdmin.permissions.canManageSitePrograms, true);
+  assert.equal(siteAdmin.scope.brandTheme, "desert-valley");
   assert.equal(siteAdmin.activePrograms.some((row) => row.programId === "it"), true);
   const firstLoadAddable = siteAdmin.availablePrograms.find((row) => row.programId === addableProgramId);
   assert.equal(Boolean(firstLoadAddable), true);
   assert.equal(firstLoadAddable.programName, "Biotechnology");
   assert.equal(firstLoadAddable.previouslyRemoved, false);
   assert.doesNotMatch(JSON.stringify(siteAdmin), FORBIDDEN_RESPONSE_FIELDS);
+
+  const brandingUpdate = await routeProgramsPost(env, tokens.siteAdminPrimary, {
+    siteId: PRIMARY_SITE_ID,
+    action: "update_branding",
+    brandTheme: "east-tech",
+  });
+  assert.equal(brandingUpdate.response.status, 200);
+  assert.equal(brandingUpdate.body.brandTheme, "east-tech");
+  const savedBranding = await db.prepare(
+    "SELECT theme_key FROM site_branding WHERE site_id = ?",
+  ).bind(PRIMARY_SITE_ID).first();
+  assert.equal(savedBranding.theme_key, "east-tech");
+  const brandedSite = await expectProgramsGet(env, tokens.siteAdminPrimary, `?siteId=${PRIMARY_SITE_ID}`);
+  assert.equal(brandedSite.scope.brandTheme, "east-tech");
+
+  const invalidBranding = await routeProgramsPost(env, tokens.siteAdminPrimary, {
+    siteId: PRIMARY_SITE_ID,
+    action: "update_branding",
+    brandTheme: "url(javascript:bad)",
+  });
+  assert.equal(invalidBranding.response.status, 400);
+  assert.equal(invalidBranding.body.error, "invalid_brand_theme");
 
   const globalAdmin = await expectProgramsGet(env, tokens.globalAdminPrimary, `?siteId=${CANYON_SITE_ID}`);
   assert.equal(globalAdmin.scope.siteId, CANYON_SITE_ID);
@@ -167,6 +191,7 @@ test("site programs route stays scoped and supports add/remove site mappings", a
   assert.equal(audits.some((event) => event.action === "site_programs_viewed"), true);
   assert.equal(audits.some((event) => event.action === "site_program_removed"), true);
   assert.equal(audits.some((event) => event.action === "site_program_assigned"), true);
+  assert.equal(audits.some((event) => event.action === "site_brand_updated" && event.entity_type === "site_branding"), true);
   assert.equal(
     audits.some((event) => event.action === "security.denied_access" && event.entity_type === "site_program_assignment"),
     true,

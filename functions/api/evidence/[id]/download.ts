@@ -1,6 +1,6 @@
 import type { Env, RoleAssignment, UserAccount } from "../../../_types.ts";
 import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
-import { badRequest } from "../../../_lib/http.ts";
+import { applyApiSecurityHeaders, badRequest } from "../../../_lib/http.ts";
 import {
   downloadGoogleDriveFileMedia,
   exportGoogleDriveWorkspaceDocument,
@@ -173,6 +173,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
   });
 
   const headers = new Headers();
+  applyApiSecurityHeaders(headers);
   headers.set("cache-control", "no-store");
   headers.set("x-content-type-options", "nosniff");
   headers.set("referrer-policy", "strict-origin-when-cross-origin");

@@ -1425,7 +1425,7 @@ class MockPreparedStatement {
       return exists ? { ok: 1 } : null;
     }
 
-    if (this.sql.startsWith("select id, student_id, requirement_id, status, version from submissions where id = ?")) {
+    if (this.sql.startsWith("select id, student_id, requirement_id, status, version, project_id from submissions where id = ?")) {
       const [submissionId] = this.params;
       return this.data.submissions.find((row) => row.id === submissionId) ?? null;
     }

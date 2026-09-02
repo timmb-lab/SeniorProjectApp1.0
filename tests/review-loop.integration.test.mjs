@@ -37,6 +37,7 @@ test("end-to-end teacher review loop persists history and updates queue", async 
       toStatus: "submitted",
       version: 1,
       evidenceCount: 1,
+      writtenResponseLength: 0,
       actorRoleScopes: [{ roleId: "student", scopeType: "global", scopeId: "" }],
     });
   }
@@ -190,7 +191,7 @@ test("end-to-end teacher review loop persists history and updates queue", async 
     assert.deepEqual(
       body.comments.map((row) => row.body),
       [
-        "Approved for the next capstone phase.",
+      "Accepted. You can start the next step.",
         "Please add more detail.",
         "This is promising; add source context before final review.",
       ],
@@ -224,6 +225,7 @@ test("student submission blocks when no evidence artifacts exist", async () => {
     studentId: "student-a",
     status: "draft",
     evidenceCount: 0,
+    writtenResponseLength: 0,
     actorRoleScopes: [{ roleId: "student", scopeType: "global", scopeId: "" }],
   });
 });
@@ -256,6 +258,7 @@ test("review approval blocks when submitted work has no active proof", async () 
     studentId: "student-a",
     decision: "approved",
     evidenceCount: 0,
+    writtenResponseLength: 0,
     actorRoleScopes: [{ roleId: "program_teacher", scopeType: "global", scopeId: "" }],
   });
 });
@@ -474,6 +477,7 @@ test("submission detail audits unauthorized, denied, and scoped readback", async
       requirementId: "req-proposal-draft",
       status: "draft",
       evidenceCount: 1,
+      hasWrittenResponse: false,
       actorRoleScopes: label === "mentor-assigned"
         ? [{ roleId: "mentor", scopeType: "global", scopeId: "" }]
         : label === "admin"
@@ -772,6 +776,7 @@ async function createFixture(options = {}) {
     submissions: [],
     progressRecords: [],
     evidenceArtifacts: [],
+    studentWorkResponses: [],
     reviews: [],
     comments: [],
     statusHistory: [],
@@ -784,7 +789,7 @@ async function createFixture(options = {}) {
     SESSION_PEPPER: "",
   };
 
-  db.data.requirements.push({ id: "req-proposal-draft", title: "Proposal draft" });
+  db.data.requirements.push({ id: "req-proposal-draft", title: "Proposal draft", phase: "proposal", required: 1 });
 
   db.data.groups.push({ id: "group-a", program_id: studentProgramId, cohort_id: studentCohortId });
   db.data.groupMemberships.push({ user_id: "student-a", group_id: "group-a" });
@@ -947,7 +952,7 @@ class MockPreparedStatement {
       return exists ? { ok: 1 } : null;
     }
 
-    if (this.sql.startsWith("select id, student_id, requirement_id, status, version from submissions where id = ?")) {
+    if (this.sql.startsWith("select id, student_id, requirement_id, status, version, project_id from submissions where id = ?")) {
       const [submissionId] = this.params;
       const row = this.data.submissions.find((submission) => submission.id === submissionId);
       if (!row) return null;
@@ -957,6 +962,7 @@ class MockPreparedStatement {
         requirement_id: row.requirement_id,
         status: row.status,
         version: row.version,
+        project_id: row.project_id || null,
       };
     }
 
@@ -969,6 +975,17 @@ class MockPreparedStatement {
         return true;
       }).length;
       return { evidence_count: evidenceCount };
+    }
+
+    if (this.sql.startsWith("select phase from requirements where id = ? limit 1")) {
+      const [requirementId] = this.params;
+      const requirement = this.data.requirements.find((row) => row.id === requirementId);
+      return requirement ? { phase: requirement.phase || "" } : null;
+    }
+
+    if (this.sql.startsWith("select response_text") && this.sql.includes("from student_work_responses")) {
+      const [submissionId] = this.params;
+      return this.data.studentWorkResponses.find((row) => row.submission_id === submissionId) ?? null;
     }
 
     if (this.sql.includes("from mentor_assignments")) {
@@ -991,6 +1008,19 @@ class MockPreparedStatement {
   }
 
   async all() {
+    if (this.sql.includes("from requirements") && this.sql.includes("as progress_status")) {
+      const [studentId] = this.params;
+      return {
+        results: this.data.requirements.map((requirement) => ({
+          id: requirement.id,
+          phase: requirement.phase || "",
+          progress_status: this.data.progressRecords
+            .filter((row) => row.student_id === studentId && row.requirement_id === requirement.id)
+            .sort((left, right) => String(right.updated_at).localeCompare(String(left.updated_at)))[0]?.status || null,
+        })),
+      };
+    }
+
     if (this.sql.startsWith("select role_id, scope_type, scope_id from user_roles where user_id = ?")) {
       const [userId] = this.params;
       return {

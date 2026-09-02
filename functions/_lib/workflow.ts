@@ -1,7 +1,7 @@
 import type { Env, UserAccount } from "../_types.ts";
 import { randomId } from "./crypto.ts";
 import { json } from "./http.ts";
-import { canAccessStudent, hasRole, isGlobalAdmin } from "./permissions.ts";
+import { canAccessProject, canAccessStudent, hasRole, isGlobalAdmin } from "./permissions.ts";
 
 export type SubmissionDecision = "approved" | "revision_requested" | "comment_only";
 
@@ -11,6 +11,7 @@ export interface SubmissionRow {
   requirement_id: string | null;
   status: "draft" | "submitted" | "revision_requested" | "approved" | "archived";
   version: number;
+  project_id: string | null;
 }
 
 interface EvidenceSnapshotRow {
@@ -94,7 +95,7 @@ function unsafeEvidenceUrlReason(url: URL): string {
 
 export async function getSubmission(env: Env, submissionId: string): Promise<SubmissionRow | null> {
   return env.DB.prepare(
-    `SELECT id, student_id, requirement_id, status, version
+    `SELECT id, student_id, requirement_id, status, version, project_id
      FROM submissions
      WHERE id = ?`,
   ).bind(submissionId).first<SubmissionRow>();
@@ -114,12 +115,16 @@ export async function countActiveEvidenceForSubmission(env: Env, submissionId: s
 
 export async function canReviewSubmission(env: Env, reviewer: UserAccount, submission: SubmissionRow): Promise<boolean> {
   if (await isGlobalAdmin(env, reviewer.id)) return true;
-  if (!await hasRole(env, reviewer.id, "program_teacher")) return false;
-  return canAccessStudent(env, reviewer, submission.student_id);
+  if (!await hasRole(env, reviewer.id, "program_teacher") && !await hasRole(env, reviewer.id, "mentor")) return false;
+  return submission.project_id
+    ? canAccessProject(env, reviewer, submission.project_id)
+    : canAccessStudent(env, reviewer, submission.student_id);
 }
 
 export async function canViewSubmission(env: Env, viewer: UserAccount, submission: SubmissionRow): Promise<boolean> {
-  return canAccessStudent(env, viewer, submission.student_id);
+  return submission.project_id
+    ? canAccessProject(env, viewer, submission.project_id)
+    : canAccessStudent(env, viewer, submission.student_id);
 }
 
 export function workflowError(error: string, status: number): Response {
@@ -136,11 +141,12 @@ export async function writeStatusHistory(
     toStatus: string;
     changedBy: string;
     reason: string;
+    projectId?: string | null;
   },
 ): Promise<void> {
   await env.DB.prepare(
-    `INSERT INTO status_history (id, student_id, entity_type, entity_id, from_status, to_status, changed_by, reason)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO status_history (id, student_id, entity_type, entity_id, from_status, to_status, changed_by, reason, project_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   ).bind(
     randomId("status"),
     input.studentId,
@@ -150,6 +156,7 @@ export async function writeStatusHistory(
     input.toStatus,
     input.changedBy,
     input.reason,
+    input.projectId || null,
   ).run();
 }
 

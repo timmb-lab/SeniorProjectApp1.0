@@ -11,7 +11,7 @@ function listSourceFiles(dir) {
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) files.push(...listSourceFiles(fullPath));
-    else if (entry.isFile() && fullPath.endsWith(".ts")) files.push(fullPath);
+    else if (entry.isFile() && /\.(?:ts|js)$/.test(fullPath)) files.push(fullPath);
   }
   return files;
 }

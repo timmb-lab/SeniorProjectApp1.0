@@ -2,9 +2,9 @@ import type { Env, RoleId } from "../../_types";
 import { getCurrentUser, writeAudit } from "../../_lib/auth";
 import { hashPassword, normalizeEmail } from "../../_lib/crypto";
 import { badRequest, json, readJson, requirePost } from "../../_lib/http";
-import { isAdmin } from "../../_lib/permissions";
+import { isPlatformAdmin } from "../../_lib/permissions";
 
-type TestAccountKey = "student" | "program_teacher" | "mentor" | "admin" | "misc_admin";
+type TestAccountKey = "student" | "program_teacher" | "mentor" | "viewer" | "site_admin" | "admin" | "misc_admin";
 
 interface SeedTestAccountsBody {
   passwords?: Partial<Record<TestAccountKey, string>>;
@@ -20,8 +20,15 @@ interface TestAccountSeed {
   scopeId: string;
 }
 
-const TEST_SITE_ID = "site-test-high-school";
-const TEST_SITE_MEMBER_IDS = ["test_user_student_maya", "test_user_mentor_rivera"];
+const TEST_SITE_ID = "site-desert-valley-high";
+const TEST_PROJECT_ID = "project-test_user_student_maya";
+const TEST_SITE_MEMBER_IDS = [
+  "test_user_student_maya",
+  "test_user_teacher_chen",
+  "test_user_mentor_rivera",
+  "test_user_viewer_sam",
+  "test_user_site_admin_parker",
+];
 
 const TEST_ACCOUNTS: TestAccountSeed[] = [
   {
@@ -50,6 +57,24 @@ const TEST_ACCOUNTS: TestAccountSeed[] = [
     roleId: "mentor",
     scopeType: "global",
     scopeId: "",
+  },
+  {
+    key: "viewer",
+    id: "test_user_viewer_sam",
+    email: "sam.viewer@senior-capstone.test",
+    displayName: "Test Viewer Sam",
+    roleId: "viewer",
+    scopeType: "global",
+    scopeId: "",
+  },
+  {
+    key: "site_admin",
+    id: "test_user_site_admin_parker",
+    email: "parker.siteadmin@senior-capstone.test",
+    displayName: "Test Site Admin Parker",
+    roleId: "site_admin",
+    scopeType: "site",
+    scopeId: TEST_SITE_ID,
   },
   {
     key: "admin",
@@ -108,8 +133,14 @@ async function upsertTestAccount(env: Env, seed: TestAccountSeed, password: stri
        password_changed_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`,
   ).bind(seed.id, credential.hash, credential.salt, credential.algorithm, credential.iterations).run();
 
+  // These IDs are reserved synthetic accounts. Re-seeding must replace stale
+  // grants instead of stacking the intended role on top of old test access.
   await env.DB.prepare(
-    `INSERT OR IGNORE INTO user_roles (user_id, role_id, scope_type, scope_id, assigned_by)
+    "DELETE FROM user_roles WHERE user_id = ?",
+  ).bind(seed.id).run();
+
+  await env.DB.prepare(
+    `INSERT INTO user_roles (user_id, role_id, scope_type, scope_id, assigned_by)
      VALUES (?, ?, ?, ?, NULL)`,
   ).bind(seed.id, seed.roleId, seed.scopeType, seed.scopeId).run();
 }
@@ -237,6 +268,123 @@ async function seedSiteMemberships(env: Env): Promise<void> {
        ON CONFLICT(site_id, user_id) DO UPDATE SET membership_status = 'active'`,
     ).bind(TEST_SITE_ID, userId).run();
   }
+
+  await env.DB.prepare(
+    `INSERT INTO viewer_student_assignments (id, viewer_user_id, student_user_id, assigned_by, active)
+     VALUES ('viewer-alpha-sam-maya', 'test_user_viewer_sam', 'test_user_student_maya', NULL, 1)
+     ON CONFLICT(viewer_user_id, student_user_id) DO UPDATE SET active = 1`,
+  ).run();
+}
+
+async function seedProjectWorkspace(env: Env): Promise<void> {
+  await env.DB.prepare(
+    `INSERT INTO projects (
+       id, site_id, program_id, cohort_id, name, summary, status, current_phase, created_by
+     ) VALUES (?, ?, 'it', 'alpha-2026', 'Maya Senior Project', 'Fake test project workspace.', 'active', 'phase-1', 'test_user_student_maya')
+     ON CONFLICT(id) DO UPDATE SET
+       site_id = excluded.site_id,
+       program_id = excluded.program_id,
+       cohort_id = excluded.cohort_id,
+       name = excluded.name,
+       summary = excluded.summary,
+       status = 'active',
+       current_phase = excluded.current_phase,
+       updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`,
+  ).bind(TEST_PROJECT_ID, TEST_SITE_ID).run();
+
+  await env.DB.prepare(
+    `INSERT INTO project_members (project_id, student_user_id, member_role, active, assigned_by)
+     VALUES (?, 'test_user_student_maya', 'lead', 1, 'test_user_admin_lee')
+     ON CONFLICT(project_id, student_user_id) DO UPDATE SET
+       member_role = 'lead',
+       active = 1,
+       assigned_by = excluded.assigned_by,
+       updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`,
+  ).bind(TEST_PROJECT_ID).run();
+
+  await env.DB.prepare(
+    `INSERT INTO project_mentor_assignments (id, project_id, mentor_user_id, active, assigned_by)
+     VALUES ('project-mentor-alpha-rivera-maya', ?, 'test_user_mentor_rivera', 1, 'test_user_admin_lee')
+     ON CONFLICT(project_id, mentor_user_id) DO UPDATE SET
+       active = 1,
+       assigned_by = excluded.assigned_by,
+       updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`,
+  ).bind(TEST_PROJECT_ID).run();
+
+  await env.DB.prepare(
+    "UPDATE progress_records SET project_id = ? WHERE student_id = 'test_user_student_maya'",
+  ).bind(TEST_PROJECT_ID).run();
+  await env.DB.prepare(
+    "UPDATE submissions SET project_id = ? WHERE student_id = 'test_user_student_maya'",
+  ).bind(TEST_PROJECT_ID).run();
+  await env.DB.prepare(
+    "UPDATE evidence_artifacts SET project_id = ? WHERE student_id = 'test_user_student_maya'",
+  ).bind(TEST_PROJECT_ID).run();
+
+  await seedRequiredProjectAdult(env, {
+    assignmentId: "project-adult-alpha-rivera-mentor",
+    eventId: "project-adult-event-alpha-rivera-mentor",
+    noticeId: "project-adult-notice-alpha-rivera-mentor",
+    adultRole: "mentor",
+    assigneeUserId: "test_user_mentor_rivera",
+  });
+  await seedRequiredProjectAdult(env, {
+    assignmentId: "project-adult-alpha-chen-teacher",
+    eventId: "project-adult-event-alpha-chen-teacher",
+    noticeId: "project-adult-notice-alpha-chen-teacher",
+    adultRole: "program_teacher",
+    assigneeUserId: "test_user_teacher_chen",
+  });
+}
+
+async function seedRequiredProjectAdult(
+  env: Env,
+  input: {
+    assignmentId: string;
+    eventId: string;
+    noticeId: string;
+    adultRole: "mentor" | "program_teacher";
+    assigneeUserId: string;
+  },
+): Promise<void> {
+  // This route only repairs the reserved synthetic project. Re-seeding replaces
+  // stale pending/history rows so the fake role walkthrough starts predictably.
+  await env.DB.prepare(
+    "DELETE FROM project_adult_assignments WHERE project_id = ? AND adult_role = ?",
+  ).bind(TEST_PROJECT_ID, input.adultRole).run();
+
+  await env.DB.prepare(
+    `INSERT INTO project_adult_assignments (
+       id, project_id, site_id, adult_role, assignee_user_id,
+       status, nominated_by, responded_by, responded_at
+     ) VALUES (?, ?, ?, ?, ?, 'accepted', 'test_user_admin_lee', 'test_user_admin_lee', strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+     ON CONFLICT(id) DO UPDATE SET
+       project_id = excluded.project_id,
+       site_id = excluded.site_id,
+       adult_role = excluded.adult_role,
+       assignee_user_id = excluded.assignee_user_id,
+       status = 'accepted',
+       responded_by = 'test_user_admin_lee',
+       responded_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'),
+       updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`,
+  ).bind(input.assignmentId, TEST_PROJECT_ID, TEST_SITE_ID, input.adultRole, input.assigneeUserId).run();
+
+  await env.DB.prepare(
+    `INSERT OR IGNORE INTO project_adult_assignment_events (
+       id, assignment_id, actor_user_id, action, detail_json
+     ) VALUES (?, ?, 'test_user_admin_lee', 'accepted', '{"reason":"Required fake project adult repaired during test account setup."}')`,
+  ).bind(input.eventId, input.assignmentId).run();
+
+  await env.DB.prepare(
+    `INSERT OR IGNORE INTO user_notifications (
+       id, user_id, kind, entity_type, entity_id, title, message
+     ) VALUES (?, ?, 'project_adult_accepted', 'project', ?, ?, 'Open the project to see the team and next step.')`,
+  ).bind(
+    input.noticeId,
+    input.assigneeUserId,
+    TEST_PROJECT_ID,
+    input.adultRole === "mentor" ? "You are this project's Mentor" : "You are this project's Program Teacher",
+  ).run();
 }
 
 export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
@@ -247,7 +395,7 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
   if (!user) {
     return json({ error: "unauthorized" }, { status: 401 });
   }
-  if (!await isAdmin(env, user.id)) {
+  if (!await isPlatformAdmin(env, user.id)) {
     return json({ error: "forbidden" }, { status: 403 });
   }
 
@@ -276,6 +424,7 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
   }
   await seedAlphaAssignments(env);
   await seedSiteMemberships(env);
+  await seedProjectWorkspace(env);
 
   await writeAudit(env, {
     actorUserId: user.id,
@@ -310,6 +459,7 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
     fixtures: {
       cohortId: "alpha-2026",
       groupId: "group-alpha-it-2026",
+      projectId: TEST_PROJECT_ID,
       studentId: "test_user_student_maya",
       siteId: TEST_SITE_ID,
       mentorAssignmentId: "mentor-alpha-rivera-maya",

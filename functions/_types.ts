@@ -6,7 +6,9 @@ export interface Env {
   SESSION_COOKIE_NAME?: string;
   SESSION_PEPPER?: string;
   PASSWORD_PEPPER?: string;
+  AUDIT_FINGERPRINT_KEY?: string;
   ALLOW_REAL_TEMP_CREDENTIAL_IMPORT?: string;
+  REAL_STUDENT_PILOT_APPROVED?: string;
   AUTH_GOOGLE_SSO_ENABLED?: string;
   AUTH_LOCAL_LOGIN_ENABLED?: string;
   GOOGLE_OAUTH_CLIENT_ID?: string;
@@ -15,13 +17,15 @@ export interface Env {
   GOOGLE_OAUTH_ALLOWED_HOSTED_DOMAINS?: string;
   GOOGLE_OAUTH_ISSUER_ALLOWLIST?: string;
   TENANT_AUTO_PROVISION_DEFAULT?: string;
-  EVIDENCE_STORAGE_PROVIDER: "google_drive";
+  EVIDENCE_STORAGE_PROVIDER: "google_drive" | "link_only";
   GOOGLE_DRIVE_CLIENT_EMAIL?: string;
   GOOGLE_DRIVE_PRIVATE_KEY?: string;
   GOOGLE_DRIVE_EVIDENCE_ROOT_ID?: string;
   GOOGLE_DRIVE_EVIDENCE_INDEX_SHEET_ID?: string;
   ARCHIVE_DOWNLOAD_WINDOW_DAYS?: string;
   ARCHIVE_RETENTION_POLICY_STATUS?: "configured" | "policy_review_required";
+  AUTH_STAFF_MFA_REQUIRED?: string;
+  MFA_ENCRYPTION_KEY?: string;
 }
 
 export interface UserAccount {
@@ -75,6 +79,7 @@ export interface Site {
   status: "active" | "suspended" | "archived";
   timezone: string;
   school_year: string | null;
+  brand_theme?: string | null;
 }
 
 export interface SiteUser {

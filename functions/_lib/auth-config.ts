@@ -41,6 +41,13 @@ export function isManagedLocalAccountCreationEnabled(env: Env): boolean {
   return isLocalOnlyAuthMode(env) && isLocalLoginEnabled(env);
 }
 
+export function authSecretsConfigured(env: Env, options: { password?: boolean } = {}): boolean {
+  if (String(env.APP_ENV || "").trim().toLowerCase() !== "production") return true;
+  if (!cleanEnv(env.SESSION_PEPPER)) return false;
+  if (options.password && !cleanEnv(env.PASSWORD_PEPPER)) return false;
+  return true;
+}
+
 export function allowedGoogleDomains(env: Env): string[] {
   return String(env.GOOGLE_OAUTH_ALLOWED_HOSTED_DOMAINS || "")
     .split(/[,\s]+/)
