@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import { createHmac } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import fs from 'node:fs/promises';
 import net from 'node:net';
@@ -163,7 +164,13 @@ async function readAccounts() {
     if (!role || byRole.has(role)) continue;
     const email = account.email || account.username;
     const password = account.password;
-    if (email && password) byRole.set(role, { email, password });
+    if (email && password) {
+      byRole.set(role, {
+        email,
+        password,
+        mfaSecret: String(account.mfaSecret || '').trim()
+      });
+    }
   }
   const requiredRoles = [...new Set(SCREENSHOT_PLAN.map((item) => item.authRole).filter(Boolean))];
   const missing = requiredRoles.filter((role) => !byRole.has(role));
@@ -171,6 +178,24 @@ async function readAccounts() {
     throw new Error(`Missing hosted fake-account credentials for roles: ${missing.join(', ')}`);
   }
   return byRole;
+}
+
+async function persistFakeAccountMfaSecret(email, secret) {
+  const absolutePath = absoluteRepoPath(CREDENTIALS_PATH);
+  const secretsRoot = path.resolve(ROOT, '.secrets');
+  const relativeToSecrets = path.relative(secretsRoot, absolutePath);
+  if (relativeToSecrets.startsWith('..') || path.isAbsolute(relativeToSecrets)) {
+    throw new Error('Refusing to store a fake-account MFA secret outside the ignored .secrets directory.');
+  }
+
+  const raw = await fs.readFile(absolutePath, 'utf8');
+  const parsed = JSON.parse(raw);
+  const accounts = Array.isArray(parsed) ? parsed : parsed.accounts || [];
+  const account = accounts.find((item) => String(item.email || item.username || '').trim().toLowerCase() === String(email).trim().toLowerCase());
+  if (!account) throw new Error('Could not find the fake account while saving its MFA test secret.');
+  account.mfaSecret = secret;
+  await fs.writeFile(absolutePath, `${JSON.stringify(parsed, null, 2)}\n`, { mode: 0o600 });
+  await fs.chmod(absolutePath, 0o600).catch(() => {});
 }
 
 function findEdgePath() {
@@ -401,6 +426,52 @@ async function setViewport(client, viewport) {
   await client.send('Emulation.setVisibleSize', { width: viewport.width, height: viewport.height }).catch(() => {});
 }
 
+function decodeBase32(value) {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  let bits = 0;
+  let buffer = 0;
+  const output = [];
+  for (const character of String(value || '').toUpperCase().replace(/=+$/g, '')) {
+    const index = alphabet.indexOf(character);
+    if (index < 0) throw new Error('The fake account MFA secret is invalid.');
+    buffer = (buffer << 5) | index;
+    bits += 5;
+    if (bits >= 8) {
+      output.push((buffer >>> (bits - 8)) & 255);
+      bits -= 8;
+    }
+  }
+  return Buffer.from(output);
+}
+
+function currentTotpCode(secret) {
+  const counter = Buffer.alloc(8);
+  counter.writeBigUInt64BE(BigInt(Math.floor(Date.now() / 30_000)));
+  const digest = createHmac('sha1', decodeBase32(secret)).update(counter).digest();
+  const offset = digest[digest.length - 1] & 0x0f;
+  const value = ((digest[offset] & 0x7f) << 24)
+    | ((digest[offset + 1] & 0xff) << 16)
+    | ((digest[offset + 2] & 0xff) << 8)
+    | (digest[offset + 3] & 0xff);
+  return String(value % 1_000_000).padStart(6, '0');
+}
+
+async function verifyMfa(client, challengeToken, code) {
+  return client.evaluate(
+    `(async () => {
+      const response = await fetch('/api/auth/mfa/verify', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ challengeToken: ${JSON.stringify(challengeToken)}, code: ${JSON.stringify(code)} })
+      });
+      const body = await response.json().catch(() => ({}));
+      return { status: response.status, ok: body && body.ok === true, error: body && body.error ? body.error : null };
+    })()`,
+    { awaitPromise: true }
+  );
+}
+
 async function login(client, account) {
   const result = await client.evaluate(
     `(async () => {
@@ -411,14 +482,44 @@ async function login(client, account) {
         body: JSON.stringify({ email: ${JSON.stringify(account.email)}, password: ${JSON.stringify(account.password)} })
       });
       const body = await response.json().catch(() => ({}));
-      return { status: response.status, ok: body && body.ok === true, error: body && body.error ? body.error : null };
+      return {
+        status: response.status,
+        ok: body && body.ok === true,
+        error: body && body.error ? body.error : null,
+        challengeToken: body && body.challengeToken ? body.challengeToken : '',
+        mfaMode: body && body.mfa && body.mfa.mode ? body.mfa.mode : '',
+        mfaSecret: body && body.mfa && body.mfa.secret ? body.mfa.secret : ''
+      };
     })()`,
     { awaitPromise: true }
   );
-  if (result?.status !== 200 || result?.ok !== true) {
+  if (result?.status === 200 && result?.ok === true) {
+    return { status: result.status, ok: result.ok, mfa: false };
+  }
+  if (result?.status !== 202 || !['mfa_enrollment_required', 'mfa_required'].includes(result?.error)) {
     throw new Error(`Login failed with HTTP ${result?.status || 'unknown'}${result?.error ? ` (${result.error})` : ''}`);
   }
-  return { status: result.status, ok: result.ok };
+
+  const enrollment = result.error === 'mfa_enrollment_required';
+  const secret = enrollment ? result.mfaSecret : account.mfaSecret;
+  if (!result.challengeToken || !secret) {
+    throw new Error(`MFA ${enrollment ? 'enrollment' : 'sign-in'} could not continue for a fake test account.`);
+  }
+
+  let verification = await verifyMfa(client, result.challengeToken, currentTotpCode(secret));
+  if (verification?.error === 'invalid_mfa_code') {
+    const waitMs = 30_000 - (Date.now() % 30_000) + 750;
+    await sleep(waitMs);
+    verification = await verifyMfa(client, result.challengeToken, currentTotpCode(secret));
+  }
+  if (verification?.status !== 200 || verification?.ok !== true) {
+    throw new Error(`MFA verification failed with HTTP ${verification?.status || 'unknown'}${verification?.error ? ` (${verification.error})` : ''}`);
+  }
+  if (enrollment) {
+    account.mfaSecret = secret;
+    await persistFakeAccountMfaSecret(account.email, secret);
+  }
+  return { status: verification.status, ok: verification.ok, mfa: true, enrolled: enrollment };
 }
 
 async function logout(client) {

@@ -1,6 +1,8 @@
 #!/usr/bin/env node
-import { existsSync, readFileSync } from "node:fs";
+import { createHmac } from "node:crypto";
+import { chmodSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { setTimeout as sleep } from "node:timers/promises";
 
 const repoRoot = process.cwd();
 const DEFAULT_BASE_URL = "https://thecapstoneapp.com";
@@ -110,6 +112,31 @@ function readCredentialFile(relativePath) {
   return Array.isArray(payload.accounts) ? payload.accounts : [];
 }
 
+function persistFakeAccountMfaSecret(relativePath, email, secret) {
+  const resolvedPath = path.resolve(repoRoot, relativePath);
+  const secretsRoot = path.resolve(repoRoot, ".secrets");
+  const relativeToSecrets = path.relative(secretsRoot, resolvedPath);
+  if (relativeToSecrets.startsWith("..") || path.isAbsolute(relativeToSecrets)) {
+    throw new WorkspacePermissionCheckError(
+      "credential_setup",
+      "Refusing to store a fake-account MFA secret outside the ignored .secrets directory.",
+    );
+  }
+  const payload = JSON.parse(readFileSync(resolvedPath, "utf8").replace(/^\uFEFF/, ""));
+  const accounts = Array.isArray(payload) ? payload : payload.accounts || [];
+  const account = accounts.find((item) => String(item.email || item.username || "").trim().toLowerCase() === String(email).trim().toLowerCase());
+  if (!account) {
+    throw new WorkspacePermissionCheckError("credential_setup", "Could not save the fake account MFA test secret.");
+  }
+  account.mfaSecret = secret;
+  writeFileSync(resolvedPath, `${JSON.stringify(payload, null, 2)}\n`, { mode: 0o600 });
+  try {
+    chmodSync(resolvedPath, 0o600);
+  } catch {
+    // Windows may not expose POSIX file modes; the directory remains ignored and local-only.
+  }
+}
+
 function directCredential(prefix, roleId) {
   const email = process.env[`WORKSPACE_SMOKE_${prefix}_EMAIL`];
   const password = process.env[`WORKSPACE_SMOKE_${prefix}_PASSWORD`];
@@ -171,21 +198,92 @@ function requireFakeAccount(account, roleId) {
   return account;
 }
 
+function decodeBase32(value) {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  let bits = 0;
+  let buffer = 0;
+  const output = [];
+  for (const character of String(value || "").toUpperCase().replace(/=+$/g, "")) {
+    const index = alphabet.indexOf(character);
+    if (index < 0) throw new WorkspacePermissionCheckError("credential_setup", "A fake account MFA test secret is invalid.");
+    buffer = (buffer << 5) | index;
+    bits += 5;
+    if (bits >= 8) {
+      output.push((buffer >>> (bits - 8)) & 255);
+      bits -= 8;
+    }
+  }
+  return Buffer.from(output);
+}
+
+function currentTotpCode(secret) {
+  const counter = Buffer.alloc(8);
+  counter.writeBigUInt64BE(BigInt(Math.floor(Date.now() / 30_000)));
+  const digest = createHmac("sha1", decodeBase32(secret)).update(counter).digest();
+  const offset = digest[digest.length - 1] & 0x0f;
+  const value = ((digest[offset] & 0x7f) << 24)
+    | ((digest[offset + 1] & 0xff) << 16)
+    | ((digest[offset + 2] & 0xff) << 8)
+    | (digest[offset + 3] & 0xff);
+  return String(value % 1_000_000).padStart(6, "0");
+}
+
 async function login(client, account, roleId) {
   const result = await client.fetchJson("/api/auth/login", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ email: account.email, password: account.password }),
   });
-  if (result.response.status !== 200 || result.body?.ok !== true) {
+  if (result.response.status === 200 && result.body?.ok === true) {
+    assertNoStorageLeak(result.body, `${roleId} login response`);
+    return result.body;
+  }
+  if (result.response.status !== 202 || !["mfa_enrollment_required", "mfa_required"].includes(result.body?.error)) {
     throw new WorkspacePermissionCheckError("auth_session", `${roleId} fake .test login failed.`, {
       roleId,
       status: result.response.status,
       error: result.body?.error || null,
     });
   }
-  assertNoStorageLeak(result.body, `${roleId} login response`);
-  return result.body;
+
+  const enrollment = result.body.error === "mfa_enrollment_required";
+  const secret = enrollment ? result.body?.mfa?.secret : String(account.mfaSecret || "").trim();
+  const challengeToken = result.body?.challengeToken;
+  if (!secret || !challengeToken) {
+    throw new WorkspacePermissionCheckError("credential_setup", `${roleId} fake .test MFA sign-in could not continue.`, {
+      roleId,
+      enrollment,
+    });
+  }
+  let verification = await client.fetchJson("/api/auth/mfa/verify", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ challengeToken, code: currentTotpCode(secret) }),
+  });
+  if (verification.body?.error === "invalid_mfa_code") {
+    await sleep(30_000 - (Date.now() % 30_000) + 750);
+    verification = await client.fetchJson("/api/auth/mfa/verify", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ challengeToken, code: currentTotpCode(secret) }),
+    });
+  }
+  if (verification.response.status !== 200 || verification.body?.ok !== true) {
+    throw new WorkspacePermissionCheckError("auth_session", `${roleId} fake .test MFA sign-in failed.`, {
+      roleId,
+      status: verification.response.status,
+      error: verification.body?.error || null,
+    });
+  }
+  if (enrollment) {
+    const credentialFile = process.env.WORKSPACE_SMOKE_CREDENTIALS_FILE
+      || process.env.DRIVE_LIVE_CREDENTIALS_FILE
+      || DEFAULT_CREDENTIALS_FILE;
+    account.mfaSecret = secret;
+    persistFakeAccountMfaSecret(credentialFile, account.email, secret);
+  }
+  assertNoStorageLeak(verification.body, `${roleId} MFA login response`);
+  return verification.body;
 }
 
 function roleIdsFromMe(body) {
@@ -358,7 +456,6 @@ async function runHostedWorkspacePermissionCheck() {
 
   const workspaceAssetPaths = [
     "/workspace.html",
-    "/workspace.js",
     "/workspace/core.js",
     "/workspace/shared.js",
     "/workspace/features/actions.js",

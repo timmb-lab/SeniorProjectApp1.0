@@ -3,8 +3,8 @@
   "verdict": "GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF",
   "baseUrl": "https://thecapstoneapp.com",
   "workspaceEntryPath": "/workspace",
-  "startedAt": "2026-09-02T01:07:17.321Z",
-  "completedAt": "2026-09-02T01:08:48.107Z",
+  "startedAt": "2026-09-02T17:50:42.427Z",
+  "completedAt": "2026-09-02T17:53:48.502Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
@@ -26,7 +26,7 @@
       "id": "01-signed-out-home",
       "label": "Signed-out workspace route",
       "role": "signed_out",
-      "url": "https://thecapstoneapp.com/workspace",
+      "url": "https://thecapstoneapp.com/",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -45,14 +45,14 @@
         "secretPatternMatches": []
       },
       "heading": "Welcome back",
-      "textSample": "Skip to workspace SC Capstone Project ☾ Dark view SENIOR PROJECT WORKSPACE Welcome back Sign in to see what to do next. Email Password Sign in Need help signing in? Ask your teacher or project coordinator.",
+      "textSample": "Skip to workspace SC Capstone Project ☾ Dark view SENIOR PROJECT WORKSPACE Welcome back Sign in to see what to do next. Email Password Sign in I have a setup code Need help signing in? Ask your teacher or project coordinator.",
       "activeNav": []
     },
     {
       "id": "02-student-dashboard",
       "label": "Student dashboard",
       "role": "student",
-      "url": "https://thecapstoneapp.com/workspace",
+      "url": "https://thecapstoneapp.com/",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -62,7 +62,8 @@
       "screenshot": "docs/sales/screenshots/2026-06-29/02-student-dashboard.png",
       "login": {
         "status": 200,
-        "ok": true
+        "ok": true,
+        "mfa": false
       },
       "checks": {
         "expectedTextPresent": true,
@@ -74,7 +75,7 @@
         "secretPatternMatches": []
       },
       "heading": "What do I do next?",
-      "textSample": "Skip to workspace My Capstone TODAY Tools TS Test Student Maya maya.student@senior-capstone.test SC My Capstone My Capstone STUDENT PROJECT WORKSPACE Today My Project Feedback Final Checklist TS Test Student Maya Student TODAY What to do next Open this item. Finish the work. Add a Google Drive link if needed. Missing Start One thing now Your action Due Before using cycle documents Open the matching item in My Project. Open item NEXT STEP MAP Start the listed item Open the item, add its Google Drive link if asked, then turn it in when ready. START Open My Work Use the item named at the top befo",
+      "textSample": "Skip to workspace Maya Senior Project TODAY / STUDENT Tools TS Test Student Maya maya.student@senior-capstone.test SC My Capstone My Capstone MAYA SENIOR PROJECT Today My Project Feedback Final Checklist TS Test Student Maya Student TODAY What to do next Open this item. Finish the work. Add a Google Drive link if needed. Missing Start One thing now Your action Due Before using cycle documents Open the matching item in My Project. Open item NEXT STEP MAP Start the listed item Open the item, add its Google Drive link if asked, then turn it in when ready. START Open My Work Use the item named at ",
       "activeNav": [
         "1\n        Today\n        What to finish next",
         "1\n        Today"
@@ -84,7 +85,7 @@
       "id": "03-program-teacher-dashboard",
       "label": "Program Teacher dashboard",
       "role": "program_teacher",
-      "url": "https://thecapstoneapp.com/workspace",
+      "url": "https://thecapstoneapp.com/",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -94,7 +95,9 @@
       "screenshot": "docs/sales/screenshots/2026-06-29/03-program-teacher-dashboard.png",
       "login": {
         "status": 200,
-        "ok": true
+        "ok": true,
+        "mfa": true,
+        "enrolled": true
       },
       "checks": {
         "expectedTextPresent": true,
@@ -106,7 +109,7 @@
         "secretPatternMatches": []
       },
       "heading": "Pick the project that needs attention",
-      "textSample": "Skip to workspace Staff Workspace READY Tools Program Teacher ROLE TT Test Teacher Chen chen.teacher@senior-capstone.test SC Capstone Staff Workspace SCHOOL TEAM WORKSPACE Today Today › Projects Projects › Review and support Reviews › Reports Reports › TT Test Teacher Chen Program Teacher PROGRAM DASHBOARD Program Teacher Dashboard Track your students, review proof, and find who needs support in your assigned program. Program assignment it TOTAL STUDENTS 46 Students in your program view View students BEHIND / NEEDS SUPPORT 45 Risk or stale activity signals View students MISSING PROOF 3 Student",
+      "textSample": "Skip to workspace All projects READY / PROGRAM TEACHER Tools Program Teacher ROLE TT Test Teacher Chen chen.teacher@senior-capstone.test SC Capstone Staff Workspace ALL PROJECTS Projects Projects › Work queue Today › Reviews Reports Reports › TT Test Teacher Chen Program Teacher PROGRAM DASHBOARD Program Teacher Dashboard Track your students, review proof, and find who needs support in your assigned program. Program assignment it TOTAL STUDENTS 46 Students in your program view View students BEHIND / NEEDS SUPPORT 45 Risk or stale activity signals View students MISSING PROOF 3 Students without ",
       "activeNav": [
         "Workspace"
       ]
@@ -115,7 +118,7 @@
       "id": "04-mentor-dashboard",
       "label": "Mentor dashboard",
       "role": "mentor",
-      "url": "https://thecapstoneapp.com/workspace",
+      "url": "https://thecapstoneapp.com/",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -125,7 +128,8 @@
       "screenshot": "docs/sales/screenshots/2026-06-29/04-mentor-dashboard.png",
       "login": {
         "status": 200,
-        "ok": true
+        "ok": true,
+        "mfa": false
       },
       "checks": {
         "expectedTextPresent": true,
@@ -137,14 +141,14 @@
         "secretPatternMatches": []
       },
       "heading": "Choose the student who needs you next",
-      "textSample": "Skip to workspace Staff Workspace READY Tools Mentor ROLE TM Test Mentor Rivera rivera.mentor@senior-capstone.test SC Capstone Staff Workspace SCHOOL TEAM WORKSPACE Today Today › Projects Projects › Review and support Reviews › Reports Reports › TM Test Mentor Rivera Mentor MENTOR WORKSPACE Assigned Student Focus Start with one assigned student, ask one useful question, then record the next check-in. mentor assigned 2 assigned ASSIGNED 2 Students assigned to this mentor Show all NEEDS REVISION 0 Students with teacher changes to discuss Focus list MEETINGS 2 Check-ins missing, missed, or needin",
+      "textSample": "Skip to workspace Maya Senior Project READY / MENTOR Tools Mentor ROLE TM Test Mentor Rivera rivera.mentor@senior-capstone.test SC Capstone Staff Workspace MAYA SENIOR PROJECT Projects Projects › Work queue Today › Reviews Reports Reports › TM Test Mentor Rivera Mentor MENTOR WORKSPACE Assigned Student Focus Start with one assigned student, ask one useful question, then record the next check-in. mentor assigned 1 assigned ASSIGNED 1 Students assigned to this mentor Show all NEEDS REVISION 0 Students with teacher changes to discuss Focus list MEETINGS 1 Check-ins missing, missed, or needing mak",
       "activeNav": []
     },
     {
       "id": "05-viewer-directory",
       "label": "Viewer read-only student directory",
       "role": "viewer",
-      "url": "https://thecapstoneapp.com/workspace",
+      "url": "https://thecapstoneapp.com/",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -154,7 +158,9 @@
       "screenshot": "docs/sales/screenshots/2026-06-29/05-viewer-directory.png",
       "login": {
         "status": 200,
-        "ok": true
+        "ok": true,
+        "mfa": true,
+        "enrolled": true
       },
       "checks": {
         "expectedTextPresent": true,
@@ -166,14 +172,14 @@
         "secretPatternMatches": []
       },
       "heading": "Open one assigned student",
-      "textSample": "Skip to workspace Staff Workspace READY Tools Viewer READ-ONLY TV Test Viewer Sam sam.viewer@senior-capstone.test SC Capstone Staff Workspace SCHOOL TEAM WORKSPACE Today Today › Projects Projects › Reports Reports › TV Test Viewer Sam Viewer STUDENTS Students Find a student by picking one group, then open one record to read context. Read-only Desert Canyon Test School Start Here No students need attention right now. View all students You are caught up. Search for a student or view the full list when you need someone specific. Test Student Maya On track. IT / Alpha Test Cohort 2026 Last update ",
+      "textSample": "Skip to workspace Maya Senior Project READY / VIEWER Tools Viewer READ-ONLY TV Test Viewer Sam sam.viewer@senior-capstone.test SC Capstone Staff Workspace MAYA SENIOR PROJECT Projects Projects › Work queue Today › Reports Reports › TV Test Viewer Sam Viewer STUDENTS Students Find a student by picking one group, then open one record to read context. Read-only Desert Canyon Test School Start Here No students need attention right now. View all students You are caught up. Search for a student or view the full list when you need someone specific. Test Student Maya On track. IT / Alpha Test Cohort 2",
       "activeNav": []
     },
     {
       "id": "06-site-admin-dashboard",
       "label": "Site Admin dashboard",
       "role": "site_admin",
-      "url": "https://thecapstoneapp.com/workspace",
+      "url": "https://thecapstoneapp.com/",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -183,7 +189,9 @@
       "screenshot": "docs/sales/screenshots/2026-06-29/06-site-admin-dashboard.png",
       "login": {
         "status": 200,
-        "ok": true
+        "ok": true,
+        "mfa": true,
+        "enrolled": true
       },
       "checks": {
         "expectedTextPresent": true,
@@ -195,7 +203,7 @@
         "secretPatternMatches": []
       },
       "heading": "Start with the worklist",
-      "textSample": "Skip to workspace Staff Workspace READY Tools Site Admin ROLE TS Test Site Admin Parker parker.siteadmin@senior-capstone.test SC Capstone Staff Workspace SCHOOL TEAM WORKSPACE Today Today › Projects Projects › Review and support Reviews › Reports Reports › TS Test Site Admin Parker Site Admin SITE ADMIN Start with the worklist Start with one student group, one student record, or one report question before opening supporting details. Open students One focused task START HERE Open students. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Choose one student",
+      "textSample": "Skip to workspace All projects READY / SITE ADMIN Tools Site Admin ROLE TS Test Site Admin Parker parker.siteadmin@senior-capstone.test SC Capstone Staff Workspace ALL PROJECTS Projects Projects › Work queue Today › Reviews Reports Reports › TS Test Site Admin Parker Site Admin SITE ADMIN Start with the worklist Start with one student group, one student record, or one report question before opening supporting details. Open students One focused task START HERE Open students. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Choose one student group that nee",
       "activeNav": [
         "Workspace"
       ]
@@ -204,7 +212,7 @@
       "id": "07-admin-command-center",
       "label": "Admin command center",
       "role": "admin",
-      "url": "https://thecapstoneapp.com/workspace",
+      "url": "https://thecapstoneapp.com/",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -214,7 +222,9 @@
       "screenshot": "docs/sales/screenshots/2026-06-29/07-admin-command-center.png",
       "login": {
         "status": 200,
-        "ok": true
+        "ok": true,
+        "mfa": true,
+        "enrolled": true
       },
       "checks": {
         "expectedTextPresent": true,
@@ -226,7 +236,7 @@
         "secretPatternMatches": []
       },
       "heading": "Start with the worklist",
-      "textSample": "Skip to workspace Staff Workspace READY Tools Global Admin ROLE TA Test Admin Lee lee.admin@senior-capstone.test SC Capstone Staff Workspace SCHOOL TEAM WORKSPACE Today Today › Projects Projects › Review and support Reviews › Reports Reports › TA Test Admin Lee Global Admin GLOBAL ADMIN Start with the worklist Start with one student group, one student record, or one report question before opening supporting details. Open students One focused task START HERE Open students. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Choose one student group that needs",
+      "textSample": "Skip to workspace All projects READY / GLOBAL ADMIN Tools Global Admin ROLE TA Test Admin Lee lee.admin@senior-capstone.test SC Capstone Staff Workspace ALL PROJECTS Projects Projects › Work queue Today › Reviews Reports Reports › TA Test Admin Lee Global Admin GLOBAL ADMIN Start with the worklist Start with one student group, one student record, or one report question before opening supporting details. Open students One focused task START HERE Open students. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Choose one student group that needs attention. I",
       "activeNav": [
         "Workspace"
       ]
@@ -235,7 +245,7 @@
       "id": "08-misc-admin-readiness",
       "label": "Misc Admin readiness",
       "role": "misc_admin",
-      "url": "https://thecapstoneapp.com/workspace",
+      "url": "https://thecapstoneapp.com/",
       "viewport": {
         "width": 1440,
         "height": 1000,
@@ -245,7 +255,9 @@
       "screenshot": "docs/sales/screenshots/2026-06-29/08-misc-admin-readiness.png",
       "login": {
         "status": 200,
-        "ok": true
+        "ok": true,
+        "mfa": true,
+        "enrolled": true
       },
       "checks": {
         "expectedTextPresent": true,
@@ -257,14 +269,14 @@
         "secretPatternMatches": []
       },
       "heading": "Check one report question",
-      "textSample": "Skip to workspace Staff Workspace READY Tools Reporting Admin ROLE TR Test Reporting Admin reporting.miscadmin@senior-capstone.test SC Capstone Staff Workspace SCHOOL TEAM WORKSPACE Today Today › Reports Reports › TR Test Reporting Admin Reporting Admin LEGACY REPORTING ADMIN Check one report question Start with one student group, one student record, or one report question before opening supporting details. Open report One focused task START HERE Open one report. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Answer one report question. IF EMPTY Nothing",
+      "textSample": "Skip to workspace All projects READY / REPORTING ADMIN Tools Reporting Admin ROLE TR Test Reporting Admin reporting.miscadmin@senior-capstone.test SC Capstone Staff Workspace ALL PROJECTS Work queue Today › Reports Reports › TR Test Reporting Admin Reporting Admin LEGACY REPORTING ADMIN Check one report question Start with one student group, one student record, or one report question before opening supporting details. Open report One focused task START HERE Open one report. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Answer one report question. IF EM",
       "activeNav": []
     },
     {
       "id": "09-student-mobile-dashboard",
       "label": "Student mobile dashboard",
       "role": "student",
-      "url": "https://thecapstoneapp.com/workspace",
+      "url": "https://thecapstoneapp.com/",
       "viewport": {
         "width": 390,
         "height": 844,
@@ -274,7 +286,8 @@
       "screenshot": "docs/sales/screenshots/2026-06-29/09-student-mobile-dashboard.png",
       "login": {
         "status": 200,
-        "ok": true
+        "ok": true,
+        "mfa": false
       },
       "checks": {
         "expectedTextPresent": true,
@@ -296,7 +309,7 @@
       "id": "10-site-admin-tablet-dashboard",
       "label": "Site Admin tablet dashboard",
       "role": "site_admin",
-      "url": "https://thecapstoneapp.com/workspace",
+      "url": "https://thecapstoneapp.com/",
       "viewport": {
         "width": 820,
         "height": 900,
@@ -306,7 +319,9 @@
       "screenshot": "docs/sales/screenshots/2026-06-29/10-site-admin-tablet-dashboard.png",
       "login": {
         "status": 200,
-        "ok": true
+        "ok": true,
+        "mfa": true,
+        "enrolled": false
       },
       "checks": {
         "expectedTextPresent": true,
@@ -318,7 +333,7 @@
         "secretPatternMatches": []
       },
       "heading": "Start with the worklist",
-      "textSample": "Skip to workspace Menu SC Capstone Staff Workspace READY Tools Site Admin ROLE TS Test Site Admin Parker parker.siteadmin@senior-capstone.test SITE ADMIN Start with the worklist Start with one student group, one student record, or one report question before opening supporting details. Open students One focused task START HERE Open students. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Choose one student group that needs attention. IF EMPTY Nothing needs your attention right now. Leave setup and access work in Admin Console. FINISH BY Stop when the all",
+      "textSample": "Skip to workspace Menu SC Capstone All projects READY / SITE ADMIN Tools Site Admin ROLE TS Test Site Admin Parker parker.siteadmin@senior-capstone.test SITE ADMIN Start with the worklist Start with one student group, one student record, or one report question before opening supporting details. Open students One focused task START HERE Open students. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Choose one student group that needs attention. IF EMPTY Nothing needs your attention right now. Leave setup and access work in Admin Console. FINISH BY Stop wh",
       "activeNav": [
         "Workspace"
       ]
