@@ -68,6 +68,8 @@ let activeProjectId = "";
 let projectDirectoryView = "table";
 let projectDirectoryFilters = defaultProjectDirectoryFilters();
 let workspaceConnectionState = defaultWorkspaceConnectionState();
+let workspaceDataLoading = false;
+let knownAccessibleSites = [];
 const WORKSPACE_THEME_STORAGE_KEY = "senior-project-view";
 const WORKSPACE_THEME_VALUES = new Set(["light", "dark"]);
 const WORKSPACE_SCHOOL_THEME_VALUES = new Set(["default", "east-tech", "desert-valley", "canyon-ridge", "north-valley"]);
@@ -741,13 +743,14 @@ function defaultWorkspaceConnectionState() {
   };
 }
 
-async function loadWorkspaceData(statusMessage = "") {
+async function loadWorkspaceData(statusMessage = "", options = {}) {
   if (!currentUser) {
     renderSignIn();
     return;
   }
 
-  workspaceConnectionState.retrying = workspaceConnectionState.stale;
+  workspaceDataLoading = true;
+  workspaceConnectionState.retrying = Boolean(options.retryAttempt) || workspaceConnectionState.stale;
   renderAppShell(statusMessage || (workspaceConnectionState.retrying ? "Trying the server again..." : "Loading your workspace..."));
   const roles = roleIds(currentUser);
   const authConfig = currentData.authConfig || await loadAuthConfig();
@@ -816,6 +819,13 @@ async function loadWorkspaceData(statusMessage = "") {
     lastFullSuccessAt: failedKeys.length ? workspaceConnectionState.lastFullSuccessAt : new Date().toISOString(),
     retrying: false,
   };
+
+  if (failedKeys.length && !options.retryAttempt) {
+    await loadWorkspaceData(statusMessage, { retryAttempt: 1 });
+    return;
+  }
+
+  workspaceDataLoading = false;
 
   if (roles.has("student") && !studentRequirementDetailState.selectedRequirementId && !studentRequirementDetailState.selectedPhaseKey) {
     const currentPhase = studentRequirementPhaseKey(unwrap(currentData.dashboard)?.summary?.currentPhase || "");
@@ -1436,7 +1446,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   const programTeacherPrimarySection = !renderBlockedSectionOnly
     && !isAdminConsole
     && roles.has("program_teacher")
-    && ["overview", "teacher", "programDashboard"].includes(activeSection);
+    && ["overview", "students", "teacher", "programDashboard", "staffReports"].includes(activeSection);
   const mentorPrimarySection = !renderBlockedSectionOnly
     && !isAdminConsole
     && roles.has("mentor")
@@ -1509,11 +1519,15 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
                 ? "staff-reports"
                 : "staff-admin"
           : programTeacherPrimarySection
-            ? activeSection === "teacher"
+            ? activeSection === "students"
+              ? "program-teacher-students"
+              : activeSection === "teacher"
               ? "teacher"
               : activeSection === "programDashboard"
                 ? "program-teacher-dashboard"
-                : "program-teacher"
+                : activeSection === "staffReports"
+                  ? "program-teacher-reports"
+                  : "program-teacher"
             : "";
   const primarySectionMarkup = primarySectionKind ? activeSectionMarkup : "";
   const supportMarkup = renderV2SupportPanel({
@@ -1846,7 +1860,7 @@ function renderV2ActiveScreen({
   }
   const directRoleSurface = Boolean(primarySectionMarkup) && (
     primarySectionKind.startsWith("student")
-    || ["mentor", "mentor-students", "mentor-reviews", "mentor-reports", "program-teacher", "program-teacher-dashboard", "teacher"].includes(primarySectionKind)
+    || ["mentor", "mentor-students", "mentor-reviews", "mentor-reports", "program-teacher", "program-teacher-students", "program-teacher-dashboard", "program-teacher-reports", "teacher"].includes(primarySectionKind)
   );
   if (directRoleSurface) {
     return `
@@ -2894,6 +2908,8 @@ function resetAccountScopedWorkspaceState() {
   projectDirectoryView = "table";
   activeProjectId = "";
   managedProjectId = "";
+  workspaceDataLoading = false;
+  knownAccessibleSites = [];
 }
 
 function accountInitials(displayName = "", email = "") {
@@ -3548,13 +3564,16 @@ function workspaceSectionTitle(sectionId = "") {
 
 function renderAdminConsoleOverviewSection(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
   const model = adminConsoleOperationsModel(capabilities);
+  const programTeacherView = capabilities.scope?.key === "program";
   return `
     <section class="workspace-admin-console-overview" data-admin-console-overview="true" data-admin-console-read-only="${escapeHtml(String(capabilities.readOnly))}">
       <div class="workspace-card-head">
         <div>
           <p class="workspace-kicker">Admin Console</p>
           <h2>Admin Overview</h2>
-          <p class="workspace-muted">What setup, people, assignments, imports, programs, reports, or access issues need attention?</p>
+          <p class="workspace-muted">${escapeHtml(programTeacherView
+            ? "Check students, project adults, and mentor coverage for your program."
+            : "What setup, people, assignments, imports, programs, reports, or access issues need attention?")}</p>
         </div>
         ${capabilities.readOnly ? `<span class="workspace-read-only-chip">Read-only</span>` : `<span class="workspace-site-context-badge">${escapeHtml(capabilities.scope.label)}</span>`}
       </div>
@@ -3623,6 +3642,11 @@ function renderAdminSetupFirstPanel(model = {}, capabilities = adminConsoleCapab
 }
 
 function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(currentUser)) {
+  const roles = roleIds(currentUser);
+  const programTeacherOnly = roles.has("program_teacher")
+    && !hasGlobalAdminRole(roles)
+    && !roles.has("site_admin")
+    && !roles.has("administration");
   const access = unwrap(currentData.accessAssignments) || {};
   const users = access.users || {};
   const assignments = access.assignments || {};
@@ -3637,14 +3661,19 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
     ...(siteDashboard.summary || {}),
     ...(siteStudents.summary || {}),
   };
-  const students = Array.isArray(users.students) ? users.students : [];
-  const staffRows = siteAccountRows(users).filter((row) => !row.roleIds.includes("student"));
+  const directoryStudents = Array.isArray(siteStudents.students) ? siteStudents.students : [];
+  const students = programTeacherOnly ? directoryStudents : Array.isArray(users.students) ? users.students : [];
+  const scopedStudentIds = new Set(students.map((student) => adminStudentId(student)).filter(Boolean));
+  const staffRows = programTeacherOnly ? [] : siteAccountRows(users).filter((row) => !row.roleIds.includes("student"));
   const accessPrograms = Array.isArray(access.programs) ? access.programs : [];
   const activePrograms = Array.isArray(sitePrograms.activePrograms) && sitePrograms.activePrograms.length ? sitePrograms.activePrograms : accessPrograms;
   const availablePrograms = Array.isArray(sitePrograms.availablePrograms) ? sitePrograms.availablePrograms : [];
-  const mentorAssignments = Array.isArray(assignments.mentorStudent) ? assignments.mentorStudent : [];
-  const viewerAssignments = Array.isArray(assignments.viewerStudent) ? assignments.viewerStudent : [];
-  const programTeacherAssignments = Array.isArray(assignments.programTeacherProgram) ? assignments.programTeacherProgram : [];
+  const allMentorAssignments = Array.isArray(assignments.mentorStudent) ? assignments.mentorStudent : [];
+  const mentorAssignments = programTeacherOnly
+    ? allMentorAssignments.filter((row) => scopedStudentIds.has(row.studentId))
+    : allMentorAssignments;
+  const viewerAssignments = programTeacherOnly ? [] : Array.isArray(assignments.viewerStudent) ? assignments.viewerStudent : [];
+  const programTeacherAssignments = programTeacherOnly ? [] : Array.isArray(assignments.programTeacherProgram) ? assignments.programTeacherProgram : [];
   const studentSetupRows = adminStudentSetupRows(students, assignments);
   const staffSetupRows = adminStaffSetupRows(staffRows, assignments);
   const importSetupRows = adminImportSetupRows(adminCsvImportState);
@@ -3705,7 +3734,7 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
       section: capabilities.sectionIds.has("adminStudents") ? "adminStudents" : consoleStudentSectionId(capabilities),
       action: "Open students",
     } : null,
-    missingViewers ? {
+    !programTeacherOnly && missingViewers ? {
       id: "viewer-coverage",
       title: "Viewer access unassigned",
       detail: `${missingViewers} ${pluralize(missingViewers, "student")} have no read-only viewer listed in the visible roster.`,
@@ -3714,7 +3743,7 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
       section: capabilities.sectionIds.has("adminAssignments") ? "adminAssignments" : "overview",
       action: "Open assignments",
     } : null,
-    missingProgramTeacherCoverage ? {
+    !programTeacherOnly && missingProgramTeacherCoverage ? {
       id: "program-teacher-coverage",
       title: "Program Teacher coverage gap",
       detail: `${missingProgramTeacherCoverage} active ${pluralize(missingProgramTeacherCoverage, "program")} need Program Teacher access confirmed.`,
@@ -3723,7 +3752,7 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
       section: capabilities.sectionIds.has("adminAssignments") ? "adminAssignments" : "programs",
       action: "Open assignments",
     } : null,
-    staffScopeGaps ? {
+    !programTeacherOnly && staffScopeGaps ? {
       id: "staff-scope",
       title: "Staff access needs confirmation",
       detail: `${staffScopeGaps} staff ${pluralize(staffScopeGaps, "row")} need role, email, or assignment access review.`,
@@ -3732,7 +3761,7 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
       section: capabilities.sectionIds.has("adminPeople") ? "adminPeople" : "adminAssignments",
       action: "Open people",
     } : null,
-    !activePrograms.length && capabilities.sectionIds.has("programs") ? {
+    !programTeacherOnly && !activePrograms.length && capabilities.sectionIds.has("programs") ? {
       id: "program-setup",
       title: "No active programs mapped",
       detail: "Add an active program for this school before relying on program views.",
@@ -3741,7 +3770,7 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
       section: "programs",
       action: "Open programs",
     } : null,
-    importIssueCount ? {
+    !programTeacherOnly && importIssueCount ? {
       id: "csv-import",
       title: "CSV preview needs fixes",
       detail: `${importIssueCount} CSV ${pluralize(importIssueCount, "row")} need correction before import confirmation.`,
@@ -3750,7 +3779,7 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
       section: capabilities.sectionIds.has("adminImports") ? "adminImports" : "adminPeople",
       action: "Open imports",
     } : null,
-    exportFailures ? {
+    !programTeacherOnly && exportFailures ? {
       id: "final-files",
       title: "Final-file follow-up",
       detail: `${exportFailures} final-file or export ${pluralize(exportFailures, "record")} need review.`,
@@ -3761,9 +3790,9 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
     } : null,
   ].filter(Boolean);
   const quickActions = [
-    capabilities.sectionIds.has("adminStudents") ? { id: "add-student", title: "Add Student", detail: "Create one student in the current school.", section: "adminStudents", peopleView: "add-student", tone: "students" } : null,
+    capabilities.sectionIds.has("adminStudents") ? { id: "add-student", title: programTeacherOnly ? "View Students" : "Add Student", detail: programTeacherOnly ? "Check students in your assigned program." : "Create one student in the current school.", section: "adminStudents", peopleView: programTeacherOnly ? "manage-students" : "add-student", tone: "students" } : null,
     capabilities.sectionIds.has("adminPeople") ? { id: "add-staff", title: "Add Staff", detail: "Create one mentor, viewer, Program Teacher, or admin account.", section: "adminPeople", peopleView: "add-staff", tone: "access" } : null,
-    capabilities.sectionIds.has("adminAssignments") ? { id: "assign-coverage", title: "Assign Coverage", detail: "Manage mentor, viewer, Program Teacher, and admin coverage.", section: "adminAssignments", tone: "assignments" } : null,
+    capabilities.sectionIds.has("adminAssignments") ? { id: "assign-coverage", title: programTeacherOnly ? "Assign Mentor" : "Assign Coverage", detail: programTeacherOnly ? "Connect a mentor to a student in your program." : "Manage mentor, viewer, Program Teacher, and admin coverage.", section: "adminAssignments", tone: "assignments" } : null,
     capabilities.sectionIds.has("adminImports") ? { id: "import-roster", title: "Import CSV", detail: "Download student or staff templates and preview rows.", section: "adminImports", peopleView: "import-students", tone: "imports" } : null,
     capabilities.sectionIds.has("programs") ? { id: "programs", title: "Programs", detail: "Confirm active school program mappings.", section: "programs", tone: "programs" } : null,
     capabilities.sectionIds.has("adminReports") ? { id: "reports", title: "Reports", detail: "Review roster, coverage, progress, and setup counts.", section: "adminReports", tone: "reports" } : null,
@@ -3783,29 +3812,32 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
     : null;
   const health = [
     { id: "students", label: "Students", value: scopedStudentCount, detail: `${students.length || scopedStudentCount} visible in roster setup`, tone: "students" },
-    { id: "staff", label: "Staff", value: staffRows.length, detail: "Staff and support accounts visible", tone: "access" },
-    { id: "programs", label: "Programs", value: activePrograms.length || safeNumber(summary.programsTotal), detail: "Active program mappings", tone: "programs" },
+    !programTeacherOnly ? { id: "staff", label: "Staff", value: staffRows.length, detail: "Staff and support accounts visible", tone: "access" } : null,
+    !programTeacherOnly ? { id: "programs", label: "Programs", value: activePrograms.length || safeNumber(summary.programsTotal), detail: "Active program mappings", tone: "programs" } : null,
     { id: "mentor-coverage", label: "Mentor Coverage", value: percentLabel(mentorCoveragePercent), detail: `${mentorAssignments.length} active mentor assignments`, tone: missingMentors ? "warning" : "ready" },
     { id: "project-adults", label: "Project Adults", value: visibleProjectCount ? `${projectsAdultsReady}/${visibleProjectCount}` : "No projects", detail: projectsMissingRequiredAdult ? `${projectsMissingRequiredAdult} projects need a Mentor or Program Teacher` : "Every visible project has both adults", tone: projectsMissingRequiredAdult ? "danger" : "ready" },
-    { id: "viewer-coverage", label: "Viewer Coverage", value: percentLabel(viewerCoveragePercent), detail: `${viewerAssignments.length} active viewer assignments`, tone: missingViewers ? "warning" : "ready" },
+    !programTeacherOnly ? { id: "viewer-coverage", label: "Viewer Coverage", value: percentLabel(viewerCoveragePercent), detail: `${viewerAssignments.length} active viewer assignments`, tone: missingViewers ? "warning" : "ready" } : null,
     { id: "roster-complete", label: "Roster Completeness", value: percentLabel(rosterCompletenessPercent), detail: `${rosterIncomplete} profile ${pluralize(rosterIncomplete, "gap")}`, tone: rosterIncomplete ? "warning" : "ready" },
-    { id: "staff-scope", label: "Staff Access", value: staffScopeGaps, detail: "Staff role, email, or assignment gaps", tone: staffScopeGaps ? "warning" : "ready" },
+    !programTeacherOnly ? { id: "staff-scope", label: "Staff Access", value: staffScopeGaps, detail: "Staff role, email, or assignment gaps", tone: staffScopeGaps ? "warning" : "ready" } : null,
     { id: "setup-issues", label: "Setup Issues", value: setupIssues.length, detail: "Prioritized issues above", tone: setupIssues.length ? "warning" : "ready" },
-  ];
+  ].filter(Boolean);
+  const accessHistory = Array.isArray(access.history)
+    ? access.history.filter((row) => !programTeacherOnly || (row.assignmentType === "mentor_student" && scopedStudentIds.has(row.studentId)))
+    : [];
   const recentRows = [
-    ...(Array.isArray(access.history) ? access.history.map((row) => ({
+    ...accessHistory.map((row) => ({
       id: row.historyId,
       title: siteAccessHistoryTitle(row),
       detail: `${row.actorName || "Admin"} / ${formatDate(row.createdAt)}`,
       type: "access",
-    })) : []),
-    ...(Array.isArray(dashboard.recentAudit) ? dashboard.recentAudit.map((row) => ({
+    })),
+    ...(!programTeacherOnly && Array.isArray(dashboard.recentAudit) ? dashboard.recentAudit.map((row) => ({
       id: row.id || row.auditId,
       title: statusText(row.action || row.title || "Recent admin event"),
       detail: `${row.actorName || row.actor || "Admin"} / ${formatDate(row.createdAt || row.occurredAt)}`,
       type: "audit",
     })) : []),
-    ...(Array.isArray(audit.events) ? audit.events.map((row) => ({
+    ...(!programTeacherOnly && Array.isArray(audit.events) ? audit.events.map((row) => ({
       id: row.id || row.auditId,
       title: statusText(row.action || "Recent change"),
       detail: `${row.actorName || "Admin"} / ${formatDate(row.createdAt)}`,
@@ -3855,7 +3887,7 @@ function adminConsoleOperationsModel(capabilities = adminConsoleCapabilitiesFor(
       rosterIncomplete,
       missingProgramStudents,
       importIssueCount,
-    }).map((row) => capabilities.sectionIds.has(row.section) ? row : {
+    }).filter((row) => !programTeacherOnly || row.id === "students").map((row) => capabilities.sectionIds.has(row.section) ? row : {
       ...row,
       section: "overview",
       action: "Open overview",
@@ -3873,7 +3905,7 @@ function adminStudentProgramValue(student = {}) {
 
 function cleanDemoSeedDisplay(value = "", fallback = "") {
   const cleaned = String(value || "")
-    .replace(/\s*(?:[-/|]\s*)?DEMO[_\s-]*SEED\b/gi, "")
+    .replace(/\s*(?:[-/|]\s*)?\bDEMO[_\s-]*SEED\b\s*(?::\s*)?/gi, " ")
     .replace(/\s{2,}/g, " ")
     .replace(/\s*[-/|]\s*$/g, "")
     .trim();
@@ -4735,6 +4767,7 @@ function workspaceHeaderContext(primaryRole, siteContext = {}) {
 function accessibleSitesForWorkspace() {
   const siteRows = [];
   const sources = [
+    knownAccessibleSites,
     currentUser?.accessibleSites,
     unwrap(currentData.siteDashboard)?.scope?.accessibleSites,
     currentData.siteDashboard?.body?.accessibleSites,
@@ -4767,6 +4800,7 @@ function accessibleSitesForWorkspace() {
       schoolYear: context.schoolYear || "",
     });
   }
+  if (siteRows.length) knownAccessibleSites = siteRows.map((site) => ({ ...site }));
   return siteRows;
 }
 
@@ -5038,21 +5072,29 @@ async function openWorkspaceSection(button) {
     return;
   }
   if (section === "teacher" && button.dataset.sectionPreset === "submitted") {
+    const selectedSubmissionId = cleanDirectoryFilter(button.dataset.reviewSubmissionId || "");
     reviewQueueFilters = {
       ...defaultReviewQueueFilters(),
       status: "submitted",
     };
-    reviewQueueState = defaultReviewQueueState();
+    reviewQueueState = {
+      ...defaultReviewQueueState(),
+      selectedSubmissionId,
+    };
     syncReviewQueueUrlState();
     await loadReviewQueueResult("Showing submitted work ready for review.");
     return;
   }
   if (section === "teacher" && button.dataset.sectionPreset === "revision-requested") {
+    const selectedSubmissionId = cleanDirectoryFilter(button.dataset.reviewSubmissionId || "");
     reviewQueueFilters = {
       ...defaultReviewQueueFilters(),
       status: "revision_requested",
     };
-    reviewQueueState = defaultReviewQueueState();
+    reviewQueueState = {
+      ...defaultReviewQueueState(),
+      selectedSubmissionId,
+    };
     syncReviewQueueUrlState();
     await loadReviewQueueResult("Showing revision follow-up.");
     return;
@@ -5725,7 +5767,7 @@ function screenLanguageTermsFor(sectionId = "overview", primaryRole = primaryRol
     adminUsers: [
       ["Smallest role", "The lowest access level that lets the person do the job."],
       ["Access area", "The exact school, program, cohort, student, or platform area tied to the access change."],
-      ["Setup code", "A short-lived code that lets a person make their own password."],
+      ["Setup password", "A short-lived password that lets a person make their own password."],
     ],
     audit: [
       ["Redacted", "Private details are intentionally hidden so the event can be reviewed safely."],

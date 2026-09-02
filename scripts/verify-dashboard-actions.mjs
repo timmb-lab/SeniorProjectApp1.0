@@ -419,8 +419,13 @@ assertMatches(
 );
 assertMatches(
   "workspaceJs",
-  /function renderProgramTeacherDashboardSection\([\s\S]*renderMetricTile\("Needs Review"[\s\S]*"teacher", \{ label: "Review", preset: "submitted" \}\)/,
-  "Program Teacher Needs Review metric must open the existing submitted Review Queue filter",
+  /function renderProgramTeacherReviewFirstList\([\s\S]*focusPreset = focusStatus === "revision_requested" \? "revision-requested" : "submitted"[\s\S]*data-section="teacher" data-section-preset="\$\{escapeHtml\(focusPreset\)\}"[\s\S]*data-section="teacher" data-section-preset="submitted"/,
+  "Program Teacher review-first action must open the existing submitted Review Queue filter",
+);
+assertMatches(
+  "workspaceJs",
+  /function renderProgramTeacherReviewFirstList\([\s\S]*focusPreset = focusStatus === "revision_requested" \? "revision-requested" : "submitted"[\s\S]*data-section="teacher" data-section-preset="revision-requested">Check revisions<\/button>/,
+  "Program Teacher revision action must open the existing revision Review Queue filter",
 );
 assertMatches(
   "programTeacherApi",
@@ -536,11 +541,6 @@ assertMatches(
   "workspaceJs",
   /function renderReviewQueueStartHere\([\s\S]*id: "missing-work"[\s\S]*preset: "evidence-missing-review"/,
   "Review Work Start Here missing-work action must open the existing evidence-missing Review Queue filter",
-);
-assertMatches(
-  "workspaceJs",
-  /function renderProgramTeacherDashboardSection\([\s\S]*renderMetricTile\("Needs Revision"[\s\S]*"teacher", \{ label: "Review", preset: "revision-requested" \}\)/,
-  "Program Teacher Needs Revision metric must open the existing revision Review Queue filter",
 );
 assertMatches(
   "workspaceJs",

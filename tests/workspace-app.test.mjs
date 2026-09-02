@@ -752,9 +752,9 @@ test("workspace separates Admin Console mode by role and URL state", async () =>
     {
       roleId: "program_teacher",
       scope: "Program",
-      visible: ["adminPeople", "adminStudents", "adminAssignments", "adminImports"],
+      visible: ["adminAssignments"],
       hiddenAllowed: ["students", "teacher", "mentorAssignments", "operations", "adminUsers"],
-      absent: ["programs", "security", "audit", "archiveExports"],
+      absent: ["adminPeople", "adminStudents", "adminImports", "programs", "security", "audit", "archiveExports"],
     },
     {
       roleId: "administration",
@@ -5255,7 +5255,9 @@ test("workspace applies Review Queue URL filters safely and syncs filter URLs", 
   assert.doesNotMatch(workspaceRoot.innerHTML, /Active filters/);
   assert.ok(fetchLog.includes("/api/reviews/submission-review-001/history?siteId=site-desert-valley-high"));
 
+  vm.runInContext('siteStudentDetailState = { ...defaultSiteStudentDetailState(), studentId: "demo-student-101", sourceSection: "teacher" };', context);
   await vm.runInContext('handleReviewQueueAction({ currentTarget: { dataset: { reviewQueueAction: "clear-selection" } } })', context);
+  assert.equal(vm.runInContext('siteStudentDetailState.studentId', context), "");
   assert.match(workspaceRoot.innerHTML, /Active filters/);
   assert.match(workspaceRoot.innerHTML, /Needs changes/);
   assert.match(workspaceRoot.innerHTML, /No recent activity/);
@@ -10699,15 +10701,18 @@ test("workspace scopes Users & Access GUI controls for School Admin and Program 
     "/api/site/access-assignments": { status: 200, body: programTeacherAccess },
     "/api/site/mentor-assignments": { status: 200, body: siteMentorAssignmentsFixture({ role: "program_teacher", readOnly: false, canManage: true }) },
   };
-  const programTeacher = await renderWorkspaceWithFetch(programTeacherRoutes, "adminUsers");
+  const programTeacher = await renderWorkspaceWithFetch(programTeacherRoutes, "", "", {
+    url: "https://workspace.example/workspace.html?mode=admin&section=adminAssignments",
+  });
 
-  assert.match(programTeacher, /data-admin-role-pick="student"/);
-  assert.match(programTeacher, /data-admin-role-pick="mentor"/);
-  assert.doesNotMatch(programTeacher, /data-admin-role-pick="viewer"|data-admin-role-pick="program_teacher"|data-admin-role-pick="administration"|data-admin-role-pick="site_admin"|data-admin-role-pick="global_admin"/);
+  assert.match(programTeacher, /data-program-teacher-mentor-access="true"/);
+  assert.match(programTeacher, /Mentor Coverage/);
+  assert.doesNotMatch(programTeacher, /data-admin-role-pick=/);
   assert.match(programTeacher, /data-assignment-type="mentor_student"/);
   assert.doesNotMatch(programTeacher, /data-assignment-type="viewer_student"|data-assignment-type="program_teacher_program"|data-assignment-type="administration_site"|data-assignment-type="site_admin_site"/);
-  assert.equal((programTeacher.match(/data-admin-account-remove-form="true"/g) || []).length, 2);
+  assert.equal((programTeacher.match(/data-admin-account-remove-form="true"/g) || []).length, 0);
   assert.doesNotMatch(programTeacher, /data-admin-password-reset-form="true"/);
+  assert.doesNotMatch(programTeacher, /Manage Site Access|Staff Directory|CSV|Import/);
 
   const siteAdminAccess = siteAccessAssignmentsFixture();
   siteAdminAccess.permissions = {
@@ -14089,6 +14094,79 @@ test("mentor projects, students, reviews, and reports stay direct and action-rea
   `, context));
   assert.equal(adultRows[0][2], "Morgan Mentor");
   assert.equal(adultRows[0][4], "Taylor Teacher");
+});
+
+test("program teacher reports open as the direct report screen", async () => {
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch(profileRoutesForRole("program_teacher"));
+  vm.runInContext('activeSection = "staffReports"; renderAppShell();', context);
+  assert.match(workspaceRoot.innerHTML, /data-v2-screen="program-teacher-reports"/);
+  assert.match(workspaceRoot.innerHTML, /data-v2-primary-surface="program-teacher-reports"/);
+  assert.match(workspaceRoot.innerHTML, /data-staff-reports="true"/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /Review queue before reports/);
+});
+
+test("program teacher student search opens the student directory directly", async () => {
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch(profileRoutesForRole("program_teacher"));
+  await vm.runInContext('openWorkspaceStudentSearch("")', context);
+  assert.equal(vm.runInContext("activeSection", context), "students");
+  assert.match(workspaceRoot.innerHTML, /data-v2-screen="program-teacher-students"/);
+  assert.match(workspaceRoot.innerHTML, /data-v2-primary-surface="program-teacher-students"/);
+  assert.match(workspaceRoot.innerHTML, /workspace-student-directory/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /Review queue before reports/);
+});
+
+test("program teacher Today points to the exact first submitted project and cleans demo notes", async () => {
+  const { context } = await createWorkspaceContextWithFetch(profileRoutesForRole("program_teacher"));
+  const html = vm.runInContext(`renderProgramTeacherReviewFirstList({
+    summary: { submitted: 1, revisionRequested: 1 },
+    needsReview: [
+      { submissionId: "revision-1", status: "revision_requested", projectName: "Older revision", studentName: "Riley" },
+      { submissionId: "submitted-1", status: "submitted", projectName: "Next review", studentName: "Jordan" }
+    ],
+    needsAttention: []
+  })`, context);
+  assert.match(html, /Next review/);
+  assert.match(html, /data-section="teacher" data-section-preset="submitted" data-review-submission-id="submitted-1"/);
+  assert.doesNotMatch(html, /Older revision[\s\S]*Review this project/);
+  assert.equal(vm.runInContext('cleanDemoSeedDisplay("DEMO_SEED: Fix one clear sentence.", "")', context), "Fix one clear sentence.");
+  assert.equal(vm.runInContext('programDashboardScopeIdLabel({ scopeId: "it" })', context), "IT");
+  assert.equal(
+    vm.runInContext('studentDetailContextLine({ programName: "IT - Desert Valley High School Class of 2027", cohortName: "Class of 2027", graduationYear: "2027" })', context),
+    "IT - Desert Valley High School Class of 2027",
+  );
+});
+
+test("Review loading stays compact and does not show a false problem", async () => {
+  const { context } = await createWorkspaceContextWithFetch(profileRoutesForRole("program_teacher"));
+  const html = vm.runInContext(`
+    reviewQueueState.loadingHistory = true;
+    renderReviewSubmissionPanel({ submissionId: "submission-1" }, { permissions: { canReview: true } })
+  `, context);
+  assert.match(html, /workspace-compact-loading/);
+  assert.match(html, /Loading this work/);
+  assert.doesNotMatch(html, /workspace-problem-state|Reason|Owner|Next action/);
+});
+
+test("Program Teacher assignment guidance shows only actions that role can use", async () => {
+  const { context } = await createWorkspaceContextWithFetch(profileRoutesForRole("program_teacher"));
+  const html = vm.runInContext(`
+    currentData.accessAssignments = { ok: true, body: { permissions: {
+      canAssignMentors: true,
+      canAssignViewers: false,
+      canAssignProgramTeachers: false,
+      canAssignAdministration: false,
+      canAssignSiteAdmins: false
+    } } };
+    renderAdminAssignmentFlowPanel({
+      assignments: { administrationSite: [], siteAdminSite: [] },
+      missingMentorStudents: [{ studentId: "student-1" }],
+      missingViewerStudents: [{ studentId: "student-1" }],
+      missingTeacherPrograms: [{ programId: "it" }]
+    })
+  `, context);
+  assert.match(html, /data-admin-assignment-flow-lane="mentor"[\s\S]*Open mentor form/);
+  assert.doesNotMatch(html, /Open viewer form|Open program form|Review grants/);
+  assert.match(html, /Other access stays with a Site Admin/);
 });
 
 test("project requests show teammate consent, exact move impact, confirmation, history, and undo", async () => {

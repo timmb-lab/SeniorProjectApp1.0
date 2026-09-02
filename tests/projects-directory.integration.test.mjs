@@ -59,6 +59,28 @@ test("project paging keeps student access limited to their own project", async (
   assert.equal(body.permissions.canManage, false);
 });
 
+test("project review status follows an active project member when older work has no project id", async () => {
+  const fixture = await createProjectDirectoryFixture();
+  const token = await seedSession(fixture.db, fixture.env, "directory-admin");
+  await fixture.db.prepare(
+    `INSERT INTO requirements (id, phase, title, required, sort_order)
+     VALUES ('directory-review-requirement', 'phase-1', 'Project proposal', 1, 1)`,
+  ).run();
+  await fixture.db.prepare(
+    `INSERT INTO submissions (id, student_id, requirement_id, project_id, status, version, submitted_at)
+     VALUES ('directory-legacy-submission', 'directory-student-61', 'directory-review-requirement', NULL, 'submitted', 1, '2026-09-01T12:00:00.000Z')`,
+  ).run();
+
+  const response = await getProjects(fixture, token, "?siteId=site-project-directory&filter=review");
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.summary.waitingForReview, 1);
+  assert.equal(body.pagination.total, 1);
+  assert.equal(body.projects[0].projectId, "directory-project-team");
+  assert.equal(body.projects[0].waitingForReviewCount, 1);
+  assert.equal(body.projects[0].nextSubmissionId, "directory-legacy-submission");
+});
+
 async function createProjectDirectoryFixture() {
   const db = createSqliteD1({ migrations: foundationMigrations() });
   const env = {

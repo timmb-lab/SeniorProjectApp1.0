@@ -1363,6 +1363,17 @@ function studentProjectMoveStatements(env: Env, projectId: string, studentId: st
   ];
 }
 
+function projectSubmissionMatchSql(alias = "submissions"): string {
+  return `(${alias}.project_id = projects.id OR (
+    ${alias}.project_id IS NULL AND EXISTS (
+      SELECT 1 FROM project_members submission_members
+      WHERE submission_members.project_id = projects.id
+        AND submission_members.student_user_id = ${alias}.student_id
+        AND submission_members.active = 1
+    )
+  ))`;
+}
+
 async function loadProjectSummary(
   env: Env,
   siteIds: string[],
@@ -1382,11 +1393,11 @@ async function loadProjectSummary(
        ) = 1 THEN 1 ELSE 0 END), 0) AS individual,
        COALESCE(SUM(CASE WHEN EXISTS (
          SELECT 1 FROM submissions
-         WHERE submissions.project_id = projects.id AND submissions.status = 'submitted'
+         WHERE ${projectSubmissionMatchSql()} AND submissions.status = 'submitted'
        ) THEN 1 ELSE 0 END), 0) AS waiting_for_review,
        COALESCE(SUM(CASE WHEN EXISTS (
          SELECT 1 FROM submissions
-         WHERE submissions.project_id = projects.id AND submissions.status = 'revision_requested'
+         WHERE ${projectSubmissionMatchSql()} AND submissions.status = 'revision_requested'
        ) THEN 1 ELSE 0 END), 0) AS needs_changes,
        COALESCE(SUM(CASE WHEN NOT EXISTS (
          SELECT 1 FROM project_adult_assignments
@@ -1489,13 +1500,13 @@ async function loadProjects(
        projects.status,
        projects.current_phase,
        projects.updated_at,
-       (SELECT COUNT(*) FROM submissions WHERE submissions.project_id = projects.id AND submissions.status = 'submitted') AS submitted_count,
-       (SELECT COUNT(*) FROM submissions WHERE submissions.project_id = projects.id AND submissions.status = 'revision_requested') AS revision_count,
-       (SELECT COUNT(*) FROM submissions WHERE submissions.project_id = projects.id AND submissions.status = 'approved') AS approved_count
+       (SELECT COUNT(*) FROM submissions WHERE ${projectSubmissionMatchSql()} AND submissions.status = 'submitted') AS submitted_count,
+       (SELECT COUNT(*) FROM submissions WHERE ${projectSubmissionMatchSql()} AND submissions.status = 'revision_requested') AS revision_count,
+       (SELECT COUNT(*) FROM submissions WHERE ${projectSubmissionMatchSql()} AND submissions.status = 'approved') AS approved_count
        ,(
          SELECT submissions.id
          FROM submissions
-         WHERE submissions.project_id = projects.id
+         WHERE ${projectSubmissionMatchSql()}
            AND submissions.status IN ('submitted', 'revision_requested')
          ORDER BY CASE submissions.status WHEN 'submitted' THEN 0 ELSE 1 END, submissions.updated_at DESC
          LIMIT 1
@@ -1506,7 +1517,7 @@ async function loadProjects(
      LEFT JOIN cohorts ON cohorts.id = projects.cohort_id
      WHERE ${where.sql}
      ORDER BY
-       CASE WHEN EXISTS (SELECT 1 FROM submissions WHERE submissions.project_id = projects.id AND submissions.status = 'submitted') THEN 0 ELSE 1 END,
+       CASE WHEN EXISTS (SELECT 1 FROM submissions WHERE ${projectSubmissionMatchSql()} AND submissions.status = 'submitted') THEN 0 ELSE 1 END,
        projects.updated_at DESC,
        projects.name ASC
      LIMIT ? OFFSET ?`,
@@ -1561,12 +1572,12 @@ function projectWhere(
   }
 
   if (query?.filter === "review") {
-    clauses.push("EXISTS (SELECT 1 FROM submissions WHERE submissions.project_id = projects.id AND submissions.status = 'submitted')");
-    clauses.push("NOT EXISTS (SELECT 1 FROM submissions WHERE submissions.project_id = projects.id AND submissions.status = 'revision_requested')");
+    clauses.push(`EXISTS (SELECT 1 FROM submissions WHERE ${projectSubmissionMatchSql()} AND submissions.status = 'submitted')`);
+    clauses.push(`NOT EXISTS (SELECT 1 FROM submissions WHERE ${projectSubmissionMatchSql()} AND submissions.status = 'revision_requested')`);
   } else if (query?.filter === "changes") {
-    clauses.push("EXISTS (SELECT 1 FROM submissions WHERE submissions.project_id = projects.id AND submissions.status = 'revision_requested')");
+    clauses.push(`EXISTS (SELECT 1 FROM submissions WHERE ${projectSubmissionMatchSql()} AND submissions.status = 'revision_requested')`);
   } else if (query?.filter === "working") {
-    clauses.push("NOT EXISTS (SELECT 1 FROM submissions WHERE submissions.project_id = projects.id AND submissions.status IN ('submitted', 'revision_requested'))");
+    clauses.push(`NOT EXISTS (SELECT 1 FROM submissions WHERE ${projectSubmissionMatchSql()} AND submissions.status IN ('submitted', 'revision_requested'))`);
   } else if (query?.filter === "team") {
     clauses.push("(SELECT COUNT(*) FROM project_members WHERE project_members.project_id = projects.id AND project_members.active = 1) > 1");
   } else if (query?.filter === "individual") {

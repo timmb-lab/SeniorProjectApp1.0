@@ -178,6 +178,15 @@ test("demo seed creates deterministic fake workspace rows and preserves admins",
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM mentor_meetings WHERE id LIKE 'demo-%' AND status NOT IN ('scheduled', 'held', 'missed', 'makeup_required')"), 0);
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM reviews r JOIN submissions s ON s.id = r.submission_id WHERE s.status = 'draft'"), 0);
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM reviews WHERE id LIKE 'demo-%' AND decision NOT IN ('approved', 'revision_requested', 'comment_only')"), 0);
+  assert.equal(await count(db, `SELECT COUNT(*) AS count
+    FROM submissions
+    WHERE id LIKE 'demo-%'
+      AND project_id IS NULL
+      AND EXISTS (
+        SELECT 1 FROM project_members
+        WHERE project_members.student_user_id = submissions.student_id
+          AND project_members.active = 1
+      )`), 0);
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM comments WHERE id LIKE 'demo-%' AND body NOT LIKE '%DEMO_SEED%'"), 0);
   assert.equal(await count(db, "SELECT COUNT(*) AS count FROM announcements WHERE id LIKE 'demo-%' OR title LIKE '%DEMO_SEED%' OR body LIKE '%DEMO_SEED%'"), 0);
 

@@ -2823,22 +2823,30 @@ function adminConsoleScopeForRoles(roles) {
 
 function adminConsoleSectionsForRoles(roles) {
   const sections = [];
+  const programTeacherOnly = roles.has("program_teacher")
+    && !hasGlobalAdminRole(roles)
+    && !roles.has("site_admin")
+    && !roles.has("administration");
   const add = (id, label, detail, options = {}) => {
     if (!sections.some((section) => section.id === id)) sections.push({ id, label, detail, ...options });
   };
   add("overview", "Overview", "Setup issues and quick actions");
 
   if (canUseUsersAccess(roles)) {
-    add("adminPeople", "People", "Staff and account setup");
-    add("adminStudents", "Students", "Student roster setup");
-    add("adminAssignments", "Assignments", "Mentor, viewer, and program coverage");
+    if (!programTeacherOnly) {
+      add("adminPeople", "People", "Staff and account setup");
+      add("adminStudents", "Students", "Student roster setup");
+    }
+    add("adminAssignments", programTeacherOnly ? "Mentors" : "Assignments", programTeacherOnly ? "Mentor coverage for your students" : "Mentor, viewer, and program coverage");
   }
   if (canUseSitePrograms(roles)) {
     add("programs", "Programs", "Site program management");
   }
   if (canUseUsersAccess(roles)) {
-    add("adminImports", "Imports", "CSV templates and preview");
-    add("adminUsers", "People & Access", "Legacy people and access renderer", { hidden: true });
+    if (!programTeacherOnly) {
+      add("adminImports", "Imports", "CSV templates and preview");
+      add("adminUsers", "People & Access", "Legacy people and access renderer", { hidden: true });
+    }
   }
 
   if (hasSiteStudentDirectoryRole(roles)) {

@@ -1468,8 +1468,26 @@ function renderAdminConsoleStudentsSection() {
 function renderAdminConsoleAssignmentsSection() {
   const roles = roleIds(currentUser);
   if (!canUseUsersAccess(roles)) return renderPermissionDeniedSection("Assignments", "student and staff assignment records");
+  const programTeacherOnly = roles.has("program_teacher")
+    && !hasGlobalAdminRole(roles)
+    && !roles.has("site_admin")
+    && !roles.has("administration");
   const coverage = adminAssignmentCoverageModel();
   adminPeopleView = "assignments";
+  if (programTeacherOnly) {
+    return `
+      <section class="workspace-admin-operations-section" data-admin-operations-section="assignments" aria-labelledby="adminAssignmentsTitle">
+        ${renderAdminSectionHeader({
+          kicker: "Project support",
+          title: "Mentor Coverage",
+          id: "adminAssignmentsTitle",
+          detail: "Connect each student in your program with the mentor who supports the project.",
+          badge: "Your program",
+        })}
+        ${renderAdminAccessAssignmentPanel()}
+      </section>
+    `;
+  }
   return `
     <section class="workspace-admin-operations-section" data-admin-operations-section="assignments" aria-labelledby="adminAssignmentsTitle">
       ${renderAdminSectionHeader({
@@ -1733,6 +1751,7 @@ function adminAssignmentCoverageModel() {
 }
 
 function renderAdminAssignmentCoverageSummary(model = adminAssignmentCoverageModel()) {
+  const permissions = unwrap(currentData.accessAssignments)?.permissions || {};
   const assignments = model.assignments || {};
   const mentorAssignments = Array.isArray(model.mentorAssignments) ? model.mentorAssignments : [];
   const viewerAssignments = Array.isArray(model.viewerAssignments) ? model.viewerAssignments : [];
@@ -1741,11 +1760,11 @@ function renderAdminAssignmentCoverageSummary(model = adminAssignmentCoverageMod
   const missingViewerStudents = Array.isArray(model.missingViewerStudents) ? model.missingViewerStudents : [];
   const missingTeacherPrograms = Array.isArray(model.missingTeacherPrograms) ? model.missingTeacherPrograms : [];
   const cards = [
-    { id: "mentor", label: "Missing Mentor Coverage", value: missingMentorStudents.length, detail: `${mentorAssignments.length} active mentor assignments`, tone: missingMentorStudents.length ? "warning" : "ready" },
-    { id: "viewer", label: "Missing Viewer Access", value: missingViewerStudents.length, detail: `${viewerAssignments.length} active viewer assignments`, tone: missingViewerStudents.length ? "warning" : "ready" },
-    { id: "program-teacher", label: "Program Teacher Gaps", value: missingTeacherPrograms.length, detail: `${programTeacherAssignments.length} active Program Teacher assignments`, tone: missingTeacherPrograms.length ? "warning" : "ready" },
-    { id: "admin", label: "School Admin Grants", value: safeNumber((assignments.administrationSite || []).length) + safeNumber((assignments.siteAdminSite || []).length), detail: "Administration and Site Admin access grants", tone: "quiet" },
-  ];
+    permissions.canAssignMentors ? { id: "mentor", label: "Missing Mentor Coverage", value: missingMentorStudents.length, detail: `${mentorAssignments.length} active mentor assignments`, tone: missingMentorStudents.length ? "warning" : "ready" } : null,
+    permissions.canAssignViewers ? { id: "viewer", label: "Missing Viewer Access", value: missingViewerStudents.length, detail: `${viewerAssignments.length} active viewer assignments`, tone: missingViewerStudents.length ? "warning" : "ready" } : null,
+    permissions.canAssignProgramTeachers ? { id: "program-teacher", label: "Program Teacher Gaps", value: missingTeacherPrograms.length, detail: `${programTeacherAssignments.length} active Program Teacher assignments`, tone: missingTeacherPrograms.length ? "warning" : "ready" } : null,
+    permissions.canAssignAdministration || permissions.canAssignSiteAdmins ? { id: "admin", label: "School Admin Grants", value: safeNumber((assignments.administrationSite || []).length) + safeNumber((assignments.siteAdminSite || []).length), detail: "Administration and Site Admin access grants", tone: "quiet" } : null,
+  ].filter(Boolean);
   return `
     <section class="workspace-admin-coverage-summary" data-admin-assignment-coverage-summary="true" aria-label="Assignment coverage summary">
       ${cards.map((card) => `
@@ -1760,6 +1779,9 @@ function renderAdminAssignmentCoverageSummary(model = adminAssignmentCoverageMod
 }
 
 function renderAdminAssignmentFlowPanel(model = adminAssignmentCoverageModel()) {
+  const permissions = unwrap(currentData.accessAssignments)?.permissions || {};
+  const schoolGrantCount = safeNumber((model.assignments?.administrationSite || []).length)
+    + safeNumber((model.assignments?.siteAdminSite || []).length);
   const lanes = [
     {
       id: "mentor",
@@ -1768,6 +1790,7 @@ function renderAdminAssignmentFlowPanel(model = adminAssignmentCoverageModel()) 
       detail: "Start here when students have no active mentor in the visible roster.",
       tone: safeNumber(model.missingMentorStudents?.length) ? "warning" : "ready",
       action: "Open mentor form",
+      available: Boolean(permissions.canAssignMentors),
     },
     {
       id: "viewer",
@@ -1776,6 +1799,7 @@ function renderAdminAssignmentFlowPanel(model = adminAssignmentCoverageModel()) 
       detail: "Confirm read-only viewer coverage after mentor coverage is clear.",
       tone: safeNumber(model.missingViewerStudents?.length) ? "warning" : "ready",
       action: "Open viewer form",
+      available: Boolean(permissions.canAssignViewers),
     },
     {
       id: "program-teacher",
@@ -1784,16 +1808,27 @@ function renderAdminAssignmentFlowPanel(model = adminAssignmentCoverageModel()) 
       detail: "Program worklists need an active Program Teacher assignment for each active program.",
       tone: safeNumber(model.missingTeacherPrograms?.length) ? "warning" : "ready",
       action: "Open program form",
+      available: Boolean(permissions.canAssignProgramTeachers),
     },
     {
       id: "school-access",
       title: "Review school grants",
-      count: usersAccessActiveAssignmentCount(model.assignments || {}),
+      count: schoolGrantCount,
       detail: "Check Administration and Site Admin grants before adding broader school access.",
       tone: "quiet",
       action: "Review grants",
+      available: Boolean(permissions.canAssignAdministration || permissions.canAssignSiteAdmins),
     },
-  ];
+  ].filter((lane) => lane.available);
+  if (!lanes.length) {
+    return `
+      <section class="workspace-admin-assignment-flow" data-admin-assignment-flow="true" data-admin-assignment-flow-first="none">
+        <p class="workspace-kicker">Coverage flow</p>
+        <h3>View coverage</h3>
+        <p class="workspace-muted">A Site Admin handles assignment changes for this school.</p>
+      </section>
+    `;
+  }
   const firstLane = lanes.find((lane) => lane.count > 0) || lanes[0];
   return `
     <section class="workspace-admin-assignment-flow" data-admin-assignment-flow="true" data-admin-assignment-flow-first="${escapeHtml(firstLane.id)}" aria-labelledby="adminAssignmentFlowTitle">
@@ -1801,7 +1836,7 @@ function renderAdminAssignmentFlowPanel(model = adminAssignmentCoverageModel()) 
         <div>
           <p class="workspace-kicker">Coverage Flow</p>
           <h3 id="adminAssignmentFlowTitle">Fix coverage in order</h3>
-          <p class="workspace-muted">Use the matching assignment form for the first nonzero gap, then refresh the summary before moving to broader grants.</p>
+          <p class="workspace-muted">Start with the first gap you can fix. Other access stays with a Site Admin.</p>
         </div>
         <button class="workspace-button workspace-button-secondary workspace-button-small" type="button" data-users-access-focus="assignment-forms">Open forms</button>
       </div>
@@ -1811,7 +1846,7 @@ function renderAdminAssignmentFlowPanel(model = adminAssignmentCoverageModel()) 
             <span>${escapeHtml(`Step ${index + 1}`)}</span>
             <strong>${escapeHtml(lane.title)}</strong>
             <p>${escapeHtml(lane.detail)}</p>
-            <small>${escapeHtml(lane.count ? `${lane.count} to review` : "No active gap")}</small>
+            <small>${escapeHtml(lane.id === "school-access" ? `${lane.count} active ${pluralize(lane.count, "grant")}` : lane.count ? `${lane.count} to review` : "No active gap")}</small>
             <button class="workspace-link-button workspace-link-button-small" type="button" data-users-access-focus="assignment-forms">${escapeHtml(lane.action)}</button>
           </article>
         `).join("")}
@@ -3853,11 +3888,7 @@ function renderSiteStudentDetailSurface(directory) {
             </div>
             <button class="workspace-link-button workspace-link-button-small" type="button" data-student-detail-action="close">${escapeHtml(returnCopy.buttonLabel)}</button>
           </div>
-          ${renderProblemState({
-            reason: "Loading the student record for this school.",
-            owner: "Assigned staff workspace.",
-            nextAction: "Keep this worklist open while the detail response returns.",
-          })}
+          <p class="workspace-muted" data-student-detail-loading-message="true" aria-live="polite">Loading this student's latest work and feedback…</p>
         </div>
       </aside>
     `;
@@ -4045,11 +4076,18 @@ function studentDetailPanelAttrs(tabId = "overview", alias = "") {
 }
 
 function studentDetailContextLine(student = {}, scope = {}, directory = {}) {
-  const parts = [
+  const candidates = [
     studentProgramDisplay(student, ""),
     studentCohortDisplay(student, ""),
     student.graduationYear ? `Class of ${student.graduationYear}` : "",
   ].map((part) => String(part || "").trim()).filter(Boolean);
+  const parts = candidates.filter((part, index) => {
+    const normalized = part.toLocaleLowerCase();
+    return !candidates.slice(0, index).some((candidate) => {
+      const earlier = candidate.toLocaleLowerCase();
+      return earlier === normalized || earlier.includes(normalized);
+    });
+  });
   if (parts.length) return parts.join(" - ");
   return scope.siteName || directory.scope?.siteName || "Selected school";
 }
@@ -4222,7 +4260,8 @@ function studentDetailPhaseApprovalStatus(detail = {}) {
   const latestReview = latestStudentDetailReview(detail);
   const status = normalizeStatus(latestSubmission?.status || student.status || progress.status || "");
   const decision = normalizeStatus(latestReview?.decision || latestReview?.status || "");
-  const stage = progress.currentStage || student.currentPhase || latestSubmission?.phaseLabel || latestSubmission?.requirementTitle || "current phase";
+  const rawStage = progress.currentStage || student.currentPhase || latestSubmission?.phaseLabel || latestSubmission?.requirementTitle || "current phase";
+  const stage = studentPhaseShortLabel(rawStage, "current phase");
   if (decision === "approved" || status === "approved" || status === "complete") {
     return {
       state: "approved",
@@ -4235,7 +4274,7 @@ function studentDetailPhaseApprovalStatus(detail = {}) {
     return {
       state: "revision_requested",
       label: "Revision required before moving on",
-      detail: latestReview?.feedback || latestSubmission?.nextAction || "Program Teacher feedback is waiting for the student to fix and resubmit.",
+      detail: cleanDemoSeedDisplay(latestReview?.feedback || latestSubmission?.nextAction, "Program Teacher feedback is waiting for the student to fix and resubmit."),
       nextAction: "Do not move phases until the revision is submitted and approved.",
     };
   }
@@ -4251,7 +4290,7 @@ function studentDetailPhaseApprovalStatus(detail = {}) {
     state: "missing",
     label: "Not ready for next-step approval",
     detail: latestSubmission?.requirementTitle || "No submitted phase work is waiting for approval.",
-    nextAction: latestSubmission?.nextAction || "Student should finish the current assigned work, attach proof when required, and send it for review.",
+    nextAction: cleanDemoSeedDisplay(latestSubmission?.nextAction, "Student should finish the current assigned work, attach proof when required, and send it for review."),
   };
 }
 
@@ -4280,7 +4319,7 @@ function latestStudentDetailFeedback(detail) {
     ...reviews.map((row) => ({
       kind: "Program Teacher review",
       title: row.requirementTitle || "Senior Project work",
-      text: row.feedback || row.nextAction || "Feedback saved.",
+      text: cleanDemoSeedDisplay(row.feedback || row.nextAction, "Feedback saved."),
       actor: row.reviewerName || "Reviewer",
       occurredAt: row.createdAt || "",
       status: row.decision || "under_review",
@@ -4288,7 +4327,7 @@ function latestStudentDetailFeedback(detail) {
     ...comments.map((row) => ({
       kind: studentDetailCommentKind(row.visibility),
       title: row.authorName || "Staff",
-      text: row.body || "Comment saved.",
+      text: cleanDemoSeedDisplay(row.body, "Comment saved."),
       actor: row.authorName || "Staff",
       occurredAt: row.createdAt || "",
       status: row.visibility || "configured",
@@ -4315,7 +4354,7 @@ function latestStudentDetailFeedback(detail) {
   return {
     kind: item.kind,
     title: item.title,
-    text: item.text,
+    text: cleanDemoSeedDisplay(item.text, "Feedback saved."),
     meta: `${item.actor} / ${studentDetailDateLabel(item.occurredAt)}`,
     status: item.status,
   };
@@ -4344,7 +4383,7 @@ function renderStudentDetailProgress(detail) {
     <section class="workspace-detail-section" data-student-detail-section="progress">
       ${renderDashboardCard("Current work", "Current step and next action", `
         <p>${escapeHtml(progressFacts.workItemsText)}</p>
-        <p>${escapeHtml(progress.nextAction || "Continue the next capstone milestone.")}</p>
+        <p>${escapeHtml(cleanDemoSeedDisplay(progress.nextAction, "Continue the next capstone milestone."))}</p>
         <div class="workspace-chip-row">
           <span class="workspace-site-context-badge">${escapeHtml(studentPhaseShortLabel(progress.currentStage, progressFacts.stageText))}</span>
           <span class="workspace-site-context-badge">${escapeHtml(progressFacts.percentText)}</span>
@@ -4392,7 +4431,7 @@ function renderStudentDetailSubmissions(detail) {
       <div>
         <strong>${escapeHtml(row.requirementTitle || "Senior Project work")}</strong>
         <p>${escapeHtml(studentSavedWorkVersionText(row.version, row.status, "Not turned in yet"))} / ${escapeHtml(row.evidenceCount || 0)} Google Drive ${pluralize(safeNumber(row.evidenceCount), "link")} saved</p>
-        <p class="workspace-muted">${escapeHtml(row.nextAction || "")}</p>
+        <p class="workspace-muted">${escapeHtml(cleanDemoSeedDisplay(row.nextAction, ""))}</p>
       </div>
       ${statusPill(row.status || "draft")}
     </article>
@@ -4498,11 +4537,14 @@ function studentDetailCasePlan(detail = {}, scope = {}) {
     progressStatus: progress.status || student.progressStatus,
     evidenceStatus: student.evidenceStatus || (safeNumber(student.evidenceCount) ? "attached" : ""),
     riskFlags: Array.from(new Set([...(Array.isArray(student.riskFlags) ? student.riskFlags : []), ...flags.map((flag) => flag.key)])),
-    nextAction: student.nextAction || progress.nextAction || latestSubmission?.nextAction || latestReview?.feedback,
+    nextAction: cleanDemoSeedDisplay(student.nextAction || progress.nextAction || latestSubmission?.nextAction || latestReview?.feedback, "Open Work and check the current step."),
   };
   const guidance = studentDirectoryRowGuidance(rowLikeStudent, Boolean(scope.readOnly));
   const currentStatus = statusText(latestSubmission?.status || student.latestSubmissionStatus || latestReview?.decision || student.status || progress.status || "pending");
-  const currentStep = progress.currentStage || latestSubmission?.requirementTitle || student.currentPhase || "Current step not confirmed yet";
+  const rawCurrentStep = progress.currentStage || student.currentPhase || "";
+  const currentStep = rawCurrentStep
+    ? studentPhaseShortLabel(rawCurrentStep, latestSubmission?.requirementTitle || "Current step not confirmed yet")
+    : latestSubmission?.requirementTitle || "Current step not confirmed yet";
   const coverage = mentor.active === true
     ? mentor.mentorName || student.mentorName || "Assigned mentor"
     : mentor.active === false
@@ -4556,7 +4598,7 @@ function renderStudentDetailReviews(detail) {
         <article class="workspace-row">
           <div>
             <strong>${escapeHtml(row.requirementTitle || "Senior Project work")}</strong>
-            <p>${escapeHtml(row.feedback || "Feedback saved.")}</p>
+            <p>${escapeHtml(cleanDemoSeedDisplay(row.feedback, "Feedback saved."))}</p>
             <p class="workspace-muted">${escapeHtml(row.reviewerName || "Reviewer")} / ${escapeHtml(studentDetailDateLabel(row.createdAt))}</p>
           </div>
           ${statusPill(row.decision || "under_review")}
@@ -4567,7 +4609,7 @@ function renderStudentDetailReviews(detail) {
         <article class="workspace-row">
           <div>
             <strong>${escapeHtml(row.authorName || "Staff")}</strong>
-            <p>${escapeHtml(row.body || "Comment saved.")}</p>
+            <p>${escapeHtml(cleanDemoSeedDisplay(row.body, "Comment saved."))}</p>
             <p class="workspace-muted">${escapeHtml(studentDetailDateLabel(row.createdAt))}</p>
           </div>
           ${statusPill(row.visibility || "configured")}
@@ -4583,7 +4625,7 @@ function renderStudentDetailMentor(detail) {
   const meetings = Array.isArray(detail.mentorMeetings) ? detail.mentorMeetings : [];
   const mentorNextAction = roleIds(currentUser).has("mentor") && mentor.active
     ? "Record this check-in and the next step you agreed on."
-    : mentor.nextAction || "Continue mentor support.";
+    : cleanDemoSeedDisplay(mentor.nextAction, "Continue mentor support.");
   return `
     <section class="workspace-detail-section" data-student-detail-section="mentor">
       ${renderDashboardCard("Mentor", mentor.active ? "Assigned support" : "Coverage needed", `
@@ -4600,7 +4642,7 @@ function renderStudentDetailMentor(detail) {
         <article class="workspace-row">
           <div>
             <strong>${escapeHtml(row.mentorName || "Mentor")}</strong>
-            <p>${escapeHtml(row.nextAction || (row.active ? "Current mentor coverage is active." : "Previous mentor assignment."))}</p>
+            <p>${escapeHtml(cleanDemoSeedDisplay(row.nextAction, row.active ? "Current mentor coverage is active." : "Previous mentor assignment."))}</p>
             <p class="workspace-muted">Assigned ${escapeHtml(studentDetailDateLabel(row.assignedAt))}${row.assignedByName ? ` by ${escapeHtml(row.assignedByName)}` : ""}</p>
           </div>
           ${statusPill(row.active ? "approved" : "configured")}
@@ -4610,7 +4652,7 @@ function renderStudentDetailMentor(detail) {
         <article class="workspace-row">
           <div>
             <strong>${escapeHtml(row.mentorName || "Mentor")}</strong>
-            <p>${escapeHtml(row.notes || row.nextAction || "Meeting saved.")}</p>
+            <p>${escapeHtml(cleanDemoSeedDisplay(row.notes || row.nextAction, "Meeting saved."))}</p>
             ${renderMentorMeetingLinkedWork(row)}
             <p class="workspace-muted">${escapeHtml(studentDetailDateLabel(row.heldAt || row.scheduledFor || row.createdAt))}</p>
           </div>
@@ -4639,7 +4681,7 @@ function renderStudentDetailMentorWorkContext(detail = {}) {
         </article>
         <article>
           <span>3. Ask about</span>
-          <b>${escapeHtml(latestReview?.feedback || latestSubmission?.nextAction || approval.nextAction)}</b>
+          <b>${escapeHtml(cleanDemoSeedDisplay(latestReview?.feedback || latestSubmission?.nextAction, approval.nextAction))}</b>
         </article>
       </div>
     </section>
@@ -4863,12 +4905,8 @@ function renderStudentDetailTimeline(detail, state) {
       ${renderStudentDetailTimelineFilters(selectedType, Boolean(timelineBody))}
       ${state.loadingTimeline ? `
         <div class="workspace-empty-state-card">
-          <strong>Loading full timeline</strong>
-          ${renderProblemState({
-            reason: "The full timeline is loading.",
-            owner: "Assigned staff workspace.",
-            nextAction: "Keep the detail panel open while events return.",
-          })}
+          <strong>Loading full timeline…</strong>
+          <p class="workspace-muted" aria-live="polite">Getting this student's latest activity.</p>
         </div>
       ` : ""}
       ${state.timelineResult && !timelineBody ? `
@@ -4885,8 +4923,8 @@ function renderStudentDetailTimeline(detail, state) {
       ${renderStudentDetailList(title, "Newest updates first", events, "No activity yet for this student.", (event) => `
         <article class="workspace-row">
           <div>
-            <strong>${escapeHtml(event.title || (event.type ? statusText(event.type) : "Activity update"))}</strong>
-            <p>${escapeHtml(event.summary || "Activity saved.")}</p>
+            <strong>${escapeHtml(cleanDemoSeedDisplay(event.title, event.type ? statusText(event.type) : "Activity update"))}</strong>
+            <p>${escapeHtml(cleanDemoSeedDisplay(event.summary, "Activity saved."))}</p>
             <p class="workspace-muted">${escapeHtml(event.type ? statusText(event.type) : "Activity")} / ${escapeHtml(studentDetailDateLabel(event.occurredAt))}</p>
           </div>
           ${statusPill(event.status || "configured")}
@@ -4901,7 +4939,7 @@ function renderStudentDetailTimelineFilters(selectedType = "", loaded = false) {
     <div class="workspace-active-filter-summary" data-student-detail-timeline-filters="true">
       <div>
         <strong>${escapeHtml(selectedType ? `Showing ${studentDetailTimelineTypeLabel(selectedType).toLowerCase()}` : "Showing all activity")}</strong>
-        <p>${escapeHtml(loaded ? "These filters use the authorized student activity route." : "Open a filter to load matching student activity.")}</p>
+        <p>${escapeHtml(loaded ? "Use the filters to show the activity you need." : "Loading this student's activity.")}</p>
       </div>
       <div class="workspace-quick-actions" role="group" aria-label="Timeline filters">
         ${STUDENT_DETAIL_TIMELINE_TYPES.map(([value, label]) => `
@@ -5408,9 +5446,17 @@ function renderProgramTeacherDashboardSection() {
 function renderProgramTeacherReviewFirstList(dashboard = {}) {
   const rows = Array.isArray(dashboard.needsReview) ? dashboard.needsReview : [];
   const attentionRows = Array.isArray(dashboard.needsAttention) ? dashboard.needsAttention : [];
-  const focusRows = rows.length ? rows : attentionRows.filter((row) => normalizeStatus(row.status || row.submissionStatus) === "submitted");
+  const submittedRows = rows.filter((row) => normalizeStatus(row.status || row.submissionStatus) === "submitted");
+  const revisionRows = rows.filter((row) => normalizeStatus(row.status || row.submissionStatus) === "revision_requested");
+  const fallbackSubmittedRows = attentionRows.filter((row) => normalizeStatus(row.status || row.submissionStatus) === "submitted");
+  const focusRows = submittedRows.length ? submittedRows : revisionRows.length ? revisionRows : fallbackSubmittedRows;
   const focus = focusRows[0] || null;
-  const waitingCount = safeNumber(dashboard?.summary?.needsReview ?? dashboard?.summary?.submitted ?? focusRows.length);
+  const focusStatus = normalizeStatus(focus?.status || focus?.submissionStatus || "");
+  const waitingCount = safeNumber(dashboard?.summary?.submitted ?? submittedRows.length);
+  const revisionCount = safeNumber(dashboard?.summary?.revisionRequested ?? revisionRows.length);
+  const focusPreset = focusStatus === "revision_requested" ? "revision-requested" : "submitted";
+  const focusActionLabel = focusStatus === "revision_requested" ? "Check this revision" : "Review this project";
+  const focusCount = focusStatus === "revision_requested" ? revisionCount : waitingCount;
   return `
     <section class="workspace-dashboard-card workspace-program-review-first" data-program-review-first="true">
       <div class="workspace-program-review-focus">
@@ -5420,10 +5466,10 @@ function renderProgramTeacherReviewFirstList(dashboard = {}) {
           <p>${escapeHtml(focus ? `${focus.studentName || "Student"} turned in ${focus.requirementTitle || focus.title || "project work"}.` : "Students can keep working. Check the support list only if someone needs help.")}</p>
         </div>
         <div class="workspace-program-review-focus-action">
-          <span class="workspace-chip">${escapeHtml(waitingCount)} waiting</span>
+          <span class="workspace-chip">${escapeHtml(focusCount)} ${focusStatus === "revision_requested" ? "need changes" : "waiting"}</span>
           ${focus ? statusPill(focus.status || focus.submissionStatus || "submitted") : statusPill("ready")}
-          ${waitingCount && availableSectionIdsForAnyMode().has("teacher") ? `<button class="workspace-button workspace-button-primary" type="button" data-section="teacher" data-section-preset="submitted">${focus ? "Review this project" : "Open review queue"}</button>` : ""}
-          ${safeNumber(dashboard?.summary?.revisionRequested) && availableSectionIdsForAnyMode().has("teacher") ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="teacher" data-section-preset="revision-requested">Check revisions</button>` : ""}
+          ${focus && availableSectionIdsForAnyMode().has("teacher") ? `<button class="workspace-button workspace-button-primary" type="button" data-section="teacher" data-section-preset="${escapeHtml(focusPreset)}" data-review-submission-id="${escapeHtml(focus.submissionId || "")}">${escapeHtml(focusActionLabel)}</button>` : waitingCount && availableSectionIdsForAnyMode().has("teacher") ? `<button class="workspace-button workspace-button-primary" type="button" data-section="teacher" data-section-preset="submitted">Open review queue</button>` : ""}
+          ${focusStatus !== "revision_requested" && revisionCount && availableSectionIdsForAnyMode().has("teacher") ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-section="teacher" data-section-preset="revision-requested">Check revisions</button>` : ""}
         </div>
       </div>
       ${focus ? renderProgramTeacherReviewFirstRow(focus) : `<p class="workspace-muted" data-program-review-first-empty="true">You are caught up with reviews.</p>`}
@@ -5502,6 +5548,7 @@ function programDashboardScopeTypeLabel(scope = {}) {
 function programDashboardScopeIdLabel(scope = {}) {
   const scopeId = String(scope?.scopeId || "").trim();
   if (!scopeId || scopeId === "global") return "Current student group";
+  if (/^[a-z]{2,4}$/i.test(scopeId)) return scopeId.toLocaleUpperCase();
   return statusText(scopeId);
 }
 

@@ -30,6 +30,16 @@ const MIGRATIONS = [
   "migrations/0018_project_workspaces.sql",
   "migrations/0019_project_requests.sql",
   "migrations/0020_missing_student_projects.sql",
+  "migrations/0021_project_drive_folder_links.sql",
+  "migrations/0022_project_drive_templates.sql",
+  "migrations/0023_security_rate_limit_indexes.sql",
+  "migrations/0024_project_request_safety.sql",
+  "migrations/0025_required_project_adults.sql",
+  "migrations/0026_drive_link_checks.sql",
+  "migrations/0027_starter_guidance_templates.sql",
+  "migrations/0028_staff_mfa.sql",
+  "migrations/0029_password_setup_codes.sql",
+  "migrations/0030_site_branding.sql",
 ];
 
 const PRIMARY_SITE_ID = "site-desert-valley-high";
@@ -47,6 +57,22 @@ test("site review queue is scoped, read-only by role, mutable for program teache
     "DELETE FROM evidence_artifacts WHERE submission_id = ?",
   ).bind(submittedIt[3].id).run();
   await insertArchivedEvidenceForSubmission(env, submittedIt[3]);
+  await env.DB.batch([
+    env.DB.prepare(
+      `UPDATE project_adult_assignments
+       SET status = 'cancelled'
+       WHERE adult_role = 'mentor'
+         AND project_id = (SELECT project_id FROM submissions WHERE id = ?)`,
+    ).bind(revisionIt.id),
+    env.DB.prepare(
+      "UPDATE mentor_assignments SET active = 0 WHERE student_user_id = ?",
+    ).bind(revisionIt.studentId),
+    env.DB.prepare(
+      `UPDATE project_mentor_assignments
+       SET active = 0
+       WHERE project_id = (SELECT project_id FROM submissions WHERE id = ?)`,
+    ).bind(revisionIt.id),
+  ]);
 
   {
     const { response, body } = await routeQueue(env, null, `?siteId=${PRIMARY_SITE_ID}`);
@@ -177,7 +203,7 @@ test("site review queue is scoped, read-only by role, mutable for program teache
   const mentorComment = await routeDecision(env, tokens.mentor, mentorSubmitted.submissionId, "comment_only", "Mentor note for the assigned student.", `?siteId=${PRIMARY_SITE_ID}`);
   assert.equal(mentorComment.response.status, 200);
   assert.equal(mentorComment.body.review.decision, "comment_only");
-  const mentorOutOfScope = teacher.queue.find((row) => row.studentId !== mentorSubmitted.studentId);
+  const mentorOutOfScope = teacher.queue.find((row) => !mentorStudentIds.has(row.studentId));
   assert.ok(mentorOutOfScope);
   const mentorDenied = await routeDecision(env, tokens.mentor, mentorOutOfScope.submissionId, "comment_only", "Should not reach this student.", `?siteId=${PRIMARY_SITE_ID}`);
   assert.equal(mentorDenied.response.status, 404);

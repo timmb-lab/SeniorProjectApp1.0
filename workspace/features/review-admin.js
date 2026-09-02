@@ -959,13 +959,10 @@ function renderReviewSubmissionPanel(selected, body) {
   const firstRow = queue[0] || null;
   if (reviewQueueState.loadingHistory) {
     return `
-      <section class="workspace-dashboard-card workspace-review-panel" data-review-panel-state="loading">
-        <h2>Loading submission</h2>
-        ${renderProblemState({
-          reason: "Review history is loading.",
-          owner: "Review Work.",
-          nextAction: "Keep the selected row open.",
-        })}
+      <section class="workspace-dashboard-card workspace-review-panel workspace-compact-loading" data-review-panel-state="loading" aria-live="polite">
+        <p class="workspace-kicker">Review work</p>
+        <h2>Loading this work…</h2>
+        <p>Getting the student's files and past feedback.</p>
       </section>
     `;
   }
@@ -3271,7 +3268,7 @@ function csvTemplateContractForKind(kind = "students") {
     students: {
       kind: "students",
       title: "Student CSV template",
-      detail: "Creates local student accounts with school/program placement and optional roster coverage fields.",
+      detail: "Creates student accounts with school and program placement, plus optional support assignments.",
       required: ["first_name", "last_name", "email", "site", "program"],
       optional: ["cohort", "graduation_year", "status", "mentor_email", "program_teacher_email", "viewer_email"],
       example: ["Alex", "Student", "alex.student@senior-capstone.test", "Desert Valley High School", "Information Technology", "Class of 2026", "2026", "active", "maya.rivera@senior-capstone.test", "chen.teacher@senior-capstone.test", "viewer.one@senior-capstone.test"],
@@ -3281,7 +3278,7 @@ function csvTemplateContractForKind(kind = "students") {
     staff: {
       kind: "staff",
       title: "Staff CSV template",
-      detail: "Creates local staff, mentor, viewer, Program Teacher, School Admin, or Site Admin accounts.",
+      detail: "Creates the staff and support accounts allowed for your role.",
       required: ["first_name", "last_name", "email", "role"],
       optional: ["site", "program", "assigned_student_emails", "status"],
       example: ["Maya", "Rivera", "maya.rivera@senior-capstone.test", "mentor", "Desert Valley High School", "", "alex.student@senior-capstone.test", "active"],
@@ -3831,6 +3828,12 @@ function renderAdminAccessAssignmentPanel() {
   const programs = Array.isArray(body.programs) ? body.programs : [];
   const students = Array.isArray(users.students) ? users.students : [];
   const assignments = body.assignments || {};
+  const roles = roleIds(currentUser);
+  const programTeacherOnly = roles.has("program_teacher")
+    && !hasGlobalAdminRole(roles)
+    && !roles.has("site_admin")
+    && !roles.has("administration");
+  if (programTeacherOnly) return renderProgramTeacherMentorAccessPanel(body);
   return `
     <section class="workspace-card" data-admin-section="site-assignments">
       <div class="workspace-card-head">
@@ -3854,6 +3857,54 @@ function renderAdminAccessAssignmentPanel() {
         ${permissions.canAssignAdministration ? renderSiteRoleAssignmentForm("administration_site", "School Admins", users.administration, body.scope?.siteId) : ""}
         ${permissions.canAssignSiteAdmins ? renderSiteRoleAssignmentForm("site_admin_site", "Site Admins", users.siteAdmins, body.scope?.siteId) : ""}
       </div>
+    </section>
+  `;
+}
+
+function renderProgramTeacherMentorAccessPanel(body = {}) {
+  const users = body.users || {};
+  const permissions = body.permissions || {};
+  const directory = unwrap(currentData.siteStudents) || {};
+  const students = Array.isArray(directory.students) ? directory.students : [];
+  const studentIds = new Set(students.map((student) => student.studentId || student.userId || student.id || "").filter(Boolean));
+  const mentorAssignments = (Array.isArray(body.assignments?.mentorStudent) ? body.assignments.mentorStudent : [])
+    .filter((row) => studentIds.has(row.studentId));
+  const mentorCount = new Set(mentorAssignments.map((row) => row.studentId).filter(Boolean)).size;
+  const labels = accessAssignmentLabels(users, body.programs || []);
+  return `
+    <section class="workspace-card workspace-program-teacher-mentor-access" data-admin-section="program-mentor-assignments" data-program-teacher-mentor-access="true">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Mentor coverage</p>
+          <h2>Assign a mentor</h2>
+          <p class="workspace-muted">Choose a student in your program and the mentor who will support that project.</p>
+        </div>
+        <span class="workspace-chip">${escapeHtml(`${mentorCount} of ${students.length} covered`)}</span>
+      </div>
+      ${renderApiNotice(currentData.accessAssignments)}
+      <details class="workspace-detail-history-disclosure">
+        <summary>Show current mentor coverage</summary>
+        ${renderAccessAssignmentSummaryRows({
+          title: "Students with mentors",
+          rows: mentorAssignments,
+          empty: "No mentor assignments are visible for this program.",
+          renderRow: (row) => accessAssignmentRow(
+            labels.user(row.mentorUserId),
+            labels.student(row.studentId),
+            "This mentor can support the student's project.",
+          ),
+        })}
+      </details>
+      ${permissions.canAssignMentors
+        ? renderAccessAssignmentForm("mentor_student", "Choose mentor and student", users.mentors, students, {
+            targetLabel: "Mentor",
+            actionLabel: "Change",
+            noteLabel: "Reason",
+            noteHelp: "Briefly explain why this mentor coverage is changing.",
+            guidance: "Assign adds or restores this mentor. Remove ends the mentor's access but keeps the student's work.",
+            submitLabel: "Save mentor coverage",
+          })
+        : `<p class="workspace-muted">A Site Admin must change mentor coverage for this program.</p>`}
     </section>
   `;
 }
@@ -4244,7 +4295,7 @@ function accessAssignmentLabels(users = {}, programs = []) {
   };
 }
 
-function renderAccessAssignmentForm(type, title, targets = [], students = []) {
+function renderAccessAssignmentForm(type, title, targets = [], students = [], options = {}) {
   return `
     <form class="workspace-form workspace-assignment-form" data-site-access-assignment-form data-assignment-type="${escapeHtml(type)}">
       <input type="hidden" name="siteId" value="${escapeHtml(currentAccessSiteId())}">
@@ -4252,7 +4303,7 @@ function renderAccessAssignmentForm(type, title, targets = [], students = []) {
       <p class="workspace-kicker">${escapeHtml(title)}</p>
       <div class="workspace-form-grid">
         <label class="workspace-label">
-          User
+          ${escapeHtml(options.targetLabel || "User")}
           <select class="workspace-select" name="targetUserId" required>
             ${userOptions(targets)}
           </select>
@@ -4263,12 +4314,14 @@ function renderAccessAssignmentForm(type, title, targets = [], students = []) {
             ${userOptions(students)}
           </select>
         </label>
-        ${assignmentActionSelect()}
-        ${assignmentNoteField()}
+        ${assignmentActionSelect(options.actionLabel)}
+        ${assignmentNoteField(options.noteLabel, options.noteHelp)}
       </div>
-      ${assignmentActionGuidance(type)}
+      ${options.guidance
+        ? `<p class="workspace-muted workspace-quiet-helper" data-site-access-action-guidance="${escapeHtml(type || "site_access")}">${escapeHtml(options.guidance)}</p>`
+        : assignmentActionGuidance(type)}
       <div class="workspace-form-actions">
-        <button class="workspace-button workspace-button-secondary" type="submit">Save access change</button>
+        <button class="workspace-button workspace-button-secondary" type="submit">${escapeHtml(options.submitLabel || "Save access change")}</button>
       </div>
     </form>
   `;
@@ -4455,10 +4508,10 @@ function userOptions(users = []) {
   }).join("");
 }
 
-function assignmentActionSelect() {
+function assignmentActionSelect(label = "Action") {
   return `
     <label class="workspace-label">
-      Action
+      ${escapeHtml(label || "Action")}
       <select class="workspace-select" name="action">
         <option value="assign">Assign</option>
         <option value="remove">Remove</option>
@@ -4467,11 +4520,12 @@ function assignmentActionSelect() {
   `;
 }
 
-function assignmentNoteField() {
+function assignmentNoteField(label = "Admin note", help = "") {
   return `
     <label class="workspace-label workspace-label-wide">
-      Admin note
+      ${escapeHtml(label || "Admin note")}
       <textarea class="workspace-textarea" name="adminNote" maxlength="500" required></textarea>
+      ${help ? `<span class="workspace-muted">${escapeHtml(help)}</span>` : ""}
     </label>
   `;
 }

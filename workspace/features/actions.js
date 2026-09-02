@@ -956,6 +956,7 @@ async function handleReviewQueueAction(event) {
   }
   if (action === "clear-selection") {
     reviewQueueState = defaultReviewQueueState();
+    siteStudentDetailState = defaultSiteStudentDetailState();
     activeSection = "teacher";
     syncReviewQueueUrlState({ replace: true });
     renderAppShell();
@@ -969,6 +970,7 @@ async function handleReviewQueueAction(event) {
   if (action === "reset-filters") {
     reviewQueueFilters = defaultReviewQueueFilters();
     reviewQueueState = defaultReviewQueueState();
+    siteStudentDetailState = defaultSiteStudentDetailState();
     activeSection = "teacher";
     syncReviewQueueUrlState({ clearFilters: true });
     await loadReviewQueueResult("Review work filters reset.");
@@ -985,6 +987,7 @@ async function handleReviewQueueAction(event) {
       offset: action === "previous-page" ? Math.max(0, offset - limit) : offset + limit,
     };
     reviewQueueState = defaultReviewQueueState();
+    siteStudentDetailState = defaultSiteStudentDetailState();
     activeSection = "teacher";
     syncReviewQueueUrlState();
     await loadReviewQueueResult("Review work page updated.");

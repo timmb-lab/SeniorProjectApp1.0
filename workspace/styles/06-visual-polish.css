@@ -209,6 +209,44 @@
   color: #f4f7fb;
 }
 
+:root[data-theme="dark"] .workspace-v2-app :where(
+  .workspace-admin-template-shelf article,
+  .workspace-csv-template-doc,
+  .workspace-csv-preview,
+  .workspace-csv-import-stepper,
+  .workspace-csv-import-readiness,
+  .workspace-csv-import-stepper li,
+  .workspace-csv-import-readiness-grid article,
+  .workspace-csv-preview-next article,
+  .workspace-csv-dropzone
+) {
+  border-color: var(--ticket-border-bright) !important;
+  background: var(--ticket-panel-raised) !important;
+  color: var(--ticket-text) !important;
+}
+
+:root[data-theme="dark"] .workspace-v2-app :where(
+  .workspace-admin-template-shelf,
+  .workspace-csv-template-doc,
+  .workspace-csv-preview,
+  .workspace-csv-import-stepper,
+  .workspace-csv-import-readiness,
+  .workspace-csv-preview-next,
+  .workspace-csv-dropzone
+) :where(strong, p, span, small, label) {
+  color: var(--ticket-text) !important;
+}
+
+:root[data-theme="dark"] .workspace-v2-app :where(
+  .workspace-csv-template-doc code,
+  .workspace-admin-template-shelf code,
+  .workspace-csv-dropzone input
+) {
+  border-color: var(--ticket-border-bright) !important;
+  background: #0d1929 !important;
+  color: #f4f7fb !important;
+}
+
 .workspace-admin-supporting-disclosure > summary,
 .workspace-admin-issue-disclosure > summary {
   min-height: 40px;
@@ -1461,6 +1499,54 @@ body[data-page="workspace"] {
     border-top: 1px solid var(--ticket-border);
     border-left: 0;
   }
+}
+
+/* Keep the top-bar tools in one readable column at desktop and Chromebook widths. */
+.workspace-user .workspace-v2-tools-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+  width: min(32rem, calc(100vw - 2rem));
+  max-width: none;
+}
+
+.workspace-v2-tools-panel .workspace-site-switcher,
+.workspace-v2-tools-panel .workspace-topbar-search,
+.workspace-v2-tools-panel .workspace-mode-switch {
+  width: 100%;
+  max-width: none;
+}
+
+.workspace-v2-tools-panel .workspace-topbar-search-row,
+.workspace-v2-tools-panel .workspace-mode-switch {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(7.5rem, auto);
+}
+
+@media (max-width: 760px) {
+  .workspace-user .workspace-v2-tools-panel {
+    width: auto;
+  }
+}
+
+/* Legacy report choice colors mixed with white and broke dark-mode contrast. */
+:root[data-theme="dark"] .workspace-v2-app .workspace-admin-report-choice-row,
+:root[data-theme="dark"] .workspace-v2-app .workspace-admin-report-choice-row.primary {
+  border-color: var(--ticket-border);
+  background: #0a1929 !important;
+  color: var(--ticket-text);
+}
+
+:root[data-theme="dark"] .workspace-v2-app .workspace-admin-report-choice-row.primary {
+  border-left: 4px solid var(--ticket-cyan);
+}
+
+:root[data-theme="dark"] .workspace-v2-app .workspace-admin-report-choice-row :where(strong, span) {
+  color: var(--ticket-text);
+}
+
+:root[data-theme="dark"] .workspace-v2-app .workspace-admin-report-choice-row :where(p, small) {
+  color: var(--ticket-muted);
 }
 
 @media (max-width: 760px) {

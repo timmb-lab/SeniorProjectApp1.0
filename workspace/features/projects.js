@@ -3,6 +3,15 @@ function renderProjectsSection() {
   if (result?.status === 403) return renderPermissionDeniedSection("Projects", "projects you are assigned to");
   const body = unwrap(result);
   if (!body) {
+    if (workspaceDataLoading) {
+      return `
+        <section class="workspace-card workspace-loading-card" data-workspace-loading="projects" aria-live="polite">
+          <p class="workspace-kicker">Projects</p>
+          <h2>Loading projects…</h2>
+          <p>Getting the latest project list for this school.</p>
+        </section>
+      `;
+    }
     return `
       <section class="workspace-card workspace-error-card">
         <p class="workspace-kicker">Projects</p>

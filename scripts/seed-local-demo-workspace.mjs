@@ -2035,6 +2035,49 @@ function buildSeedSql(dataset, schema, { includeDeletes = true, includeTransacti
   if (schema.tableNames.has("exports")) pushRows(statements, "exports", rows.exports);
   if (schema.tableNames.has("export_artifacts")) pushRows(statements, "export_artifacts", rows.exportArtifacts);
   pushRows(statements, "audit_events", rows.auditEvents);
+  if (schema.tables.get("submissions")?.columns.has("project_id") && schema.tableNames.has("project_members")) {
+    statements.push(`UPDATE submissions
+      SET project_id = (
+        SELECT project_members.project_id
+        FROM project_members
+        WHERE project_members.student_user_id = submissions.student_id
+          AND project_members.active = 1
+        ORDER BY project_members.created_at DESC, project_members.project_id
+        LIMIT 1
+      )
+      WHERE submissions.id LIKE 'demo-%'
+        AND submissions.project_id IS NULL
+        AND EXISTS (
+          SELECT 1 FROM project_members
+          WHERE project_members.student_user_id = submissions.student_id
+            AND project_members.active = 1
+        );`);
+  }
+  for (const [table, studentColumn] of [
+    ["progress_records", "student_id"],
+    ["evidence_artifacts", "student_id"],
+    ["status_history", "student_id"],
+    ["mentor_meetings", "student_user_id"],
+    ["presentation_slots", "student_user_id"],
+  ]) {
+    if (!schema.tables.get(table)?.columns.has("project_id") || !schema.tableNames.has("project_members")) continue;
+    statements.push(`UPDATE ${quoteIdent(table)}
+      SET project_id = (
+        SELECT project_members.project_id
+        FROM project_members
+        WHERE project_members.student_user_id = ${quoteIdent(table)}.${quoteIdent(studentColumn)}
+          AND project_members.active = 1
+        ORDER BY project_members.created_at DESC, project_members.project_id
+        LIMIT 1
+      )
+      WHERE ${quoteIdent(table)}.id LIKE 'demo-%'
+        AND ${quoteIdent(table)}.project_id IS NULL
+        AND EXISTS (
+          SELECT 1 FROM project_members
+          WHERE project_members.student_user_id = ${quoteIdent(table)}.${quoteIdent(studentColumn)}
+            AND project_members.active = 1
+        );`);
+  }
   if (includeTransaction) statements.push("COMMIT;");
   statements.push("");
   return statements.join("\n");
