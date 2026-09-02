@@ -1696,6 +1696,8 @@ function studentInstructionCopy(value, fallback = "") {
     .replace(/\bsend work\b/gi, "turn in work")
     .replace(/\bsend it\b/gi, "turn it in")
     .replace(/\bsend them\b/gi, "turn them in")
+    .replace(/\badd or link proof\b/gi, "add a Google Drive link")
+    .replace(/\badd the work or proof\b/gi, "add the work or Google Drive link")
     .replace(/\battach corrected proof\b/gi, "add a corrected file or link")
     .replace(/\battach matching proof\b/gi, "add a matching file or link")
     .replace(/\battach the ([^,.]+?) proof\b/gi, "add the $1 file or link")
@@ -1710,6 +1712,14 @@ function studentInstructionCopy(value, fallback = "") {
     .replace(/\byour program teacher\b/gi, "your teacher")
     .replace(/\bprogram teachers\b/gi, "teachers")
     .replace(/\bprogram teacher\b/gi, "teacher");
+}
+
+function studentSavedWorkVersionText(version, status, fallback = "Not turned in yet") {
+  const normalized = normalizeStatus(status);
+  if (normalized === "draft") return "Draft saved";
+  const safeVersion = safeNumber(version);
+  if (safeVersion > 0) return `Turned in #${safeVersion}`;
+  return fallback;
 }
 
 function replaceStandaloneTeacherPhrase(text, phrase, replacement) {
@@ -1740,11 +1750,12 @@ function renderSubmissionRow(submission, feedback = [], historyState = defaultSt
   const approvalGate = studentSubmissionApprovalGateText(submission);
   const isSelected = studentFeedbackSelectionMatches(historyState, submissionId, "submissions");
   const owner = studentSubmissionNextOwner(submission);
+  const savedWorkText = studentSavedWorkVersionText(submission?.version, submission?.status, "Work not turned in yet");
   return `
     <article class="workspace-row workspace-student-submission-row" data-student-submission-row="${escapeHtml(submissionId || "true")}">
       <div>
         <strong>${escapeHtml(submission.requirement_title || "Senior Project work")}</strong>
-        <p>Turned in: #${escapeHtml(submission.version || 1)}. Updated ${escapeHtml(formatDate(submission.updated_at))}.</p>
+        <p>${escapeHtml(savedWorkText)}. Updated ${escapeHtml(formatDate(submission.updated_at))}.</p>
         ${latestFeedback ? `<p class="workspace-muted" data-submission-feedback="true">Latest teacher feedback: ${escapeHtml(latestFeedback.message || "Your teacher left feedback for this work.")}</p>` : ""}
         <p class="workspace-muted" data-student-submission-next-owner="true">Next move: ${escapeHtml(owner)}</p>
         <p class="workspace-student-submission-gate" data-student-submission-approval-gate="true">${escapeHtml(approvalGate)}</p>

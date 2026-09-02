@@ -60,7 +60,7 @@ test("student dashboard returns own rows without storage ids and audits the view
   assert.equal(body.ok, true);
   assert.equal(body.studentId, "student-a");
   assert.equal(body.viewer.self, true);
-  assert.equal(body.nextAction, "Open Phase 1: Kickoff and Proposal and finish Core Concept Proposal. Add the requested proof before sending it for review.");
+  assert.equal(body.nextAction, "Open Phase 1: Kickoff and Proposal and finish Core Concept Proposal. Add a Google Drive link if it helps show the work. Then turn it in for review.");
   assert.deepEqual(body.summary, {
     requirementsTotal: 1,
     requirementsComplete: 0,
@@ -86,7 +86,7 @@ test("student dashboard returns own rows without storage ids and audits the view
     {
       title: "Core Concept Proposal",
       status: "Missing",
-      detail: "Open Phase 1: Kickoff and Proposal and finish Core Concept Proposal. Add the requested proof before sending it for review.",
+      detail: "Open Phase 1: Kickoff and Proposal and finish Core Concept Proposal. Add a Google Drive link if it helps show the work. Then turn it in for review.",
       dueDate: "2025-10-09T00:00:00Z",
       dueLabel: "October 9 and 10",
       requirementId: "req-proposal-draft",
@@ -100,7 +100,7 @@ test("student dashboard returns own rows without storage ids and audits the view
         requirementId: "req-proposal-draft",
         submissionId: "submission-student-a",
         title: "Core Concept Proposal",
-        description: "Draft the proposal with a clear problem, solution, audience, and proof of work.",
+        description: "Write your first project proposal. Explain the problem, your plan, and who it will help.",
         phase: "phase-1",
         phaseLabel: "Phase 1: Kickoff and Proposal",
         status: "draft",
@@ -112,7 +112,7 @@ test("student dashboard returns own rows without storage ids and audits the view
         dueLabel: "October 9 and 10",
         qualityPrompt: "Name the problem, who benefits, and the proof that shows your work.",
         lastUpdatedAt: "2026-05-20T08:10:00.000Z",
-        nextAction: "Send Core Concept Proposal for teacher review.",
+        nextAction: "Turn Core Concept Proposal in for teacher review.",
         draftText: "",
         draftWordCount: 0,
         hasWrittenResponse: false,
@@ -251,6 +251,7 @@ test("student dashboard maps framework requirements to Your Senior booklet phase
     "req-presentation-day",
     "req-celebration-day",
   ]);
+  assert.equal(body.requirements.find((row) => row.requirementId === "req-personal-archive-export")?.title, "Save personal copies of your project");
   assert.doesNotMatch(JSON.stringify(body.requirements), /proposal-and-research|mentor-checkpoints|presentation-and-celebration|reflection-and-archive/i);
 });
 

@@ -470,7 +470,10 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     nextSteps,
     requirements: requirementDetails,
     progress: progressRows,
-    submissions: submissionRows,
+    submissions: submissionRows.map((row) => ({
+      ...row,
+      requirement_title: studentRequirementDisplayTitle(row.requirement_id, row.requirement_title),
+    })),
     evidence: evidenceRows.map((row) => summarizeEvidence(row, submissionRows)),
     feedback,
   });
@@ -850,9 +853,10 @@ function buildStudentNextSteps(
   const addStep = (requirement: RequirementRow | null, status: string, detail: string) => {
     if (!requirement || seen.has(requirement.id)) return;
     const submission = submissionsByRequirement.get(requirement.id) || null;
+    const displayTitle = studentRequirementDisplayTitle(requirement.id, requirement.title);
     seen.add(requirement.id);
     output.push({
-      title: requirement.title || "Senior Project requirement",
+      title: displayTitle,
       status,
       detail,
       dueDate: requirement.due_at || null,
@@ -865,32 +869,36 @@ function buildStudentNextSteps(
   };
 
   for (const submission of submissions.filter((row) => row.status === "revision_requested")) {
+    const requirement = requirementFor(requirements, submission.requirement_id);
     addStep(
-      requirementFor(requirements, submission.requirement_id),
+      requirement,
       "Needs Revision",
-      `Open teacher feedback for ${submission.requirement_title || "this work"}, make the requested changes, then send it back for review.`,
+      `Open teacher feedback for ${studentRequirementDisplayTitle(requirement?.id, submission.requirement_title || "this work")}, make the requested changes, then turn it in again.`,
     );
   }
 
   for (const requirement of orderedRequirements) {
     const submission = submissionsByRequirement.get(requirement.id);
     if (!submission || submission.status === "draft") {
-      addStep(requirement, "Missing", `Open ${phaseLabel(studentBookletPhaseKey(requirement))} and finish ${requirement.title}. Add the requested proof before sending it for review.`);
+      const title = studentRequirementDisplayTitle(requirement.id, requirement.title);
+      addStep(requirement, "Missing", `Open ${phaseLabel(studentBookletPhaseKey(requirement))} and finish ${title}. Add a Google Drive link if it helps show the work. Then turn it in for review.`);
     }
   }
 
   for (const requirement of orderedRequirements.filter((row) => studentBookletPhaseKey(row) === summary.currentPhase)) {
     const progress = progressByRequirement.get(requirement.id);
     if (progress && ["not_started", "in_progress"].includes(progress.status)) {
-      addStep(requirement, statusTextForStudent(progress.status), `Keep working on ${requirement.title}. Check the due date, proof, and teacher tip.`);
+      const title = studentRequirementDisplayTitle(requirement.id, requirement.title);
+      addStep(requirement, statusTextForStudent(progress.status), `Keep working on ${title}. Check the due date, your saved work, and your teacher's tip.`);
     }
   }
 
   for (const submission of submissions.filter((row) => row.status === "submitted")) {
+    const requirement = requirementFor(requirements, submission.requirement_id);
     addStep(
-      requirementFor(requirements, submission.requirement_id),
+      requirement,
       "Waiting for Review",
-      `${submission.requirement_title || "This work"} is waiting for teacher review. No extra file or link is needed unless your teacher asks.`,
+      `${studentRequirementDisplayTitle(requirement?.id, submission.requirement_title || "This work")} is waiting for teacher review. No extra file or link is needed unless your teacher asks.`,
     );
   }
 
@@ -898,7 +906,7 @@ function buildStudentNextSteps(
     addStep(
       orderedRequirements.find((requirement) => !["approved", "archived"].includes(progressByRequirement.get(requirement.id)?.status || "")) || null,
       "Next",
-      "Open the next booklet phase, check what proof is needed, and keep moving.",
+      "Open the next project phase, read the short directions, and keep moving.",
     );
   }
 
@@ -922,8 +930,8 @@ function buildStudentRequirementDetails(
     return {
       requirementId: requirement.id,
       submissionId: submission?.id || null,
-      title: safeStudentText(requirement.title, "Senior Project requirement", 180),
-      description: safeStudentText(requirement.description, "", 240) || null,
+      title: studentRequirementDisplayTitle(requirement.id, requirement.title),
+      description: studentRequirementDisplayDescription(requirement.id, requirement.description),
       phase,
       phaseLabel: phase ? phaseLabel(phase) : "Not available yet",
       status,
@@ -933,7 +941,7 @@ function buildStudentRequirementDetails(
       evidenceCount,
       dueDate: requirement.due_at || null,
       dueLabel: safeStudentText(requirement.due_label, "", 80) || null,
-      qualityPrompt: safeStudentText(requirement.quality_prompt, "", 240) || null,
+      qualityPrompt: studentRequirementDisplayPrompt(requirement.id, requirement.quality_prompt),
       lastUpdatedAt: latestTimestamp([
         progress?.updated_at || null,
         submission?.updated_at || null,
@@ -977,22 +985,80 @@ function studentRequirementNextAction(
   status: string,
   evidenceCount: number,
 ): string {
-  const title = safeStudentText(requirement.title || submission?.requirement_title || progress?.requirement_title, "this item", 180);
+  const title = studentRequirementDisplayTitle(
+    requirement.id,
+    requirement.title || submission?.requirement_title || progress?.requirement_title,
+  );
   if (status === "revision_requested") {
     return evidenceCount > 0
-      ? `Open teacher feedback, revise ${title}, then send it back for review.`
-      : `Add the revised proof for ${title}, then send it back for review.`;
+      ? `Read teacher feedback, revise ${title}, then turn it in again.`
+      : `Add the updated Google Drive link for ${title}, then turn it in again.`;
   }
   if (status === "submitted") return `${title} is waiting for teacher review. No extra file or link is needed unless your teacher asks.`;
   if (status === "approved" || status === "archived") return `${title} is complete for now. Keep it for your final files.`;
   if (status === "draft") {
     return evidenceCount > 0
-      ? `Send ${title} for teacher review.`
-      : `Add the work or proof your teacher requested for ${title}, then send it for review.`;
+      ? `Turn ${title} in for teacher review.`
+      : `Add the Google Drive link your teacher asked for, if needed. Then turn ${title} in for review.`;
   }
-  if (status === "in_progress") return `Keep working on ${title}. Check the due date, proof, and teacher tip.`;
-  if (status === "missing") return `Open ${phaseLabel(studentBookletPhaseKey(requirement))} and start ${title}. Add or link proof when it is ready.`;
+  if (status === "in_progress") return `Keep working on ${title}. Check the due date, your saved work, and your teacher's tip.`;
+  if (status === "missing") return `Open ${phaseLabel(studentBookletPhaseKey(requirement))} and start ${title}. Add a Google Drive link if it helps show the work.`;
   return `Review ${title} and ask your program teacher what to do next.`;
+}
+
+function studentRequirementDisplayTitle(requirementId: string | null | undefined, title: string | null | undefined): string {
+  const friendlyTitles: Record<string, string> = {
+    "req-senior-project-workspace": "Set up your project folder",
+    "req-approved-proposal": "Get your project proposal approved",
+    "req-thanks-and-thanks": "Thank your project helpers",
+    "req-personal-archive-export": "Save personal copies of your project",
+  };
+  return friendlyTitles[String(requirementId || "").trim()]
+    || safeStudentText(title, "Senior Project work", 180);
+}
+
+function studentRequirementDisplayDescription(requirementId: string | null | undefined, description: string | null | undefined): string | null {
+  const descriptions: Record<string, string> = {
+    "req-senior-project-workspace": "Create one Google Drive folder for your project and save its link here.",
+    "req-resume": "Make a resume that shows your skills, experience, and project work.",
+    "req-proposal-draft": "Write your first project proposal. Explain the problem, your plan, and who it will help.",
+    "req-approved-proposal": "Use teacher feedback to finish the proposal your team will follow.",
+    "req-research-proposal-challenge": "Explain what you learned from research and how it made your project plan stronger.",
+    "req-mentor-meeting-one-plan": "Plan your first mentor meeting. Bring questions and choose what help you need.",
+    "req-mentor-meeting-two-outline": "Plan your second mentor meeting and make an outline for your presentation.",
+    "req-thanks-and-thanks": "Write a thank-you note to someone who helped your project.",
+    "req-presentation-day": "Get ready to share your project story, work, and results.",
+    "req-celebration-day": "Plan a clear display that helps visitors understand your project.",
+    "req-reflection-best-work": "Choose your best project work and explain what it shows.",
+    "req-reflection-senior-project": "Look back on a challenge, what you changed, and what you learned.",
+    "req-reflection-tenet-mastery": "Choose one school goal or skill and show how your project proves your growth.",
+    "req-reflection-project-based-learning": "Explain how planning, feedback, and changes made your project better.",
+    "req-reflection-next-year-plan": "Choose one next-year goal, a first step, help you can use, and a backup plan.",
+    "req-personal-archive-export": "Save personal copies of your important project files before your school account closes.",
+  };
+  const friendly = descriptions[String(requirementId || "").trim()];
+  return friendly || safeStudentText(description, "", 240) || null;
+}
+
+function studentRequirementDisplayPrompt(requirementId: string | null | undefined, prompt: string | null | undefined): string | null {
+  const prompts: Record<string, string> = {
+    "req-senior-project-workspace": "Check that every teammate can open the folder link.",
+    "req-resume": "Show one skill and one real example that proves it.",
+    "req-approved-proposal": "Make the goal clear, doable, and easy to check.",
+    "req-research-proposal-challenge": "Name the strongest fact you found and how it changed your plan.",
+    "req-mentor-meeting-one-plan": "Bring your proposal and three questions for your mentor.",
+    "req-mentor-meeting-two-outline": "Make sure your outline shows the problem, your work, the result, and what you learned.",
+    "req-presentation-day": "Use your slides to support your story. Do not read every word from them.",
+    "req-celebration-day": "Show what you made, why it mattered, and how you know it worked.",
+    "req-reflection-best-work": "Choose one exact example that shows growth, skill, effort, or impact.",
+    "req-reflection-senior-project": "Name one setback and explain what you changed after it.",
+    "req-reflection-tenet-mastery": "Name the skill and prove it with one project moment or choice.",
+    "req-reflection-project-based-learning": "Tell how feedback changed the work and made the result better.",
+    "req-reflection-next-year-plan": "Give your first step a date and name one person who can help.",
+    "req-personal-archive-export": "Open your copies without your school sign-in to make sure they work.",
+  };
+  const friendly = prompts[String(requirementId || "").trim()];
+  return friendly || safeStudentText(prompt, "", 240) || null;
 }
 
 function safeNumber(value: unknown): number {
@@ -1121,13 +1187,14 @@ function safeStudentText(value: string | null | undefined, fallback: string, max
 
 function deriveNextAction(submissions: SubmissionSummaryRow[], evidence: EvidenceSummaryRow[]): string {
   const current = submissions[0];
-  if (!current) return "Start the proposal.";
-  if (evidence.length === 0) return "Add at least one proof item.";
-  if (current.status === "draft") return "Send the proposal to your teacher.";
-  if (current.status === "revision_requested") return "Fix and send the proposal again.";
+  if (!current) return "Open My Project and start the first item.";
+  if (current.status === "draft") return evidence.length
+    ? "Finish the draft, check its Google Drive link, and turn it in."
+    : "Finish the draft. Add a Google Drive link only if it helps show the work. Then turn it in.";
+  if (current.status === "revision_requested") return "Read the teacher note, fix the work, and turn it in again.";
   if (current.status === "submitted") return "Wait for teacher review.";
-  if (current.status === "approved") return "Move into build work and mentor prep.";
-  return "Review the current Senior Project status.";
+  if (current.status === "approved") return "Open My Project and start the next item.";
+  return "Open My Project and check the next step.";
 }
 
 function summarizeEvidence(row: EvidenceSummaryRow, submissions: SubmissionSummaryRow[]): EvidenceSummary {
@@ -1143,7 +1210,7 @@ function summarizeEvidence(row: EvidenceSummaryRow, submissions: SubmissionSumma
     submissionId,
     requirementId: linkedSubmission?.requirement_id || null,
     requirementTitle: linkedSubmission?.requirement_title
-      ? safeStudentText(linkedSubmission.requirement_title, "Requirement", 180)
+      ? studentRequirementDisplayTitle(linkedSubmission.requirement_id, linkedSubmission.requirement_title)
       : null,
     title: row.title,
     artifact_type: row.artifact_type,

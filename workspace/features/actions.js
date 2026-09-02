@@ -116,6 +116,9 @@ function bindWorkspaceForms() {
   document.querySelectorAll("[data-student-feedback-action]").forEach((button) => {
     button.addEventListener("click", handleStudentFeedbackAction);
   });
+  document.querySelectorAll("[data-student-final-check-action]").forEach((button) => {
+    button.addEventListener("click", handleStudentFinalChecklistAction);
+  });
   document.querySelectorAll("[data-student-requirement-action]").forEach((button) => {
     button.addEventListener("click", handleStudentRequirementAction);
   });
@@ -355,6 +358,49 @@ function handleStudentRequirementAction(event) {
   if (opening) requestStudentRequirementFocus(requirementId);
   activeSection = "studentWork";
   renderAppShell(opening ? "Item details opened." : "Item details closed.", "success");
+}
+
+function handleStudentFinalChecklistAction(event) {
+  const button = event?.currentTarget;
+  const action = cleanDirectoryFilter(button?.dataset?.studentFinalCheckAction || "");
+  if (!action) return;
+  if (action === "feedback") {
+    activeSection = "studentFeedback";
+    renderAppShell("Feedback opened.", "success");
+    return;
+  }
+  if (action === "links") {
+    activeSection = "studentWork";
+    renderAppShell("Google Drive links opened.", "success");
+    const openLinks = () => {
+      const panel = document.querySelector('[data-student-work-section="evidence-files"]');
+      if (!panel) return;
+      panel.open = true;
+      panel.scrollIntoView?.({ block: "start", behavior: "auto" });
+      panel.querySelector?.("summary")?.focus?.();
+    };
+    if (typeof setTimeout === "function") setTimeout(openLinks, 0);
+    else openLinks();
+    return;
+  }
+  const requirements = Array.isArray(unwrap(currentData.dashboard)?.requirements) ? unwrap(currentData.dashboard).requirements : [];
+  const phaseKey = studentRequirementPhaseKey(button?.dataset?.studentFinalCheckPhase || "");
+  const requestedRequirementId = cleanDirectoryFilter(button?.dataset?.studentFinalCheckRequirementId || "");
+  const phaseRows = phaseKey
+    ? requirements.filter((row) => studentRequirementPhaseKey(row?.phase || row?.phaseLabel || "") === phaseKey)
+    : requirements;
+  const targetRequirement = requirements.find((row) => studentRequirementId(row) === requestedRequirementId)
+    || phaseRows.find((row) => !isStudentRequirementComplete(row?.status))
+    || phaseRows[0]
+    || null;
+  const requirementId = studentRequirementId(targetRequirement);
+  studentRequirementDetailState = {
+    selectedPhaseKey: phaseKey || studentRequirementPhaseKey(targetRequirement?.phase || targetRequirement?.phaseLabel || ""),
+    selectedRequirementId: requirementId,
+  };
+  activeSection = "studentWork";
+  if (requirementId) requestStudentRequirementFocus(requirementId);
+  renderAppShell(requirementId ? "Next project item opened." : "Project phase opened.", "success");
 }
 
 function updateStudentDraftWordCount(event) {

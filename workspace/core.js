@@ -137,7 +137,7 @@ const STATUS_CLASS_BY_STATUS = {
   scheduled: "pending",
   outline_pending: "pending",
   outline_revision_needed: "revision_requested",
-  missing: "archived",
+  missing: "blocked",
   checked_out: "under_review",
   checked_in: "complete",
   available: "ready",

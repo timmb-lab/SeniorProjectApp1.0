@@ -9427,7 +9427,8 @@ test("student submission filters narrow rows and clear hidden submission timelin
   assert.match(workspaceRoot.innerHTML, /Approved \(1\)/);
   assert.match(workspaceRoot.innerHTML, /data-student-submission-summary="true"/);
   assert.match(workspaceRoot.innerHTML, /data-student-submission-status-guide="true"/);
-  assert.match(workspaceRoot.innerHTML, /What Turned in labels mean/);
+  assert.match(workspaceRoot.innerHTML, /What saved-work labels mean/);
+  assert.match(workspaceRoot.innerHTML, /Draft saved/);
   assert.match(workspaceRoot.innerHTML, /data-student-submission-status-card="draft"[\s\S]*Draft[\s\S]*1 item[\s\S]*Finish this work\. Add the matching Google Drive link\. Turn it in for review[\s\S]*Show drafts/);
   assert.match(workspaceRoot.innerHTML, /data-student-submission-status-card="submitted"[\s\S]*Waiting for review[\s\S]*1 item[\s\S]*Your teacher checks this next[\s\S]*Show waiting work/);
   assert.match(workspaceRoot.innerHTML, /data-student-submission-status-card="revision_requested"[\s\S]*Needs changes[\s\S]*1 item[\s\S]*Read the teacher note[\s\S]*Turn it in again[\s\S]*Show work to fix/);
@@ -10188,10 +10189,14 @@ test("workspace renders evidence download and external-link actions without stor
   const finalChecklist = await renderWorkspaceWithFetch(studentEvidenceRoutes, "studentFinalChecklist");
   assert.match(finalChecklist, /data-student-screen="final-checklist"/);
   assert.match(finalChecklist, /data-student-final-checklist="true"/);
+  for (const phaseKey of ["start", "phase-1", "phase-2a", "phase-2b", "phase-3a", "phase-3b", "phase-4", "finish"]) {
+    assert.match(finalChecklist, new RegExp(`data-student-final-check-row="${phaseKey}"`));
+  }
   assert.match(finalChecklist, /data-student-final-check-row="phase-1"[\s\S]*Not checked yet/);
-  assert.match(finalChecklist, /data-student-final-check-row="evidence"[\s\S]*No files have been uploaded yet|data-student-final-check-row="evidence"[\s\S]*Not checked yet/);
+  assert.match(finalChecklist, /data-student-final-check-row="evidence"[\s\S]*(?:\d+ Google Drive links? saved|No Google Drive links are saved yet)/);
+  assert.match(finalChecklist, /data-student-final-check-row="feedback"[\s\S]*No feedback needs changes right now[\s\S]*Done/);
   assertStudentPlainLanguageSurface(finalChecklist);
-  assert.match(finalChecklist, /data-student-primary-action="open-next-missing"[\s\S]*View Work/);
+  assert.match(finalChecklist, /data-student-final-check-action="requirement" data-student-final-check-phase="start"[\s\S]*data-student-primary-action="open-next-missing">Continue My Project/);
   assert.doesNotMatch(visibleText(finalChecklist), /Approved for next steps|Complete for closeout/);
 });
 
@@ -14209,6 +14214,84 @@ test("guided writing clearly supports private journals, shared team answers, and
   assert.match(sharedBuild, /Shared team answer/);
   assert.match(sharedBuild, /Everyone on your project shares this answer/);
   assert.match(sharedBuild, /Add to your build journal/);
+
+  const setup = vm.runInContext(`renderStudentGuidedDraft({
+    requirementId: "req-senior-project-workspace",
+    title: "Set up your project folder",
+    phase: "start",
+    status: "draft",
+    draftText: ""
+  })`, context);
+  assert.match(setup, /Set up your project folder/);
+  assert.match(setup, /Can every teammate open it/);
+
+  const celebration = vm.runInContext(`renderStudentGuidedDraft({
+    requirementId: "req-celebration-day",
+    title: "Senior Project Celebration Day",
+    phase: "phase-3b",
+    status: "draft",
+    draftText: ""
+  })`, context);
+  assert.match(celebration, /Plan your project display/);
+  assert.match(celebration, /What supplies or help do you need/);
+
+  const personalCopies = vm.runInContext(`renderStudentGuidedDraft({
+    requirementId: "req-personal-archive-export",
+    title: "Save personal copies of your project",
+    phase: "finish",
+    status: "draft",
+    draftText: ""
+  })`, context);
+  assert.match(personalCopies, /Check your personal copies/);
+  assert.match(personalCopies, /without your school sign-in/);
+});
+
+test("student final checklist routes each button to its exact next place", async () => {
+  const { context } = await createWorkspaceContextWithFetch(profileRoutesForRole("student"));
+  vm.runInContext(`
+    currentData.dashboard = {
+      ok: true,
+      body: {
+        summary: { requirementsTotal: 3, requirementsComplete: 1, missingRequiredCount: 1, waitingForReviewCount: 1 },
+        requirements: [
+          { requirementId: "req-setup", title: "Setup", phase: "start", status: "approved", submissionStatus: "approved" },
+          { requirementId: "req-proposal", title: "Proposal", phase: "phase-1", status: "draft", submissionStatus: "draft" },
+          { requirementId: "req-build", title: "Build", phase: "phase-2a", status: "submitted", submissionStatus: "submitted" }
+        ],
+        submissions: [{ id: "sub-build", requirement_id: "req-build", status: "submitted" }],
+        evidence: [],
+        feedback: []
+      }
+    };
+  `, context);
+
+  const rows = JSON.parse(vm.runInContext(`JSON.stringify(studentFinalChecklistRows({
+    summary: unwrap(currentData.dashboard).summary,
+    requirements: unwrap(currentData.dashboard).requirements,
+    submissions: unwrap(currentData.dashboard).submissions,
+    evidence: [],
+    feedback: []
+  }))`, context));
+  assert.equal(rows.find((row) => row.id === "phase-1").requirementId, "req-proposal");
+  assert.equal(rows.find((row) => row.id === "feedback").actionTarget, "feedback");
+  assert.equal(rows.find((row) => row.id === "evidence").blocking, false);
+  assert.equal(rows.find((row) => row.id === "final-review").requirementId, "req-proposal");
+
+  vm.runInContext(`handleStudentFinalChecklistAction({ currentTarget: { dataset: {
+    studentFinalCheckAction: "requirement",
+    studentFinalCheckPhase: "phase-1",
+    studentFinalCheckRequirementId: "req-proposal"
+  } } })`, context);
+  assert.equal(vm.runInContext("activeSection", context), "studentWork");
+  assert.deepEqual(JSON.parse(vm.runInContext("JSON.stringify(studentRequirementDetailState)", context)), {
+    selectedPhaseKey: "phase-1",
+    selectedRequirementId: "req-proposal",
+  });
+
+  vm.runInContext(`handleStudentFinalChecklistAction({ currentTarget: { dataset: {
+    studentFinalCheckAction: "feedback"
+  } } })`, context);
+  assert.equal(vm.runInContext("activeSection", context), "studentFeedback");
 });
 
 async function renderWorkspaceWithFetch(routes, section = "", beforeSectionScript = "", options = {}) {

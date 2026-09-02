@@ -3,8 +3,8 @@
   "verdict": "GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF",
   "baseUrl": "https://thecapstoneproject.com",
   "workspaceEntryPath": "/workspace",
-  "startedAt": "2026-09-02T19:12:43.701Z",
-  "completedAt": "2026-09-02T19:14:56.289Z",
+  "startedAt": "2026-09-02T19:49:53.302Z",
+  "completedAt": "2026-09-02T19:52:05.616Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
@@ -74,8 +74,8 @@
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "Senior Project Workspace",
-      "textSample": "Skip to workspace Maya Senior Project TODAY / STUDENT Tools TS Test Student Maya maya.student@senior-capstone.test SC My Capstone My Capstone MAYA SENIOR PROJECT Today My Project Feedback Final Checklist TS Test Student Maya Student YOUR NEXT STEP Missing Senior Project Workspace Open this item. Finish the work. Add a Google Drive link if needed. Open the matching item in My Project. Start this step 1 Open My Work Use the item named at the top before opening anything else. 2 Add what it asks for Add the Google Drive link that matches the item. 3 Turn it in Stop when the item says it is waiting",
+      "heading": "Set up your project folder",
+      "textSample": "Skip to workspace Maya Senior Project TODAY / STUDENT Tools TS Test Student Maya maya.student@senior-capstone.test SC My Capstone My Capstone MAYA SENIOR PROJECT Today My Project Feedback Final Checklist TS Test Student Maya Student YOUR NEXT STEP Missing Set up your project folder Open this item. Finish the work. Add a Google Drive link if needed. Open the matching item in My Project. Start this step 1 Open My Work Use the item named at the top before opening anything else. 2 Add what it asks for Add the Google Drive link that matches the item. 3 Turn it in Stop when the item says it is waiti",
       "activeNav": [
         "1\n        Today\n        What to finish next",
         "1\n        Today"
@@ -295,8 +295,8 @@
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "Senior Project Workspace",
-      "textSample": "Skip to workspace Menu SC My Capstone Tools TS YOUR NEXT STEP Missing Senior Project Workspace Open this item. Finish the work. Add a Google Drive link if needed. Open the matching item in My Project. Start this step 1 Open My Work Use the item named at the top before opening anything else. 2 Add what it asks for Add the Google Drive link that matches the item. 3 Turn it in Stop when the item says it is waiting for teacher review. YOUR PROJECT Maya Senior Project Test Student Maya 1 student Mentor: Test Mentor Rivera Teacher: Gray Quinn Show progress, feedback, and checklist 17 items still nee",
+      "heading": "Set up your project folder",
+      "textSample": "Skip to workspace Menu SC My Capstone Tools TS YOUR NEXT STEP Missing Set up your project folder Open this item. Finish the work. Add a Google Drive link if needed. Open the matching item in My Project. Start this step 1 Open My Work Use the item named at the top before opening anything else. 2 Add what it asks for Add the Google Drive link that matches the item. 3 Turn it in Stop when the item says it is waiting for teacher review. YOUR PROJECT Maya Senior Project Test Student Maya 1 student Mentor: Test Mentor Rivera Teacher: Gray Quinn Show progress, feedback, and checklist 17 items still n",
       "activeNav": [
         "1\n        Today\n        What to finish next",
         "1\n        Today"

@@ -133,16 +133,16 @@ function renderStudentMyWorkScreen(context = {}) {
       <details class="workspace-student-section workspace-student-secondary-section" data-student-work-section="submitted">
         <summary>
           <span>
-            <small>Past work</small>
-            <strong>Turned in</strong>
+            <small>Saved work</small>
+            <strong>Drafts and turned-in work</strong>
           </span>
           <b>${submissions.length}</b>
         </summary>
         <div class="workspace-student-secondary-body">
           <div class="workspace-student-section-head">
           <div>
-            <p class="workspace-kicker">Turned in</p>
-            <h2>Turned in</h2>
+            <p class="workspace-kicker">Saved work</p>
+            <h2>Drafts and turned-in work</h2>
             <p>${escapeHtml(submissions.length ? "See work you started, work waiting for review, and work you need to fix." : "Work you turn in will appear here.")}</p>
           </div>
           </div>
@@ -363,7 +363,7 @@ function renderStudentProjectRequestPanel(projectBody = {}, project = null) {
             <p>${escapeHtml(needsChanges.staffFeedback)}</p>
           </div>
         ` : ""}
-        <p>Tell us the idea. You may invite up to four students from your school. A teacher must approve the new team.</p>
+        <p>Tell us the idea. You may invite up to four students from your school. After you send it, choose a Mentor and Program Teacher. Both adults must accept before your teacher can approve the team.</p>
         <label>
           <span>Project name</span>
           <input name="name" type="text" maxlength="120" value="${escapeHtml(needsChanges?.name || "")}" required>
@@ -479,9 +479,8 @@ function renderStudentFeedbackScreen(context = {}) {
 function renderStudentFinalChecklistScreen(context = {}) {
   const { summary = {}, requirements = [], submissions = [], evidence = [], feedback = [], archiveNextAction = null, previewingStudent = false } = context;
   const rows = studentFinalChecklistRows({ summary, requirements, submissions, evidence, feedback, archiveNextAction });
-  const nextMissing = rows.find((row) => row.status !== "Complete");
-  const nextActionSection = nextMissing?.actionSection === "studentFeedback" ? "studentFeedback" : "studentWork";
-  const nextActionLabel = nextMissing?.actionSection === "studentFeedback" ? "View Feedback" : "Continue My Project";
+  const nextMissing = rows.find((row) => row.blocking !== false && row.status !== "Complete");
+  const nextActionLabel = nextMissing?.actionTarget === "feedback" ? "View Feedback" : "Continue My Project";
   return `
     <section class="workspace-student-screen workspace-student-screen-final" data-student-screen="final-checklist" data-student-view-mode="${previewingStudent ? "staff-preview" : "self"}" aria-labelledby="studentFinalChecklistTitle">
       ${renderStudentScreenHeader({
@@ -489,8 +488,10 @@ function renderStudentFinalChecklistScreen(context = {}) {
         title: "Final Checklist",
         titleId: "studentFinalChecklistTitle",
         question: "What is done? What still needs work?",
-        badgeHtml: studentStatusPill(nextMissing ? "needs_review" : "complete"),
-        primaryHtml: renderStudentRouteButton(nextMissing ? nextActionSection : "studentWork", nextMissing ? nextActionLabel : "View Work", "workspace-button-primary", "data-student-primary-action=\"open-next-missing\""),
+        badgeHtml: studentStatusPill(nextMissing ? studentFinalChecklistPillStatus(nextMissing.status) : "complete"),
+        primaryHtml: nextMissing
+          ? renderStudentFinalChecklistActionButton(nextMissing, nextActionLabel, "workspace-button-primary", 'data-student-primary-action="open-next-missing"')
+          : renderStudentRouteButton("studentWork", "View Work", "workspace-button-primary", 'data-student-primary-action="open-next-missing"'),
       })}
       ${previewingStudent ? renderViewAsStudentReadOnlyNotice() : ""}
       <section class="workspace-student-section" data-student-final-checklist="true" aria-labelledby="studentFinalChecklistRowsTitle">
@@ -1049,15 +1050,19 @@ function studentFinalChecklistRows({ summary = {}, requirements = [], submission
     const complete = phaseRows.length && phaseRows.every((row) => isStudentRequirementComplete(row?.status));
     const submitted = phaseRows.some((row) => ["submitted", "under_review", "pending_review"].includes(normalizeStatus(row?.submissionStatus || row?.status)));
     const needsWork = phaseRows.some((row) => ["revision_requested", "needs_revision", "missing", "draft", "not_started", "blocked"].includes(normalizeStatus(row?.submissionStatus || row?.status)));
+    const firstUnfinished = phaseRows.find((row) => !isStudentRequirementComplete(row?.status)) || phaseRows[0] || null;
+    const status = complete ? "Complete" : submitted ? "Submitted" : needsWork ? "Needs work" : phaseRows.length ? "Needs work" : "Not confirmed yet";
     return {
       id: phaseKey,
       label,
       detail: phaseRows.length ? `${phaseRows.filter((row) => isStudentRequirementComplete(row?.status)).length} of ${phaseRows.length} item${phaseRows.length === 1 ? "" : "s"} complete in this phase.` : fallbackDetail,
-      status: complete ? "Complete" : submitted ? "Submitted" : needsWork ? "Needs work" : phaseRows.length ? "Needs work" : "Not confirmed yet",
-      actionSection: "studentWork",
+      status,
+      blocking: status !== "Complete",
+      actionTarget: "requirement",
+      phaseKey,
+      requirementId: studentRequirementId(firstUnfinished),
     };
   };
-  const proofComplete = evidenceRows.length > 0 && safeNumber(summary.requirementsTotal) > 0;
   const allAssignedComplete = safeNumber(summary.requirementsTotal) > 0
     && safeNumber(summary.requirementsComplete) >= safeNumber(summary.requirementsTotal)
     && !safeNumber(summary.revisionRequestedCount)
@@ -1065,38 +1070,56 @@ function studentFinalChecklistRows({ summary = {}, requirements = [], submission
     && !safeNumber(summary.waitingForReviewCount);
   const revisionRows = feedbackRows.filter((row) => ["revision_requested", "needs_revision"].includes(normalizeStatus(row?.submissionStatus || row?.status)));
   const waitingRows = submissionRows.filter((row) => ["submitted", "under_review", "pending_review"].includes(normalizeStatus(row?.status)));
+  const revisionCount = Math.max(revisionRows.length, safeNumber(summary.revisionRequestedCount));
+  const waitingCount = Math.max(waitingRows.length, safeNumber(summary.waitingForReviewCount));
+  const phaseChecks = [
+    rowForPhase("start", "Project setup ready", "Project setup has not been checked in My Project yet."),
+    rowForPhase("phase-1", "Proposal ready", "Proposal work has not been checked in My Project yet."),
+    rowForPhase("phase-2a", "Build I ready", "Build I work has not been checked in My Project yet."),
+    rowForPhase("phase-2b", "Build II ready", "Build II work has not been checked in My Project yet."),
+    rowForPhase("phase-3a", "Presentation ready", "Presentation work has not been checked in My Project yet."),
+    rowForPhase("phase-3b", "Celebration ready", "Celebration work has not been checked in My Project yet."),
+    rowForPhase("phase-4", "Reflections ready", "Reflection work has not been checked in My Project yet."),
+    rowForPhase("finish", "Personal copies saved", "Your personal-copy check has not been completed yet."),
+  ];
+  const firstIncompletePhase = phaseChecks.find((row) => row.status !== "Complete") || phaseChecks[0] || null;
   return [
-    rowForPhase("phase-1", "Proposal done", "Proposal work has not been checked in My Work yet."),
-    rowForPhase("phase-2a", "Build file started", "Build file is not started yet."),
-    rowForPhase("phase-2b", "Build update and presentation plan", "Build update or presentation plan is not confirmed yet."),
-    rowForPhase("phase-3a", "Presentation practice ready", "Presentation practice is not confirmed yet."),
-    rowForPhase("phase-4", "Reflection and portfolio complete", "Reflection or portfolio work is not confirmed yet."),
+    ...phaseChecks,
     {
       id: "evidence",
       label: "Drive links",
-      detail: evidenceRows.length ? `${evidenceRows.length} file${evidenceRows.length === 1 ? "" : "s"} saved.` : "No files have been uploaded yet.",
-      status: proofComplete ? "Submitted" : "Not confirmed yet",
-      actionSection: "studentWork",
+      detail: evidenceRows.length ? `${evidenceRows.length} Google Drive ${pluralize(evidenceRows.length, "link")} saved.` : "No Google Drive links are saved yet. Some items may not need one.",
+      status: evidenceRows.length ? "Saved" : "None yet",
+      blocking: false,
+      actionTarget: "links",
     },
     {
       id: "feedback",
       label: "Feedback resolved",
-      detail: revisionRows.length ? `${revisionRows.length} feedback item${revisionRows.length === 1 ? "" : "s"} still need changes.` : waitingRows.length ? `${waitingRows.length} sent item${waitingRows.length === 1 ? "" : "s"} still waiting for review.` : "No feedback needs changes right now.",
-      status: revisionRows.length ? "Needs work" : waitingRows.length ? "Submitted" : feedbackRows.length || allAssignedComplete ? "Complete" : "Not confirmed yet",
-      actionSection: revisionRows.length ? "studentFeedback" : "studentWork",
+      detail: revisionCount ? `${revisionCount} feedback ${pluralize(revisionCount, "item")} still need changes.` : waitingCount ? `${waitingCount} turned-in ${pluralize(waitingCount, "item")} still waiting for review.` : "No feedback needs changes right now.",
+      status: revisionCount ? "Needs changes" : waitingCount ? "Submitted" : "Complete",
+      blocking: Boolean(revisionCount || waitingCount),
+      actionTarget: "feedback",
     },
     {
       id: "final-review",
       label: "Final review complete",
       detail: allAssignedComplete ? "Assigned work is complete and no review blocker is visible." : "The app does not yet show every required item as complete and clear.",
       status: allAssignedComplete ? "Complete" : archiveNextAction?.status ? "Needs work" : "Not confirmed yet",
-      actionSection: "studentFinalChecklist",
+      blocking: !allAssignedComplete,
+      actionTarget: "requirement",
+      phaseKey: firstIncompletePhase?.phaseKey || "start",
+      requirementId: firstIncompletePhase?.requirementId || "",
     },
   ];
 }
 
 function renderStudentFinalChecklistRow(row = {}) {
-  const actionLabel = row.actionSection === "studentFeedback" ? "View Feedback" : "View Work";
+  const actionLabel = row.actionTarget === "feedback"
+    ? "View Feedback"
+    : row.actionTarget === "links"
+      ? "View Drive links"
+      : row.status === "Complete" ? "Review" : "Continue";
   return `
     <article class="workspace-row workspace-student-final-check-row" data-student-final-check-row="${escapeHtml(row.id || "check")}" data-student-final-check-status="${escapeHtml(normalizeStatus(row.status || "not_confirmed"))}">
       <div>
@@ -1105,10 +1128,22 @@ function renderStudentFinalChecklistRow(row = {}) {
       </div>
       <div class="workspace-row-actions">
         <span class="workspace-student-final-status">${escapeHtml(studentFinalChecklistStatusText(row.status || "Not confirmed yet"))}</span>
-        ${row.actionSection ? renderStudentRouteButton(row.actionSection, actionLabel, "workspace-button-secondary") : ""}
+        ${row.actionTarget ? renderStudentFinalChecklistActionButton(row, actionLabel) : ""}
       </div>
     </article>
   `;
+}
+
+function renderStudentFinalChecklistActionButton(row = {}, label = "Continue", className = "workspace-button-secondary", extraAttrs = "") {
+  return `<button class="workspace-button ${escapeHtml(className)}" type="button" data-student-final-check-action="${escapeHtml(row.actionTarget || "requirement")}" data-student-final-check-phase="${escapeHtml(row.phaseKey || "")}" data-student-final-check-requirement-id="${escapeHtml(row.requirementId || "")}" ${extraAttrs}>${escapeHtml(label)}</button>`;
+}
+
+function studentFinalChecklistPillStatus(status) {
+  const normalized = normalizeStatus(status);
+  if (normalized === "submitted") return "submitted";
+  if (normalized === "needs_changes") return "revision_requested";
+  if (normalized === "needs_work") return "in_progress";
+  return normalized === "complete" ? "complete" : "missing";
 }
 
 function studentFinalChecklistStatusText(status) {
@@ -1116,7 +1151,10 @@ function studentFinalChecklistStatusText(status) {
   if (normalized === "complete") return "Done";
   if (normalized === "submitted") return "Ask your teacher";
   if (normalized === "needs_work") return "Not done";
+  if (normalized === "needs_changes") return "Fix this";
   if (normalized === "not_confirmed_yet") return "Not checked yet";
+  if (normalized === "saved") return "Saved";
+  if (normalized === "none_yet") return "None yet";
   return studentStatusText(status);
 }
 
@@ -2815,6 +2853,7 @@ function renderStudentRequirementRow(item, feedback = [], detailState = defaultS
   const relatedEvidence = matchingEvidenceForRequirement(item, evidence);
   const phaseMeta = [phase.label || "Phase not set", `Updated ${updatedAt}`].filter(Boolean).join(" / ");
   const requirementState = normalizeStatus(item?.submissionStatus || item?.status || "missing");
+  const savedWorkVersion = studentSavedWorkVersionText(version, item?.submissionStatus || item?.status, "");
   return `
     <article class="workspace-row workspace-student-requirement-row ${selected ? "is-selected" : ""}" data-student-requirement-row="true" data-student-requirement-state="${escapeHtml(requirementState)}" data-student-requirement-selected="${selected ? "true" : "false"}" data-student-requirement-id="${escapeHtml(requirementId)}" data-student-requirement-submission-id="${escapeHtml(submissionId)}" data-student-requirement-evidence-count="${escapeHtml(evidenceCount)}">
       <div>
@@ -2829,7 +2868,7 @@ function renderStudentRequirementRow(item, feedback = [], detailState = defaultS
       </div>
       <div class="workspace-row-actions">
         ${submissionId ? `<span class="workspace-site-context-badge" data-student-requirement-evidence="true">${escapeHtml(evidenceCount)} Drive ${pluralize(evidenceCount, "link")}</span>` : ""}
-        ${version > 0 ? `<span class="workspace-site-context-badge" data-student-requirement-version="true">Turned in #${escapeHtml(version)}</span>` : ""}
+        ${savedWorkVersion ? `<span class="workspace-site-context-badge" data-student-requirement-version="true">${escapeHtml(savedWorkVersion)}</span>` : ""}
         ${requirementId ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-student-requirement-action="toggle-detail" data-student-requirement-id="${escapeHtml(requirementId)}" aria-expanded="${selected ? "true" : "false"}" aria-controls="${escapeHtml(detailDomId)}" aria-label="${escapeHtml(`${detailActionLabel}: ${studentRequirementActionLabel(item)}`)}">${escapeHtml(detailActionLabel)}</button>` : ""}
         ${renderStudentRequirementAction(item, evidenceCount)}
         ${studentStatusPill(item?.status || "missing")}
@@ -2890,6 +2929,7 @@ function renderStudentRequirementDetail(item, latestFeedback = null, evidenceRow
   const version = safeNumber(item?.submissionVersion);
   const status = studentStatusText(item?.status || "missing");
   const submissionStatus = item?.submissionStatus ? studentStatusText(item.submissionStatus) : status;
+  const savedWorkVersion = studentSavedWorkVersionText(version, item?.submissionStatus || item?.status);
   const timelineSelected = studentFeedbackSelectionMatches(historyState, submissionId, "requirements");
   return `
     <section id="${escapeHtml(detailDomId)}" class="workspace-student-requirement-detail" data-student-requirement-detail="true">
@@ -2902,7 +2942,7 @@ function renderStudentRequirementDetail(item, latestFeedback = null, evidenceRow
         ${renderStudentRequirementDetailFact("Status", status)}
         ${renderStudentRequirementDetailFact("Due date", studentDueText(item))}
         ${renderStudentRequirementDetailFact("Drive links", `${evidenceCount} ${pluralize(evidenceCount, "link")} saved`)}
-        ${renderStudentRequirementDetailFact("Turned in", version > 0 ? `#${version}: ${submissionStatus}` : "Not turned in yet")}
+        ${renderStudentRequirementDetailFact("Saved work", version > 0 && normalizeStatus(item?.submissionStatus || item?.status) !== "draft" ? `${savedWorkVersion}: ${submissionStatus}` : savedWorkVersion)}
         ${renderStudentRequirementDetailFact("Next step", studentInstructionCopy(item?.nextAction || "Ask your Program Teacher what to do next."))}
       </div>
       <details class="workspace-student-turnin-check">
@@ -3009,6 +3049,105 @@ function studentGuidedWritingModel(item = {}) {
   const id = studentRequirementId(item).toLowerCase();
   const title = String(item?.title || "this project item").toLowerCase();
   const phase = studentRequirementPhaseKey(item?.phase || item?.phaseLabel || "");
+  if (id === "req-senior-project-workspace") {
+    return {
+      title: "Set up your project folder",
+      detail: "Make one Google Drive folder so your team can find its work.",
+      prompts: ["What is the folder called?", "Can every teammate open it?", "What did you save there first?"],
+      hint: "Write one short answer for each question. Use Project tools above to save the folder link.",
+      starter: "Our folder is called...\n\nEveryone can open it because...\n\nThe first thing we saved is...",
+    };
+  }
+  if (id === "req-resume") {
+    return {
+      title: "Plan your resume",
+      detail: "Choose the skills and proof you want an adult to notice.",
+      prompts: ["What skill are you proud of?", "What project result proves that skill?", "What should a reader notice first?"],
+      hint: "Use short, strong sentences. Then use the resume template in Project tools if you need it.",
+      starter: "A skill I am proud of is...\n\nI showed it when...\n\nA reader should notice...",
+    };
+  }
+  if (id === "req-research-proposal-challenge") {
+    return {
+      title: "Explain your research challenge",
+      detail: "Show what you learned and what question still needs an answer.",
+      prompts: ["What problem did you study?", "What fact or source helped you most?", "What different idea did you consider?", "What will you research next?"],
+      hint: "Write one short paragraph for each question.",
+      starter: "I studied...\n\nThe most useful fact was...\n\nAnother idea was...\n\nNext, I will research...",
+    };
+  }
+  if (id === "req-celebration-day") {
+    return {
+      title: "Plan your project display",
+      detail: "Choose what people will see and what your team needs that day.",
+      prompts: ["What will you show first?", "What project work will be on display?", "What supplies or help do you need?"],
+      hint: "Make a short plan your team can follow on celebration day.",
+      starter: "First, we will show...\n\nOur display will include...\n\nWe still need...",
+    };
+  }
+  if (id === "req-thanks-and-thanks") {
+    return {
+      title: "Thank your project helpers",
+      detail: "Write a real thank-you note to someone who helped your project.",
+      prompts: ["Who are you thanking?", "What did this person do?", "Why did that help matter?"],
+      hint: "Use the person's name and one clear example.",
+      starter: "Dear...\n\nThank you for...\n\nYour help mattered because...",
+    };
+  }
+  if (id === "req-reflection-best-work") {
+    return {
+      title: "Choose your best work",
+      detail: "Pick one part of the project that shows your growth.",
+      prompts: ["What work are you most proud of?", "Why is it your best work?", "What skill does it show?"],
+      hint: "Name the exact file, product, event, or result.",
+      starter: "My best work is...\n\nI chose it because...\n\nIt shows I can...",
+    };
+  }
+  if (id === "req-reflection-senior-project") {
+    return {
+      title: "Look back on your project",
+      detail: "Tell the story of one challenge and how you changed.",
+      prompts: ["What was hard?", "What did you change or try?", "What did you learn about yourself?"],
+      hint: "Use one clear example from your project.",
+      starter: "One hard part was...\n\nI changed...\n\nI learned that I...",
+    };
+  }
+  if (id === "req-reflection-tenet-mastery") {
+    return {
+      title: "Show how you grew",
+      detail: "Choose one school skill or goal and show your proof.",
+      prompts: ["Which skill or goal did you practice?", "What project work proves it?", "How are you better at it now?"],
+      hint: "Name the skill and one piece of project work.",
+      starter: "I practiced...\n\nMy proof is...\n\nNow I can...",
+    };
+  }
+  if (id === "req-reflection-project-based-learning") {
+    return {
+      title: "Explain how your project changed",
+      detail: "Show how planning and feedback made the work better.",
+      prompts: ["What was your first plan?", "What feedback did you get?", "What did you change?", "How did the result improve?"],
+      hint: "Tell the steps in order.",
+      starter: "My first plan was...\n\nThe feedback said...\n\nI changed...\n\nThe result was better because...",
+    };
+  }
+  if (id === "req-reflection-next-year-plan") {
+    return {
+      title: "Make your next-year plan",
+      detail: "Choose one goal and the first small step you will take.",
+      prompts: ["What is your goal?", "What will you do first, and by what date?", "Who can help you?", "What is your backup plan?"],
+      hint: "Make the first step small and give it a date.",
+      starter: "My goal is...\n\nBy [date], I will...\n\nI will ask... for help.\n\nIf that does not work, I will...",
+    };
+  }
+  if (id === "req-personal-archive-export") {
+    return {
+      title: "Check your personal copies",
+      detail: "Make sure you can keep your project after your school account closes.",
+      prompts: ["Where did you save your personal copies?", "Which important files did you copy?", "Did you open them without your school sign-in?"],
+      hint: "Do the check first. Then write where the copies are and what opened correctly.",
+      starter: "I saved my copies in...\n\nI copied...\n\nI checked them without my school sign-in, and...",
+    };
+  }
   if (id.includes("proposal") || title.includes("proposal")) {
     return {
       title: "Build your proposal",
@@ -3036,7 +3175,7 @@ function studentGuidedWritingModel(item = {}) {
       starter: "Today I worked on...\n\nI saved... as proof.\n\nA problem or next step is...",
     };
   }
-  if (["phase-3a", "phase-3b"].includes(phase) || title.includes("presentation")) {
+  if (phase === "phase-3a" || title.includes("presentation")) {
     return {
       title: "Plan what you will share",
       detail: "Use your project proof to tell one clear story.",
@@ -3045,7 +3184,7 @@ function studentGuidedWritingModel(item = {}) {
       starter: "First, I want people to understand...\n\nI will show...\n\nPeople may ask...",
     };
   }
-  if (id.includes("reflection") || title.includes("reflection") || title.includes("thanks")) {
+  if (id.includes("reflection") || title.includes("reflection")) {
     return {
       title: "Write your reflection",
       detail: "Tell what happened in your own words.",
@@ -3089,7 +3228,7 @@ function renderStudentRequirementSendPath(item = {}, latestFeedback = null, evid
   const hasWrittenResponse = Boolean(item?.hasWrittenResponse || String(item?.draftText || "").trim());
   const status = normalizeStatus(item?.submissionStatus || item?.status);
   const phase = studentBookletPhaseInfo(item?.phase || item?.phaseLabel || "", item?.phaseLabel || "");
-  const phaseGoal = phase.deliverable || "the current phase deliverable";
+  const phaseGoal = studentInstructionCopy(String(phase.deliverable || "the current phase goal").replace(/[.!?]+$/, ""));
   const needsRevision = ["revision_requested", "needs_revision"].includes(status);
   const waitingForReview = ["submitted", "under_review", "reviewing", "pending_review"].includes(status);
   const approved = ["approved", "archived", "complete", "completed"].includes(status);
@@ -3099,7 +3238,7 @@ function renderStudentRequirementSendPath(item = {}, latestFeedback = null, evid
       title: needsRevision ? "Fix the note first" : "Finish this item",
       detail: needsRevision
         ? (latestFeedback?.message || "Read the teacher note and make the exact change.")
-        : `This item helps finish ${phaseGoal}. Finish the work described here before sending it.`,
+        : `Finish this item so this stage is done: ${phaseGoal}.`,
       tone: needsRevision ? "warning" : "student",
     },
     {
@@ -3129,7 +3268,7 @@ function renderStudentRequirementSendPath(item = {}, latestFeedback = null, evid
     <section class="workspace-student-send-path" data-student-send-path="true" aria-label="Before you send this item">
       <div>
         <strong>Before you turn it in</strong>
-        <p>${escapeHtml(`Stay on this item until the work, Drive link, and teacher note all match. Goal: ${phaseGoal}`)}</p>
+        <p>${escapeHtml(`Stay on this item until the work, Drive link, and teacher note all match. Goal: ${phaseGoal}.`)}</p>
       </div>
       <div class="workspace-student-send-path-grid">
         ${cards.map((card) => `
@@ -3295,7 +3434,7 @@ function studentSubmissionActionState(item = {}) {
       canSubmit: false,
       submissionId,
       label: "",
-      reason: "This item is not open for student sending right now.",
+      reason: "Save a draft first. Then you can turn it in.",
       reasonCode: "not_open",
       requirementId,
     };
@@ -3318,7 +3457,7 @@ function studentSubmissionActionState(item = {}) {
       submissionId,
       requirementId,
       label: "Add your work",
-      reason: "Write an answer here or add a file before turning in this item.",
+      reason: "Write an answer here or add a Google Drive link before turning in this item.",
       reasonCode: "work_required",
     };
   }
@@ -3999,9 +4138,9 @@ function renderStudentSubmissionStatusGuide(submissions = [], activeSubmissionFi
     },
   ];
   return `
-    <section class="workspace-student-submission-status-guide" data-student-submission-status-guide="true" aria-label="What turned-in statuses mean">
+    <section class="workspace-student-submission-status-guide" data-student-submission-status-guide="true" aria-label="What saved-work statuses mean">
       <div>
-        <strong>What Turned in labels mean</strong>
+        <strong>What saved-work labels mean</strong>
         <p>${escapeHtml("Use these cards to decide whether to keep working, wait, fix work, or move on.")}</p>
       </div>
       <div class="workspace-student-submission-status-grid">
