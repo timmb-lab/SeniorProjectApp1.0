@@ -31,6 +31,9 @@ function bindWorkspaceForms() {
   document.querySelectorAll("[data-project-folder-form]").forEach((form) => {
     form.addEventListener("submit", submitProjectFolderLink);
   });
+  document.querySelectorAll("[data-project-note-form]").forEach((form) => {
+    form.addEventListener("submit", submitProjectNote);
+  });
   document.querySelectorAll("[data-project-template-form]").forEach((form) => {
     form.addEventListener("submit", submitProjectTemplate);
   });
@@ -1425,6 +1428,47 @@ async function submitManageProject(event) {
     }
     activeSection = "projects";
     await loadWorkspaceData(result.body?.message || "Project name and team saved.");
+  } finally {
+    busy = false;
+  }
+}
+
+async function submitProjectNote(event) {
+  event?.preventDefault?.();
+  if (busy) return;
+  const form = event?.currentTarget;
+  if (!form) return;
+  const data = new FormData(form);
+  const action = cleanDirectoryFilter(event?.submitter?.value || data.get("action"));
+  const projectId = cleanDirectoryFilter(data.get("projectId"));
+  const noteId = cleanDirectoryFilter(data.get("noteId"));
+  const noteBody = String(data.get("noteBody") || "").trim();
+  if (!projectId || !["create_note", "edit_note", "archive_note", "restore_note"].includes(action)) return;
+  if (["create_note", "edit_note"].includes(action) && !noteBody) {
+    renderAppShell("Write a note before saving it.", "error");
+    return;
+  }
+
+  busy = true;
+  setFormBusy(form, true);
+  try {
+    const result = await settleApi(apiJson("/api/projects", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action, projectId, noteId, noteBody }),
+    }));
+    if (!result.ok) {
+      const messages = {
+        project_note_required: "Write a note before saving it.",
+        project_note_not_found: "That note is no longer here. Refresh and try again.",
+        restore_note_before_editing: "Restore this note before editing it.",
+        forbidden: "You do not have permission to change this note.",
+      };
+      renderAppShell(messages[result.body?.error || result.error] || "The note could not be saved. Try again.", "error");
+      return;
+    }
+    activeProjectId = projectId;
+    await loadProjectsResult(result.body?.message || "Project note saved.");
   } finally {
     busy = false;
   }

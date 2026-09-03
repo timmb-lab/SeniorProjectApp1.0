@@ -16,6 +16,7 @@ import {
 } from "../_lib/project-adults.ts";
 import {
   canAccessSite,
+  canAccessProject,
   canAccessStudent,
   canManageProject,
   canViewReviewQueue,
@@ -94,6 +95,19 @@ interface ProjectMentorRow {
   display_name: string;
 }
 
+interface ProjectNoteRow {
+  id: string;
+  project_id: string;
+  author_user_id: string | null;
+  author_name: string;
+  body: string;
+  status: "active" | "archived";
+  created_at: string;
+  updated_at: string;
+  archived_at: string | null;
+  archived_by_name: string | null;
+}
+
 interface CreateProjectBody {
   action?: string;
   siteId?: string;
@@ -115,6 +129,8 @@ interface CreateProjectBody {
   confirmImpact?: unknown;
   confirmLinkOpened?: unknown;
   approvalToken?: unknown;
+  noteId?: string;
+  noteBody?: string;
 }
 
 interface ProjectRequestRow {
@@ -246,9 +262,11 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const members = await loadProjectMembers(env, projectIds);
   const mentors = await loadProjectMentors(env, projectIds);
   const projectAdultRows = await loadProjectAdultAssignments(env, projectIds, []);
+  const projectNoteRows = await loadProjectNotes(env, projectIds);
   const membersByProject = groupRows(members, (row) => row.project_id);
   const mentorsByProject = groupRows(mentors, (row) => row.project_id);
   const adultsByProject = groupRows(projectAdultRows, (row) => row.project_id || "");
+  const notesByProject = groupRows(projectNoteRows, (row) => row.project_id);
   const manageableSiteIds: string[] = [];
   for (const siteId of siteIds) {
     if (await canManageProject(env, user, siteId)) manageableSiteIds.push(siteId);
@@ -259,7 +277,11 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     membersByProject.get(project.id) || [],
     mentorsByProject.get(project.id) || [],
     adultsByProject.get(project.id) || [],
+    notesByProject.get(project.id) || [],
     context.primaryRole,
+    user.id,
+    manageableSiteIds.includes(project.site_id),
+    canContributeProjectNote(context.roleIds),
   ));
 
   const requestAccess = {
@@ -417,6 +439,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     return setProjectFolderLink(env, request, user, body);
   }
 
+  if (["create_note", "edit_note", "archive_note", "restore_note"].includes(action)) {
+    return mutateProjectNote(env, request, user, context.roleIds, body, action);
+  }
+
   if (action === "save_template") {
     return saveProjectTemplate(env, request, user, body);
   }
@@ -517,6 +543,93 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
         : `The ${studentIds.length} students now share one project.`,
   }, { status: projectId ? 200 : 201 });
 };
+
+async function mutateProjectNote(
+  env: Env,
+  request: Request,
+  user: UserAccount,
+  roleIds: string[],
+  body: CreateProjectBody,
+  action: string,
+) {
+  const projectId = cleanId(body.projectId);
+  if (!projectId) return json({ error: "project_id_required" }, { status: 400 });
+  if (!await canAccessProject(env, user, projectId)) return json({ error: "project_not_found" }, { status: 404 });
+
+  const canManage = await canManageProject(env, user, projectId);
+  if (!canManage && !canContributeProjectNote(roleIds)) return json({ error: "forbidden" }, { status: 403 });
+
+  if (action === "create_note") {
+    const noteBody = cleanNoteBody(body.noteBody);
+    if (!noteBody) return json({ error: "project_note_required" }, { status: 400 });
+    const noteId = randomId("project-note");
+    await env.DB.prepare(
+      `INSERT INTO project_notes (id, project_id, author_user_id, body)
+       VALUES (?, ?, ?, ?)`,
+    ).bind(noteId, projectId, user.id, noteBody).run();
+    await safeAudit(env, request, user, "project_note_created", projectId, { noteId, characterCount: noteBody.length });
+    return json({ ok: true, noteId, message: "Note added to the project." }, { status: 201 });
+  }
+
+  const noteId = cleanId(body.noteId);
+  if (!noteId) return json({ error: "project_note_id_required" }, { status: 400 });
+  const note = await env.DB.prepare(
+    `SELECT id, author_user_id, status
+     FROM project_notes
+     WHERE id = ? AND project_id = ?
+     LIMIT 1`,
+  ).bind(noteId, projectId).first<{ id: string; author_user_id: string | null; status: string }>();
+  if (!note) return json({ error: "project_note_not_found" }, { status: 404 });
+  if (!canManage && note.author_user_id !== user.id) return json({ error: "forbidden" }, { status: 403 });
+
+  if (action === "edit_note") {
+    if (note.status !== "active") return json({ error: "restore_note_before_editing" }, { status: 409 });
+    const noteBody = cleanNoteBody(body.noteBody);
+    if (!noteBody) return json({ error: "project_note_required" }, { status: 400 });
+    await env.DB.prepare(
+      `UPDATE project_notes
+       SET body = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+       WHERE id = ? AND project_id = ? AND status = 'active'`,
+    ).bind(noteBody, noteId, projectId).run();
+    await safeAudit(env, request, user, "project_note_edited", projectId, { noteId, characterCount: noteBody.length });
+    return json({ ok: true, noteId, message: "Note updated." });
+  }
+
+  if (action === "archive_note") {
+    if (note.status === "archived") return json({ ok: true, noteId, message: "This note is already archived." });
+    await env.DB.prepare(
+      `UPDATE project_notes
+       SET status = 'archived', archived_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'),
+           archived_by = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+       WHERE id = ? AND project_id = ? AND status = 'active'`,
+    ).bind(user.id, noteId, projectId).run();
+    await safeAudit(env, request, user, "project_note_archived", projectId, { noteId });
+    return json({ ok: true, noteId, message: "Note archived. You can restore it later." });
+  }
+
+  if (note.status === "active") return json({ ok: true, noteId, message: "This note is already active." });
+  await env.DB.prepare(
+    `UPDATE project_notes
+     SET status = 'active', archived_at = NULL, archived_by = NULL,
+         updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+     WHERE id = ? AND project_id = ? AND status = 'archived'`,
+  ).bind(noteId, projectId).run();
+  await safeAudit(env, request, user, "project_note_restored", projectId, { noteId });
+  return json({ ok: true, noteId, message: "Note restored." });
+}
+
+function canContributeProjectNote(roleIds: string[]): boolean {
+  return roleIds.some((roleId) => [
+    "student",
+    "mentor",
+    "program_teacher",
+    "site_admin",
+    "administration",
+    "admin",
+    "platform_admin",
+    "global_admin",
+  ].includes(roleId));
+}
 
 async function submitStudentProjectRequest(env: Env, request: Request, user: UserAccount, body: CreateProjectBody) {
   const siteId = cleanId(body.siteId);
@@ -1647,6 +1760,29 @@ async function loadProjectMentors(env: Env, projectIds: string[]): Promise<Proje
   return rows.results || [];
 }
 
+async function loadProjectNotes(env: Env, projectIds: string[]): Promise<ProjectNoteRow[]> {
+  if (!projectIds.length) return [];
+  const rows = await env.DB.prepare(
+    `SELECT
+       project_notes.id,
+       project_notes.project_id,
+       project_notes.author_user_id,
+       COALESCE(author.display_name, 'Former user') AS author_name,
+       project_notes.body,
+       project_notes.status,
+       project_notes.created_at,
+       project_notes.updated_at,
+       project_notes.archived_at,
+       archived_by.display_name AS archived_by_name
+     FROM project_notes
+     LEFT JOIN user_accounts author ON author.id = project_notes.author_user_id
+     LEFT JOIN user_accounts archived_by ON archived_by.id = project_notes.archived_by
+     WHERE project_notes.project_id IN (SELECT value FROM json_each(?))
+     ORDER BY project_notes.project_id, project_notes.status, project_notes.updated_at DESC, project_notes.id DESC`,
+  ).bind(JSON.stringify(projectIds)).all<ProjectNoteRow>();
+  return rows.results || [];
+}
+
 async function loadProjectRequests(
   env: Env,
   siteIds: string[],
@@ -1896,7 +2032,11 @@ function projectResponse(
   members: ProjectMemberRow[],
   mentors: ProjectMentorRow[],
   adults: ProjectAdultAssignmentRow[],
+  notes: ProjectNoteRow[],
   role: string,
+  viewerUserId: string,
+  canManageNotes: boolean,
+  canCreateNote: boolean,
 ) {
   const waitingForReviewCount = Number(project.submitted_count || 0);
   const revisionRequestedCount = Number(project.revision_count || 0);
@@ -1937,6 +2077,24 @@ function projectResponse(
     mentors: mentors.map((mentor) => ({ mentorId: mentor.mentor_user_id, displayName: mentor.display_name })),
     adultSetup,
     adultAssignments: adults.map(assignmentResponse),
+    notes: notes.map((note) => ({
+      noteId: note.id,
+      authorUserId: note.author_user_id || "",
+      authorName: note.author_name || "Former user",
+      body: note.body,
+      status: note.status,
+      createdAt: note.created_at,
+      updatedAt: note.updated_at,
+      archivedAt: note.archived_at || "",
+      archivedByName: note.archived_by_name || "",
+      canEdit: note.status === "active" && (canManageNotes || note.author_user_id === viewerUserId),
+      canArchive: note.status === "active" && (canManageNotes || note.author_user_id === viewerUserId),
+      canRestore: note.status === "archived" && (canManageNotes || note.author_user_id === viewerUserId),
+    })),
+    notePermissions: {
+      canCreate: canCreateNote || canManageNotes,
+      canManage: canManageNotes,
+    },
     waitingForReviewCount,
     revisionRequestedCount,
     approvedCount: Number(project.approved_count || 0),
@@ -2085,6 +2243,17 @@ function cleanId(value: unknown): string {
 
 function cleanText(value: unknown, maxLength: number): string {
   return String(value || "").trim().replace(/\s+/g, " ").slice(0, maxLength);
+}
+
+function cleanNoteBody(value: unknown): string {
+  return String(value || "")
+    .replace(/\r\n?/g, "\n")
+    .split("\n")
+    .map((line) => line.trim().replace(/[ \t]+/g, " "))
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim()
+    .slice(0, 1200);
 }
 
 function cleanApprovalToken(value: unknown): string {

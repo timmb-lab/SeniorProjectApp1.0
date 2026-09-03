@@ -5,6 +5,93 @@ import { onRequestGet as onProjectsGet, onRequestPost as onProjectsPost } from "
 import { seedSession, seedUser } from "./helpers/auth-fixtures.mjs";
 import { createSqliteD1, foundationMigrations } from "./helpers/d1-sqlite.mjs";
 
+test("project notes show the author, limit editing, and archive instead of deleting", async () => {
+  const fixture = await createWorkflowFixture();
+  const adminToken = await seedSession(fixture.db, fixture.env, "workflow-admin");
+  const studentAToken = await seedSession(fixture.db, fixture.env, "workflow-student-a");
+  const studentBToken = await seedSession(fixture.db, fixture.env, "workflow-student-b");
+  const createdProject = await postProjects(fixture, adminToken, {
+    action: "create_project",
+    siteId: "site-project-workflow",
+    name: "Notes Team",
+    summary: "A shared project for note permissions.",
+    studentIds: ["workflow-student-a", "workflow-student-b"],
+    mentorUserId: "workflow-mentor",
+    programTeacherUserId: "workflow-teacher",
+  });
+  const projectId = (await createdProject.json()).projectId;
+
+  const created = await postProjects(fixture, studentAToken, {
+    action: "create_note",
+    projectId,
+    noteBody: "We chose the first design.\nNext, we will test it.",
+  });
+  assert.equal(created.status, 201);
+  const noteId = (await created.json()).noteId;
+
+  const teammateView = await getProjects(fixture, studentBToken);
+  const teammateNote = (await teammateView.json()).projects.find((project) => project.projectId === projectId).notes[0];
+  assert.equal(teammateNote.authorName, "Workflow Student A");
+  assert.equal(teammateNote.canEdit, false);
+  assert.equal(teammateNote.canArchive, false);
+
+  const teammateEdit = await postProjects(fixture, studentBToken, {
+    action: "edit_note",
+    projectId,
+    noteId,
+    noteBody: "I should not be able to replace this note.",
+  });
+  assert.equal(teammateEdit.status, 403);
+
+  const edited = await postProjects(fixture, studentAToken, {
+    action: "edit_note",
+    projectId,
+    noteId,
+    noteBody: "We chose the first design. Next, we will test it with three students.",
+  });
+  assert.equal(edited.status, 200);
+
+  const archived = await postProjects(fixture, adminToken, {
+    action: "archive_note",
+    projectId,
+    noteId,
+  });
+  assert.equal(archived.status, 200);
+  assert.match((await archived.json()).message, /restore/i);
+  const archivedRow = await fixture.db.prepare(
+    "SELECT status, body, author_user_id, archived_by FROM project_notes WHERE id = ?",
+  ).bind(noteId).first();
+  assert.deepEqual({ ...archivedRow }, {
+    status: "archived",
+    body: "We chose the first design. Next, we will test it with three students.",
+    author_user_id: "workflow-student-a",
+    archived_by: "workflow-admin",
+  });
+
+  const restored = await postProjects(fixture, studentAToken, {
+    action: "restore_note",
+    projectId,
+    noteId,
+  });
+  assert.equal(restored.status, 200);
+  const restoredRow = await fixture.db.prepare(
+    "SELECT status, archived_at, archived_by FROM project_notes WHERE id = ?",
+  ).bind(noteId).first();
+  assert.deepEqual({ ...restoredRow }, { status: "active", archived_at: null, archived_by: null });
+
+  const auditActions = await fixture.db.prepare(
+    `SELECT action FROM audit_events
+     WHERE entity_id = ? AND action LIKE 'project_note_%'
+     ORDER BY created_at, action`,
+  ).bind(projectId).all();
+  assert.deepEqual(auditActions.results.map((row) => row.action).sort(), [
+    "project_note_archived",
+    "project_note_created",
+    "project_note_edited",
+    "project_note_restored",
+  ].sort());
+});
+
 test("staff project creation and regrouping move every linked record without duplicate active memberships", async () => {
   const fixture = await createWorkflowFixture();
   const adminToken = await seedSession(fixture.db, fixture.env, "workflow-admin");

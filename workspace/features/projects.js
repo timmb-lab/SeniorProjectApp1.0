@@ -223,7 +223,9 @@ function renderProjectDirectoryRow(project = {}, selected = false) {
   const memberNames = members.map((member) => member.displayName).join(", ") || "No students";
   const adultNames = projectAdultListNames(project.adultSetup);
   const phase = studentBookletPhaseInfo(project.currentPhase || "start");
-  const state = project.adultSetup?.ready === false
+  const state = project.status === "completed"
+    ? { label: "Complete", tone: "approved" }
+    : project.adultSetup?.ready === false
     ? { label: "People needed", tone: "revision_requested" }
     : safeNumber(project.revisionRequestedCount) > 0
     ? { label: "Changes needed", tone: "revision_requested" }
@@ -448,7 +450,9 @@ function renderProjectCard(project = {}, options = {}) {
   const mentors = Array.isArray(project.mentors) ? project.mentors : [];
   const memberCount = safeNumber(project.memberCount || members.length);
   const phase = studentBookletPhaseInfo(project.currentPhase || "start");
-  const state = project.adultSetup?.ready === false
+  const state = project.status === "completed"
+    ? { label: "Complete", tone: "approved" }
+    : project.adultSetup?.ready === false
     ? { label: "People needed", tone: "revision_requested" }
     : safeNumber(project.revisionRequestedCount) > 0
     ? { label: "Changes needed", tone: "revision_requested" }
@@ -509,6 +513,7 @@ function renderProjectCard(project = {}, options = {}) {
           ${members.length > 1 ? `<small>Shared work belongs to the team. Personal reflections still belong to each student.</small>` : `<small>This is an individual project. It uses the same steps as a team project.</small>`}
         </div>
         ${renderProjectNavigator(project, options)}
+        ${renderProjectNotes(project)}
         ${renderProjectAdultSetup(project.adultSetup, project.adultAssignments, {
           projectId: project.projectId,
           programId: project.programId,
@@ -524,6 +529,103 @@ function renderProjectCard(project = {}, options = {}) {
         ` : ""}
       </div>
     </details>
+  `;
+}
+
+function renderProjectNotes(project = {}) {
+  const notes = Array.isArray(project.notes) ? project.notes : [];
+  const activeNotes = notes.filter((note) => note.status !== "archived");
+  const archivedNotes = notes.filter((note) => note.status === "archived");
+  const canCreate = Boolean(project.notePermissions?.canCreate);
+  return `
+    <section class="workspace-project-notes" aria-labelledby="projectNotesTitle-${escapeHtml(project.projectId || "project")}">
+      <div class="workspace-project-notes-head">
+        <div>
+          <span>PROJECT NOTES</span>
+          <h3 id="projectNotesTitle-${escapeHtml(project.projectId || "project")}">Team notes</h3>
+          <p>Leave a short update, question, or next step. Everyone who can open this project can read it.</p>
+        </div>
+        <b>${activeNotes.length} ${pluralize(activeNotes.length, "note")}</b>
+      </div>
+      ${canCreate ? `
+        <form class="workspace-project-note-new" data-project-note-form="true">
+          <input type="hidden" name="projectId" value="${escapeHtml(project.projectId || "")}">
+          <label>
+            <span>Add a note</span>
+            <textarea name="noteBody" maxlength="1200" rows="3" aria-describedby="projectNoteHelp-${escapeHtml(project.projectId || "project")}" required></textarea>
+            <small id="projectNoteHelp-${escapeHtml(project.projectId || "project")}">What changed? What should happen next?</small>
+          </label>
+          <button class="workspace-primary-button workspace-button-small" type="submit" name="action" value="create_note">Add note</button>
+        </form>
+      ` : ""}
+      <div class="workspace-project-note-list">
+        ${activeNotes.length ? activeNotes.map((note) => renderProjectNote(project.projectId, note)).join("") : `
+          <div class="workspace-project-note-empty">
+            <strong>No notes yet</strong>
+            <p>Add the first update when the team makes a decision or needs help.</p>
+          </div>
+        `}
+      </div>
+      ${archivedNotes.length ? `
+        <details class="workspace-project-archived-notes">
+          <summary>Archived notes (${archivedNotes.length})</summary>
+          <p>Archived notes stay with the project and can be restored.</p>
+          <div class="workspace-project-note-list is-archived">
+            ${archivedNotes.map((note) => renderProjectNote(project.projectId, note)).join("")}
+          </div>
+        </details>
+      ` : ""}
+    </section>
+  `;
+}
+
+function renderProjectNote(projectId = "", note = {}) {
+  const updated = note.updatedAt && note.updatedAt !== note.createdAt ? ` · Edited ${formatDate(note.updatedAt)}` : "";
+  const archived = note.status === "archived";
+  return `
+    <article class="workspace-project-note ${archived ? "is-archived" : ""}">
+      <header>
+        <div>
+          <strong>${escapeHtml(note.authorName || "Former user")}</strong>
+          <small>${escapeHtml(formatDate(note.createdAt))}${escapeHtml(updated)}</small>
+        </div>
+        ${archived ? '<span class="workspace-status-pill archived">Archived</span>' : ""}
+      </header>
+      <p>${escapeHtml(note.body || "").replace(/\n/g, "<br>")}</p>
+      ${(note.canEdit || note.canArchive || note.canRestore) ? `
+        <div class="workspace-project-note-actions">
+          ${note.canEdit ? `
+            <details>
+              <summary>Edit note</summary>
+              <form data-project-note-form="true">
+                <input type="hidden" name="projectId" value="${escapeHtml(projectId)}">
+                <input type="hidden" name="noteId" value="${escapeHtml(note.noteId || "")}">
+                <label>
+                  <span>Note</span>
+                  <textarea name="noteBody" maxlength="1200" rows="3" required>${escapeHtml(note.body || "")}</textarea>
+                </label>
+                <button class="workspace-button workspace-button-secondary workspace-button-small" type="submit" name="action" value="edit_note">Save changes</button>
+              </form>
+            </details>
+          ` : ""}
+          ${note.canArchive ? `
+            <form data-project-note-form="true">
+              <input type="hidden" name="projectId" value="${escapeHtml(projectId)}">
+              <input type="hidden" name="noteId" value="${escapeHtml(note.noteId || "")}">
+              <button class="workspace-link-button workspace-link-button-small" type="submit" name="action" value="archive_note">Archive note</button>
+            </form>
+          ` : ""}
+          ${note.canRestore ? `
+            <form data-project-note-form="true">
+              <input type="hidden" name="projectId" value="${escapeHtml(projectId)}">
+              <input type="hidden" name="noteId" value="${escapeHtml(note.noteId || "")}">
+              <button class="workspace-button workspace-button-secondary workspace-button-small" type="submit" name="action" value="restore_note">Restore note</button>
+            </form>
+          ` : ""}
+        </div>
+      ` : ""}
+      ${archived && note.archivedByName ? `<small>Archived by ${escapeHtml(note.archivedByName)}${note.archivedAt ? ` · ${escapeHtml(formatDate(note.archivedAt))}` : ""}</small>` : ""}
+    </article>
   `;
 }
 
@@ -572,7 +674,12 @@ function renderProjectBoard(projects = []) {
     {
       id: "working",
       title: "In progress",
-      rows: rows.filter((project) => safeNumber(project.waitingForReviewCount) === 0 && safeNumber(project.revisionRequestedCount) === 0),
+      rows: rows.filter((project) => project.status !== "completed" && safeNumber(project.waitingForReviewCount) === 0 && safeNumber(project.revisionRequestedCount) === 0),
+    },
+    {
+      id: "complete",
+      title: "Complete",
+      rows: rows.filter((project) => project.status === "completed"),
     },
   ];
   return `

@@ -2799,6 +2799,126 @@ details > summary {
   color: var(--text-muted);
 }
 
+.workspace-project-notes {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-control);
+  background: var(--surface-card);
+}
+
+.workspace-project-notes-head,
+.workspace-project-note header,
+.workspace-project-note-actions {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.workspace-project-notes-head > div,
+.workspace-project-note header > div,
+.workspace-project-note-new label,
+.workspace-project-note-actions details,
+.workspace-project-note-actions form {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.workspace-project-notes-head span,
+.workspace-project-note-new label > span {
+  color: var(--school-primary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.workspace-project-notes-head h3,
+.workspace-project-notes-head p,
+.workspace-project-note p,
+.workspace-project-note-empty p,
+.workspace-project-archived-notes > p {
+  margin: 0;
+}
+
+.workspace-project-note-new {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--school-primary) 8%, var(--surface-card));
+}
+
+.workspace-project-note-new textarea,
+.workspace-project-note-actions textarea {
+  width: 100%;
+  min-height: 5rem;
+}
+
+.workspace-project-note-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.workspace-project-note {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.85rem;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-control);
+  background: var(--surface-muted-quiet);
+}
+
+.workspace-project-note.is-archived {
+  opacity: 0.82;
+}
+
+.workspace-project-note header small,
+.workspace-project-note > small,
+.workspace-project-note-empty p,
+.workspace-project-archived-notes > p {
+  color: var(--text-muted);
+}
+
+.workspace-project-note-actions {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.workspace-project-note-actions details {
+  min-width: min(100%, 34rem);
+}
+
+.workspace-project-note-actions details > summary,
+.workspace-project-archived-notes > summary {
+  cursor: pointer;
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.workspace-project-note-actions details form {
+  margin-top: 0.6rem;
+}
+
+.workspace-project-note-empty {
+  padding: 0.9rem;
+  border: 1px dashed var(--border-soft);
+  border-radius: var(--radius-control);
+}
+
+@media (max-width: 640px) {
+  .workspace-project-note-new {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-project-note-new .workspace-primary-button {
+    width: 100%;
+  }
+}
+
 .workspace-project-actions {
   display: flex;
   align-items: center;

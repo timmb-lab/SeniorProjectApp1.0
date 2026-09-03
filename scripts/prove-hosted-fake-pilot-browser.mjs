@@ -82,7 +82,7 @@ const SCREENSHOT_PLAN = [
     label: 'Site Admin dashboard',
     url: workspaceUrl('?section=siteDashboard'),
     viewport: desktopViewport(),
-    expected: ['Start with the worklist'],
+    expected: ['SCHOOL DASHBOARD', 'Run the school workspace from this overview'],
     absent: ['unavailable', 'could not load'],
     authRole: 'site_admin'
   },
@@ -100,7 +100,7 @@ const SCREENSHOT_PLAN = [
     label: 'Misc Admin readiness',
     url: workspaceUrl('?section=readiness'),
     viewport: desktopViewport(),
-    expected: ['Check one report question'],
+    expected: ['Aggregate Project Readiness', 'Read the report safely'],
     absent: ['unavailable', 'could not load'],
     authRole: 'misc_admin'
   },
@@ -118,7 +118,7 @@ const SCREENSHOT_PLAN = [
     label: 'Site Admin tablet dashboard',
     url: workspaceUrl('?section=siteDashboard'),
     viewport: tabletViewport(),
-    expected: ['Site Admin', 'Start with the worklist'],
+    expected: ['Site Admin', 'Run the school workspace from this overview'],
     absent: ['unavailable', 'could not load'],
     authRole: 'site_admin'
   }

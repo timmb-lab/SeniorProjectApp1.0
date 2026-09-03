@@ -53,6 +53,8 @@
     "seed:demo:remote:dry-run": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/seed-remote-demo-workspace.mjs --remote --dry-run",
     "seed:demo:remote": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/seed-remote-demo-workspace.mjs --remote --write --confirm SEED_REMOTE_DEMO",
     "seed:demo:remote:reset": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/seed-remote-demo-workspace.mjs --remote --reset --write --confirm SEED_REMOTE_DEMO",
+    "reset:projects:remote:dry-run": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/reset-project-demo-data.mjs --remote --dry-run",
+    "reset:projects:remote": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/reset-project-demo-data.mjs --remote --write --confirm RESET_PROJECT_DATA",
     "prove:demo:remote": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/prove-remote-demo-workspace.mjs",
     "verify:functionality-ux-automation": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-npm-script.ps1 verify:functionality-ux-automation",
     "verify:functionality-language": "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File scripts/run-node-script.ps1 scripts/verify-functionality-language.mjs",
