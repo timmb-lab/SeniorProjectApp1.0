@@ -5366,6 +5366,10 @@ async function openWorkspaceSection(button) {
     renderAppShell();
     return;
   }
+  if (section === "projects") {
+    activeProjectId = "";
+    managedProjectId = "";
+  }
   activeSection = section;
   syncCurrentWorkspaceUrlState();
   renderAppShell();

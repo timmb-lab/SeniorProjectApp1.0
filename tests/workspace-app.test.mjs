@@ -13949,11 +13949,9 @@ test("project, review, and student checklist details include working next and ba
   assert.match(studentNavigator, /Next item/);
 });
 
-test("project directory renders one paged worklist, one focused detail, and one searchable team picker", async () => {
+test("project directory and dedicated project workspace render as separate screens", async () => {
   const { context } = await createWorkspaceContextWithFetch(profileRoutesForRole("site_admin"));
-  const html = vm.runInContext(`
-    activeProjectId = "project-1";
-    renderProjectDirectoryWorklist([
+  const projectRows = `[
       {
         projectId: "project-1",
         name: "Community Garden",
@@ -13983,7 +13981,9 @@ test("project directory renders one paged worklist, one focused detail, and one 
         revisionRequestedCount: 0,
         nextAction: "Open this project and review the team's work."
       }
-    ], {
+    ]`;
+  const html = vm.runInContext(`
+    renderProjectDirectoryWorklist(${projectRows}, {
       availableStudents: [],
       canManage: true,
       isStudent: false,
@@ -13996,12 +13996,34 @@ test("project directory renders one paged worklist, one focused detail, and one 
   assert.match(html, /data-project-directory-filter-form="true"/);
   assert.match(html, /name="sort"/);
   assert.match(html, />Recently updated</);
-  assert.match(html, /data-project-explorer="true"/);
-  assert.match(html, /data-project-focused-detail="true"/);
-  assert.match(html, /Project opened/);
+  assert.match(html, /data-project-list-only="true"/);
+  assert.match(html, /Choose one project\. The list will close and that project will open\./);
   assert.match(html, /Mentor: Morgan Mentor · Program Teacher: Taylor Teacher/);
   assert.match(html, /Mentor: Still needed · Program Teacher: Still needed/);
-  assert.equal((html.match(/class="workspace-project-card"/g) || []).length, 1, "only the selected project renders full details");
+  assert.doesNotMatch(html, /data-project-workspace="true"/);
+  assert.doesNotMatch(html, /workspace-project-card-dedicated/);
+
+  const workspaceHtml = vm.runInContext(`
+    renderProjectWorkspace(${projectRows}[0], {
+      projects: ${projectRows},
+      selectedProjectIndex: 0,
+      position: 26,
+      total: 61,
+      availableStudents: [],
+      canManage: true,
+      isStudent: false,
+      templates: [],
+      availableProjectAdults: {},
+      canOpenReviewQueue: true,
+      canMakeReviewDecision: false
+    })
+  `, context);
+  assert.match(workspaceHtml, /data-project-workspace="true"/);
+  assert.match(workspaceHtml, /← Back to project list/);
+  assert.match(workspaceHtml, /PROJECT WORKSPACE/);
+  assert.match(workspaceHtml, /Community Garden/);
+  assert.match(workspaceHtml, /workspace-project-card-dedicated/);
+  assert.doesNotMatch(workspaceHtml, /data-project-list-only="true"|data-project-directory-filter-form="true"/);
 
   const schoolAdminContext = await createWorkspaceContextWithFetch(profileRoutesForRole("administration"));
   const schoolAdminProject = vm.runInContext(`renderProjectCard({
@@ -14056,11 +14078,75 @@ test("project directory renders one paged worklist, one focused detail, and one 
   assert.match(adultSelect, />Blair Keaton</);
 });
 
-test("mentor projects, students, reviews, and reports stay direct and action-ready", async () => {
+test("opening a project replaces the list and Back restores the same directory state", async () => {
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch(profileRoutesForRole("site_admin"), {
+    url: "https://workspace.example/workspace",
+  });
+  vm.runInContext(`
+    activeSection = "projects";
+    activeProjectId = "";
+    managedProjectId = "";
+    selectedSiteId = "site-desert-valley-high";
+    projectDirectoryFilters = { search: "garden", filter: "working", sort: "name", page: 2, pageSize: 25 };
+    currentData.projects = { ok: true, status: 200, body: {
+      ok: true,
+      siteId: "site-desert-valley-high",
+      projects: [{
+        projectId: "project-1",
+        siteId: "site-desert-valley-high",
+        name: "Community Garden",
+        programName: "Environmental Science",
+        currentPhase: "phase-1",
+        members: [{ studentId: "student-1", displayName: "Jordan Student" }],
+        mentors: [{ displayName: "Morgan Mentor" }],
+        adultSetup: { ready: true, mentor: { displayName: "Morgan Mentor" }, programTeacher: { displayName: "Taylor Teacher" } },
+        waitingForReviewCount: 0,
+        revisionRequestedCount: 0,
+        notePermissions: { canCreate: true },
+        notes: []
+      }],
+      requests: [],
+      templates: [],
+      availableStudents: [],
+      availableProjectAdults: { mentors: [], programTeachers: [] },
+      summary: { total: 1 },
+      pagination: { page: 2, pageSize: 25, total: 26, totalPages: 2, search: "garden", filter: "working", sort: "name" },
+      permissions: { canManage: true, canCreate: true, canManageTemplates: true, canOpenReviewQueue: true, canMakeReviewDecision: false }
+    } };
+    renderAppShell();
+  `, context);
+  assert.match(workspaceRoot.innerHTML, /data-project-list-only="true"/);
+
+  const originalUrl = vm.runInContext("location.href", context);
+  await vm.runInContext(`handleProjectAction({ currentTarget: { dataset: {
+    projectAction: "open-row",
+    projectId: "project-1",
+    projectName: "Community Garden"
+  } } })`, context);
+  assert.equal(vm.runInContext("activeProjectId", context), "project-1");
+  assert.match(workspaceRoot.innerHTML, /data-project-workspace="true"/);
+  assert.match(workspaceRoot.innerHTML, /← Back to project list/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-project-list-only="true"/);
+  assert.equal(vm.runInContext("location.href", context), originalUrl, "opening a project keeps the browser address stable");
+
+  await vm.runInContext(`handleProjectAction({ currentTarget: { dataset: { projectAction: "back-to-list" } } })`, context);
+  assert.equal(vm.runInContext("activeProjectId", context), "");
+  assert.match(workspaceRoot.innerHTML, /data-project-list-only="true"/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-project-workspace="true"/);
+  assert.deepEqual(JSON.parse(vm.runInContext("JSON.stringify(projectDirectoryFilters)", context)), {
+    search: "garden",
+    filter: "working",
+    sort: "name",
+    page: 2,
+    pageSize: 25,
+  });
+  assert.equal(vm.runInContext("location.href", context), originalUrl, "returning to the list keeps the browser address stable");
+});
+
+test("mentor project workspace, students, reviews, and reports stay direct and action-ready", async () => {
   const { context, workspaceRoot } = await createWorkspaceContextWithFetch(profileRoutesForRole("mentor"));
   const projectHtml = vm.runInContext(`
-    activeProjectId = "";
-    renderProjectDirectoryWorklist([{
+    renderProjectWorkspace({
       projectId: "mentor-project-1",
       name: "Community Garden",
       programName: "Environmental Science",
@@ -14070,15 +14156,20 @@ test("mentor projects, students, reviews, and reports stay direct and action-rea
       adultSetup: { ready: true },
       waitingForReviewCount: 0,
       revisionRequestedCount: 0
-    }], {
+    }, {
+      projects: [],
+      selectedProjectIndex: 0,
+      position: 1,
+      total: 1,
       availableStudents: [],
       canManage: false,
       isStudent: false,
-      pagination: { page: 1, pageSize: 25, total: 1, totalPages: 1, search: "", filter: "all" },
-      summary: { total: 1 }
+      templates: [],
+      availableProjectAdults: {}
     })
   `, context);
-  assert.match(projectHtml, /data-project-focused-detail="true"[\s\S]*Community Garden/);
+  assert.match(projectHtml, /data-project-workspace="true"[\s\S]*Community Garden/);
+  assert.match(projectHtml, /← Back to project list/);
   assert.match(projectHtml, /data-mentor-dashboard-action="open-meetings"[\s\S]*Open check-in/);
   assert.match(projectHtml, /Preview student view/);
   assert.match(projectHtml, /Ask one clear question, agree on one next step, and save it/);

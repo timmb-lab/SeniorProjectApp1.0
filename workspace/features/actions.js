@@ -1194,27 +1194,32 @@ async function handleProjectAction(event) {
     document.querySelector("[data-project-directory-filter-form] [name=search]")?.focus?.();
     return;
   }
+  if (action === "back-to-list") {
+    activeProjectId = "";
+    managedProjectId = "";
+    renderAppShell();
+    const listTitle = document.querySelector("#projectListTitle");
+    listTitle?.scrollIntoView?.({ behavior: "auto", block: "start" });
+    listTitle?.focus?.({ preventScroll: true });
+    return;
+  }
   if (action === "open-row") {
     const projectId = cleanDirectoryFilter(button.dataset.projectId || "");
-    const projectName = String(button.dataset.projectName || "Project").trim().slice(0, 120) || "Project";
     if (!projectId) {
       renderAppShell("This project could not be opened. Choose a project from the list.", "error");
       return;
     }
     activeProjectId = projectId;
     managedProjectId = "";
-    renderAppShell(`${projectName} is open in the project pane.`, "success");
-    const card = document.querySelector(`details.workspace-project-card[data-project-id="${projectId}"]`);
-    const detail = document.querySelector("[data-project-focused-detail]");
-    if (!card) {
+    renderAppShell();
+    const projectWorkspace = document.querySelector(`[data-project-workspace][data-project-id="${projectId}"]`);
+    if (!projectWorkspace) {
       activeProjectId = "";
       renderAppShell("This project is no longer in the list. Refresh and choose another project.", "error");
       return;
     }
-    card?.setAttribute("open", "");
-    const splitViewVisible = typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(min-width: 1181px)").matches;
-    if (!splitViewVisible) detail?.scrollIntoView?.({ behavior: "smooth", block: "start" });
-    detail?.focus?.({ preventScroll: splitViewVisible });
+    projectWorkspace.scrollIntoView?.({ behavior: "auto", block: "start" });
+    projectWorkspace.focus?.({ preventScroll: true });
     return;
   }
   if (action === "manage") {

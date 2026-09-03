@@ -1213,7 +1213,10 @@ const DARK_THEME_ROLE_PLAN = [
     url: workspaceUrl("?mode=workspace&section=projects&siteId=site-desert-valley-high"),
     viewport: { width: 820, height: 900, deviceScaleFactor: 1, mobile: false },
     theme: "dark",
-    proves: "Site Admin project work stays usable, readable, and keyboard reachable in dark view.",
+    expected: ["PROJECT WORKSPACE", "Back to project list", "NEXT STEP", "PROJECT FOLDER", "TEAM", "MENTOR", "PROGRAM"],
+    absent: ["Choose one project. The list will close", "Project or student name", "School projects"],
+    action: "proveProjectOpenAndBack",
+    proves: "A project replaces the directory, Back restores the directory, and reopening the project stays readable in dark view at tablet width.",
   },
   {
     id: "96-dark-administration-desktop",
@@ -1973,6 +1976,43 @@ async function performSinglePlanAction(client, action) {
   if (action === "clickExitViewAsStudent") {
     await clickSelector(client, "[data-view-as-student-action='exit']", "Exit student view");
     await waitForSelectorState(client, "[data-view-as-student-banner='true']", { present: false });
+    await sleep(700);
+    return;
+  }
+  if (action === "proveProjectOpenAndBack") {
+    const before = await client.evaluate(`(() => ({
+      href: location.href,
+      search: document.querySelector("[data-project-directory-filter-form] [name='search']")?.value || "",
+      filter: document.querySelector("[data-project-directory-filter-form] [name='filter']")?.value || "",
+      sort: document.querySelector("[data-project-directory-filter-form] [name='sort']")?.value || ""
+    }))()`);
+    await clickSelector(client, "[data-project-action='open-row'][data-project-id]", "first project row");
+    await waitForSelectorState(client, "[data-project-workspace='true']");
+    const opened = await client.evaluate(`(() => ({
+      href: location.href,
+      project: Boolean(document.querySelector("[data-project-workspace='true']")),
+      list: Boolean(document.querySelector("[data-project-list-only='true']")),
+      filters: Boolean(document.querySelector("[data-project-directory-filter-form]"))
+    }))()`);
+    if (!opened.project || opened.list || opened.filters || opened.href !== before.href) {
+      throw new Error(`Project did not replace the directory cleanly: ${JSON.stringify(opened)}`);
+    }
+    await clickSelector(client, "[data-project-action='back-to-list']", "Back to project list");
+    await waitForSelectorState(client, "[data-project-list-only='true']");
+    const returned = await client.evaluate(`(() => ({
+      href: location.href,
+      project: Boolean(document.querySelector("[data-project-workspace='true']")),
+      list: Boolean(document.querySelector("[data-project-list-only='true']")),
+      search: document.querySelector("[data-project-directory-filter-form] [name='search']")?.value || "",
+      filter: document.querySelector("[data-project-directory-filter-form] [name='filter']")?.value || "",
+      sort: document.querySelector("[data-project-directory-filter-form] [name='sort']")?.value || ""
+    }))()`);
+    if (!returned.list || returned.project || returned.href !== before.href
+      || returned.search !== before.search || returned.filter !== before.filter || returned.sort !== before.sort) {
+      throw new Error(`Back did not restore the same project directory state: ${JSON.stringify(returned)}`);
+    }
+    await clickSelector(client, "[data-project-action='open-row'][data-project-id]", "first project row after Back");
+    await waitForSelectorState(client, "[data-project-workspace='true']");
     await sleep(700);
     return;
   }

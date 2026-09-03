@@ -49,6 +49,37 @@ function renderProjectsSection() {
       </section>
     `;
   }
+
+  const selectedProjectIndex = projects.findIndex((project) => project.projectId === activeProjectId);
+  const selectedProject = selectedProjectIndex >= 0
+    ? projects[selectedProjectIndex]
+    : isStudent && projects.length
+      ? projects[0]
+      : null;
+  if (selectedProject) {
+    const pagination = body.pagination || {};
+    const page = Math.max(1, safeNumber(pagination.page) || 1);
+    const pageSize = Math.max(1, safeNumber(pagination.pageSize) || 25);
+    const filteredTotal = Math.max(projects.length, safeNumber(pagination.total));
+    const firstNumber = filteredTotal ? ((page - 1) * pageSize) + 1 : 1;
+    const workspaceProjectIndex = selectedProjectIndex >= 0 ? selectedProjectIndex : 0;
+    return renderProjectWorkspace(selectedProject, {
+      projects,
+      selectedProjectIndex: workspaceProjectIndex,
+      position: firstNumber + workspaceProjectIndex,
+      total: filteredTotal,
+      availableStudents,
+      canManage,
+      isStudent,
+      templates,
+      siteId: body.siteId || selectedSiteQueryValue() || projectsFirstSiteId(projects),
+      availableProjectAdults,
+      canOpenReviewQueue,
+      canMakeReviewDecision,
+      canManageTemplates: Boolean(body.permissions?.canManageTemplates),
+    });
+  }
+
   return `
     <section class="workspace-command-center workspace-project-directory" aria-labelledby="projectsTitle" data-project-directory="true">
       <div class="workspace-command-hero workspace-project-hero">
@@ -100,6 +131,58 @@ function renderProjectsSection() {
   `;
 }
 
+function renderProjectWorkspace(project = {}, options = {}) {
+  const rows = Array.isArray(options.projects) ? options.projects : [];
+  const selectedIndex = Math.max(0, safeNumber(options.selectedProjectIndex));
+  const phase = studentBookletPhaseInfo(project.currentPhase || "start");
+  const state = projectDisplayState(project);
+  const adults = projectAdultListNames(project.adultSetup);
+  const backAction = options.isStudent
+    ? '<button class="workspace-button workspace-button-secondary workspace-project-back" type="button" data-section="student">← Back to Today</button>'
+    : '<button class="workspace-button workspace-button-secondary workspace-project-back" type="button" data-project-action="back-to-list">← Back to project list</button>';
+  return `
+    <section class="workspace-command-center workspace-project-dedicated" id="projectWorkspace" data-project-workspace="true" data-project-id="${escapeHtml(project.projectId || "")}" aria-labelledby="projectWorkspaceTitle" tabindex="-1">
+      <nav class="workspace-project-detail-toolbar" aria-label="Project navigation">
+        ${backAction}
+        ${safeNumber(options.total) > 1 ? `<span>Project ${escapeHtml(safeNumber(options.position))} of ${escapeHtml(safeNumber(options.total))}</span>` : '<span>Project workspace</span>'}
+      </nav>
+      <header class="workspace-project-detail-hero">
+        <div>
+          <p class="workspace-kicker">PROJECT WORKSPACE</p>
+          <h1 id="projectWorkspaceTitle">${escapeHtml(project.name || "Senior Project")}</h1>
+          <p>${escapeHtml(cleanDemoSeedDisplay(project.programName, "Program not set"))} · ${escapeHtml(adults)}</p>
+        </div>
+        <div class="workspace-project-detail-status" aria-label="Project status">
+          <span class="workspace-status-pill ${escapeHtml(state.tone)}">${escapeHtml(state.label)}</span>
+          <span class="workspace-project-phase-pill">${escapeHtml(phase.label)}</span>
+        </div>
+      </header>
+      <div class="workspace-project-detail-content">
+        ${renderProjectCard(project, {
+          open: true,
+          dedicated: true,
+          canManage: options.canManage,
+          isStudent: options.isStudent,
+          availableStudents: options.availableStudents || [],
+          position: options.position,
+          total: options.total,
+          previousProject: rows[selectedIndex - 1] || null,
+          nextProject: rows[selectedIndex + 1] || null,
+          availableProjectAdults: options.availableProjectAdults || {},
+          canOpenReviewQueue: options.canOpenReviewQueue,
+          canMakeReviewDecision: options.canMakeReviewDecision,
+        })}
+      </div>
+      ${renderProjectTemplateShelf(options.templates || [], {
+        canManage: options.canManageTemplates,
+        isStudent: options.isStudent,
+        siteId: options.siteId || project.siteId || "",
+      })}
+      ${renderProjectStudentDatalist(options.availableStudents || [], rows)}
+    </section>
+  `;
+}
+
 function renderProjectDirectoryWorklist(projects = [], options = {}) {
   const rows = Array.isArray(projects) ? projects : [];
   const pagination = options.pagination || {};
@@ -113,14 +196,6 @@ function renderProjectDirectoryWorklist(projects = [], options = {}) {
   const hasFilters = Boolean(search || filter !== "all" || sort !== "action");
   const firstNumber = filteredTotal ? ((page - 1) * pageSize) + 1 : 0;
   const lastNumber = filteredTotal ? Math.min(filteredTotal, firstNumber + rows.length - 1) : 0;
-  const selectedIndex = rows.findIndex((project) => project.projectId === activeProjectId);
-  const selectedProject = selectedIndex >= 0
-    ? rows[selectedIndex]
-    : (options.isStudent || rows.length === 1)
-      ? rows[0] || null
-      : null;
-  const actualSelectedIndex = selectedProject ? rows.findIndex((project) => project.projectId === selectedProject.projectId) : -1;
-
   if (!rows.length && !hasFilters && safeNumber(options.summary?.total) === 0) {
     return `
       <section class="workspace-card workspace-empty-card">
@@ -135,8 +210,8 @@ function renderProjectDirectoryWorklist(projects = [], options = {}) {
       <div class="workspace-project-section-head">
         <div>
           <p class="workspace-kicker">Project list</p>
-          <h2 id="projectListTitle">School projects</h2>
-          <p>Choose one project. Its details open in the project pane.</p>
+          <h2 id="projectListTitle" tabindex="-1">School projects</h2>
+          <p>Choose one project. The list will close and that project will open.</p>
         </div>
         <div class="workspace-project-view-switch" aria-label="Project view">
           <button class="${projectDirectoryView === "table" ? "is-active" : ""}" type="button" data-project-action="view" data-project-view="table" aria-pressed="${projectDirectoryView === "table"}">List</button>
@@ -164,8 +239,7 @@ function renderProjectDirectoryWorklist(projects = [], options = {}) {
         ${hasFilters ? `<button class="workspace-button workspace-button-secondary workspace-button-small" type="button" data-project-action="clear-filters">Clear</button>` : ""}
       </form>
       ${rows.length ? `
-        <div class="workspace-project-explorer" data-project-explorer="true" data-project-view="${escapeHtml(projectDirectoryView)}" data-project-selected="${selectedProject ? "true" : "false"}">
-          <div class="workspace-project-list-pane">
+        <div class="workspace-project-list-pane workspace-project-directory-surface" data-project-list-only="true" data-project-view="${escapeHtml(projectDirectoryView)}">
             <div class="workspace-project-result-line" aria-live="polite">
               <strong>${filteredTotal ? `Showing ${firstNumber}–${lastNumber} of ${filteredTotal}` : "No matching projects"}</strong>
               <span>${hasFilters ? "These results use your search, filter, and sort choices." : "These are all projects this account can open."}</span>
@@ -179,34 +253,10 @@ function renderProjectDirectoryWorklist(projects = [], options = {}) {
                   <span>Status</span>
                   <span>Open</span>
                 </div>
-                ${rows.map((project) => renderProjectDirectoryRow(project, project.projectId === selectedProject?.projectId)).join("")}
+                ${rows.map((project) => renderProjectDirectoryRow(project)).join("")}
               </div>
             `}
             ${renderProjectPageNavigation({ page, totalPages, filteredTotal })}
-          </div>
-          <section class="workspace-project-focused-detail" id="projectFocusedDetail" aria-labelledby="projectFocusedDetailTitle" data-project-focused-detail="true" tabindex="-1" aria-live="polite">
-            <div class="workspace-project-section-head">
-              <div>
-                <p class="workspace-kicker">${selectedProject ? "Project opened" : "Project pane"}</p>
-                <h2 id="projectFocusedDetailTitle">${selectedProject ? escapeHtml(selectedProject.name || "Project details") : "Choose a project"}</h2>
-                <p>${selectedProject ? "This is the project you selected. Its team, files, notes, and next step are here." : "Choose one project from the list. Its details will appear here."}</p>
-              </div>
-              ${selectedProject ? `<span class="workspace-project-opened-badge">Open now</span>` : ""}
-            </div>
-            ${selectedProject ? renderProjectCard(selectedProject, {
-              open: true,
-              canManage: options.canManage,
-              isStudent: options.isStudent,
-              availableStudents: options.availableStudents || [],
-              position: firstNumber + actualSelectedIndex,
-              total: filteredTotal,
-              previousProject: rows[actualSelectedIndex - 1] || null,
-              nextProject: rows[actualSelectedIndex + 1] || null,
-              availableProjectAdults: options.availableProjectAdults || {},
-              canOpenReviewQueue: options.canOpenReviewQueue,
-              canMakeReviewDecision: options.canMakeReviewDecision,
-            }) : `<div class="workspace-project-focus-empty"><p>Select a project from the list.</p></div>`}
-          </section>
         </div>
       ` : `
         <section class="workspace-card workspace-empty-card">
@@ -240,22 +290,22 @@ function renderProjectDirectorySortOptions(selected = "action") {
   ].map(([value, label]) => `<option value="${value}" ${selected === value ? "selected" : ""}>${label}</option>`).join("");
 }
 
+function projectDisplayState(project = {}) {
+  if (project.status === "completed") return { label: "Complete", tone: "approved" };
+  if (project.adultSetup?.ready === false) return { label: "People needed", tone: "revision_requested" };
+  if (safeNumber(project.revisionRequestedCount) > 0) return { label: "Changes needed", tone: "revision_requested" };
+  if (safeNumber(project.waitingForReviewCount) > 0) return { label: "Waiting for review", tone: "submitted" };
+  return { label: "In progress", tone: "in_progress" };
+}
+
 function renderProjectDirectoryRow(project = {}, selected = false) {
   const members = Array.isArray(project.members) ? project.members : [];
   const memberNames = members.map((member) => member.displayName).join(", ") || "No students";
   const adultNames = projectAdultListNames(project.adultSetup);
   const phase = studentBookletPhaseInfo(project.currentPhase || "start");
-  const state = project.status === "completed"
-    ? { label: "Complete", tone: "approved" }
-    : project.adultSetup?.ready === false
-    ? { label: "People needed", tone: "revision_requested" }
-    : safeNumber(project.revisionRequestedCount) > 0
-    ? { label: "Changes needed", tone: "revision_requested" }
-    : safeNumber(project.waitingForReviewCount) > 0
-      ? { label: "Waiting for review", tone: "submitted" }
-      : { label: "In progress", tone: "in_progress" };
+  const state = projectDisplayState(project);
   return `
-    <button class="workspace-project-directory-row ${selected ? "is-selected" : ""}" type="button" data-project-action="open-row" data-project-id="${escapeHtml(project.projectId || "")}" data-project-name="${escapeHtml(project.name || "Senior Project")}" aria-controls="projectFocusedDetail" aria-expanded="${selected ? "true" : "false"}" ${selected ? 'aria-current="true"' : ""}>
+    <button class="workspace-project-directory-row ${selected ? "is-selected" : ""}" type="button" data-project-action="open-row" data-project-id="${escapeHtml(project.projectId || "")}" data-project-name="${escapeHtml(project.name || "Senior Project")}" aria-label="Open project: ${escapeHtml(project.name || "Senior Project")}">
       <span title="${escapeHtml(adultNames)}"><strong>${escapeHtml(project.name || "Senior Project")}</strong><small>${escapeHtml(project.programName || "Program not set")}</small><small>${escapeHtml(adultNames)}</small></span>
       <span title="${escapeHtml(memberNames)}">${escapeHtml(memberNames)}</span>
       <span>${escapeHtml(phase.label.replace(/^Phase\s+\d+[A-Za-z]?:\s*/i, ""))}</span>
@@ -477,15 +527,7 @@ function renderProjectCard(project = {}, options = {}) {
   const mentors = Array.isArray(project.mentors) ? project.mentors : [];
   const memberCount = safeNumber(project.memberCount || members.length);
   const phase = studentBookletPhaseInfo(project.currentPhase || "start");
-  const state = project.status === "completed"
-    ? { label: "Complete", tone: "approved" }
-    : project.adultSetup?.ready === false
-    ? { label: "People needed", tone: "revision_requested" }
-    : safeNumber(project.revisionRequestedCount) > 0
-    ? { label: "Changes needed", tone: "revision_requested" }
-    : safeNumber(project.waitingForReviewCount) > 0
-      ? { label: "Waiting for review", tone: "submitted" }
-      : { label: "In progress", tone: "in_progress" };
+  const state = projectDisplayState(project);
   const firstMember = members[0] || {};
   const memberNames = members.map((member) => member.displayName).join(", ") || "No students";
   const isMentor = roleIds(currentUser).has("mentor");
@@ -499,7 +541,7 @@ function renderProjectCard(project = {}, options = {}) {
     ? "Open the work. Read the student's link. Then choose the next step."
     : "Open the check-in. Ask one clear question, agree on one next step, and save it.";
   return `
-    <details class="workspace-project-card" data-project-id="${escapeHtml(project.projectId || "")}" data-project-search-text="${escapeHtml(`${project.name || ""} ${memberNames} ${phase.label} ${state.label}`.toLowerCase())}" ${options.open ? "open" : ""}>
+    <details class="workspace-project-card ${options.dedicated ? "workspace-project-card-dedicated" : ""}" data-project-id="${escapeHtml(project.projectId || "")}" data-project-search-text="${escapeHtml(`${project.name || ""} ${memberNames} ${phase.label} ${state.label}`.toLowerCase())}" ${options.open ? "open" : ""}>
       <summary>
         <span class="workspace-project-card-title">
           <strong>${escapeHtml(project.name || "Senior Project")}</strong>
@@ -664,8 +706,8 @@ function renderProjectNavigator(project = {}, options = {}) {
     <nav class="workspace-item-navigator workspace-project-navigator" aria-label="Browse projects" data-project-navigator="true">
       <span>Project ${escapeHtml(safeNumber(options.position))} of ${escapeHtml(safeNumber(options.total))}</span>
       <div>
-        ${previous?.projectId ? `<button class="workspace-button workspace-button-secondary workspace-button-small" type="button" data-project-action="open-row" data-project-id="${escapeHtml(previous.projectId)}" aria-label="Open previous project: ${escapeHtml(previous.name || "project")}">Previous project</button>` : ""}
-        ${next?.projectId ? `<button class="workspace-button workspace-button-primary workspace-button-small" type="button" data-project-action="open-row" data-project-id="${escapeHtml(next.projectId)}" aria-label="Open next project: ${escapeHtml(next.name || "project")}">Next project</button>` : ""}
+        ${previous?.projectId ? `<button class="workspace-button workspace-button-secondary workspace-button-small" type="button" data-project-action="open-row" data-project-id="${escapeHtml(previous.projectId)}" data-project-name="${escapeHtml(previous.name || "Project")}" aria-label="Open previous project: ${escapeHtml(previous.name || "project")}">Previous project</button>` : ""}
+        ${next?.projectId ? `<button class="workspace-button workspace-button-primary workspace-button-small" type="button" data-project-action="open-row" data-project-id="${escapeHtml(next.projectId)}" data-project-name="${escapeHtml(next.name || "Project")}" aria-label="Open next project: ${escapeHtml(next.name || "project")}">Next project</button>` : ""}
       </div>
     </nav>
   `;
@@ -745,7 +787,7 @@ function renderProjectBoardCard(project = {}) {
       <small>${escapeHtml(memberNames)}</small>
       <p>${escapeHtml(adultNames)}</p>
       <p>${escapeHtml(phase.label)}</p>
-      <button class="workspace-button workspace-button-secondary workspace-button-small" type="button" data-project-action="open-row" data-project-id="${escapeHtml(project.projectId || "")}">Open project</button>
+      <button class="workspace-button workspace-button-secondary workspace-button-small" type="button" data-project-action="open-row" data-project-id="${escapeHtml(project.projectId || "")}" data-project-name="${escapeHtml(project.name || "Senior Project")}">Open project</button>
     </article>
   `;
 }
