@@ -92,6 +92,34 @@ test("project notes show the author, limit editing, and archive instead of delet
   ].sort());
 });
 
+test("project directory gives staff safe filter and sort choices", async () => {
+  const fixture = await createWorkflowFixture();
+  const adminToken = await seedSession(fixture.db, fixture.env, "workflow-admin");
+  const projects = [
+    ["sort-project-zulu", "Zulu Build", "phase-1", "2026-08-01T09:00:00.000Z"],
+    ["sort-project-alpha", "Alpha Build", "phase-3a", "2026-08-02T09:00:00.000Z"],
+    ["sort-project-middle", "Middle Build", "start", "2026-08-03T09:00:00.000Z"],
+  ];
+  for (const [id, name, phase, updatedAt] of projects) {
+    await fixture.db.prepare(
+      `INSERT INTO projects (id, site_id, program_id, name, status, current_phase, created_by, updated_at)
+       VALUES (?, 'site-project-workflow', 'it', ?, 'active', ?, 'workflow-admin', ?)`,
+    ).bind(id, name, phase, updatedAt).run();
+  }
+
+  const byName = await getProjects(fixture, adminToken, "search=Build&sort=name");
+  const byNameBody = await byName.json();
+  assert.equal(byNameBody.pagination.sort, "name");
+  assert.deepEqual(byNameBody.projects.map((project) => project.name), ["Alpha Build", "Middle Build", "Zulu Build"]);
+
+  const byPhase = await getProjects(fixture, adminToken, "search=Build&sort=phase");
+  const byPhaseBody = await byPhase.json();
+  assert.deepEqual(byPhaseBody.projects.map((project) => project.name), ["Middle Build", "Zulu Build", "Alpha Build"]);
+
+  const invalid = await getProjects(fixture, adminToken, "search=Build&sort=drop-table");
+  assert.equal((await invalid.json()).pagination.sort, "action");
+});
+
 test("staff project creation and regrouping move every linked record without duplicate active memberships", async () => {
   const fixture = await createWorkflowFixture();
   const adminToken = await seedSession(fixture.db, fixture.env, "workflow-admin");
@@ -477,9 +505,9 @@ async function activeProjectIds(db, studentIds) {
   return rows.results.map((row) => row.project_id);
 }
 
-function getProjects(fixture, token) {
+function getProjects(fixture, token, query = "") {
   return onProjectsGet({
-    request: requestWithSession("https://example.test/api/projects?siteId=site-project-workflow", token),
+    request: requestWithSession(`https://example.test/api/projects?siteId=site-project-workflow${query ? `&${query}` : ""}`, token),
     env: fixture.env,
   });
 }

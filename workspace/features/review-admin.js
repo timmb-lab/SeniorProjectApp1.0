@@ -737,7 +737,7 @@ function reviewQueueHasWork(item = {}) {
 function reviewQueueWorkSummary(item = {}) {
   const files = safeNumber(item?.evidenceCount);
   const text = String(item?.writtenResponseText || "").trim();
-  const words = text ? studentWordCount(text) : 0;
+  const words = workspaceWordCount(text);
   const parts = [];
   if (words) parts.push(`${words} ${pluralize(words, "word")} written`);
   if (files) parts.push(`${files} ${pluralize(files, "file")} attached`);
@@ -1078,7 +1078,7 @@ function renderReviewWrittenResponse(selected = {}) {
           <p class="workspace-kicker">Student writing</p>
           <h3>Read this before you decide</h3>
         </div>
-        <span class="workspace-chip">${escapeHtml(studentWordCount(text))} ${pluralize(studentWordCount(text), "word")}</span>
+        <span class="workspace-chip">${escapeHtml(workspaceWordCount(text))} ${pluralize(workspaceWordCount(text), "word")}</span>
       </div>
       <div class="workspace-review-written-copy">${escapeHtml(text).replace(/\r?\n/g, "<br>")}</div>
     </section>

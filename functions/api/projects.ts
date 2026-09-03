@@ -32,10 +32,12 @@ const MAX_PROJECT_PAGE_SIZE = 50;
 const MAX_PROJECT_SEARCH_LENGTH = 80;
 
 type ProjectDirectoryFilter = "all" | "review" | "changes" | "working" | "team" | "individual";
+type ProjectDirectorySort = "action" | "updated" | "name" | "phase" | "team";
 
 interface ProjectDirectoryQuery {
   search: string;
   filter: ProjectDirectoryFilter;
+  sort: ProjectDirectorySort;
   page: number;
   pageSize: number;
 }
@@ -396,6 +398,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       hasNext: page < totalPages,
       search: directoryQuery.search,
       filter: directoryQuery.filter,
+      sort: directoryQuery.sort,
     },
     permissions: {
       canCreate: manageableSiteIds.includes(optionSiteId),
@@ -1603,6 +1606,7 @@ async function loadProjects(
 ): Promise<ProjectRow[]> {
   const where = projectWhere(siteIds, access, query);
   const offset = Math.max(0, (query.page - 1) * query.pageSize);
+  const orderBy = projectDirectoryOrderBy(query.sort);
   const rows = await env.DB.prepare(
     `SELECT
        projects.id,
@@ -1637,15 +1641,42 @@ async function loadProjects(
      LEFT JOIN programs ON programs.id = projects.program_id
      LEFT JOIN cohorts ON cohorts.id = projects.cohort_id
      WHERE ${where.sql}
-     ORDER BY
-       CASE WHEN EXISTS (SELECT 1 FROM submissions WHERE ${projectSubmissionMatchSql()} AND submissions.status = 'submitted') THEN 0 ELSE 1 END,
-       projects.updated_at DESC,
-       projects.name ASC
+     ORDER BY ${orderBy}
      LIMIT ? OFFSET ?`,
   ).bind(...where.bindings, query.pageSize, offset).all<ProjectRow>();
   const projects = rows.results || [];
   const themes = await loadSiteBrandThemesByIds(env, [...new Set(projects.map((project) => project.site_id))]);
   return projects.map((project) => ({ ...project, brand_theme: themes.get(project.site_id) || "default" }));
+}
+
+function projectDirectoryOrderBy(sort: ProjectDirectorySort): string {
+  if (sort === "name") return "projects.name COLLATE NOCASE ASC, projects.updated_at DESC";
+  if (sort === "updated") return "projects.updated_at DESC, projects.name COLLATE NOCASE ASC";
+  if (sort === "team") {
+    return `(SELECT COUNT(*) FROM project_members sort_members
+      WHERE sort_members.project_id = projects.id AND sort_members.active = 1) DESC,
+      projects.name COLLATE NOCASE ASC`;
+  }
+  if (sort === "phase") {
+    return `CASE projects.current_phase
+      WHEN 'start' THEN 0
+      WHEN 'phase-1' THEN 1
+      WHEN 'phase-2a' THEN 2
+      WHEN 'phase-2b' THEN 3
+      WHEN 'phase-3a' THEN 4
+      WHEN 'phase-3b' THEN 5
+      WHEN 'phase-4' THEN 6
+      WHEN 'finish' THEN 7
+      ELSE 8 END,
+      projects.name COLLATE NOCASE ASC`;
+  }
+  return `CASE
+      WHEN EXISTS (SELECT 1 FROM submissions WHERE ${projectSubmissionMatchSql()} AND submissions.status = 'submitted') THEN 0
+      WHEN EXISTS (SELECT 1 FROM submissions WHERE ${projectSubmissionMatchSql()} AND submissions.status = 'revision_requested') THEN 1
+      WHEN projects.status = 'completed' THEN 3
+      ELSE 2 END,
+    projects.updated_at DESC,
+    projects.name COLLATE NOCASE ASC`;
 }
 
 function projectWhere(
@@ -2267,11 +2298,16 @@ function parseProjectDirectoryQuery(url: URL): ProjectDirectoryQuery {
   const filter: ProjectDirectoryFilter = ["all", "review", "changes", "working", "team", "individual"].includes(requestedFilter)
     ? requestedFilter as ProjectDirectoryFilter
     : "all";
+  const requestedSort = String(url.searchParams.get("sort") || "action").trim().toLowerCase();
+  const sort: ProjectDirectorySort = ["action", "updated", "name", "phase", "team"].includes(requestedSort)
+    ? requestedSort as ProjectDirectorySort
+    : "action";
   const requestedPage = Number.parseInt(String(url.searchParams.get("page") || "1"), 10);
   const requestedPageSize = Number.parseInt(String(url.searchParams.get("limit") || DEFAULT_PROJECT_PAGE_SIZE), 10);
   return {
     search,
     filter,
+    sort,
     page: Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1,
     pageSize: Number.isFinite(requestedPageSize)
       ? Math.min(MAX_PROJECT_PAGE_SIZE, Math.max(10, requestedPageSize))

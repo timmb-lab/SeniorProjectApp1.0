@@ -4572,6 +4572,7 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(teacher, /Revision Loop Demo 001/);
   assert.match(teacher, /Project proposal/);
   assert.match(teacher, /Waiting for review/);
+  assert.match(teacher, /7 words written \+ 3 files attached/);
   assert.match(teacher, /3 files attached/);
   assert.match(teacher, /Choose one next step/);
   assert.match(teacher, /Accept opens the next step\. Ask for changes keeps this step open\./);
@@ -13087,6 +13088,7 @@ function siteReviewQueueFixture({
       cohortName: "IT 2026",
       requirementId: "req-proposal",
       requirementTitle: "Project proposal",
+      writtenResponseText: "I built and tested the project plan.",
       status: "submitted",
       version: 2,
       submittedAt: "2026-05-21T12:00:00.000Z",
@@ -13985,14 +13987,18 @@ test("project directory renders one paged worklist, one focused detail, and one 
       availableStudents: [],
       canManage: true,
       isStudent: false,
-      pagination: { page: 2, pageSize: 25, total: 61, totalPages: 3, search: "", filter: "all" },
+      pagination: { page: 2, pageSize: 25, total: 61, totalPages: 3, search: "", filter: "all", sort: "action" },
       summary: { total: 61 }
     })
   `, context);
   assert.match(html, /Showing 26–27 of 61/);
   assert.match(html, /Page 2 of 3/);
   assert.match(html, /data-project-directory-filter-form="true"/);
+  assert.match(html, /name="sort"/);
+  assert.match(html, />Recently updated</);
+  assert.match(html, /data-project-explorer="true"/);
   assert.match(html, /data-project-focused-detail="true"/);
+  assert.match(html, /Project opened/);
   assert.match(html, /Mentor: Morgan Mentor · Program Teacher: Taylor Teacher/);
   assert.match(html, /Mentor: Still needed · Program Teacher: Still needed/);
   assert.equal((html.match(/class="workspace-project-card"/g) || []).length, 1, "only the selected project renders full details");
@@ -14408,7 +14414,7 @@ test("workspace clears school and project state before the next account signs in
     selectedSiteId = "site-east-career-technical-academy";
     activeProjectId = "project-old";
     managedProjectId = "project-managed-old";
-    projectDirectoryFilters = { search: "old student", filter: "team", page: 4, pageSize: 25 };
+    projectDirectoryFilters = { search: "old student", filter: "team", sort: "name", page: 4, pageSize: 25 };
   `, context);
   await vm.runInContext("signOut()", context);
   assert.equal(vm.runInContext("selectedSiteId", context), "");
@@ -14417,6 +14423,7 @@ test("workspace clears school and project state before the next account signs in
   assert.deepEqual(JSON.parse(vm.runInContext("JSON.stringify(projectDirectoryFilters)", context)), {
     search: "",
     filter: "all",
+    sort: "action",
     page: 1,
     pageSize: 25,
   });

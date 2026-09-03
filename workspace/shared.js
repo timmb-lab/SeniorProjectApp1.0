@@ -1635,6 +1635,11 @@ function safeNumber(value) {
   return Number.isFinite(numberValue) ? numberValue : 0;
 }
 
+function workspaceWordCount(value = "") {
+  const words = String(value || "").trim().match(/\S+/g);
+  return words ? words.length : 0;
+}
+
 function clampPercent(value) {
   const numberValue = Number(value);
   if (!Number.isFinite(numberValue)) return 0;
@@ -2902,6 +2907,7 @@ function defaultProjectDirectoryFilters() {
   return {
     search: "",
     filter: "all",
+    sort: "action",
     page: 1,
     pageSize: 25,
   };
@@ -4134,6 +4140,9 @@ function projectDirectoryQueryString() {
   if (filters.search) params.set("search", cleanSearchFilter(filters.search));
   if (["review", "changes", "working", "team", "individual"].includes(filters.filter)) {
     params.set("filter", filters.filter);
+  }
+  if (["updated", "name", "phase", "team"].includes(filters.sort)) {
+    params.set("sort", filters.sort);
   }
   if (safeNumber(filters.page) > 1) params.set("page", String(filters.page));
   if (safeNumber(filters.pageSize) !== 25) params.set("limit", String(filters.pageSize));

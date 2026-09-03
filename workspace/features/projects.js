@@ -109,7 +109,8 @@ function renderProjectDirectoryWorklist(projects = [], options = {}) {
   const totalPages = Math.max(1, safeNumber(pagination.totalPages) || 1);
   const search = cleanSearchFilter(pagination.search ?? projectDirectoryFilters.search);
   const filter = cleanProjectDirectoryFilter(pagination.filter ?? projectDirectoryFilters.filter);
-  const hasFilters = Boolean(search || filter !== "all");
+  const sort = cleanProjectDirectorySort(pagination.sort ?? projectDirectoryFilters.sort);
+  const hasFilters = Boolean(search || filter !== "all" || sort !== "action");
   const firstNumber = filteredTotal ? ((page - 1) * pageSize) + 1 : 0;
   const lastNumber = filteredTotal ? Math.min(filteredTotal, firstNumber + rows.length - 1) : 0;
   const selectedIndex = rows.findIndex((project) => project.projectId === activeProjectId);
@@ -135,7 +136,7 @@ function renderProjectDirectoryWorklist(projects = [], options = {}) {
         <div>
           <p class="workspace-kicker">Project list</p>
           <h2 id="projectListTitle">School projects</h2>
-          <p>Find one project. Then open it below.</p>
+          <p>Choose one project. Its details open in the project pane.</p>
         </div>
         <div class="workspace-project-view-switch" aria-label="Project view">
           <button class="${projectDirectoryView === "table" ? "is-active" : ""}" type="button" data-project-action="view" data-project-view="table" aria-pressed="${projectDirectoryView === "table"}">List</button>
@@ -153,49 +154,60 @@ function renderProjectDirectoryWorklist(projects = [], options = {}) {
             ${renderProjectDirectoryFilterOptions(filter)}
           </select>
         </label>
+        <label>
+          <span>Sort by</span>
+          <select name="sort">
+            ${renderProjectDirectorySortOptions(sort)}
+          </select>
+        </label>
         <button class="workspace-primary-button workspace-button-small" type="submit">Find projects</button>
         ${hasFilters ? `<button class="workspace-button workspace-button-secondary workspace-button-small" type="button" data-project-action="clear-filters">Clear</button>` : ""}
       </form>
-      <div class="workspace-project-result-line" aria-live="polite">
-        <strong>${filteredTotal ? `Showing ${firstNumber}–${lastNumber} of ${filteredTotal}` : "No matching projects"}</strong>
-        <span>${hasFilters ? "These results use your search and filter." : "These are all projects this account can open."}</span>
-      </div>
       ${rows.length ? `
-        ${projectDirectoryView === "board" ? renderProjectBoard(rows) : `
-          <div class="workspace-project-list" data-project-list="true" data-project-view-content="table">
-            <div class="workspace-project-table-head" aria-hidden="true">
-              <span>Project</span>
-              <span>Students</span>
-              <span>Phase</span>
-              <span>Status</span>
-              <span>Open</span>
+        <div class="workspace-project-explorer" data-project-explorer="true" data-project-view="${escapeHtml(projectDirectoryView)}" data-project-selected="${selectedProject ? "true" : "false"}">
+          <div class="workspace-project-list-pane">
+            <div class="workspace-project-result-line" aria-live="polite">
+              <strong>${filteredTotal ? `Showing ${firstNumber}–${lastNumber} of ${filteredTotal}` : "No matching projects"}</strong>
+              <span>${hasFilters ? "These results use your search, filter, and sort choices." : "These are all projects this account can open."}</span>
             </div>
-            ${rows.map((project) => renderProjectDirectoryRow(project, project.projectId === selectedProject?.projectId)).join("")}
+            ${projectDirectoryView === "board" ? renderProjectBoard(rows) : `
+              <div class="workspace-project-list" data-project-list="true" data-project-view-content="table">
+                <div class="workspace-project-table-head" aria-hidden="true">
+                  <span>Project</span>
+                  <span>Students</span>
+                  <span>Phase</span>
+                  <span>Status</span>
+                  <span>Open</span>
+                </div>
+                ${rows.map((project) => renderProjectDirectoryRow(project, project.projectId === selectedProject?.projectId)).join("")}
+              </div>
+            `}
+            ${renderProjectPageNavigation({ page, totalPages, filteredTotal })}
           </div>
-        `}
-        ${renderProjectPageNavigation({ page, totalPages, filteredTotal })}
-        <section class="workspace-project-focused-detail" aria-labelledby="projectFocusedDetailTitle" data-project-focused-detail="true">
-          <div class="workspace-project-section-head">
-            <div>
-              <p class="workspace-kicker">Open project</p>
-              <h2 id="projectFocusedDetailTitle">${selectedProject ? escapeHtml(selectedProject.name || "Project details") : "Choose a project"}</h2>
-              <p>${selectedProject ? "Only this project's details and actions are open." : "Choose one row above to see its team, files, and next step."}</p>
+          <section class="workspace-project-focused-detail" id="projectFocusedDetail" aria-labelledby="projectFocusedDetailTitle" data-project-focused-detail="true" tabindex="-1" aria-live="polite">
+            <div class="workspace-project-section-head">
+              <div>
+                <p class="workspace-kicker">${selectedProject ? "Project opened" : "Project pane"}</p>
+                <h2 id="projectFocusedDetailTitle">${selectedProject ? escapeHtml(selectedProject.name || "Project details") : "Choose a project"}</h2>
+                <p>${selectedProject ? "This is the project you selected. Its team, files, notes, and next step are here." : "Choose one project from the list. Its details will appear here."}</p>
+              </div>
+              ${selectedProject ? `<span class="workspace-project-opened-badge">Open now</span>` : ""}
             </div>
-          </div>
-          ${selectedProject ? renderProjectCard(selectedProject, {
-            open: true,
-            canManage: options.canManage,
-            isStudent: options.isStudent,
-            availableStudents: options.availableStudents || [],
-            position: firstNumber + actualSelectedIndex,
-            total: filteredTotal,
-            previousProject: rows[actualSelectedIndex - 1] || null,
-            nextProject: rows[actualSelectedIndex + 1] || null,
-            availableProjectAdults: options.availableProjectAdults || {},
-            canOpenReviewQueue: options.canOpenReviewQueue,
-            canMakeReviewDecision: options.canMakeReviewDecision,
-          }) : `<div class="workspace-project-focus-empty"><p>Select a project from the list.</p></div>`}
-        </section>
+            ${selectedProject ? renderProjectCard(selectedProject, {
+              open: true,
+              canManage: options.canManage,
+              isStudent: options.isStudent,
+              availableStudents: options.availableStudents || [],
+              position: firstNumber + actualSelectedIndex,
+              total: filteredTotal,
+              previousProject: rows[actualSelectedIndex - 1] || null,
+              nextProject: rows[actualSelectedIndex + 1] || null,
+              availableProjectAdults: options.availableProjectAdults || {},
+              canOpenReviewQueue: options.canOpenReviewQueue,
+              canMakeReviewDecision: options.canMakeReviewDecision,
+            }) : `<div class="workspace-project-focus-empty"><p>Select a project from the list.</p></div>`}
+          </section>
+        </div>
       ` : `
         <section class="workspace-card workspace-empty-card">
           <h3>No projects match</h3>
@@ -218,6 +230,16 @@ function renderProjectDirectoryFilterOptions(selected = "all") {
   ].map(([value, label]) => `<option value="${value}" ${selected === value ? "selected" : ""}>${label}</option>`).join("");
 }
 
+function renderProjectDirectorySortOptions(selected = "action") {
+  return [
+    ["action", "Next action"],
+    ["updated", "Recently updated"],
+    ["name", "Project name"],
+    ["phase", "Project stage"],
+    ["team", "Largest team"],
+  ].map(([value, label]) => `<option value="${value}" ${selected === value ? "selected" : ""}>${label}</option>`).join("");
+}
+
 function renderProjectDirectoryRow(project = {}, selected = false) {
   const members = Array.isArray(project.members) ? project.members : [];
   const memberNames = members.map((member) => member.displayName).join(", ") || "No students";
@@ -233,7 +255,7 @@ function renderProjectDirectoryRow(project = {}, selected = false) {
       ? { label: "Waiting for review", tone: "submitted" }
       : { label: "In progress", tone: "in_progress" };
   return `
-    <button class="workspace-project-directory-row ${selected ? "is-selected" : ""}" type="button" data-project-action="open-row" data-project-id="${escapeHtml(project.projectId || "")}" ${selected ? 'aria-current="true"' : ""}>
+    <button class="workspace-project-directory-row ${selected ? "is-selected" : ""}" type="button" data-project-action="open-row" data-project-id="${escapeHtml(project.projectId || "")}" data-project-name="${escapeHtml(project.name || "Senior Project")}" aria-controls="projectFocusedDetail" aria-expanded="${selected ? "true" : "false"}" ${selected ? 'aria-current="true"' : ""}>
       <span title="${escapeHtml(adultNames)}"><strong>${escapeHtml(project.name || "Senior Project")}</strong><small>${escapeHtml(project.programName || "Program not set")}</small><small>${escapeHtml(adultNames)}</small></span>
       <span title="${escapeHtml(memberNames)}">${escapeHtml(memberNames)}</span>
       <span>${escapeHtml(phase.label.replace(/^Phase\s+\d+[A-Za-z]?:\s*/i, ""))}</span>
@@ -257,6 +279,11 @@ function renderProjectPageNavigation({ page = 1, totalPages = 1, filteredTotal =
 function cleanProjectDirectoryFilter(value) {
   const filter = cleanDirectoryFilter(value);
   return ["review", "changes", "working", "team", "individual"].includes(filter) ? filter : "all";
+}
+
+function cleanProjectDirectorySort(value) {
+  const sort = cleanDirectoryFilter(value);
+  return ["updated", "name", "phase", "team"].includes(sort) ? sort : "action";
 }
 
 function renderProjectSiteSelection(sites = []) {
