@@ -65,7 +65,7 @@ test("workspace UI polish manifest records durable local fake-account screenshot
     proofScript.indexOf("SCREENSHOT_PLAN.push"),
   );
   const requiredIds = [...planSource.matchAll(/^\s*id:\s*"([^"]+)"/gm)].map((match) => match[1]);
-  assert.equal(requiredIds.length, 100, "the canonical role and viewport plan must contain 100 screens");
+  assert.equal(requiredIds.length, 107, "the canonical role and viewport plan must contain 107 screens");
   assert.equal(new Set(requiredIds).size, requiredIds.length, "screenshot plan ids must be unique");
   assert.equal(manifest.screenshots.length, requiredIds.length);
   assert.deepEqual(manifest.screenshots.map((screenshot) => screenshot.id), requiredIds);
@@ -83,7 +83,10 @@ test("workspace UI polish manifest records durable local fake-account screenshot
     assert.equal(screenshot.checks.noVisiblePasswordValues, true, `${screenshot.id} password values`);
     assert.equal(screenshot.checks.noSecretLikeText, true, `${screenshot.id} secret-like text`);
     assert.equal(screenshot.checks.noHorizontalOverflow, true, `${screenshot.id} horizontal overflow`);
+    assert.equal(screenshot.checks.topbarLayoutSafe, true, `${screenshot.id} topbar layout`);
     assert.equal(screenshot.checks.drawerOpenWhenRequested, true, `${screenshot.id} drawer check`);
+    assert.equal(screenshot.checks.toolsOpenWhenRequested, true, `${screenshot.id} Tools menu check`);
+    assert.equal(screenshot.checks.accountMenuOpenWhenRequested, true, `${screenshot.id} account menu check`);
     assert.equal(screenshot.checks.expectedThemeApplied, true, `${screenshot.id} theme check`);
     assert.equal(screenshot.checks.expectedSchoolThemeApplied, true, `${screenshot.id} school theme check`);
     assert.equal(screenshot.checks.expectedHeadingFontApplied, true, `${screenshot.id} heading font check`);
@@ -140,6 +143,13 @@ test("workspace UI polish manifest records durable local fake-account screenshot
   assert.equal(byId.get("97-dark-global-admin-east-tech").presentation.schoolTheme, "east-tech");
   assert.match(byId.get("97-dark-global-admin-east-tech").presentation.headingFontFamily, /Barlow Semi Condensed/);
   assert.equal(byId.get("97-dark-global-admin-east-tech").presentation.eastTechFontLoaded, true);
+  assert.equal(byId.get("101-site-admin-tools-phone").markers.toolsOpen, true);
+  assert.equal(byId.get("102-site-admin-console-tools-phone").markers.toolsOpen, true);
+  assert.equal(byId.get("103-program-teacher-tools-phone").markers.toolsOpen, true);
+  assert.equal(byId.get("104-mentor-phone-without-empty-tools").markers.toolsOpen, false);
+  assert.equal(byId.get("105-student-phone-without-empty-tools").markers.toolsOpen, false);
+  assert.equal(byId.get("106-site-admin-account-phone").markers.accountMenuOpen, true);
+  assert.equal(byId.get("107-global-admin-tools-half-screen").markers.toolsOpen, true);
 });
 
 test("workspace UI polish screenshot index preserves fake-account and no-go caveats", () => {

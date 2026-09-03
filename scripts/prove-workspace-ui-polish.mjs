@@ -1,4 +1,5 @@
 import { spawn, spawnSync } from "node:child_process";
+import { createHmac } from "node:crypto";
 import { existsSync } from "node:fs";
 import fs from "node:fs/promises";
 import net from "node:net";
@@ -8,6 +9,7 @@ import { setTimeout as sleep } from "node:timers/promises";
 
 const ROOT = process.cwd();
 const BASE_URL_FROM_ENV = (process.env.WORKSPACE_UI_POLISH_BASE_URL || "").replace(/\/$/, "");
+const HOSTED_PROOF = Boolean(BASE_URL_FROM_ENV);
 const WORKSPACE_ENTRY_PATH = normalizeWorkspaceEntryPath(process.env.WORKSPACE_UI_POLISH_ENTRY_PATH || "/workspace");
 const CREDENTIALS_PATH = process.env.WORKSPACE_UI_POLISH_CREDENTIALS_PATH
   || path.join(".secrets", "admin-console-local-browser-accounts.json");
@@ -289,10 +291,10 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?mode=admin&section=adminStudents&siteId=site-desert-valley-high"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
-    expected: ["Students", "Current student accounts", "REVIEW FIRST", "Assign coverage", "Show setup counts"],
+    expected: ["Students", "Current student accounts", "CURRENT ROSTER STATE", "No student setup blocker is first in line", "Show setup counts"],
     absent: ["Students visible", "Roster fields", "Mentor gaps", "Viewer gaps"],
     action: "scrollToPeopleScreen",
-    proves: "Students opens on the first roster setup issue and real student rows, with setup counts collapsed.",
+    proves: "Students opens on the current roster state and real student rows, with setup counts collapsed.",
   },
   {
     id: "19-csv-import-template",
@@ -552,7 +554,7 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?mode=workspace&section=students&siteId=site-desert-valley-high"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
-    expected: ["Student", "Evidence", "Files uploaded"],
+    expected: ["Student", "Evidence", "GOOGLE DRIVE LINKS AND REVIEW STATUS", "Project links"],
     actions: ["clickFirstStudentDetail", "clickStudentDetailEvidenceTab"],
     proves: "Student Detail exposes the Prompt 3 Evidence tab through the protected detail drawer.",
   },
@@ -564,7 +566,7 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?mode=workspace&section=staffReports&siteId=site-desert-valley-high"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
-    expected: ["Reports", "Student Progress Reports", "Visible students by status", "Needs Review", "Missing work/setup"],
+    expected: ["Reports", "Student Progress Reports", "Answer one report question", "STUDENTS NEEDING ATTENTION", "WORK WAITING FOR REVIEW"],
     absent: ["Admin Console Overview", "Role context", "Showing 0 of 0"],
     proves: "Workspace Reports show scoped student status bars outside Admin Console.",
   },
@@ -612,7 +614,7 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?mode=workspace&section=students&siteId=site-desert-valley-high"),
     viewport: { width: 390, height: 844, deviceScaleFactor: 2, mobile: true },
-    expected: ["Student", "Evidence", "Files uploaded", "FILES AND REVIEW STATUS", "Protected file details"],
+    expected: ["Student", "Evidence", "GOOGLE DRIVE LINKS AND REVIEW STATUS", "Project links", "The student shared this link for review"],
     absent: ["Download file", "storage id", "Showing 0 of 0"],
     actions: ["clickFirstStudentDetail", "clickStudentDetailEvidenceTab"],
     proves: "Student Detail Evidence stays usable on phone width without exposing file/storage identifiers.",
@@ -1071,6 +1073,90 @@ const SCREENSHOT_PLAN = [
     absent: ["Admin Console", "Staff Workspace"],
     proves: "Student Today keeps the next-step map readable at half-screen width.",
   },
+  {
+    id: "101-site-admin-tools-phone",
+    label: "Site Admin Tools on narrow phone",
+    persona: "Site Admin using Tools on a narrow phone",
+    authRole: "site_admin",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?mode=workspace&section=projects&siteId=site-desert-valley-high"),
+    viewport: { width: 320, height: 720, deviceScaleFactor: 2, mobile: true },
+    expected: ["Tools", "Find a student", "Open students", "Workspace", "Admin Console"],
+    action: "openTools",
+    proves: "Site Admin Tools opens below the measured phone header with a stacked student search and balanced mode choices.",
+  },
+  {
+    id: "102-site-admin-console-tools-phone",
+    label: "Site Admin Console Tools on narrow phone",
+    persona: "Site Admin using Admin Console Tools on a narrow phone",
+    authRole: "site_admin",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?mode=admin&section=overview&siteId=site-desert-valley-high"),
+    viewport: { width: 320, height: 720, deviceScaleFactor: 2, mobile: true },
+    expected: ["Tools", "Find a student", "Open students", "Workspace", "Admin Console"],
+    action: "openTools",
+    proves: "The Site Admin Console Tools menu stays inside a narrow phone viewport without covering its trigger row.",
+  },
+  {
+    id: "103-program-teacher-tools-phone",
+    label: "Program Teacher Tools on narrow phone",
+    persona: "Program Teacher using Tools on a narrow phone",
+    authRole: "program_teacher",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?section=teacher&siteId=site-desert-valley-high"),
+    viewport: { width: 320, height: 720, deviceScaleFactor: 2, mobile: true },
+    expected: ["Tools", "Find a student", "Open students"],
+    action: "openTools",
+    proves: "Program Teacher search tools stay readable and reachable at the narrow supported phone width.",
+  },
+  {
+    id: "104-mentor-phone-without-empty-tools",
+    label: "Mentor phone without empty Tools",
+    persona: "Mentor using a narrow phone",
+    authRole: "mentor",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?section=mentorDashboard&siteId=site-desert-valley-high"),
+    viewport: { width: 320, height: 720, deviceScaleFactor: 2, mobile: true },
+    expected: ["Mentor", "Your next check-in"],
+    absent: ["Tools", "Admin Console"],
+    proves: "Mentors do not see a dead-end Tools button when no switcher or search action is available.",
+  },
+  {
+    id: "105-student-phone-without-empty-tools",
+    label: "Student phone without empty Tools",
+    persona: "Student using a narrow phone",
+    authRole: "student",
+    accountType: "Fake .test demo student account",
+    url: workspaceUrl("?section=studentWork"),
+    viewport: { width: 320, height: 720, deviceScaleFactor: 2, mobile: true },
+    expected: ["My Capstone", "My Project"],
+    absent: ["Tools", "Admin Console", "Staff Workspace"],
+    proves: "Students do not see a dead-end Tools button when their account has no top-bar tools.",
+  },
+  {
+    id: "106-site-admin-account-phone",
+    label: "Site Admin account menu on narrow phone",
+    persona: "Site Admin using the account menu on a narrow phone",
+    authRole: "site_admin",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?mode=workspace&section=overview&siteId=site-desert-valley-high"),
+    viewport: { width: 320, height: 720, deviceScaleFactor: 2, mobile: true },
+    expected: ["Dark view", "Refresh", "Sign out"],
+    action: "openAccountMenu",
+    proves: "The compact phone account button opens full-width account actions below the measured header.",
+  },
+  {
+    id: "107-global-admin-tools-half-screen",
+    label: "Global Admin Tools at half-screen width",
+    persona: "Global Admin using Tools at half-screen width",
+    authRole: "admin",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?mode=admin&section=overview&siteId=site-desert-valley-high"),
+    viewport: { width: 820, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Tools", "Find a student", "Open students", "Workspace", "Admin Console"],
+    action: "openTools",
+    proves: "Global Admin Tools uses one clear column and balanced mode buttons at half-screen width.",
+  },
 ];
 
 const DARK_THEME_ROLE_PLAN = [
@@ -1238,7 +1324,11 @@ async function readAccounts() {
     if (!role || byRole.has(role)) continue;
     const email = account.email || account.username;
     const password = account.password;
-    if (email && password) byRole.set(role, { email, password });
+    if (email && password) byRole.set(role, {
+      email,
+      password,
+      mfaSecret: String(account.mfaSecret || "").trim(),
+    });
   }
   const requiredRoles = [...new Set(RUN_PLAN.map((item) => normalizeAccountRole(item.authRole)).filter(Boolean))];
   const missing = requiredRoles.filter((role) => !byRole.has(role));
@@ -1518,14 +1608,87 @@ async function login(client, account) {
         body: JSON.stringify({ email: ${JSON.stringify(account.email)}, password: ${JSON.stringify(account.password)} })
       });
       const body = await response.json().catch(() => ({}));
-      return { status: response.status, ok: body && body.ok === true, error: body && body.error ? body.error : null };
+      return {
+        status: response.status,
+        ok: body && body.ok === true,
+        error: body && body.error ? body.error : null,
+        challengeToken: body && body.challengeToken ? body.challengeToken : null,
+        mfaSecret: body && body.mfa && body.mfa.secret ? body.mfa.secret : null
+      };
     })()`,
     { awaitPromise: true },
   );
+  if (result?.status === 200 && result?.ok === true) {
+    return { status: result.status, ok: result.ok };
+  }
+  if (result?.status === 202 && ["mfa_enrollment_required", "mfa_required"].includes(result?.error)) {
+    const secret = result.error === "mfa_enrollment_required"
+      ? String(result.mfaSecret || "").trim()
+      : String(account.mfaSecret || "").trim();
+    if (!result.challengeToken || !secret) {
+      throw new Error("Login needs the fake account's saved extra sign-in setup.");
+    }
+    let verification = await verifyMfaLogin(client, result.challengeToken, currentTotpCode(secret));
+    if (verification?.error === "invalid_mfa_code") {
+      await sleep(30_000 - (Date.now() % 30_000) + 750);
+      verification = await verifyMfaLogin(client, result.challengeToken, currentTotpCode(secret));
+    }
+    if (verification?.status !== 200 || verification?.ok !== true) {
+      throw new Error(`Extra sign-in failed with HTTP ${verification?.status || "unknown"}${verification?.error ? ` (${verification.error})` : ""}`);
+    }
+    account.mfaSecret = secret;
+    return { status: verification.status, ok: verification.ok };
+  }
   if (result?.status !== 200 || result?.ok !== true) {
     throw new Error(`Login failed with HTTP ${result?.status || "unknown"}${result?.error ? ` (${result.error})` : ""}`);
   }
   return { status: result.status, ok: result.ok };
+}
+
+async function verifyMfaLogin(client, challengeToken, code) {
+  return client.evaluate(
+    `(async () => {
+      const response = await fetch("/api/auth/mfa/verify", {
+        method: "POST",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ challengeToken: ${JSON.stringify(challengeToken)}, code: ${JSON.stringify(code)} })
+      });
+      const body = await response.json().catch(() => ({}));
+      return { status: response.status, ok: body && body.ok === true, error: body && body.error ? body.error : null };
+    })()`,
+    { awaitPromise: true },
+  );
+}
+
+function decodeBase32(value) {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  let bits = 0;
+  let buffer = 0;
+  const bytes = [];
+  for (const character of String(value || "").toUpperCase().replace(/=+$/g, "")) {
+    const index = alphabet.indexOf(character);
+    if (index < 0) throw new Error("The fake account's saved extra sign-in setup is invalid.");
+    buffer = (buffer << 5) | index;
+    bits += 5;
+    if (bits >= 8) {
+      bytes.push((buffer >>> (bits - 8)) & 255);
+      bits -= 8;
+    }
+  }
+  return Buffer.from(bytes);
+}
+
+function currentTotpCode(secret) {
+  const counter = Buffer.alloc(8);
+  counter.writeBigUInt64BE(BigInt(Math.floor(Date.now() / 30_000)));
+  const digest = createHmac("sha1", decodeBase32(secret)).update(counter).digest();
+  const offset = digest[digest.length - 1] & 0x0f;
+  const value = ((digest[offset] & 0x7f) << 24)
+    | ((digest[offset + 1] & 0xff) << 16)
+    | ((digest[offset + 2] & 0xff) << 8)
+    | (digest[offset + 3] & 0xff);
+  return String(value % 1_000_000).padStart(6, "0");
 }
 
 async function logout(client) {
@@ -1761,6 +1924,28 @@ async function performSinglePlanAction(client, action) {
     await sleep(500);
     return;
   }
+  if (action === "openTools") {
+    const opened = await client.evaluate(`(() => {
+      const tools = document.querySelector("[data-workspace-topbar-tools='true']");
+      if (!tools) return false;
+      tools.setAttribute("open", "");
+      return tools.open === true;
+    })()`);
+    if (!opened) throw new Error("Could not open the workspace Tools menu.");
+    await sleep(500);
+    return;
+  }
+  if (action === "openAccountMenu") {
+    const opened = await client.evaluate(`(() => {
+      const account = document.querySelector("[data-account-menu='true']");
+      if (!account) return false;
+      account.setAttribute("open", "");
+      return account.open === true;
+    })()`);
+    if (!opened) throw new Error("Could not open the workspace account menu.");
+    await sleep(500);
+    return;
+  }
   if (action === "clickFirstStudentDetail") {
     await clickSelector(client, "[data-site-student-action='view-detail'][data-student-detail-id]", "first student detail action");
     await waitForSelectorState(client, "[data-student-detail-panel='true']");
@@ -1929,6 +2114,92 @@ async function collectPageState(client) {
         });
       }
     }
+    const topbarAudit = { checked: 0, failures: [] };
+    const topbar = document.querySelector(".workspace-v2-topbar");
+    const topbarControlSelector = [
+      ".workspace-v2-brandline > .workspace-menu-toggle",
+      ".workspace-v2-brandline > .workspace-brand",
+      ".workspace-v2-tools > summary",
+      ".workspace-v2-user > .workspace-active-role-badge",
+      ".workspace-v2-user > .workspace-account-menu > .workspace-account-summary",
+    ].join(",");
+    const topbarControls = Array.from(document.querySelectorAll(topbarControlSelector)).filter(isVisible);
+    const topbarRows = topbarControls.map((element) => {
+      const rect = element.getBoundingClientRect();
+      return {
+        element,
+        selector: shortSelector(element),
+        label: String(element.getAttribute("aria-label") || element.innerText || "").replace(/\\s+/g, " ").trim().slice(0, 80),
+        rect,
+      };
+    });
+    topbarAudit.checked = topbarRows.length;
+    for (const row of topbarRows) {
+      if (row.rect.left < -1 || row.rect.right > window.innerWidth + 1) {
+        topbarAudit.failures.push({
+          type: "outside-viewport",
+          selector: row.selector,
+          label: row.label,
+          left: Number(row.rect.left.toFixed(1)),
+          right: Number(row.rect.right.toFixed(1)),
+          viewportWidth: window.innerWidth,
+        });
+      }
+    }
+    for (let firstIndex = 0; firstIndex < topbarRows.length; firstIndex += 1) {
+      for (let secondIndex = firstIndex + 1; secondIndex < topbarRows.length; secondIndex += 1) {
+        const first = topbarRows[firstIndex];
+        const second = topbarRows[secondIndex];
+        const overlapX = Math.min(first.rect.right, second.rect.right) - Math.max(first.rect.left, second.rect.left);
+        const overlapY = Math.min(first.rect.bottom, second.rect.bottom) - Math.max(first.rect.top, second.rect.top);
+        if (overlapX > 1 && overlapY > 1) {
+          topbarAudit.failures.push({
+            type: "control-overlap",
+            first: first.label || first.selector,
+            second: second.label || second.selector,
+            overlapX: Number(overlapX.toFixed(1)),
+            overlapY: Number(overlapY.toFixed(1)),
+          });
+        }
+      }
+    }
+    for (const panel of document.querySelectorAll(".workspace-v2-tools[open] > .workspace-v2-tools-panel, .workspace-account-menu[open] > .workspace-topbar-actions")) {
+      if (!isVisible(panel)) continue;
+      const rect = panel.getBoundingClientRect();
+      const position = getComputedStyle(panel).position;
+      if (rect.left < -1 || rect.right > window.innerWidth + 1) {
+        topbarAudit.failures.push({
+          type: "panel-outside-viewport",
+          selector: shortSelector(panel),
+          left: Number(rect.left.toFixed(1)),
+          right: Number(rect.right.toFixed(1)),
+          viewportWidth: window.innerWidth,
+        });
+      }
+      if (position === "fixed" && topbar && rect.top < topbar.getBoundingClientRect().bottom - 1) {
+        topbarAudit.failures.push({
+          type: "panel-covers-header",
+          selector: shortSelector(panel),
+          panelTop: Number(rect.top.toFixed(1)),
+          headerBottom: Number(topbar.getBoundingClientRect().bottom.toFixed(1)),
+        });
+      }
+      const panelControls = Array.from(panel.querySelectorAll("button, input:not([type='hidden']), select, textarea, summary, [role='button'], a")).filter(isVisible);
+      for (const control of panelControls) {
+        const controlRect = control.getBoundingClientRect();
+        if (controlRect.left < rect.left - 1 || controlRect.right > rect.right + 1) {
+          topbarAudit.failures.push({
+            type: "panel-control-clipped",
+            selector: shortSelector(control),
+            label: String(control.getAttribute("aria-label") || control.innerText || control.value || "").replace(/\\s+/g, " ").trim().slice(0, 80),
+            left: Number(controlRect.left.toFixed(1)),
+            right: Number(controlRect.right.toFixed(1)),
+            panelLeft: Number(rect.left.toFixed(1)),
+            panelRight: Number(rect.right.toFixed(1)),
+          });
+        }
+      }
+    }
     const text = document.body ? document.body.innerText : "";
     const visiblePasswordValues = Array.from(document.querySelectorAll("input[type='password']"))
       .map((input) => input.value || "")
@@ -1965,7 +2236,8 @@ async function collectPageState(client) {
         documentClientWidth: document.documentElement.clientWidth,
         documentScrollWidth: document.documentElement.scrollWidth,
         bodyScrollWidth: document.body ? document.body.scrollWidth : 0,
-        horizontalOverflow: document.documentElement.scrollWidth > window.innerWidth + 1
+        horizontalOverflow: document.documentElement.scrollWidth > window.innerWidth + 1,
+        topbar: topbarAudit,
       },
       accessibility: {
         contrast: contrastAudit,
@@ -2003,7 +2275,9 @@ async function collectPageState(client) {
         studentWork: Boolean(document.querySelector("[data-student-work-section]")),
         problemState: Boolean(document.querySelector("[data-workspace-state='permission-denied'], .workspace-problem-state")),
         intentionalEmptyState: Boolean(document.querySelector("[data-intentional-empty-state], [data-student-directory-empty='true']")),
-        finalFiles: Boolean(document.querySelector("[data-archive-dashboard], .workspace-archive-dashboard, [data-student-final-checklist='true']"))
+        finalFiles: Boolean(document.querySelector("[data-archive-dashboard], .workspace-archive-dashboard, [data-student-final-checklist='true']")),
+        toolsOpen: Boolean(document.querySelector("[data-workspace-topbar-tools='true'][open]")),
+        accountMenuOpen: Boolean(document.querySelector("[data-account-menu='true'][open]")),
       },
       v2: {
         frame: Boolean(document.querySelector('[data-flow-frame="v2-from-scratch"]')),
@@ -2031,6 +2305,12 @@ function checkPage(planItem, pageState) {
   const drawerOpenWhenRequested = requestedActions.includes("openDrawer")
     ? pageState.drawer.railPresent && pageState.drawer.hidden === false && pageState.drawer.expanded === "true"
     : true;
+  const toolsOpenWhenRequested = requestedActions.includes("openTools")
+    ? pageState.markers?.toolsOpen === true
+    : true;
+  const accountMenuOpenWhenRequested = requestedActions.includes("openAccountMenu")
+    ? pageState.markers?.accountMenuOpen === true
+    : true;
   const expectedTheme = planItem.theme === "dark" ? "dark" : "light";
   const expectedSchoolTheme = String(planItem.expectedSchoolTheme || "").trim();
   const expectedHeadingFont = String(planItem.expectedHeadingFont || "").trim();
@@ -2043,7 +2323,11 @@ function checkPage(planItem, pageState) {
     noSecretLikeText: secretMatches.length === 0,
     secretPatternMatches: secretMatches,
     noHorizontalOverflow: pageState.layout.horizontalOverflow === false,
+    topbarLayoutSafe: (pageState.layout?.topbar?.failures || []).length === 0,
+    topbarLayoutFailures: pageState.layout?.topbar?.failures || [],
     drawerOpenWhenRequested,
+    toolsOpenWhenRequested,
+    accountMenuOpenWhenRequested,
     expectedThemeApplied: pageState.presentation?.theme === expectedTheme,
     expectedSchoolThemeApplied: !expectedSchoolTheme || pageState.presentation?.schoolTheme === expectedSchoolTheme,
     expectedHeadingFontApplied: !expectedHeadingFont || (
@@ -2080,8 +2364,12 @@ function markdownCell(value) {
 }
 
 async function writeScreenshotIndex(result) {
+  const environmentLabel = HOSTED_PROOF ? "Hosted fake-account UI proof only." : "Local fake-account UI proof only.";
+  const claimBoundary = HOSTED_PROOF
+    ? "These screenshots prove hosted fake-account demo UI state on the configured public base URL."
+    : "These screenshots prove local fake-account demo UI state only.";
   const rows = result.screenshots.map((screenshot) => (
-    `| \`${markdownCell(screenshot.screenshot)}\` | ${markdownCell(screenshot.persona)} | \`${markdownCell(screenshot.role)}\` | ${markdownCell(screenshot.accountType)} | ${markdownCell(`${screenshot.viewport?.width || 0}x${screenshot.viewport?.height || 0}`)} | ${markdownCell(screenshot.proves)} | Local fake-account UI proof only. |`
+    `| \`${markdownCell(screenshot.screenshot)}\` | ${markdownCell(screenshot.persona)} | \`${markdownCell(screenshot.role)}\` | ${markdownCell(screenshot.accountType)} | ${markdownCell(`${screenshot.viewport?.width || 0}x${screenshot.viewport?.height || 0}`)} | ${markdownCell(screenshot.proves)} | ${environmentLabel} |`
   ));
   const content = `# Workspace UI Polish Screenshot Index
 
@@ -2095,7 +2383,7 @@ Screenshot directory: \`${result.screenshotDir}/\`
 
 ## Claim Boundary
 
-These screenshots prove local fake-account demo UI state only. They do not prove real-student pilot readiness, FERPA certification, support readiness, retention readiness, or district policy approval. Real-student pilot remains **NO-GO** until the required external approvals and real-user evidence exist.
+${claimBoundary} They do not prove real-student pilot readiness, FERPA certification, support readiness, retention readiness, or district policy approval. Real-student pilot remains **NO-GO** until the required external approvals and real-user evidence exist.
 
 \`student_archive_manifest_download\` remains a future/not-ready pilot item unless a later hosted proof explicitly shows a scoped student manifest download is available and safe.
 
@@ -2122,7 +2410,10 @@ function passedChecks(checks) {
     && checks.noVisiblePasswordValues
     && checks.noSecretLikeText
     && checks.noHorizontalOverflow
+    && checks.topbarLayoutSafe
     && checks.drawerOpenWhenRequested
+    && checks.toolsOpenWhenRequested
+    && checks.accountMenuOpenWhenRequested
     && checks.expectedThemeApplied
     && checks.expectedSchoolThemeApplied
     && checks.expectedHeadingFontApplied
@@ -2146,7 +2437,7 @@ async function run() {
   await fs.mkdir(screenshotsAbsoluteDir, { recursive: true });
 
   const result = {
-    proof: "workspace_ui_polish_local_browser",
+    proof: HOSTED_PROOF ? "workspace_ui_polish_hosted_browser" : "workspace_ui_polish_local_browser",
     verdict: "PENDING",
     baseUrl: null,
     workspaceEntryPath: WORKSPACE_ENTRY_PATH,
@@ -2161,7 +2452,9 @@ async function run() {
     manifestPath: MANIFEST_PATH.replaceAll("\\", "/"),
     fakeDataOnly: true,
     realStudentProductionStatus: "NOT_CLAIMED_READY",
-    claimBoundary: "Local fake-account browser UI proof only. Does not prove real-student pilot readiness.",
+    claimBoundary: HOSTED_PROOF
+      ? "Hosted fake-account browser UI proof only. Does not prove real-student pilot readiness."
+      : "Local fake-account browser UI proof only. Does not prove real-student pilot readiness.",
     screenshots: [],
     failures: [],
   };
@@ -2237,7 +2530,7 @@ async function run() {
         screenshot: relativePath,
         expected: planItem.expected,
         proves: planItem.proves,
-        caveat: "Fake/demo account UI screenshot only; not real-student production pilot proof.",
+        caveat: `${HOSTED_PROOF ? "Hosted" : "Local"} fake/demo account UI screenshot only; not real-student production pilot proof.`,
         login: loginResult,
         checks,
         markers: pageState.markers,
@@ -2251,7 +2544,11 @@ async function run() {
     }
 
     result.completedAt = new Date().toISOString();
-    result.verdict = result.failures.length ? "NOT_GREEN" : "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF";
+    result.verdict = result.failures.length
+      ? "NOT_GREEN"
+      : HOSTED_PROOF
+        ? "GREEN_HOSTED_FAKE_ACCOUNT_UI_POLISH_PROOF"
+        : "GREEN_LOCAL_FAKE_ACCOUNT_UI_POLISH_PROOF";
     await writeManifest(result);
     if (result.failures.length) {
       throw new Error(`Workspace UI polish proof failed for ${result.failures.length} screenshot(s).`);

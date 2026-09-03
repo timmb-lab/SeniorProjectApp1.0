@@ -1,0 +1,1382 @@
+{
+  "proof": "workspace_ui_polish_hosted_browser",
+  "verdict": "GREEN_HOSTED_FAKE_ACCOUNT_UI_POLISH_PROOF",
+  "baseUrl": "https://thecapstoneproject.com",
+  "workspaceEntryPath": "/workspace",
+  "startedAt": "2026-09-03T00:21:50.790Z",
+  "completedAt": "2026-09-03T00:23:44.303Z",
+  "browser": {
+    "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+    "devtoolsProtocol": "1.3"
+  },
+  "server": {
+    "startedByScript": false,
+    "baseUrl": "https://thecapstoneproject.com",
+    "note": "Using WORKSPACE_UI_POLISH_BASE_URL; script did not start local Pages."
+  },
+  "screenshotDir": "docs/sales/screenshots/2026-09-02-responsive-layout-hosted",
+  "manifestPath": "docs/progress/runs/2026-09-02-responsive-layout-hosted-proof.json",
+  "fakeDataOnly": true,
+  "realStudentProductionStatus": "NOT_CLAIMED_READY",
+  "claimBoundary": "Hosted fake-account browser UI proof only. Does not prove real-student pilot readiness.",
+  "screenshots": [
+    {
+      "id": "101-site-admin-tools-phone",
+      "label": "Site Admin Tools on narrow phone",
+      "persona": "Site Admin using Tools on a narrow phone",
+      "role": "site_admin",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 320,
+        "height": 720,
+        "deviceScaleFactor": 2,
+        "mobile": true
+      },
+      "route": "/workspace?mode=workspace&section=projects&siteId=site-desert-valley-high",
+      "screenshot": "docs/sales/screenshots/2026-09-02-responsive-layout-hosted/101-site-admin-tools-phone.png",
+      "expected": [
+        "Tools",
+        "Find a student",
+        "Open students",
+        "Workspace",
+        "Admin Console"
+      ],
+      "proves": "Site Admin Tools opens below the measured phone header with a stacked student search and balanced mode choices.",
+      "caveat": "Hosted fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "topbarLayoutSafe": true,
+        "topbarLayoutFailures": [],
+        "drawerOpenWhenRequested": true,
+        "toolsOpenWhenRequested": true,
+        "accountMenuOpenWhenRequested": true,
+        "expectedThemeApplied": true,
+        "expectedSchoolThemeApplied": true,
+        "expectedHeadingFontApplied": true,
+        "readableBaseType": true,
+        "wcagTextContrast": true,
+        "contrastFailures": [],
+        "noTinyTargets": true,
+        "tinyTargetFailures": [],
+        "keyboardFocusMoves": true,
+        "keyboardFocusIsShown": true,
+        "keyboardReverseMoves": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "adminSetupList": false,
+        "adminSetupReadiness": false,
+        "adminQuickActions": false,
+        "adminStudents": false,
+        "adminAssignments": false,
+        "adminImports": false,
+        "adminPrograms": false,
+        "adminReports": false,
+        "adminAudit": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
+        "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false,
+        "toolsOpen": true,
+        "accountMenuOpen": false
+      },
+      "heading": "Projects",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Desert Canyon Test School FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Site Admin TS PROJECT WORKSPACES Projects Open one project. See the team. Then do the next step. Create project Project overview Counts and setup checks 254 active PROJECT LIST School projects Find one project. Then open it below. List Board Project or student name Show All projects Waiting for review Changes needed In progress Team projects Individual projects Find projects Showing 1–25 of 254 These are all projects this account can open. Arden Bellweather Project Culinary Mentor: Ari Field · Program Teacher: Harper Re",
+      "activeNav": [
+        "Workspace",
+        "Projects\n          Projects\n          ›",
+        "Projects\n          Projects\n          ›",
+        "2\n        Projects",
+        "List"
+      ],
+      "presentation": {
+        "theme": "light",
+        "schoolTheme": "desert-valley",
+        "fontFamily": "\"Segoe UI Variable\", Aptos, \"Segoe UI\", Arial, sans-serif",
+        "headingFontFamily": "\"Segoe UI Variable\", Aptos, \"Segoe UI\", Arial, sans-serif",
+        "eastTechFontLoaded": false,
+        "fontSize": 16,
+        "lineHeight": "24px"
+      },
+      "keyboard": {
+        "forward": [
+          {
+            "tag": "a",
+            "label": "Skip to workspace",
+            "focusKey": 0,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Open menu",
+            "focusKey": 1,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "a",
+            "label": "SC Capstone",
+            "focusKey": 2,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "summary",
+            "label": "Open workspace tools",
+            "focusKey": 3,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "input",
+            "label": "Search the current student view",
+            "focusKey": 4,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Open students",
+            "focusKey": 5,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Workspace",
+            "focusKey": 6,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Admin Console",
+            "focusKey": 7,
+            "visible": true,
+            "focusShown": true
+          }
+        ],
+        "reverse": {
+          "tag": "button",
+          "label": "Workspace",
+          "focusKey": 6,
+          "visible": true,
+          "focusShown": true
+        },
+        "visibleNamedStops": 8,
+        "uniqueNamedStops": 8,
+        "focusMoves": true,
+        "focusIsShown": true,
+        "reverseMoves": true
+      }
+    },
+    {
+      "id": "102-site-admin-console-tools-phone",
+      "label": "Site Admin Console Tools on narrow phone",
+      "persona": "Site Admin using Admin Console Tools on a narrow phone",
+      "role": "site_admin",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 320,
+        "height": 720,
+        "deviceScaleFactor": 2,
+        "mobile": true
+      },
+      "route": "/workspace?mode=admin&section=overview&siteId=site-desert-valley-high",
+      "screenshot": "docs/sales/screenshots/2026-09-02-responsive-layout-hosted/102-site-admin-console-tools-phone.png",
+      "expected": [
+        "Tools",
+        "Find a student",
+        "Open students",
+        "Workspace",
+        "Admin Console"
+      ],
+      "proves": "The Site Admin Console Tools menu stays inside a narrow phone viewport without covering its trigger row.",
+      "caveat": "Hosted fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "topbarLayoutSafe": true,
+        "topbarLayoutFailures": [],
+        "drawerOpenWhenRequested": true,
+        "toolsOpenWhenRequested": true,
+        "accountMenuOpenWhenRequested": true,
+        "expectedThemeApplied": true,
+        "expectedSchoolThemeApplied": true,
+        "expectedHeadingFontApplied": true,
+        "readableBaseType": true,
+        "wcagTextContrast": true,
+        "contrastFailures": [],
+        "noTinyTargets": true,
+        "tinyTargetFailures": [],
+        "keyboardFocusMoves": true,
+        "keyboardFocusIsShown": true,
+        "keyboardReverseMoves": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "adminSetupList": true,
+        "adminSetupReadiness": true,
+        "adminQuickActions": true,
+        "adminStudents": false,
+        "adminAssignments": false,
+        "adminImports": false,
+        "adminPrograms": false,
+        "adminReports": false,
+        "adminAudit": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
+        "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false,
+        "toolsOpen": true,
+        "accountMenuOpen": false
+      },
+      "heading": "Fix the first setup blocker",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Desert Canyon Test School FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Site Admin TS ADMIN CONSOLE Admin Overview What setup, people, assignments, imports, programs, reports, or access issues need attention? Site START HERE Do this first Open the first setup blocker before using broader reports or exports. Site NEXT SETUP MOVE Projects need required adults 3 projects need a confirmed Mentor, Program Teacher, or both. Open projects After that setup item is fixed, return here and refresh. This item leaves the list when current records confirm it. Show setup checklist NEEDS SETUP What to fix ",
+      "activeNav": [
+        "Admin Console",
+        "Start\n          Overview\n          ›",
+        "Start\n          Overview\n          ›",
+        "1\n        Overview"
+      ],
+      "presentation": {
+        "theme": "light",
+        "schoolTheme": "desert-valley",
+        "fontFamily": "\"Segoe UI Variable\", Aptos, \"Segoe UI\", Arial, sans-serif",
+        "headingFontFamily": "\"Segoe UI Variable Display\", \"Aptos Display\", \"Segoe UI\", Arial, sans-serif",
+        "eastTechFontLoaded": false,
+        "fontSize": 16,
+        "lineHeight": "24px"
+      },
+      "keyboard": {
+        "forward": [
+          {
+            "tag": "a",
+            "label": "Skip to workspace",
+            "focusKey": 0,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Open menu",
+            "focusKey": 1,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "a",
+            "label": "SC Capstone",
+            "focusKey": 2,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "summary",
+            "label": "Open workspace tools",
+            "focusKey": 3,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "input",
+            "label": "Search the current student view",
+            "focusKey": 4,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Open students",
+            "focusKey": 5,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Workspace",
+            "focusKey": 6,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Admin Console",
+            "focusKey": 7,
+            "visible": true,
+            "focusShown": true
+          }
+        ],
+        "reverse": {
+          "tag": "button",
+          "label": "Workspace",
+          "focusKey": 6,
+          "visible": true,
+          "focusShown": true
+        },
+        "visibleNamedStops": 8,
+        "uniqueNamedStops": 8,
+        "focusMoves": true,
+        "focusIsShown": true,
+        "reverseMoves": true
+      }
+    },
+    {
+      "id": "103-program-teacher-tools-phone",
+      "label": "Program Teacher Tools on narrow phone",
+      "persona": "Program Teacher using Tools on a narrow phone",
+      "role": "program_teacher",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 320,
+        "height": 720,
+        "deviceScaleFactor": 2,
+        "mobile": true
+      },
+      "route": "/workspace?section=teacher&siteId=site-desert-valley-high",
+      "screenshot": "docs/sales/screenshots/2026-09-02-responsive-layout-hosted/103-program-teacher-tools-phone.png",
+      "expected": [
+        "Tools",
+        "Find a student",
+        "Open students"
+      ],
+      "proves": "Program Teacher search tools stay readable and reachable at the narrow supported phone width.",
+      "caveat": "Hosted fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "topbarLayoutSafe": true,
+        "topbarLayoutFailures": [],
+        "drawerOpenWhenRequested": true,
+        "toolsOpenWhenRequested": true,
+        "accountMenuOpenWhenRequested": true,
+        "expectedThemeApplied": true,
+        "expectedSchoolThemeApplied": true,
+        "expectedHeadingFontApplied": true,
+        "readableBaseType": true,
+        "wcagTextContrast": true,
+        "contrastFailures": [],
+        "noTinyTargets": true,
+        "tinyTargetFailures": [],
+        "keyboardFocusMoves": true,
+        "keyboardFocusIsShown": true,
+        "keyboardReverseMoves": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "adminSetupList": false,
+        "adminSetupReadiness": false,
+        "adminQuickActions": false,
+        "adminStudents": false,
+        "adminAssignments": false,
+        "adminImports": false,
+        "adminPrograms": false,
+        "adminReports": false,
+        "adminAudit": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
+        "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false,
+        "toolsOpen": true,
+        "accountMenuOpen": false
+      },
+      "heading": "Review one project",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Choose site Desert Canyon Test School East Career & Technical Academy FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Program Teacher TT PROJECT WORK Review one project Open one project. Read the work. Then choose the next step. Desert Canyon Test School DO THIS NEXT Awaiting Review Demo 07 Project Awaiting Review Demo 07 · Senior Project Proposal Draft Waiting for review 1 file attached Updated May 10, 9:00 AM Read this project's work. Then accept it or ask for changes. Review this project See all waiting work (30) More tools",
+      "activeNav": [
+        "Workspace",
+        "Work queue\n          Today\n          ›\n        \n        \n          \n            \n              \n                Reviews",
+        "Reviews",
+        "3\n        Reviews"
+      ],
+      "presentation": {
+        "theme": "light",
+        "schoolTheme": "desert-valley",
+        "fontFamily": "\"Segoe UI Variable\", Aptos, \"Segoe UI\", Arial, sans-serif",
+        "headingFontFamily": "\"Segoe UI Variable Display\", \"Aptos Display\", \"Segoe UI\", Arial, sans-serif",
+        "eastTechFontLoaded": false,
+        "fontSize": 16,
+        "lineHeight": "24px"
+      },
+      "keyboard": {
+        "forward": [
+          {
+            "tag": "a",
+            "label": "Skip to workspace",
+            "focusKey": 0,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Open menu",
+            "focusKey": 1,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "a",
+            "label": "SC Capstone",
+            "focusKey": 2,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "summary",
+            "label": "Open workspace tools",
+            "focusKey": 3,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "select",
+            "label": "Choose site",
+            "focusKey": 4,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "input",
+            "label": "Search the current student view",
+            "focusKey": 5,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Open students",
+            "focusKey": 6,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Workspace",
+            "focusKey": 7,
+            "visible": true,
+            "focusShown": true
+          }
+        ],
+        "reverse": {
+          "tag": "button",
+          "label": "Open students",
+          "focusKey": 6,
+          "visible": true,
+          "focusShown": true
+        },
+        "visibleNamedStops": 8,
+        "uniqueNamedStops": 8,
+        "focusMoves": true,
+        "focusIsShown": true,
+        "reverseMoves": true
+      }
+    },
+    {
+      "id": "104-mentor-phone-without-empty-tools",
+      "label": "Mentor phone without empty Tools",
+      "persona": "Mentor using a narrow phone",
+      "role": "mentor",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 320,
+        "height": 720,
+        "deviceScaleFactor": 2,
+        "mobile": true
+      },
+      "route": "/workspace?section=mentorDashboard&siteId=site-desert-valley-high",
+      "screenshot": "docs/sales/screenshots/2026-09-02-responsive-layout-hosted/104-mentor-phone-without-empty-tools.png",
+      "expected": [
+        "Mentor",
+        "Your next check-in"
+      ],
+      "proves": "Mentors do not see a dead-end Tools button when no switcher or search action is available.",
+      "caveat": "Hosted fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "topbarLayoutSafe": true,
+        "topbarLayoutFailures": [],
+        "drawerOpenWhenRequested": true,
+        "toolsOpenWhenRequested": true,
+        "accountMenuOpenWhenRequested": true,
+        "expectedThemeApplied": true,
+        "expectedSchoolThemeApplied": true,
+        "expectedHeadingFontApplied": true,
+        "readableBaseType": true,
+        "wcagTextContrast": true,
+        "contrastFailures": [],
+        "noTinyTargets": true,
+        "tinyTargetFailures": [],
+        "keyboardFocusMoves": true,
+        "keyboardFocusIsShown": true,
+        "keyboardReverseMoves": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "adminSetupList": false,
+        "adminSetupReadiness": false,
+        "adminQuickActions": false,
+        "adminStudents": false,
+        "adminAssignments": false,
+        "adminImports": false,
+        "adminPrograms": false,
+        "adminReports": false,
+        "adminAudit": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
+        "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false,
+        "toolsOpen": false,
+        "accountMenuOpen": false
+      },
+      "heading": "Your next check-in",
+      "textSample": "Skip to workspace Menu SC Capstone Mentor TM MENTOR Your next check-in Help one student move one project step forward. mentor assigned 1 assigned START HERE · TEST STUDENT MAYA Maya Senior Project A check-in is missing, missed, or needs make-up status. Needs me first 1 assigned 1 ASK When is your next mentor check-in, and what decision do you need from it? 2 HELP Update the mentor meeting plan or make-up status before the next check-in. 3 RECORD Update the meeting or make-up status. Open check-in Meeting notes and project work open together. More about this project Assigned 1 Needs help 0 Check-in due 1 Show filters and other students",
+      "activeNav": [],
+      "presentation": {
+        "theme": "light",
+        "schoolTheme": "desert-valley",
+        "fontFamily": "\"Segoe UI Variable\", Aptos, \"Segoe UI\", Arial, sans-serif",
+        "headingFontFamily": "\"Segoe UI Variable\", Aptos, \"Segoe UI\", Arial, sans-serif",
+        "eastTechFontLoaded": false,
+        "fontSize": 16,
+        "lineHeight": "24px"
+      },
+      "keyboard": {
+        "forward": [
+          {
+            "tag": "a",
+            "label": "Skip to workspace",
+            "focusKey": 0,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Open menu",
+            "focusKey": 1,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "a",
+            "label": "SC Capstone",
+            "focusKey": 2,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "summary",
+            "label": "Test Mentor Rivera account menu",
+            "focusKey": 3,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Open check-in",
+            "focusKey": 19,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "summary",
+            "label": "More about this project",
+            "focusKey": 20,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "summary",
+            "label": "Show filters and other students",
+            "focusKey": 23,
+            "visible": true,
+            "focusShown": true
+          },
+          null
+        ],
+        "reverse": {
+          "tag": "summary",
+          "label": "Show filters and other students",
+          "focusKey": 23,
+          "visible": true,
+          "focusShown": true
+        },
+        "visibleNamedStops": 7,
+        "uniqueNamedStops": 7,
+        "focusMoves": true,
+        "focusIsShown": true,
+        "reverseMoves": true
+      }
+    },
+    {
+      "id": "105-student-phone-without-empty-tools",
+      "label": "Student phone without empty Tools",
+      "persona": "Student using a narrow phone",
+      "role": "student",
+      "accountType": "Fake .test demo student account",
+      "viewport": {
+        "width": 320,
+        "height": 720,
+        "deviceScaleFactor": 2,
+        "mobile": true
+      },
+      "route": "/workspace?section=studentWork",
+      "screenshot": "docs/sales/screenshots/2026-09-02-responsive-layout-hosted/105-student-phone-without-empty-tools.png",
+      "expected": [
+        "My Capstone",
+        "My Project"
+      ],
+      "proves": "Students do not see a dead-end Tools button when their account has no top-bar tools.",
+      "caveat": "Hosted fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "topbarLayoutSafe": true,
+        "topbarLayoutFailures": [],
+        "drawerOpenWhenRequested": true,
+        "toolsOpenWhenRequested": true,
+        "accountMenuOpenWhenRequested": true,
+        "expectedThemeApplied": true,
+        "expectedSchoolThemeApplied": true,
+        "expectedHeadingFontApplied": true,
+        "readableBaseType": true,
+        "wcagTextContrast": true,
+        "contrastFailures": [],
+        "noTinyTargets": true,
+        "tinyTargetFailures": [],
+        "keyboardFocusMoves": true,
+        "keyboardFocusIsShown": true,
+        "keyboardReverseMoves": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "adminSetupList": false,
+        "adminSetupReadiness": false,
+        "adminQuickActions": false,
+        "adminStudents": false,
+        "adminAssignments": false,
+        "adminImports": false,
+        "adminPrograms": false,
+        "adminReports": false,
+        "adminAudit": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
+        "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": true,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false,
+        "toolsOpen": false,
+        "accountMenuOpen": false
+      },
+      "heading": "Maya Senior Project",
+      "textSample": "Skip to workspace Menu SC My Capstone TS MY PROJECT Maya Senior Project Pick one step. Do the work. Turn it in. GETTING STARTED Back to Today DO THIS NEXT Project work Open the first unfinished item. Add the Google Drive link it asks for. Turn it in when it is ready. Project timeline Choose a stage to see its work. Start: Setup: 0 of 2 done, 2 still need work. Show all 1 Setup NOW 2 Proposal 3 Build I 4 Build II 5 Present 6 Celebrate 7 Reflect 8 Finish Start: Setup Fix setup before starting proposal work. Main thing to finish: Project folder is ready and your Program Teacher can find it. Done when: You can open Phase 1 work. 0 of 2 done / 2 still need work Set up your project folder Start: S",
+      "activeNav": [
+        "2\n        My Project\n        Team, stages, and Drive links",
+        "2\n        My Project",
+        "All work (2)"
+      ],
+      "presentation": {
+        "theme": "light",
+        "schoolTheme": "desert-valley",
+        "fontFamily": "\"Segoe UI Variable\", Aptos, \"Segoe UI\", Arial, sans-serif",
+        "headingFontFamily": "\"Segoe UI Variable\", Aptos, \"Segoe UI\", Arial, sans-serif",
+        "eastTechFontLoaded": false,
+        "fontSize": 16,
+        "lineHeight": "24px"
+      },
+      "keyboard": {
+        "forward": [
+          {
+            "tag": "a",
+            "label": "Skip to workspace",
+            "focusKey": 0,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Open menu",
+            "focusKey": 1,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "a",
+            "label": "SC My Capstone",
+            "focusKey": 2,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "summary",
+            "label": "Test Student Maya account menu",
+            "focusKey": 3,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Back to Today",
+            "focusKey": 17,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Show all",
+            "focusKey": 18,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Start: Setup. Current stage.",
+            "focusKey": 19,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Phase 1: Kickoff and Proposal. 4 items left.",
+            "focusKey": 20,
+            "visible": true,
+            "focusShown": true
+          }
+        ],
+        "reverse": {
+          "tag": "button",
+          "label": "Start: Setup. Current stage.",
+          "focusKey": 19,
+          "visible": true,
+          "focusShown": true
+        },
+        "visibleNamedStops": 8,
+        "uniqueNamedStops": 8,
+        "focusMoves": true,
+        "focusIsShown": true,
+        "reverseMoves": true
+      }
+    },
+    {
+      "id": "106-site-admin-account-phone",
+      "label": "Site Admin account menu on narrow phone",
+      "persona": "Site Admin using the account menu on a narrow phone",
+      "role": "site_admin",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 320,
+        "height": 720,
+        "deviceScaleFactor": 2,
+        "mobile": true
+      },
+      "route": "/workspace?mode=workspace&section=overview&siteId=site-desert-valley-high",
+      "screenshot": "docs/sales/screenshots/2026-09-02-responsive-layout-hosted/106-site-admin-account-phone.png",
+      "expected": [
+        "Dark view",
+        "Refresh",
+        "Sign out"
+      ],
+      "proves": "The compact phone account button opens full-width account actions below the measured header.",
+      "caveat": "Hosted fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "topbarLayoutSafe": true,
+        "topbarLayoutFailures": [],
+        "drawerOpenWhenRequested": true,
+        "toolsOpenWhenRequested": true,
+        "accountMenuOpenWhenRequested": true,
+        "expectedThemeApplied": true,
+        "expectedSchoolThemeApplied": true,
+        "expectedHeadingFontApplied": true,
+        "readableBaseType": true,
+        "wcagTextContrast": true,
+        "contrastFailures": [],
+        "noTinyTargets": true,
+        "tinyTargetFailures": [],
+        "keyboardFocusMoves": true,
+        "keyboardFocusIsShown": true,
+        "keyboardReverseMoves": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "adminSetupList": false,
+        "adminSetupReadiness": false,
+        "adminQuickActions": false,
+        "adminStudents": false,
+        "adminAssignments": false,
+        "adminImports": false,
+        "adminPrograms": false,
+        "adminReports": false,
+        "adminAudit": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": true,
+        "staffAttentionQueue": true,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
+        "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false,
+        "toolsOpen": false,
+        "accountMenuOpen": true
+      },
+      "heading": "Start with the worklist",
+      "textSample": "Skip to workspace Menu SC Capstone Tools Site Admin TS ☾ Dark view Refresh Sign out SITE ADMIN PLAN Daily support before setup work Open one student group first, then use reviews, setup, or reports only when that path answers the current problem. 252 visible students STUDENT SUPPORT PATH Choose one student group Start with visible students who need review, feedback, setup, or follow-up. 102 Open students 52 Review work Open Review Work only when this role can see review work for the selected school. Open reviews 251 Fix setup and access Use account, mentor, viewer, or final-file setup work after the daily student need is clear. Open assignments 252 Use reports for a question Open reports aft",
+      "activeNav": [
+        "Workspace",
+        "Work queue\n          Today\n          ›\n        \n        \n          \n            \n              \n                Reviews",
+        "Work queue\n          Today\n          ›",
+        "1\n        Today"
+      ],
+      "presentation": {
+        "theme": "light",
+        "schoolTheme": "desert-valley",
+        "fontFamily": "\"Segoe UI Variable\", Aptos, \"Segoe UI\", Arial, sans-serif",
+        "headingFontFamily": "\"Segoe UI Variable Display\", \"Aptos Display\", \"Segoe UI\", Arial, sans-serif",
+        "eastTechFontLoaded": false,
+        "fontSize": 16,
+        "lineHeight": "24px"
+      },
+      "keyboard": {
+        "forward": [
+          {
+            "tag": "a",
+            "label": "Skip to workspace",
+            "focusKey": 0,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Open menu",
+            "focusKey": 1,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "a",
+            "label": "SC Capstone",
+            "focusKey": 2,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "summary",
+            "label": "Open workspace tools",
+            "focusKey": 3,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "summary",
+            "label": "Test Site Admin Parker account menu",
+            "focusKey": 8,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Switch to dark view",
+            "focusKey": 9,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Refresh",
+            "focusKey": 10,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Sign out",
+            "focusKey": 11,
+            "visible": true,
+            "focusShown": true
+          }
+        ],
+        "reverse": {
+          "tag": "button",
+          "label": "Refresh",
+          "focusKey": 10,
+          "visible": true,
+          "focusShown": true
+        },
+        "visibleNamedStops": 8,
+        "uniqueNamedStops": 8,
+        "focusMoves": true,
+        "focusIsShown": true,
+        "reverseMoves": true
+      }
+    },
+    {
+      "id": "107-global-admin-tools-half-screen",
+      "label": "Global Admin Tools at half-screen width",
+      "persona": "Global Admin using Tools at half-screen width",
+      "role": "admin",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 820,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace?mode=admin&section=overview&siteId=site-desert-valley-high",
+      "screenshot": "docs/sales/screenshots/2026-09-02-responsive-layout-hosted/107-global-admin-tools-half-screen.png",
+      "expected": [
+        "Tools",
+        "Find a student",
+        "Open students",
+        "Workspace",
+        "Admin Console"
+      ],
+      "proves": "Global Admin Tools uses one clear column and balanced mode buttons at half-screen width.",
+      "caveat": "Hosted fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "topbarLayoutSafe": true,
+        "topbarLayoutFailures": [],
+        "drawerOpenWhenRequested": true,
+        "toolsOpenWhenRequested": true,
+        "accountMenuOpenWhenRequested": true,
+        "expectedThemeApplied": true,
+        "expectedSchoolThemeApplied": true,
+        "expectedHeadingFontApplied": true,
+        "readableBaseType": true,
+        "wcagTextContrast": true,
+        "contrastFailures": [],
+        "noTinyTargets": true,
+        "tinyTargetFailures": [],
+        "keyboardFocusMoves": true,
+        "keyboardFocusIsShown": true,
+        "keyboardReverseMoves": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "adminSetupList": true,
+        "adminSetupReadiness": true,
+        "adminQuickActions": true,
+        "adminStudents": false,
+        "adminAssignments": false,
+        "adminImports": false,
+        "adminPrograms": false,
+        "adminReports": false,
+        "adminAudit": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
+        "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false,
+        "toolsOpen": true,
+        "accountMenuOpen": false
+      },
+      "heading": "Fix the first setup blocker",
+      "textSample": "Skip to workspace Menu SC Capstone Admin Console OVERVIEW Tools Choose site Desert Canyon Test School East Career & Technical Academy FIND A STUDENT Open students Uses the current Student Directory filters and access. Workspace Admin Console Global Admin ROLE TA Test Admin Lee lee.admin@senior-capstone.test ADMIN CONSOLE Admin Overview What setup, people, assignments, imports, programs, reports, or access issues need attention? Global START HERE Do this first Open the first setup blocker before using broader reports or exports. Global NEXT SETUP MOVE Projects need required adults 3 projects need a confirmed Mentor, Program Teacher, or both. Open projects After that setup item is fixed, retur",
+      "activeNav": [
+        "Admin Console",
+        "Start\n          Overview\n          ›",
+        "Start\n          Overview\n          ›",
+        "1\n        Overview"
+      ],
+      "presentation": {
+        "theme": "light",
+        "schoolTheme": "desert-valley",
+        "fontFamily": "\"Segoe UI Variable\", Aptos, \"Segoe UI\", Arial, sans-serif",
+        "headingFontFamily": "\"Segoe UI Variable Display\", \"Aptos Display\", \"Segoe UI\", Arial, sans-serif",
+        "eastTechFontLoaded": false,
+        "fontSize": 16,
+        "lineHeight": "24px"
+      },
+      "keyboard": {
+        "forward": [
+          {
+            "tag": "a",
+            "label": "Skip to workspace",
+            "focusKey": 0,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Open menu",
+            "focusKey": 1,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "a",
+            "label": "SC Capstone",
+            "focusKey": 2,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "summary",
+            "label": "Open workspace tools",
+            "focusKey": 3,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "select",
+            "label": "Choose site",
+            "focusKey": 4,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "input",
+            "label": "Search the current student view",
+            "focusKey": 5,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Open students",
+            "focusKey": 6,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Workspace",
+            "focusKey": 7,
+            "visible": true,
+            "focusShown": true
+          }
+        ],
+        "reverse": {
+          "tag": "button",
+          "label": "Open students",
+          "focusKey": 6,
+          "visible": true,
+          "focusShown": true
+        },
+        "visibleNamedStops": 8,
+        "uniqueNamedStops": 8,
+        "focusMoves": true,
+        "focusIsShown": true,
+        "reverseMoves": true
+      }
+    },
+    {
+      "id": "95-dark-site-admin-tablet",
+      "label": "Site Admin dark view on tablet",
+      "persona": "Site Admin using dark view at tablet width",
+      "role": "site_admin",
+      "accountType": "Fake .test demo staff account",
+      "viewport": {
+        "width": 820,
+        "height": 900,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "route": "/workspace?mode=workspace&section=projects&siteId=site-desert-valley-high",
+      "screenshot": "docs/sales/screenshots/2026-09-02-responsive-layout-hosted/95-dark-site-admin-tablet.png",
+      "proves": "Site Admin project work stays usable, readable, and keyboard reachable in dark view.",
+      "caveat": "Hosted fake/demo account UI screenshot only; not real-student production pilot proof.",
+      "login": {
+        "status": 200,
+        "ok": true
+      },
+      "checks": {
+        "expectedTextPresent": true,
+        "missingExpectedText": [],
+        "noUnexpectedText": true,
+        "unexpectedText": [],
+        "noVisiblePasswordValues": true,
+        "noSecretLikeText": true,
+        "secretPatternMatches": [],
+        "noHorizontalOverflow": true,
+        "topbarLayoutSafe": true,
+        "topbarLayoutFailures": [],
+        "drawerOpenWhenRequested": true,
+        "toolsOpenWhenRequested": true,
+        "accountMenuOpenWhenRequested": true,
+        "expectedThemeApplied": true,
+        "expectedSchoolThemeApplied": true,
+        "expectedHeadingFontApplied": true,
+        "readableBaseType": true,
+        "wcagTextContrast": true,
+        "contrastFailures": [],
+        "noTinyTargets": true,
+        "tinyTargetFailures": [],
+        "keyboardFocusMoves": true,
+        "keyboardFocusIsShown": true,
+        "keyboardReverseMoves": true
+      },
+      "markers": {
+        "studentDetailPanel": false,
+        "viewAsBanner": false,
+        "peopleManagement": false,
+        "csvImportStepper": false,
+        "adminSetupList": false,
+        "adminSetupReadiness": false,
+        "adminQuickActions": false,
+        "adminStudents": false,
+        "adminAssignments": false,
+        "adminImports": false,
+        "adminPrograms": false,
+        "adminReports": false,
+        "adminAudit": false,
+        "readOnlyBoundary": false,
+        "staffAttentionModel": false,
+        "staffAttentionQueue": false,
+        "studentDetailEvidence": false,
+        "staffReports": false,
+        "reportBars": false,
+        "staffReportBars": false,
+        "reportExportPanel": false,
+        "studentDirectory": false,
+        "studentWork": false,
+        "problemState": false,
+        "intentionalEmptyState": false,
+        "finalFiles": false,
+        "toolsOpen": false,
+        "accountMenuOpen": false
+      },
+      "heading": "Projects",
+      "textSample": "Skip to workspace Menu SC Capstone All projects PROJECTS / SITE ADMIN Tools Site Admin ROLE TS Test Site Admin Parker parker.siteadmin@senior-capstone.test PROJECT WORKSPACES Projects Open one project. See the team. Then do the next step. Create project Project overview Counts and setup checks 254 active PROJECT LIST School projects Find one project. Then open it below. List Board Project or student name Show All projects Waiting for review Changes needed In progress Team projects Individual projects Find projects Showing 1–25 of 254 These are all projects this account can open. PROJECT STUDENTS PHASE STATUS OPEN Arden Bellweather Project Culinary Mentor: Ari Field · Program Teacher: Harper ",
+      "activeNav": [
+        "Workspace",
+        "Projects\n          Projects\n          ›",
+        "Projects\n          Projects\n          ›",
+        "2\n        Projects",
+        "List"
+      ],
+      "presentation": {
+        "theme": "dark",
+        "schoolTheme": "desert-valley",
+        "fontFamily": "\"Segoe UI Variable\", Aptos, \"Segoe UI\", Arial, sans-serif",
+        "headingFontFamily": "\"Segoe UI Variable\", Aptos, \"Segoe UI\", Arial, sans-serif",
+        "eastTechFontLoaded": false,
+        "fontSize": 16,
+        "lineHeight": "24px"
+      },
+      "keyboard": {
+        "forward": [
+          {
+            "tag": "a",
+            "label": "Skip to workspace",
+            "focusKey": 0,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Open menu",
+            "focusKey": 1,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "a",
+            "label": "SC Capstone",
+            "focusKey": 2,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "summary",
+            "label": "Open workspace tools",
+            "focusKey": 3,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "summary",
+            "label": "Test Site Admin Parker account menu",
+            "focusKey": 8,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "Create project",
+            "focusKey": 22,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "summary",
+            "label": "Project overview Counts and setup checks 254 active",
+            "focusKey": 23,
+            "visible": true,
+            "focusShown": true
+          },
+          {
+            "tag": "button",
+            "label": "List",
+            "focusKey": 24,
+            "visible": true,
+            "focusShown": true
+          }
+        ],
+        "reverse": {
+          "tag": "summary",
+          "label": "Project overview Counts and setup checks 254 active",
+          "focusKey": 23,
+          "visible": true,
+          "focusShown": true
+        },
+        "visibleNamedStops": 8,
+        "uniqueNamedStops": 8,
+        "focusMoves": true,
+        "focusIsShown": true,
+        "reverseMoves": true
+      }
+    }
+  ],
+  "failures": []
+}

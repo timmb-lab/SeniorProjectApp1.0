@@ -1438,11 +1438,24 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   const statusMarkup = statusMessage && !(tone === "success" && statusMessage === defaultReadyMessage)
     ? statusHtml(statusMessage, tone)
     : "";
+  const topbarSiteControl = renderSiteSwitcherControl();
+  const topbarStudentSearchControl = renderWorkspaceStudentSearchControl(roles);
+  const topbarModeControl = renderWorkspaceModeSwitch(consoleCapabilities);
   const topbarContextControls = renderWorkspaceTopbarContextControls([
-    renderSiteSwitcherControl(),
-    renderWorkspaceStudentSearchControl(roles),
-    renderWorkspaceModeSwitch(consoleCapabilities),
+    accessibleSitesForWorkspace().length > 1 || topbarStudentSearchControl || topbarModeControl ? topbarSiteControl : "",
+    topbarStudentSearchControl,
+    topbarModeControl,
   ], { isAdminConsole });
+  const topbarToolsMarkup = topbarContextControls
+    ? `
+      <details class="workspace-v2-tools" data-v2-tools="true" data-workspace-topbar-tools="true">
+        <summary aria-label="Open workspace tools">Tools</summary>
+        <div class="workspace-topbar-center workspace-v2-tools-panel">
+          ${topbarContextControls}
+        </div>
+      </details>
+    `
+    : "";
   const programTeacherPrimarySection = !renderBlockedSectionOnly
     && !isAdminConsole
     && roles.has("program_teacher")
@@ -1566,12 +1579,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
           </div>
         </div>
         <div class="workspace-user workspace-v2-user">
-          <details class="workspace-v2-tools" data-v2-tools="true" data-workspace-topbar-tools="true">
-            <summary aria-label="Open workspace tools">Tools</summary>
-            <div class="workspace-topbar-center workspace-v2-tools-panel">
-              ${topbarContextControls}
-            </div>
-          </details>
+          ${topbarToolsMarkup}
           ${studentExperience ? "" : renderActiveRoleBadge(primaryRole, { readOnly: viewingAsStudent || roles.has("viewer") || Boolean(isAdminConsole && consoleCapabilities.readOnly) })}
           ${renderWorkspaceAccountMenu(areaName)}
         </div>

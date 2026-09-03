@@ -14439,6 +14439,11 @@ test("top bar has one Tools disclosure and a predictable keyboard order", async 
   assertMarkupOrder(markup, 'id="workspaceMenuToggle"', 'data-workspace-topbar-tools="true"', "menu should be the first top-bar control");
   assertMarkupOrder(markup, 'data-workspace-topbar-tools="true"', 'data-account-menu="true"', "Tools should come before the account menu");
   assertMarkupOrder(markup, 'data-account-menu="true"', 'id="workspaceNavigationRail"', "navigation should follow the top-bar controls in keyboard order");
+
+  const studentMarkup = await renderWorkspaceWithFetch(profileRoutesForRole("student"));
+  assert.doesNotMatch(studentMarkup, /data-workspace-topbar-tools="true"/);
+  assert.doesNotMatch(studentMarkup, />Tools<\/summary>/);
+  assert.match(studentMarkup, /data-account-menu="true"/);
 });
 
 test("template removal is confirmed and removed links can be restored", async () => {

@@ -1517,10 +1517,30 @@ body[data-page="workspace"] {
   max-width: none;
 }
 
+.workspace-v2-tools-panel .workspace-site-switcher select {
+  min-height: 36px;
+  border: 1px solid var(--ticket-border);
+  border-radius: 0.45rem;
+  background: var(--ticket-panel-raised);
+  padding: 0.35rem 0.5rem;
+}
+
+.workspace-v2-tools-panel .workspace-topbar-search label,
+.workspace-v2-tools-panel .workspace-topbar-search small {
+  display: block;
+}
+
 .workspace-v2-tools-panel .workspace-topbar-search-row,
 .workspace-v2-tools-panel .workspace-mode-switch {
   display: grid;
+}
+
+.workspace-v2-tools-panel .workspace-topbar-search-row {
   grid-template-columns: minmax(0, 1fr) minmax(7.5rem, auto);
+}
+
+.workspace-v2-tools-panel .workspace-mode-switch {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .workspace-admin-directory {
@@ -1561,6 +1581,100 @@ body[data-page="workspace"] {
   }
 }
 
+/* Phone headers keep three small controls on one line. Their menus use the
+   measured sticky-header offset, so an open panel never covers its trigger. */
+@media (max-width: 620px) {
+  .workspace-v2-user {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.42rem;
+    flex-wrap: nowrap;
+  }
+
+  .workspace-v2-user .workspace-v2-tools {
+    width: auto;
+    min-width: 0;
+    flex: 0 0 auto;
+  }
+
+  .workspace-v2-user .workspace-v2-tools > summary {
+    width: auto;
+    min-width: 0;
+  }
+
+  .workspace-v2-user .workspace-active-role-badge {
+    width: auto;
+    max-width: 100%;
+    justify-self: start;
+  }
+
+  .workspace-v2-user .workspace-account-menu {
+    width: auto;
+    min-width: 0;
+    margin-left: 0;
+    justify-self: end;
+    flex: 0 0 auto;
+  }
+
+  .workspace-v2-user .workspace-account-menu[open] {
+    grid-column: 3;
+  }
+
+  .workspace-v2-user .workspace-account-summary {
+    width: 2.5rem;
+    min-width: 2.5rem;
+    max-width: 2.5rem;
+    justify-content: center;
+    padding: 0.3rem;
+  }
+
+  .workspace-v2-user .workspace-account-summary .workspace-account-caret {
+    display: none;
+  }
+
+  .workspace-v2-user .workspace-v2-tools-panel,
+  .workspace-v2-user .workspace-topbar-actions {
+    position: fixed;
+    top: var(--workspace-drawer-top);
+    right: 0.72rem;
+    left: 0.72rem;
+    z-index: 110;
+    width: auto;
+    max-width: none;
+    max-height: calc(100dvh - var(--workspace-drawer-top) - 0.72rem - env(safe-area-inset-bottom));
+    overflow-x: hidden;
+    overflow-y: auto;
+    border: 1px solid var(--ticket-border-bright);
+    border-radius: 0.8rem;
+    background: var(--ticket-panel);
+    box-shadow: 0 20px 54px rgba(20, 32, 51, 0.22);
+    padding: 0.72rem;
+  }
+
+  .workspace-v2-user .workspace-v2-tools-panel .workspace-topbar-search {
+    display: grid;
+  }
+
+  .workspace-v2-user .workspace-topbar-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-v2-user .workspace-topbar-actions .workspace-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 460px) {
+  .workspace-v2-user .workspace-v2-tools-panel .workspace-topbar-search-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .workspace-v2-user .workspace-v2-tools-panel .workspace-topbar-search-row .workspace-button {
+    width: 100%;
+  }
+}
+
 /* Legacy report choice colors mixed with white and broke dark-mode contrast. */
 :root[data-theme="dark"] .workspace-v2-app .workspace-admin-report-choice-row,
 :root[data-theme="dark"] .workspace-v2-app .workspace-admin-report-choice-row.primary {
@@ -1578,6 +1692,29 @@ body[data-page="workspace"] {
 }
 
 :root[data-theme="dark"] .workspace-v2-app .workspace-admin-report-choice-row :where(p, small) {
+  color: var(--ticket-muted);
+}
+
+/* The legacy ready state has an explicit white fill. Keep this priority card
+   on the same dark surface as the rest of the admin console. */
+:root[data-theme="dark"] .workspace-v2-app .workspace-admin-next-setup-action,
+:root[data-theme="dark"] .workspace-v2-app .workspace-admin-next-setup-action.ready,
+:root[data-theme="dark"] .workspace-v2-app .workspace-admin-next-setup-action.warning,
+:root[data-theme="dark"] .workspace-v2-app .workspace-admin-next-setup-action.danger {
+  border-color: var(--ticket-border);
+  background: #0a1929;
+  color: var(--ticket-text);
+}
+
+:root[data-theme="dark"] .workspace-v2-app .workspace-admin-next-setup-action > div > span {
+  color: var(--ticket-blue-bright);
+}
+
+:root[data-theme="dark"] .workspace-v2-app .workspace-admin-next-setup-action > div > strong {
+  color: var(--ticket-text);
+}
+
+:root[data-theme="dark"] .workspace-v2-app .workspace-admin-next-setup-action > div > p {
   color: var(--ticket-muted);
 }
 
