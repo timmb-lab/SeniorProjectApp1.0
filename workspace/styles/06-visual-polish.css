@@ -1619,7 +1619,9 @@ body[data-page="workspace"] {
   }
 
   .workspace-v2-user .workspace-admin-role-switcher {
-    width: auto;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
     min-width: 0;
   }
 
@@ -3446,112 +3448,77 @@ body[data-page="workspace"],
 
 .workspace-admin-role-switcher {
   position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
   flex: 0 0 auto;
   min-width: 0;
-}
-
-.workspace-admin-role-switcher > summary {
-  list-style: none;
-  cursor: pointer;
-}
-
-.workspace-admin-role-switcher > summary::-webkit-details-marker {
-  display: none;
-}
-
-.workspace-admin-role-switcher .workspace-active-role-badge {
-  display: inline-flex;
-  justify-content: space-between;
-  gap: 0.62rem;
-  width: 10.75rem;
-  max-width: min(10.75rem, 23vw);
-  border-left-width: 1px;
-  border-radius: 0.65rem;
-  padding: 0.4rem 0.62rem;
-}
-
-.workspace-admin-role-summary-copy {
-  display: grid;
-  gap: 0.08rem;
-  min-width: 0;
-}
-
-.workspace-admin-role-summary-copy b {
-  font-size: 0.82rem;
-}
-
-.workspace-admin-role-summary-copy small {
-  font-size: 0.66rem;
-  letter-spacing: 0.06em;
-}
-
-.workspace-admin-role-switcher[open] .workspace-active-role-badge {
-  border-color: color-mix(in srgb, var(--school-primary) 55%, var(--shell-divider));
-  background: color-mix(in srgb, var(--school-primary) 8%, var(--shell-pane));
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--school-primary) 16%, transparent);
-}
-
-.workspace-admin-role-switcher[open] .workspace-account-caret {
-  transform: rotate(225deg) translateY(-1px);
-}
-
-.workspace-admin-role-menu {
-  position: absolute;
-  top: calc(100% + 0.48rem);
-  right: 0;
-  z-index: 26;
-  display: grid;
-  gap: 0.5rem;
-  width: min(22rem, calc(100vw - 1.5rem));
-  padding: 0.72rem;
+  min-height: 48px;
+  padding: 0.3rem;
   border: 1px solid var(--shell-divider);
-  border-radius: 0.85rem;
-  background: var(--shell-pane);
-  box-shadow: 0 18px 44px rgba(15, 32, 53, 0.2);
+  border-radius: 0.65rem;
+  background: var(--shell-pane-muted);
+  color: var(--ticket-text);
 }
 
-.workspace-admin-role-menu-heading {
+.workspace-admin-role-context {
   display: grid;
-  gap: 0.12rem;
-  padding: 0.08rem 0.12rem 0.28rem;
+  gap: 0.05rem;
+  min-width: 0;
+  width: 5.75rem;
+  padding-left: 0.35rem;
 }
 
-.workspace-admin-role-menu-heading strong {
-  font-size: 0.9rem;
+.workspace-admin-role-context small {
+  color: var(--school-primary);
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.09em;
+  line-height: 1.1;
+  text-transform: uppercase;
 }
 
-.workspace-admin-role-menu-heading span,
-.workspace-admin-role-menu > p {
-  color: var(--ticket-muted);
-  font-size: 0.78rem;
-  line-height: 1.4;
+.workspace-admin-role-context strong {
+  overflow: hidden;
+  color: var(--ticket-text);
+  font-size: 0.74rem;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.workspace-admin-role-menu > p {
-  margin: 0.12rem 0 0;
-  padding: 0.58rem 0.12rem 0.02rem;
-  border-top: 1px solid var(--shell-divider);
+.workspace-admin-role-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(6.7rem, 1fr));
+  gap: 0.28rem;
+  padding: 0.2rem;
+  border-radius: 0.52rem;
+  background: color-mix(in srgb, var(--shell-divider) 48%, transparent);
 }
 
 .workspace-admin-role-option {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 0.58rem;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
   width: 100%;
-  min-height: 54px;
-  border: 1px solid var(--shell-divider);
-  border-radius: 0.68rem;
-  background: var(--shell-pane-muted);
-  color: var(--ticket-text);
-  padding: 0.55rem 0.62rem;
-  text-align: left;
+  min-height: 38px;
+  padding: 0.42rem 0.55rem;
+  border: 1px solid transparent;
+  border-radius: 0.46rem;
+  background: transparent;
+  color: var(--ticket-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.1;
+  text-align: center;
   cursor: pointer;
 }
 
 .workspace-admin-role-option:hover {
-  border-color: color-mix(in srgb, var(--school-primary) 48%, var(--shell-divider));
-  background: color-mix(in srgb, var(--school-primary) 6%, var(--shell-pane));
+  color: var(--ticket-text);
+  background: color-mix(in srgb, var(--school-primary) 7%, var(--shell-pane));
 }
 
 .workspace-admin-role-option:focus-visible {
@@ -3560,37 +3527,27 @@ body[data-page="workspace"],
 }
 
 .workspace-admin-role-option.is-active {
-  border-color: color-mix(in srgb, var(--school-primary) 62%, var(--shell-divider));
-  background: color-mix(in srgb, var(--school-primary) 10%, var(--shell-pane));
-}
-
-.workspace-admin-role-option > span:last-child {
-  display: grid;
-  gap: 0.08rem;
-  min-width: 0;
-}
-
-.workspace-admin-role-option b {
-  font-size: 0.88rem;
-}
-
-.workspace-admin-role-option small {
-  color: var(--ticket-muted);
-  font-size: 0.76rem;
-}
-
-.workspace-admin-role-option-marker {
-  width: 0.82rem;
-  height: 0.82rem;
-  border: 2px solid var(--ticket-muted);
-  border-radius: 999px;
+  border-color: color-mix(in srgb, var(--school-primary) 48%, var(--shell-divider));
   background: var(--shell-pane);
-  box-shadow: inset 0 0 0 2px var(--shell-pane);
+  color: var(--ticket-text);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--school-primary) 11%, transparent);
 }
 
-.workspace-admin-role-option.is-active .workspace-admin-role-option-marker {
-  border-color: var(--school-primary);
-  background: var(--school-primary);
+.workspace-admin-role-option-check {
+  width: 1rem;
+  min-width: 1rem;
+  color: var(--school-primary);
+  font-weight: 950;
+}
+
+.workspace-admin-role-help {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .workspace-account-summary {
@@ -3979,19 +3936,17 @@ body[data-page="workspace"],
     padding: 0.3rem;
   }
 
-  .workspace-admin-role-switcher .workspace-active-role-badge {
-    width: 100%;
-    max-width: 100%;
+  .workspace-admin-role-switcher {
+    grid-template-columns: minmax(4.75rem, auto) minmax(0, 1fr);
   }
 
-  .workspace-admin-role-menu {
-    position: fixed;
-    top: var(--workspace-drawer-top);
-    right: 0.72rem;
-    left: 0.72rem;
+  .workspace-admin-role-context {
     width: auto;
-    max-height: calc(100dvh - var(--workspace-drawer-top) - 0.72rem - env(safe-area-inset-bottom));
-    overflow-y: auto;
+    max-width: 8.5rem;
+  }
+
+  .workspace-admin-role-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .workspace-v2-app :where(

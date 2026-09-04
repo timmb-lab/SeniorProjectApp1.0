@@ -2843,6 +2843,9 @@ function renderActiveRoleBadge(primaryRole = primaryRoleForUser(currentUser), op
   const readOnly = Boolean(options.readOnly);
   if (canSwitchAdminRoleMode(currentUser)) {
     const selectedSite = accessibleSitesForWorkspace().find((site) => site.siteId === selectedSiteQueryValue());
+    const currentScope = activeAdminRoleMode === "site_admin"
+      ? selectedSite?.siteName || "Choose a school"
+      : "All schools";
     const modes = [
       {
         id: "global_admin",
@@ -2856,31 +2859,21 @@ function renderActiveRoleBadge(primaryRole = primaryRoleForUser(currentUser), op
       },
     ];
     return `
-      <details class="workspace-admin-role-switcher" data-admin-role-switcher="true">
-        <summary class="workspace-active-role-badge" data-active-role-badge="true" data-role-identity="${escapeHtml(identity.key)}" data-role-read-only="${readOnly ? "true" : "false"}" aria-label="Change working mode. Current mode: ${escapeHtml(identity.label)}${readOnly ? ", read-only" : ""}">
-          <span class="workspace-admin-role-summary-copy">
-            <b>${escapeHtml(identity.label)}</b>
-            <small>${escapeHtml(readOnly ? "Read-only" : "Mode")}</small>
-          </span>
-          <span class="workspace-account-caret" aria-hidden="true"></span>
-        </summary>
-        <div class="workspace-admin-role-menu" role="group" aria-label="Choose admin working mode">
-          <div class="workspace-admin-role-menu-heading">
-            <strong>Work as</strong>
-            <span>Choose the access view you need right now.</span>
-          </div>
+      <div class="workspace-admin-role-switcher" data-admin-role-switcher="true" data-active-admin-role-mode="${escapeHtml(activeAdminRoleMode)}" data-active-role-badge="true" data-role-identity="${escapeHtml(identity.key)}" data-role-read-only="${readOnly ? "true" : "false"}" role="group" aria-label="Admin working mode. Current mode: ${escapeHtml(identity.label)}. Current scope: ${escapeHtml(currentScope)}${readOnly ? ". Read-only" : ""}">
+        <span class="workspace-admin-role-context" aria-live="polite">
+          <small>Work as</small>
+          <strong>${escapeHtml(currentScope)}</strong>
+        </span>
+        <div class="workspace-admin-role-options">
           ${modes.map((mode) => `
-            <button class="workspace-admin-role-option ${activeAdminRoleMode === mode.id ? "is-active" : ""}" type="button" data-admin-role-mode-target="${escapeHtml(mode.id)}" aria-pressed="${activeAdminRoleMode === mode.id ? "true" : "false"}">
-              <span class="workspace-admin-role-option-marker" aria-hidden="true"></span>
-              <span>
-                <b>${escapeHtml(mode.label)}</b>
-                <small>${escapeHtml(mode.detail)}</small>
-              </span>
+            <button class="workspace-admin-role-option ${activeAdminRoleMode === mode.id ? "is-active" : ""}" type="button" data-admin-role-mode-target="${escapeHtml(mode.id)}" aria-pressed="${activeAdminRoleMode === mode.id ? "true" : "false"}" aria-label="Work as ${escapeHtml(mode.label)}. ${escapeHtml(mode.detail)}" title="${escapeHtml(mode.detail)}">
+              <span class="workspace-admin-role-option-check" aria-hidden="true">${activeAdminRoleMode === mode.id ? "✓" : ""}</span>
+              <span>${escapeHtml(mode.label)}</span>
             </button>
           `).join("")}
-          <p>Changing this view never changes your account assignment. The server still checks every action.</p>
         </div>
-      </details>
+        <span class="workspace-admin-role-help">Changing this view never changes your account assignment. The server still checks every action.</span>
+      </div>
     `;
   }
   return `

@@ -1291,9 +1291,9 @@ const ADMIN_ROLE_MODE_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?mode=admin&section=overview&siteId=site-desert-valley-high"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
-    expected: ["Global Admin", "Site Admin", "Work as", "All schools and platform controls", "Changing this view never changes your account assignment"],
+    expected: ["Global Admin", "Site Admin", "Work as", "All schools", "Changing this view never changes your account assignment"],
     action: "openAdminRoleSwitcher",
-    proves: "The compact Global Admin control opens a readable, explicit choice between global and selected-school access views.",
+    proves: "The header keeps a readable, explicit choice between global and selected-school access views visible without opening a menu.",
   },
   {
     id: "admin-role-site-mode-half-screen",
@@ -1303,7 +1303,7 @@ const ADMIN_ROLE_MODE_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?mode=admin&section=overview&siteId=site-desert-valley-high"),
     viewport: { width: 820, height: 900, deviceScaleFactor: 1, mobile: false },
-    expected: ["Site Admin", "Work as", "All schools and platform controls", "The server still checks every action"],
+    expected: ["Global Admin", "Site Admin", "Work as", "Desert Valley High School", "The server still checks every action"],
     actions: ["switchToSiteAdmin", "openAdminRoleSwitcher"],
     auditKeyboard: false,
     proves: "Site Admin mode stays readable at half-screen width and removes global-only navigation while keeping the selected school visible.",
@@ -1316,7 +1316,7 @@ const ADMIN_ROLE_MODE_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?mode=admin&section=overview&siteId=site-desert-valley-high"),
     viewport: { width: 320, height: 720, deviceScaleFactor: 2, mobile: true },
-    expected: ["Global Admin", "Site Admin", "Work as", "All schools and platform controls"],
+    expected: ["Global Admin", "Site Admin", "Work as", "All schools"],
     action: "openAdminRoleSwitcher",
     auditKeyboard: false,
     proves: "The Global Admin and Site Admin choices remain fully visible, readable, and touch-sized on a narrow phone.",
@@ -2192,13 +2192,14 @@ async function performSinglePlanAction(client, action) {
     return;
   }
   if (action === "openAdminRoleSwitcher") {
-    const opened = await client.evaluate(`(() => {
+    const ready = await client.evaluate(`(() => {
       const switcher = document.querySelector("[data-admin-role-switcher='true']");
       if (!switcher) return false;
-      switcher.setAttribute("open", "");
-      return switcher.open === true;
+      switcher.scrollIntoView({ block: "nearest", inline: "nearest" });
+      switcher.querySelector("[data-admin-role-mode-target][aria-pressed='false']")?.focus();
+      return switcher.querySelectorAll("[data-admin-role-mode-target]").length === 2;
     })()`);
-    if (!opened) throw new Error("Could not open the admin working mode selector.");
+    if (!ready) throw new Error("Could not find both admin working mode choices.");
     await sleep(500);
     return;
   }
@@ -2516,7 +2517,7 @@ async function collectPageState(client) {
       ".workspace-v2-brandline > .workspace-brand",
       ".workspace-v2-tools > summary",
       ".workspace-v2-user > .workspace-active-role-badge",
-      ".workspace-v2-user > .workspace-admin-role-switcher > .workspace-active-role-badge",
+      ".workspace-v2-user > .workspace-admin-role-switcher",
       ".workspace-v2-user > .workspace-account-menu > .workspace-account-summary",
     ].join(",");
     const topbarControls = Array.from(document.querySelectorAll(topbarControlSelector)).filter(isVisible);
@@ -2683,7 +2684,7 @@ async function collectPageState(client) {
         })(),
         toolsOpen: Boolean(document.querySelector("[data-workspace-topbar-tools='true'][open]")),
         accountMenuOpen: Boolean(document.querySelector("[data-account-menu='true'][open]")),
-        adminRoleSwitcherOpen: Boolean(document.querySelector("[data-admin-role-switcher='true'][open]")),
+        adminRoleSwitcherOpen: Boolean(document.querySelectorAll("[data-admin-role-switcher='true'] [data-admin-role-mode-target]").length === 2),
       },
       disclosures: {
         total: document.querySelectorAll("details").length,

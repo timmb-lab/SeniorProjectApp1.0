@@ -10952,8 +10952,12 @@ test("Global Admin can switch to a school-scoped Site Admin working mode without
   });
 
   assert.match(workspaceRoot.innerHTML, /data-admin-role-switcher="true"/);
+  assert.match(workspaceRoot.innerHTML, /class="workspace-admin-role-options"/);
+  assert.match(workspaceRoot.innerHTML, /data-active-admin-role-mode="global_admin"/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /<details class="workspace-admin-role-switcher"|workspace-admin-role-menu|workspace-admin-role-summary-copy/);
   assert.match(workspaceRoot.innerHTML, /data-admin-role-mode-target="global_admin" aria-pressed="true"/);
   assert.match(workspaceRoot.innerHTML, /data-admin-role-mode-target="site_admin" aria-pressed="false"/);
+  assertMarkupOrder(workspaceRoot.innerHTML, 'data-admin-role-mode-target="global_admin"', 'data-admin-role-mode-target="site_admin"', "both working modes must stay visible in a predictable order");
   assert.match(workspaceRoot.innerHTML, /All schools and platform controls/);
   assert.match(workspaceRoot.innerHTML, /Desert Valley High School only/);
   assert.match(workspaceRoot.innerHTML, /Changing this view never changes your account assignment/);
@@ -10971,6 +10975,7 @@ test("Global Admin can switch to a school-scoped Site Admin working mode without
   assert.equal(vm.runInContext("activeSection", context), "overview", "global-only route falls back to an allowed Site Admin section");
   assert.match(workspaceRoot.innerHTML, /data-primary-role="site_admin"/);
   assert.match(workspaceRoot.innerHTML, /data-admin-role-mode="site_admin"/);
+  assert.match(workspaceRoot.innerHTML, /data-active-admin-role-mode="site_admin"/);
   assert.match(workspaceRoot.innerHTML, /data-role-identity="site_admin"/);
   assert.match(workspaceRoot.innerHTML, /data-admin-role-mode-target="site_admin" aria-pressed="true"/);
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-section="audit"/);
