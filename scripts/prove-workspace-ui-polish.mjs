@@ -1303,7 +1303,7 @@ const ADMIN_ROLE_MODE_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?mode=admin&section=overview&siteId=site-desert-valley-high"),
     viewport: { width: 820, height: 900, deviceScaleFactor: 1, mobile: false },
-    expected: ["Global Admin", "Site Admin", "Work as", "Desert Valley High School", "The server still checks every action"],
+    expected: ["Global Admin", "Site Admin", "Work as", "Site Admin mode opened.", "The server still checks every action"],
     actions: ["switchToSiteAdmin", "openAdminRoleSwitcher"],
     auditKeyboard: false,
     proves: "Site Admin mode stays readable at half-screen width and removes global-only navigation while keeping the selected school visible.",
