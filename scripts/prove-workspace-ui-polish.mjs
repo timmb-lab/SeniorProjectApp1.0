@@ -101,7 +101,7 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?section=mentorDashboard"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
-    expected: ["Your next check-in", "ASK", "HELP", "RECORD", "Open check-in", "Show filters and other students"],
+    expected: ["Back to Today", "Your next check-in", "ASK", "HELP", "RECORD", "Open check-in", "Show filters and other students"],
     absent: ["Choose one mentor action", "Use this map before scanning every assigned student row", "Admin Console"],
     proves: "Mentor Dashboard starts with one assigned student, one coaching question, and secondary filters collapsed.",
   },
@@ -399,7 +399,7 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo student account",
     url: workspaceUrl("?section=presentation"),
     viewport: { width: 1366, height: 768, deviceScaleFactor: 1, mobile: false },
-    expected: ["Presentation plan", "Your Presentation", "Before presentation day"],
+    expected: ["Back to Today", "Presentation plan", "Your Presentation", "Before presentation day"],
     absent: ["Admin Console", "Staff Workspace", "data-presentation-action=\"check-out\"", "data-presentation-action=\"check-in\""],
     proves: "Student Presentation keeps time, outline, and day-of guidance readable in a Chromebook-size desktop browser without staff controls.",
   },
@@ -877,6 +877,7 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?section=programDashboard"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Back to Today"],
     proves: "Program Dashboard keeps review-first program metrics and scoped student details route-backed.",
   },
   {
@@ -930,6 +931,7 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?mode=workspace&section=students&siteId=site-desert-valley-high"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Back to Today"],
     proves: "Site Admin Students opens on the real student directory and support groups outside Admin Console.",
   },
   {
@@ -960,6 +962,7 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?mode=workspace&section=readiness&siteId=site-desert-valley-high"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Back to Today"],
     proves: "Reporting Admin opens aggregate readiness without student-directory privileges.",
   },
   {
@@ -980,6 +983,7 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?mode=workspace&section=students&siteId=site-desert-valley-high"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Back to Today"],
     proves: "Global Admin workspace Students stays route-backed and school-filtered outside Admin Console.",
   },
   {
