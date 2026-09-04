@@ -14406,6 +14406,91 @@ test("opening a project replaces the list and Back restores the same directory s
   assert.equal(vm.runInContext("location.href", context), originalUrl, "returning to the list keeps the browser address stable");
 });
 
+test("adding a project note refreshes the open project and shows the saved note", async () => {
+  const routes = profileRoutesForRole("site_admin");
+  let noteSaved = false;
+  const projectsBody = () => ({
+    ok: true,
+    siteId: "site-desert-valley-high",
+    projects: [{
+      projectId: "project-note-1",
+      siteId: "site-desert-valley-high",
+      name: "Community Garden",
+      programName: "Environmental Science",
+      currentPhase: "phase-1",
+      members: [{ studentId: "student-1", displayName: "Jordan Student" }],
+      mentors: [{ displayName: "Morgan Mentor" }],
+      adultSetup: { ready: true },
+      waitingForReviewCount: 0,
+      revisionRequestedCount: 0,
+      notePermissions: { canCreate: true },
+      notes: noteSaved ? [{
+        noteId: "note-new",
+        authorName: "Site Admin Profile",
+        body: "Materials list is ready for review.",
+        status: "active",
+        createdAt: "2026-09-03T12:00:00.000Z",
+        updatedAt: "2026-09-03T12:00:00.000Z",
+        canEdit: true,
+        canArchive: true,
+      }] : [],
+    }],
+    requests: [],
+    templates: [],
+    availableStudents: [],
+    availableProjectAdults: { mentors: [], programTeachers: [] },
+    summary: { total: 1 },
+    pagination: { page: 1, pageSize: 25, total: 1, totalPages: 1, search: "", filter: "all", sort: "action" },
+    permissions: { canManage: true, canCreate: true, canManageTemplates: true, canOpenReviewQueue: true, canMakeReviewDecision: false },
+  });
+  routes["/api/projects"] = ({ options }) => {
+    if (String(options?.method || "GET").toUpperCase() === "POST") {
+      noteSaved = true;
+      return { status: 201, body: { ok: true, noteId: "note-new", message: "Note added to the project." } };
+    }
+    return { status: 200, body: projectsBody() };
+  };
+
+  const { context, workspaceRoot, fetchRequests } = await createWorkspaceContextWithFetch(routes);
+  vm.runInContext(`
+    activeSection = "projects";
+    activeProjectId = "project-note-1";
+    selectedSiteId = "site-desert-valley-high";
+    currentData.projects = { ok: true, status: 200, body: ${JSON.stringify(projectsBody())} };
+    renderAppShell();
+  `, context);
+  assert.match(workspaceRoot.innerHTML, /data-project-note-form="true"/);
+  assert.match(workspaceRoot.innerHTML, /data-project-note-action="create_note"/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /Materials list is ready for review/);
+
+  await vm.runInContext(`
+    FormData = class {
+      get(name) {
+        return {
+          projectId: "project-note-1",
+          noteBody: "Materials list is ready for review."
+        }[name] || "";
+      }
+    };
+    const noteEvent = {
+      preventDefault() {},
+      currentTarget: {
+        dataset: { projectNoteAction: "create_note" },
+        querySelectorAll() { return []; }
+      }
+    };
+    Promise.all([submitProjectNote(noteEvent), submitProjectNote(noteEvent)]);
+  `, context);
+
+  const noteRequests = fetchRequests.filter((entry) => entry.url.startsWith("/api/projects"));
+  assert.equal(noteRequests.filter((entry) => entry.method === "POST").length, 1, "the saving lock blocks a rapid duplicate note submission");
+  assert.equal(noteRequests.at(-1).method, "GET", "a successful save refreshes the project after the mutation lock is released");
+  assert.match(workspaceRoot.innerHTML, /Note added to the project/);
+  assert.match(workspaceRoot.innerHTML, /Materials list is ready for review/);
+  assert.match(workspaceRoot.innerHTML, /1 note/);
+  assert.equal(vm.runInContext("busy", context), false);
+});
+
 test("Project Command Center opens the exact waiting submission instead of a name search", async () => {
   const routes = profileRoutesForRole("program_teacher");
   const allRows = siteReviewQueueFixture({ role: "program_teacher" }).queue;

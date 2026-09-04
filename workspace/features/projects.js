@@ -839,7 +839,7 @@ function renderProjectNotes(project = {}) {
         <b>${activeNotes.length} ${pluralize(activeNotes.length, "note")}</b>
       </div>
       ${canCreate ? `
-        <form class="workspace-project-note-new" data-project-note-form="true">
+        <form class="workspace-project-note-new" data-project-note-form="true" data-project-note-action="create_note">
           <input type="hidden" name="projectId" value="${escapeHtml(project.projectId || "")}">
           <label>
             <span>Add a note</span>
@@ -888,7 +888,7 @@ function renderProjectNote(projectId = "", note = {}) {
           ${note.canEdit ? `
             <details>
               <summary>Edit note</summary>
-              <form data-project-note-form="true">
+              <form data-project-note-form="true" data-project-note-action="edit_note">
                 <input type="hidden" name="projectId" value="${escapeHtml(projectId)}">
                 <input type="hidden" name="noteId" value="${escapeHtml(note.noteId || "")}">
                 <label>
@@ -900,14 +900,14 @@ function renderProjectNote(projectId = "", note = {}) {
             </details>
           ` : ""}
           ${note.canArchive ? `
-            <form data-project-note-form="true">
+            <form data-project-note-form="true" data-project-note-action="archive_note">
               <input type="hidden" name="projectId" value="${escapeHtml(projectId)}">
               <input type="hidden" name="noteId" value="${escapeHtml(note.noteId || "")}">
               <button class="workspace-link-button workspace-link-button-small" type="submit" name="action" value="archive_note">Archive note</button>
             </form>
           ` : ""}
           ${note.canRestore ? `
-            <form data-project-note-form="true">
+            <form data-project-note-form="true" data-project-note-action="restore_note">
               <input type="hidden" name="projectId" value="${escapeHtml(projectId)}">
               <input type="hidden" name="noteId" value="${escapeHtml(note.noteId || "")}">
               <button class="workspace-button workspace-button-secondary workspace-button-small" type="submit" name="action" value="restore_note">Restore note</button>

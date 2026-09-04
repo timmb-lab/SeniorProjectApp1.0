@@ -1460,7 +1460,7 @@ async function submitProjectNote(event) {
   const form = event?.currentTarget;
   if (!form) return;
   const data = new FormData(form);
-  const action = cleanDirectoryFilter(event?.submitter?.value || data.get("action"));
+  const action = cleanDirectoryFilter(event?.submitter?.value || data.get("action") || form.dataset?.projectNoteAction);
   const projectId = cleanDirectoryFilter(data.get("projectId"));
   const noteId = cleanDirectoryFilter(data.get("noteId"));
   const noteBody = String(data.get("noteBody") || "").trim();
@@ -1489,6 +1489,11 @@ async function submitProjectNote(event) {
       return;
     }
     activeProjectId = projectId;
+    // Release the mutation lock before asking the shared projects loader to
+    // refresh. The loader intentionally ignores calls while `busy` is true.
+    // Without this handoff the note is saved by the API, but the page never
+    // shows it (or the success message), which makes Add note appear broken.
+    busy = false;
     await loadProjectsResult(result.body?.message || "Project note saved.");
   } finally {
     busy = false;
