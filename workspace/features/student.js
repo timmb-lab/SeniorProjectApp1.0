@@ -99,6 +99,11 @@ function renderStudentMyWorkScreen(context = {}) {
   } = context;
   const focusAction = studentPrimaryNextAction(summary, nextSteps, archiveNextAction);
   const projectRecord = studentProjectRecord(project);
+  const projectTabs = projectTabsForRole("student", { canManage: false });
+  const selectedProjectTab = projectTabs.some((tab) => tab.id === activeProjectTab)
+    ? activeProjectTab
+    : "focus";
+  activeProjectTab = selectedProjectTab;
   return `
     <section class="workspace-student-screen workspace-student-screen-work" data-student-screen="work" data-student-view-mode="${previewingStudent ? "staff-preview" : "self"}" aria-labelledby="studentMyWorkTitle">
       ${renderStudentScreenHeader({
@@ -109,74 +114,78 @@ function renderStudentMyWorkScreen(context = {}) {
         badgeHtml: studentStatusBadge(summary.currentStatus),
         primaryHtml: renderStudentRouteButton("student", "Back to Today", "workspace-button-secondary", "data-student-primary-action=\"back-to-today\""),
       })}
-      ${renderStudentWorkFocusCard(focusAction, summary)}
-      <section class="workspace-student-section" data-student-work-section="current" aria-labelledby="studentCurrentWorkTitle">
-        <div class="workspace-student-section-head">
-          <div>
-            <p class="workspace-kicker">Do this next</p>
-            <h2 id="studentCurrentWorkTitle">Project work</h2>
-            <p>${escapeHtml(requirements.length ? "Open the first unfinished item. Add the Google Drive link it asks for. Turn it in when it is ready." : "Your teacher has not added work yet.")}</p>
-          </div>
-        </div>
-        ${renderStudentRequirementPanelBody(requirements, summary, feedback, studentRequirementDetailState, evidence, studentFeedbackHistoryState)}
-      </section>
-      <details class="workspace-student-project-tools" data-student-project-tools="true" ${studentDisclosureState?.projectTools ? "open" : ""}>
-        <summary>
-          <span><small>Project tools</small><strong>Team, Drive folder, and templates</strong></span>
-          <span aria-hidden="true">+</span>
-        </summary>
-        <div class="workspace-student-project-tools-body">
-          <div class="workspace-student-project-overview-grid">
-            ${previewingStudent ? renderViewAsStudentReadOnlyNotice() : ""}
-            ${renderStudentProjectTeam(project, { expanded: true })}
-            ${previewingStudent ? renderStudentProjectFolder(project, { readOnly: true }) : renderStudentProjectFolder(project)}
-          </div>
-          ${projectRecord ? renderProjectNotes(projectRecord) : ""}
-          ${renderStudentTemplateShelf(dashboard.templates)}
-        </div>
-      </details>
-      ${previewingStudent ? "" : renderStudentProjectRequestPanel(unwrap(currentData.projects), project)}
-      <details class="workspace-student-section workspace-student-secondary-section" data-student-work-section="submitted">
-        <summary>
-          <span>
-            <small>Saved work</small>
-            <strong>Drafts and turned-in work</strong>
-          </span>
-          <b>${submissions.length}</b>
-        </summary>
-        <div class="workspace-student-secondary-body">
-          <div class="workspace-student-section-head">
-          <div>
-            <p class="workspace-kicker">Saved work</p>
-            <h2>Drafts and turned-in work</h2>
-            <p>${escapeHtml(submissions.length ? "See work you started, work waiting for review, and work you need to fix." : "Work you turn in will appear here.")}</p>
-          </div>
-          </div>
-          ${renderStudentSubmissionsPanelBody(submissions, filteredSubmissions, feedback, activeSubmissionFilter)}
-        </div>
-      </details>
-      <details class="workspace-student-section workspace-student-secondary-section" data-student-work-section="evidence-files">
-        <summary>
-          <span>
-            <small>Proof</small>
-            <strong>Drive links</strong>
-          </span>
-          <b>${evidence.length}</b>
-        </summary>
-        <div class="workspace-student-secondary-body">
-          <div class="workspace-student-section-head">
-          <div>
-            <p class="workspace-kicker">Files</p>
-            <h2>Google Drive links</h2>
-            <p>${escapeHtml(evidence.length ? "Check the Google Drive links that show your work." : "Add a Google Drive link when your work asks for it.")}</p>
-          </div>
-          </div>
-          ${submissions.length ? renderEvidenceForms(submissions, requirements) : renderStudentEvidenceEmptyState()}
-          ${renderStudentFilesPanelBody(evidence)}
-        </div>
-      </details>
-      ${renderStudentResourceLinks(context)}
+      ${renderProjectPhaseTrack(summary.currentStage || project?.currentPhase || "start")}
+      <div class="workspace-student-project-tabs-shell" data-student-project-tabs="true">
+        ${renderProjectTabs(projectTabs, selectedProjectTab)}
+        ${renderStudentProjectTabPanel(selectedProjectTab, projectTabs, {
+          ...context,
+          focusAction,
+          projectRecord,
+        })}
+      </div>
     </section>
+  `;
+}
+
+function renderStudentProjectTabPanel(selectedTab = "focus", tabs = [], context = {}) {
+  const tab = tabs.find((item) => item.id === selectedTab) || tabs[0] || { id: "focus", label: "My next step" };
+  const {
+    dashboard = {}, summary = {}, requirements = [], submissions = [], evidence = [], feedback = [],
+    filteredSubmissions = [], activeSubmissionFilter = "all", project = null, previewingStudent = false,
+    focusAction = {}, projectRecord = null,
+  } = context;
+  let content = "";
+  if (tab.id === "focus") content = `
+    ${renderStudentWorkFocusCard(focusAction, summary)}
+    <section class="workspace-student-section" data-student-work-section="current" aria-labelledby="studentCurrentWorkTitle">
+      <div class="workspace-student-section-head"><div>
+        <p class="workspace-kicker">Do this next</p>
+        <h2 id="studentCurrentWorkTitle">Project work</h2>
+        <p>${escapeHtml(requirements.length ? "Open the first unfinished item. Add the Google Drive link it asks for. Turn it in when it is ready." : "Your teacher has not added work yet.")}</p>
+      </div></div>
+      ${renderStudentRequirementPanelBody(requirements, summary, feedback, studentRequirementDetailState, evidence, studentFeedbackHistoryState)}
+    </section>
+    ${previewingStudent ? "" : renderStudentProjectRequestPanel(unwrap(currentData.projects), project)}
+    <details class="workspace-student-section workspace-student-secondary-section" data-student-work-section="submitted">
+      <summary><span><small>Saved work</small><strong>Drafts and turned-in work</strong></span><b>${submissions.length}</b></summary>
+      <div class="workspace-student-secondary-body">
+        <div class="workspace-student-section-head"><div>
+          <p class="workspace-kicker">Saved work</p><h2>Drafts and turned-in work</h2>
+          <p>${escapeHtml(submissions.length ? "See work you started, work waiting for review, and work you need to fix." : "Work you turn in will appear here.")}</p>
+        </div></div>
+        ${renderStudentSubmissionsPanelBody(submissions, filteredSubmissions, feedback, activeSubmissionFilter)}
+      </div>
+    </details>
+  `;
+  if (tab.id === "notes") content = projectRecord
+    ? renderProjectNotes(projectRecord)
+    : '<section class="workspace-card workspace-empty-state-card"><h2>No team notes yet</h2><p>Your project needs to be assigned before notes can be saved.</p></section>';
+  if (tab.id === "people") content = `
+    ${previewingStudent ? renderViewAsStudentReadOnlyNotice() : ""}
+    ${renderStudentProjectTeam(project, { expanded: true })}
+  `;
+  if (tab.id === "resources") content = `
+    ${previewingStudent ? renderViewAsStudentReadOnlyNotice() : ""}
+    ${previewingStudent ? renderStudentProjectFolder(project, { readOnly: true }) : renderStudentProjectFolder(project)}
+    ${renderStudentTemplateShelf(dashboard.templates)}
+    <details class="workspace-student-section workspace-student-secondary-section" data-student-work-section="evidence-files">
+      <summary><span><small>Proof</small><strong>Drive links</strong></span><b>${evidence.length}</b></summary>
+      <div class="workspace-student-secondary-body">
+        <div class="workspace-student-section-head"><div>
+          <p class="workspace-kicker">Files</p><h2>Google Drive links</h2>
+          <p>${escapeHtml(evidence.length ? "Check the Google Drive links that show your work." : "Add a Google Drive link when your work asks for it.")}</p>
+        </div></div>
+        ${submissions.length ? renderEvidenceForms(submissions, requirements) : renderStudentEvidenceEmptyState()}
+        ${renderStudentFilesPanelBody(evidence)}
+      </div>
+    </details>
+    ${renderStudentResourceLinks(context)}
+  `;
+  return `
+    <div id="projectTabPanel-${escapeHtml(tab.id)}" class="workspace-project-tab-panel workspace-student-project-tab-panel tone-${escapeHtml(tab.id)}" role="tabpanel" aria-labelledby="projectTab-${escapeHtml(tab.id)}" tabindex="0" data-project-tab-panel="${escapeHtml(tab.id)}">
+      ${renderProjectTabGuide("student", tab)}
+      ${content}
+    </div>
   `;
 }
 

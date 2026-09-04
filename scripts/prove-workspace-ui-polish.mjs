@@ -1330,10 +1330,11 @@ if (String(process.env.WORKSPACE_UI_POLISH_IDS || "").includes("admin-role-")) {
   SCREENSHOT_PLAN.push(...ADMIN_ROLE_MODE_PLAN);
 }
 const PROJECT_STICKY_ROLE_PLAN = [
+  ["student", "student", "Student"],
   ["program-teacher", "program_teacher", "Program Teacher"],
   ["mentor", "mentor", "Mentor"],
   ["viewer", "viewer", "Viewer"],
-  ["administration", "administration", "School Admin"],
+  ["administration", "misc_admin", "School Admin"],
   ["site-admin", "site_admin", "Site Admin"],
   ["global-admin", "admin", "Global Admin"],
 ].map(([idSuffix, authRole, persona]) => ({
@@ -1342,14 +1343,28 @@ const PROJECT_STICKY_ROLE_PLAN = [
   persona: `${persona} reviewing a long project at desktop width`,
   authRole,
   accountType: "Fake .test demo staff account",
-  url: workspaceUrl("?mode=workspace&section=projects&siteId=site-desert-valley-high"),
+  url: workspaceUrl(authRole === "student"
+    ? "?mode=workspace&section=studentWork"
+    : "?mode=workspace&section=projects&siteId=site-desert-valley-high"),
   viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
   theme: "light",
-  expected: ["PROJECT COMMAND CENTER", "Back to project list", "START HERE", "YOUR NEXT MOVE", "PROJECT PATH", "PROJECT TEAM"],
+  expected: [
+    authRole === "student" ? "MY PROJECT" : "PROJECT COMMAND CENTER",
+    authRole === "student" ? "Back to Today" : "Back to project list",
+    "START HERE",
+    "YOUR NEXT MOVE",
+    "PROJECT PATH",
+    authRole === "student" ? "My next step" : "PROJECT TEAM",
+    "WHAT THIS IS FOR",
+    "WHAT TO DO",
+    "DONE WHEN",
+  ],
   absent: ["Choose one project. The list will close", "Project or student name", "School projects"],
-  actions: ["proveProjectOpenAndBack", "proveProjectStickyRail"],
+  actions: authRole === "student"
+    ? ["proveProjectTabs"]
+    : ["proveProjectOpenAndBack", "proveProjectStickyRail", "proveProjectTabs"],
   auditKeyboard: false,
-  capture: authRole === "site_admin",
+  capture: true,
   proves: `The shared project overview keeps its right rail, top bar, and left navigation fixed for the ${persona} role while left-side information scrolls.`,
 }));
 if (String(process.env.WORKSPACE_UI_POLISH_IDS || "").includes("project-sticky-")) {
@@ -2123,7 +2138,7 @@ async function performSinglePlanAction(client, action) {
       document.querySelectorAll("details").forEach((details) => details.setAttribute("open", ""));
       window.scrollTo(0, 0);
       return document.querySelectorAll("details[open]").length;
-    })()`);
+    })()`, { awaitPromise: true });
     await sleep(500);
     return;
   }
@@ -2362,6 +2377,34 @@ async function performSinglePlanAction(client, action) {
       return proof;
     })()`, { awaitPromise: true });
     if (!result?.ok) throw new Error(`Project sticky rail did not remain fixed while the left column moved: ${JSON.stringify(result)}`);
+    return;
+  }
+  if (action === "proveProjectTabs") {
+    const result = await client.evaluate(`(async () => {
+      const tabs = [...document.querySelectorAll("[data-project-tabs] [data-project-tab]")];
+      if (tabs.length < 4) return { ok: false, reason: "fewer than four project tabs", count: tabs.length };
+      const labels = tabs.map((tab) => (tab.textContent || "").trim());
+      const visited = [];
+      for (const tab of tabs) {
+        const tabId = tab.dataset.projectTab || "";
+        tab.click();
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        const selected = document.querySelector('[data-project-tab][aria-selected="true"]');
+        const panel = document.querySelector('[data-project-tab-panel="' + CSS.escape(tabId) + '"]');
+        const text = panel?.textContent || "";
+        if (selected?.dataset?.projectTab !== tabId || !panel
+          || !text.includes("WHAT THIS IS FOR") || !text.includes("WHAT TO DO") || !text.includes("DONE WHEN")) {
+          return { ok: false, reason: "tab did not expose its selected guided panel", tabId };
+        }
+        visited.push(tabId);
+      }
+      document.querySelector('[data-project-tab="focus"]')?.click();
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const workspace = document.querySelector('[data-project-workspace="true"], [data-student-screen="work"]');
+      const overflow = workspace ? workspace.scrollWidth > workspace.clientWidth + 2 : true;
+      return { ok: !overflow, labels, visited, overflow };
+    })()`, { awaitPromise: true });
+    if (!result.ok) throw new Error(`Project tabs did not pass the role-aware interaction check: ${JSON.stringify(result)}`);
     return;
   }
   if (action) throw new Error(`Unsupported proof action: ${action}`);

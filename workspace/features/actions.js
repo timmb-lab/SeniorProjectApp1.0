@@ -51,6 +51,9 @@ function bindWorkspaceForms() {
   document.querySelectorAll("[data-project-action]").forEach((button) => {
     button.addEventListener("click", handleProjectAction);
   });
+  document.querySelectorAll("[data-project-tab]").forEach((button) => {
+    button.addEventListener("keydown", handleProjectTabKeydown);
+  });
   document.querySelector("[data-project-directory-filter-form]")?.addEventListener("submit", submitProjectDirectoryFilters);
   document.querySelectorAll("[data-project-team-picker]").forEach((picker) => {
     bindProjectTeamPicker(picker);
@@ -367,6 +370,7 @@ function handleStudentRequirementAction(event) {
     };
   }
   if (opening) requestStudentRequirementFocus(requirementId);
+  if (opening) activeProjectTab = "focus";
   activeSection = "studentWork";
   renderAppShell(opening ? "Item details opened." : "Item details closed.", "success");
 }
@@ -1176,6 +1180,14 @@ async function refreshSelectedStudentDetailAfterReview(selected) {
 async function handleProjectAction(event) {
   const button = event?.currentTarget;
   const action = button?.dataset?.projectAction || "";
+  if (action === "tab") {
+    const tabId = cleanDirectoryFilter(button.dataset.projectTab || "");
+    if (!tabId) return;
+    activeProjectTab = tabId;
+    renderAppShell();
+    document.querySelector(`[data-project-tab="${tabId}"]`)?.focus?.();
+    return;
+  }
   if (action === "new") {
     const panel = document.querySelector("#createProjectPanel");
     if (!panel) {
@@ -1215,6 +1227,7 @@ async function handleProjectAction(event) {
   if (action === "back-to-list") {
     activeProjectId = "";
     managedProjectId = "";
+    activeProjectTab = "";
     renderAppShell();
     const listTitle = document.querySelector("#projectListTitle");
     listTitle?.scrollIntoView?.({ behavior: "auto", block: "start" });
@@ -1229,6 +1242,7 @@ async function handleProjectAction(event) {
     }
     activeProjectId = projectId;
     managedProjectId = "";
+    activeProjectTab = "";
     renderAppShell();
     const projectWorkspace = document.querySelector(`[data-project-workspace][data-project-id="${projectId}"]`);
     if (!projectWorkspace) {
@@ -1270,6 +1284,20 @@ async function handleProjectAction(event) {
   activeSection = "teacher";
   await loadReviewQueueResult("Opening this project for review.");
   await openReviewSubmission(submissionId);
+}
+
+function handleProjectTabKeydown(event) {
+  if (!event || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+  const tabs = [...document.querySelectorAll("[data-project-tabs] [data-project-tab]")];
+  const currentIndex = tabs.indexOf(event.currentTarget);
+  if (currentIndex < 0 || !tabs.length) return;
+  event.preventDefault();
+  let nextIndex = currentIndex;
+  if (event.key === "Home") nextIndex = 0;
+  if (event.key === "End") nextIndex = tabs.length - 1;
+  if (event.key === "ArrowLeft") nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+  if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % tabs.length;
+  tabs[nextIndex]?.click?.();
 }
 
 async function submitProjectDirectoryFilters(event) {

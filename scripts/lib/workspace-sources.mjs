@@ -18,6 +18,7 @@ export const workspaceCssFiles = [
   "workspace/styles/03-workspace.css",
   "workspace/styles/04-workspace.css",
   "workspace/styles/05-brand-foundations.css",
+  "workspace/styles/07-project-tabs.css",
   "workspace/styles/06-visual-polish.css",
 ];
 

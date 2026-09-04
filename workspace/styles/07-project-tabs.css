@@ -1,0 +1,140 @@
+/* Role-aware project tabs and their concise, task-specific guidance. */
+.workspace-project-tabs {
+  min-width: 0;
+  display: flex;
+  gap: 0.45rem;
+  overflow-x: auto;
+  padding: 0.45rem;
+  border: 1px solid var(--shell-divider);
+  border-radius: 0.85rem;
+  background: color-mix(in srgb, var(--shell-pane) 92%, var(--school-primary) 8%);
+  box-shadow: 0 1px 2px rgba(15, 32, 53, 0.04);
+  scrollbar-width: thin;
+}
+
+.workspace-project-tab {
+  min-height: 2.8rem;
+  flex: 1 0 max-content;
+  padding: 0.62rem 0.85rem;
+  border: 1px solid transparent;
+  border-radius: 0.62rem;
+  background: transparent;
+  color: var(--ticket-muted);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.workspace-project-tab:hover {
+  border-color: color-mix(in srgb, var(--school-primary) 35%, var(--shell-divider));
+  background: color-mix(in srgb, var(--school-primary) 7%, var(--shell-pane));
+  color: var(--ticket-text);
+}
+
+.workspace-project-tab.is-active {
+  border-color: color-mix(in srgb, var(--school-primary) 58%, var(--shell-divider));
+  background: var(--shell-pane);
+  color: var(--school-primary);
+  box-shadow: 0 0.15rem 0.5rem rgba(15, 32, 53, 0.09);
+}
+
+.workspace-project-tab:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--school-accent) 68%, transparent);
+  outline-offset: 2px;
+}
+
+.workspace-project-tab-panel,
+.workspace-student-project-tabs-shell,
+.workspace-student-project-tab-panel {
+  min-width: 0;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.workspace-project-tab-panel { --project-tab-accent: var(--school-primary); }
+.workspace-project-tab-panel.tone-notes { --project-tab-accent: #5f72d8; }
+.workspace-project-tab-panel.tone-people { --project-tab-accent: #168a68; }
+.workspace-project-tab-panel.tone-resources { --project-tab-accent: #7b5ac7; }
+.workspace-project-tab-panel.tone-settings { --project-tab-accent: #5574b8; }
+
+.workspace-student-project-tab-panel > :is(.workspace-student-work-focus, .workspace-student-section, .workspace-student-project-team, .workspace-student-project-folder, .workspace-student-template-shelf, .workspace-project-notes, .workspace-card) {
+  margin-block: 0;
+}
+
+.workspace-project-tab-guide {
+  display: grid;
+  gap: 0.8rem;
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--project-tab-accent) 38%, var(--shell-divider));
+  border-left: 0.34rem solid var(--project-tab-accent);
+  border-radius: 0.8rem;
+  background: linear-gradient(140deg, color-mix(in srgb, var(--project-tab-accent) 9%, var(--shell-pane)), var(--shell-pane) 62%);
+}
+
+.workspace-project-tab-guide h2,
+.workspace-project-tab-guide p { margin: 0; }
+
+.workspace-project-tab-guide h2 {
+  margin-top: 0.18rem;
+  color: var(--ticket-text);
+  font-size: 1.18rem;
+}
+
+.workspace-project-tab-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.workspace-project-tab-guide-grid article {
+  padding: 0.78rem;
+  border: 1px solid color-mix(in srgb, var(--project-tab-accent) 22%, var(--shell-divider));
+  border-radius: 0.62rem;
+  background: color-mix(in srgb, var(--project-tab-accent) 5%, var(--shell-pane));
+}
+
+.workspace-project-tab-guide-grid span {
+  color: var(--project-tab-accent);
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.workspace-project-tab-guide-grid p {
+  margin-top: 0.38rem;
+  color: var(--ticket-text);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.workspace-project-tab-panel > :is(.workspace-project-start-panel, .workspace-project-notes, .workspace-project-adult-setup, .workspace-project-template-shelf, .workspace-project-settings-panel) {
+  --project-pane-accent: var(--project-tab-accent);
+  margin: 0;
+  border-color: color-mix(in srgb, var(--project-pane-accent) 30%, var(--shell-divider));
+  border-radius: 0.8rem;
+  background: linear-gradient(140deg, color-mix(in srgb, var(--project-pane-accent) 7%, var(--shell-pane)), var(--shell-pane) 48%) !important;
+  box-shadow: inset 0.28rem 0 0 color-mix(in srgb, var(--project-pane-accent) 78%, transparent), 0 1px 2px rgba(15, 32, 53, 0.04);
+}
+
+.workspace-project-tab-panel > :is(.workspace-project-notes, .workspace-project-adult-setup, .workspace-project-template-shelf) {
+  padding: 1rem;
+}
+
+@media (max-width: 820px) {
+  .workspace-project-tab-guide-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .workspace-project-tabs {
+    margin-inline: -0.15rem;
+    padding: 0.35rem;
+    scroll-snap-type: x proximity;
+  }
+
+  .workspace-project-tab {
+    min-height: 3rem;
+    scroll-snap-align: start;
+    font-size: 0.92rem;
+  }
+}

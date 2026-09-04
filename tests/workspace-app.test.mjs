@@ -4371,9 +4371,10 @@ test("staff roles can enter and exit read-only View as Student from authorized c
     assert.equal(enteredUrl.searchParams.get("section"), "student");
     assert.equal(enteredUrl.searchParams.get("viewAsStudentId"), "demo-student-101");
     assert.equal(enteredUrl.searchParams.get("viewAsReturnSection"), roleCase.section);
-    vm.runInContext('activeSection = "studentWork"; renderAppShell("Previewing My Work.", "success");', context);
+    vm.runInContext('activeProjectTab = "resources"; activeSection = "studentWork"; renderAppShell("Previewing My Work.", "success");', context);
     assert.match(workspaceRoot.innerHTML, /data-view-as-student-proof-preview="true"/);
     assert.doesNotMatch(workspaceRoot.innerHTML, /id="workspaceEvidenceLinkForm"|id="workspaceFileUploadForm"|data-student-storage-focus/);
+    vm.runInContext('handleProjectAction({ currentTarget: { dataset: { projectAction: "tab", projectTab: "focus" } } })', context);
     assert.match(workspaceRoot.innerHTML, /data-view-as-student-submit-disabled="true"[\s\S]*Preview only/);
     if (roleCase.roleId === "viewer") {
       assert.match(workspaceRoot.innerHTML, /Read-only preview/);
@@ -8321,6 +8322,7 @@ test("workspace renders a Google-Drive-link-only student work flow", async () =>
   };
 
   const linkOnly = await renderWorkspaceWithFetch(routes, "student", `
+    activeProjectTab = "resources";
     studentDisclosureState.evidence = true;
   `);
   assert.match(linkOnly, /data-student-screen="work"/);
@@ -10317,8 +10319,12 @@ test("workspace renders evidence download and external-link actions without stor
       body: { ok: true, slots: [] },
     },
   };
-  const student = await renderWorkspaceWithFetch(studentEvidenceRoutes, "student", `
+  const studentFocus = await renderWorkspaceWithFetch(studentEvidenceRoutes, "student", `
+    activeProjectTab = "focus";
     studentDisclosureState.requirements = true;
+  `);
+  const student = await renderWorkspaceWithFetch(studentEvidenceRoutes, "student", `
+    activeProjectTab = "resources";
     studentDisclosureState.evidence = true;
     studentDisclosureState.files = true;
   `);
@@ -10326,11 +10332,10 @@ test("workspace renders evidence download and external-link actions without stor
   assert.match(student, /data-student-screen="work"/);
   assert.match(student, /My Project/);
   assert.match(student, /Files/);
-  assert.match(student, /data-student-requirements-empty="true"/);
-  assert.match(student, /Your teacher has not added work yet/);
-  assert.match(student, /Your teacher has not added work yet/);
-  assert.match(student, /Ask your teacher which project item should be added first/);
-  assert.match(student, /Do not start a new phase until it appears here/);
+  assert.match(studentFocus, /data-student-requirements-empty="true"/);
+  assert.match(studentFocus, /Your teacher has not added work yet/);
+  assert.match(studentFocus, /Ask your teacher which project item should be added first/);
+  assert.match(studentFocus, /Do not start a new phase until it appears here/);
   assert.match(student, /data-student-evidence-empty="true"/);
   assert.match(student, /No file can be uploaded yet/);
   assert.match(student, /First open Current work and start the item your teacher assigned/);
@@ -10445,7 +10450,7 @@ test("student files rows reopen the matching requirement detail", async () => {
     },
   };
   const { context, workspaceRoot } = await createWorkspaceContextWithFetch(routes);
-  vm.runInContext('studentDisclosureState.files = true; activeSection = "student"; renderAppShell();', context);
+  vm.runInContext('activeProjectTab = "resources"; studentDisclosureState.files = true; activeSection = "student"; renderAppShell();', context);
 
   assert.match(workspaceRoot.innerHTML, /data-student-files-review="true"/);
   assert.match(workspaceRoot.innerHTML, /Check saved links/);
@@ -10459,6 +10464,7 @@ test("student files rows reopen the matching requirement detail", async () => {
   vm.runInContext('handleStudentRequirementAction({ currentTarget: { dataset: { studentRequirementAction: "open-detail", studentRequirementId: "req-proposal" } } })', context);
 
   assert.match(workspaceRoot.innerHTML, /data-student-screen="work"/);
+  assert.match(workspaceRoot.innerHTML, /data-project-tab="focus"[^>]*aria-selected="true"/);
   assert.match(workspaceRoot.innerHTML, /data-student-requirement-detail="true"/);
   assert.match(workspaceRoot.innerHTML, /Senior Project Proposal/);
   assert.match(workspaceRoot.innerHTML, /#2: Needs changes/);
@@ -14280,7 +14286,7 @@ test("project directory and dedicated project workspace render as separate scree
   assert.match(workspaceCss, /@media \(max-width: 820px\)[\s\S]*?\.workspace-project-command-rail-sticky\s*\{[\s\S]*?position:\s*static;[\s\S]*?max-height:\s*none;[\s\S]*?overflow:\s*visible;/);
 
   const polishProofScript = await readFile("scripts/prove-workspace-ui-polish.mjs", "utf8");
-  assert.match(polishProofScript, /id:\s*`project-sticky-\$\{idSuffix\}-desktop`[\s\S]*?actions:\s*\["proveProjectOpenAndBack",\s*"proveProjectStickyRail"\]/);
+  assert.match(polishProofScript, /id:\s*`project-sticky-\$\{idSuffix\}-desktop`[\s\S]*?"proveProjectOpenAndBack"[\s\S]*?"proveProjectStickyRail"[\s\S]*?"proveProjectTabs"/);
   assert.match(polishProofScript, /const PROJECT_STICKY_ROLE_PLAN = \[[\s\S]*?"program_teacher"[\s\S]*?"mentor"[\s\S]*?"viewer"[\s\S]*?"administration"[\s\S]*?"site_admin"[\s\S]*?"admin"[\s\S]*?proveProjectStickyRail/);
   assert.match(polishProofScript, /action === "proveProjectStickyRail"[\s\S]*?style\.position === "sticky"[\s\S]*?Math\.abs\(railDelta\) <= 2[\s\S]*?Math\.abs\(topbarDelta\) <= 2[\s\S]*?Math\.abs\(drawerDelta\) <= 2[\s\S]*?mainDelta <= -100/);
 
@@ -14468,6 +14474,7 @@ test("adding a project note refreshes the open project and shows the saved note"
     activeSection = "projects";
     activeProjectId = "project-note-1";
     selectedSiteId = "site-desert-valley-high";
+    activeProjectTab = "notes";
     currentData.projects = { ok: true, status: 200, body: ${JSON.stringify(projectsBody())} };
     renderAppShell();
   `, context);
@@ -14503,7 +14510,95 @@ test("adding a project note refreshes the open project and shows the saved note"
   assert.equal(vm.runInContext("busy", context), false);
 });
 
-test("students can add project notes from My Project and keep the tools panel open after save", async () => {
+test("project workspace tabs change labels, guidance, and setup access for every role", async () => {
+  const project = `{
+    projectId: "project-role-tabs",
+    name: "Role-aware Project",
+    programName: "Information Technology",
+    currentPhase: "phase-2a",
+    summary: "Build a clear check-in plan.",
+    members: [{ studentId: "student-1", displayName: "Jordan Student" }],
+    adultSetup: { ready: true, mentor: { displayName: "Morgan Mentor" }, programTeacher: { displayName: "Taylor Teacher" } },
+    adultAssignments: [],
+    notePermissions: { canCreate: true },
+    notes: [],
+    waitingForReviewCount: 1,
+    revisionRequestedCount: 0,
+    approvedCount: 2
+  }`;
+  const plans = [
+    ["student", false, "My next step", "My team", "Student view", false],
+    ["mentor", false, "Mentor next step", "People &amp; roles", "Mentor view", false],
+    ["program_teacher", true, "Review &amp; guide", "People &amp; roles", "Program Teacher view", true],
+    ["administration", true, "Project health", "People &amp; roles", "School Admin view", true],
+    ["site_admin", true, "Project health", "People &amp; roles", "Site Admin view", true],
+    ["global_admin", true, "Project health", "People &amp; roles", "Global Admin view", true],
+  ];
+
+  for (const [roleId, canManage, firstTab, peopleTab, roleLabel, hasSettings] of plans) {
+    const { context } = await createWorkspaceContextWithFetch(profileRoutesForRole(roleId));
+    const html = vm.runInContext(`
+      activeProjectTab = "";
+      renderProjectWorkspace(${project}, {
+        projects: [], selectedProjectIndex: 0, position: 1, total: 1,
+        availableStudents: [], canManage: ${canManage}, isStudent: ${roleId === "student"},
+        templates: [], availableProjectAdults: {}, canManageTemplates: ${canManage}
+      })
+    `, context);
+    assert.match(html, /role="tablist"[^>]*aria-label="Project workspace sections"/);
+    assert.match(html, new RegExp(`role="tab"[^>]*aria-selected="true"[^>]*>${firstTab}<`));
+    assert.match(html, new RegExp(`>${peopleTab}<`));
+    assert.match(html, new RegExp(`${roleLabel} · ${firstTab}`));
+    assert.match(html, /WHAT THIS IS FOR[\s\S]*WHAT TO DO[\s\S]*DONE WHEN/);
+    assert.equal(/data-project-tab="settings"/.test(html), hasSettings);
+    assert.equal(/data-project-settings-panel="true"/.test(html), false, "inactive settings content stays out of the page");
+
+    const notesHtml = vm.runInContext(`
+      activeProjectTab = "notes";
+      renderProjectWorkspace(${project}, {
+        projects: [], selectedProjectIndex: 0, position: 1, total: 1,
+        availableStudents: [], canManage: ${canManage}, isStudent: ${roleId === "student"},
+        templates: [], availableProjectAdults: {}, canManageTemplates: ${canManage}
+      })
+    `, context);
+    assert.match(notesHtml, /data-project-tab="notes"[^>]*aria-selected="true"/);
+    assert.match(notesHtml, /data-project-tab-panel="notes"[\s\S]*Team notes/);
+    assert.doesNotMatch(notesHtml, /data-project-tab-panel="focus"|data-project-settings-panel="true"/);
+  }
+
+  const globalMode = await createWorkspaceContextWithFetch(profileRoutesForRole("global_admin"));
+  assert.equal(vm.runInContext('activeAdminRoleMode = "site_admin"; projectCommandRoleId()', globalMode.context), "site_admin");
+  assert.equal(vm.runInContext('projectCommandRoleLabel()', globalMode.context), "Site Admin view");
+  assert.deepEqual(
+    JSON.parse(vm.runInContext('JSON.stringify(projectTabsForRole(projectCommandRoleId(), { canManage: true }).map((tab) => tab.label))', globalMode.context)),
+    ["Project health", "People & roles", "Team notes", "Resources", "Admin setup"],
+  );
+});
+
+test("project workspace tabs support arrow, Home, and End keyboard navigation", async () => {
+  const { context } = await createWorkspaceContextWithFetch(profileRoutesForRole("student"));
+  const result = vm.runInContext(`(() => {
+    const clicked = [];
+    const tabs = [0, 1, 2, 3].map((index) => ({ click() { clicked.push(index); } }));
+    const originalQuerySelectorAll = document.querySelectorAll.bind(document);
+    document.querySelectorAll = (selector) => selector === "[data-project-tabs] [data-project-tab]" ? tabs : originalQuerySelectorAll(selector);
+    const prevented = [];
+    const run = (key, index) => handleProjectTabKeydown({ key, currentTarget: tabs[index], preventDefault() { prevented.push(key); } });
+    run("ArrowRight", 3);
+    run("ArrowLeft", 0);
+    run("Home", 2);
+    run("End", 1);
+    run("Enter", 1);
+    document.querySelectorAll = originalQuerySelectorAll;
+    return JSON.stringify({ clicked, prevented });
+  })()`, context);
+  assert.deepEqual(JSON.parse(result), {
+    clicked: [0, 3, 0, 3],
+    prevented: ["ArrowRight", "ArrowLeft", "Home", "End"],
+  });
+});
+
+test("students can add project notes from the My Project notes tab and stay on that tab after save", async () => {
   const routes = profileRoutesForRole("student");
   let noteSaved = false;
   const project = () => ({
@@ -14550,7 +14645,10 @@ test("students can add project notes from My Project and keep the tools panel op
 
   const { context, workspaceRoot, fetchRequests } = await createWorkspaceContextWithFetch(routes);
   vm.runInContext('activeSection = "studentWork"; renderAppShell();', context);
-  assert.match(workspaceRoot.innerHTML, /data-student-project-tools="true"/);
+  assert.match(workspaceRoot.innerHTML, /data-student-project-tabs="true"/);
+  assert.match(workspaceRoot.innerHTML, /data-project-tab="focus"[^>]*aria-selected="true"/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-project-note-form="true"/);
+  await vm.runInContext('handleProjectAction({ currentTarget: { dataset: { projectAction: "tab", projectTab: "notes" } } })', context);
   assert.match(workspaceRoot.innerHTML, /Team notes/);
   assert.match(workspaceRoot.innerHTML, /data-project-note-form="true"/);
 
@@ -14576,8 +14674,8 @@ test("students can add project notes from My Project and keep the tools panel op
   const noteRequests = fetchRequests.filter((entry) => entry.url.startsWith("/api/projects"));
   assert.equal(noteRequests.filter((entry) => entry.method === "POST").length, 1);
   assert.match(workspaceRoot.innerHTML, /The model frame is ready for the next build step/);
-  assert.match(workspaceRoot.innerHTML, /data-student-project-tools="true" open/);
-  assert.equal(vm.runInContext("studentDisclosureState.projectTools", context), true);
+  assert.match(workspaceRoot.innerHTML, /data-project-tab="notes"[^>]*aria-selected="true"/);
+  assert.equal(vm.runInContext("activeProjectTab", context), "notes");
 });
 
 test("Project Command Center opens the exact waiting submission instead of a name search", async () => {

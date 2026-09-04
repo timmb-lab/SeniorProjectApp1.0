@@ -66,6 +66,7 @@ let adminArchiveExportFilter = "all";
 let adminAuditFilters = defaultAdminAuditFilters();
 let managedProjectId = "";
 let activeProjectId = "";
+let activeProjectTab = "";
 let projectDirectoryView = "table";
 let projectDirectoryFilters = defaultProjectDirectoryFilters();
 let workspaceConnectionState = defaultWorkspaceConnectionState();

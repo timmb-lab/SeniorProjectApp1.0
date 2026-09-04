@@ -141,6 +141,11 @@ function renderProjectWorkspace(project = {}, options = {}) {
   const approvedCount = safeNumber(project.approvedCount);
   const waitingCount = safeNumber(project.waitingForReviewCount);
   const changesCount = safeNumber(project.revisionRequestedCount);
+  const projectTabs = projectTabsForRole(projectCommandRoleId(), options);
+  const selectedTab = projectTabs.some((tab) => tab.id === activeProjectTab)
+    ? activeProjectTab
+    : projectTabs[0]?.id || "focus";
+  activeProjectTab = selectedTab;
   const backAction = options.isStudent
     ? '<button class="workspace-button workspace-button-secondary workspace-project-back" type="button" data-section="student">← Back to Today</button>'
     : '<button class="workspace-button workspace-button-secondary workspace-project-back" type="button" data-project-action="back-to-list">← Back to project list</button>';
@@ -173,33 +178,8 @@ function renderProjectWorkspace(project = {}, options = {}) {
       ${renderProjectPhaseTrack(phase.key)}
       <div class="workspace-project-command-layout">
         <main class="workspace-project-command-main">
-          ${renderProjectCommandStart(project, options)}
-          ${renderProjectNotes(project)}
-          ${renderProjectAdultSetup(project.adultSetup, project.adultAssignments, {
-            projectId: project.projectId,
-            programId: project.programId,
-            canManage: options.canManage,
-            canNominate: options.isStudent,
-            availableProjectAdults: options.availableProjectAdults || {},
-          })}
-          ${renderProjectTemplateShelf(options.templates || [], {
-            canManage: options.canManageTemplates,
-            isStudent: options.isStudent,
-            siteId: options.siteId || project.siteId || "",
-          })}
-          ${options.canManage ? `
-            <section class="workspace-project-settings-panel workspace-card" data-project-settings-panel="true">
-              <div>
-                <span class="workspace-kicker">PROJECT SETTINGS</span>
-                <h2>Team and project setup</h2>
-                <p>Change the project name, students, program, or folder link.</p>
-              </div>
-              <button class="workspace-button workspace-button-secondary" type="button" data-project-action="manage" data-project-id="${escapeHtml(project.projectId || "")}">
-                ${managedProjectId === project.projectId ? "Close settings" : "Open settings"}
-              </button>
-              ${managedProjectId === project.projectId ? renderManageProjectForm(project, options.availableStudents || []) : ""}
-            </section>
-          ` : ""}
+          ${renderProjectTabs(projectTabs, selectedTab)}
+          ${renderProjectTabPanel(selectedTab, projectTabs, project, options)}
         </main>
         <aside class="workspace-project-command-rail" aria-label="Project facts and navigation">
           <div class="workspace-project-command-rail-sticky">
@@ -218,15 +198,193 @@ function renderProjectWorkspace(project = {}, options = {}) {
   `;
 }
 
+function projectCommandRoleId() {
+  const role = typeof primaryRoleForUser === "function" ? primaryRoleForUser(currentUser) : "";
+  if (["platform_admin", "admin"].includes(role)) return "global_admin";
+  return role || "viewer";
+}
+
+function projectTabsForRole(roleId = "viewer", options = {}) {
+  const canManage = Boolean(options.canManage);
+  const roleTabs = {
+    student: [
+      ["focus", "My next step"],
+      ["notes", "Team notes"],
+      ["people", "My team"],
+      ["resources", "Resources"],
+    ],
+    mentor: [
+      ["focus", "Mentor next step"],
+      ["notes", "Team notes"],
+      ["people", "People & roles"],
+      ["resources", "Resources"],
+    ],
+    program_teacher: [
+      ["focus", "Review & guide"],
+      ["notes", "Team notes"],
+      ["people", "People & roles"],
+      ["resources", "Resources"],
+    ],
+    administration: [
+      ["focus", "Project health"],
+      ["people", "People & roles"],
+      ["notes", "Team notes"],
+      ["resources", "Resources"],
+    ],
+    site_admin: [
+      ["focus", "Project health"],
+      ["people", "People & roles"],
+      ["notes", "Team notes"],
+      ["resources", "Resources"],
+    ],
+    global_admin: [
+      ["focus", "Project health"],
+      ["people", "People & roles"],
+      ["notes", "Team notes"],
+      ["resources", "Resources"],
+    ],
+    viewer: [
+      ["focus", "Project overview"],
+      ["notes", "Team notes"],
+      ["people", "People & roles"],
+      ["resources", "Resources"],
+    ],
+  };
+  const tabs = [...(roleTabs[roleId] || roleTabs.viewer)];
+  if (canManage && ["program_teacher", "administration", "site_admin", "global_admin"].includes(roleId)) {
+    tabs.push(["settings", roleId === "program_teacher" ? "Project setup" : "Admin setup"]);
+  }
+  return tabs.map(([id, label]) => ({ id, label }));
+}
+
+function projectTabGuidance(roleId = "viewer", tabId = "focus") {
+  const roleGuidance = {
+    student: {
+      focus: ["See the one project step that needs you now.", "Open the suggested work and complete that step before exploring the other tabs.", "Your work is saved or submitted and the next-step message changes."],
+      notes: ["Read team updates and leave a short update others can act on.", "Add what changed, a question, or the next task for your team.", "Your note appears in the list with the right words."],
+      people: ["See who is on your team and whether both required adults are confirmed.", "Respond to an invitation or ask your teacher for help when a role is still missing.", "A Mentor and Program Teacher are both confirmed."],
+      resources: ["Find the approved templates and links for this project.", "Open only the resource for the step you are working on now.", "Your new work is saved in the team’s project folder."],
+    },
+    mentor: {
+      focus: ["See the check-in or review that needs your attention.", "Ask one clear question, read the student’s work, and save one practical next step.", "The student can say exactly what they will do next."],
+      notes: ["See team context and leave a concise coaching update.", "Record the decision, question, or follow-up from your check-in.", "Your note gives the team a clear next action."],
+      people: ["Confirm the students and adults connected to this project.", "Check your role and flag a missing or incorrect assignment to school staff.", "The right students, Mentor, and Program Teacher are listed."],
+      resources: ["Open the project folder and the same approved resources students use.", "Use the current-stage resource while coaching; do not create a separate workflow.", "Your guidance points students back to the shared project materials."],
+    },
+    program_teacher: {
+      focus: ["See whether this team needs a review, a revision check, or teacher support.", "Open waiting work, make the assigned decision, or give the team one clear next step.", "The queue and project status reflect the action you completed."],
+      notes: ["Keep instructional context where the whole project team can find it.", "Add a short update, question, or next step after reviewing the project.", "The note is visible and tells the team what happens next."],
+      people: ["Check that every student has both required adults.", "Correct or complete the Mentor and Program Teacher assignments you are allowed to manage.", "Both roles are confirmed and the student list is accurate."],
+      resources: ["Manage or open the approved templates used for this project.", "Check that the current-stage resource and project folder are correct.", "Students can reach the right material without asking where it is."],
+      settings: ["Manage the project record without mixing setup into daily guidance.", "Open settings only when the name, students, program, or folder link must change.", "The saved project record matches the real team and its shared folder."],
+    },
+    administration: {
+      focus: ["See the project’s health without taking over the teacher’s review decision.", "Check blockers, missing support, and status; route instructional work to the assigned reviewer.", "Operational blockers have an owner and the project can keep moving."],
+      notes: ["Read shared project context and document administrative follow-up.", "Leave only the update the team or staff needs to coordinate next.", "The note names a clear owner or next action."],
+      people: ["Verify the team and required adult coverage for this school.", "Resolve missing or incorrect assignments within your authority.", "The roster is accurate and both required adults are confirmed."],
+      resources: ["Confirm the team can reach its shared folder and approved templates.", "Check access or route resource problems to the person who manages them.", "The correct resources are available to the people who need them."],
+      settings: ["Maintain the project record for your school.", "Change setup only when the roster, program, name, or folder is wrong.", "The saved project setup matches the school’s records."],
+    },
+    site_admin: {
+      focus: ["See project health and the site-level issue that needs attention.", "Resolve access, staffing, or setup blockers and leave reviews to assigned reviewers.", "The project has a clear owner for every remaining blocker."],
+      notes: ["Keep site coordination visible without burying the team’s work.", "Record a concise decision, escalation, or follow-up.", "The note tells staff what happens next and who owns it."],
+      people: ["Audit the project roster and required adult coverage.", "Correct assignments within this site and investigate any unexpected person.", "Every listed person belongs here and both adult roles are confirmed."],
+      resources: ["Verify project-folder and template access for this site.", "Correct the approved resource or escalate access problems.", "The team can open the right shared materials."],
+      settings: ["Manage site-authorized project setup in one place.", "Change only the fields that are inaccurate, then confirm the saved result.", "The project record matches the actual site, program, team, and folder."],
+    },
+    global_admin: {
+      focus: ["Inspect project health and identify platform or cross-site blockers.", "Use Global Admin tools only for system-level issues; leave instructional decisions to assigned reviewers.", "The blocker is resolved or routed to the correct site owner."],
+      notes: ["See the shared history and document necessary platform follow-up.", "Add only a concise operational note that the project team can safely read.", "The note provides context without exposing private admin-only information."],
+      people: ["Verify role assignments and cross-site scope for everyone connected here.", "Correct unauthorized or missing access through the appropriate admin controls.", "Every person has the minimum correct access and both required adults are confirmed."],
+      resources: ["Confirm platform links and approved resources resolve for the selected site.", "Investigate systemic access failures while preserving site ownership.", "The same approved resources work for the intended roles."],
+      settings: ["Inspect or repair the project record with Global Admin authority.", "Make the smallest necessary setup correction and verify its site scope.", "The record is accurate without broadening anyone’s permissions."],
+    },
+    viewer: {
+      focus: ["Read the project’s current status and next step.", "Use this view for context; contact authorized staff if something looks wrong.", "You understand the current state and who acts next."],
+      notes: ["Read shared project updates available to your role.", "Use the notes for context without changing project decisions.", "You can identify the latest update and next owner."],
+      people: ["See the project team and assigned adults.", "Contact school staff if a person or role appears incorrect.", "You know who supports this project."],
+      resources: ["View the project resources available to your role.", "Open only the material you need for context.", "You found the correct shared resource."],
+    },
+  };
+  return roleGuidance[roleId]?.[tabId] || roleGuidance.viewer[tabId] || roleGuidance.viewer.focus;
+}
+
+function renderProjectTabs(tabs = [], selectedTab = "focus") {
+  return `
+    <nav class="workspace-project-tabs" role="tablist" aria-label="Project workspace sections" data-project-tabs="true">
+      ${tabs.map((tab) => {
+        const selected = tab.id === selectedTab;
+        return `<button id="projectTab-${escapeHtml(tab.id)}" class="workspace-project-tab ${selected ? "is-active" : ""}" type="button" role="tab" data-project-action="tab" data-project-tab="${escapeHtml(tab.id)}" aria-selected="${selected ? "true" : "false"}" aria-controls="projectTabPanel-${escapeHtml(tab.id)}" tabindex="${selected ? "0" : "-1"}">${escapeHtml(tab.label)}</button>`;
+      }).join("")}
+    </nav>
+  `;
+}
+
+function renderProjectTabGuide(roleId = "viewer", tab = {}) {
+  const [purpose, action, done] = projectTabGuidance(roleId, tab.id);
+  return `
+    <section class="workspace-project-tab-guide" aria-labelledby="projectTabGuideTitle-${escapeHtml(tab.id)}">
+      <div>
+        <span class="workspace-kicker">${escapeHtml(projectCommandRoleLabel())} · ${escapeHtml(tab.label)}</span>
+        <h2 id="projectTabGuideTitle-${escapeHtml(tab.id)}">What to do in this tab</h2>
+      </div>
+      <div class="workspace-project-tab-guide-grid">
+        <article><span>WHAT THIS IS FOR</span><p>${escapeHtml(purpose)}</p></article>
+        <article><span>WHAT TO DO</span><p>${escapeHtml(action)}</p></article>
+        <article><span>DONE WHEN</span><p>${escapeHtml(done)}</p></article>
+      </div>
+    </section>
+  `;
+}
+
+function renderProjectTabPanel(selectedTab = "focus", tabs = [], project = {}, options = {}) {
+  const tab = tabs.find((item) => item.id === selectedTab) || tabs[0] || { id: "focus", label: "Project overview" };
+  const roleId = projectCommandRoleId();
+  let content = "";
+  if (tab.id === "focus") content = renderProjectCommandStart(project, options);
+  if (tab.id === "notes") content = renderProjectNotes(project);
+  if (tab.id === "people") content = renderProjectAdultSetup(project.adultSetup, project.adultAssignments, {
+    projectId: project.projectId,
+    programId: project.programId,
+    canManage: options.canManage,
+    canNominate: options.isStudent,
+    availableProjectAdults: options.availableProjectAdults || {},
+  });
+  if (tab.id === "resources") content = renderProjectTemplateShelf(options.templates || [], {
+    canManage: options.canManageTemplates,
+    isStudent: options.isStudent,
+    siteId: options.siteId || project.siteId || "",
+  });
+  if (tab.id === "settings" && options.canManage) content = `
+    <section class="workspace-project-settings-panel workspace-card" data-project-settings-panel="true">
+      <div>
+        <span class="workspace-kicker">PROJECT SETTINGS</span>
+        <h2>Team and project setup</h2>
+        <p>Change the project name, students, program, or folder link.</p>
+      </div>
+      <button class="workspace-button workspace-button-secondary" type="button" data-project-action="manage" data-project-id="${escapeHtml(project.projectId || "")}">
+        ${managedProjectId === project.projectId ? "Close settings" : "Open settings"}
+      </button>
+      ${managedProjectId === project.projectId ? renderManageProjectForm(project, options.availableStudents || []) : ""}
+    </section>
+  `;
+  return `
+    <div id="projectTabPanel-${escapeHtml(tab.id)}" class="workspace-project-tab-panel tone-${escapeHtml(tab.id)}" role="tabpanel" aria-labelledby="projectTab-${escapeHtml(tab.id)}" tabindex="0" data-project-tab-panel="${escapeHtml(tab.id)}">
+      ${renderProjectTabGuide(roleId, tab)}
+      ${content}
+    </div>
+  `;
+}
+
 function projectCommandRoleLabel() {
-  const roles = roleIds(currentUser);
-  if (roles.has("student")) return "Student view";
-  if (roles.has("mentor")) return "Mentor view";
-  if (roles.has("program_teacher")) return "Program Teacher view";
-  if (roles.has("administration")) return "School Admin view";
-  if (roles.has("site_admin")) return "Site Admin view";
-  if (roles.has("global_admin")) return "Global Admin view";
-  if (roles.has("viewer")) return "Viewer view";
+  const roleId = projectCommandRoleId();
+  if (roleId === "student") return "Student view";
+  if (roleId === "mentor") return "Mentor view";
+  if (roleId === "program_teacher") return "Program Teacher view";
+  if (roleId === "administration") return "School Admin view";
+  if (roleId === "site_admin") return "Site Admin view";
+  if (roleId === "global_admin") return "Global Admin view";
+  if (roleId === "viewer") return "Viewer view";
   return "Project view";
 }
 
