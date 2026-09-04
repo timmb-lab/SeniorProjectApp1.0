@@ -38,6 +38,8 @@ test("program storage is teacher-managed, role-scoped, revisioned, and identifie
 
   const studentDenied = await getStorage(fixture, fixture.tokens.student, PROGRAM_ID);
   assert.equal(studentDenied.response.status, 403);
+  assert.equal((await getStorage(fixture, fixture.tokens.mentor, PROGRAM_ID)).response.status, 403);
+  assert.equal((await getStorage(fixture, fixture.tokens.viewer, PROGRAM_ID)).response.status, 403);
   const seededSiteAdminRole = await fixture.db.prepare("SELECT role_id, scope_type, scope_id FROM user_roles WHERE user_id = 'site-admin'").first();
   assert.equal(seededSiteAdminRole.role_id, "site_admin");
   assert.equal(seededSiteAdminRole.scope_type, "site");
@@ -50,11 +52,19 @@ test("program storage is teacher-managed, role-scoped, revisioned, and identifie
   const siteAdminView = await getStorage(fixture, fixture.tokens.siteAdmin, PROGRAM_ID);
   assert.equal(siteAdminView.response.status, 200, JSON.stringify(siteAdminView.body));
   assert.equal(siteAdminView.body.setup.canManage, false);
+  const schoolAdminView = await getStorage(fixture, fixture.tokens.administration, PROGRAM_ID);
+  assert.equal(schoolAdminView.response.status, 200);
+  assert.equal(schoolAdminView.body.setup.canManage, false);
   const siteAdminChange = await changeStorage(fixture, fixture.tokens.siteAdmin, {
     action: "configure", siteId: SITE_ID, programId: PROGRAM_ID,
     folderUrl: `https://drive.google.com/drive/folders/${FOLDER_ID}`, confirmedSharedWithApp: true,
   });
   assert.equal(siteAdminChange.response.status, 403);
+  const schoolAdminChange = await changeStorage(fixture, fixture.tokens.administration, {
+    action: "configure", siteId: SITE_ID, programId: PROGRAM_ID,
+    folderUrl: `https://drive.google.com/drive/folders/${FOLDER_ID}`, confirmedSharedWithApp: true,
+  });
+  assert.equal(schoolAdminChange.response.status, 403);
 
   const missingConfirmation = await changeStorage(fixture, fixture.tokens.teacher, {
     action: "configure", siteId: SITE_ID, programId: PROGRAM_ID,
@@ -81,6 +91,11 @@ test("program storage is teacher-managed, role-scoped, revisioned, and identifie
     assert.equal(configured.body.storage.revision, 1);
     assert.equal(configured.body.storage.folderUrl, `https://drive.google.com/drive/folders/${FOLDER_ID}`);
     assert.doesNotMatch(JSON.stringify(configured.body), /folderId|folder_id|private_key|access_token/i);
+
+    const safeOversightView = await getStorage(fixture, fixture.tokens.siteAdmin, PROGRAM_ID);
+    assert.equal(safeOversightView.body.storage.status, "ready");
+    assert.equal(safeOversightView.body.storage.folderUrl, "");
+    assert.doesNotMatch(JSON.stringify(safeOversightView.body), new RegExp(FOLDER_ID, "i"));
 
     const verified = await changeStorage(fixture, fixture.tokens.teacher, {
       action: "verify", siteId: SITE_ID, programId: PROGRAM_ID,
@@ -124,8 +139,11 @@ async function createFixture() {
   await db.prepare("INSERT OR IGNORE INTO site_programs (site_id, program_id, active) VALUES (?, ?, 1)").bind(SITE_ID, PROGRAM_ID).run();
   await seedUser(db, { id: "teacher", roleId: "program_teacher", scopeType: "program", scopeId: PROGRAM_ID });
   await seedUser(db, { id: "site-admin", roleId: "site_admin", scopeType: "site", scopeId: SITE_ID });
+  await seedUser(db, { id: "school-admin", roleId: "administration", scopeType: "site", scopeId: SITE_ID });
+  await seedUser(db, { id: "mentor", roleId: "mentor", scopeType: "site", scopeId: SITE_ID });
+  await seedUser(db, { id: "viewer", roleId: "viewer", scopeType: "site", scopeId: SITE_ID });
   await seedUser(db, { id: "student", roleId: "student", scopeType: "program", scopeId: PROGRAM_ID });
-  for (const id of ["teacher", "site-admin", "student"]) {
+  for (const id of ["teacher", "site-admin", "school-admin", "mentor", "viewer", "student"]) {
     await db.prepare("INSERT INTO site_users (site_id, user_id, membership_status) VALUES (?, ?, 'active')").bind(SITE_ID, id).run();
   }
   return {
@@ -134,6 +152,9 @@ async function createFixture() {
     tokens: {
       teacher: await seedSession(db, env, "teacher"),
       siteAdmin: await seedSession(db, env, "site-admin"),
+      administration: await seedSession(db, env, "school-admin"),
+      mentor: await seedSession(db, env, "mentor"),
+      viewer: await seedSession(db, env, "viewer"),
       student: await seedSession(db, env, "student"),
     },
   };

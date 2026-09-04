@@ -41,6 +41,7 @@ let adminPeopleView = "manage-students";
 let adminCsvImportState = defaultAdminCsvImportState();
 let workspaceNavCollapsed = shouldCollapseWorkspaceNavByDefault();
 let selectedSiteId = "";
+let selectedProgramStorageId = "";
 let siteStudentFilters = defaultSiteStudentFilters();
 let siteStudentDetailState = defaultSiteStudentDetailState();
 let viewAsStudentState = defaultViewAsStudentState();
@@ -761,12 +762,7 @@ function workspaceAccessContextKey() {
 }
 
 function programStorageQueryString() {
-  const assignment = (currentUser?.roles || []).find((role) => (
-    role?.role_id === "program_teacher"
-    && role?.scope_type === "program"
-    && cleanDirectoryFilter(role?.scope_id || "")
-  ));
-  const programId = cleanDirectoryFilter(assignment?.scope_id || "");
+  const programId = programStorageProgramOptions()[0]?.programId || "";
   const userSites = Array.isArray(currentUser?.accessibleSites) ? currentUser.accessibleSites : [];
   const knownSites = Array.isArray(knownAccessibleSites) ? knownAccessibleSites : [];
   const dashboardScope = unwrap(currentData.siteDashboard)?.scope || {};
@@ -782,6 +778,30 @@ function programStorageQueryString() {
   return siteId && programId
     ? `?siteId=${encodeURIComponent(siteId)}&programId=${encodeURIComponent(programId)}`
     : "";
+}
+
+function programStorageProgramOptions() {
+  const assignedIds = [...new Set((currentUser?.roles || [])
+    .filter((role) => role?.role_id === "program_teacher" && role?.scope_type === "program")
+    .map((role) => cleanDirectoryFilter(role?.scope_id || ""))
+    .filter(Boolean))];
+  const activePrograms = unwrap(currentData.sitePrograms)?.activePrograms;
+  const activeById = new Map((Array.isArray(activePrograms) ? activePrograms : [])
+    .map((program) => [cleanDirectoryFilter(program?.programId || ""), program])
+    .filter(([programId]) => programId));
+  const eligibleIds = activeById.size
+    ? assignedIds.filter((programId) => activeById.has(programId))
+    : assignedIds;
+  if (!eligibleIds.length) return [];
+  if (!eligibleIds.includes(selectedProgramStorageId)) selectedProgramStorageId = eligibleIds[0];
+  return [selectedProgramStorageId, ...eligibleIds.filter((programId) => programId !== selectedProgramStorageId)].map((programId) => ({
+    programId,
+    programName: String(activeById.get(programId)?.programName || programId)
+      .trim()
+      .replace(/[_-]+/g, " ")
+      .replace(/\b\w/g, (character) => character.toUpperCase()),
+    selected: programId === selectedProgramStorageId,
+  }));
 }
 
 function captureWorkspaceAccessContext() {
@@ -883,7 +903,7 @@ async function loadWorkspaceData(statusMessage = "", options = {}) {
     }
   }
   currentData = nextData;
-  if (roles.has("program_teacher") && !currentData.programStorage) {
+  if (roles.has("program_teacher") && !unwrap(currentData.programStorage)) {
     const deferredStorageQuery = programStorageQueryString();
     if (deferredStorageQuery) {
       const programStorage = await settleApi(apiJson(`/api/program-storage${deferredStorageQuery}`));
@@ -3157,6 +3177,7 @@ function resetAccountScopedWorkspaceState() {
   lastAdminPasswordResetResult = null;
   activeAdminRoleMode = "global_admin";
   selectedSiteId = "";
+  selectedProgramStorageId = "";
   siteStudentFilters = defaultSiteStudentFilters();
   siteStudentDetailState = defaultSiteStudentDetailState();
   reviewQueueFilters = defaultReviewQueueFilters();

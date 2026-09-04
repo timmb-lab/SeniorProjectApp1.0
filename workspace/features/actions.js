@@ -1,4 +1,5 @@
 function bindWorkspaceForms() {
+  document.querySelector("[data-program-storage-program]")?.addEventListener("change", selectProgramStorageProgram);
   document.querySelector("#programStorageForm")?.addEventListener("submit", submitProgramStorage);
   document.querySelectorAll("[data-program-storage-action]").forEach((button) => {
     button.addEventListener("click", handleProgramStorageAction);
@@ -193,6 +194,16 @@ function bindWorkspaceForms() {
   document.querySelectorAll("[data-operations-action]").forEach((button) => {
     button.addEventListener("click", handleOperationsReadinessAction);
   });
+}
+
+async function selectProgramStorageProgram(event) {
+  const programId = cleanDirectoryFilter(event.currentTarget?.value || "");
+  const allowed = programStorageProgramOptions().some((program) => program.programId === programId);
+  if (!programId || !allowed || programId === selectedProgramStorageId) return;
+  selectedProgramStorageId = programId;
+  invalidateWorkspaceAccessContext();
+  currentData.programStorage = null;
+  await loadWorkspaceData("Opening this program’s file settings...");
 }
 
 function bindUploadRetryButton() {

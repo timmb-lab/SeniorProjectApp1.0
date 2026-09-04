@@ -22,6 +22,7 @@ The app uses the narrow `drive.file` scope. It can create and retrieve files it 
 - The teacher or school controls folder membership, sharing, retention, and off-platform access.
 - The application creates original uploads and, for DOCX files, an app-created Google Docs conversion used only to provide a read-only PDF preview.
 - A PDF preview streams the original PDF. A DOCX preview exports the app-created converted document as PDF.
+- Authorized users receive app-owned preview, download, and Open in Drive routes. The browser does not receive a raw provider identifier until an authorized Open in Drive request redirects to Google's own viewer.
 - Replacing or disconnecting a folder affects future uploads only. Existing artifacts retain the storage connection ID and revision used when they were created.
 - Disconnect is non-destructive. It does not delete Drive files or D1 evidence records.
 - Deleting a Drive file outside the app produces a recoverable broken-file state; the app must not silently substitute another file.
@@ -29,7 +30,7 @@ The app uses the narrow `drive.file` scope. It can create and retrieve files it 
 ### Application-owned D1 data
 
 - D1 remains the source of truth for site/program/project/student associations, original display name, safe MIME/size metadata, review state, preview state, folder revision, timestamps, deletion markers, and audit events.
-- Raw Drive file IDs, parent folder IDs, preview file IDs, access tokens, private keys, and provider diagnostics never appear in browser JSON, URLs, rendered markup, or ordinary audit summaries.
+- Raw Drive file IDs, parent folder IDs, preview file IDs, access tokens, private keys, and provider diagnostics never appear in browser JSON, app URLs, rendered markup, or ordinary audit summaries. The sole intentional exception is the final Google-owned destination after an authorized user chooses Open in Drive.
 - D1 deletion markers do not automatically delete the externally stored file. A future destructive-delete workflow requires a separately approved retention policy and explicit confirmation.
 
 ### Temporary processing
@@ -46,7 +47,7 @@ The app uses the narrow `drive.file` scope. It can create and retrieve files it 
 - Program Teachers may configure only an exact active program assignment at an accessible site and may read evidence within that scope.
 - School Administrators and Site Admins may see safe connection status for accessible sites but cannot change a teacher's connection.
 - Global Admins may manage connections for recovery and support. Viewer access stays read-only and never grants folder configuration.
-- Every connection view/change, denied access, upload, preview, and download is audited without storage identifiers.
+- Every connection view/change, denied access, upload, preview, download, and Open in Drive action is audited without storage identifiers.
 
 ## Versions, duplicates, and recovery
 

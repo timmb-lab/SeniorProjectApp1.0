@@ -66,6 +66,7 @@ interface EvidenceSummary {
   created_at: string;
   fileBytesReady: boolean;
   downloadUrl: string | null;
+  openInDriveUrl: string | null;
   externalUrl: string | null;
   previewUrl: string | null;
   previewStatus: string;
@@ -1234,6 +1235,7 @@ function summarizeEvidence(row: EvidenceSummaryRow, submissions: SubmissionSumma
     created_at: row.created_at,
     fileBytesReady: isDriveFile,
     downloadUrl: isDriveFile ? `/api/evidence/${encodeURIComponent(row.id)}/download` : null,
+    openInDriveUrl: isDriveFile ? `/api/evidence/${encodeURIComponent(row.id)}/open` : null,
     previewUrl: isDriveFile && row.preview_status === "ready"
       ? `/api/evidence/${encodeURIComponent(row.id)}/preview`
       : null,

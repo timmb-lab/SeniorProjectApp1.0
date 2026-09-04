@@ -307,3 +307,15 @@
   min-height: 48px;
   font-size: 1rem;
 }
+
+.workspace-program-storage-picker {
+  display: grid;
+  gap: 0.4rem;
+  max-width: 34rem;
+  margin-block: 1rem;
+}
+
+.workspace-program-storage-picker select {
+  min-height: 48px;
+  font-size: 1rem;
+}

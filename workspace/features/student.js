@@ -3427,6 +3427,10 @@ function renderEvidenceActions(item, options = {}) {
   if (downloadUrl) {
     actions.push(`<a class="workspace-link-button workspace-link-button-small" data-evidence-download="file" href="${escapeHtml(downloadUrl)}" aria-label="Download file: ${escapeHtml(actionLabel)}">Download file</a>`);
   }
+  const openInDriveUrl = item.source_kind === "google_drive_file" ? cleanWorkspaceEvidenceOpenUrl(item.openInDriveUrl) : "";
+  if (openInDriveUrl) {
+    actions.push(`<a class="workspace-link-button workspace-link-button-small" data-evidence-open-drive="file" href="${escapeHtml(openInDriveUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Open in Google Drive: ${escapeHtml(actionLabel)}">Open in Drive</a>`);
+  }
   const externalUrl = item.source_kind === "external_link" ? cleanWorkspaceHttpsUrl(item.externalUrl) : "";
   if (externalUrl) {
     actions.push(`<a class="workspace-link-button workspace-link-button-small" data-evidence-link="external" href="${escapeHtml(externalUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Open work link: ${escapeHtml(actionLabel)}">Open work link</a>`);
@@ -3449,6 +3453,11 @@ function cleanWorkspaceEvidencePreviewUrl(value) {
   return /^\/api\/evidence\/[^/?#]+\/preview$/.test(trimmed) ? trimmed : "";
 }
 
+function cleanWorkspaceEvidenceOpenUrl(value) {
+  const trimmed = String(value || "").trim();
+  return /^\/api\/evidence\/[^/?#]+\/open$/.test(trimmed) ? trimmed : "";
+}
+
 function renderStudentRequirementEvidenceRow(item) {
   const actions = renderEvidenceActions(item, { includeRequirementAction: false });
   const createdAt = item?.created_at ? formatDate(item.created_at) : "Added recently";
@@ -3458,9 +3467,20 @@ function renderStudentRequirementEvidenceRow(item) {
       <span>${escapeHtml(item.title || "File or link")}</span>
       <small>${escapeHtml(evidenceSourceLabel(item.source_kind))} / ${escapeHtml(statusText(item.artifact_type || "file"))}</small>
       <small data-proof-review-status="true">${escapeHtml(createdAt)} / ${escapeHtml(studentEvidenceReviewStatusCopy(reviewStatus))}</small>
+      ${renderEvidencePreviewStatus(item)}
       ${actions.length ? `<div class="workspace-row-actions">${actions.join("")}</div>` : ""}
     </article>
   `;
+}
+
+function renderEvidencePreviewStatus(item = {}) {
+  if (item.source_kind !== "google_drive_file") return "";
+  const status = normalizeStatus(item.previewStatus || item.preview_status || "not_requested");
+  if (status === "ready") return `<small class="workspace-muted" data-evidence-preview-status="ready">Preview ready.</small>`;
+  if (status === "processing") return `<small class="workspace-muted" data-evidence-preview-status="processing">Preview is still being prepared. Download or open the file in Drive for now.</small>`;
+  if (status === "failed") return `<small class="workspace-muted" data-evidence-preview-status="failed">Preview could not be prepared. Download or open the file in Drive instead.</small>`;
+  if (status === "unsupported") return `<small class="workspace-muted" data-evidence-preview-status="unsupported">This file type cannot be previewed here. Download or open it in Drive.</small>`;
+  return `<small class="workspace-muted" data-evidence-preview-status="unavailable">Preview is not available. Download or open the file in Drive.</small>`;
 }
 
 function renderStudentSubmissionActionButton(item) {
@@ -4269,7 +4289,7 @@ function renderStudentFilesPanelBody(evidence = []) {
       ${renderStudentProofReceipt(rows)}
       ${groups.length
         ? groups.map(renderStudentEvidenceGroup).join("")
-        : `<div class="workspace-empty">Google Drive links will appear here after you add them to your work.</div>`}
+        : `<div class="workspace-empty">Uploaded files and work links will appear here after you add them to your work.</div>`}
     </div>
   `;
 }
@@ -4469,7 +4489,7 @@ function renderStudentEvidenceGroup(group = {}) {
       <div class="workspace-student-file-group-head">
         <div>
           <h3>${escapeHtml(group?.title || "Files")}</h3>
-          <p class="workspace-muted">${escapeHtml(`${rows.length} ${pluralize(rows.length, "Google Drive link")} saved for this work.`)}</p>
+          <p class="workspace-muted">${escapeHtml(`${rows.length} ${pluralize(rows.length, "file or link")} saved for this work.`)}</p>
         </div>
         <span class="workspace-site-context-badge">${escapeHtml(rows.length)} file${rows.length === 1 ? "" : "s"}</span>
       </div>

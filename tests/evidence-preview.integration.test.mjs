@@ -42,6 +42,49 @@ test("evidence preview enforces student scope and streams PDFs inline without Dr
   }
 });
 
+test("DOCX preview exports the converted Google Doc companion as a safe inline PDF", async () => {
+  const fixture = await createFixture();
+  await fixture.env.DB.prepare(
+    `INSERT INTO evidence_artifacts (
+       id, repository_id, student_id, artifact_type, source_kind, drive_file_id,
+       title, mime_type, review_status, created_by, preview_kind, preview_status, preview_drive_file_id
+     ) VALUES ('evidence-docx', 'default-google-drive', 'owner', 'file_upload', 'google_drive_file',
+       'private-original-docx-id', 'My plan',
+       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+       'pending_review', 'owner', 'converted_pdf', 'ready', 'private-converted-doc-id')`,
+  ).run();
+
+  const originalFetch = globalThis.fetch;
+  let sawExport = false;
+  globalThis.fetch = async (input) => {
+    const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+    if (url === "https://oauth2.googleapis.com/token") {
+      return new Response(JSON.stringify({ access_token: "test-token", expires_in: 3600 }), { status: 200 });
+    }
+    if (url.startsWith("https://www.googleapis.com/drive/v3/files/private-converted-doc-id/export")) {
+      sawExport = true;
+      assert.match(url, /mimeType=application%2Fpdf/);
+      assert.doesNotMatch(url, /private-original-docx-id/);
+      return new Response(new Uint8Array([0x25, 0x50, 0x44, 0x46]), {
+        status: 200,
+        headers: { "content-type": "application/pdf" },
+      });
+    }
+    throw new Error(`Unexpected provider URL: ${url}`);
+  };
+  try {
+    const response = await preview(fixture, fixture.ownerToken, "evidence-docx");
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("content-type"), "application/pdf");
+    assert.match(response.headers.get("content-disposition"), /^inline;/);
+    assert.equal(Buffer.from(await response.arrayBuffer()).toString("ascii"), "%PDF");
+    assert.equal(sawExport, true);
+    assert.doesNotMatch([...response.headers].flat().join(" "), /private-converted-doc-id|private-original-docx-id/i);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 async function createFixture() {
   const db = createSqliteD1({ migrations: foundationMigrations() });
   const { privateKey } = generateKeyPairSync("rsa", {
@@ -73,10 +116,10 @@ async function createFixture() {
   };
 }
 
-function preview(fixture, token) {
+function preview(fixture, token, evidenceId = "evidence-pdf") {
   return onRequestGet({
-    request: buildRequest("https://example.test/api/evidence/evidence-pdf/preview", token),
+    request: buildRequest(`https://example.test/api/evidence/${evidenceId}/preview`, token),
     env: fixture.env,
-    params: { id: "evidence-pdf" },
+    params: { id: evidenceId },
   });
 }

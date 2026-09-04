@@ -1933,6 +1933,7 @@ function renderEvidenceRow(item) {
         <p>${escapeHtml(evidenceSourceLabel(item.source_kind))} / ${escapeHtml(statusText(item.artifact_type || "file"))}</p>
         ${item.requirementTitle ? `<p class="workspace-muted">Checklist item: ${escapeHtml(item.requirementTitle)}</p>` : ""}
         <p class="workspace-muted" data-proof-review-status="true">${escapeHtml(reviewCopy)}</p>
+        ${renderEvidencePreviewStatus(item)}
       </div>
       <div class="workspace-row-actions">
         ${actions.join("")}
@@ -2663,6 +2664,7 @@ function renderProgramStorageSettings() {
   const data = result.body || {};
   const storage = data.storage || {};
   const setup = data.setup || {};
+  const programOptions = programStorageProgramOptions();
   const connected = storage.configured && storage.status === "ready";
   const shareEmail = String(setup.shareWithEmail || "").trim();
   return `
@@ -2680,6 +2682,15 @@ function renderProgramStorageSettings() {
         <article class="workspace-role-profile-block"><h3>2. Share it with the app</h3><p>${shareEmail ? `Give <strong>${escapeHtml(shareEmail)}</strong> Editor access.` : "Ask a Global Admin to finish the app’s Google Drive connection."}</p></article>
         <article class="workspace-role-profile-block"><h3>3. Paste and verify</h3><p>Paste the folder link below. Students can then upload PDF and DOCX proof here.</p></article>
       </div>
+      ${programOptions.length > 1 ? `
+        <label class="workspace-program-storage-picker">
+          <span>Program file settings</span>
+          <select data-program-storage-program aria-label="Choose a program for file settings">
+            ${programOptions.map((program) => `<option value="${escapeHtml(program.programId)}" ${program.programId === data.scope?.programId ? "selected" : ""}>${escapeHtml(program.programName)}</option>`).join("")}
+          </select>
+          <small>Each program keeps its own folder and connection history.</small>
+        </label>
+      ` : ""}
       ${connected ? `
         <div class="workspace-mini-row" data-program-storage-current="true">
           <span><strong>${escapeHtml(storage.folderName || "Program files")}</strong></span>

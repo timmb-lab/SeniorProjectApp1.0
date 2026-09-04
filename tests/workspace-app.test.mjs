@@ -8168,6 +8168,10 @@ test("workspace evidence actions only render safe proof and file links", async (
     vm.runInContext('renderEvidenceActions({ source_kind: "google_drive_file", downloadUrl: "https://example.test/api/evidence/evidence-1/download" }).length', context),
     0,
   );
+  assert.equal(
+    vm.runInContext('renderEvidenceActions({ source_kind: "google_drive_file", openInDriveUrl: "https://drive.google.com/open?id=secret" }).length', context),
+    0,
+  );
 
   const rendered = vm.runInContext('renderEvidenceActions({ title: " Research proof  link ", source_kind: "external_link", externalUrl: " https://example.test/proof " }).join("")', context);
   assert.match(rendered, /href="https:\/\/example\.test\/proof"/);
@@ -8180,6 +8184,12 @@ test("workspace evidence actions only render safe proof and file links", async (
   assert.match(download, /href="\/api\/evidence\/evidence-1\/download"/);
   assert.match(download, /aria-label="Download file: Prototype screen recording"/);
   assert.match(download, /Download file/);
+
+  const openInDrive = vm.runInContext('renderEvidenceActions({ title: "Prototype screen recording", source_kind: "google_drive_file", openInDriveUrl: " /api/evidence/evidence-1/open " }).join("")', context);
+  assert.match(openInDrive, /data-evidence-open-drive="file"/);
+  assert.match(openInDrive, /href="\/api\/evidence\/evidence-1\/open"/);
+  assert.match(openInDrive, /rel="noopener noreferrer"/);
+  assert.match(openInDrive, /Open in Drive/);
 
   const fallbackDownload = vm.runInContext('renderEvidenceActions({ source_kind: "google_drive_file", downloadUrl: "/api/evidence/evidence-1/download" }).join("")', context);
   assert.match(fallbackDownload, /aria-label="Download file: file"/);
@@ -10305,6 +10315,8 @@ test("workspace renders evidence download and external-link actions without stor
             source_kind: "google_drive_file",
             review_status: "pending_review",
             downloadUrl: "/api/evidence/evidence-drive/download",
+            openInDriveUrl: "/api/evidence/evidence-drive/open",
+            previewStatus: "failed",
             fileBytesReady: true,
             storageIdentifiersRedacted: true,
           },
@@ -10357,6 +10369,10 @@ test("workspace renders evidence download and external-link actions without stor
   assert.match(student, /data-evidence-download="file"/);
   assert.match(student, /href="\/api\/evidence\/evidence-drive\/download"/);
   assert.match(student, /Download file/);
+  assert.match(student, /href="\/api\/evidence\/evidence-drive\/open"/);
+  assert.match(student, /Open in Drive/);
+  assert.match(student, /data-evidence-preview-status="failed"/);
+  assert.match(student, /Preview could not be prepared/);
   assert.match(student, /Checklist item: Senior Project Proposal/);
   assert.match(student, /Checklist item: Research Notes/);
   assert.match(student, /data-student-requirement-action="open-detail"/);
@@ -11009,6 +11025,46 @@ test("Program Teacher profile explains and exposes program-owned Drive setup", a
   assert.match(markup, /I shared this folder with the app storage account as an Editor/);
   assert.match(markup, /Existing files keep their original folder revision/);
   assert.doesNotMatch(markup, /folder_id|private_key|access_token/i);
+});
+
+test("Program Teachers with more than one assigned program can switch each program’s file settings", async () => {
+  const routes = profileRoutesForRole("program_teacher");
+  routes["/api/auth/me"].body.user.roles.push({ role_id: "program_teacher", scope_type: "program", scope_id: "engineering" });
+  routes["/api/site/programs"].body = siteProgramsFixture({
+    activePrograms: [
+      { programId: "it", programName: "Information Technology", assignedAt: "2026-05-29T14:00:00.000Z" },
+      { programId: "engineering", programName: "Engineering", assignedAt: "2026-05-29T14:00:00.000Z" },
+    ],
+  });
+  routes["/api/program-storage"] = ({ url }) => {
+    const programId = new URL(url, "https://workspace.example").searchParams.get("programId") || "it";
+    return {
+      status: 200,
+      body: {
+        ok: true,
+        scope: {
+          siteId: "site-desert-valley-high",
+          siteName: "Desert Valley High School",
+          programId,
+          programName: programId === "engineering" ? "Engineering" : "Information Technology",
+        },
+        storage: { configured: false, status: "not_configured" },
+        setup: { canManage: true, shareWithEmail: "storage@example.edu", steps: [] },
+      },
+    };
+  };
+
+  const { context, workspaceRoot, fetchRequests } = await createWorkspaceContextWithFetch(routes, {
+    url: "https://workspace.example/workspace.html?section=profile&siteId=site-desert-valley-high",
+  });
+  assert.match(workspaceRoot.innerHTML, /data-program-storage-program/);
+  assert.match(workspaceRoot.innerHTML, /Information Technology/);
+  assert.match(workspaceRoot.innerHTML, /Engineering/);
+
+  await vm.runInContext('selectProgramStorageProgram({ currentTarget: { value: "engineering" } })', context);
+  assert.equal(vm.runInContext("selectedProgramStorageId", context), "engineering");
+  assert.match(workspaceRoot.innerHTML, /Engineering \/ Desert Valley High School/);
+  assert.ok(fetchRequests.some((request) => request.url.includes("/api/program-storage?siteId=site-desert-valley-high&programId=engineering")));
 });
 
 test("Global Admin can switch to a school-scoped Site Admin working mode without changing the account assignment", async () => {
