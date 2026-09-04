@@ -658,11 +658,16 @@ test("workspace opens students on guidance and staff on the project workspace", 
     assert.match(projectLanding, /data-experience="staff-workspace"/, `${roleId} staff experience`);
     assert.match(projectLanding, /data-v2-screen="projects"/, `${roleId} opens on projects`);
     assert.match(projectLanding, /data-v2-primary-surface="projects"/, `${roleId} sees the project surface`);
-    assert.match(projectLanding, /class="workspace-staff-nav-group is-active" data-staff-nav-group="Projects"/, `${roleId} project navigation is active`);
+    assert.match(projectLanding, /class="workspace-staff-nav-group is-active" data-staff-nav-group="Workspace"/, `${roleId} project navigation is active`);
     assert.match(projectLanding, /data-section="projects"[^>]*aria-current="page"/, `${roleId} project button is current`);
-    for (const group of ["Projects", "Work queue", "Reports"]) {
+    for (const group of ["Workspace", "Insights"]) {
       assert.match(projectLanding, new RegExp(`data-staff-nav-group="${escapeRegExp(group)}"`), `${roleId} nav includes ${group}`);
     }
+    if (["mentor", "program_teacher", "site_admin", "global_admin"].includes(roleId)) {
+      assert.match(projectLanding, /data-staff-nav-group="Student support"/, `${roleId} nav includes student support`);
+    }
+    assert.match(projectLanding, /workspace-v2-step-icon[\s\S]*?<svg viewBox="0 0 24 24"/, `${roleId} navigation uses consistent outline icons`);
+    assert.doesNotMatch(projectLanding, /workspace-staff-nav-major(?:(?!<\/button>)[\s\S])*?<small>|workspace-staff-nav-major(?:(?!<\/button>)[\s\S])*?aria-hidden="true">›/, `${roleId} navigation avoids repeated labels and arrows`);
 
     const markup = await renderWorkspaceWithFetch(profileRoutesForRole(roleId), "overview");
     const text = visibleText(markup);

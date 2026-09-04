@@ -1646,7 +1646,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
             </span>
           </a>
           <div class="workspace-v2-sidebar-context">
-            <span aria-hidden="true"></span>
+            <small>${escapeHtml(isAdminConsole ? "ADMIN AREA" : studentExperience ? "MY PROJECT" : "CURRENT PROJECT")}</small>
             <strong>${escapeHtml(isAdminConsole ? "School administration" : shellProjectName)}</strong>
           </div>
           <div class="workspace-rail-drawer-header workspace-v2-drawer-header" data-workspace-rail-drawer-header="true">
@@ -1872,33 +1872,36 @@ function renderV2Navigation(sections = [], options = {}) {
   if (!compact && !options.studentExperience) {
     return renderTieredStaffNavigation(visibleSections, { isAdminConsole: Boolean(options.isAdminConsole) });
   }
-  return visibleSections.map((section, index) => {
+  const navigationRows = visibleSections.map((section, index) => {
     const active = section.id === activeSection;
     return `
       <button class="workspace-tab workspace-v2-step ${active ? "is-active" : ""}" data-section="${escapeHtml(section.id)}" data-v2-nav-index="${escapeHtml(String(index + 1))}" type="button" title="${escapeHtml(section.label)}" aria-label="${escapeHtml(`${section.label}: ${section.detail}`)}" ${active ? 'aria-current="page"' : ""}>
-        <span class="workspace-tab-short workspace-v2-step-number" aria-hidden="true">${escapeHtml(String(index + 1))}</span>
+        ${compact
+          ? `<span class="workspace-tab-short workspace-v2-step-number" aria-hidden="true">${escapeHtml(String(index + 1))}</span>`
+          : `<span class="workspace-v2-step-icon" aria-hidden="true">${workspaceNavigationIcon(section.id)}</span>`}
         <strong>${escapeHtml(section.label)}</strong>
-        ${compact ? "" : `<span>${escapeHtml(section.detail || "Open this screen.")}</span>`}
       </button>
     `;
   }).join("");
+  return !compact && options.studentExperience
+    ? `<p class="workspace-staff-nav-heading workspace-student-nav-heading">Workspace</p>${navigationRows}`
+    : navigationRows;
 }
 
 function renderTieredStaffNavigation(sections = [], options = {}) {
   const definitions = options.isAdminConsole
     ? [
-        ["Start", ["overview"]],
-        ["People", ["adminPeople", "adminStudents", "adminAssignments"]],
+        ["Overview", ["overview"]],
+        ["People & access", ["adminPeople", "adminStudents", "adminAssignments"]],
         ["School setup", ["programs", "adminImports"]],
-        ["Check", ["adminReports", "audit"]],
+        ["Reports & security", ["adminReports", "audit"]],
         ["Account", ["profile", "security"]],
       ]
     : [
-        ["Projects", ["projects"]],
-        ["Work queue", ["overview", "teacher", "mentorDashboard", "programDashboard"]],
-        ["People", ["students", "mentor", "mentorAssignments"]],
+        ["Workspace", ["overview", "projects"]],
+        ["Student support", ["teacher", "students", "mentor", "mentorAssignments", "mentorDashboard", "programDashboard"]],
         ["Milestones", ["operations", "presentation"]],
-        ["Reports", ["staffReports", "readiness", "archive", "archiveExports"]],
+        ["Insights", ["staffReports", "readiness", "archive", "archiveExports"]],
         ["Account", ["profile", "security"]],
       ];
   const used = new Set();
@@ -1910,28 +1913,52 @@ function renderTieredStaffNavigation(sections = [], options = {}) {
   const remaining = sections.filter((section) => !used.has(section.id));
   if (remaining.length) groups.push({ label: "More", rows: remaining });
 
+  let navigationIndex = 0;
   return groups.map((group) => {
-    const primary = group.rows[0];
     const activeGroup = group.rows.some((section) => section.id === activeSection);
     return `
       <section class="workspace-staff-nav-group ${activeGroup ? "is-active" : ""}" data-staff-nav-group="${escapeHtml(group.label)}">
-        <button class="workspace-staff-nav-major ${primary.id === activeSection ? "is-active" : ""}" type="button" data-section="${escapeHtml(primary.id)}" ${primary.id === activeSection ? 'aria-current="page"' : ""} aria-label="${escapeHtml(`Open ${primary.label}`)}">
-          <strong>${escapeHtml(group.label)}</strong>
-          <small>${escapeHtml(primary.label)}</small>
-          <span aria-hidden="true">›</span>
-        </button>
-        ${group.rows.length > 1 ? `
-          <div class="workspace-staff-nav-minor" aria-label="${escapeHtml(`${group.label} screens`)}">
-            ${group.rows.slice(1).map((section) => `
-              <button class="${section.id === activeSection ? "is-active" : ""}" type="button" data-section="${escapeHtml(section.id)}" ${section.id === activeSection ? 'aria-current="page"' : ""}>
-                ${escapeHtml(section.label)}
+        <p class="workspace-staff-nav-heading">${escapeHtml(group.label)}</p>
+        <div class="workspace-staff-nav-items" aria-label="${escapeHtml(`${group.label} screens`)}">
+          ${group.rows.map((section) => {
+            navigationIndex += 1;
+            const active = section.id === activeSection;
+            return `
+              <button class="workspace-staff-nav-major workspace-staff-nav-item ${active ? "is-active" : ""}" type="button" data-section="${escapeHtml(section.id)}" data-v2-nav-index="${escapeHtml(String(navigationIndex))}" ${active ? 'aria-current="page"' : ""} title="${escapeHtml(section.detail || section.label)}" aria-label="${escapeHtml(`${section.label}: ${section.detail || "Open this screen."}`)}">
+                <span class="workspace-v2-step-icon" aria-hidden="true">${workspaceNavigationIcon(section.id)}</span>
+                <strong>${escapeHtml(section.label)}</strong>
               </button>
-            `).join("")}
-          </div>
-        ` : ""}
+            `;
+          }).join("")}
+        </div>
       </section>
     `;
   }).join("");
+}
+
+function workspaceNavigationIcon(sectionId = "") {
+  const key = String(sectionId || "").trim();
+  const paths = {
+    overview: '<rect x="4" y="4" width="6" height="6" rx="1"></rect><rect x="14" y="4" width="6" height="6" rx="1"></rect><rect x="4" y="14" width="6" height="6" rx="1"></rect><rect x="14" y="14" width="6" height="6" rx="1"></rect>',
+    projects: '<path d="M3.5 7.5h6l2 2h9v9.5a1.5 1.5 0 0 1-1.5 1.5h-14A1.5 1.5 0 0 1 3.5 19V7.5Z"></path><path d="M3.5 11.5h17"></path>',
+    people: '<path d="M16 20v-1.5a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4V20"></path><circle cx="9.5" cy="7.5" r="3.5"></circle><path d="M17 4.5a3.5 3.5 0 0 1 0 6.8M20.5 20v-1.5a4 4 0 0 0-2.7-3.8"></path>',
+    review: '<path d="M5 4.5h14v15H5z"></path><path d="M8 8h8M8 12h5"></path><path d="m14.5 16 1.5 1.5 3-3"></path>',
+    milestone: '<rect x="3.5" y="5.5" width="17" height="15" rx="2"></rect><path d="M8 3.5v4M16 3.5v4M3.5 10h17"></path>',
+    reports: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path>',
+    account: '<circle cx="12" cy="8" r="4"></circle><path d="M4.5 20a7.5 7.5 0 0 1 15 0"></path>',
+    security: '<path d="M12 3 5 6v5c0 4.6 2.7 7.9 7 10 4.3-2.1 7-5.4 7-10V6l-7-3Z"></path><path d="m9 12 2 2 4-4"></path>',
+    setup: '<path d="M4 6h16M4 12h16M4 18h16"></path><circle cx="8" cy="6" r="2"></circle><circle cx="15" cy="12" r="2"></circle><circle cx="10" cy="18" r="2"></circle>',
+  };
+  const iconKey = ["profile"].includes(key) ? "account"
+    : ["security", "audit"].includes(key) ? "security"
+      : ["students", "mentor", "mentorAssignments", "adminPeople", "adminStudents", "adminAssignments"].includes(key) ? "people"
+        : ["teacher", "studentFeedback"].includes(key) ? "review"
+          : ["presentation", "operations", "studentFinalChecklist", "archive", "archiveExports"].includes(key) ? "milestone"
+            : ["staffReports", "readiness", "adminReports", "siteDashboard", "adminDashboard", "programDashboard", "mentorDashboard"].includes(key) ? "reports"
+              : ["programs", "adminImports"].includes(key) ? "setup"
+                : key === "projects" || key === "studentWork" ? "projects"
+                  : "overview";
+  return `<svg viewBox="0 0 24 24" focusable="false">${paths[iconKey]}</svg>`;
 }
 
 function renderV2SupportPanel({
