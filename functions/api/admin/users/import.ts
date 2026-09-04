@@ -9,11 +9,13 @@ import {
 import { badRequest, json, readJson, requirePost } from "../../../_lib/http.ts";
 import { studentRosterProfilesTableExists } from "../../../_lib/student-roster-profiles.ts";
 import { cleanWorkflowText, workflowError } from "../../../_lib/workflow.ts";
+import { internalEmailForAlias, normalizeLoginIdentifier, validLoginAlias } from "../../../_lib/login-identifier.ts";
 
 type RoleScopeType = "global" | "site" | "program" | "cohort";
 type IdentityInput = "local" | "sso";
 
 interface ImportUserInput {
+  username?: unknown;
   email?: unknown;
   displayName?: unknown;
   fullName?: unknown;
@@ -46,6 +48,7 @@ interface ImportUsersBody {
 }
 
 interface NormalizedImportUser {
+  username: string;
   email: string;
   emailNorm: string;
   displayName: string;
@@ -111,11 +114,14 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   const normalizedUsers: NormalizedImportUser[] = [];
   const seenEmails = new Set<string>();
+  const seenUsernames = new Set<string>();
   for (const userInput of body.users) {
     const normalized = normalizeUserInput(userInput);
     if (!normalized) return badRequest("invalid_user");
     if (seenEmails.has(normalized.emailNorm)) return badRequest("duplicate_email");
     seenEmails.add(normalized.emailNorm);
+    if (normalized.username && seenUsernames.has(normalized.username)) return badRequest("duplicate_username");
+    if (normalized.username) seenUsernames.add(normalized.username);
 
     const validation = await validateUser(env, caller, normalized, adminNote);
     if (!validation.ok) {
@@ -181,9 +187,16 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   }
 
   for (const user of normalizedUsers) {
-    const existing = await env.DB.prepare(
-      "SELECT id FROM user_accounts WHERE email_norm = ? LIMIT 1",
-    ).bind(user.emailNorm).first<ExistingUserRow>();
+    const existing = user.username
+      ? await env.DB.prepare(
+          `SELECT user_accounts.id
+           FROM user_accounts
+           LEFT JOIN account_login_aliases ON account_login_aliases.user_id = user_accounts.id
+           WHERE user_accounts.email_norm = ? OR account_login_aliases.alias_norm = ?
+           LIMIT 1`,
+        ).bind(user.emailNorm, user.username).first<ExistingUserRow>()
+      : await env.DB.prepare("SELECT id FROM user_accounts WHERE email_norm = ? LIMIT 1")
+          .bind(user.emailNorm).first<ExistingUserRow>();
     if (existing) return workflowError("email_already_exists", 409);
 
     const role = await env.DB.prepare("SELECT id FROM roles WHERE id = ? LIMIT 1")
@@ -215,6 +228,13 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       user.displayName,
       accountStatus,
     ).run();
+
+    if (user.username) {
+      await env.DB.prepare(
+        `INSERT INTO account_login_aliases (user_id, alias, alias_norm)
+         VALUES (?, ?, ?)`,
+      ).bind(userId, user.username, user.username).run();
+    }
 
     if (credential) {
       await env.DB.prepare(
@@ -284,6 +304,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     imported.push({
       id: userId,
       email: user.email,
+      username: user.username || undefined,
       displayName: user.displayName,
       status: accountStatus,
       role: roleResponse(user),
@@ -343,7 +364,11 @@ function canUseUserImport(actorAccess: Awaited<ReturnType<typeof loadEffectiveAc
 function normalizeUserInput(value: unknown): NormalizedImportUser | null {
   if (!value || typeof value !== "object") return null;
   const input = value as ImportUserInput;
-  const email = typeof input.email === "string" ? input.email.trim() : "";
+  const usernameInput = typeof input.username === "string" ? input.username.trim() : "";
+  const username = usernameInput ? normalizeLoginIdentifier(usernameInput) : "";
+  if (usernameInput && !validLoginAlias(usernameInput)) return null;
+  const suppliedEmail = typeof input.email === "string" ? input.email.trim() : "";
+  const email = suppliedEmail || (username ? internalEmailForAlias(username) : "");
   const emailNorm = normalizeEmail(email);
   const displayName = cleanWorkflowText(input.fullName ?? input.displayName, "", 120);
   const roleId = typeof input.roleId === "string" ? cleanRoleId(input.roleId) : null;
@@ -368,6 +393,7 @@ function normalizeUserInput(value: unknown): NormalizedImportUser | null {
   if (!isValidEmail(email) || !displayName || !roleId || !identityType || !status) return null;
 
   return {
+    username,
     email,
     emailNorm,
     displayName,

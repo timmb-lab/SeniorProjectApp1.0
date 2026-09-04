@@ -10809,7 +10809,7 @@ test("workspace renders admin import controls and one-time setup output", async 
   });
   assert.match(adminAddStudent, /data-people-view="add-student"/);
   assert.match(adminAddStudent, /data-admin-add-person-form="true" data-person-kind="student"/);
-  assert.match(adminAddStudent, /First name[\s\S]*Last name[\s\S]*Email or login identifier/);
+  assert.match(adminAddStudent, /First name[\s\S]*Last name[\s\S]*Student ID username/);
   assert.match(adminAddStudent, /Site \/ school[\s\S]*Program[\s\S]*Cohort[\s\S]*Graduation year[\s\S]*Status/);
   assert.match(adminAddStudent, /Mentor assignment[\s\S]*Viewer assignment/);
   assert.match(adminAddStudent, /Cohort and graduation year save to the student/);

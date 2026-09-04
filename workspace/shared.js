@@ -4438,6 +4438,7 @@ function buildAdminImportBody(form) {
   const values = Object.fromEntries(new FormData(form).entries());
   const adminNote = String(values.adminNote || "").trim();
   const email = String(values.email || "").trim();
+  const username = String(values.username || "").trim().replace(/^#/, "");
   const fullName = String(values.fullName || "").trim();
   const roleId = String(values.roleId || "").trim();
   const identityType = String(values.identityType || "local").trim();
@@ -4624,7 +4625,7 @@ function buildAdminPersonImportBody(form) {
   const allowedRoleIds = new Set(adminRoleChoicesForRoles(roleIds(currentUser)).map((role) => role.value));
 
   if (!firstName || !lastName) return { ok: false, message: "Add first and last name." };
-  if (!isUsableEmail(email)) return { ok: false, message: "Add a usable email or login identifier." };
+  if (kind === "student" ? !isUsableUsername(username) : !isUsableEmail(email)) return { ok: false, message: kind === "student" ? "Add a valid student ID username without the # symbol." : "Add a usable email." };
   if (!adminNote) return { ok: false, message: "Add the admin note for this account." };
   if (!deliveryConfirmation) return { ok: false, message: "Confirm the account access and setup-password delivery process before creating this account." };
   if (!status) return { ok: false, message: "Choose active or inactive status." };
@@ -4653,6 +4654,7 @@ function buildAdminPersonImportBody(form) {
     globalAdminConfirmation,
   };
   if (kind === "student") {
+    user.username = username;
     user.cohort = cohort;
     user.graduationYear = graduationYear;
     user.mentorUserId = mentorUserId;
@@ -4680,6 +4682,10 @@ function cleanAdminImportStatus(value) {
 
 function isUsableEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || "").trim());
+}
+
+function isUsableUsername(value) {
+  return /^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$/.test(String(value || "").trim()) && !String(value || "").includes("@");
 }
 
 function submitAdminCsvPreview(event) {
@@ -4925,6 +4931,7 @@ function adminCsvValidationContext() {
     programTeachersByEmail: lookupMap(users.programTeachers || [], (teacher) => [teacher.email, teacher.displayName, teacher.userId, teacher.id]),
     viewersByEmail: lookupMap(users.viewers || [], (viewer) => [viewer.email, viewer.displayName, viewer.userId, viewer.id]),
     existingEmails: new Set(allAccounts.map((account) => String(account.email || "").trim().toLowerCase()).filter(Boolean)),
+    existingUsernames: new Set(allAccounts.map((account) => String(account.username || "").trim().toLowerCase()).filter(Boolean)),
   };
 }
 
@@ -4947,6 +4954,7 @@ function validateStudentCsvRow(row, context, seenEmails, existingEmails) {
   const values = row.values || {};
   const firstName = values.first_name || "";
   const lastName = values.last_name || "";
+  const username = String(values.username || "").trim().replace(/^#/, "");
   const email = values.email || "";
   const site = context.sitesByKey.get(normalizeLookupKey(values.site));
   const program = context.programsByKey.get(normalizeLookupKey(values.program));
@@ -4959,11 +4967,13 @@ function validateStudentCsvRow(row, context, seenEmails, existingEmails) {
   const programTeacher = programTeacherKey ? context.programTeachersByEmail.get(programTeacherKey) : null;
   const viewer = viewerKey ? context.viewersByEmail.get(viewerKey) : null;
   const emailKey = normalizeLookupKey(email);
+  const usernameKey = normalizeLookupKey(username);
   if (!firstName || !lastName || !email || !values.site || !values.program) return csvInvalid(row, "Missing required first_name, last_name, email, site, or program.");
   if (!isUsableEmail(email)) return csvInvalid(row, "Email/login identifier is not usable.");
-  if (seenEmails.has(emailKey)) return csvInvalid(row, "Duplicate email appears more than once in this CSV.");
-  seenEmails.add(emailKey);
-  if (existingEmails.has(emailKey)) return csvValid(row, null, true);
+  if (username && !isUsableUsername(username)) return csvInvalid(row, "Student username is not usable.");
+  if (seenEmails.has(usernameKey || emailKey)) return csvInvalid(row, `Duplicate ${username ? "username" : "email"} appears more than once in this CSV.`);
+  seenEmails.add(usernameKey || emailKey);
+  if ((emailKey && existingEmails.has(emailKey)) || context.existingUsernames?.has(usernameKey)) return csvValid(row, null, true);
   if (!site) return csvInvalid(row, "School is not available to this account.");
   if (!program) return csvInvalid(row, "Program is not available to this account.");
   if (!status) return csvInvalid(row, "Status must be active or inactive.");
@@ -4984,6 +4994,7 @@ function validateStudentCsvRow(row, context, seenEmails, existingEmails) {
   }
   return csvValid(row, {
     email,
+    username,
     fullName: `${firstName} ${lastName}`.trim(),
     roleId: "student",
     identityType: "local",
@@ -5233,6 +5244,57 @@ async function submitSiteStudentRemoval(event) {
     setFormBusy(form, false);
     busy = false;
   }
+}
+
+function toggleStudentPlacementEditor(studentId, open) {
+  const form = Array.from(document.querySelectorAll("[data-student-placement-form]"))
+    .find((candidate) => candidate.dataset.studentPlacementForm === String(studentId || ""));
+  if (!form) return;
+  form.hidden = !open;
+  if (open) form.querySelector("select, textarea, input")?.focus();
+}
+
+async function submitStudentPlacement(event) {
+  event.preventDefault();
+  if (busy) return;
+  const form = event.currentTarget;
+  const body = Object.fromEntries(new FormData(form).entries());
+  const studentId = cleanDirectoryFilter(body.studentId || form?.dataset?.studentPlacementForm || "");
+  if (!studentId || !String(body.adminNote || "").trim()) {
+    renderAppShell("Add a reason before saving student placement changes.", "error");
+    return;
+  }
+  busy = true;
+  setFormBusy(form, true);
+  try {
+    const response = await fetch(`/api/site/students/${encodeURIComponent(studentId)}/placement`, {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await safeJson(response);
+    if (!response.ok) {
+      renderAppShell(messageForStudentPlacementError(data?.error, response.status), "error");
+      return;
+    }
+    activeSection = "adminStudents";
+    adminPeopleView = "manage-students";
+    await loadWorkspaceData("Student program and support placement saved.");
+  } catch (error) {
+    renderAppShell(messageForNetworkError(error), "error");
+  } finally {
+    setFormBusy(form, false);
+    busy = false;
+  }
+}
+
+function messageForStudentPlacementError(error, status) {
+  if (error === "student_not_found") return "That student is no longer available in this school.";
+  if (error === "program_not_found") return "Choose an active program in this school.";
+  if (error === "mentor_not_found" || error === "viewer_not_found") return "Choose support staff already assigned to this school.";
+  if (error === "forbidden" || status === 403) return "Your current role cannot change this student's placement.";
+  if (error === "missing_fields") return "Choose a program and add a reason for the change.";
+  return status === 401 ? "Sign in again before changing student placement." : "Student placement could not be saved. Try again.";
 }
 
 async function submitSiteProgramChange(event) {

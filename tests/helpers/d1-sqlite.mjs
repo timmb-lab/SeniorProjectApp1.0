@@ -41,6 +41,7 @@ export function foundationMigrations() {
     "migrations/0032_program_teacher_storage.sql",
     "migrations/0033_evidence_drive_availability.sql",
     "migrations/0034_presentation_practice_feedback.sql",
+    "migrations/0035_login_aliases.sql",
   ];
 }
 

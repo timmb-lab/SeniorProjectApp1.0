@@ -108,6 +108,15 @@ function bindWorkspaceForms() {
   document.querySelectorAll("[data-admin-password-reset-form]").forEach((form) => {
     form.addEventListener("submit", submitAdminPasswordReset);
   });
+  document.querySelectorAll("[data-student-placement-edit]").forEach((button) => {
+    button.addEventListener("click", () => toggleStudentPlacementEditor(button.dataset.studentPlacementEdit, true));
+  });
+  document.querySelectorAll("[data-student-placement-cancel]").forEach((button) => {
+    button.addEventListener("click", () => toggleStudentPlacementEditor(button.dataset.studentPlacementCancel, false));
+  });
+  document.querySelectorAll("[data-student-placement-form]").forEach((form) => {
+    form.addEventListener("submit", submitStudentPlacement);
+  });
   document.querySelectorAll("[data-site-program-form]").forEach((form) => {
     form.addEventListener("submit", submitSiteProgramChange);
   });

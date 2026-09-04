@@ -1,9 +1,10 @@
 import type { Env } from "../../_types.ts";
 import { createSession, securityFingerprint, sessionCookie, writeAudit } from "../../_lib/auth.ts";
-import { hashPassword, normalizeEmail, PASSWORD_ITERATIONS, randomId, verifyPassword } from "../../_lib/crypto.ts";
+import { hashPassword, PASSWORD_ITERATIONS, randomId, verifyPassword } from "../../_lib/crypto.ts";
 import { badRequest, getClientIp, json, readJson, requirePost } from "../../_lib/http.ts";
 import { authSecretsConfigured } from "../../_lib/auth-config.ts";
 import { beginMfaChallenge, userNeedsStaffMfa } from "../../_lib/mfa.ts";
+import { accountLookupSql, normalizedEmailOrIdentifier } from "../../_lib/login-identifier.ts";
 
 interface LoginBody {
   email?: string;
@@ -40,7 +41,7 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
   } catch {
     return badRequest("invalid_json");
   }
-  const emailNorm = normalizeEmail(body.email || "");
+  const emailNorm = normalizedEmailOrIdentifier(body.email || "");
   const password = body.password || "";
   const identifierHash = await securityFingerprint(env, `login-id:${emailNorm}`);
   const ipHash = await securityFingerprint(env, `ip:${getClientIp(request)}`);
@@ -65,12 +66,15 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
     return json({ error: "rate_limited" }, { status: 429 });
   }
 
-  const row = await env.DB.prepare(
-    `SELECT u.id AS user_id, u.email, u.email_norm, u.display_name, u.status, c.password_hash, c.password_salt, c.algorithm, c.iterations, c.requires_reset
-     FROM user_accounts u
-     JOIN password_credentials c ON c.user_id = u.id
-     WHERE u.email_norm = ?`,
-  ).bind(emailNorm).first<CredentialRow>();
+  let row: CredentialRow | null = null;
+  try {
+    row = await env.DB.prepare(accountLookupSql()).bind(emailNorm, emailNorm).first<CredentialRow>();
+  } catch {
+    row = await env.DB.prepare(
+      `SELECT u.id AS user_id, u.email, u.email_norm, u.display_name, u.status, c.password_hash, c.password_salt, c.algorithm, c.iterations, c.requires_reset
+       FROM user_accounts u JOIN password_credentials c ON c.user_id = u.id WHERE u.email_norm = ?`,
+    ).bind(emailNorm).first<CredentialRow>();
+  }
 
   // Always perform a password derivation so unknown accounts do not have a
   // materially faster response than known accounts.

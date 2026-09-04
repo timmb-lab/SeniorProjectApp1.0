@@ -272,11 +272,13 @@ async function siteContext(env: Env, user: UserAccount): Promise<SiteScopeContex
 async function loadSiteUsersByRole(env: Env, siteId: string, roleId: RoleId) {
   if (roleId === "student") {
     const rosterProfilesReady = await studentRosterProfilesTableExists(env);
+    const loginAliasesReady = await loginAliasesTableExists(env);
     const rows = await env.DB.prepare(
       `SELECT DISTINCT
          user_accounts.id,
          user_accounts.display_name,
          user_accounts.email,
+         ${loginAliasesReady ? "COALESCE(account_login_aliases.alias, '')" : "''"} AS username,
          user_accounts.status,
          EXISTS(
            SELECT 1
@@ -326,6 +328,7 @@ async function loadSiteUsersByRole(env: Env, siteId: string, roleId: RoleId) {
         AND user_accounts.status IN ('active', 'pending_reset')
        JOIN user_roles ON user_roles.user_id = user_accounts.id
         AND user_roles.role_id = 'student'
+       ${loginAliasesReady ? "LEFT JOIN account_login_aliases ON account_login_aliases.user_id = user_accounts.id" : ""}
        ${rosterProfilesReady ? "LEFT JOIN student_roster_profiles ON student_roster_profiles.student_user_id = user_accounts.id" : ""}
        LEFT JOIN (
          SELECT user_id, program_id, program_name
@@ -353,6 +356,7 @@ async function loadSiteUsersByRole(env: Env, siteId: string, roleId: RoleId) {
       id: string;
       display_name: string;
       email: string;
+      username: string;
       status: string;
       has_local_credential: number;
       cohort: string | null;
@@ -389,6 +393,15 @@ async function loadSiteUsersByRole(env: Env, siteId: string, roleId: RoleId) {
      LIMIT 1000`,
   ).bind(roleId, siteId).all<{ id: string; display_name: string; email: string; status: string; has_local_credential: number }>();
   return (rows.results || []).map(userOption);
+}
+
+async function loginAliasesTableExists(env: Env): Promise<boolean> {
+  try {
+    await env.DB.prepare("SELECT 1 FROM account_login_aliases LIMIT 1").first();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function loadPrograms(env: Env, siteId: string) {
@@ -628,6 +641,7 @@ function studentUserOption(row: {
   id: string;
   display_name: string;
   email: string;
+  username: string;
   status: string;
   has_local_credential?: number;
   cohort: string | null;
@@ -643,6 +657,7 @@ function studentUserOption(row: {
     userId: row.id,
     displayName: row.display_name,
     email: row.email,
+    username: row.username || "",
     status: row.status,
     canResetPassword: Number(row.has_local_credential || 0) === 1,
     cohort: row.cohort || "",

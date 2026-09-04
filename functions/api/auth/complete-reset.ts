@@ -1,8 +1,9 @@
 import type { Env } from "../../_types.ts";
 import { createSession, securityFingerprint, sessionCookie, writeAudit } from "../../_lib/auth.ts";
-import { hashPassword, normalizeEmail, randomId, sha256Hex, validatePassword, verifyPassword } from "../../_lib/crypto.ts";
+import { hashPassword, randomId, sha256Hex, validatePassword, verifyPassword } from "../../_lib/crypto.ts";
 import { badRequest, getClientIp, json, readJson, requirePost } from "../../_lib/http.ts";
 import { authSecretsConfigured } from "../../_lib/auth-config.ts";
+import { accountLookupSql, normalizedEmailOrIdentifier } from "../../_lib/login-identifier.ts";
 
 interface CompleteResetBody {
   email?: string;
@@ -39,7 +40,7 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
     return badRequest("invalid_json");
   }
 
-  const emailNorm = normalizeEmail(body.email || "");
+  const emailNorm = normalizedEmailOrIdentifier(body.email || "");
   const currentPassword = body.currentPassword || "";
   const newPassword = body.newPassword || "";
   if (!emailNorm || !currentPassword || !newPassword) {
@@ -57,12 +58,15 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
     return json({ error: "rate_limited" }, { status: 429 });
   }
 
-  const row = await env.DB.prepare(
-    `SELECT u.id AS user_id, u.email, u.email_norm, u.display_name, u.status, c.password_hash, c.password_salt, c.algorithm, c.iterations, c.requires_reset
-     FROM user_accounts u
-     JOIN password_credentials c ON c.user_id = u.id
-     WHERE u.email_norm = ?`,
-  ).bind(emailNorm).first<CredentialRow>();
+  let row: CredentialRow | null = null;
+  try {
+    row = await env.DB.prepare(accountLookupSql()).bind(emailNorm, emailNorm).first<CredentialRow>();
+  } catch {
+    row = await env.DB.prepare(
+      `SELECT u.id AS user_id, u.email, u.email_norm, u.display_name, u.status, c.password_hash, c.password_salt, c.algorithm, c.iterations, c.requires_reset
+       FROM user_accounts u JOIN password_credentials c ON c.user_id = u.id WHERE u.email_norm = ?`,
+    ).bind(emailNorm).first<CredentialRow>();
+  }
 
   const currentPasswordValid = row && row.algorithm === "PBKDF2-SHA-256"
     ? await verifyPassword(currentPassword, row.password_hash, row.password_salt, env.PASSWORD_PEPPER || "", Number(row.iterations))

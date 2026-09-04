@@ -2680,13 +2680,14 @@ function renderManageStudentRow(student = {}) {
     <article class="workspace-row" data-admin-directory-row="true" data-manage-student-row="${escapeHtml(student.userId || "")}" data-manage-student-setup="${escapeHtml(setupFlags.length ? "needs-review" : "ready")}">
       <div>
         <strong>${escapeHtml(student.displayName || "Student")}</strong>
-        <p>${escapeHtml(student.email || "")}</p>
+        <p>${escapeHtml(student.username ? `Username: ${student.username}` : student.email || "")}</p>
         <p class="workspace-muted">${escapeHtml(profileText)}</p>
         <p class="workspace-muted">${escapeHtml(assignmentText)}</p>
         ${renderAdminSetupFlagChips(setupFlags)}
       </div>
       <div class="workspace-row-actions">
         ${availableSectionIdsForAnyMode().has("students") ? `<button class="workspace-link-button workspace-link-button-small" type="button" data-site-student-action="view-detail" data-student-detail-id="${escapeHtml(student.userId || "")}">View student</button>` : ""}
+        <button class="workspace-link-button workspace-link-button-small" type="button" data-student-placement-edit="${escapeHtml(student.userId || "")}">Edit placement</button>
         ${statusPill(setupFlags.length ? "needs_review" : "active")}
         ${renderAdminMoreMenu({
           id: `student-${student.userId || "row"}`,
@@ -2695,6 +2696,44 @@ function renderManageStudentRow(student = {}) {
         })}
       </div>
     </article>
+    ${renderStudentPlacementEditor(student)}
+  `;
+}
+
+function renderStudentPlacementEditor(student = {}) {
+  const access = unwrap(currentData.accessAssignments) || {};
+  const scope = access.scope || {};
+  return `
+    <form class="workspace-form workspace-student-placement-editor" data-student-placement-form="${escapeHtml(student.userId || "")}" hidden>
+      <input type="hidden" name="studentId" value="${escapeHtml(student.userId || "")}">
+      <input type="hidden" name="siteId" value="${escapeHtml(scope.siteId || currentSiteId || "")}">
+      <div class="workspace-form-grid">
+        <label class="workspace-label">Program
+          <select class="workspace-select" name="programId" required>
+            ${(access.programs || []).map((program) => `<option value="${escapeHtml(program.programId)}" ${program.programId === student.programId ? "selected" : ""}>${escapeHtml(program.programName)}</option>`).join("")}
+          </select>
+        </label>
+        <label class="workspace-label">Account status
+          <select class="workspace-select" name="status" required>
+            <option value="active" ${student.status !== "disabled" ? "selected" : ""}>Active</option>
+            <option value="inactive" ${student.status === "disabled" ? "selected" : ""}>Inactive</option>
+          </select>
+        </label>
+        <label class="workspace-label">Mentor (optional)
+          <select class="workspace-select" name="mentorUserId">${optionalUserOptions(access.users?.mentors || [], "No mentor selected", student.mentorUserId)}</select>
+        </label>
+        <label class="workspace-label">Support partner / viewer (optional)
+          <select class="workspace-select" name="viewerUserId">${optionalUserOptions(access.users?.viewers || [], "No partner selected", student.viewerUserId)}</select>
+        </label>
+        <label class="workspace-label workspace-label-wide">Reason for change
+          <textarea class="workspace-textarea" name="adminNote" maxlength="500" required aria-label="Reason for student placement change"></textarea>
+        </label>
+      </div>
+      <div class="workspace-form-actions">
+        <button class="workspace-button workspace-button-primary" type="submit">Save student changes</button>
+        <button class="workspace-button workspace-button-secondary" type="button" data-student-placement-cancel="${escapeHtml(student.userId || "")}">Cancel</button>
+      </div>
+    </form>
   `;
 }
 
@@ -2878,7 +2917,7 @@ function renderAddStudentScreen(options = {}) {
       <form id="workspaceAddStudentForm" class="workspace-form" data-admin-add-person-form="true" data-person-kind="student">
         <input type="hidden" name="roleId" value="student">
         <input type="hidden" name="identityType" value="local">
-        ${renderPersonNameEmailFields()}
+        ${renderPersonNameEmailFields("student")}
         <div class="workspace-form-section">
           <p class="workspace-kicker">School and program</p>
           <div class="workspace-form-grid">
@@ -2952,7 +2991,7 @@ function renderAddStaffScreen(roleChoices = [], options = {}) {
       </div>
       <form id="workspaceAddStaffForm" class="workspace-form" data-admin-add-person-form="true" data-person-kind="staff">
         <input type="hidden" name="identityType" value="local">
-        ${renderPersonNameEmailFields()}
+        ${renderPersonNameEmailFields("staff")}
         <div class="workspace-form-section">
           <p class="workspace-kicker">Role and access</p>
           ${renderAdminRoleQuickPicks(staffChoices, staffChoices[0]?.value || "mentor")}
@@ -3006,7 +3045,7 @@ function renderAddStaffScreen(roleChoices = [], options = {}) {
   `;
 }
 
-function renderPersonNameEmailFields() {
+function renderPersonNameEmailFields(kind = "staff") {
   return `
     <div class="workspace-form-section">
       <p class="workspace-kicker">Person</p>
@@ -3020,9 +3059,9 @@ function renderPersonNameEmailFields() {
           <input class="workspace-input" name="lastName" autocomplete="family-name" maxlength="60" required>
         </label>
         <label class="workspace-label workspace-label-wide">
-          Email or login identifier <span class="workspace-required">Required</span>
-          <input class="workspace-input" name="email" type="email" autocomplete="off" required>
-          <span class="workspace-muted">Use the school-approved email or username for this account.</span>
+          ${kind === "student" ? "Student ID username" : "Email"} <span class="workspace-required">Required</span>
+          <input class="workspace-input" name="${kind === "student" ? "username" : "email"}" ${kind === "student" ? 'inputmode="numeric" pattern="[A-Za-z0-9._-]{3,64}"' : 'type="email"'} autocomplete="off" required>
+          <span class="workspace-muted">${kind === "student" ? "Students sign in with this ID. Do not include the # symbol." : "Use the school-approved email for this account."}</span>
         </label>
       </div>
     </div>
@@ -3066,8 +3105,13 @@ function renderAssignmentsPeopleScreen() {
   `;
 }
 
-function optionalUserOptions(users = [], emptyLabel = "No selection") {
-  return [`<option value="">${escapeHtml(emptyLabel)}</option>`, userOptions(users)].join("");
+function optionalUserOptions(users = [], emptyLabel = "No selection", selectedUserId = "") {
+  const options = Array.isArray(users) ? users.map((user) => {
+    const value = user.userId || user.studentId || user.id || "";
+    const label = user.displayName || user.studentName || user.email || value;
+    return `<option value="${escapeHtml(value)}" ${value === selectedUserId ? "selected" : ""}>${escapeHtml(label)}</option>`;
+  }).join("") : "";
+  return `<option value="" ${selectedUserId ? "" : "selected"}>${escapeHtml(emptyLabel)}</option>${options}`;
 }
 
 function renderCsvImportScreen(kind = "students", options = {}) {
