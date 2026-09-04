@@ -15170,6 +15170,21 @@ test("student final checklist routes each button to its exact next place", async
   assert.equal(vm.runInContext("activeSection", context), "studentFeedback");
 });
 
+test("dark shared navigation and project template controls stay readable and touch sized", () => {
+  assert.match(
+    workspaceCss,
+    /:root\[data-theme="dark"\] \.workspace-contextual-back \.workspace-button > span\s*\{[\s\S]*color:\s*var\(--ticket-blue-bright\);/,
+  );
+  assert.match(
+    workspaceCss,
+    /:root\[data-theme="dark"\] \.workspace-v2-app \.workspace-project-template-row > div:first-child > span\s*\{[\s\S]*color:\s*var\(--ticket-violet\);/,
+  );
+  assert.match(
+    workspaceCss,
+    /\.workspace-v2-app :where\([\s\S]*\.workspace-project-template-change > summary,[\s\S]*\.workspace-project-template-remove > summary,[\s\S]*\.workspace-project-template-removed > summary[\s\S]*\)\s*\{[\s\S]*min-height:\s*44px;/,
+  );
+});
+
 async function renderWorkspaceWithFetch(routes, section = "", beforeSectionScript = "", options = {}) {
   const { context, workspaceRoot } = await createWorkspaceContextWithFetch(routes, options);
   if (section || beforeSectionScript) {

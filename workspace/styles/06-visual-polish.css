@@ -776,6 +776,29 @@ body[data-page="workspace"] {
   background: var(--ticket-panel-raised);
 }
 
+:root[data-theme="dark"] .workspace-v2-app .workspace-project-template-row > div:first-child > span {
+  color: var(--ticket-violet);
+}
+
+:root[data-theme="dark"] .workspace-v2-app :where(
+  .workspace-project-template-change > summary,
+  .workspace-project-template-remove > summary,
+  .workspace-project-template-removed > summary
+) {
+  color: var(--ticket-violet);
+}
+
+.workspace-v2-app :where(
+  .workspace-project-template-change > summary,
+  .workspace-project-template-remove > summary,
+  .workspace-project-template-removed > summary
+) {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding-block: 0.55rem;
+}
+
 .workspace-project-requests {
   display: block;
 }
@@ -2348,6 +2371,10 @@ body[data-page="workspace"] {
   color: var(--school-primary);
   font-size: 1.15rem;
   line-height: 1;
+}
+
+:root[data-theme="dark"] .workspace-contextual-back .workspace-button > span {
+  color: var(--ticket-blue-bright);
 }
 
 .workspace-project-detail-hero {
