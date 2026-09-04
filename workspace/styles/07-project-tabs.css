@@ -167,7 +167,7 @@
     font-size: 0.92rem;
   }
 
-  .workspace-project-command-rail-sticky {
+  .workspace-project-dedicated .workspace-project-command-rail-sticky {
     grid-template-columns: minmax(0, 1fr);
   }
 }
