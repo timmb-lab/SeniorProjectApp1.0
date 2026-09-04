@@ -342,6 +342,33 @@ test("presentation slots enforce scoped visibility, conflict checks, and audit e
     assert.equal(slot.checked_in_at, body.slot.checkedInAt);
     assert.equal(fixture.db.data.auditEvents.at(-1).action, "presentation_slot_checked_in");
   }
+
+  // A student can schedule their own practice, but cannot schedule for another student.
+  {
+    const denied = await onPresentationSlotsPost({
+      request: buildAuthedJsonRequest("https://example.test/api/presentation-slots", fixture.studentAToken, {
+        studentId: "student-b",
+        scheduledFor: "2026-04-02T16:00:00.000Z",
+        location: "Mentor practice",
+      }),
+      env: fixture.env,
+    });
+    assert.equal(denied.status, 403);
+
+    const response = await onPresentationSlotsPost({
+      request: buildAuthedJsonRequest("https://example.test/api/presentation-slots", fixture.studentAToken, {
+        studentId: "student-a",
+        scheduledFor: "2026-04-02T16:00:00.000Z",
+        durationMinutes: 15,
+        location: "Mentor practice",
+      }),
+      env: fixture.env,
+    });
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.slot.studentId, "student-a");
+    assert.equal(fixture.db.data.auditEvents.at(-1).action, "presentation_slot_scheduled");
+  }
 });
 
 async function createFixture() {

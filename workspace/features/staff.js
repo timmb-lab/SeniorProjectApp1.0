@@ -58,6 +58,25 @@ function renderStaffWorkspaceTodaySection() {
       </section>
     `;
   }
+  if (hasGlobalAdminRole(model.roles)) {
+    const primaryQueue = staffWorkspacePrimaryQueue(model);
+    return `
+      <section class="workspace-workflow-landing workspace-staff-today workspace-global-admin-simple-today" data-staff-workspace-today="true" data-staff-attention-model="true" aria-labelledby="globalAdminTodayTitle">
+        <header class="workspace-global-admin-simple-head">
+          <div><p class="workspace-kicker">Global Admin</p><h1 id="globalAdminTodayTitle">Choose one job</h1><p>Use the student worklist for daily support. Use the left navigation only when you need a platform or school-wide admin tool.</p></div>
+          ${renderStaffPrimaryAction(model)}
+        </header>
+        ${renderStaffAdminTodayPlan(model)}
+        <details class="workspace-global-admin-worklist">
+          <summary><span>Student worklist</span><small>Open only when a student or project needs attention</small></summary>
+          <div class="workspace-staff-attention-grid workspace-staff-primary-list" aria-label="Global Admin student worklist">
+            ${renderStaffAttentionQueue(model, primaryQueue, { primary: true, limit: 6 })}
+          </div>
+        </details>
+        ${siteStudentDetailState?.sourceSection === "overview" ? renderSiteStudentDetailSurface({ students: model.detailRows, scope: model.scope }) : ""}
+      </section>
+    `;
+  }
   const todayTitle = staffWorkspaceTitle(model);
   const primaryQueue = staffWorkspacePrimaryQueue(model);
   const rolePlanHtml = [

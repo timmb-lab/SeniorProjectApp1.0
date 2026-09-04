@@ -46,13 +46,6 @@ const PROJECTS = Object.freeze([
     ["demo-mentor-008", "The pictures are clear and the steps are easy to follow. Great finish."],
     ["demo-student-212", "Old print count: 12 copies. We archived this note after the final count changed.", "archived"],
   ]),
-  project("demo-project-clinic-map", "Student Clinic Welcome Map", "Make a simple map that helps visitors find the school clinic.", "medical-professions", "phase-1", "active", ["demo-student-231"], "demo-mentor-009", "demo-teacher-medical-professions-01", "req-proposal-draft", "draft", "The first map sketch is started. Next, the student will check room labels.", [
-    ["demo-student-231", "I drew the first map. Tomorrow I will walk the route and check every label."],
-  ]),
-  project("demo-project-help-desk", "Student Help Desk Guide", "Create a step-by-step guide for common school device problems.", "it", "phase-2b", "active", ["demo-student-002", "demo-student-003", "demo-student-004", "demo-student-005", "demo-student-006"], "demo-mentor-010", "demo-teacher-it-01", "req-mentor-meeting-two-outline", "submitted", "The team linked its draft guide and asked for a review of the troubleshooting steps.", [
-    ["demo-student-002", "We finished the password and Wi-Fi pages. The printer page still needs pictures."],
-    ["demo-mentor-010", "The steps are easy to follow. Test the guide with someone who has not seen it."],
-  ]),
 ]);
 
 function project(id, name, summary, programId, phase, status, students, mentorId, teacherId, requirementId, submissionStatus, reflection, notes) {
@@ -154,7 +147,7 @@ async function verifySeed(adapter) {
        (SELECT COUNT(*) FROM mentor_meetings) AS meetings,
        (SELECT COUNT(*) FROM presentation_slots) AS presentations`,
   );
-  const expected = { projects: 10, members: 31, notes: 19, archived_notes: 1, student_mentor_links: 32, mentors: 10, teachers: 10, submissions: 10, reviews: 5, meetings: 10, presentations: 4 };
+  const expected = { projects: 8, members: 25, notes: 16, archived_notes: 1, student_mentor_links: 26, mentors: 8, teachers: 8, submissions: 8, reviews: 5, meetings: 8, presentations: 4 };
   for (const [key, value] of Object.entries(expected)) {
     if (Number(counts?.[key]) !== value) throw new Error(`Project reset verification failed for ${key}: expected ${value}, found ${counts?.[key]}.`);
   }
@@ -177,6 +170,7 @@ function buildResetSeedSql(projects = PROJECTS) {
     "DELETE FROM student_work_responses;",
     "DELETE FROM submission_versions;",
     "DELETE FROM reviews;",
+    "DELETE FROM presentation_practice_feedback;",
     "DELETE FROM presentation_slots;",
     "DELETE FROM mentor_meetings;",
     "DELETE FROM status_history;",
@@ -235,7 +229,7 @@ function buildResetSeedSql(projects = PROJECTS) {
 
   statements.push(
     `INSERT INTO mentor_assignments (id, mentor_user_id, student_user_id, assigned_by, active, created_at) VALUES ('demo-mentor-assignment-browser-proof', 'test_user_mentor_rivera', 'demo-student-001', 'demo-teacher-it-01', 1, '2026-08-11T16:00:00.000Z');`,
-    `INSERT OR IGNORE INTO audit_events (id, actor_user_id, action, entity_type, entity_id, metadata_json) VALUES ('audit-project-demo-reset-2026-09-02', NULL, 'project_demo_data_reset', 'project', NULL, '{"projectCount":10,"fakeDataOnly":true,"accountsPreserved":true}');`,
+    `INSERT OR IGNORE INTO audit_events (id, actor_user_id, action, entity_type, entity_id, metadata_json) VALUES ('audit-project-demo-reset-2026-09-02', NULL, 'project_demo_data_reset', 'project', NULL, '{"projectCount":8,"onePerPhase":true,"fakeDataOnly":true,"accountsPreserved":true}');`,
   );
   return `${statements.join("\n")}\n`;
 }

@@ -14637,15 +14637,15 @@ test("project workspace tabs change labels, guidance, and setup access for every
     approvedCount: 2
   }`;
   const plans = [
-    ["student", false, "My next step", "My team", "Student view", false],
-    ["mentor", false, "Mentor next step", "People &amp; roles", "Mentor view", false],
-    ["program_teacher", true, "Review &amp; guide", "People &amp; roles", "Program Teacher view", true],
-    ["administration", true, "Project health", "People &amp; roles", "School Admin view", true],
-    ["site_admin", true, "Project health", "People &amp; roles", "Site Admin view", true],
-    ["global_admin", true, "Project health", "People &amp; roles", "Global Admin view", true],
+    ["student", false, "My next step", "My team", "Make the decisions in your own words", false],
+    ["mentor", false, "Mentor next step", "People &amp; roles", "Ask the student to explain one decision", false],
+    ["program_teacher", true, "Review &amp; guide", "People &amp; roles", "Check that the result meets this phase", true],
+    ["administration", true, "Project health", "People &amp; roles", "Route instructional decisions to the Program Teacher", true],
+    ["site_admin", true, "Project health", "People &amp; roles", "Route instructional decisions to the Program Teacher", true],
+    ["global_admin", true, "Project health", "People &amp; roles", "Route instructional decisions to the Program Teacher", true],
   ];
 
-  for (const [roleId, canManage, firstTab, peopleTab, roleLabel, hasSettings] of plans) {
+  for (const [roleId, canManage, firstTab, peopleTab, rolePrompt, hasSettings] of plans) {
     const { context } = await createWorkspaceContextWithFetch(profileRoutesForRole(roleId));
     const html = vm.runInContext(`
       activeProjectTab = "";
@@ -14658,8 +14658,10 @@ test("project workspace tabs change labels, guidance, and setup access for every
     assert.match(html, /role="tablist"[^>]*aria-label="Project workspace sections"/);
     assert.match(html, new RegExp(`role="tab"[^>]*aria-selected="true"[^>]*>${firstTab}<`));
     assert.match(html, new RegExp(`>${peopleTab}<`));
-    assert.match(html, new RegExp(`${roleLabel} · ${firstTab}`));
-    assert.match(html, /WHAT THIS IS FOR[\s\S]*WHAT TO DO[\s\S]*DONE WHEN/);
+    assert.match(html, /data-project-phase-tabs="true"[\s\S]*data-project-phase-panel="phase-2a"/);
+    assert.match(html, /EXPECTED RESULT[\s\S]*DECISIONS TO MAKE[\s\S]*SHOW YOUR WORK[\s\S]*DONE WHEN/);
+    assert.ok(html.includes(rolePrompt), `${roleId} receives role-specific phase coaching`);
+    assert.doesNotMatch(html, /What to do in this tab/);
     assert.equal(/data-project-tab="settings"/.test(html), hasSettings);
     assert.equal(/data-project-settings-panel="true"/.test(html), false, "inactive settings content stays out of the page");
 

@@ -59,6 +59,9 @@ function bindWorkspaceForms() {
   document.querySelectorAll("[data-project-tab]").forEach((button) => {
     button.addEventListener("keydown", handleProjectTabKeydown);
   });
+  document.querySelectorAll("[data-project-phase-tab]").forEach((button) => {
+    button.addEventListener("keydown", handleProjectTabKeydown);
+  });
   document.querySelector("[data-project-directory-filter-form]")?.addEventListener("submit", submitProjectDirectoryFilters);
   document.querySelectorAll("[data-project-team-picker]").forEach((picker) => {
     bindProjectTeamPicker(picker);
@@ -128,6 +131,12 @@ function bindWorkspaceForms() {
   });
   document.querySelectorAll("[data-presentation-action]").forEach((button) => {
     button.addEventListener("click", updatePresentationSlot);
+  });
+  document.querySelectorAll("[data-presentation-schedule-form]").forEach((form) => {
+    form.addEventListener("submit", submitPresentationPracticeSchedule);
+  });
+  document.querySelectorAll("[data-presentation-feedback-form]").forEach((form) => {
+    form.addEventListener("submit", submitPresentationPracticeFeedback);
   });
   document.querySelectorAll("[data-presentation-filter-action]").forEach((button) => {
     button.addEventListener("click", handlePresentationFilterAction);
@@ -441,7 +450,10 @@ function handleStudentRequirementAction(event) {
     };
   }
   if (opening) requestStudentRequirementFocus(requirementId);
-  if (opening) activeProjectTab = "focus";
+  if (opening) {
+    activeProjectTab = "focus";
+    activeProjectPhaseTab = phaseKey || "";
+  }
   activeSection = "studentWork";
   renderAppShell(opening ? "Item details opened." : "Item details closed.", "success");
 }
@@ -1259,6 +1271,14 @@ async function handleProjectAction(event) {
     document.querySelector(`[data-project-tab="${tabId}"]`)?.focus?.();
     return;
   }
+  if (action === "phase-tab") {
+    const phaseKey = studentBookletPhaseKey(button.dataset.projectPhaseTab || "");
+    if (!STUDENT_BOOKLET_PHASE_ORDER.includes(phaseKey)) return;
+    activeProjectPhaseTab = phaseKey;
+    renderAppShell();
+    document.querySelector(`[data-project-phase-tab="${phaseKey}"]`)?.focus?.();
+    return;
+  }
   if (action === "new") {
     const panel = document.querySelector("#createProjectPanel");
     if (!panel) {
@@ -1299,6 +1319,7 @@ async function handleProjectAction(event) {
     activeProjectId = "";
     managedProjectId = "";
     activeProjectTab = "";
+    activeProjectPhaseTab = "";
     renderAppShell();
     const listTitle = document.querySelector("#projectListTitle");
     listTitle?.scrollIntoView?.({ behavior: "auto", block: "start" });
@@ -1314,6 +1335,7 @@ async function handleProjectAction(event) {
     activeProjectId = projectId;
     managedProjectId = "";
     activeProjectTab = "";
+    activeProjectPhaseTab = "";
     renderAppShell();
     const projectWorkspace = document.querySelector(`[data-project-workspace][data-project-id="${projectId}"]`);
     if (!projectWorkspace) {
@@ -1359,7 +1381,11 @@ async function handleProjectAction(event) {
 
 function handleProjectTabKeydown(event) {
   if (!event || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
-  const tabs = [...document.querySelectorAll("[data-project-tabs] [data-project-tab]")];
+  const isPhaseTab = Boolean(event.currentTarget?.dataset?.projectPhaseTab);
+  const selector = isPhaseTab
+    ? "[data-project-phase-tabs] [data-project-phase-tab]"
+    : "[data-project-tabs] [data-project-tab]";
+  const tabs = [...document.querySelectorAll(selector)];
   const currentIndex = tabs.indexOf(event.currentTarget);
   if (currentIndex < 0 || !tabs.length) return;
   event.preventDefault();
@@ -2502,6 +2528,7 @@ function renderPresentationSection() {
         <span class="workspace-chip">${filteredSlots.length} of ${slots.length} slot${slots.length === 1 ? "" : "s"}</span>
       </div>
       ${renderApiNotice(result)}
+      ${studentView ? renderPresentationPracticeSchedule(slots) : ""}
       ${renderDashboardKpis([
         { label: studentView ? "Ready to present" : "Presentation readiness", value: metricWithPercent(dashboard.ready, dashboard.total), detail: studentView ? "Scheduled with approved outline, or already checked in" : "Checked in or scheduled with approved outline", tone: "mentor" },
         { label: studentView ? "No time yet" : "Pending schedule", value: dashboard.pendingSchedule, detail: studentView ? "A presentation time is not listed yet" : "No schedule in visible slots", tone: dashboard.pendingSchedule ? "warning" : "mentor" },
@@ -2524,9 +2551,34 @@ function renderPresentationSection() {
           </div>
         </div>
         <div class="workspace-list workspace-presentation-worklist">
-        ${filteredSlots.length ? filteredSlots.map((slot) => renderPresentationSlotRow(slot, canManage, { studentView })).join("") : renderPresentationSlotsEmptyState(slots.length, activeFilter, { studentView })}
+        ${filteredSlots.length ? filteredSlots.map((slot) => renderPresentationSlotRow(slot, canManage, { studentView, canCoach: !studentView && (canManage || roles.has("mentor") || roles.has("administration")) })).join("") : renderPresentationSlotsEmptyState(slots.length, activeFilter, { studentView })}
         </div>
       </section>
+    </section>
+  `;
+}
+
+function renderPresentationPracticeSchedule(slots = []) {
+  const scheduled = slots.find((slot) => ["scheduled", "checked_out", "checked_in", "completed"].includes(normalizeStatus(slot.status)));
+  if (scheduled) {
+    return `
+      <section class="workspace-presentation-practice-callout" data-presentation-practice-status="scheduled">
+        <div><span class="workspace-kicker">Practice presentation</span><h2>Your practice is scheduled</h2></div>
+        <p>${escapeHtml(formatDate(scheduled.scheduledFor))} · ${escapeHtml(scheduled.durationMinutes || 15)} minutes · ${escapeHtml(scheduled.location || "With your mentor or Program Teacher")}</p>
+      </section>
+    `;
+  }
+  return `
+    <section class="workspace-presentation-practice-callout" data-presentation-practice-status="needs-date">
+      <div><span class="workspace-kicker">Do this first</span><h2>Schedule a practice presentation</h2></div>
+      <p>Choose a date and time when you will demonstrate the project to your Mentor or Program Teacher. This is a practice check-in, not the final public presentation.</p>
+      <form class="workspace-presentation-practice-form" data-presentation-schedule-form="true">
+        <input type="hidden" name="studentId" value="${escapeHtml(currentUser?.id || "")}">
+        <label class="workspace-label"><span>Date and time</span><input class="workspace-input" type="datetime-local" name="scheduledFor" required></label>
+        <label class="workspace-label"><span>Length</span><select class="workspace-select" name="durationMinutes"><option value="15">15 minutes</option><option value="20">20 minutes</option><option value="30">30 minutes</option></select></label>
+        <label class="workspace-label"><span>Where / how</span><input class="workspace-input" name="location" maxlength="160" value="Mentor or teacher check-in" required></label>
+        <button class="workspace-button workspace-button-primary" type="submit">Schedule practice</button>
+      </form>
     </section>
   `;
 }
@@ -3123,6 +3175,39 @@ function renderPresentationSlotRow(slot, canManage, options = {}) {
         ${renderPresentationAction(slot, canManage)}
       </div>
     </article>
+    ${renderPresentationPracticeFeedback(slot, options)}
+  `;
+}
+
+function renderPresentationPracticeFeedback(slot = {}, options = {}) {
+  const feedback = Array.isArray(slot.practiceFeedback) ? slot.practiceFeedback : [];
+  const feedbackRows = feedback.length ? feedback.map((row) => `
+    <article class="workspace-presentation-feedback-row">
+      <div><strong>${escapeHtml(row.authorName || "Project staff")}</strong><span>${escapeHtml(formatDate(row.updatedAt))}</span></div>
+      <p>Clarity ${escapeHtml(row.clarityScore)}/4 · Evidence ${escapeHtml(row.evidenceScore)}/4 · Organization ${escapeHtml(row.organizationScore)}/4 · Readiness ${escapeHtml(row.readinessScore)}/4</p>
+      ${row.notes ? `<p>${escapeHtml(row.notes)}</p>` : ""}
+    </article>
+  `).join("") : '<p class="workspace-muted">No practice feedback has been saved yet.</p>';
+  const rubricFields = [
+    ["clarityScore", "Clarity"], ["evidenceScore", "Evidence"],
+    ["organizationScore", "Organization"], ["readinessScore", "Readiness"],
+  ].map(([name, label]) => `
+    <label class="workspace-label"><span>${label}</span><select class="workspace-select" name="${name}" required>
+      <option value="">Choose</option><option value="1">1 · Not ready</option><option value="2">2 · Developing</option><option value="3">3 · Ready</option><option value="4">4 · Strong</option>
+    </select></label>
+  `).join("");
+  return `
+    <details class="workspace-presentation-feedback" data-presentation-feedback="${escapeHtml(slot.id || "")}">
+      <summary><span>Practice rubric &amp; notes</span><small>Visible only to this project’s students and authorized staff</small></summary>
+      <div class="workspace-presentation-feedback-body">${feedbackRows}</div>
+      ${options.canCoach ? `
+        <form class="workspace-presentation-feedback-form" data-presentation-feedback-form="true" data-slot-id="${escapeHtml(slot.id || "")}">
+          <fieldset><legend>Score this practice</legend><div>${rubricFields}</div></fieldset>
+          <label class="workspace-label"><span>Specific feedback and next step</span><small>Name one strength and one next step.</small><textarea class="workspace-textarea" name="notes" maxlength="4000" rows="4"></textarea></label>
+          <button class="workspace-button workspace-button-primary" type="submit">Save private feedback</button>
+        </form>
+      ` : ""}
+    </details>
   `;
 }
 
@@ -3633,6 +3718,74 @@ function uploadEvidenceWithProgress(url, formData, onProgress) {
     xhr.onabort = () => reject(new Error("upload_cancelled"));
     xhr.send(formData);
   });
+}
+
+async function submitPresentationPracticeSchedule(event) {
+  event.preventDefault();
+  if (busy || isViewAsStudentActive()) return;
+  const form = event.currentTarget;
+  const data = new FormData(form);
+  const localDate = String(data.get("scheduledFor") || "");
+  const parsedDate = new Date(localDate);
+  if (!localDate || Number.isNaN(parsedDate.getTime())) {
+    renderAppShell("Choose a valid practice date and time.", "error");
+    return;
+  }
+  busy = true;
+  try {
+    const response = await fetch("/api/presentation-slots", {
+      method: "POST",
+      headers: { accept: "application/json", "content-type": "application/json" },
+      body: JSON.stringify({
+        studentId: String(data.get("studentId") || ""),
+        scheduledFor: parsedDate.toISOString(),
+        durationMinutes: Number(data.get("durationMinutes") || 15),
+        location: String(data.get("location") || "Mentor or teacher check-in"),
+        notes: "Student-scheduled practice presentation",
+      }),
+    });
+    const body = await safeJson(response);
+    if (!response.ok) {
+      renderAppShell(body?.error === "presentation_slot_conflict" ? "That practice time conflicts with another scheduled presentation. Choose another time." : "The practice date could not be saved.", "error");
+      return;
+    }
+    await loadWorkspaceData("Practice presentation scheduled.");
+  } catch (error) {
+    renderAppShell(messageForNetworkError(error), "error");
+  } finally {
+    busy = false;
+  }
+}
+
+async function submitPresentationPracticeFeedback(event) {
+  event.preventDefault();
+  if (busy) return;
+  const form = event.currentTarget;
+  const data = new FormData(form);
+  const slotId = String(form.dataset.slotId || "");
+  busy = true;
+  try {
+    const response = await fetch(`/api/presentation-slots/${encodeURIComponent(slotId)}/feedback`, {
+      method: "POST",
+      headers: { accept: "application/json", "content-type": "application/json" },
+      body: JSON.stringify({
+        clarityScore: Number(data.get("clarityScore")),
+        evidenceScore: Number(data.get("evidenceScore")),
+        organizationScore: Number(data.get("organizationScore")),
+        readinessScore: Number(data.get("readinessScore")),
+        notes: String(data.get("notes") || ""),
+      }),
+    });
+    if (!response.ok) {
+      renderAppShell("Practice feedback could not be saved. Check every rubric score and try again.", "error");
+      return;
+    }
+    await loadWorkspaceData("Private practice feedback saved.");
+  } catch (error) {
+    renderAppShell(messageForNetworkError(error), "error");
+  } finally {
+    busy = false;
+  }
 }
 
 async function updatePresentationSlot(event) {

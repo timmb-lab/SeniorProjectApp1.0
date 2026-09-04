@@ -146,6 +146,10 @@ function renderProjectWorkspace(project = {}, options = {}) {
     ? activeProjectTab
     : projectTabs[0]?.id || "focus";
   activeProjectTab = selectedTab;
+  const selectedPhaseTab = STUDENT_BOOKLET_PHASE_ORDER.includes(activeProjectPhaseTab)
+    ? activeProjectPhaseTab
+    : phase.key;
+  activeProjectPhaseTab = selectedPhaseTab;
   const backAction = options.isStudent
     ? '<button class="workspace-button workspace-button-secondary workspace-project-back" type="button" data-section="student">← Back to Today</button>'
     : '<button class="workspace-button workspace-button-secondary workspace-project-back" type="button" data-project-action="back-to-list">← Back to project list</button>';
@@ -175,9 +179,11 @@ function renderProjectWorkspace(project = {}, options = {}) {
           ${renderProjectPulseItem("Approved", approvedCount, changesCount ? `${changesCount} need changes` : "No changes needed", changesCount ? "changes" : "approved")}
         </div>
       </header>
-      ${renderProjectPhaseTrack(phase.key)}
       <div class="workspace-project-command-layout">
         <main class="workspace-project-command-main">
+          ${renderProjectPhaseTabs(phase.key, selectedPhaseTab)}
+          ${renderProjectPhaseGuide(selectedPhaseTab, phase.key, projectCommandRoleId())}
+          <div class="workspace-project-tools-label"><span class="workspace-kicker">PROJECT TOOLS</span><strong>Open the information you need</strong></div>
           ${renderProjectTabs(projectTabs, selectedTab)}
           ${renderProjectTabPanel(selectedTab, projectTabs, project, options)}
         </main>
@@ -370,7 +376,7 @@ function renderProjectTabPanel(selectedTab = "focus", tabs = [], project = {}, o
   `;
   return `
     <div id="projectTabPanel-${escapeHtml(tab.id)}" class="workspace-project-tab-panel tone-${escapeHtml(tab.id)}" role="tabpanel" aria-labelledby="projectTab-${escapeHtml(tab.id)}" tabindex="0" data-project-tab-panel="${escapeHtml(tab.id)}">
-      ${renderProjectTabGuide(roleId, tab)}
+      ${tab.id === "focus" ? "" : renderProjectTabGuide(roleId, tab)}
       ${content}
     </div>
   `;
@@ -408,28 +414,71 @@ function renderProjectPulseItem(label, value, help, tone = "") {
   `;
 }
 
-function renderProjectPhaseTrack(currentPhaseKey = "start") {
+function renderProjectPhaseTabs(currentPhaseKey = "start", selectedPhaseKey = currentPhaseKey) {
   const currentIndex = Math.max(0, STUDENT_BOOKLET_PHASE_ORDER.indexOf(studentBookletPhaseKey(currentPhaseKey)));
   return `
-    <section class="workspace-project-phase-track phase-at-${currentIndex + 1}" aria-labelledby="projectPhaseTrackTitle">
+    <section class="workspace-project-phase-track phase-at-${currentIndex + 1}" aria-labelledby="projectPhaseTrackTitle" data-project-phase-tabs="true">
       <div>
         <span class="workspace-kicker">PROJECT PATH</span>
-        <h2 id="projectPhaseTrackTitle">Where this project is now</h2>
+        <h2 id="projectPhaseTrackTitle">Open a phase</h2>
+        <p>Review any phase without changing the project’s saved stage.</p>
       </div>
-      <ol>
+      <div class="workspace-project-phase-tablist" role="tablist" aria-label="Project phases">
         ${STUDENT_BOOKLET_PHASE_ORDER.map((phaseKey, index) => {
           const phase = studentBookletPhaseInfo(phaseKey);
           const status = index < currentIndex ? "is-done" : index === currentIndex ? "is-current" : "is-next";
+          const selected = phaseKey === selectedPhaseKey;
           return `
-            <li class="${status}" ${index === currentIndex ? 'aria-current="step"' : ""}>
+            <button id="projectPhaseTab-${escapeHtml(phaseKey)}" class="workspace-project-phase-tab ${status} ${selected ? "is-selected" : ""}" type="button" role="tab" data-project-action="phase-tab" data-project-phase-tab="${escapeHtml(phaseKey)}" aria-selected="${selected ? "true" : "false"}" aria-controls="projectPhasePanel" tabindex="${selected ? "0" : "-1"}" ${index === currentIndex ? 'aria-current="step"' : ""}>
               <span>${index < currentIndex ? "✓" : index + 1}</span>
               <small>${escapeHtml(studentPhaseShortLabel(phase.key, phase.label))}</small>
-            </li>
+            </button>
           `;
         }).join("")}
-      </ol>
+      </div>
     </section>
   `;
+}
+
+// Keep the student work screen on the same interactive phase path while its
+// surrounding layout is migrated to the dedicated project workspace.
+function renderProjectPhaseTrack(currentPhaseKey = "start") {
+  const selectedPhaseKey = STUDENT_BOOKLET_PHASE_ORDER.includes(activeProjectPhaseTab)
+    ? activeProjectPhaseTab
+    : studentBookletPhaseKey(currentPhaseKey);
+  return `${renderProjectPhaseTabs(currentPhaseKey, selectedPhaseKey)}${renderProjectPhaseGuide(selectedPhaseKey, currentPhaseKey, "student")}`;
+}
+
+function renderProjectPhaseGuide(selectedPhaseKey = "start", currentPhaseKey = "start", roleId = "viewer") {
+  const phase = studentBookletPhaseInfo(selectedPhaseKey);
+  const current = studentBookletPhaseKey(selectedPhaseKey) === studentBookletPhaseKey(currentPhaseKey);
+  const rolePrompt = projectPhaseRolePrompt(roleId);
+  return `
+    <section id="projectPhasePanel" class="workspace-project-phase-guide" role="tabpanel" aria-labelledby="projectPhaseTab-${escapeHtml(phase.key)}" data-project-phase-panel="${escapeHtml(phase.key)}">
+      <div class="workspace-project-phase-guide-head">
+        <div><span class="workspace-kicker">${current ? "CURRENT PHASE" : "PHASE GUIDE"}</span><h2>${escapeHtml(phase.label)}</h2></div>
+        ${current ? '<span class="workspace-status-pill info">Project is here</span>' : '<span class="workspace-summary-badge">Reference only</span>'}
+      </div>
+      <p class="workspace-project-phase-purpose">${escapeHtml(phase.purpose || phase.guidance)}</p>
+      <div class="workspace-project-phase-guide-grid">
+        <article><span>EXPECTED RESULT</span><strong>${escapeHtml(phase.deliverable)}</strong><p>${escapeHtml(phase.guidance)}</p></article>
+        <article><span>DECISIONS TO MAKE</span><ul>${(phase.decisions || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></article>
+        <article><span>SHOW YOUR WORK</span><ul>${(phase.checklist || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></article>
+      </div>
+      <div class="workspace-project-phase-coaching">
+        <article><span>${escapeHtml(rolePrompt.label)}</span><p>${escapeHtml(rolePrompt.text)}</p></article>
+        <article class="workspace-project-phase-example"><span>SMALL EXAMPLE — NOT A TEMPLATE</span><p>${escapeHtml(phase.example || "Choose an example that fits your own project.")}</p></article>
+        <article><span>DONE WHEN</span><p>${escapeHtml(phase.done)}</p></article>
+      </div>
+    </section>
+  `;
+}
+
+function projectPhaseRolePrompt(roleId = "viewer") {
+  if (roleId === "student") return { label: "YOUR JOB", text: "Make the decisions in your own words, save the listed proof, and ask for help when one decision is blocking you." };
+  if (roleId === "mentor") return { label: "MENTOR CHECK-IN", text: "Ask the student to explain one decision and show one piece of evidence. Coach the thinking without choosing the project for them." };
+  if (roleId === "program_teacher") return { label: "TEACHER CHECK", text: "Check that the result meets this phase’s expectations, then give one specific next step or approve the handoff." };
+  return { label: "STAFF CHECK", text: "Use this guide to understand the phase. Route instructional decisions to the Program Teacher and resolve only the access or setup issues within your role." };
 }
 
 function projectCommandNextAction(project = {}) {

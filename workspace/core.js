@@ -69,6 +69,7 @@ let adminAuditFilters = defaultAdminAuditFilters();
 let managedProjectId = "";
 let activeProjectId = "";
 let activeProjectTab = "";
+let activeProjectPhaseTab = "";
 let projectDirectoryView = "table";
 let projectDirectoryFilters = defaultProjectDirectoryFilters();
 let workspaceConnectionState = defaultWorkspaceConnectionState();
@@ -278,6 +279,9 @@ const STUDENT_BOOKLET_PHASES = {
       "Program Teacher knows where your work lives",
     ],
     guidance: "Fix setup before starting proposal work.",
+    purpose: "Make sure the team, adults, and shared workspace are ready before project work begins.",
+    decisions: ["Who is responsible for each first task?", "Where will the team keep files and updates?"],
+    example: "Example: Jordan starts the folder while Sam confirms the teacher can open it.",
     done: "You can open Phase 1 work.",
   },
   "phase-1": {
@@ -289,6 +293,9 @@ const STUDENT_BOOKLET_PHASES = {
       "How you will prove it worked",
     ],
     guidance: "Do not build yet. Get this approved first.",
+    purpose: "Turn a broad idea into a project that is useful, possible, and clear enough to approve.",
+    decisions: ["What specific problem or need will you address?", "What result will show that your work helped?"],
+    example: "Example: Instead of helping with recycling in general, test one clearer bin label in the cafeteria.",
     done: "Program Teacher approves the proposal.",
   },
   "phase-2a": {
@@ -300,6 +307,9 @@ const STUDENT_BOOKLET_PHASES = {
       "Google Drive link saved on the matching item",
     ],
     guidance: "Save files or links while you work, not at the end.",
+    purpose: "Create and test the first real version of the project, then use what you learn to improve it.",
+    decisions: ["What is the smallest useful version you can make first?", "What feedback or information should change the next version?"],
+    example: "Example: Test one page of a guide with two students before building the whole guide.",
     done: "Phase 2A work is approved or ready for the next build step.",
   },
   "phase-2b": {
@@ -311,6 +321,9 @@ const STUDENT_BOOKLET_PHASES = {
       "Presentation outline and time choice",
     ],
     guidance: "Use mentor feedback before presentation prep.",
+    purpose: "Improve the work using evidence and feedback, then prepare a clear story about the result.",
+    decisions: ["Which change will improve the project most?", "What proof belongs in the presentation?"],
+    example: "Example: Shorten confusing instructions after testers miss the same step.",
     done: "Outline and phase work are approved for presentation.",
   },
   "phase-3a": {
@@ -322,6 +335,9 @@ const STUDENT_BOOKLET_PHASES = {
       "Complete check-out or check-in if your school uses it",
     ],
     guidance: "Presentation does not replace a missing checklist Google Drive link.",
+    purpose: "Explain the need, the work, the evidence, and what you learned in a way others can follow.",
+    decisions: ["What does the audience need to understand first?", "Which example or result best proves the project’s value?"],
+    example: "Example: Show one before-and-after result, then explain what caused the change.",
     done: "Presentation status is complete or checked in.",
   },
   "phase-3b": {
@@ -333,6 +349,9 @@ const STUDENT_BOOKLET_PHASES = {
       "Ingredients if food is shared",
     ],
     guidance: "Follow school rules for what you show or share.",
+    purpose: "Share the project responsibly and help others understand or use what the team created.",
+    decisions: ["What should visitors see, try, or remember?", "What permissions or safety checks are needed before sharing?"],
+    example: "Example: Display a model with a short card explaining the problem and result.",
     done: "Celebration item is marked complete.",
   },
   "phase-4": {
@@ -344,6 +363,9 @@ const STUDENT_BOOKLET_PHASES = {
       "Best work saved",
     ],
     guidance: "Write what changed because of the project.",
+    purpose: "Recognize the people who helped, evaluate the work honestly, and carry the strongest learning forward.",
+    decisions: ["What changed in your skills, thinking, or community?", "Which work best shows your growth?"],
+    example: "Example: Explain one decision you would repeat and one you would change next time.",
     done: "Reflection and saved-work items are approved.",
   },
   finish: {
@@ -355,6 +377,9 @@ const STUDENT_BOOKLET_PHASES = {
       "Ask staff if downloads are blocked",
     ],
     guidance: "Do this before May 5.",
+    purpose: "Keep a usable copy of the project after school accounts, links, or shared access change.",
+    decisions: ["Which files will matter after graduation?", "Where will you store a copy you personally control?"],
+    example: "Example: Save the final report, best photos, and presentation PDF in a personal folder.",
     done: "Download is saved outside your school account.",
   },
 };
@@ -5203,6 +5228,7 @@ async function openWorkspaceSection(button) {
   const section = requestedSection === "adminUsers"
     ? adminSectionForPeopleView(requestedAdminPeopleView || "manage-students", "adminUsers")
     : requestedSection;
+  button?.closest?.("details")?.removeAttribute?.("open");
   resetWorkspaceScrollPosition();
   await ensureWorkspaceModulesForSection(section, currentUser);
   const sectionMode = modeForAvailableSection(section);
@@ -5683,6 +5709,8 @@ async function openWorkspaceSection(button) {
   activeSection = section;
   syncCurrentWorkspaceUrlState();
   renderAppShell();
+  resetWorkspaceScrollPosition();
+  document.querySelector?.(".workspace-v2-stage h1, .workspace-v2-stage h2")?.scrollIntoView?.({ block: "start" });
 }
 
 function screenOrientationFor(sectionId = "overview", primaryRole = primaryRoleForUser(currentUser), roles = roleIds(currentUser)) {

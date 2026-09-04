@@ -34,6 +34,19 @@ interface CreatePresentationSlotBody {
   notes?: unknown;
 }
 
+interface PracticeFeedbackRow {
+  id: string;
+  presentation_slot_id: string;
+  author_user_id: string;
+  author_name: string;
+  clarity_score: number;
+  evidence_score: number;
+  organization_score: number;
+  readiness_score: number;
+  notes: string;
+  updated_at: string;
+}
+
 const ALLOWED_OUTLINE_STATUSES = new Set(["pending", "approved", "revision_needed"]);
 const CONFLICT_STATUSES = new Set(["scheduled", "checked_out", "checked_in", "completed"]);
 
@@ -95,6 +108,11 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const slots = (rows.results || [])
     .filter((row) => access.isGlobalAdmin || accessibleStudentIds.has(row.student_id))
     .map(formatSlot);
+  const feedbackBySlot = await loadPracticeFeedback(env, slots.map((slot) => slot.id));
+  const slotsWithFeedback = slots.map((slot) => ({
+    ...slot,
+    practiceFeedback: feedbackBySlot.get(slot.id) || [],
+  }));
 
   await writeAudit(env, {
     actorUserId: user.id,
@@ -103,14 +121,14 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     entityId: null,
     request,
     metadata: {
-      resultCount: slots.length,
+      resultCount: slotsWithFeedback.length,
       actorRoleScopes: safeRoleScopes(roleAssignments),
     },
   });
 
   return json({
     ok: true,
-    slots,
+    slots: slotsWithFeedback,
   });
 };
 
@@ -130,7 +148,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   const admin = await isAdmin(env, user.id);
   const teacher = await hasRole(env, user.id, "program_teacher");
-  if (!admin && !teacher) {
+  const studentSelfSchedule = await hasRole(env, user.id, "student");
+  if (!admin && !teacher && !studentSelfSchedule) {
     await writeAudit(env, {
       actorUserId: user.id,
       action: "presentation_slot_denied",
@@ -144,6 +163,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   const studentId = cleanWorkflowText(body.studentId, "", 160);
   if (!studentId) return badRequest("missing_student_id");
+  if (studentSelfSchedule && !admin && !teacher && studentId !== user.id) {
+    return workflowError("forbidden", 403);
+  }
 
   const student = await env.DB.prepare(
     "SELECT id FROM user_accounts WHERE id = ? AND status = 'active'",
@@ -374,4 +396,47 @@ function formatConflict(row: PresentationSlotRow) {
     location: row.location,
     status: row.status,
   };
+}
+
+async function loadPracticeFeedback(env: Env, slotIds: string[]): Promise<Map<string, unknown[]>> {
+  const grouped = new Map<string, unknown[]>();
+  if (!slotIds.length) return grouped;
+  try {
+    const placeholders = slotIds.map(() => "?").join(", ");
+    const result = await env.DB.prepare(
+      `SELECT
+         feedback.id,
+         feedback.presentation_slot_id,
+         feedback.author_user_id,
+         author.display_name AS author_name,
+         feedback.clarity_score,
+         feedback.evidence_score,
+         feedback.organization_score,
+         feedback.readiness_score,
+         feedback.notes,
+         feedback.updated_at
+       FROM presentation_practice_feedback feedback
+       JOIN user_accounts author ON author.id = feedback.author_user_id
+       WHERE feedback.presentation_slot_id IN (${placeholders})
+       ORDER BY feedback.updated_at DESC`,
+    ).bind(...slotIds).all<PracticeFeedbackRow>();
+    for (const row of result.results || []) {
+      const list = grouped.get(row.presentation_slot_id) || [];
+      list.push({
+        id: row.id,
+        authorUserId: row.author_user_id,
+        authorName: row.author_name,
+        clarityScore: Number(row.clarity_score),
+        evidenceScore: Number(row.evidence_score),
+        organizationScore: Number(row.organization_score),
+        readinessScore: Number(row.readiness_score),
+        notes: row.notes,
+        updatedAt: row.updated_at,
+      });
+      grouped.set(row.presentation_slot_id, list);
+    }
+  } catch {
+    // Preserve scheduling during a rolling deploy before the table migration lands.
+  }
+  return grouped;
 }
