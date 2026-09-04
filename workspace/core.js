@@ -584,6 +584,9 @@ const SITE_STUDENT_DETAIL_URL_SECTIONS = new Set([
 const SITE_STUDENT_DETAIL_URL_PARAMS = ["detailStudentId", "detailTab", "detailTimelineType"];
 const VIEW_AS_STUDENT_URL_PARAMS = ["viewAsStudentId", "viewAsReturnSection", "viewAsReturnMode"];
 const WORKSPACE_HISTORY_ROUTE_KEY = "seniorProjectWorkspaceRoute";
+const WORKSPACE_HISTORY_DEPTH_KEY = "seniorProjectWorkspaceDepth";
+const WORKSPACE_HISTORY_BACK_SECTION_KEY = "seniorProjectWorkspaceBackSection";
+const WORKSPACE_HISTORY_BACK_MODE_KEY = "seniorProjectWorkspaceBackMode";
 const WORKSPACE_URL_FILTER_PARAMS = Array.from(new Set([
   ...REVIEW_QUEUE_URL_FILTER_PARAMS,
   ...SITE_STUDENT_URL_FILTER_PARAMS,
@@ -1496,6 +1499,14 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
       </details>
     `
     : "";
+  const contextualBackMarkup = renderWorkspaceContextualBack({
+    activeSection,
+    activeWorkspaceMode,
+    sections,
+    studentExperience,
+    isAdminConsole,
+    blocked: renderBlockedSectionOnly,
+  });
   const programTeacherPrimarySection = !renderBlockedSectionOnly
     && !isAdminConsole
     && roles.has("program_teacher")
@@ -1661,6 +1672,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
         ${statusMarkup}
         ${modeUnavailableNotice}
         ${sectionUnavailableNotice}
+        ${contextualBackMarkup}
         ${renderV2ActiveScreen({
           isAdminConsole,
           studentExperience,
@@ -1696,6 +1708,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   });
   document.querySelector("#workspaceRefresh")?.addEventListener("click", () => loadWorkspaceData("Workspace refreshed."));
   document.querySelector("#workspaceLogout")?.addEventListener("click", signOut);
+  document.querySelector("[data-workspace-contextual-back]")?.addEventListener("click", handleWorkspaceContextualBack);
   bindWorkspaceThemeButtons();
   document.querySelectorAll("[data-workspace-disclosure-action]").forEach((button) => {
     button.addEventListener("click", handleWorkspaceDisclosureToggle);
@@ -1741,6 +1754,82 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   flushPendingStudentRequirementFocus();
   flushPendingStudentSectionFocus();
   flushPendingStudentEvidenceFocus();
+}
+
+function workspaceBackFallback({ mode = activeWorkspaceMode, studentExperience = false } = {}) {
+  if (cleanWorkspaceMode(mode) === "admin") return { mode: "admin", section: "overview", label: "Admin Overview" };
+  if (studentExperience || roleIds(currentUser).has("student")) return { mode: "workspace", section: "student", label: "Today" };
+  return { mode: "workspace", section: "overview", label: "Today" };
+}
+
+function workspaceBackSectionLabel(sectionId, mode = activeWorkspaceMode) {
+  const definitions = availableSections({ mode: cleanWorkspaceMode(mode) || activeWorkspaceMode });
+  return definitions.find((section) => section.id === sectionId)?.label
+    || (sectionId === "overview" && mode === "admin" ? "Admin Overview" : "Today");
+}
+
+function workspaceContextualBackModel(options = {}) {
+  if (options.blocked || isViewAsStudentActive()) return null;
+  const definition = (options.sections || []).find((section) => section.id === options.activeSection);
+  if (!definition?.hidden) return null;
+
+  // Dedicated detail views already carry a closer, more precise return control.
+  if (siteStudentDetailState?.studentId || reviewQueueState?.selectedSubmissionId) return null;
+
+  const historyState = typeof window !== "undefined" && window.history?.state && typeof window.history.state === "object"
+    ? window.history.state
+    : {};
+  const historyDepth = Math.max(0, safeNumber(historyState[WORKSPACE_HISTORY_DEPTH_KEY]));
+  const historyMode = cleanWorkspaceMode(historyState[WORKSPACE_HISTORY_BACK_MODE_KEY]);
+  const historySection = cleanWorkspaceSection(historyState[WORKSPACE_HISTORY_BACK_SECTION_KEY]);
+  const historyAllowed = Boolean(
+    historyDepth > 0
+    && historyMode
+    && historySection
+    && availableSectionIds(historyMode).has(historySection)
+    && !(historyMode === options.activeWorkspaceMode && historySection === options.activeSection)
+  );
+  const fallback = workspaceBackFallback(options);
+  const target = historyAllowed
+    ? { mode: historyMode, section: historySection, label: workspaceBackSectionLabel(historySection, historyMode) }
+    : fallback;
+  return { ...target, useHistory: historyAllowed };
+}
+
+function renderWorkspaceContextualBack(options = {}) {
+  const model = workspaceContextualBackModel(options);
+  if (!model) return "";
+  return `
+    <nav class="workspace-contextual-back" aria-label="Back navigation" data-workspace-contextual-back-bar="true">
+      <button class="workspace-button workspace-button-secondary" type="button" data-workspace-contextual-back="true" data-back-mode="${escapeHtml(model.mode)}" data-back-section="${escapeHtml(model.section)}" data-back-history="${model.useHistory ? "true" : "false"}" aria-label="${escapeHtml(`Back to ${model.label}`)}">
+        <span aria-hidden="true">←</span>
+        <strong>Back to ${escapeHtml(model.label)}</strong>
+      </button>
+    </nav>
+  `;
+}
+
+function handleWorkspaceContextualBack(event) {
+  const button = event?.currentTarget;
+  if (button?.dataset?.backHistory === "true" && typeof window?.history?.back === "function") {
+    window.history.back();
+    return;
+  }
+  const requestedMode = cleanWorkspaceMode(button?.dataset?.backMode || "") || "workspace";
+  const requestedSection = cleanWorkspaceSection(button?.dataset?.backSection || "") || defaultSectionForMode(requestedMode);
+  const allowedSection = availableSectionIds(requestedMode).has(requestedSection)
+    ? requestedSection
+    : defaultSectionForMode(requestedMode);
+  activeWorkspaceMode = requestedMode;
+  activeSection = allowedSection;
+  blockedWorkspaceMode = "";
+  blockedWorkspaceSection = "";
+  siteStudentDetailState = defaultSiteStudentDetailState();
+  reviewQueueState = defaultReviewQueueState();
+  activeProjectId = "";
+  managedProjectId = "";
+  syncCurrentWorkspaceUrlState({ replace: true, clearFilters: true });
+  renderAppShell();
 }
 
 function renderProjectAdultNotices() {

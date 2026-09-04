@@ -3416,10 +3416,17 @@ function writeWorkspaceHistoryState(url, options = {}, state = {}) {
   const currentRouteSearch = String(currentState[WORKSPACE_HISTORY_ROUTE_KEY] || "");
   if (visiblePath === canonicalPath && currentRouteSearch === routeSearch) return;
   const method = options.replace ? "replaceState" : "pushState";
+  const currentDepth = Math.max(0, safeNumber(currentState[WORKSPACE_HISTORY_DEPTH_KEY]));
+  const sourceMode = cleanWorkspaceMode(currentState.mode || activeWorkspaceMode) || activeWorkspaceMode;
+  const sourceSection = cleanWorkspaceSection(currentState.section || activeSection) || defaultSectionForMode(sourceMode);
+  const nextDepth = method === "pushState" ? currentDepth + 1 : currentDepth;
   window.history[method]?.({
     ...currentState,
     ...state,
     [WORKSPACE_HISTORY_ROUTE_KEY]: routeSearch,
+    [WORKSPACE_HISTORY_DEPTH_KEY]: nextDepth,
+    [WORKSPACE_HISTORY_BACK_MODE_KEY]: method === "pushState" ? sourceMode : currentState[WORKSPACE_HISTORY_BACK_MODE_KEY],
+    [WORKSPACE_HISTORY_BACK_SECTION_KEY]: method === "pushState" ? sourceSection : currentState[WORKSPACE_HISTORY_BACK_SECTION_KEY],
   }, "", canonicalPath);
 }
 
