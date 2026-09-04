@@ -474,6 +474,22 @@ test("student dashboard preserves view-as staff scopes for global, site, adminis
   ]);
 });
 
+test("staff student-dashboard requests require an explicit authorized student", async () => {
+  const siteAdmin = await createFixtureWithSession({
+    userId: "site-admin-no-target",
+    roleId: "site_admin",
+    scopeType: "site",
+    scopeId: "site-desert-valley-high",
+  });
+  const response = await onRequestGet({
+    request: buildRequest("https://example.test/api/student/dashboard", siteAdmin.token),
+    env: siteAdmin.env,
+  });
+  assert.equal(response.status, 403);
+  assert.deepEqual(await response.json(), { error: "forbidden" });
+  assert.equal(siteAdmin.db.data.auditEvents.at(-1).metadata.reason, "student_id_required_for_staff_view");
+});
+
 function createFixture() {
   const db = new MockD1Database({
     userAccounts: [],

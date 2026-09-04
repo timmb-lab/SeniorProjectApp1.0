@@ -269,6 +269,13 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     return json({ error: "unauthorized" }, { status: 401 });
   }
 
+  if (!requestedStudentId && !await hasRole(env, user.id, "student")) {
+    await auditDashboardAccess(env, request, user, "student_dashboard_denied", null, {
+      reason: "student_id_required_for_staff_view",
+    });
+    return json({ error: "forbidden" }, { status: 403 });
+  }
+
   const studentId = requestedStudentId || user.id;
   if (!await canAccessStudent(env, user, studentId)) {
     await auditDashboardAccess(env, request, user, "student_dashboard_denied", studentId, {
