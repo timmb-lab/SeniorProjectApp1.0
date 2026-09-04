@@ -56,6 +56,17 @@ test("workspace UI polish proof script and package alias exist", () => {
   assert.doesNotMatch(script, /password_hash\s*=|UPDATE\s+password_credentials|INSERT\s+INTO\s+password_credentials/i);
 });
 
+test("clean sidebar browser proof covers every current role at desktop and phone sizes", () => {
+  const script = read(scriptPath);
+  for (const role of ["student", "mentor", "viewer", "program-teacher", "school-administrator", "site-admin", "global-admin"]) {
+    assert.match(script, new RegExp(`sidebar-clean-\\$\\{idSuffix\\}-desktop`));
+    assert.match(script, new RegExp(`sidebar-clean-\\$\\{idSuffix\\}-phone`));
+    assert.match(script, new RegExp(`\\["${role}"`));
+  }
+  assert.match(script, /\["school-administrator", "administration", "School Administrator"/);
+  assert.match(script, /action: "openDrawer"/);
+});
+
 test("workspace UI polish manifest records durable local fake-account screenshot coverage", () => {
   assert.equal(existsSync(path.join(repoRoot, manifestPath)), true);
   const manifest = readJson(manifestPath);

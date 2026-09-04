@@ -1391,6 +1391,45 @@ const PROJECT_TABS_MOBILE_PLAN = [
 if (String(process.env.WORKSPACE_UI_POLISH_IDS || "").includes("project-tabs-mobile-")) {
   SCREENSHOT_PLAN.push(...PROJECT_TABS_MOBILE_PLAN);
 }
+const SIDEBAR_CLEAN_ROLE_PLAN = [
+  ["student", "student", "Student", "?mode=workspace&section=student"],
+  ["mentor", "mentor", "Mentor", "?mode=workspace&section=overview&siteId=site-desert-valley-high"],
+  ["viewer", "viewer", "Viewer", "?mode=workspace&section=overview&siteId=site-desert-valley-high"],
+  ["program-teacher", "program_teacher", "Program Teacher", "?mode=workspace&section=projects&siteId=site-desert-valley-high"],
+  ["school-administrator", "administration", "School Administrator", "?mode=workspace&section=siteDashboard&siteId=site-desert-valley-high"],
+  ["site-admin", "site_admin", "Site Admin", "?mode=workspace&section=projects&siteId=site-desert-valley-high"],
+  ["global-admin", "admin", "Global Admin", "?mode=admin&section=overview&siteId=site-desert-valley-high"],
+].flatMap(([idSuffix, authRole, persona, url]) => ([
+  {
+    id: `sidebar-clean-${idSuffix}-desktop`,
+    label: `${persona} clean sidebar`,
+    persona: `${persona} checking the desktop navigation`,
+    authRole,
+    accountType: authRole === "student" ? "Fake .test demo student account" : "Fake .test demo staff account",
+    url: workspaceUrl(url),
+    viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    theme: "light",
+    capture: true,
+    proves: `${persona} sees a clean, grouped, icon-led desktop sidebar with only role-authorized destinations and a clear active page.`,
+  },
+  {
+    id: `sidebar-clean-${idSuffix}-phone`,
+    label: `${persona} clean sidebar on phone`,
+    persona: `${persona} checking the mobile navigation`,
+    authRole,
+    accountType: authRole === "student" ? "Fake .test demo student account" : "Fake .test demo staff account",
+    url: workspaceUrl(url),
+    viewport: { width: 390, height: 844, deviceScaleFactor: 2, mobile: true },
+    theme: "light",
+    action: "openDrawer",
+    auditKeyboard: false,
+    capture: true,
+    proves: `${persona} can open the same role-safe navigation as a bounded, touch-sized phone drawer.`,
+  },
+]));
+if (String(process.env.WORKSPACE_UI_POLISH_IDS || "").includes("sidebar-clean-")) {
+  SCREENSHOT_PLAN.push(...SIDEBAR_CLEAN_ROLE_PLAN);
+}
 const EXHAUSTIVE_ROLE_SURFACES = {
   student: {
     workspace: ["profile", "student", "studentWork", "studentFeedback", "studentFinalChecklist", "presentation", "archive", "security"],
