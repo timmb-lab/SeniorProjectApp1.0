@@ -1,3 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+workspace/**/*.css text eol=lf
+workspace/**/*.js text eol=lf
 docs/generated/production-route-inventory.md text eol=lf
