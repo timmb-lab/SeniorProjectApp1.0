@@ -18,7 +18,8 @@ This checklist is part of the current active completion run. It reconciles the u
 - Add Back controls on screens where users can enter a focused detail or workflow and reasonably need to return.
 - Create and maintain safe synthetic accounts for every role needed for testing, including a student account.
 - Walk every reachable screen as Student, Program Teacher, Mentor, School Administrator, Site Admin, Global Admin, and Viewer. Check visible data, buttons, forms, notes, empty/error states, navigation, and authorization boundaries.
-- Import the supplied student roster only through the approved safe-user setup workflow: ignore `#` in student IDs, use student ID as username, apply the provided initial passwords, require password change on first sign-in, assign students to the IT program and the `timmb` Program Teacher, and do not assign mentors yet.
+- Validate the supplied 25-student roster through the approved safe-user setup workflow: ignore `#` in student IDs, use student ID as username, require a unique temporary password change on first sign-in, assign students to the East Career & Technical Academy IT program and the `timmb` Program Teacher, and do not assign mentors yet. Production import remains behind the existing school/district privacy approval gate.
+- Provide authorized Student Management controls for changing a student's program, active status, mentor, and optional support partner/viewer, with school scope checks, session revocation, and audit history.
 
 ## Project workspace and guidance
 
@@ -38,10 +39,10 @@ This checklist is part of the current active completion run. It reconciles the u
 - Make the Mentor Assignments screen readable and functional, including search/filtering, unassigned students, assignment details, and authorized assignment actions.
 - Simplify Presentation into the actual workflow: a project member schedules a demonstration date with the Mentor and/or Program Teacher; authorized participants use a clear rubric and add feedback/notes visible only to project members and authorized staff.
 
-## Teacher-managed program storage
+## Teacher-managed program storage — excluded from this completion gate
 
-- Complete the teacher-managed Google Drive program-folder connection, replacement, status, privacy contract, uploads, PDF/DOCX inline previews, safe fallbacks, audit history, least privilege, tenant isolation, recovery states, tests, and documentation in the active goal.
-- Verify the live workflow with synthetic files and every affected role. Do not expose Drive IDs or credentials.
+- Do not hold non-Drive completion on Google Drive credentials or connection proof.
+- Leave the exact owner actions needed to finish Drive setup; never expose Drive IDs or credentials.
 
 ## Release and recurring assurance
 

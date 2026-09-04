@@ -3,8 +3,8 @@
   "verdict": "GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF",
   "baseUrl": "https://thecapstoneproject.com",
   "workspaceEntryPath": "/workspace",
-  "startedAt": "2026-09-04T22:24:26.662Z",
-  "completedAt": "2026-09-04T22:26:40.286Z",
+  "startedAt": "2026-09-04T23:19:55.675Z",
+  "completedAt": "2026-09-04T23:22:02.021Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
@@ -75,7 +75,7 @@
         "secretPatternMatches": []
       },
       "heading": "Set up your project folder",
-      "textSample": "Skip to workspace My project TODAY / STUDENT RA Role Audit Student Account SC My Capstone My Capstone MY PROJECT MY PROJECT WORKSPACE Today My Project Feedback Final Checklist RA Role Audit Student Student YOUR NEXT STEP Missing Set up your project folder Open this item. Finish the work. Add a Google Drive link if needed. Open the matching item in My Project. Start this step 1 Open My Work Use the item named at the top before opening anything else. 2 Add what it asks for Add the Google Drive link that matches the item. 3 Turn it in Stop when the item says it is waiting for teacher review. No p",
+      "textSample": "Skip to workspace Smart Locker Tracker TODAY / STUDENT RA Role Audit Student Account SC My Capstone My Capstone MY PROJECT SMART LOCKER TRACKER WORKSPACE Today My Project Feedback Final Checklist RA Role Audit Student Student YOUR NEXT STEP Missing Set up your project folder Open this item. Finish the work. Add a Google Drive link if needed. Open the matching item in My Project. Continue this step 1 Open My Work Use the item named at the top before opening anything else. 2 Add what it asks for Add the Google Drive link that matches the item. 3 Turn it in Stop when the item says it is waiting f",
       "activeNav": [
         "Today",
         "1\n        Today"
@@ -144,7 +144,7 @@
         "secretPatternMatches": []
       },
       "heading": "Your next check-in",
-      "textSample": "Skip to workspace Smart Locker Tracker READY / MENTOR Mentor ROLE RA Role Audit Mentor Account SC Capstone Staff Workspace CURRENT PROJECT SMART LOCKER TRACKER WORKSPACE Today Projects STUDENT SUPPORT Work to review Assigned students INSIGHTS Reports RA Role Audit Mentor Mentor ← Back to Today MENTOR Your next check-in Help one student move one project step forward. mentor assigned 1 assigned START HERE · MODEL EXCELLENT DEMO 01 Smart Locker Tracker A check-in is missing, missed, or needs make-up status. Needs me first 1 assigned 1 ASK When is your next mentor check-in, and what decision do yo",
+      "textSample": "Skip to workspace Smart Locker Tracker READY / MENTOR Mentor ROLE RA Role Audit Mentor Account SC Capstone Staff Workspace CURRENT PROJECT SMART LOCKER TRACKER WORKSPACE Today Projects STUDENT SUPPORT Work to review Assigned students INSIGHTS Reports RA Role Audit Mentor Mentor ← Back to Today MENTOR Your next check-in Help one student move one project step forward. mentor assigned 2 assigned START HERE · MODEL EXCELLENT DEMO 01 Smart Locker Tracker A check-in is missing, missed, or needs make-up status. Needs me first 2 assigned 1 ASK When is your next mentor check-in, and what decision do yo",
       "activeNav": []
     },
     {
@@ -311,7 +311,7 @@
         "secretPatternMatches": []
       },
       "heading": "Set up your project folder",
-      "textSample": "Skip to workspace Menu SC My Capstone RA YOUR NEXT STEP Missing Set up your project folder Open this item. Finish the work. Add a Google Drive link if needed. Open the matching item in My Project. Start this step 1 Open My Work Use the item named at the top before opening anything else. 2 Add what it asks for Add the Google Drive link that matches the item. 3 Turn it in Stop when the item says it is waiting for teacher review. No project is assigned yet Ask your teacher to add you to an individual or team project. Show progress, feedback, and checklist 16 items still need work.",
+      "textSample": "Skip to workspace Menu SC My Capstone RA YOUR NEXT STEP Missing Set up your project folder Open this item. Finish the work. Add a Google Drive link if needed. Open the matching item in My Project. Continue this step 1 Open My Work Use the item named at the top before opening anything else. 2 Add what it asks for Add the Google Drive link that matches the item. 3 Turn it in Stop when the item says it is waiting for teacher review. YOUR TEAM Smart Locker Tracker Model Excellent Demo 01, Role Audit Student, Test Student Maya 3 students Mentor: Ari Field Teacher: Gray Quinn Open project folder Sho",
       "activeNav": [
         "Today",
         "1\n        Today"
@@ -344,7 +344,7 @@
         "secretPatternMatches": []
       },
       "heading": "Desert Canyon Test School / 2026-2027",
-      "textSample": "Skip to workspace Menu SC Capstone All projects SITE DASHBOARD / SITE ADMIN Tools Site Admin ROLE RA Role Audit Site Admin Account SCHOOL DASHBOARD Desert Canyon Test School / 2026-2027 Desert Canyon Test District / site Site Admin School access Approved Default site No student messaging First-day setup checklist Do these in order before trusting the school workspace for live students. 1. Confirm active students 254 active student records visible. Open students 2. Check mentor coverage 229 students need a mentor assignment. Assign mentors 3. Review work 2 submitted items waiting for Program Te",
+      "textSample": "Skip to workspace Menu SC Capstone All projects SITE DASHBOARD / SITE ADMIN Tools Site Admin ROLE RA Role Audit Site Admin Account SCHOOL DASHBOARD Desert Canyon Test School / 2026-2027 Desert Canyon Test District / site Site Admin School access Approved Default site No student messaging First-day setup checklist Do these in order before trusting the school workspace for live students. 1. Confirm active students 254 active student records visible. Open students 2. Check mentor coverage 228 students need a mentor assignment. Assign mentors 3. Review work 2 submitted items waiting for Program Te",
       "activeNav": [
         "Workspace",
         "Workspace\n        \n          \n              \n                \n                Today\n              \n            \n              \n                \n                Projects\n              \n            \n              \n                \n                Site Dashboard",
