@@ -14281,6 +14281,7 @@ test("project directory and dedicated project workspace render as separate scree
   assert.doesNotMatch(viewerWorkspace, /data-project-note-form|Open settings|Change a person/);
 
   assert.match(workspaceCss, /\.workspace-project-command-rail-sticky\s*\{[\s\S]*?position:\s*sticky;[\s\S]*?top:\s*5rem;[\s\S]*?max-height:\s*calc\(100dvh - 6rem\);[\s\S]*?overflow-y:\s*auto;/);
+  assert.match(workspaceCss, /@media \(min-width: 821px\)[\s\S]*?\.workspace-project-dedicated \.workspace-project-command-main\s*\{[\s\S]*?overflow-y:\s*auto;[\s\S]*?\.workspace-project-dedicated \.workspace-project-command-rail-sticky\s*\{[\s\S]*?position:\s*static;/);
   assert.match(workspaceCss, /\.workspace-project-command-layout\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0, 1fr\) minmax\(17rem, 20rem\);[\s\S]*?gap:\s*clamp\(1\.25rem, 2vw, 2rem\);/);
   assert.match(workspaceCss, /\.workspace-project-command-rail\s*\{[\s\S]*?align-self:\s*stretch;/);
   assert.match(workspaceCss, /@media \(max-width: 820px\)[\s\S]*?\.workspace-project-command-rail-sticky\s*\{[\s\S]*?position:\s*static;[\s\S]*?max-height:\s*none;[\s\S]*?overflow:\s*visible;/);
@@ -14288,7 +14289,7 @@ test("project directory and dedicated project workspace render as separate scree
   const polishProofScript = await readFile("scripts/prove-workspace-ui-polish.mjs", "utf8");
   assert.match(polishProofScript, /id:\s*`project-sticky-\$\{idSuffix\}-desktop`[\s\S]*?"proveProjectOpenAndBack"[\s\S]*?"proveProjectStickyRail"[\s\S]*?"proveProjectTabs"/);
   assert.match(polishProofScript, /const PROJECT_STICKY_ROLE_PLAN = \[[\s\S]*?"program_teacher"[\s\S]*?"mentor"[\s\S]*?"viewer"[\s\S]*?"administration"[\s\S]*?"site_admin"[\s\S]*?"admin"[\s\S]*?proveProjectStickyRail/);
-  assert.match(polishProofScript, /action === "proveProjectStickyRail"[\s\S]*?style\.position === "sticky"[\s\S]*?Math\.abs\(railDelta\) <= 2[\s\S]*?Math\.abs\(topbarDelta\) <= 2[\s\S]*?Math\.abs\(drawerDelta\) <= 2[\s\S]*?mainDelta <= -100/);
+  assert.match(polishProofScript, /action === "proveProjectStickyRail"[\s\S]*?main\.scrollTo[\s\S]*?style\.position === "static"[\s\S]*?Math\.abs\(railDelta\) <= 2[\s\S]*?Math\.abs\(topbarDelta\) <= 2[\s\S]*?Math\.abs\(drawerDelta\) <= 2[\s\S]*?Math\.abs\(mainDelta\) <= 2/);
 
   const schoolAdminContext = await createWorkspaceContextWithFetch(profileRoutesForRole("administration"));
   const schoolAdminProject = vm.runInContext(`renderProjectCard({

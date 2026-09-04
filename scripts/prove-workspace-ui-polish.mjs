@@ -1334,7 +1334,7 @@ const PROJECT_STICKY_ROLE_PLAN = [
   ["program-teacher", "program_teacher", "Program Teacher"],
   ["mentor", "mentor", "Mentor"],
   ["viewer", "viewer", "Viewer"],
-  ["administration", "misc_admin", "School Admin"],
+  ["administration", "administration", "School Admin"],
   ["site-admin", "site_admin", "Site Admin"],
   ["global-admin", "admin", "Global Admin"],
 ].map(([idSuffix, authRole, persona]) => ({
@@ -1343,24 +1343,24 @@ const PROJECT_STICKY_ROLE_PLAN = [
   persona: `${persona} reviewing a long project at desktop width`,
   authRole,
   accountType: "Fake .test demo staff account",
-  url: workspaceUrl(authRole === "student"
+  url: workspaceUrl(idSuffix === "student"
     ? "?mode=workspace&section=studentWork"
     : "?mode=workspace&section=projects&siteId=site-desert-valley-high"),
   viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
   theme: "light",
   expected: [
-    authRole === "student" ? "MY PROJECT" : "PROJECT COMMAND CENTER",
-    authRole === "student" ? "Back to Today" : "Back to project list",
-    "START HERE",
-    "YOUR NEXT MOVE",
+    idSuffix === "student" ? "MY PROJECT" : "PROJECT COMMAND CENTER",
+    idSuffix === "student" ? "Back to Today" : "Back to project list",
+    idSuffix === "student" ? "LOOK HERE FIRST" : "START HERE",
+    idSuffix === "student" ? "Set up your project folder" : "YOUR NEXT MOVE",
     "PROJECT PATH",
-    authRole === "student" ? "My next step" : "PROJECT TEAM",
+    idSuffix === "student" ? "My next step" : "PROJECT TEAM",
     "WHAT THIS IS FOR",
     "WHAT TO DO",
     "DONE WHEN",
   ],
   absent: ["Choose one project. The list will close", "Project or student name", "School projects"],
-  actions: authRole === "student"
+  actions: idSuffix === "student"
     ? ["proveProjectTabs"]
     : ["proveProjectOpenAndBack", "proveProjectStickyRail", "proveProjectTabs"],
   auditKeyboard: false,
@@ -2304,31 +2304,36 @@ async function performSinglePlanAction(client, action) {
   }
   if (action === "proveProjectStickyRail") {
     const result = await client.evaluate(`(async () => {
-      const rail = document.querySelector(".workspace-project-command-rail-sticky");
-      const main = document.querySelector(".workspace-project-command-main");
-      const topbar = document.querySelector(".workspace-v2-topbar");
-      const drawer = document.querySelector(".workspace-v2-drawer");
+      let rail = document.querySelector(".workspace-project-command-rail-sticky");
+      let main = document.querySelector(".workspace-project-command-main");
+      let topbar = document.querySelector(".workspace-v2-topbar");
+      let drawer = document.querySelector(".workspace-v2-drawer");
       if (!rail || !main || !topbar || !drawer) return { ok: false, reason: "missing persistent project layout region" };
       window.scrollTo(0, 0);
       await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      if (main.scrollHeight <= main.clientHeight + 8) {
+        document.querySelector('[data-project-tab="notes"]')?.click();
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        rail = document.querySelector(".workspace-project-command-rail-sticky") || rail;
+        main = document.querySelector(".workspace-project-command-main") || main;
+        topbar = document.querySelector(".workspace-v2-topbar") || topbar;
+        drawer = document.querySelector(".workspace-v2-drawer") || drawer;
+      }
+      main.scrollTo({ top: 0, behavior: "instant" });
       const style = getComputedStyle(rail);
-      const stickyTop = Number.parseFloat(style.top) || 0;
-      const absoluteTop = rail.getBoundingClientRect().top + window.scrollY;
-      const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-      const firstScroll = Math.min(maxScroll, Math.max(0, absoluteTop - stickyTop + 40));
-      window.scrollTo(0, firstScroll);
+      const maxScroll = Math.max(0, main.scrollHeight - main.clientHeight);
       await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       const first = {
-        scrollY: window.scrollY,
+        scrollY: main.scrollTop,
         railTop: rail.getBoundingClientRect().top,
         mainTop: main.getBoundingClientRect().top,
         topbarTop: topbar.getBoundingClientRect().top,
         drawerTop: drawer.getBoundingClientRect().top,
       };
-      window.scrollTo(0, Math.min(maxScroll, first.scrollY + 300));
+      main.scrollTo({ top: Math.min(maxScroll, 300), behavior: "instant" });
       await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       const second = {
-        scrollY: window.scrollY,
+        scrollY: main.scrollTop,
         railTop: rail.getBoundingClientRect().top,
         mainTop: main.getBoundingClientRect().top,
         topbarTop: topbar.getBoundingClientRect().top,
@@ -2340,18 +2345,18 @@ async function performSinglePlanAction(client, action) {
       const topbarDelta = second.topbarTop - first.topbarTop;
       const drawerDelta = second.drawerTop - first.drawerTop;
       const proof = {
-        ok: style.position === "sticky"
+        ok: style.position === "static"
           && getComputedStyle(topbar).position === "sticky"
           && getComputedStyle(drawer).position === "fixed"
+          && maxScroll >= 100
           && scrollDelta >= 100
           && Math.abs(railDelta) <= 2
           && Math.abs(topbarDelta) <= 2
           && Math.abs(drawerDelta) <= 2
-          && mainDelta <= -100,
+          && Math.abs(mainDelta) <= 2,
         position: style.position,
         topbarPosition: getComputedStyle(topbar).position,
         drawerPosition: getComputedStyle(drawer).position,
-        stickyTop,
         maxScroll,
         scrollDelta,
         railDelta,
