@@ -42,6 +42,8 @@ interface EvidenceSummaryRow {
   size_bytes: number | null;
   review_status: string;
   created_at: string;
+  preview_status: string;
+  preview_kind: string;
 }
 
 interface StudentAccountRow {
@@ -65,6 +67,8 @@ interface EvidenceSummary {
   fileBytesReady: boolean;
   downloadUrl: string | null;
   externalUrl: string | null;
+  previewUrl: string | null;
+  previewStatus: string;
   storageIdentifiersRedacted: true;
 }
 
@@ -410,6 +414,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
        evidence_artifacts.size_bytes,
        evidence_artifacts.review_status,
        evidence_artifacts.created_at
+       ,evidence_artifacts.preview_status
+       ,evidence_artifacts.preview_kind
      FROM evidence_artifacts
      LEFT JOIN submissions ON submissions.id = evidence_artifacts.submission_id
      LEFT JOIN requirements ON requirements.id = submissions.requirement_id
@@ -423,7 +429,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
      LIMIT 20`,
     ).bind(projectId, studentId, projectId, studentId).all<EvidenceSummaryRow>()
     : await env.DB.prepare(
-      `SELECT id, submission_id, title, artifact_type, source_kind, external_url, mime_type, size_bytes, review_status, created_at
+      `SELECT id, submission_id, title, artifact_type, source_kind, external_url, mime_type, size_bytes, review_status, created_at, preview_status, preview_kind
        FROM evidence_artifacts
        WHERE student_id = ? AND deleted_at IS NULL
        ORDER BY created_at DESC
@@ -1228,6 +1234,10 @@ function summarizeEvidence(row: EvidenceSummaryRow, submissions: SubmissionSumma
     created_at: row.created_at,
     fileBytesReady: isDriveFile,
     downloadUrl: isDriveFile ? `/api/evidence/${encodeURIComponent(row.id)}/download` : null,
+    previewUrl: isDriveFile && row.preview_status === "ready"
+      ? `/api/evidence/${encodeURIComponent(row.id)}/preview`
+      : null,
+    previewStatus: row.preview_status || "not_requested",
     externalUrl: isExternalLink ? row.external_url : null,
     storageIdentifiersRedacted: true,
   };

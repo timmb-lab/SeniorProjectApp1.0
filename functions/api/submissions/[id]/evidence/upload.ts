@@ -5,6 +5,7 @@ import { badRequest, json, requirePost } from "../../../../_lib/http.ts";
 import {
   getGoogleDriveAccessToken,
   googleDriveCredentialParts,
+  uploadGoogleDriveConvertedDocument,
   uploadGoogleDriveFile,
   uploadGoogleDriveFileResumable,
 } from "../../../../_lib/google-drive.ts";
@@ -138,14 +139,15 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
     return workflowError("forbidden", 403);
   }
 
-  if (env.EVIDENCE_STORAGE_PROVIDER === "link_only") {
+  const programStorage = await resolveProgramStorage(env, submission.project_id);
+  if (env.EVIDENCE_STORAGE_PROVIDER === "link_only" && !programStorage) {
     await writeAudit(env, {
       actorUserId: user.id,
       action: "evidence_upload_retired",
       entityType: "submission",
       entityId: submission.id,
       request,
-      metadata: { nextStep: "save_google_drive_link" },
+      metadata: { nextStep: "ask_program_teacher_to_connect_drive_or_save_link" },
     });
     return workflowError("use_google_drive_link", 410);
   }
@@ -213,13 +215,13 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
     return badRequest("blocked_file_signature");
   }
 
-  const rootFolderId = String(env.GOOGLE_DRIVE_EVIDENCE_ROOT_ID || "").trim();
+  const rootFolderId = programStorage?.folder_id || String(env.GOOGLE_DRIVE_EVIDENCE_ROOT_ID || "").trim();
   if (!rootFolderId) {
     await writeAudit(env, {
       actorUserId: user.id,
       action: "google_drive_upload_missing_config",
       entityType: "evidence_repository",
-      entityId: "default-google-drive",
+      entityId: programStorage?.id || "default-google-drive",
       request,
       metadata: { rootConfigured: Boolean(rootFolderId) },
     });
@@ -300,6 +302,31 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
     return workflowError("drive_upload_failed", 502);
   }
 
+  const isPdf = mimeType === "application/pdf";
+  const isDocx = mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+  let previewKind: "none" | "inline_pdf" | "converted_pdf" = isPdf ? "inline_pdf" : isDocx ? "converted_pdf" : "none";
+  let previewStatus: "ready" | "unsupported" | "failed" = isPdf ? "ready" : isDocx ? "failed" : "unsupported";
+  let previewDriveFileId: string | null = null;
+  let previewErrorCode: string | null = null;
+
+  if (isDocx) {
+    try {
+      const previewResult = await uploadGoogleDriveConvertedDocument(accessToken, {
+        name: `${evidenceId}-preview-${safeStorageFileName(file.name).replace(/\.docx$/i, "")}`,
+        sourceMimeType: mimeType,
+        parentFolderId: rootFolderId,
+      }, bytes);
+      if (previewResult.ok && previewResult.fileId) {
+        previewDriveFileId = previewResult.fileId;
+        previewStatus = "ready";
+      } else {
+        previewErrorCode = `drive_conversion_${previewResult.status || "failed"}`;
+      }
+    } catch {
+      previewErrorCode = "drive_conversion_request_failed";
+    }
+  }
+
   await env.DB.prepare(
     `INSERT INTO evidence_artifacts (
        id,
@@ -314,9 +341,18 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
        mime_type,
        size_bytes,
        review_status,
-       created_by
+       created_by,
+       program_storage_config_id,
+       program_storage_revision,
+       original_file_name,
+       preview_kind,
+       preview_status,
+       preview_drive_file_id,
+       preview_generated_at,
+       preview_error_code,
+       project_id
      )
-     VALUES (?, 'default-google-drive', ?, ?, ?, 'google_drive_file', ?, ?, ?, ?, ?, 'pending_review', ?)`,
+     VALUES (?, 'default-google-drive', ?, ?, ?, 'google_drive_file', ?, ?, ?, ?, ?, 'pending_review', ?, ?, ?, ?, ?, ?, ?, CASE WHEN ? = 'ready' THEN strftime('%Y-%m-%dT%H:%M:%fZ', 'now') ELSE NULL END, ?, ?)`,
   ).bind(
     evidenceId,
     submission.student_id,
@@ -328,6 +364,15 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
     mimeType,
     file.size,
     user.id,
+    programStorage?.id || null,
+    programStorage?.revision || null,
+    safeStorageFileName(file.name),
+    previewKind,
+    previewStatus,
+    previewDriveFileId,
+    previewStatus,
+    previewErrorCode,
+    submission.project_id,
   ).run();
 
   await writeAudit(env, {
@@ -340,6 +385,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
       submissionId: submission.id,
       studentId: submission.student_id,
       sourceKind: "google_drive_file",
+      programStorageRevision: programStorage?.revision || null,
+      previewStatus,
     },
   });
 
@@ -359,9 +406,27 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
       metadataReady: true,
       fileBytesReady: true,
       signedRetrievalReady: false,
+      previewReady: previewStatus === "ready",
     },
   });
 };
+
+async function resolveProgramStorage(
+  env: Env,
+  projectId: string | null,
+): Promise<{ id: string; folder_id: string; revision: number } | null> {
+  if (!projectId) return null;
+  return env.DB.prepare(
+    `SELECT program_storage_configs.id, program_storage_configs.folder_id, program_storage_configs.revision
+     FROM projects
+     JOIN program_storage_configs
+       ON program_storage_configs.site_id = projects.site_id
+      AND program_storage_configs.program_id = projects.program_id
+      AND program_storage_configs.status = 'ready'
+     WHERE projects.id = ? AND projects.status IN ('active', 'completed')
+     LIMIT 1`,
+  ).bind(projectId).first<{ id: string; folder_id: string; revision: number }>();
+}
 
 async function recentUploadCountExceeded(env: Env, studentId: string, submissionId: string): Promise<boolean> {
   const row = await env.DB.prepare(

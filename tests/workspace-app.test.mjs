@@ -300,6 +300,15 @@ function profileRoutesForRole(roleId) {
       status: 200,
       body: { ok: true, scope: { scopeType: "program", scopeId: "it" }, summary: {}, students: [], needsAttention: [], needsReview: [], recentActivity: [], programBreakdown: [] },
     },
+    "/api/program-storage": {
+      status: 200,
+      body: {
+        ok: true,
+        scope: { siteId: "site-desert-valley-high", siteName: "Desert Valley High School", programId: "it", programName: "Information Technology" },
+        storage: { configured: false, status: "not_configured" },
+        setup: { canManage: true, shareWithEmail: "storage@example.edu", steps: [] },
+      },
+    },
     "/api/presentation-slots": { status: 200, body: { ok: true, slots: [], summary: {} } },
     "/api/reports/readiness": { status: 200, body: { ok: true, scope: "aggregate_only", metrics: {} } },
   };
@@ -7323,7 +7332,7 @@ test("workspace gates student directory visibility by role", () => {
   assert.match(availableSectionsBlock, /add\("projects", "Projects", "Site project rows"\)/);
   assert.match(availableSectionsBlock, /add\("projects", "Projects", "Program project rows"\)/);
   assert.match(availableSectionsBlock, /add\("projects", "Projects", "Assigned read-only projects"\)/);
-  assert.match(availableSectionsBlock, /add\("students", "Students", "Site student rows", \{ hidden: true \}\)/);
+  assert.match(availableSectionsBlock, /add\("students", "Students", "Site student rows"\)/);
   assert.match(loadWorkspaceDataBlock, /hasSiteStudentDirectoryRole\(roles\).*\/api\/site\/students/s);
   assert.doesNotMatch(directoryRoleHelperBlock, /"mentor"|"student"|"misc_admin"/);
 });
@@ -7358,7 +7367,7 @@ test("workspace gates mentor assignment visibility and refresh behavior by role"
   assert.match(workspaceJs, /function hasSiteMentorAssignmentRole\(roles\)/);
   assert.match(mentorRoleHelperBlock, /"platform_admin",\s+"global_admin",\s+"admin",\s+"site_admin",\s+"administration",\s+"program_teacher"/);
   assert.doesNotMatch(mentorRoleHelperBlock, /"viewer"|"mentor"|"student"|"misc_admin"/);
-  assert.match(workspaceJs, /add\("mentorAssignments", "Mentor Assignments", "Coverage and assignment workflow", \{ hidden: true \}\)/);
+  assert.match(workspaceJs, /add\("mentorAssignments", "Mentor Assignments", "Coverage and assignment workflow"\)/);
   assert.match(loadWorkspaceDataBlock, /hasSiteMentorAssignmentRole\(roles\).*\/api\/site\/mentor-assignments/s);
   assert.match(sectionOpenBlock, /section === "mentorAssignments" && button\.dataset\.sectionPreset === "no-mentor"/);
   assert.match(sectionOpenBlock, /status:\s*"unassigned"/);
@@ -7389,8 +7398,8 @@ test("workspace gates operations readiness visibility and keeps it read-only", (
   assert.match(workspaceJs, /function hasSiteOperationsRole\(roles\)/);
   assert.match(operationsRoleHelperBlock, /"platform_admin",\s+"global_admin",\s+"admin",\s+"site_admin",\s+"administration",\s+"program_teacher"/);
   assert.doesNotMatch(operationsRoleHelperBlock, /"viewer"|"mentor"|"student"|"misc_admin"/);
-  assert.match(availableSectionsBlock, /add\("operations", "Operations", "Presentation, final files, and readiness", \{ hidden: true \}\)/);
-  assert.match(workspaceJs, /add\("operations", "Operations", "Legacy readiness worklist", \{ hidden: true \}\)/);
+  assert.match(availableSectionsBlock, /add\("operations", "Operations", "Presentation, final files, and readiness"\)/);
+  assert.match(workspaceJs, /add\("operations", "Operations", "Open the readiness worklist"\)/);
   assert.match(loadWorkspaceDataBlock, /hasSiteOperationsRole\(roles\).*\/api\/site\/operations-readiness/s);
   assert.match(workspaceJs, /function renderOperationsReadinessSection/);
   assert.match(workspaceJs, /function applyOperationsReadinessFilters/);
@@ -7412,7 +7421,7 @@ test("workspace keeps audit and archive export sections global-admin only", () =
   const siteAdminConsoleBlock = workspaceJs.match(/if \(roles\.has\("site_admin"\)\) \{[\s\S]*?  \}/)?.[0] || "";
   const siteDashboardBlock = workspaceJs.match(/function renderSiteDashboardSection[\s\S]*?function renderSiteStudentDirectorySection/)?.[0] || "";
   assert.match(adminConsoleSectionsBlock, /if \(hasGlobalAdminRole\(roles\)\) \{[\s\S]*add\("audit", "Audit", "Access review and recent changes"\)/);
-  assert.match(adminConsoleSectionsBlock, /if \(hasGlobalAdminRole\(roles\)\) \{[\s\S]*add\("archiveExports", "Final Files", "Legacy closeout package status", \{ hidden: true \}\)/);
+  assert.match(adminConsoleSectionsBlock, /if \(hasGlobalAdminRole\(roles\)\) \{[\s\S]*add\("archiveExports", "Final Files", "Closeout package status"\)/);
   assert.doesNotMatch(siteAdminConsoleBlock, /add\("audit"/);
   assert.doesNotMatch(siteAdminConsoleBlock, /add\("archiveExports"/);
   assert.match(siteDashboardBlock, /const canOpenAudit = availableSectionIdsForAnyMode\(\)\.has\("audit"\);/);
@@ -10967,6 +10976,39 @@ test("workspace renders visible role identity for every logged-in role", async (
     assert.match(workspaceCss, new RegExp(`data-primary-role="${escapeRegExp(roleId)}"[\\s\\S]*--role-accent`), `${roleId} role accent CSS`);
   }
   assert.match(workspaceCss, /@media \(max-width: 900px\)[\s\S]*\.workspace-active-role-badge/, "role badge must have mobile handling");
+});
+
+test("left navigation is role-specific and keeps admin work destinations visible", async () => {
+  const expectedSections = {
+    student: ["student", "studentWork", "studentFeedback", "studentFinalChecklist"],
+    viewer: ["overview", "projects", "staffReports"],
+    mentor: ["overview", "projects", "teacher", "mentor", "staffReports"],
+    program_teacher: ["overview", "projects", "teacher", "students", "programDashboard", "operations", "presentation", "staffReports"],
+    administration: ["overview", "projects", "siteDashboard", "students", "mentorAssignments", "operations", "presentation", "staffReports", "readiness"],
+    site_admin: ["overview", "projects", "siteDashboard", "teacher", "students", "mentorAssignments", "operations", "presentation", "staffReports", "readiness"],
+    global_admin: ["overview", "projects", "siteDashboard", "adminDashboard", "teacher", "students", "mentorAssignments", "operations", "presentation", "staffReports", "readiness"],
+  };
+
+  for (const [roleId, expected] of Object.entries(expectedSections)) {
+    const markup = await renderWorkspaceWithFetch(profileRoutesForRole(roleId));
+    const drawer = markup.match(/<nav class="workspace-tabs workspace-v2-drawer-list"[\s\S]*?<\/nav>/)?.[0] || "";
+    assert.ok(drawer, `${roleId} has a left navigation drawer`);
+    const actual = [...drawer.matchAll(/data-section="([^"]+)"/g)].map((match) => match[1]);
+    assert.deepEqual(actual, expected, `${roleId} sees only the intended navigation destinations`);
+    assert.equal(new Set(actual).size, actual.length, `${roleId} navigation contains no duplicate buttons`);
+  }
+});
+
+test("Program Teacher profile explains and exposes program-owned Drive setup", async () => {
+  const markup = await renderWorkspaceWithFetch(profileRoutesForRole("program_teacher"), "profile");
+  assert.match(markup, /data-program-storage-settings="not_configured"/);
+  assert.match(markup, /Connect your program’s Google Shared Drive folder/);
+  assert.match(markup, /Your school keeps control of the files/);
+  assert.match(markup, /storage@example.edu/);
+  assert.match(markup, /data-program-storage-form="configure"/);
+  assert.match(markup, /I shared this folder with the app storage account as an Editor/);
+  assert.match(markup, /Existing files keep their original folder revision/);
+  assert.doesNotMatch(markup, /folder_id|private_key|access_token/i);
 });
 
 test("Global Admin can switch to a school-scoped Site Admin working mode without changing the account assignment", async () => {

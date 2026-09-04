@@ -874,7 +874,7 @@ class MockPreparedStatement {
       };
     }
 
-    if (this.sql.startsWith("select id, submission_id, title, artifact_type, source_kind, external_url, mime_type, size_bytes, review_status, created_at from evidence_artifacts")) {
+    if (this.sql.startsWith("select id, submission_id, title, artifact_type, source_kind, external_url, mime_type, size_bytes, review_status, created_at")) {
       const [studentId] = this.params;
       return {
         results: this.data.evidenceArtifacts
@@ -890,6 +890,8 @@ class MockPreparedStatement {
             size_bytes: row.size_bytes,
             review_status: row.review_status,
             created_at: row.created_at,
+            preview_status: row.preview_status || "not_requested",
+            preview_kind: row.preview_kind || "none",
           })),
       };
     }

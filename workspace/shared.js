@@ -2635,6 +2635,72 @@ function renderRoleProfileSection(options = {}) {
       </div>
       ${renderRoleProfileActions(profile.actions)}
       ${compact ? "" : renderRoleProfileScopeSummary()}
+      ${compact || profileKey !== "program_teacher" ? "" : renderProgramStorageSettings()}
+    </section>
+  `;
+}
+
+function renderProgramStorageSettings() {
+  const result = currentData.programStorage;
+  if (!result) {
+    return `
+      <section class="workspace-card workspace-role-profile-storage" data-program-storage-settings="choose-scope">
+        <p class="workspace-kicker">Program file storage</p>
+        <h3>Connect your program’s Google Shared Drive folder</h3>
+        <p class="workspace-muted">Choose your school in Tools first if you work at more than one school.</p>
+      </section>
+    `;
+  }
+  if (!result.ok) {
+    return `
+      <section class="workspace-card workspace-role-profile-storage" data-program-storage-settings="error">
+        <p class="workspace-kicker">Program file storage</p>
+        <h3>Storage settings could not load</h3>
+        <p class="workspace-muted">Refresh this page. If it still fails, ask a Site Admin to check your program assignment.</p>
+      </section>
+    `;
+  }
+  const data = result.body || {};
+  const storage = data.storage || {};
+  const setup = data.setup || {};
+  const connected = storage.configured && storage.status === "ready";
+  const shareEmail = String(setup.shareWithEmail || "").trim();
+  return `
+    <section class="workspace-card workspace-role-profile-storage" data-program-storage-settings="${escapeHtml(storage.status || "not_configured")}" aria-labelledby="programStorageTitle">
+      <div class="workspace-card-head">
+        <div>
+          <p class="workspace-kicker">Program file storage</p>
+          <h3 id="programStorageTitle">${connected ? "Student uploads are connected" : "Connect your program’s Google Shared Drive folder"}</h3>
+          <p class="workspace-muted">${escapeHtml(data.scope?.programName || "Your program")} / ${escapeHtml(data.scope?.siteName || "Your school")}</p>
+        </div>
+        <span class="workspace-summary-badge">${connected ? "Ready" : storage.status === "disconnected" ? "Disconnected" : "Setup needed"}</span>
+      </div>
+      <div class="workspace-role-profile-grid">
+        <article class="workspace-role-profile-block"><h3>1. Make the folder</h3><p>Create it inside a school Google Shared Drive. Your school keeps control of the files.</p></article>
+        <article class="workspace-role-profile-block"><h3>2. Share it with the app</h3><p>${shareEmail ? `Give <strong>${escapeHtml(shareEmail)}</strong> Editor access.` : "Ask a Global Admin to finish the app’s Google Drive connection."}</p></article>
+        <article class="workspace-role-profile-block"><h3>3. Paste and verify</h3><p>Paste the folder link below. Students can then upload PDF and DOCX proof here.</p></article>
+      </div>
+      ${connected ? `
+        <div class="workspace-mini-row" data-program-storage-current="true">
+          <span><strong>${escapeHtml(storage.folderName || "Program files")}</strong></span>
+          <small>Verified connection / revision ${escapeHtml(String(storage.revision || 1))}</small>
+          <div class="workspace-row-actions">
+            <a class="workspace-link-button workspace-link-button-small" href="${escapeHtml(storage.folderUrl || "")}" target="_blank" rel="noopener noreferrer">Open folder</a>
+            <button class="workspace-link-button workspace-link-button-small" type="button" data-program-storage-action="verify">Check connection</button>
+          </div>
+        </div>
+      ` : ""}
+      ${setup.canManage ? `
+        <form id="programStorageForm" class="workspace-form" data-program-storage-form="configure">
+          <label><span>${connected ? "Replace the connected folder" : "Google Drive folder link"}</span><input name="folderUrl" type="url" inputmode="url" required maxlength="2048" aria-describedby="programStorageLinkHelp"><small id="programStorageLinkHelp">Example: https://drive.google.com/drive/folders/...</small></label>
+          <label class="workspace-check-row"><input name="confirmedSharedWithApp" type="checkbox" required><span>I shared this folder with the app storage account as an Editor.</span></label>
+          <p class="workspace-muted">A new folder changes only future uploads. Existing files keep their original folder revision.</p>
+          <div class="workspace-row-actions">
+            <button class="workspace-button workspace-button-primary" type="submit">${connected ? "Verify and replace folder" : "Verify and connect folder"}</button>
+            ${connected ? '<button class="workspace-button workspace-button-secondary" type="button" data-program-storage-action="disconnect">Disconnect future uploads</button>' : ""}
+          </div>
+        </form>
+      ` : '<p class="workspace-muted">Only the assigned Program Teacher or a Global Admin can change this connection.</p>'}
     </section>
   `;
 }
@@ -2878,30 +2944,30 @@ function adminConsoleSectionsForRoles(roles) {
   }
 
   if (hasSiteStudentDirectoryRole(roles)) {
-    add("students", "Students", "Legacy student directory", { hidden: true });
+    add("students", "Student Directory", "Browse the students in this scope");
   }
   if (hasSiteReviewQueueRole(roles)) {
-    add("teacher", "Review / Evidence", "Legacy submitted work renderer", { hidden: true });
+    add("teacher", "Review / Evidence", "Open submitted work and evidence");
   }
   if (hasSiteMentorAssignmentRole(roles)) {
-    add("mentorAssignments", "Mentor Assignments", "Legacy mentor coverage renderer", { hidden: true });
+    add("mentorAssignments", "Mentor Assignments", "Review and fix mentor coverage");
   }
   if (hasSiteOperationsRole(roles)) {
-    add("operations", "Operations", "Legacy readiness worklist", { hidden: true });
+    add("operations", "Operations", "Open the readiness worklist");
   }
   if (roles.has("administration") || roles.has("site_admin") || hasGlobalAdminRole(roles)) {
-    add("presentation", "Presentation", "Legacy schedule renderer", { hidden: true });
-    add("readiness", "Readiness", "Legacy readiness renderer", { hidden: true });
+    add("presentation", "Presentation", "Schedule and day-of status");
+    add("readiness", "Readiness", "Project readiness details");
     add("adminReports", "Reports", "Roster and operational health");
   }
   if (hasGlobalAdminRole(roles)) {
-    add("adminDashboard", "Global Overview", "Legacy all-schools overview", { hidden: true });
-    add("siteDashboard", "Site Overview", "Legacy current-site health", { hidden: true });
-    add("archiveExports", "Final Files", "Legacy closeout package status", { hidden: true });
+    add("adminDashboard", "Global Overview", "All-schools overview");
+    add("siteDashboard", "Site Overview", "Current-site health");
+    add("archiveExports", "Final Files", "Closeout package status");
     add("audit", "Audit", "Access review and recent changes");
-    add("security", "Settings / Security", "Local admin account and session controls", { hidden: true });
+    add("security", "Settings / Security", "Account and session controls");
   } else if (roles.has("site_admin") || roles.has("administration")) {
-    add("siteDashboard", "Site Overview", "Legacy site or school health", { hidden: true });
+    add("siteDashboard", "Site Overview", "Site or school health");
   }
 
   return sections;

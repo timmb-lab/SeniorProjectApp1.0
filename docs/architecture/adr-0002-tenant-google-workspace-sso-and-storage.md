@@ -2,6 +2,8 @@
 
 Date: 2026-05-21
 
+Evidence-storage update: ADR-0003 supersedes this document's link-only evidence decision with a staged teacher-managed program-folder model. The authentication and SSO decisions below remain in force.
+
 ## 2026-09-01 Launch Decision
 
 Google Workspace SSO is not approved for the current launch. Production keeps `AUTH_GOOGLE_SSO_ENABLED=false`, uses hardened local username/password sign-in, and does not configure or use Google OAuth credentials for staff sign-in. The SSO implementation remains a dormant, fail-closed foundation only. This decision does not claim MFA coverage; app-native MFA or passkeys remain future security work if required.

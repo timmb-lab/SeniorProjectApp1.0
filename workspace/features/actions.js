@@ -1,4 +1,8 @@
 function bindWorkspaceForms() {
+  document.querySelector("#programStorageForm")?.addEventListener("submit", submitProgramStorage);
+  document.querySelectorAll("[data-program-storage-action]").forEach((button) => {
+    button.addEventListener("click", handleProgramStorageAction);
+  });
   document.querySelectorAll("[data-student-project-tools]").forEach((details) => {
     details.addEventListener("toggle", () => {
       studentDisclosureState = {
@@ -193,6 +197,62 @@ function bindWorkspaceForms() {
 
 function bindUploadRetryButton() {
   document.querySelector('[data-upload-action="retry"]')?.addEventListener("click", retryEvidenceUpload);
+}
+
+async function submitProgramStorage(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const formData = new FormData(form);
+  const scope = unwrap(currentData.programStorage)?.scope || {};
+  const folderUrl = String(formData.get("folderUrl") || "").trim();
+  const confirmedSharedWithApp = Boolean(formData.get("confirmedSharedWithApp"));
+  if (!folderUrl || !confirmedSharedWithApp) {
+    renderAppShell("Paste the folder link and confirm that you shared it with the app storage account.", "error");
+    return;
+  }
+  await changeProgramStorage(form, {
+    action: "configure",
+    siteId: scope.siteId,
+    programId: scope.programId,
+    folderUrl,
+    confirmedSharedWithApp,
+  }, "Program folder connected and verified.");
+}
+
+async function handleProgramStorageAction(event) {
+  const action = cleanDirectoryFilter(event.currentTarget?.dataset?.programStorageAction || "");
+  const scope = unwrap(currentData.programStorage)?.scope || {};
+  if (!scope.siteId || !scope.programId || !["verify", "disconnect"].includes(action)) return;
+  await changeProgramStorage(event.currentTarget, {
+    action,
+    siteId: scope.siteId,
+    programId: scope.programId,
+  }, action === "verify" ? "Program folder connection checked." : "Future uploads disconnected. Existing files were preserved.");
+}
+
+async function changeProgramStorage(control, body, successMessage) {
+  const form = control?.closest?.("form") || control;
+  if (form?.querySelectorAll) setFormBusy(form, true);
+  renderAppShell(body.action === "disconnect" ? "Disconnecting future uploads..." : "Checking the Google Drive folder...");
+  const result = await settleApi(apiJson("/api/program-storage", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  }));
+  if (form?.querySelectorAll) setFormBusy(form, false);
+  if (!result.ok) {
+    const messages = {
+      invalid_google_drive_folder_url: "Paste the full Google Drive folder link.",
+      drive_folder_share_confirmation_required: "Confirm that the folder is shared with the app storage account.",
+      drive_folder_not_accessible: "The app cannot open that folder. Check Editor sharing and try again.",
+      google_drive_folder_required: "That link is not a Google Drive folder.",
+      writable_shared_drive_folder_required: "Choose a folder inside a school Google Shared Drive and give the app Editor access.",
+      drive_credentials_missing: "The app’s Google Drive connection is not ready. Ask a Global Admin for help.",
+    };
+    renderAppShell(messages[result.error] || "The program folder could not be updated. Try again.", "error");
+    return;
+  }
+  await loadWorkspaceData(successMessage);
 }
 function bindStudentProofGuideSelects() {
   document.querySelectorAll("[data-student-proof-submission-select]").forEach((select) => {

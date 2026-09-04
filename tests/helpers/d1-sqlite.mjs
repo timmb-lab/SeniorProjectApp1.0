@@ -38,6 +38,7 @@ export function foundationMigrations() {
     "migrations/0029_password_setup_codes.sql",
     "migrations/0030_site_branding.sql",
     "migrations/0031_project_notes.sql",
+    "migrations/0032_program_teacher_storage.sql",
   ];
 }
 

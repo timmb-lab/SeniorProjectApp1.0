@@ -11,6 +11,7 @@ let currentData = {
   siteStudentTimeline: null,
   adminDashboard: null,
   programTeacherDashboard: null,
+  programStorage: null,
   mentorDashboard: null,
   projects: null,
   projectAdults: null,
@@ -723,6 +724,7 @@ function defaultCurrentData(authConfig = currentData.authConfig) {
     siteStudentTimeline: null,
     adminDashboard: null,
     programTeacherDashboard: null,
+    programStorage: null,
     mentorDashboard: null,
     projects: null,
     projectAdults: null,
@@ -756,6 +758,30 @@ function workspaceAccessContextKey() {
     cleanAdminRoleMode(activeAdminRoleMode),
     cleanDirectoryFilter(selectedSiteId),
   ].join("|");
+}
+
+function programStorageQueryString() {
+  const assignment = (currentUser?.roles || []).find((role) => (
+    role?.role_id === "program_teacher"
+    && role?.scope_type === "program"
+    && cleanDirectoryFilter(role?.scope_id || "")
+  ));
+  const programId = cleanDirectoryFilter(assignment?.scope_id || "");
+  const userSites = Array.isArray(currentUser?.accessibleSites) ? currentUser.accessibleSites : [];
+  const knownSites = Array.isArray(knownAccessibleSites) ? knownAccessibleSites : [];
+  const dashboardScope = unwrap(currentData.siteDashboard)?.scope || {};
+  const dashboardSites = Array.isArray(dashboardScope.accessibleSites) ? dashboardScope.accessibleSites : [];
+  const siteId = cleanDirectoryFilter(
+    selectedSiteId
+    || (userSites.length === 1 ? userSites[0]?.siteId : "")
+    || (!userSites.length && knownSites.length === 1 ? knownSites[0]?.siteId : "")
+    || (dashboardScope.siteId || "")
+    || (dashboardSites.length === 1 ? dashboardSites[0]?.siteId : "")
+    || "",
+  );
+  return siteId && programId
+    ? `?siteId=${encodeURIComponent(siteId)}&programId=${encodeURIComponent(programId)}`
+    : "";
 }
 
 function captureWorkspaceAccessContext() {
@@ -816,6 +842,8 @@ async function loadWorkspaceData(statusMessage = "", options = {}) {
   if (hasGlobalAdminRole(roles)) loaders.push(["adminDashboard", apiJson("/api/admin/dashboard")]);
   if (hasGlobalAdminRole(roles)) loaders.push(["auditEvents", apiJson(`/api/admin/audit-events${adminAuditQueryString()}`)]);
   if (roles.has("program_teacher")) loaders.push(["programTeacherDashboard", apiJson(`/api/program-teacher/dashboard${siteDashboardQueryString()}`)]);
+  const storageQuery = programStorageQueryString();
+  if (roles.has("program_teacher") && storageQuery) loaders.push(["programStorage", apiJson(`/api/program-storage${storageQuery}`)]);
   if (roles.has("mentor") || hasGlobalAdminRole(roles)) loaders.push(["mentorDashboard", apiJson("/api/mentor/dashboard")]);
   if (roles.has("mentor")) loaders.push(["mentorAssigned", apiJson("/api/mentor/assigned")]);
   if (roles.has("student") || roles.has("mentor") || roles.has("program_teacher") || hasGlobalAdminRole(roles) || roles.has("site_admin") || roles.has("administration")) {
@@ -855,6 +883,14 @@ async function loadWorkspaceData(statusMessage = "", options = {}) {
     }
   }
   currentData = nextData;
+  if (roles.has("program_teacher") && !currentData.programStorage) {
+    const deferredStorageQuery = programStorageQueryString();
+    if (deferredStorageQuery) {
+      const programStorage = await settleApi(apiJson(`/api/program-storage${deferredStorageQuery}`));
+      if (!workspaceAccessContextIsCurrent(accessContext)) return;
+      currentData.programStorage = programStorage;
+    }
+  }
   workspaceConnectionState = {
     stale: failedKeys.length > 0,
     failedKeys,
@@ -1891,14 +1927,15 @@ function renderV2Navigation(sections = [], options = {}) {
 function renderTieredStaffNavigation(sections = [], options = {}) {
   const definitions = options.isAdminConsole
     ? [
-        ["Overview", ["overview"]],
-        ["People & access", ["adminPeople", "adminStudents", "adminAssignments"]],
+        ["Overview", ["overview", "adminDashboard", "siteDashboard"]],
+        ["People & access", ["adminPeople", "adminStudents", "adminAssignments", "students", "mentorAssignments"]],
         ["School setup", ["programs", "adminImports"]],
-        ["Reports & security", ["adminReports", "audit"]],
+        ["Workflows", ["teacher", "operations", "presentation"]],
+        ["Reports & security", ["adminReports", "readiness", "archiveExports", "audit"]],
         ["Account", ["profile", "security"]],
       ]
     : [
-        ["Workspace", ["overview", "projects"]],
+        ["Workspace", ["overview", "projects", "siteDashboard", "adminDashboard"]],
         ["Student support", ["teacher", "students", "mentor", "mentorAssignments", "mentorDashboard", "programDashboard"]],
         ["Milestones", ["operations", "presentation"]],
         ["Insights", ["staffReports", "readiness", "archive", "archiveExports"]],
@@ -6764,37 +6801,37 @@ function availableWorkspaceSections(user = currentUser) {
   }
   if (roles.has("program_teacher")) {
     add("projects", "Projects", "Program project rows");
-    add("students", "Students", "Program student rows", { hidden: true });
+    add("students", "Students", "Program student rows");
     add("teacher", "Reviews", "Work waiting for review");
-    add("programDashboard", "Program Dashboard", "Your students and review needs", { hidden: true });
-    add("operations", "Operations", "Presentation, mentor, and final-file issues", { hidden: true });
-    add("presentation", "Presentation", "Schedule, outline, and day-of status", { hidden: true });
+    add("programDashboard", "Program Dashboard", "Your students and review needs");
+    add("operations", "Operations", "Presentation, mentor, and final-file issues");
+    add("presentation", "Presentation", "Schedule, outline, and day-of status");
   }
   if (roles.has("administration")) {
     add("projects", "Projects", "School project rows");
-    add("students", "Students", "School student rows", { hidden: true });
-    add("siteDashboard", "Site Dashboard", "School-wide capstone health", { hidden: true });
-    add("operations", "Operations", "Presentation, final files, and readiness", { hidden: true });
-    add("mentorAssignments", "Mentor Assignments", "Coverage and assignment workflow", { hidden: true });
+    add("students", "Students", "School student rows");
+    add("siteDashboard", "Site Dashboard", "School-wide capstone health");
+    add("operations", "Operations", "Presentation, final files, and readiness");
+    add("mentorAssignments", "Mentor Assignments", "Coverage and assignment workflow");
   }
   if (roles.has("site_admin") || hasGlobalAdminRole(roles)) {
     add("projects", "Projects", "Site project rows");
-    add("students", "Students", "Site student rows", { hidden: true });
+    add("students", "Students", "Site student rows");
     add("teacher", "Reviews", "Submitted work and follow-up");
-    add("siteDashboard", "Site Dashboard", "Site-wide capstone health", { hidden: true });
-    add("operations", "Operations", "Presentation, final files, and readiness", { hidden: true });
-    add("mentorAssignments", "Mentor Assignments", "Coverage and assignment workflow", { hidden: true });
-    add("presentation", "Presentation", "Schedule, outline, and day-of status", { hidden: true });
-    add("readiness", "Readiness", "Aggregate project readiness", { hidden: true });
+    add("siteDashboard", "Site Dashboard", "Site-wide capstone health");
+    add("operations", "Operations", "Presentation, final files, and readiness");
+    add("mentorAssignments", "Mentor Assignments", "Coverage and assignment workflow");
+    add("presentation", "Presentation", "Schedule, outline, and day-of status");
+    add("readiness", "Readiness", "Aggregate project readiness");
   } else if (roles.has("administration")) {
-    add("presentation", "Presentation", "Schedule, outline, and day-of status", { hidden: true });
-    add("readiness", "Readiness", "Aggregate project readiness", { hidden: true });
+    add("presentation", "Presentation", "Schedule, outline, and day-of status");
+    add("readiness", "Readiness", "Aggregate project readiness");
   }
   if (roles.has("misc_admin")) {
     add("readiness", "Readiness", "Aggregate project readiness", { hidden: true });
   }
   if (hasGlobalAdminRole(roles)) {
-    add("adminDashboard", "Global Overview", "All schools overview", { hidden: true });
+    add("adminDashboard", "Global Overview", "All schools overview");
   }
   if (hasStaffReportsSection(roles)) add("staffReports", "Reports", "Progress and setup summary");
 

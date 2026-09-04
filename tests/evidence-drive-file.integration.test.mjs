@@ -590,6 +590,95 @@ test("evidence file upload returns 502 and audits when Drive provider request th
   }
 });
 
+test("configured program storage overrides link-only mode and records its exact revision", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+  fixture.env.EVIDENCE_STORAGE_PROVIDER = "link_only";
+  fixture.db.data.submissions.push({
+    id: "submission-program",
+    student_id: "student-a",
+    requirement_id: null,
+    status: "draft",
+    version: 1,
+    project_id: "project-it",
+  });
+  fixture.db.data.programStorages.push({ id: "program-storage-it", project_id: "project-it", folder_id: "shared-program-folder", revision: 4 });
+
+  let driveMetadata = null;
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (input, init = {}) => {
+    const url = resolveFetchUrl(input);
+    if (url === "https://oauth2.googleapis.com/token") return jsonResponse({ access_token: "test-token", expires_in: 3600 });
+    if (url.startsWith("https://www.googleapis.com/upload/drive/v3/files")) {
+      driveMetadata = await readMultipartDriveMetadata(init.body);
+      return jsonResponse({ id: "drive-program-file", name: "program.pdf", mimeType: "application/pdf" });
+    }
+    throw new Error(`Unexpected fetch URL in test: ${url}`);
+  };
+  try {
+    const response = await onUploadEvidenceFile({
+      request: buildUploadRequest({
+        url: "https://example.test/api/submissions/submission-program/evidence/upload",
+        token: fixture.token,
+        fileName: "program-proof.pdf",
+        fileType: "application/pdf",
+      }),
+      env: fixture.env,
+      params: { id: "submission-program" },
+    });
+    assert.equal(response.status, 200);
+    assert.deepEqual(driveMetadata.parents, ["shared-program-folder"]);
+    assert.equal(fixture.db.data.evidenceArtifacts[0].program_storage_config_id, "program-storage-it");
+    assert.equal(fixture.db.data.evidenceArtifacts[0].program_storage_revision, 4);
+    assert.equal(fixture.db.data.evidenceArtifacts[0].preview_status, "ready");
+    assert.doesNotMatch(JSON.stringify(await response.json()), /shared-program-folder|program-storage-it|drive-program-file/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("DOCX upload creates a Google Docs companion used for safe PDF preview", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+  fixture.db.data.submissions.push({ id: "submission-docx", student_id: "student-a", requirement_id: null, status: "draft", version: 1 });
+  const uploads = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (input, init = {}) => {
+    const url = resolveFetchUrl(input);
+    if (url === "https://oauth2.googleapis.com/token") return jsonResponse({ access_token: "test-token", expires_in: 3600 });
+    if (url.startsWith("https://www.googleapis.com/upload/drive/v3/files")) {
+      const metadata = await readMultipartDriveMetadata(init.body);
+      uploads.push(metadata);
+      return jsonResponse({
+        id: uploads.length === 1 ? "drive-docx-original" : "drive-docx-preview",
+        name: metadata.name,
+        mimeType: metadata.mimeType,
+      });
+    }
+    throw new Error(`Unexpected fetch URL in test: ${url}`);
+  };
+  try {
+    const response = await onUploadEvidenceFile({
+      request: buildUploadRequest({
+        url: "https://example.test/api/submissions/submission-docx/evidence/upload",
+        token: fixture.token,
+        fileName: "written-report.docx",
+        fileType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      }),
+      env: fixture.env,
+      params: { id: "submission-docx" },
+    });
+    assert.equal(response.status, 200);
+    assert.equal(uploads.length, 2);
+    assert.equal(uploads[0].mimeType, "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+    assert.equal(uploads[1].mimeType, "application/vnd.google-apps.document");
+    assert.equal(fixture.db.data.evidenceArtifacts[0].preview_kind, "converted_pdf");
+    assert.equal(fixture.db.data.evidenceArtifacts[0].preview_status, "ready");
+    assert.equal(fixture.db.data.evidenceArtifacts[0].preview_drive_file_id, "drive-docx-preview");
+    assert.doesNotMatch(JSON.stringify(await response.json()), /drive-docx-original|drive-docx-preview/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("evidence file upload returns 502 and audits when Drive upload is forbidden", async () => {
   const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
   fixture.db.data.submissions.push({
@@ -1329,6 +1418,7 @@ function createFixture() {
     groupMemberships: [],
     groups: [],
     submissions: [],
+    programStorages: [],
     evidenceArtifacts: [],
     auditEvents: [],
   });
@@ -1442,6 +1532,11 @@ class MockPreparedStatement {
       };
     }
 
+    if (this.sql.startsWith("select program_storage_configs.id, program_storage_configs.folder_id, program_storage_configs.revision from projects")) {
+      const [projectId] = this.params;
+      return this.data.programStorages.find((row) => row.project_id === projectId) ?? null;
+    }
+
     if (this.sql.startsWith("select id, student_id, source_kind, drive_file_id, mime_type, title, deleted_at from evidence_artifacts where id = ?")) {
       const [evidenceId] = this.params;
       return this.data.evidenceArtifacts.find((row) => row.id === evidenceId) ?? null;
@@ -1521,6 +1616,15 @@ class MockPreparedStatement {
         mimeType,
         sizeBytes,
         createdBy,
+        programStorageConfigId,
+        programStorageRevision,
+        originalFileName,
+        previewKind,
+        previewStatus,
+        previewDriveFileId,
+        _previewReadyStatus,
+        previewErrorCode,
+        projectId,
       ] = this.params;
       this.data.evidenceArtifacts.push({
         id: evidenceId,
@@ -1534,6 +1638,14 @@ class MockPreparedStatement {
         mime_type: mimeType,
         size_bytes: sizeBytes,
         created_by: createdBy,
+        program_storage_config_id: programStorageConfigId,
+        program_storage_revision: programStorageRevision,
+        original_file_name: originalFileName,
+        preview_kind: previewKind,
+        preview_status: previewStatus,
+        preview_drive_file_id: previewDriveFileId,
+        preview_error_code: previewErrorCode,
+        project_id: projectId,
         review_status: "pending_review",
         deleted_at: null,
       });

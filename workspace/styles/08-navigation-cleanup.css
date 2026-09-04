@@ -284,3 +284,26 @@
     font-size: 0.92rem;
   }
 }
+
+.workspace-role-profile-storage {
+  margin-top: 1.25rem;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  border: 1px solid var(--workspace-border, #c8d6e2);
+  background: var(--workspace-surface, #ffffff);
+}
+
+.workspace-role-profile-storage[data-program-storage-settings="ready"] {
+  border-inline-start: 5px solid var(--workspace-success, #178665);
+}
+
+.workspace-role-profile-storage .workspace-form {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--workspace-border, #c8d6e2);
+}
+
+.workspace-role-profile-storage input[type="url"] {
+  width: 100%;
+  min-height: 48px;
+  font-size: 1rem;
+}

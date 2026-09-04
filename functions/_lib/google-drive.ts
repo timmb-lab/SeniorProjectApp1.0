@@ -4,6 +4,7 @@ const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
 const DRIVE_UPLOAD_URL = "https://www.googleapis.com/upload/drive/v3/files";
 const DRIVE_FILE_URL = "https://www.googleapis.com/drive/v3/files";
 export const GOOGLE_WORKSPACE_DOCUMENT_MIME_TYPE = "application/vnd.google-apps.document";
+export const GOOGLE_DRIVE_FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
 export const GOOGLE_DOCS_DEFAULT_EXPORT_MIME_TYPE = "application/pdf";
 export const GOOGLE_DOCS_DEFAULT_EXPORT_EXTENSION = "pdf";
 
@@ -36,6 +37,31 @@ type GoogleDriveFileResponse = {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+export function parseGoogleDriveFolderUrl(value: unknown): {
+  ok: boolean;
+  folderId: string | null;
+  canonicalUrl: string | null;
+} {
+  const raw = typeof value === "string" ? value.trim() : "";
+  if (!raw || raw.length > 2_048) return { ok: false, folderId: null, canonicalUrl: null };
+  try {
+    const url = new URL(raw);
+    if (url.protocol !== "https:" || url.hostname.toLowerCase() !== "drive.google.com" || url.username || url.password) {
+      return { ok: false, folderId: null, canonicalUrl: null };
+    }
+    const match = /\/folders\/([a-zA-Z0-9_-]{10,})/.exec(url.pathname);
+    const folderId = match?.[1] || "";
+    if (!folderId) return { ok: false, folderId: null, canonicalUrl: null };
+    return {
+      ok: true,
+      folderId,
+      canonicalUrl: `https://drive.google.com/drive/folders/${folderId}`,
+    };
+  } catch {
+    return { ok: false, folderId: null, canonicalUrl: null };
+  }
 }
 
 function getString(value: Record<string, unknown>, key: string): string | null {
@@ -225,6 +251,42 @@ export async function probeGoogleDriveFile(
   };
 }
 
+export async function probeGoogleDriveProgramFolder(
+  accessToken: string,
+  fileId: string,
+  options: { fetchFn?: typeof fetch } = {},
+): Promise<{
+  ok: boolean;
+  status: number;
+  mimeType: string | null;
+  name: string | null;
+  sharedDrive: boolean;
+  canAddChildren: boolean;
+}> {
+  if (!fileId) return { ok: false, status: 0, mimeType: null, name: null, sharedDrive: false, canAddChildren: false };
+  const url = new URL(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}`);
+  url.searchParams.set("fields", "id,name,mimeType,trashed,driveId,capabilities(canAddChildren)");
+  url.searchParams.set("supportsAllDrives", "true");
+  const response = await (options.fetchFn || fetch)(url, {
+    method: "GET",
+    headers: { authorization: `Bearer ${accessToken}`, accept: "application/json" },
+  });
+  if (!response.ok) {
+    return { ok: false, status: response.status, mimeType: null, name: null, sharedDrive: false, canAddChildren: false };
+  }
+  const json = await response.json().catch((): unknown => null);
+  const record = isRecord(json) ? json : {};
+  const capabilities = isRecord(record.capabilities) ? record.capabilities : {};
+  return {
+    ok: true,
+    status: response.status,
+    mimeType: getString(record, "mimeType"),
+    name: getString(record, "name"),
+    sharedDrive: Boolean(getString(record, "driveId")),
+    canAddChildren: capabilities.canAddChildren === true,
+  };
+}
+
 function cleanDriveFileName(value: unknown, fallback: string): string {
   if (typeof value !== "string") return fallback;
   const trimmed = value.trim().replace(/[\r\n]+/g, " ");
@@ -291,6 +353,63 @@ export async function uploadGoogleDriveFile(
     ok: Boolean(fileId),
     status: response.status,
     fileId: fileId || null,
+    mimeType: file.mimeType,
+    name: file.name,
+  };
+}
+
+export async function uploadGoogleDriveConvertedDocument(
+  accessToken: string,
+  input: {
+    name: string;
+    sourceMimeType: string;
+    parentFolderId?: string | null;
+  },
+  fileBytes: Uint8Array,
+  options: { fetchFn?: typeof fetch } = {},
+): Promise<{ ok: boolean; status: number; fileId: string | null; mimeType: string | null; name: string | null }> {
+  const boundary = `sc_${crypto.randomUUID()}`;
+  const sourceMimeType = input.sourceMimeType || "application/octet-stream";
+  const metadata: Record<string, unknown> = {
+    name: cleanDriveFileName(input.name, "evidence-preview"),
+    mimeType: GOOGLE_WORKSPACE_DOCUMENT_MIME_TYPE,
+  };
+  if (input.parentFolderId) metadata.parents = [input.parentFolderId];
+
+  const delimiter = `--${boundary}\r\n`;
+  const closeDelimiter = `\r\n--${boundary}--`;
+  const body = new Blob([
+    delimiter,
+    "Content-Type: application/json; charset=UTF-8\r\n\r\n",
+    JSON.stringify(metadata),
+    "\r\n",
+    delimiter,
+    `Content-Type: ${sourceMimeType}\r\n\r\n`,
+    fileBytes,
+    closeDelimiter,
+  ]);
+
+  const url = new URL(DRIVE_UPLOAD_URL);
+  url.searchParams.set("uploadType", "multipart");
+  url.searchParams.set("supportsAllDrives", "true");
+  url.searchParams.set("fields", "id,name,mimeType,size");
+  const fetchFn = options.fetchFn || fetch;
+  const response = await fetchFn(url, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${accessToken}`,
+      "content-type": `multipart/related; boundary=${boundary}`,
+      accept: "application/json",
+    },
+    body,
+  });
+
+  if (!response.ok) return { ok: false, status: response.status, fileId: null, mimeType: null, name: null };
+  const file = parseGoogleDriveFileResponse(await response.json().catch((): unknown => null));
+  return {
+    ok: Boolean(file.id),
+    status: response.status,
+    fileId: file.id,
     mimeType: file.mimeType,
     name: file.name,
   };
