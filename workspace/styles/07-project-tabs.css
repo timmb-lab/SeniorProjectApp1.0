@@ -154,8 +154,10 @@
 
 @media (max-width: 640px) {
   .workspace-project-tabs {
-    margin-inline: -0.15rem;
+    width: 100%;
+    margin-inline: 0;
     padding: 0.35rem;
+    box-sizing: border-box;
     scroll-snap-type: x proximity;
   }
 
@@ -163,5 +165,9 @@
     min-height: 3rem;
     scroll-snap-align: start;
     font-size: 0.92rem;
+  }
+
+  .workspace-project-command-rail-sticky {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

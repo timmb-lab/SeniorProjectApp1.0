@@ -1370,6 +1370,27 @@ const PROJECT_STICKY_ROLE_PLAN = [
 if (String(process.env.WORKSPACE_UI_POLISH_IDS || "").includes("project-sticky-")) {
   SCREENSHOT_PLAN.push(...PROJECT_STICKY_ROLE_PLAN);
 }
+const PROJECT_TABS_MOBILE_PLAN = [
+  ["student", "student", "Student", "?mode=workspace&section=studentWork", "MY PROJECT", "My next step"],
+  ["site-admin", "site_admin", "Site Admin", "?mode=workspace&section=projects&siteId=site-desert-valley-high", "PROJECT COMMAND CENTER", "Project health"],
+].map(([idSuffix, authRole, persona, url, heading, firstTab]) => ({
+  id: `project-tabs-mobile-${idSuffix}`,
+  label: `${persona} project tabs on phone`,
+  persona: `${persona} using the project tabs on a phone`,
+  authRole,
+  accountType: authRole === "student" ? "Fake .test demo student account" : "Fake .test demo staff account",
+  url: workspaceUrl(url),
+  viewport: { width: 390, height: 844, deviceScaleFactor: 2, mobile: true },
+  theme: "light",
+  expected: [heading, firstTab, "WHAT THIS IS FOR", "WHAT TO DO", "DONE WHEN"],
+  actions: authRole === "student" ? ["proveProjectTabs"] : ["proveProjectOpenAndBack", "proveProjectTabs"],
+  auditKeyboard: false,
+  capture: true,
+  proves: `${persona} can reach every guided project tab without whole-page horizontal overflow on a phone.`,
+}));
+if (String(process.env.WORKSPACE_UI_POLISH_IDS || "").includes("project-tabs-mobile-")) {
+  SCREENSHOT_PLAN.push(...PROJECT_TABS_MOBILE_PLAN);
+}
 const EXHAUSTIVE_ROLE_SURFACES = {
   student: {
     workspace: ["profile", "student", "studentWork", "studentFeedback", "studentFinalChecklist", "presentation", "archive", "security"],
@@ -2379,6 +2400,7 @@ async function performSinglePlanAction(client, action) {
         }),
       };
       document.documentElement.dataset.projectStickyRailProof = JSON.stringify(proof);
+      main.scrollTo({ top: 0, behavior: "instant" });
       return proof;
     })()`, { awaitPromise: true });
     if (!result?.ok) throw new Error(`Project sticky rail did not remain fixed while the left column moved: ${JSON.stringify(result)}`);
@@ -2407,7 +2429,18 @@ async function performSinglePlanAction(client, action) {
       await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       const workspace = document.querySelector('[data-project-workspace="true"], [data-student-screen="work"]');
       const overflow = workspace ? workspace.scrollWidth > workspace.clientWidth + 2 : true;
-      return { ok: !overflow, labels, visited, overflow };
+      const overflowElements = overflow && workspace
+        ? [...workspace.querySelectorAll("*")]
+          .filter((element) => element.scrollWidth > element.clientWidth + 2)
+          .slice(0, 12)
+          .map((element) => ({
+            tag: element.tagName.toLowerCase(),
+            className: String(element.className || "").slice(0, 140),
+            clientWidth: element.clientWidth,
+            scrollWidth: element.scrollWidth,
+          }))
+        : [];
+      return { ok: !overflow, labels, visited, overflow, workspaceWidth: workspace?.clientWidth, workspaceScrollWidth: workspace?.scrollWidth, overflowElements };
     })()`, { awaitPromise: true });
     if (!result.ok) throw new Error(`Project tabs did not pass the role-aware interaction check: ${JSON.stringify(result)}`);
     return;
