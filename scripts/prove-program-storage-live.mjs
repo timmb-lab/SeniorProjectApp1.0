@@ -98,7 +98,10 @@ async function ensureProgramStorage(teacher) {
     headers: { "content-type": "application/json", origin: BASE_URL.origin },
     body: JSON.stringify({ action: "create", siteId: SITE_ID, programId: PROGRAM_ID }),
   });
-  if (configured.response.status !== 200 || configured.body.ok !== true) throw new Error(`Program storage configuration failed (${configured.response.status}).`);
+  if (configured.response.status !== 200 || configured.body.ok !== true) {
+    const safeError = String(configured.body?.error || "unknown_error").replace(/[^a-z0-9_-]/gi, "").slice(0, 80);
+    throw new Error(`Program storage configuration failed (${configured.response.status}:${safeError}).`);
+  }
   if (configured.body.createdByApp !== true || /folderId|folder_id|driveFileId|drive_file_id/i.test(JSON.stringify(configured.body))) {
     throw new Error("Program storage creation response did not preserve its identifier-safe contract.");
   }
