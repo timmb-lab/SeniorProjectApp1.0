@@ -230,6 +230,7 @@
 :root[data-theme] .workspace-v2-app .workspace-v2-sidebar-brand,
 :root[data-theme] .workspace-v2-app .workspace-v2-sidebar-brand strong,
 :root[data-theme] .workspace-v2-app .workspace-v2-sidebar-context strong,
+:root[data-theme] .workspace-v2-app .workspace-v2-drawer-header strong,
 :root[data-theme] .workspace-v2-app .workspace-v2-sidebar-account strong {
   color: #edf5fa;
 }
@@ -241,6 +242,8 @@
 
 :root[data-theme] .workspace-v2-app .workspace-v2-drawer .workspace-v2-drawer-list .workspace-v2-step,
 :root[data-theme] .workspace-v2-app .workspace-v2-drawer .workspace-staff-nav-item {
+  grid-template-areas: "icon label";
+  grid-template-columns: 1.25rem minmax(0, 1fr);
   background: transparent;
   color: var(--nav-idle);
   text-align: left;
@@ -248,6 +251,14 @@
 
 :root[data-theme] .workspace-v2-app .workspace-v2-drawer-list .workspace-v2-step .workspace-v2-step-icon {
   display: grid !important;
+  grid-area: icon;
+  justify-self: start;
+}
+
+:root[data-theme] .workspace-v2-app .workspace-v2-drawer-list .workspace-v2-step strong {
+  grid-area: label;
+  justify-self: start;
+  text-align: left;
 }
 
 :root[data-theme] .workspace-v2-app .workspace-v2-drawer .workspace-v2-drawer-list .workspace-v2-step:hover,
