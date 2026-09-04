@@ -97,10 +97,10 @@ const SCREENSHOT_PLAN = [
   },
   {
     id: '08-misc-admin-readiness',
-    label: 'Misc Admin readiness',
+    label: 'School Admin readiness',
     url: workspaceUrl('?section=readiness'),
     viewport: desktopViewport(),
-    expected: ['Aggregate Project Readiness', 'Read the report safely'],
+    expected: ['CURRENT SITE', 'Leadership monitoring', 'Readiness'],
     absent: ['unavailable', 'could not load'],
     authRole: 'misc_admin'
   },
@@ -157,7 +157,7 @@ async function readAccounts() {
   const absolutePath = absoluteRepoPath(CREDENTIALS_PATH);
   const raw = await fs.readFile(absolutePath, 'utf8');
   const parsed = JSON.parse(raw);
-  const accounts = Array.isArray(parsed) ? parsed : parsed.accounts || [];
+  const accounts = credentialAccounts(parsed);
   const byRole = new Map();
   for (const account of accounts) {
     const role = normalizeAccountRole(account.role || account.key);
@@ -171,6 +171,14 @@ async function readAccounts() {
         mfaSecret: String(account.mfaSecret || '').trim()
       });
     }
+  }
+  // School Administration is the current narrow read-only readiness role that
+  // replaced the older misc_admin demo label. Reuse it only for that proof slot.
+  if (!byRole.has('misc_admin') && byRole.has('administration')) {
+    byRole.set('misc_admin', byRole.get('administration'));
+  }
+  if (!byRole.has('admin') && byRole.has('global_admin')) {
+    byRole.set('admin', byRole.get('global_admin'));
   }
   const requiredRoles = [...new Set(SCREENSHOT_PLAN.map((item) => item.authRole).filter(Boolean))];
   const missing = requiredRoles.filter((role) => !byRole.has(role));
@@ -190,12 +198,24 @@ async function persistFakeAccountMfaSecret(email, secret) {
 
   const raw = await fs.readFile(absolutePath, 'utf8');
   const parsed = JSON.parse(raw);
-  const accounts = Array.isArray(parsed) ? parsed : parsed.accounts || [];
+  const accounts = credentialAccounts(parsed);
   const account = accounts.find((item) => String(item.email || item.username || '').trim().toLowerCase() === String(email).trim().toLowerCase());
   if (!account) throw new Error('Could not find the fake account while saving its MFA test secret.');
   account.mfaSecret = secret;
   await fs.writeFile(absolutePath, `${JSON.stringify(parsed, null, 2)}\n`, { mode: 0o600 });
   await fs.chmod(absolutePath, 0o600).catch(() => {});
+}
+
+function credentialAccounts(parsed) {
+  if (Array.isArray(parsed)) return parsed;
+  if (Array.isArray(parsed?.accounts)) return parsed.accounts;
+  return [
+    ...(parsed?.adminLogins || []),
+    ...(parsed?.personaLogins || []),
+    ...(parsed?.programTeacherLogins || []),
+    ...(parsed?.mentorLogins || []),
+    ...(parsed?.sampleStudentLogins || []),
+  ];
 }
 
 function findEdgePath() {

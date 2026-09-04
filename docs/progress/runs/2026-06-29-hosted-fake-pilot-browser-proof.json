@@ -3,8 +3,8 @@
   "verdict": "GREEN_FAKE_ACCOUNT_HOSTED_BROWSER_PROOF",
   "baseUrl": "https://thecapstoneproject.com",
   "workspaceEntryPath": "/workspace",
-  "startedAt": "2026-09-03T05:22:17.176Z",
-  "completedAt": "2026-09-03T05:24:38.644Z",
+  "startedAt": "2026-09-04T22:24:26.662Z",
+  "completedAt": "2026-09-04T22:26:40.286Z",
   "browser": {
     "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     "devtoolsProtocol": "1.3"
@@ -75,9 +75,9 @@
         "secretPatternMatches": []
       },
       "heading": "Set up your project folder",
-      "textSample": "Skip to workspace Smart Locker Tracker TODAY / STUDENT TS Test Student Maya maya.student@senior-capstone.test SC My Capstone My Capstone SMART LOCKER TRACKER Today My Project Feedback Final Checklist TS Test Student Maya Student YOUR NEXT STEP Missing Set up your project folder Open this item. Finish the work. Add a Google Drive link if needed. Open the matching item in My Project. Continue this step 1 Open My Work Use the item named at the top before opening anything else. 2 Add what it asks for Add the Google Drive link that matches the item. 3 Turn it in Stop when the item says it is waitin",
+      "textSample": "Skip to workspace My project TODAY / STUDENT RA Role Audit Student Account SC My Capstone My Capstone MY PROJECT MY PROJECT WORKSPACE Today My Project Feedback Final Checklist RA Role Audit Student Student YOUR NEXT STEP Missing Set up your project folder Open this item. Finish the work. Add a Google Drive link if needed. Open the matching item in My Project. Start this step 1 Open My Work Use the item named at the top before opening anything else. 2 Add what it asks for Add the Google Drive link that matches the item. 3 Turn it in Stop when the item says it is waiting for teacher review. No p",
       "activeNav": [
-        "1\n        Today\n        What to finish next",
+        "Today",
         "1\n        Today"
       ]
     },
@@ -109,9 +109,12 @@
         "secretPatternMatches": []
       },
       "heading": "Projects that need you",
-      "textSample": "Skip to workspace All projects READY / PROGRAM TEACHER Tools Program Teacher ROLE TT Test Teacher Chen chen.teacher@senior-capstone.test SC Capstone Staff Workspace ALL PROJECTS Projects Projects › Work queue Today › Reviews Reports Reports › TT Test Teacher Chen Program Teacher PROGRAM TEACHER Projects that need you Review one project. Make one decision. The student will see what to do next. Program assignment IT START HERE Student Help Desk Guide Model Excellent Demo 02 turned in Mentor Meeting Two Outline. 1 waiting Submitted Review this project STUDENT Model Excellent Demo 02 WORK Mentor M",
+      "textSample": "Skip to workspace Smart Locker Tracker PROGRAM DASHBOARD / PROGRAM TEACHER Tools Program Teacher ROLE RA Role Audit Program Teacher Account SC Capstone Staff Workspace CURRENT PROJECT SMART LOCKER TRACKER WORKSPACE Today Projects STUDENT SUPPORT Reviews Students Program Dashboard MILESTONES Operations Presentation INSIGHTS Reports RA Role Audit Program Teacher Program Teacher PROGRAM TEACHER Projects that need you Review one project. Make one decision. The student will see what to do next. Program assignment IT YOUR JOB TODAY Move one student forward Start with waiting work. The page will show",
       "activeNav": [
-        "Workspace"
+        "Workspace",
+        "Student support\n        \n          \n              \n                \n                Reviews\n              \n            \n              \n                \n                Students\n              \n            \n              \n                \n                Program Dashboard",
+        "Program Dashboard",
+        "5\n        Program Dashboard"
       ]
     },
     {
@@ -141,7 +144,7 @@
         "secretPatternMatches": []
       },
       "heading": "Your next check-in",
-      "textSample": "Skip to workspace Smart Locker Tracker READY / MENTOR Mentor ROLE TM Test Mentor Rivera rivera.mentor@senior-capstone.test SC Capstone Staff Workspace SMART LOCKER TRACKER Projects Projects › Work queue Today › Work to review People Assigned students › Reports Reports › TM Test Mentor Rivera Mentor MENTOR Your next check-in Help one student move one project step forward. mentor assigned 1 assigned START HERE · MODEL EXCELLENT DEMO 01 Smart Locker Tracker A check-in is missing, missed, or needs make-up status. Needs me first 1 assigned 1 ASK When is your next mentor check-in, and what decision ",
+      "textSample": "Skip to workspace Smart Locker Tracker READY / MENTOR Mentor ROLE RA Role Audit Mentor Account SC Capstone Staff Workspace CURRENT PROJECT SMART LOCKER TRACKER WORKSPACE Today Projects STUDENT SUPPORT Work to review Assigned students INSIGHTS Reports RA Role Audit Mentor Mentor ← Back to Today MENTOR Your next check-in Help one student move one project step forward. mentor assigned 1 assigned START HERE · MODEL EXCELLENT DEMO 01 Smart Locker Tracker A check-in is missing, missed, or needs make-up status. Needs me first 1 assigned 1 ASK When is your next mentor check-in, and what decision do yo",
       "activeNav": []
     },
     {
@@ -172,7 +175,7 @@
         "secretPatternMatches": []
       },
       "heading": "Open one assigned student",
-      "textSample": "Skip to workspace Smart Locker Tracker READY / VIEWER Tools Viewer READ-ONLY TV Test Viewer Sam sam.viewer@senior-capstone.test SC Capstone Staff Workspace SMART LOCKER TRACKER Projects Projects › Work queue Today › Reports Reports › TV Test Viewer Sam Viewer STUDENTS Students Find a student by picking one group, then open one record to read context. Read-only Desert Canyon Test School Start Here Pick one group, then open the first student who needs attention. View all students Find students missing work 1 Open students who need to add the work a teacher must review. View students Test Student",
+      "textSample": "Skip to workspace Smart Locker Tracker READY / VIEWER Tools Viewer READ-ONLY RA Role Audit Viewer Account SC Capstone Staff Workspace CURRENT PROJECT SMART LOCKER TRACKER WORKSPACE Today Projects INSIGHTS Reports RA Role Audit Viewer Viewer ← Back to Today STUDENTS Students Find a student by picking one group, then open one record to read context. Read-only Desert Canyon Test School Start Here Pick one group, then open the first student who needs attention. View all students Find students missing work 1 Open students who need to add the work a teacher must review. View students Test Student Ma",
       "activeNav": []
     },
     {
@@ -202,9 +205,12 @@
         "secretPatternMatches": []
       },
       "heading": "Desert Canyon Test School / 2026-2027",
-      "textSample": "Skip to workspace All projects READY / SITE ADMIN Tools Site Admin ROLE TS Test Site Admin Parker parker.siteadmin@senior-capstone.test SC Capstone Staff Workspace ALL PROJECTS Projects Projects › Work queue Today › Reviews Reports Reports › TS Test Site Admin Parker Site Admin SCHOOL DASHBOARD Desert Canyon Test School / 2026-2027 Desert Canyon Test District / site Site Admin School access Approved Default site No student messaging First-day setup checklist Do these in order before trusting the school workspace for live students. 1. Confirm active students 252 active student records visible. ",
+      "textSample": "Skip to workspace All projects SITE DASHBOARD / SITE ADMIN Tools Site Admin ROLE RA Role Audit Site Admin Account SC Capstone Staff Workspace CURRENT PROJECT ALL PROJECTS WORKSPACE Today Projects Site Dashboard STUDENT SUPPORT Reviews Students Mentor Assignments MILESTONES Operations Presentation INSIGHTS Reports Readiness RA Role Audit Site Admin Site Admin SCHOOL DASHBOARD Desert Canyon Test School / 2026-2027 Desert Canyon Test District / site Site Admin School access Approved Default site No student messaging First-day setup checklist Do these in order before trusting the school workspace ",
       "activeNav": [
-        "Workspace"
+        "Workspace",
+        "Workspace\n        \n          \n              \n                \n                Today\n              \n            \n              \n                \n                Projects\n              \n            \n              \n                \n                Site Dashboard",
+        "Site Dashboard",
+        "5\n        Site Dashboard"
       ]
     },
     {
@@ -234,14 +240,18 @@
         "secretPatternMatches": []
       },
       "heading": "Start with the worklist",
-      "textSample": "Skip to workspace All projects READY / GLOBAL ADMIN Tools Global Admin ROLE TA Test Admin Lee lee.admin@senior-capstone.test SC Capstone Staff Workspace ALL PROJECTS Projects Projects › Work queue Today › Reviews Reports Reports › TA Test Admin Lee Global Admin GLOBAL ADMIN Start with the worklist Start with one student group, one student record, or one report question before opening supporting details. Open students One focused task START HERE Open students. Daily staff work should start with the visible student need, not setup tools. RIGHT NOW Choose one student group that needs attention. I",
+      "textSample": "Skip to workspace All projects GLOBAL OVERVIEW / GLOBAL ADMIN Tools WORK AS All schools ✓ Global Admin Site Admin Changing this view never changes your account assignment. The server still checks every action. RA Role Audit Global Admin Account SC Capstone Staff Workspace CURRENT PROJECT ALL PROJECTS WORKSPACE Today Projects Site Dashboard Global Overview STUDENT SUPPORT Reviews Students Mentor Assignments MILESTONES Operations Presentation INSIGHTS Reports Readiness RA Role Audit Global Admin Global Admin GLOBAL ADMIN Start with the worklist Start with one student group, one student record, o",
       "activeNav": [
-        "Workspace"
+        "Workspace",
+        "✓\n              Global Admin",
+        "Workspace\n        \n          \n              \n                \n                Today\n              \n            \n              \n                \n                Projects\n              \n            \n              \n                \n                Site Dashboard\n              \n            \n              \n                \n                Global Overview",
+        "Global Overview",
+        "10\n        Global Overview"
       ]
     },
     {
       "id": "08-misc-admin-readiness",
-      "label": "Misc Admin readiness",
+      "label": "School Admin readiness",
       "role": "misc_admin",
       "url": "https://thecapstoneproject.com/",
       "viewport": {
@@ -265,9 +275,14 @@
         "noSecretLikeText": true,
         "secretPatternMatches": []
       },
-      "heading": "Aggregate Project Readiness",
-      "textSample": "Skip to workspace All projects READY / REPORTING ADMIN Reporting Admin ROLE TR Test Reporting Admin reporting.miscadmin@senior-capstone.test SC Capstone Staff Workspace ALL PROJECTS Work queue Today › Reports Reports › TR Test Reporting Admin Reporting Admin READINESS REPORTING Aggregate Project Readiness This report shows aggregate project activity only. It does not open individual student records; school staff handle student follow-up in their assigned workspaces. Aggregate reporting only READINESS ACTION MAP Read the report safely Use these lanes to interpret aggregate readiness without lea",
-      "activeNav": []
+      "heading": "Desert Canyon Test School / 2026-2027",
+      "textSample": "Skip to workspace All projects READINESS / SCHOOL ADMIN Tools School Admin ROLE RA Role Audit School Admin Account SC Capstone Staff Workspace CURRENT PROJECT ALL PROJECTS WORKSPACE Today Projects Site Dashboard STUDENT SUPPORT Students Mentor Assignments MILESTONES Operations Presentation INSIGHTS Reports Readiness RA Role Audit School Admin School Admin CURRENT SITE Desert Canyon Test School / 2026-2027 Configured Desert Canyon Test District School Admin Leadership monitoring No student messaging This selected school carries across Dashboard, Students, Review Work, Mentor Assignments, Operat",
+      "activeNav": [
+        "Workspace",
+        "Insights\n        \n          \n              \n                \n                Reports\n              \n            \n              \n                \n                Readiness",
+        "Readiness",
+        "8\n        Readiness"
+      ]
     },
     {
       "id": "09-student-mobile-dashboard",
@@ -296,9 +311,9 @@
         "secretPatternMatches": []
       },
       "heading": "Set up your project folder",
-      "textSample": "Skip to workspace Menu SC My Capstone TS YOUR NEXT STEP Missing Set up your project folder Open this item. Finish the work. Add a Google Drive link if needed. Open the matching item in My Project. Continue this step 1 Open My Work Use the item named at the top before opening anything else. 2 Add what it asks for Add the Google Drive link that matches the item. 3 Turn it in Stop when the item says it is waiting for teacher review. YOUR TEAM Smart Locker Tracker Model Excellent Demo 01, Test Student Maya 2 students Mentor: Ari Field Teacher: Gray Quinn Open project folder Show progress, feedback",
+      "textSample": "Skip to workspace Menu SC My Capstone RA YOUR NEXT STEP Missing Set up your project folder Open this item. Finish the work. Add a Google Drive link if needed. Open the matching item in My Project. Start this step 1 Open My Work Use the item named at the top before opening anything else. 2 Add what it asks for Add the Google Drive link that matches the item. 3 Turn it in Stop when the item says it is waiting for teacher review. No project is assigned yet Ask your teacher to add you to an individual or team project. Show progress, feedback, and checklist 16 items still need work.",
       "activeNav": [
-        "1\n        Today\n        What to finish next",
+        "Today",
         "1\n        Today"
       ]
     },
@@ -329,9 +344,12 @@
         "secretPatternMatches": []
       },
       "heading": "Desert Canyon Test School / 2026-2027",
-      "textSample": "Skip to workspace Menu SC Capstone All projects READY / SITE ADMIN Tools Site Admin ROLE TS Test Site Admin Parker parker.siteadmin@senior-capstone.test SCHOOL DASHBOARD Desert Canyon Test School / 2026-2027 Desert Canyon Test District / site Site Admin School access Approved Default site No student messaging First-day setup checklist Do these in order before trusting the school workspace for live students. 1. Confirm active students 252 active student records visible. Open students 2. Check mentor coverage 221 students need a mentor assignment. Assign mentors 3. Review work 3 submitted items ",
+      "textSample": "Skip to workspace Menu SC Capstone All projects SITE DASHBOARD / SITE ADMIN Tools Site Admin ROLE RA Role Audit Site Admin Account SCHOOL DASHBOARD Desert Canyon Test School / 2026-2027 Desert Canyon Test District / site Site Admin School access Approved Default site No student messaging First-day setup checklist Do these in order before trusting the school workspace for live students. 1. Confirm active students 254 active student records visible. Open students 2. Check mentor coverage 229 students need a mentor assignment. Assign mentors 3. Review work 2 submitted items waiting for Program Te",
       "activeNav": [
-        "Workspace"
+        "Workspace",
+        "Workspace\n        \n          \n              \n                \n                Today\n              \n            \n              \n                \n                Projects\n              \n            \n              \n                \n                Site Dashboard",
+        "Site Dashboard",
+        "5\n        Site Dashboard"
       ]
     }
   ],
