@@ -40,6 +40,15 @@ test("workspace UI polish proof script and package alias exist", () => {
   assert.match(script, /pages[\s\S]*dev[\s\S]*\.deploy-app/);
   assert.match(script, /WORKSPACE_UI_POLISH_IDS/);
   assert.match(script, /wcagTextContrast/);
+  assert.match(script, /color\\\\\(srgb/);
+  assert.match(script, /const channelScale = srgbMatch \? 255 : 1/);
+  assert.match(script, /Date\.now\(\) \+ 40_000/);
+  assert.match(script, /aria-busy/);
+  assert.match(script, /Loading student detail/);
+  assert.match(script, /Loading student timeline/);
+  assert.match(script, /requested role screen before/);
+  assert.doesNotMatch(script, /mode=admin&section=students/);
+  assert.match(script, /allDisclosuresOpenWhenRequested/);
   assert.match(script, /noTinyTargets/);
   assert.match(script, /realStudentProductionStatus:\s*"NOT_CLAIMED_READY"/);
   assert.match(script, /Local fake-account browser UI proof only/);

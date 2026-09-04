@@ -78,6 +78,7 @@ interface QueueRow {
 interface ReviewQueueFilters {
   status: string;
   programId: string;
+  submissionId: string;
   search: string;
   story: string;
   risk: string;
@@ -578,6 +579,7 @@ function parseFilters(params: URLSearchParams): ReviewQueueFilters {
   return {
     status: canonical(params.get("status"), REVIEW_STATUS_VALUES),
     programId: cleanId(params.get("programId")),
+    submissionId: cleanId(params.get("submissionId")),
     search: cleanSearch(params.get("search")),
     story: canonical(params.get("story"), CANONICAL_STORY_VALUES),
     risk: canonical(params.get("risk"), RISK_VALUES, "any"),
@@ -601,6 +603,11 @@ function buildFilterWhere(filters: ReviewQueueFilters): FilterWhere {
   if (filters.programId) {
     clauses.push("program_id = ?");
     binds.push(filters.programId);
+  }
+
+  if (filters.submissionId) {
+    clauses.push("submission_id = ?");
+    binds.push(filters.submissionId);
   }
 
   if (filters.search) {
@@ -755,6 +762,7 @@ function responseFilters(filters: ReviewQueueFilters) {
   return {
     status: filters.status,
     programId: filters.programId,
+    submissionId: filters.submissionId,
     search: filters.search,
     story: filters.story,
     risk: filters.risk,
@@ -768,6 +776,7 @@ function safeFilterSummary(filters: ReviewQueueFilters) {
   return {
     status: filters.status,
     programId: filters.programId,
+    hasSubmission: Boolean(filters.submissionId),
     hasSearch: Boolean(filters.search),
     story: filters.story,
     risk: filters.risk,

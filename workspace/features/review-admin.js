@@ -1022,16 +1022,26 @@ function renderReviewSubmissionPanel(selected, body) {
         </button>
         ${renderViewAsStudentAction(selected.studentId, selected.projectName || selected.studentName, { sourceSection: "teacher", label: "See project view" })}
       </div>
-      ${canDecide ? renderReviewDecisionForm(selected) : `
-        <section class="workspace-empty-state-card" data-review-mutation-disabled="true">
-          <h2>No review action available for this row</h2>
-          ${renderProblemState({
-            reason: permissions.canReview ? `Review actions are only available while work is waiting for review. This row is currently ${reviewQueueStatusText(selected.status).toLowerCase()}.` : "This workspace is read-only for review decisions.",
-            owner: permissions.canReview ? "Assigned reviewer." : "Review team.",
-            nextAction: permissions.canReview ? "Use the history and student detail for context, or open work that is waiting for review." : "Use this queue for context; assigned reviewers handle decisions.",
-          })}
-        </section>
-      `}
+      ${canDecide
+        ? renderReviewDecisionForm(selected)
+        : permissions.canReview
+          ? `
+            <section class="workspace-empty-state-card" data-review-mutation-disabled="true">
+              <h2>No review action available for this row</h2>
+              ${renderProblemState({
+                reason: `Review actions are only available while work is waiting for review. This row is currently ${reviewQueueStatusText(selected.status).toLowerCase()}.`,
+                owner: "Assigned reviewer.",
+                nextAction: "Use the history and student detail for context, or open work that is waiting for review.",
+              })}
+            </section>
+          `
+          : `
+            <section class="workspace-review-readonly-owner" data-review-mutation-disabled="true">
+              <p class="workspace-kicker">Who acts next</p>
+              <h2>The assigned reviewer decides</h2>
+              <p>You can read this work and its notes. The Program Teacher or Mentor will accept it or ask for changes. You do not need to act here.</p>
+            </section>
+          `}
       <details class="workspace-review-more-help" data-review-more-help="true">
         <summary>Past feedback</summary>
         ${renderReviewHistorySummary(historyResult, history)}
@@ -4074,6 +4084,7 @@ function canManageSiteAccountRow(account = {}) {
 function canResetSiteAccountRow(account = {}) {
   const roles = roleIds(currentUser);
   const targetRoles = Array.isArray(account.roleIds) ? account.roleIds : [];
+  if (account.canResetPassword === false) return false;
   if (!account.userId || account.userId === currentUser?.id || !targetRoles.length) return false;
   if (hasGlobalAdminRole(roles)) return true;
   if (!roles.has("site_admin") && !roles.has("administration")) return false;

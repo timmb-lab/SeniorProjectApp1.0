@@ -751,7 +751,12 @@ async function loadWorkspaceData(statusMessage = "", options = {}) {
 
   workspaceDataLoading = true;
   workspaceConnectionState.retrying = Boolean(options.retryAttempt) || workspaceConnectionState.stale;
-  renderAppShell(statusMessage || (workspaceConnectionState.retrying ? "Trying the server again..." : "Loading your workspace..."));
+  const loadingMessage = workspaceConnectionState.retrying
+    ? "Trying the server again..."
+    : statusMessage
+      ? "Updating this page..."
+      : "Loading your workspace...";
+  renderAppShell(loadingMessage);
   const roles = roleIds(currentUser);
   const authConfig = currentData.authConfig || await loadAuthConfig();
   const lastKnownData = currentData;
@@ -1562,7 +1567,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     renderBlockedSectionOnly,
   });
   workspaceMain.innerHTML = `
-    <section class="workspace-app workspace-v2-app" data-flow-frame="v2-from-scratch" data-primary-role="${escapeHtml(primaryRole)}" data-app-mode="${escapeHtml(activeWorkspaceMode)}" data-experience="${escapeHtml(experience)}" data-nav-state="${workspaceNavCollapsed ? "collapsed" : "expanded"}" data-view-as-student="${viewingAsStudent ? "active" : "inactive"}" data-workspace-data-state="${workspaceConnectionState.stale ? "stale" : "current"}">
+    <section class="workspace-app workspace-v2-app" data-flow-frame="v2-from-scratch" data-primary-role="${escapeHtml(primaryRole)}" data-app-mode="${escapeHtml(activeWorkspaceMode)}" data-experience="${escapeHtml(experience)}" data-nav-state="${workspaceNavCollapsed ? "collapsed" : "expanded"}" data-view-as-student="${viewingAsStudent ? "active" : "inactive"}" data-workspace-data-state="${workspaceConnectionState.stale ? "stale" : "current"}" aria-busy="${workspaceDataLoading ? "true" : "false"}">
       <header class="workspace-topbar workspace-v2-topbar" data-topbar-density="compact">
         <div class="workspace-topbar-start workspace-v2-brandline">
           <button class="workspace-menu-toggle workspace-v2-menu-toggle" id="workspaceMenuToggle" type="button" aria-controls="workspaceNavigationRail" aria-expanded="${workspaceNavCollapsed ? "false" : "true"}" aria-pressed="${workspaceNavCollapsed ? "false" : "true"}" aria-label="${workspaceNavCollapsed ? "Open menu" : "Close menu"}">

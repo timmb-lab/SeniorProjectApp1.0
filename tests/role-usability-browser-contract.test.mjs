@@ -14,9 +14,12 @@ test("browser proof covers every role in both themes and across common school de
   for (const width of [390, 820, 1366, 1440]) {
     assert.match(browserProof, new RegExp(`width:\\s*${width}\\b`));
   }
-  for (const schoolTheme of ["east-tech", "desert-valley", "canyon-ridge", "north-valley"]) {
+  // Hosted proof must use schools that actually exist in the active dataset.
+  for (const schoolTheme of ["east-tech", "desert-valley"]) {
     assert.match(browserProof, new RegExp(`expectedSchoolTheme:\\s*["']${schoolTheme}["']`));
   }
+  assert.match(browserProof, /site-east-career-technical-academy/);
+  assert.match(browserProof, /site-desert-valley-high/);
 });
 
 test("browser proof drives the keyboard and requires visible, reversible focus", () => {

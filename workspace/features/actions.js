@@ -788,6 +788,9 @@ async function loadViewAsStudentPreview(message = "Student view opened.", option
     return false;
   }
   const dashboardResult = await settleApi(apiJson(`/api/student/dashboard?studentId=${encodeURIComponent(studentId)}`));
+  // The user may exit or choose another student while this request is in
+  // flight. A late response must not reopen the preview they already left.
+  if (cleanDirectoryFilter(viewAsStudentState.studentId || "") !== studentId) return false;
   if (!dashboardResult.ok) {
     const reason = dashboardResult.status === 403
       ? "Student view is not available for this account."
@@ -796,6 +799,7 @@ async function loadViewAsStudentPreview(message = "Student view opened.", option
     return false;
   }
   const archiveResult = await settleApi(apiJson(`/api/student/archive/readiness?studentId=${encodeURIComponent(studentId)}`));
+  if (cleanDirectoryFilter(viewAsStudentState.studentId || "") !== studentId) return false;
   const dashboard = unwrap(dashboardResult) || {};
   viewAsStudentState = {
     ...viewAsStudentState,
@@ -1240,14 +1244,13 @@ async function handleProjectAction(event) {
   }
   if (action !== "review") return;
   const submissionId = cleanDirectoryFilter(button.dataset.projectSubmissionId || "");
-  const projectName = String(button.dataset.projectName || "").trim().slice(0, 120);
   if (!submissionId) {
     renderAppShell("No work from this project is waiting for review right now.", "error");
     return;
   }
   reviewQueueFilters = {
     ...defaultReviewQueueFilters(),
-    search: projectName,
+    submissionId,
   };
   reviewQueueState = defaultReviewQueueState();
   activeSection = "teacher";

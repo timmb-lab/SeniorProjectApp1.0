@@ -58,4 +58,22 @@ for (const color of primaryColors) {
 assert.ok(contrast("#172033", "#ffffff") >= 7, "Light-view text contrast must be strong.");
 assert.ok(contrast("#f3f7fc", "#0f1b2e") >= 7, "Dark-view text contrast must be strong.");
 
+for (const [foreground, background, label] of [
+  ["#182033", "#ffffff", "final light primary text"],
+  ["#526176", "#ffffff", "final light secondary text"],
+  ["#f7f9fc", "#111f33", "final dark primary text"],
+  ["#c0cad8", "#111f33", "final dark secondary text"],
+]) {
+  assert.ok(contrast(foreground, background) >= 4.5, `${label} must pass normal-text contrast.`);
+}
+
+assert.match(css, /--shell-canvas:\s*#eef1f7/i, "Light view must separate its tinted canvas from white panes.");
+assert.match(css, /--shell-pane:\s*#ffffff/i, "Light view must keep content panes white.");
+assert.match(css, /--shell-canvas:\s*#07111f/i, "Dark view must use a distinct deep canvas.");
+assert.match(css, /--shell-pane:\s*#111f33/i, "Dark view must raise content panes above the canvas.");
+assert.match(css, /--shell-pane-muted:\s*#192a41/i, "Dark view must separate nested panes from parent panes.");
+assert.match(css, /--font-size-body:\s*1rem/i, "Workspace body text must remain at a readable base size.");
+assert.match(css, /--font-size-caption:\s*0\.82rem/i, "Workspace captions must not collapse into tiny labels.");
+assert.match(css, /\.workspace-v2-stage\s*\{[\s\S]*?gap:\s*clamp\(1\.25rem,[\s\S]*?padding:\s*clamp\(28px/i, "The main canvas must preserve obvious space between panes.");
+
 console.log("Workspace brand tokens verified: four school palettes, two views, consistent type, and AA contrast.");

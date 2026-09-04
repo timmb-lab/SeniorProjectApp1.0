@@ -421,6 +421,8 @@ test("workspace route is a real authenticated app surface", () => {
   assert.match(workspaceJs, /\/api\/auth\/change-password/);
   assert.match(workspaceJs, /\/api\/auth\/complete-reset/);
   assert.match(workspaceJs, /\/api\/auth\/logout/);
+  assert.match(workspaceJs, /statusMessage\s*\?\s*"Updating this page\.\.\."/);
+  assert.match(workspaceJs, /aria-busy="\$\{workspaceDataLoading \? "true" : "false"\}"/);
   assert.match(workspaceJs, /\/api\/admin\/users\/import/);
   assert.match(workspaceJs, /\/api\/admin\/users\/\$\{encodeURIComponent\(userId\)\}/);
   assert.match(workspaceJs, /\/api\/site\/dashboard/);
@@ -4402,6 +4404,36 @@ test("View as Student refresh and deep links restore allowed students and reject
   assert.equal(deniedUrl.searchParams.get("unknown"), "keep");
 });
 
+test("leaving View as Student ignores a late student response", async () => {
+  const routes = viewAsStudentRoutesForRole("site_admin");
+  const dashboardRoute = routes["/api/student/dashboard"];
+  let releaseDashboard;
+  const dashboardGate = new Promise((resolve) => {
+    releaseDashboard = resolve;
+  });
+  routes["/api/student/dashboard"] = async (request) => {
+    await dashboardGate;
+    return dashboardRoute(request);
+  };
+
+  const { context, workspaceRoot } = await createWorkspaceContextWithFetch(routes);
+  vm.runInContext('activeSection = "students"; renderAppShell();', context);
+  const entering = vm.runInContext(`enterViewAsStudent("demo-student-101", {
+    studentName: "Missing Mentor Demo 001",
+    sourceSection: "students"
+  })`, context);
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.match(workspaceRoot.innerHTML, /data-view-as-student-banner="true"/);
+
+  vm.runInContext('exitViewAsStudent("Exited student view.")', context);
+  releaseDashboard();
+  await entering;
+
+  assert.equal(vm.runInContext("activeSection", context), "students");
+  assert.equal(vm.runInContext("isViewAsStudentActive()", context), false);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /Viewing as:|Access to My Project is limited/);
+});
+
 test("student accounts do not see or activate View as Student", async () => {
   const student = await createWorkspaceContextWithFetch(profileRoutesForRole("student"), {
     url: "https://workspace.example/workspace.html?section=student&viewAsStudentId=demo-student-101&viewAsReturnSection=students&unknown=keep",
@@ -4590,6 +4622,44 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(teacher, /Say what was good or what needs to change\. The student will see this\./);
   assert.doesNotMatch(teacher, /workspace-review-work-row|data-screen-orientation-section="teacher"/);
   assert.doesNotMatch(teacher, /Bounded teacher comment|Private staff planning note/);
+
+  const siteAdminReadOnly = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "site-admin-review",
+          email: "site.admin.review@example.edu",
+          displayName: "Site Admin Review",
+          roles: [{ role_id: "site_admin", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: false }),
+    },
+    "/api/site/students": {
+      status: 200,
+      body: siteStudentsFixture({ role: "site_admin" }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "site_admin", readOnly: true, canReview: false }),
+    },
+  }, "teacher", `
+    reviewQueueState = {
+      ...defaultReviewQueueState(),
+      selectedSubmissionId: "submission-review-001",
+      historyResult: { ok: true, status: 200, body: ${JSON.stringify(teacherHistory)} }
+    };
+  `);
+  assert.match(siteAdminReadOnly, /workspace-review-readonly-owner/);
+  assert.match(siteAdminReadOnly, /The assigned reviewer decides/);
+  assert.match(siteAdminReadOnly, /You do not need to act here\./);
+  assert.doesNotMatch(siteAdminReadOnly, /No review action available for this row|Recovery actions|data-problem-state-actions="true"/);
+  assert.doesNotMatch(siteAdminReadOnly, /data-review-decision="approved"|data-review-decision="revision_requested"|data-review-decision="comment_only"|<textarea name="feedback"/);
 
   const viewer = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -5257,6 +5327,7 @@ test("workspace applies Review Queue URL filters safely and syncs filter URLs", 
   assert.ok(reviewFetch, "expected Review Queue fetch with URL-derived filters");
   const fetched = new URL(reviewFetch, "https://workspace.example");
   assert.equal(fetched.searchParams.get("siteId"), "site-desert-valley-high");
+  assert.equal(fetched.searchParams.get("submissionId"), "submission-review-001");
   assert.equal(fetched.searchParams.get("status"), "revision_requested");
   assert.equal(fetched.searchParams.get("search"), "proposal scope");
   assert.equal(fetched.searchParams.get("risk"), "stale");
@@ -10743,11 +10814,13 @@ test("workspace scopes Users & Access GUI controls for School Admin and Program 
     ...siteAdminAccess.permissions,
     canRequirePasswordReset: true,
   };
+  siteAdminAccess.users.students[0].canResetPassword = false;
   const siteAdmin = await renderWorkspaceWithFetch({
     ...profileRoutesForRole("site_admin"),
     "/api/site/access-assignments": { status: 200, body: siteAdminAccess },
   }, "adminUsers");
-  assert.equal((siteAdmin.match(/data-admin-password-reset-form="true"/g) || []).length, 4);
+  assert.equal((siteAdmin.match(/data-admin-password-reset-form="true"/g) || []).length, 3);
+  assert.doesNotMatch(siteAdmin, /data-admin-password-reset="demo-student-101"/);
   assert.doesNotMatch(siteAdmin, /data-admin-password-reset="demo-principal-001"/);
 });
 
@@ -13161,6 +13234,7 @@ function siteReviewQueueFixture({
     filters: filters || {
       status: "",
       programId: "",
+      submissionId: "",
       search: "",
       story: "",
       risk: "any",
@@ -14020,10 +14094,27 @@ test("project directory and dedicated project workspace render as separate scree
   `, context);
   assert.match(workspaceHtml, /data-project-workspace="true"/);
   assert.match(workspaceHtml, /← Back to project list/);
-  assert.match(workspaceHtml, /PROJECT WORKSPACE/);
+  assert.match(workspaceHtml, /PROJECT COMMAND CENTER · SITE ADMIN VIEW/);
   assert.match(workspaceHtml, /Community Garden/);
-  assert.match(workspaceHtml, /workspace-project-card-dedicated/);
+  assert.match(workspaceHtml, /workspace-project-command-layout/);
+  assert.match(workspaceHtml, /workspace-project-command-rail[\s\S]*workspace-project-command-rail-sticky/);
+  assert.match(workspaceHtml, /workspace-project-phase-track[\s\S]*aria-current="step"/);
+  assert.match(workspaceHtml, /START HERE[\s\S]*Do this next/);
   assert.doesNotMatch(workspaceHtml, /data-project-list-only="true"|data-project-directory-filter-form="true"/);
+
+  const viewerContext = await createWorkspaceContextWithFetch(profileRoutesForRole("viewer"));
+  const viewerWorkspace = vm.runInContext(`
+    renderProjectWorkspace(${projectRows}[0], {
+      projects: ${projectRows}, selectedProjectIndex: 0, position: 1, total: 2,
+      availableStudents: [], canManage: false, isStudent: false, templates: [],
+      availableProjectAdults: {}, canOpenReviewQueue: false, canMakeReviewDecision: false
+    })
+  `, viewerContext.context);
+  assert.match(viewerWorkspace, /PROJECT COMMAND CENTER · VIEWER VIEW/);
+  assert.doesNotMatch(viewerWorkspace, /data-project-note-form|Open settings|Change a person/);
+
+  assert.match(workspaceCss, /\.workspace-project-command-rail-sticky\s*\{[\s\S]*?position:\s*sticky;[\s\S]*?top:\s*5rem;[\s\S]*?max-height:\s*calc\(100dvh - 6rem\);[\s\S]*?overflow-y:\s*auto;/);
+  assert.match(workspaceCss, /@media \(max-width: 820px\)[\s\S]*?\.workspace-project-command-rail-sticky\s*\{[\s\S]*?position:\s*static;[\s\S]*?max-height:\s*none;[\s\S]*?overflow:\s*visible;/);
 
   const schoolAdminContext = await createWorkspaceContextWithFetch(profileRoutesForRole("administration"));
   const schoolAdminProject = vm.runInContext(`renderProjectCard({
@@ -14047,6 +14138,22 @@ test("project directory and dedicated project workspace render as separate scree
   }, { canManage: true, canOpenReviewQueue: true, canMakeReviewDecision: false })`, context);
   assert.match(siteAdminReviewProject, /data-project-action="review"[\s\S]*Open review details/);
   assert.doesNotMatch(siteAdminReviewProject, />Review this project</);
+
+  const completedProjectBoard = vm.runInContext(`renderProjectBoard([{
+    projectId: "project-complete",
+    name: "Finished project",
+    status: "completed",
+    currentPhase: "finish",
+    waitingForReviewCount: 1,
+    revisionRequestedCount: 1,
+    members: [{ studentId: "student-1", displayName: "Jordan Student" }],
+    adultSetup: { ready: true, mentor: { displayName: "Morgan Mentor" }, programTeacher: { displayName: "Taylor Teacher" } }
+  }])`, context);
+  assert.match(completedProjectBoard, /data-project-board-lane="review"[\s\S]*?<header>[\s\S]*?<span>0<\/span>/);
+  assert.match(completedProjectBoard, /data-project-board-lane="changes"[\s\S]*?<header>[\s\S]*?<span>0<\/span>/);
+  assert.match(completedProjectBoard, /data-project-board-lane="complete"[\s\S]*?<header>[\s\S]*?<span>1<\/span>/);
+  assert.match(completedProjectBoard, /data-project-board-lane="complete"[\s\S]*<span class="workspace-status-pill approved">Complete<\/span>/);
+  assert.doesNotMatch(completedProjectBoard, /<span class="workspace-status-pill in_progress">In progress<\/span>[\s\S]*Finished project/);
 
   const reviewerProject = vm.runInContext(`renderProjectCard({
     projectId: "project-review",
@@ -14143,6 +14250,57 @@ test("opening a project replaces the list and Back restores the same directory s
   assert.equal(vm.runInContext("location.href", context), originalUrl, "returning to the list keeps the browser address stable");
 });
 
+test("Project Command Center opens the exact waiting submission instead of a name search", async () => {
+  const routes = profileRoutesForRole("program_teacher");
+  const allRows = siteReviewQueueFixture({ role: "program_teacher" }).queue;
+  routes["/api/site/review-queue"] = ({ url }) => {
+    const parsed = new URL(url, "https://workspace.example");
+    const submissionId = parsed.searchParams.get("submissionId") || "";
+    const queue = submissionId
+      ? allRows.filter((row) => row.submissionId === submissionId)
+      : allRows;
+    return {
+      status: 200,
+      body: siteReviewQueueFixture({
+        role: "program_teacher",
+        queue,
+        filters: {
+          status: "",
+          programId: "",
+          submissionId,
+          search: "",
+          story: "",
+          risk: "any",
+          evidenceStatus: "",
+          limit: 10,
+          offset: 0,
+        },
+      }),
+    };
+  };
+  routes["/api/reviews/submission-review-001/history"] = {
+    status: 200,
+    body: reviewHistoryFixture(),
+  };
+  const { context, fetchLog, workspaceRoot } = await createWorkspaceContextWithFetch(routes);
+
+  await vm.runInContext(`handleProjectAction({ currentTarget: { dataset: {
+    projectAction: "review",
+    projectSubmissionId: "submission-review-001",
+    projectName: "A legacy project name that is not on the queue row"
+  } } })`, context);
+
+  const reviewFetch = fetchLog.findLast((entry) => entry.startsWith("/api/site/review-queue?"));
+  assert.ok(reviewFetch, "expected the Command Center action to load one submission");
+  const reviewUrl = new URL(reviewFetch, "https://workspace.example");
+  assert.equal(reviewUrl.searchParams.get("submissionId"), "submission-review-001");
+  assert.equal(reviewUrl.searchParams.has("search"), false);
+  assert.equal(vm.runInContext("reviewQueueFilters.submissionId", context), "submission-review-001");
+  assert.equal(vm.runInContext("reviewQueueFilters.search", context), "");
+  assert.equal(vm.runInContext("reviewQueueState.selectedSubmissionId", context), "submission-review-001");
+  assert.match(workspaceRoot.innerHTML, /data-review-selected-submission="submission-review-001"/);
+});
+
 test("mentor project workspace, students, reviews, and reports stay direct and action-ready", async () => {
   const { context, workspaceRoot } = await createWorkspaceContextWithFetch(profileRoutesForRole("mentor"));
   const projectHtml = vm.runInContext(`
@@ -14170,9 +14328,10 @@ test("mentor project workspace, students, reviews, and reports stay direct and a
   `, context);
   assert.match(projectHtml, /data-project-workspace="true"[\s\S]*Community Garden/);
   assert.match(projectHtml, /← Back to project list/);
-  assert.match(projectHtml, /data-mentor-dashboard-action="open-meetings"[\s\S]*Open check-in/);
+  assert.match(projectHtml, /PROJECT COMMAND CENTER · MENTOR VIEW/);
+  assert.match(projectHtml, /data-mentor-dashboard-action="open-meetings"[\s\S]*Open next check-in/);
   assert.match(projectHtml, /Preview student view/);
-  assert.match(projectHtml, /Ask one clear question, agree on one next step, and save it/);
+  assert.match(projectHtml, /Ask one clear question and save the next step/);
 
   const staffTemplates = vm.runInContext(`renderProjectTemplateShelf([{
     templateId: "template-1",

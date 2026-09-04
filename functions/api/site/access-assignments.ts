@@ -278,6 +278,11 @@ async function loadSiteUsersByRole(env: Env, siteId: string, roleId: RoleId) {
          user_accounts.display_name,
          user_accounts.email,
          user_accounts.status,
+         EXISTS(
+           SELECT 1
+           FROM password_credentials
+           WHERE password_credentials.user_id = user_accounts.id
+         ) AS has_local_credential,
          ${rosterProfilesReady ? "COALESCE(student_roster_profiles.cohort, '')" : "''"} AS cohort,
          ${rosterProfilesReady ? "COALESCE(student_roster_profiles.graduation_year, '')" : "''"} AS graduation_year,
          (
@@ -349,6 +354,7 @@ async function loadSiteUsersByRole(env: Env, siteId: string, roleId: RoleId) {
       display_name: string;
       email: string;
       status: string;
+      has_local_credential: number;
       cohort: string | null;
       graduation_year: string | null;
       mentor_user_id: string | null;
@@ -362,7 +368,16 @@ async function loadSiteUsersByRole(env: Env, siteId: string, roleId: RoleId) {
   }
 
   const rows = await env.DB.prepare(
-    `SELECT DISTINCT user_accounts.id, user_accounts.display_name, user_accounts.email, user_accounts.status
+    `SELECT DISTINCT
+       user_accounts.id,
+       user_accounts.display_name,
+       user_accounts.email,
+       user_accounts.status,
+       EXISTS(
+         SELECT 1
+         FROM password_credentials
+         WHERE password_credentials.user_id = user_accounts.id
+       ) AS has_local_credential
      FROM site_users
      JOIN user_accounts ON user_accounts.id = site_users.user_id
       AND user_accounts.status IN ('active', 'pending_reset')
@@ -372,7 +387,7 @@ async function loadSiteUsersByRole(env: Env, siteId: string, roleId: RoleId) {
       AND site_users.membership_status = 'active'
      ORDER BY user_accounts.display_name ASC
      LIMIT 1000`,
-  ).bind(roleId, siteId).all<{ id: string; display_name: string; email: string; status: string }>();
+  ).bind(roleId, siteId).all<{ id: string; display_name: string; email: string; status: string; has_local_credential: number }>();
   return (rows.results || []).map(userOption);
 }
 
@@ -599,12 +614,13 @@ async function ensureSiteMembership(env: Env, siteId: string, userId: string): P
   ).bind(siteId, userId).run();
 }
 
-function userOption(row: { id: string; display_name: string; email: string; status: string }) {
+function userOption(row: { id: string; display_name: string; email: string; status: string; has_local_credential?: number }) {
   return {
     userId: row.id,
     displayName: row.display_name,
     email: row.email,
     status: row.status,
+    canResetPassword: Number(row.has_local_credential || 0) === 1,
   };
 }
 
@@ -613,6 +629,7 @@ function studentUserOption(row: {
   display_name: string;
   email: string;
   status: string;
+  has_local_credential?: number;
   cohort: string | null;
   graduation_year: string | null;
   mentor_user_id: string | null;
@@ -627,6 +644,7 @@ function studentUserOption(row: {
     displayName: row.display_name,
     email: row.email,
     status: row.status,
+    canResetPassword: Number(row.has_local_credential || 0) === 1,
     cohort: row.cohort || "",
     graduationYear: row.graduation_year || "",
     mentorUserId: row.mentor_user_id || "",

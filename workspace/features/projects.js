@@ -136,7 +136,11 @@ function renderProjectWorkspace(project = {}, options = {}) {
   const selectedIndex = Math.max(0, safeNumber(options.selectedProjectIndex));
   const phase = studentBookletPhaseInfo(project.currentPhase || "start");
   const state = projectDisplayState(project);
-  const adults = projectAdultListNames(project.adultSetup);
+  const roleLabel = projectCommandRoleLabel();
+  const members = Array.isArray(project.members) ? project.members : [];
+  const approvedCount = safeNumber(project.approvedCount);
+  const waitingCount = safeNumber(project.waitingForReviewCount);
+  const changesCount = safeNumber(project.revisionRequestedCount);
   const backAction = options.isStudent
     ? '<button class="workspace-button workspace-button-secondary workspace-project-back" type="button" data-section="student">← Back to Today</button>'
     : '<button class="workspace-button workspace-button-secondary workspace-project-back" type="button" data-project-action="back-to-list">← Back to project list</button>';
@@ -144,41 +148,259 @@ function renderProjectWorkspace(project = {}, options = {}) {
     <section class="workspace-command-center workspace-project-dedicated" id="projectWorkspace" data-project-workspace="true" data-project-id="${escapeHtml(project.projectId || "")}" aria-labelledby="projectWorkspaceTitle" tabindex="-1">
       <nav class="workspace-project-detail-toolbar" aria-label="Project navigation">
         ${backAction}
-        ${safeNumber(options.total) > 1 ? `<span>Project ${escapeHtml(safeNumber(options.position))} of ${escapeHtml(safeNumber(options.total))}</span>` : '<span>Project workspace</span>'}
+        <span>${safeNumber(options.total) > 1 ? `Project ${escapeHtml(safeNumber(options.position))} of ${escapeHtml(safeNumber(options.total))}` : "One project"}</span>
       </nav>
       <header class="workspace-project-detail-hero">
-        <div>
-          <p class="workspace-kicker">PROJECT WORKSPACE</p>
-          <h1 id="projectWorkspaceTitle">${escapeHtml(project.name || "Senior Project")}</h1>
-          <p>${escapeHtml(cleanDemoSeedDisplay(project.programName, "Program not set"))} · ${escapeHtml(adults)}</p>
+        <div class="workspace-project-hero-title">
+          <span class="workspace-project-hero-mark" aria-hidden="true">${escapeHtml(projectCommandInitials(project.name))}</span>
+          <div>
+            <p class="workspace-kicker">PROJECT COMMAND CENTER · ${escapeHtml(roleLabel.toUpperCase())}</p>
+            <h1 id="projectWorkspaceTitle">${escapeHtml(project.name || "Senior Project")}</h1>
+            <p>${escapeHtml(cleanDemoSeedDisplay(project.programName, "Program not set"))}${project.siteName ? ` · ${escapeHtml(project.siteName)}` : ""}</p>
+          </div>
         </div>
         <div class="workspace-project-detail-status" aria-label="Project status">
           <span class="workspace-status-pill ${escapeHtml(state.tone)}">${escapeHtml(state.label)}</span>
           <span class="workspace-project-phase-pill">${escapeHtml(phase.label)}</span>
         </div>
+        <div class="workspace-project-pulse" aria-label="Project at a glance">
+          ${renderProjectPulseItem("Stage", studentPhaseShortLabel(phase.key, phase.label), `${projectPhasePosition(phase.key)} of ${STUDENT_BOOKLET_PHASE_ORDER.length}`, "stage")}
+          ${renderProjectPulseItem("Students", members.length || "0", members.length === 1 ? "Individual project" : `${members.length} on this team`, "team")}
+          ${renderProjectPulseItem("Waiting", waitingCount, waitingCount ? "Ready for review" : "Nothing to review", waitingCount ? "review" : "clear")}
+          ${renderProjectPulseItem("Approved", approvedCount, changesCount ? `${changesCount} need changes` : "No changes needed", changesCount ? "changes" : "approved")}
+        </div>
       </header>
-      <div class="workspace-project-detail-content">
-        ${renderProjectCard(project, {
-          open: true,
-          dedicated: true,
-          canManage: options.canManage,
-          isStudent: options.isStudent,
-          availableStudents: options.availableStudents || [],
-          position: options.position,
-          total: options.total,
-          previousProject: rows[selectedIndex - 1] || null,
-          nextProject: rows[selectedIndex + 1] || null,
-          availableProjectAdults: options.availableProjectAdults || {},
-          canOpenReviewQueue: options.canOpenReviewQueue,
-          canMakeReviewDecision: options.canMakeReviewDecision,
-        })}
+      ${renderProjectPhaseTrack(phase.key)}
+      <div class="workspace-project-command-layout">
+        <main class="workspace-project-command-main">
+          ${renderProjectCommandStart(project, options)}
+          ${renderProjectNotes(project)}
+          ${renderProjectAdultSetup(project.adultSetup, project.adultAssignments, {
+            projectId: project.projectId,
+            programId: project.programId,
+            canManage: options.canManage,
+            canNominate: options.isStudent,
+            availableProjectAdults: options.availableProjectAdults || {},
+          })}
+          ${renderProjectTemplateShelf(options.templates || [], {
+            canManage: options.canManageTemplates,
+            isStudent: options.isStudent,
+            siteId: options.siteId || project.siteId || "",
+          })}
+          ${options.canManage ? `
+            <section class="workspace-project-settings-panel workspace-card" data-project-settings-panel="true">
+              <div>
+                <span class="workspace-kicker">PROJECT SETTINGS</span>
+                <h2>Team and project setup</h2>
+                <p>Change the project name, students, program, or folder link.</p>
+              </div>
+              <button class="workspace-button workspace-button-secondary" type="button" data-project-action="manage" data-project-id="${escapeHtml(project.projectId || "")}">
+                ${managedProjectId === project.projectId ? "Close settings" : "Open settings"}
+              </button>
+              ${managedProjectId === project.projectId ? renderManageProjectForm(project, options.availableStudents || []) : ""}
+            </section>
+          ` : ""}
+        </main>
+        <aside class="workspace-project-command-rail" aria-label="Project facts and navigation">
+          <div class="workspace-project-command-rail-sticky">
+            ${renderProjectCommandStatus(project, phase, state)}
+            ${renderProjectCommandPeople(project)}
+            ${renderProjectNavigator(project, {
+              ...options,
+              previousProject: rows[selectedIndex - 1] || null,
+              nextProject: rows[selectedIndex + 1] || null,
+            })}
+          </div>
+        </aside>
       </div>
-      ${renderProjectTemplateShelf(options.templates || [], {
-        canManage: options.canManageTemplates,
-        isStudent: options.isStudent,
-        siteId: options.siteId || project.siteId || "",
-      })}
       ${renderProjectStudentDatalist(options.availableStudents || [], rows)}
+    </section>
+  `;
+}
+
+function projectCommandRoleLabel() {
+  const roles = roleIds(currentUser);
+  if (roles.has("student")) return "Student view";
+  if (roles.has("mentor")) return "Mentor view";
+  if (roles.has("program_teacher")) return "Program Teacher view";
+  if (roles.has("administration")) return "School Admin view";
+  if (roles.has("site_admin")) return "Site Admin view";
+  if (roles.has("global_admin")) return "Global Admin view";
+  if (roles.has("viewer")) return "Viewer view";
+  return "Project view";
+}
+
+function projectCommandInitials(name = "") {
+  const parts = String(name || "Senior Project").trim().split(/\s+/).filter(Boolean);
+  return parts.slice(0, 2).map((part) => part[0]).join("").toUpperCase() || "SP";
+}
+
+function projectPhasePosition(phaseKey = "") {
+  const index = STUDENT_BOOKLET_PHASE_ORDER.indexOf(studentBookletPhaseKey(phaseKey));
+  return index === -1 ? 1 : index + 1;
+}
+
+function renderProjectPulseItem(label, value, help, tone = "") {
+  return `
+    <article data-project-pulse="${escapeHtml(tone)}">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <small>${escapeHtml(help)}</small>
+    </article>
+  `;
+}
+
+function renderProjectPhaseTrack(currentPhaseKey = "start") {
+  const currentIndex = Math.max(0, STUDENT_BOOKLET_PHASE_ORDER.indexOf(studentBookletPhaseKey(currentPhaseKey)));
+  return `
+    <section class="workspace-project-phase-track phase-at-${currentIndex + 1}" aria-labelledby="projectPhaseTrackTitle">
+      <div>
+        <span class="workspace-kicker">PROJECT PATH</span>
+        <h2 id="projectPhaseTrackTitle">Where this project is now</h2>
+      </div>
+      <ol>
+        ${STUDENT_BOOKLET_PHASE_ORDER.map((phaseKey, index) => {
+          const phase = studentBookletPhaseInfo(phaseKey);
+          const status = index < currentIndex ? "is-done" : index === currentIndex ? "is-current" : "is-next";
+          return `
+            <li class="${status}" ${index === currentIndex ? 'aria-current="step"' : ""}>
+              <span>${index < currentIndex ? "✓" : index + 1}</span>
+              <small>${escapeHtml(studentPhaseShortLabel(phase.key, phase.label))}</small>
+            </li>
+          `;
+        }).join("")}
+      </ol>
+    </section>
+  `;
+}
+
+function projectCommandNextAction(project = {}) {
+  const roles = roleIds(currentUser);
+  if (roles.has("mentor")) {
+    return safeNumber(project.waitingForReviewCount) > 0
+      ? "Read the student's work. Then give one clear next step."
+      : "Open a check-in. Ask one clear question and save the next step.";
+  }
+  if (roles.has("program_teacher")) {
+    return safeNumber(project.waitingForReviewCount) > 0
+      ? "Review the work. Accept it or ask for changes."
+      : project.nextAction || "Check the project and help the team move forward.";
+  }
+  if (roles.has("student")) return project.nextAction || "Open your work and do the next step.";
+  return project.nextAction || "Check the project status and help with the next step.";
+}
+
+function renderProjectCommandPrimaryAction(project = {}, options = {}) {
+  const members = Array.isArray(project.members) ? project.members : [];
+  const firstMember = members[0] || {};
+  const isMentor = roleIds(currentUser).has("mentor");
+  const canOpenReviewQueue = options.canOpenReviewQueue === undefined
+    ? hasSiteReviewQueueRole(roleIds(currentUser))
+    : Boolean(options.canOpenReviewQueue);
+  const canMakeReviewDecision = options.canMakeReviewDecision === undefined
+    ? roleIds(currentUser).has("program_teacher") || isMentor
+    : Boolean(options.canMakeReviewDecision);
+  if (canOpenReviewQueue && project.nextSubmissionId && safeNumber(project.waitingForReviewCount) > 0) {
+    return `<button class="workspace-primary-button" type="button" data-project-action="review" data-project-submission-id="${escapeHtml(project.nextSubmissionId)}" data-project-name="${escapeHtml(project.name || "Senior Project")}">${escapeHtml(canMakeReviewDecision ? "Review work now" : "Open review details")}</button>`;
+  }
+  if (isMentor && firstMember.studentId) {
+    return `<button class="workspace-primary-button" type="button" data-mentor-dashboard-action="open-meetings" data-mentor-dashboard-student-id="${escapeHtml(firstMember.studentId)}">Open next check-in</button>`;
+  }
+  if (options.isStudent) {
+    return '<button class="workspace-primary-button" type="button" data-section="studentWork">Open my project work</button>';
+  }
+  if (firstMember.studentId) {
+    return renderViewAsStudentAction(firstMember.studentId, project.name || firstMember.displayName, {
+      sourceSection: "projects",
+      label: isMentor ? "Preview student view" : "Open student workspace",
+    });
+  }
+  return '<span class="workspace-project-action-unavailable">Add a student before opening project work.</span>';
+}
+
+function renderProjectCommandStart(project = {}, options = {}) {
+  const isMentor = roleIds(currentUser).has("mentor");
+  const members = Array.isArray(project.members) ? project.members : [];
+  const firstMember = members[0] || {};
+  const folderUrl = cleanWorkspaceGoogleDriveFolderUrl(project.driveFolderUrl);
+  return `
+    <section class="workspace-project-start-panel workspace-card" aria-labelledby="projectStartTitle">
+      <div class="workspace-project-panel-heading">
+        <div>
+          <span class="workspace-kicker">START HERE</span>
+          <h2 id="projectStartTitle">Do this next</h2>
+        </div>
+        <span class="workspace-summary-badge">One next step</span>
+      </div>
+      <article class="workspace-project-command-action">
+        <span>YOUR NEXT MOVE</span>
+        <h3>${escapeHtml(projectCommandNextAction(project))}</h3>
+        <p>${isMentor ? "Keep the check-in short. The student should leave knowing what to do next." : "Open the right place below. Finish this step before checking reports or settings."}</p>
+        <div>
+          ${renderProjectCommandPrimaryAction(project, options)}
+          ${isMentor && firstMember.studentId ? renderViewAsStudentAction(firstMember.studentId, project.name || firstMember.displayName, { sourceSection: "projects", label: "Preview student view" }) : ""}
+          ${folderUrl ? `<a class="workspace-button workspace-button-secondary" href="${escapeHtml(folderUrl)}" target="_blank" rel="noopener noreferrer">Open Google Drive</a>` : ""}
+        </div>
+      </article>
+      <div class="workspace-project-command-brief">
+        <article>
+          <span>WHAT THE TEAM IS MAKING</span>
+          <p>${escapeHtml(project.summary || "The project summary has not been added yet.")}</p>
+        </article>
+        <article>
+          <span>HOW WORK IS SAVED</span>
+          <p>${folderUrl ? "The team keeps files in its Google Drive folder. This app saves the links and feedback." : "The team still needs to add its main Google Drive folder link."}</p>
+        </article>
+      </div>
+      ${members.length > 1 ? '<p class="workspace-project-team-rule">Team work is shared. Each student still writes their own reflections.</p>' : '<p class="workspace-project-team-rule">This is an individual project. It follows the same project path.</p>'}
+    </section>
+  `;
+}
+
+function renderProjectCommandStatus(project = {}, phase = {}, state = {}) {
+  const waiting = safeNumber(project.waitingForReviewCount);
+  const changes = safeNumber(project.revisionRequestedCount);
+  const approved = safeNumber(project.approvedCount);
+  return `
+    <section class="workspace-project-rail-card workspace-card" aria-labelledby="projectStatusTitle">
+      <div class="workspace-project-panel-heading">
+        <div>
+          <span class="workspace-kicker">PROJECT STATUS</span>
+          <h2 id="projectStatusTitle">At a glance</h2>
+        </div>
+        <span class="workspace-status-pill ${escapeHtml(state.tone || "in_progress")}">${escapeHtml(state.label || "In progress")}</span>
+      </div>
+      <dl>
+        <div><dt>Current stage</dt><dd>${escapeHtml(studentPhaseShortLabel(phase.key, phase.label))}</dd></div>
+        <div><dt>Waiting for review</dt><dd>${waiting}</dd></div>
+        <div><dt>Needs changes</dt><dd>${changes}</dd></div>
+        <div><dt>Approved work</dt><dd>${approved}</dd></div>
+        <div><dt>Last update</dt><dd>${escapeHtml(project.updatedAt ? formatDate(project.updatedAt) : "Not listed")}</dd></div>
+      </dl>
+    </section>
+  `;
+}
+
+function renderProjectCommandPeople(project = {}) {
+  const members = Array.isArray(project.members) ? project.members : [];
+  const mentor = project.adultSetup?.mentor?.displayName || project.adultSetup?.pendingMentor?.displayName || "Still needed";
+  const teacher = project.adultSetup?.programTeacher?.displayName || project.adultSetup?.pendingProgramTeacher?.displayName || "Still needed";
+  const adultsConfirmed = Boolean(project.adultSetup?.mentor?.displayName && project.adultSetup?.programTeacher?.displayName);
+  return `
+    <section class="workspace-project-rail-card workspace-project-people-card workspace-card" aria-labelledby="projectPeopleTitle">
+      <div class="workspace-project-panel-heading">
+        <div>
+          <span class="workspace-kicker">PROJECT TEAM</span>
+          <h2 id="projectPeopleTitle">People</h2>
+        </div>
+        <span class="workspace-summary-badge">${members.length} ${pluralize(members.length, "student")}</span>
+      </div>
+      <div class="workspace-project-people-list">
+        <div><span class="workspace-project-person-mark" aria-hidden="true">ST</span><p><small>STUDENTS</small><strong>${escapeHtml(members.map((member) => member.displayName).join(", ") || "No students assigned")}</strong></p></div>
+        <div><span class="workspace-project-person-mark mentor" aria-hidden="true">ME</span><p><small>MENTOR</small><strong>${escapeHtml(mentor)}</strong></p></div>
+        <div><span class="workspace-project-person-mark teacher" aria-hidden="true">PT</span><p><small>PROGRAM TEACHER</small><strong>${escapeHtml(teacher)}</strong></p></div>
+      </div>
+      <p>${adultsConfirmed ? "Both required adults are confirmed." : "This project still needs a confirmed Mentor and Program Teacher."}</p>
     </section>
   `;
 }
@@ -733,12 +955,12 @@ function renderProjectBoard(projects = []) {
     {
       id: "review",
       title: "Needs review",
-      rows: rows.filter((project) => safeNumber(project.waitingForReviewCount) > 0 && safeNumber(project.revisionRequestedCount) === 0),
+      rows: rows.filter((project) => project.status !== "completed" && safeNumber(project.waitingForReviewCount) > 0 && safeNumber(project.revisionRequestedCount) === 0),
     },
     {
       id: "changes",
       title: "Needs changes",
-      rows: rows.filter((project) => safeNumber(project.revisionRequestedCount) > 0),
+      rows: rows.filter((project) => project.status !== "completed" && safeNumber(project.revisionRequestedCount) > 0),
     },
     {
       id: "working",
@@ -773,13 +995,7 @@ function renderProjectBoardCard(project = {}) {
   const memberNames = members.map((member) => member.displayName).join(", ") || "No students";
   const adultNames = projectAdultListNames(project.adultSetup);
   const phase = studentBookletPhaseInfo(project.currentPhase || "start");
-  const state = project.adultSetup?.ready === false
-    ? { label: "People needed", tone: "revision_requested" }
-    : safeNumber(project.revisionRequestedCount) > 0
-    ? { label: "Changes needed", tone: "revision_requested" }
-    : safeNumber(project.waitingForReviewCount) > 0
-      ? { label: "Waiting for review", tone: "submitted" }
-      : { label: "In progress", tone: "in_progress" };
+  const state = projectDisplayState(project);
   return `
     <article class="workspace-project-board-card" data-project-search-text="${escapeHtml(`${project.name || ""} ${memberNames} ${adultNames} ${phase.label} ${state.label}`.toLowerCase())}">
       <span class="workspace-status-pill ${escapeHtml(state.tone)}">${escapeHtml(state.label)}</span>

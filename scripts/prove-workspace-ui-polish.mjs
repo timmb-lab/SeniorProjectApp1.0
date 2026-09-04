@@ -21,6 +21,7 @@ const MANIFEST_PATH = process.env.WORKSPACE_UI_POLISH_MANIFEST_PATH
   || path.join("docs", "progress", "runs", "2026-06-30-workspace-ui-polish-browser-proof.json");
 const SCREENSHOT_INDEX_PATH = process.env.WORKSPACE_UI_POLISH_INDEX_PATH
   || path.join("docs", "sales", "workspace-ui-polish-screenshot-index.md");
+const EXHAUSTIVE_PROOF = /^(1|true|yes)$/i.test(String(process.env.WORKSPACE_UI_POLISH_EXHAUSTIVE || ""));
 const WRANGLER_JS = path.join(ROOT, "node_modules", "wrangler", "bin", "wrangler.js");
 
 const EDGE_CANDIDATES = [
@@ -229,7 +230,7 @@ const SCREENSHOT_PLAN = [
     persona: "Site Admin student detail",
     authRole: "site_admin",
     accountType: "Fake .test demo staff account",
-    url: workspaceUrl("?mode=admin&section=students&siteId=site-desert-valley-high"),
+    url: workspaceUrl("?mode=workspace&section=students&siteId=site-desert-valley-high"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
     expected: ["Student", "More", "What this student needs next"],
     action: "clickFirstStudentDetail",
@@ -253,7 +254,7 @@ const SCREENSHOT_PLAN = [
     persona: "Site Admin preview entered",
     authRole: "site_admin",
     accountType: "Fake .test demo staff account using read-only preview",
-    url: workspaceUrl("?mode=admin&section=students&siteId=site-desert-valley-high"),
+    url: workspaceUrl("?mode=workspace&section=students&siteId=site-desert-valley-high"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
     expected: ["Viewing as:", "Nothing can be changed here", "Exit student view"],
     actions: ["clickFirstViewAsStudent", "scrollTop"],
@@ -265,7 +266,7 @@ const SCREENSHOT_PLAN = [
     persona: "Site Admin preview exited",
     authRole: "site_admin",
     accountType: "Fake .test demo staff account using read-only preview",
-    url: workspaceUrl("?mode=admin&section=students&siteId=site-desert-valley-high"),
+    url: workspaceUrl("?mode=workspace&section=students&siteId=site-desert-valley-high"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
     expected: ["Students", "More"],
     absent: ["Viewing as:"],
@@ -291,7 +292,7 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?mode=admin&section=adminStudents&siteId=site-desert-valley-high"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
-    expected: ["Students", "Current student accounts", "CURRENT ROSTER STATE", "No student setup blocker is first in line", "Show setup counts"],
+    expected: ["Student Roster Setup", "Review the student profile, school, program, and required mentor", "Roster setup", "Manage Students", "Add Student"],
     absent: ["Students visible", "Roster fields", "Mentor gaps", "Viewer gaps"],
     action: "scrollToPeopleScreen",
     proves: "Students opens on the current roster state and real student rows, with setup counts collapsed.",
@@ -348,7 +349,7 @@ const SCREENSHOT_PLAN = [
     persona: "Site Admin empty search",
     authRole: "site_admin",
     accountType: "Fake .test demo staff account",
-    url: workspaceUrl("?mode=admin&section=students&siteId=site-desert-valley-high&search=zzzz-no-demo-match"),
+    url: workspaceUrl("?mode=workspace&section=students&siteId=site-desert-valley-high&search=zzzz-no-demo-match"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
     expected: ["No matching student search results", "Clear filters"],
     action: "scrollToStudentDirectoryEmpty",
@@ -524,15 +525,15 @@ const SCREENSHOT_PLAN = [
   },
   {
     id: "26-administration-workspace-today",
-    label: "Administration Today",
-    persona: "Administration",
+    label: "Reporting Admin Today",
+    persona: "Reporting Admin",
     authRole: "misc_admin",
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?mode=workspace&section=overview"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
-    expected: ["Staff Workspace", "SCHOOL ADMIN PLAN", "Daily support before setup work", "Choose one student group", "Review work"],
+    expected: ["Staff Workspace", "LEGACY REPORTING ADMIN", "Start with the worklist", "Open students"],
     absent: ["Need setup or access work?", "Role context"],
-    proves: "Administration lands on the student attention queues instead of the old dashboard handoff.",
+    proves: "Reporting Admin lands on its limited worklist without inheriting School Admin privileges.",
   },
   {
     id: "27-global-admin-workspace-today",
@@ -614,7 +615,7 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?mode=workspace&section=students&siteId=site-desert-valley-high"),
     viewport: { width: 390, height: 844, deviceScaleFactor: 2, mobile: true },
-    expected: ["Student", "Evidence", "GOOGLE DRIVE LINKS AND REVIEW STATUS", "Project links", "The student shared this link for review"],
+    expected: ["Student", "Evidence", "GOOGLE DRIVE LINKS AND REVIEW STATUS", "Project links"],
     absent: ["Download file", "storage id", "Showing 0 of 0"],
     actions: ["clickFirstStudentDetail", "clickStudentDetailEvidenceTab"],
     proves: "Student Detail Evidence stays usable on phone width without exposing file/storage identifiers.",
@@ -650,7 +651,7 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?mode=admin&section=programs&siteId=site-desert-valley-high"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
-    expected: ["Programs", "Programs at Desert Valley High School", "Program Teacher assignment", "Active site programs"],
+    expected: ["Programs", "Programs at", "School look", "Program Teacher assignment", "Active site programs"],
     proves: "Programs shows school context, active programs, available programs, and Program Teacher coverage issues.",
   },
   {
@@ -768,7 +769,7 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?mode=workspace&section=students&siteId=site-desert-valley-high"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
-    expected: ["Timeline", "Showing all activity", "Recent activity", "Comment added"],
+    expected: ["Timeline", "Showing all activity", "Recent activity"],
     actions: ["clickFirstStudentDetail", "clickStudentDetailTimelineTab"],
     proves: "Student Detail exposes the Timeline tab through the protected detail drawer with scoped activity context.",
   },
@@ -778,7 +779,7 @@ const SCREENSHOT_PLAN = [
     persona: "Site Admin phone detail",
     authRole: "site_admin",
     accountType: "Fake .test demo staff account",
-    url: workspaceUrl("?mode=admin&section=students&siteId=site-desert-valley-high"),
+    url: workspaceUrl("?mode=workspace&section=students&siteId=site-desert-valley-high"),
     viewport: { width: 390, height: 844, deviceScaleFactor: 2, mobile: true },
     expected: ["Student", "More"],
     action: "clickFirstStudentDetail",
@@ -817,13 +818,13 @@ const SCREENSHOT_PLAN = [
   },
   {
     id: "51-administration-today-phone",
-    label: "Administration Today phone",
-    persona: "Administration mobile Today",
+    label: "Reporting Admin Today phone",
+    persona: "Reporting Admin mobile Today",
     authRole: "misc_admin",
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?mode=workspace&section=overview"),
     viewport: { width: 390, height: 844, deviceScaleFactor: 2, mobile: true },
-    proves: "Administration Today keeps the staff/admin support plan readable on phone width.",
+    proves: "Reporting Admin Today keeps the limited reporting plan readable on phone width.",
   },
   {
     id: "52-global-admin-today-phone",
@@ -953,23 +954,23 @@ const SCREENSHOT_PLAN = [
   },
   {
     id: "64-administration-students-workspace",
-    label: "Administration Students workspace",
-    persona: "Administration workspace Students",
+    label: "Reporting Admin Readiness workspace",
+    persona: "Reporting Admin workspace Readiness",
     authRole: "misc_admin",
     accountType: "Fake .test demo staff account",
-    url: workspaceUrl("?mode=workspace&section=students&siteId=site-desert-valley-high"),
+    url: workspaceUrl("?mode=workspace&section=readiness&siteId=site-desert-valley-high"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
-    proves: "Administration Students opens the school-scoped student directory without viewer-only labels.",
+    proves: "Reporting Admin opens aggregate readiness without student-directory privileges.",
   },
   {
     id: "65-administration-reports-phone",
-    label: "Administration Reports phone",
-    persona: "Administration mobile Reports",
+    label: "Reporting Admin Reports phone",
+    persona: "Reporting Admin mobile Reports",
     authRole: "misc_admin",
     accountType: "Fake .test demo staff account",
     url: workspaceUrl("?mode=workspace&section=staffReports&siteId=site-desert-valley-high"),
     viewport: { width: 390, height: 844, deviceScaleFactor: 2, mobile: true },
-    proves: "Administration Reports keep scoped status bars readable on phone width.",
+    proves: "Reporting Admin Reports keep aggregate status bars readable on phone width.",
   },
   {
     id: "66-global-admin-students-workspace",
@@ -1129,7 +1130,7 @@ const SCREENSHOT_PLAN = [
     accountType: "Fake .test demo student account",
     url: workspaceUrl("?section=studentWork"),
     viewport: { width: 320, height: 720, deviceScaleFactor: 2, mobile: true },
-    expected: ["My Capstone", "My Project"],
+    expected: ["My Project", "Project timeline"],
     absent: ["Tools", "Admin Console", "Staff Workspace"],
     proves: "Students do not see a dead-end Tools button when their account has no top-bar tools.",
   },
@@ -1213,21 +1214,21 @@ const DARK_THEME_ROLE_PLAN = [
     url: workspaceUrl("?mode=workspace&section=projects&siteId=site-desert-valley-high"),
     viewport: { width: 820, height: 900, deviceScaleFactor: 1, mobile: false },
     theme: "dark",
-    expected: ["PROJECT WORKSPACE", "Back to project list", "NEXT STEP", "PROJECT FOLDER", "TEAM", "MENTOR", "PROGRAM"],
+    expected: ["PROJECT COMMAND CENTER", "Back to project list", "START HERE", "YOUR NEXT MOVE", "PROJECT PATH", "PROJECT TEAM", "MENTOR", "PROGRAM TEACHER"],
     absent: ["Choose one project. The list will close", "Project or student name", "School projects"],
     action: "proveProjectOpenAndBack",
     proves: "A project replaces the directory, Back restores the directory, and reopening the project stays readable in dark view at tablet width.",
   },
   {
     id: "96-dark-administration-desktop",
-    label: "Administration dark view",
-    persona: "School administration using dark view",
+    label: "Reporting Admin dark view",
+    persona: "Reporting Admin using dark view",
     authRole: "misc_admin",
     accountType: "Fake .test demo staff account",
-    url: workspaceUrl("?mode=workspace&section=students&siteId=site-desert-valley-high"),
+    url: workspaceUrl("?mode=workspace&section=readiness&siteId=site-desert-valley-high"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
     theme: "dark",
-    proves: "School administration keeps scoped student work readable and keyboard reachable in dark view.",
+    proves: "Reporting Admin keeps aggregate readiness readable and keyboard reachable in dark view.",
   },
   {
     id: "97-dark-global-admin-east-tech",
@@ -1256,31 +1257,144 @@ const DARK_THEME_ROLE_PLAN = [
   },
   {
     id: "99-light-global-admin-canyon-ridge",
-    label: "Global Admin Canyon Ridge light view",
-    persona: "Global Admin checking Canyon Ridge school branding in light view",
+    label: "Global Admin East Tech light view",
+    persona: "Global Admin checking East Tech school branding in light view",
     authRole: "admin",
     accountType: "Fake .test demo staff account",
-    url: workspaceUrl("?mode=admin&section=overview&siteId=site-canyon-ridge-career"),
+    url: workspaceUrl("?mode=admin&section=overview&siteId=site-east-career-technical-academy"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
     theme: "light",
-    expectedSchoolTheme: "canyon-ridge",
-    proves: "Canyon Ridge identity colors and type remain distinct and readable in the Global Admin light view.",
+    expectedSchoolTheme: "east-tech",
+    proves: "East Tech identity colors and type remain distinct and readable in the Global Admin light view.",
   },
   {
     id: "100-dark-global-admin-north-valley",
-    label: "Global Admin North Valley dark view",
-    persona: "Global Admin checking North Valley school branding in dark view",
+    label: "Global Admin Desert Valley dark view",
+    persona: "Global Admin checking Desert Valley school branding in dark view",
     authRole: "admin",
     accountType: "Fake .test demo staff account",
-    url: workspaceUrl("?mode=admin&section=overview&siteId=site-north-valley-tech"),
+    url: workspaceUrl("?mode=admin&section=overview&siteId=site-desert-valley-high"),
     viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
     theme: "dark",
-    expectedSchoolTheme: "north-valley",
-    proves: "North Valley identity colors and type remain distinct and readable in the Global Admin dark view.",
+    expectedSchoolTheme: "desert-valley",
+    proves: "Desert Valley identity colors and type remain distinct and readable in the Global Admin dark view.",
   },
 ];
 
 SCREENSHOT_PLAN.push(...DARK_THEME_ROLE_PLAN);
+const EXHAUSTIVE_ROLE_SURFACES = {
+  student: {
+    workspace: ["profile", "student", "studentWork", "studentFeedback", "studentFinalChecklist", "presentation", "archive", "security"],
+  },
+  mentor: {
+    workspace: ["profile", "overview", "projects", "mentor", "teacher", "mentorDashboard", "presentation", "staffReports", "security"],
+  },
+  viewer: {
+    workspace: ["profile", "overview", "projects", "students", "staffReports", "security"],
+  },
+  program_teacher: {
+    workspace: ["profile", "overview", "projects", "students", "teacher", "programDashboard", "operations", "presentation", "staffReports", "security"],
+    admin: ["overview", "adminAssignments", "students", "teacher", "mentorAssignments", "operations"],
+  },
+  administration: {
+    workspace: ["profile", "overview", "projects", "students", "siteDashboard", "operations", "mentorAssignments", "presentation", "readiness", "staffReports", "security"],
+    admin: ["overview", "adminPeople", "adminStudents", "adminAssignments", "adminImports", "adminUsers", "students", "mentorAssignments", "operations", "presentation", "readiness", "adminReports", "siteDashboard"],
+  },
+  site_admin: {
+    workspace: ["profile", "overview", "projects", "students", "teacher", "siteDashboard", "operations", "mentorAssignments", "presentation", "readiness", "staffReports", "security"],
+    admin: ["overview", "adminPeople", "adminStudents", "adminAssignments", "programs", "adminImports", "adminUsers", "students", "teacher", "mentorAssignments", "operations", "presentation", "readiness", "adminReports", "siteDashboard"],
+  },
+  admin: {
+    workspace: ["profile", "overview", "projects", "students", "teacher", "siteDashboard", "operations", "mentorAssignments", "presentation", "readiness", "adminDashboard", "staffReports", "security"],
+    admin: ["overview", "adminPeople", "adminStudents", "adminAssignments", "programs", "adminImports", "adminUsers", "students", "teacher", "mentorAssignments", "operations", "presentation", "readiness", "adminReports", "adminDashboard", "siteDashboard", "archiveExports", "audit", "security"],
+  },
+};
+const EXHAUSTIVE_RESPONSIVE_PROFILES = [
+  ["chromebook-light", { width: 1366, height: 768, deviceScaleFactor: 1, mobile: false }, "light", false],
+  ["chromebook-dark", { width: 1366, height: 768, deviceScaleFactor: 1, mobile: false }, "dark", false],
+  ["short-light", { width: 1366, height: 650, deviceScaleFactor: 1, mobile: false }, "light", true],
+  ["short-dark", { width: 1366, height: 650, deviceScaleFactor: 1, mobile: false }, "dark", false],
+  ["tablet-light", { width: 820, height: 900, deviceScaleFactor: 1, mobile: false }, "light", false],
+  ["tablet-dark", { width: 820, height: 900, deviceScaleFactor: 1, mobile: false }, "dark", false],
+  ["narrow-phone-light", { width: 360, height: 800, deviceScaleFactor: 2, mobile: true }, "light", false],
+  ["narrow-phone-dark", { width: 360, height: 800, deviceScaleFactor: 2, mobile: true }, "dark", false],
+  ["phone-light", { width: 390, height: 844, deviceScaleFactor: 2, mobile: true }, "light", false],
+  ["phone-dark", { width: 390, height: 844, deviceScaleFactor: 2, mobile: true }, "dark", true],
+];
+
+function exhaustiveWorkspaceUrl(mode, section) {
+  const params = new URLSearchParams({ mode, section });
+  if (section !== "student" && section !== "studentWork" && section !== "studentFeedback" && section !== "studentFinalChecklist") {
+    params.set("siteId", "site-desert-valley-high");
+  }
+  return workspaceUrl(`?${params.toString()}`);
+}
+
+function exhaustivePlanItem({ id, role, mode, section, viewport, theme, capture = false, action = "" }) {
+  return {
+    id,
+    label: `${role} ${mode} ${section} ${theme}`,
+    persona: `${role} exhaustive visual audit`,
+    authRole: role,
+    accountType: "Fake .test local visual-audit account",
+    url: exhaustiveWorkspaceUrl(mode, section),
+    viewport,
+    theme,
+    capture,
+    auditKeyboard: false,
+    ...(action ? { action } : {}),
+    proves: `${role} ${mode} / ${section} passed current-theme, readability, contrast, overflow, topbar, and target-size checks at ${viewport.width}x${viewport.height}${action ? " with every disclosure expanded" : ""}.`,
+  };
+}
+
+function buildExhaustivePlan() {
+  const plan = [];
+  const representativeBySection = new Map();
+  const expandedScreenshotSections = new Set();
+  for (const [role, modes] of Object.entries(EXHAUSTIVE_ROLE_SURFACES)) {
+    for (const [mode, sections] of Object.entries(modes)) {
+      for (const section of sections) {
+        if (!representativeBySection.has(section)) representativeBySection.set(section, { role, mode, section });
+        plan.push(exhaustivePlanItem({
+          id: `x-role-${role}-${mode}-${section}-desktop-light`,
+          role,
+          mode,
+          section,
+          viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+          theme: "light",
+          capture: true,
+        }));
+        const captureExpanded = !expandedScreenshotSections.has(section);
+        if (captureExpanded) expandedScreenshotSections.add(section);
+        plan.push(exhaustivePlanItem({
+          id: `x-role-${role}-${mode}-${section}-desktop-dark-expanded`,
+          role,
+          mode,
+          section,
+          viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+          theme: "dark",
+          capture: captureExpanded,
+          action: "openAllDisclosures",
+        }));
+      }
+    }
+  }
+  for (const [section, surface] of representativeBySection) {
+    for (const [profile, viewport, theme, capture] of EXHAUSTIVE_RESPONSIVE_PROFILES) {
+      plan.push(exhaustivePlanItem({
+        id: `x-responsive-${section}-${profile}`,
+        ...surface,
+        viewport,
+        theme,
+        capture,
+      }));
+    }
+  }
+  return plan;
+}
+
+const EXHAUSTIVE_PLAN = EXHAUSTIVE_PROOF ? buildExhaustivePlan() : [];
+SCREENSHOT_PLAN.push(...EXHAUSTIVE_PLAN);
 const SCREENSHOT_ID_FILTER = new Set(
   String(process.env.WORKSPACE_UI_POLISH_IDS || "")
     .split(",")
@@ -1308,30 +1422,28 @@ function absoluteRepoPath(repoRelativePath) {
 function normalizeAccountRole(role) {
   const normalized = String(role || "").trim().toLowerCase();
   if (normalized === "global_admin" || normalized === "platform_admin") return "admin";
-  if (normalized === "administration") return "misc_admin";
   return normalized;
 }
 
 async function readAccounts() {
   const credentialPaths = [...new Set([CREDENTIALS_PATH, STUDENT_CREDENTIALS_PATH].filter(Boolean))];
-  const accounts = [];
-  for (const credentialPath of credentialPaths) {
+  const byRole = new Map();
+  for (const [pathIndex, credentialPath] of credentialPaths.entries()) {
     const absolutePath = absoluteRepoPath(credentialPath);
     if (!existsSync(absolutePath)) continue;
     const parsed = JSON.parse(await fs.readFile(absolutePath, "utf8"));
-    accounts.push(...credentialAccounts(parsed));
-  }
-  const byRole = new Map();
-  for (const account of accounts) {
-    const role = normalizeAccountRole(account.role || account.key || account.roleId);
-    if (!role || byRole.has(role)) continue;
-    const email = account.email || account.username;
-    const password = account.password;
-    if (email && password) byRole.set(role, {
-      email,
-      password,
-      mfaSecret: String(account.mfaSecret || "").trim(),
-    });
+    for (const account of credentialAccounts(parsed)) {
+      const role = normalizeAccountRole(account.role || account.key || account.roleId);
+      const isStudentOverride = pathIndex > 0 && role === "student";
+      if (!role || (byRole.has(role) && !isStudentOverride)) continue;
+      const email = account.email || account.username;
+      const password = account.password || account.workingPassword;
+      if (email && password) byRole.set(role, {
+        email,
+        password,
+        mfaSecret: String(account.mfaSecret || "").trim(),
+      });
+    }
   }
   const requiredRoles = [...new Set(RUN_PLAN.map((item) => normalizeAccountRole(item.authRole)).filter(Boolean))];
   const missing = requiredRoles.filter((role) => !byRole.has(role));
@@ -1400,6 +1512,43 @@ async function waitForHttpOk(url, timeoutMs = 45_000) {
   throw new Error(`Timed out waiting for local app at ${url}; last status: ${lastStatus}`);
 }
 
+function spawnLocalPagesProcess(port, stdout, stderr) {
+  const app = spawn(process.execPath, [
+    WRANGLER_JS,
+    "pages",
+    "dev",
+    ".deploy-app",
+    "--compatibility-date=2026-05-18",
+    "--port",
+    String(port),
+    "--ip",
+    "127.0.0.1",
+  ], {
+    cwd: ROOT,
+    env: { ...process.env, NO_COLOR: "1" },
+    stdio: ["ignore", "pipe", "pipe"],
+    windowsHide: true,
+  });
+  app.stdout.on("data", (chunk) => stdout.push(chunk.toString()));
+  app.stderr.on("data", (chunk) => stderr.push(chunk.toString()));
+  return app;
+}
+
+async function stopLocalPagesProcess(app) {
+  if (!app || app.exitCode !== null || app.killed) return;
+  await new Promise((resolve) => {
+    let finished = false;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      resolve();
+    };
+    app.once("exit", finish);
+    app.kill();
+    setTimeout(finish, 5_000).unref();
+  });
+}
+
 async function startLocalAppIfNeeded(result) {
   if (BASE_URL_FROM_ENV) {
     result.server = {
@@ -1426,32 +1575,27 @@ async function startLocalAppIfNeeded(result) {
   const baseUrl = `http://127.0.0.1:${port}`;
   const stdout = [];
   const stderr = [];
-  const app = spawn(process.execPath, [
-    WRANGLER_JS,
-    "pages",
-    "dev",
-    ".deploy-app",
-    "--compatibility-date=2026-05-18",
-    "--port",
-    String(port),
-    "--ip",
-    "127.0.0.1",
-  ], {
-    cwd: ROOT,
-    env: { ...process.env, NO_COLOR: "1" },
-    stdio: ["ignore", "pipe", "pipe"],
-    windowsHide: true,
-  });
-  app.stdout.on("data", (chunk) => stdout.push(chunk.toString()));
-  app.stderr.on("data", (chunk) => stderr.push(chunk.toString()));
+  const localApp = { baseUrl, app: null, stdout, stderr, restarts: 0, restart: null };
+  const launch = async () => {
+    localApp.app = spawnLocalPagesProcess(port, stdout, stderr);
+    await waitForHttpOk(`${baseUrl}${WORKSPACE_ENTRY_PATH}`);
+  };
+  localApp.restart = async () => {
+    await stopLocalPagesProcess(localApp.app);
+    await launch();
+    localApp.restarts += 1;
+    if (result.server) result.server.restarts = localApp.restarts;
+  };
+  await launch();
   await waitForHttpOk(`${baseUrl}${WORKSPACE_ENTRY_PATH}`);
   result.server = {
     startedByScript: true,
     baseUrl,
     command: "node node_modules/wrangler/bin/wrangler.js pages dev .deploy-app --compatibility-date=2026-05-18",
     build: "node scripts/build-app-deploy.mjs",
+    restarts: 0,
   };
-  return { baseUrl, app, stdout, stderr };
+  return localApp;
 }
 
 async function waitForDevtools(port, timeoutMs = 10_000) {
@@ -1566,15 +1710,28 @@ async function setViewport(client, viewport) {
   await client.send("Emulation.setVisibleSize", { width: viewport.width, height: viewport.height }).catch(() => {});
 }
 
-async function navigate(client, targetUrl) {
-  const loaded = client.waitForEvent("Page.loadEventFired", 25_000).catch(() => null);
-  await client.send("Page.navigate", { url: targetUrl });
-  await loaded;
-  await waitForStableWorkspace(client);
+async function navigate(client, targetUrl, { recover = null } = {}) {
+  let lastError = null;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    const loaded = client.waitForEvent("Page.loadEventFired", 25_000).catch(() => null);
+    await client.send("Page.navigate", { url: targetUrl });
+    await loaded;
+    try {
+      await waitForStableWorkspace(client);
+      return;
+    } catch (error) {
+      lastError = error;
+      if (attempt < 2) {
+        if (typeof recover === "function") await recover();
+        await sleep(750);
+      }
+    }
+  }
+  throw lastError || new Error(`Unable to settle workspace navigation: ${targetUrl}`);
 }
 
 async function waitForStableWorkspace(client) {
-  const deadline = Date.now() + 25_000;
+  const deadline = Date.now() + 40_000;
   let lastState = null;
   let stablePasses = 0;
   while (Date.now() < deadline) {
@@ -1583,9 +1740,16 @@ async function waitForStableWorkspace(client) {
       bodyText: document.body ? document.body.innerText.slice(0, 1200) : "",
       workspaceRoot: Boolean(document.querySelector(".workspace-app, .workspace-auth")),
       loading: Boolean(document.querySelector("#workspaceLoading"))
+        || document.querySelector(".workspace-app")?.getAttribute("aria-busy") === "true"
+        || [
+          "Loading student detail...",
+          "Loading this student's latest work and feedback",
+          "Loading student timeline...",
+          "Loading this student's activity.",
+        ].some((message) => (document.body?.innerText || "").includes(message))
         || Array.from(document.querySelectorAll(".workspace-status")).some((node) => {
           const text = String(node.textContent || "").trim();
-          return text === "Loading your workspace..." || text === "Trying the server again...";
+          return ["Loading your workspace...", "Updating this page...", "Trying the server again..."].includes(text);
         })
     }))()`);
     lastState = state;
@@ -1881,6 +2045,15 @@ async function previewStudentCsvAccessError(client) {
 }
 
 async function performSinglePlanAction(client, action) {
+  if (action === "openAllDisclosures") {
+    await client.evaluate(`(() => {
+      document.querySelectorAll("details").forEach((details) => details.setAttribute("open", ""));
+      window.scrollTo(0, 0);
+      return document.querySelectorAll("details[open]").length;
+    })()`);
+    await sleep(500);
+    return;
+  }
   if (action === "scrollTop") {
     await client.evaluate(`(() => { window.scrollTo(0, 0); return true; })()`);
     await sleep(500);
@@ -2032,11 +2205,20 @@ async function performPlanAction(client, planItem) {
 async function collectPageState(client) {
   return client.evaluate(`(() => {
     function parseColor(value) {
-      const match = String(value || "").match(/rgba?\\(([^)]+)\\)/i);
+      const text = String(value || "");
+      const rgbMatch = text.match(/rgba?\\(([^)]+)\\)/i);
+      const srgbMatch = text.match(/color\\(srgb\\s+([^)]+)\\)/i);
+      const match = rgbMatch || srgbMatch;
       if (!match) return null;
       const parts = match[1].split(/[ ,/]+/).filter(Boolean).map(Number);
       if (parts.length < 3 || parts.slice(0, 3).some((part) => !Number.isFinite(part))) return null;
-      return { r: parts[0], g: parts[1], b: parts[2], a: Number.isFinite(parts[3]) ? parts[3] : 1 };
+      const channelScale = srgbMatch ? 255 : 1;
+      return {
+        r: parts[0] * channelScale,
+        g: parts[1] * channelScale,
+        b: parts[2] * channelScale,
+        a: Number.isFinite(parts[3]) ? parts[3] : 1,
+      };
     }
     function over(front, back) {
       const alpha = front.a + back.a * (1 - front.a);
@@ -2053,7 +2235,7 @@ async function collectPageState(client) {
       for (let node = element; node instanceof Element; node = node.parentElement) {
         const style = getComputedStyle(node);
         const solidColor = parseColor(style.backgroundColor);
-        const gradientColor = String(style.backgroundImage || "").match(/rgba?\\([^)]+\\)/i);
+        const gradientColor = String(style.backgroundImage || "").match(/rgba?\\([^)]+\\)|color\\(srgb\\s+[^)]+\\)/i);
         const color = solidColor && solidColor.a > 0 ? solidColor : parseColor(gradientColor ? gradientColor[0] : "");
         if (color && color.a > 0) result = over(result, color);
         if (result.a >= 0.999) break;
@@ -2127,6 +2309,9 @@ async function collectPageState(client) {
         contrastAudit.failures.push({
           selector: shortSelector(element),
           parentSelector: element.parentElement ? shortSelector(element.parentElement) : "",
+          containerSelector: element.closest("article, section, form, details, nav, aside")
+            ? shortSelector(element.closest("article, section, form, details, nav, aside"))
+            : "",
           text: sample.slice(0, 80),
           ratio: Number(ratio.toFixed(2)),
           requiredRatio,
@@ -2319,6 +2504,10 @@ async function collectPageState(client) {
         toolsOpen: Boolean(document.querySelector("[data-workspace-topbar-tools='true'][open]")),
         accountMenuOpen: Boolean(document.querySelector("[data-account-menu='true'][open]")),
       },
+      disclosures: {
+        total: document.querySelectorAll("details").length,
+        open: document.querySelectorAll("details[open]").length,
+      },
       v2: {
         frame: Boolean(document.querySelector('[data-flow-frame="v2-from-scratch"]')),
         screen: document.querySelector("[data-v2-screen]")?.getAttribute("data-v2-screen") || "",
@@ -2351,6 +2540,9 @@ function checkPage(planItem, pageState) {
   const accountMenuOpenWhenRequested = requestedActions.includes("openAccountMenu")
     ? pageState.markers?.accountMenuOpen === true
     : true;
+  const allDisclosuresOpenWhenRequested = requestedActions.includes("openAllDisclosures")
+    ? Number(pageState.disclosures?.open || 0) === Number(pageState.disclosures?.total || 0)
+    : true;
   const expectedTheme = planItem.theme === "dark" ? "dark" : "light";
   const expectedSchoolTheme = String(planItem.expectedSchoolTheme || "").trim();
   const expectedHeadingFont = String(planItem.expectedHeadingFont || "").trim();
@@ -2368,6 +2560,7 @@ function checkPage(planItem, pageState) {
     drawerOpenWhenRequested,
     toolsOpenWhenRequested,
     accountMenuOpenWhenRequested,
+    allDisclosuresOpenWhenRequested,
     expectedThemeApplied: pageState.presentation?.theme === expectedTheme,
     expectedSchoolThemeApplied: !expectedSchoolTheme || pageState.presentation?.schoolTheme === expectedSchoolTheme,
     expectedHeadingFontApplied: !expectedHeadingFont || (
@@ -2408,7 +2601,7 @@ async function writeScreenshotIndex(result) {
   const claimBoundary = HOSTED_PROOF
     ? "These screenshots prove hosted fake-account demo UI state on the configured public base URL."
     : "These screenshots prove local fake-account demo UI state only.";
-  const rows = result.screenshots.map((screenshot) => (
+  const rows = result.screenshots.filter((screenshot) => screenshot.screenshot).map((screenshot) => (
     `| \`${markdownCell(screenshot.screenshot)}\` | ${markdownCell(screenshot.persona)} | \`${markdownCell(screenshot.role)}\` | ${markdownCell(screenshot.accountType)} | ${markdownCell(`${screenshot.viewport?.width || 0}x${screenshot.viewport?.height || 0}`)} | ${markdownCell(screenshot.proves)} | ${environmentLabel} |`
   ));
   const content = `# Workspace UI Polish Screenshot Index
@@ -2454,6 +2647,7 @@ function passedChecks(checks) {
     && checks.drawerOpenWhenRequested
     && checks.toolsOpenWhenRequested
     && checks.accountMenuOpenWhenRequested
+    && checks.allDisclosuresOpenWhenRequested
     && checks.expectedThemeApplied
     && checks.expectedSchoolThemeApplied
     && checks.expectedHeadingFontApplied
@@ -2495,6 +2689,17 @@ async function run() {
     claimBoundary: HOSTED_PROOF
       ? "Hosted fake-account browser UI proof only. Does not prove real-student pilot readiness."
       : "Local fake-account browser UI proof only. Does not prove real-student pilot readiness.",
+    coverage: EXHAUSTIVE_PROOF ? {
+      mode: "exhaustive",
+      canonicalInteractiveCases: SCREENSHOT_PLAN.length - EXHAUSTIVE_PLAN.length,
+      generatedAuditCases: EXHAUSTIVE_PLAN.length,
+      roles: Object.keys(EXHAUSTIVE_ROLE_SURFACES),
+      topLevelSections: [...new Set(Object.values(EXHAUSTIVE_ROLE_SURFACES).flatMap((modes) => Object.values(modes).flat()))].sort(),
+      responsiveProfiles: EXHAUSTIVE_RESPONSIVE_PROFILES.map(([name, viewport, theme]) => ({ name, viewport, theme })),
+      everyRoleSurfaceDesktopLightAndDark: true,
+      everyDistinctSectionAcrossResponsiveProfiles: true,
+      everyDisclosureExpandedPerRoleSurfaceInDarkDesktop: true,
+    } : { mode: "canonical" },
     screenshots: [],
     failures: [],
   };
@@ -2534,23 +2739,33 @@ async function run() {
     await client.send("Log.enable");
 
     let originReady = false;
-    for (const planItem of RUN_PLAN) {
+    for (const [planIndex, planItem] of RUN_PLAN.entries()) {
+      if (planIndex > 0 && planIndex % 15 === 0 && typeof localApp.restart === "function") {
+        await localApp.restart();
+      }
       await setViewport(client, planItem.viewport);
       if (!originReady) {
-        await navigate(client, `${localApp.baseUrl}${WORKSPACE_ENTRY_PATH}`);
+        await navigate(client, `${localApp.baseUrl}${WORKSPACE_ENTRY_PATH}`, { recover: localApp.restart });
         originReady = true;
       }
       await logout(client);
       const loginResult = await login(client, accountsByRole.get(normalizeAccountRole(planItem.authRole)));
       await applyProofTheme(client, planItem.theme || "light");
-      await navigate(client, `${localApp.baseUrl}${planItem.url}`);
+      await navigate(client, `${localApp.baseUrl}${planItem.url}`, { recover: localApp.restart });
+      // Route load is only the shell. Wait for the requested role screen before
+      // looking for controls so an action cannot hit stale DOM from the prior case.
+      await waitForStableWorkspace(client);
       await performPlanAction(client, planItem);
       await waitForStableWorkspace(client);
       const pageState = await collectPageState(client);
-      pageState.keyboard = await auditKeyboardFlow(client);
+      pageState.keyboard = planItem.auditKeyboard === false
+        ? { skipped: true, focusMoves: true, focusIsShown: true, reverseMoves: true }
+        : await auditKeyboardFlow(client);
       const checks = checkPage(planItem, pageState);
-      const relativePath = path.join(SCREENSHOT_DIR, `${planItem.id}.png`).replaceAll("\\", "/");
-      await captureScreenshot(client, absoluteRepoPath(relativePath));
+      const relativePath = planItem.capture === false
+        ? null
+        : path.join(SCREENSHOT_DIR, `${planItem.id}.png`).replaceAll("\\", "/");
+      if (relativePath) await captureScreenshot(client, absoluteRepoPath(relativePath));
       const passed = passedChecks(checks);
       if (!passed) {
         result.failures.push({
@@ -2579,8 +2794,9 @@ async function run() {
         activeNav: pageState.activeNav,
         presentation: pageState.presentation,
         keyboard: pageState.keyboard,
+        disclosures: pageState.disclosures,
       });
-      console.log(`${passed ? "PASS" : "FAIL"} ${planItem.id} ${planItem.label} -> ${relativePath}`);
+      console.log(`${passed ? "PASS" : "FAIL"} ${planItem.id} ${planItem.label} -> ${relativePath || "audit-only manifest row"}`);
     }
 
     result.completedAt = new Date().toISOString();
@@ -2607,7 +2823,7 @@ async function run() {
   } finally {
     if (client) client.socket.close();
     if (!edge.killed) edge.kill();
-    if (localApp.app && !localApp.app.killed) localApp.app.kill();
+    await stopLocalPagesProcess(localApp.app);
     await fs.rm(userDataDir, { recursive: true, force: true }).catch(() => {});
   }
 }

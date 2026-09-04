@@ -2929,6 +2929,7 @@ function defaultReviewQueueFilters() {
   return {
     status: "",
     programId: "",
+    submissionId: "",
     search: "",
     story: "",
     risk: "any",
@@ -3455,6 +3456,7 @@ function reviewQueueFiltersFromSearchParams(params) {
   filters.status = canonicalReviewQueueValue(rawStatus, REVIEW_QUEUE_STATUS_VALUES);
   if (!filters.status && booleanQueryValue(params.get("needsReview"))) filters.status = "submitted";
   filters.programId = cleanDirectoryFilter(params.get("programId"));
+  filters.submissionId = cleanDirectoryFilter(params.get("submissionId"));
   filters.search = cleanSearchFilter(params.get("search"));
   filters.story = canonicalReviewQueueValue(params.get("story"), REVIEW_QUEUE_STORY_VALUES);
   filters.risk = canonicalReviewQueueValue(params.get("risk"), REVIEW_QUEUE_RISK_VALUES, "any");
@@ -4049,6 +4051,7 @@ function siteReviewQueueQueryString() {
   if (siteId) params.set("siteId", siteId);
   if (filters.status) params.set("status", filters.status);
   if (filters.programId) params.set("programId", filters.programId);
+  if (filters.submissionId) params.set("submissionId", filters.submissionId);
   if (filters.search) params.set("search", filters.search);
   if (filters.story) params.set("story", filters.story);
   if (filters.risk && filters.risk !== "any") params.set("risk", filters.risk);

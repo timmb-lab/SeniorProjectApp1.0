@@ -39,6 +39,18 @@ const FORBIDDEN_RESPONSE_FIELDS = /adminNote|actorRoleScopes|temporaryPassword|p
 test("site access assignments route returns scoped recent access history without admin note text", async () => {
   const { env, db, tokens } = await createSeededDemoFixture();
   await seedAccessHistoryAuditRows(db);
+  await db.prepare(
+    `INSERT INTO user_accounts (id, email, email_norm, display_name, status)
+     VALUES ('sso-only-student', 'sso-only-student@example.test', 'sso-only-student@example.test', 'SSO Only Student', 'active')`,
+  ).run();
+  await db.prepare(
+    `INSERT INTO site_users (site_id, user_id, membership_status)
+     VALUES (?, 'sso-only-student', 'active')`,
+  ).bind(PRIMARY_SITE_ID).run();
+  await db.prepare(
+    `INSERT INTO user_roles (user_id, role_id, scope_type, scope_id)
+     VALUES ('sso-only-student', 'student', 'site', ?)`,
+  ).bind(PRIMARY_SITE_ID).run();
 
   {
     const { response, body } = await routeAccessAssignments(env, null, `?siteId=${PRIMARY_SITE_ID}`);
@@ -54,6 +66,8 @@ test("site access assignments route returns scoped recent access history without
   assert.equal(siteAdmin.permissions.canAssignSiteAdmins, false);
   assert.equal(siteAdmin.permissions.canRequirePasswordReset, true);
   assert.equal(siteAdmin.users.students.every((user) => ["active", "pending_reset"].includes(user.status)), true);
+  assert.equal(siteAdmin.users.students.find((user) => user.userId === "sso-only-student")?.canResetPassword, false);
+  assert.equal(siteAdmin.users.students.find((user) => user.userId === "demo-student-001")?.canResetPassword, true);
   assert.equal(Array.isArray(siteAdmin.history), true);
   assert.equal(siteAdmin.history.length, 2);
   assert.deepEqual(siteAdmin.history.map((entry) => entry.action), ["assign", "remove"]);

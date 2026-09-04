@@ -1243,6 +1243,15 @@ body[data-page="workspace"] {
   font-weight: 850;
 }
 
+:root[data-theme="dark"] .workspace-student-focus-checklist li > span,
+:root[data-theme="dark"] .workspace-mentor-checkin-steps li > span {
+  color: #c8eef1;
+}
+
+:root[data-theme="dark"] .workspace-v2-app .workspace-label {
+  color: #9ccfd8;
+}
+
 .workspace-student-focus-checklist li > div,
 .workspace-mentor-checkin-steps li > div {
   display: grid;
@@ -1665,6 +1674,402 @@ body[data-page="workspace"] {
   }
 }
 
+/* Readable pane system ----------------------------------------------------
+   Keep navigation, the working canvas, and content panes visually distinct.
+   The larger type and quieter nested surfaces are shared by every role. */
+.workspace-v2-app {
+  --shell-rail-width: 252px;
+  --space-card: 1.25rem;
+  --font-size-body: 1rem;
+  --font-size-small: 0.9rem;
+  --font-size-caption: 0.82rem;
+  --radius-control: 0.7rem;
+  --radius-card: 0.95rem;
+  --radius-panel: 1.1rem;
+  --ink: var(--ticket-text);
+  --muted: var(--ticket-muted);
+  --abc-charcoal: var(--ticket-muted);
+  --abc-muted: var(--ticket-muted);
+  --border-soft: var(--shell-divider);
+  --border-subtle: var(--shell-divider);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+:root[data-theme="light"] .workspace-v2-app {
+  --ticket-bg: #eef1f7;
+  --ticket-bg-soft: #e7ebf3;
+  --ticket-panel: #ffffff;
+  --ticket-panel-raised: #f8f9fc;
+  --ticket-border: #cbd4e1;
+  --ticket-border-bright: #aebccc;
+  --ticket-text: #182033;
+  --ticket-muted: #526176;
+  --ticket-faint: #68778b;
+  --shell-rail-bg: #ffffff;
+  --shell-rail-border: #d8dee8;
+  --shell-rail-text: #202638;
+  --shell-rail-muted: #68738a;
+  --shell-canvas: #eef1f7;
+  --shell-topbar: #ffffff;
+  --shell-pane: #ffffff;
+  --shell-pane-muted: #f6f7fb;
+  --shell-divider: #cfd7e3;
+  --surface-page: var(--shell-canvas);
+  --surface-card: var(--shell-pane);
+  --surface-muted: var(--shell-pane-muted);
+  --surface-section: var(--shell-pane-muted);
+  --surface-row: var(--shell-pane);
+  --surface-raised: var(--ticket-panel-raised);
+}
+
+:root[data-theme="dark"] .workspace-v2-app {
+  --ticket-bg: #07111f;
+  --ticket-bg-soft: #0c192a;
+  --ticket-panel: #111f33;
+  --ticket-panel-raised: #192a41;
+  --ticket-border: #3a4c64;
+  --ticket-border-bright: #536982;
+  --ticket-text: #f7f9fc;
+  --ticket-muted: #c0cad8;
+  --ticket-faint: #9baabd;
+  --shell-rail-bg: #081523;
+  --shell-rail-border: #304258;
+  --shell-rail-text: #f7f9fc;
+  --shell-rail-muted: #bdc8d6;
+  --shell-canvas: #07111f;
+  --shell-topbar: #0e1b2c;
+  --shell-pane: #111f33;
+  --shell-pane-muted: #192a41;
+  --shell-divider: #3a4c64;
+  --surface-page: var(--shell-canvas);
+  --surface-card: var(--shell-pane);
+  --surface-muted: var(--shell-pane-muted);
+  --surface-section: var(--shell-pane-muted);
+  --surface-row: var(--shell-pane);
+  --surface-raised: var(--ticket-panel-raised);
+}
+
+.workspace-v2-topbar {
+  min-height: 72px;
+  padding-inline: clamp(24px, 2.5vw, 40px);
+  border-bottom-color: var(--shell-divider);
+  box-shadow: 0 4px 16px rgba(15, 32, 53, 0.06);
+}
+
+.workspace-v2-stage {
+  gap: clamp(1.25rem, 2vw, 1.75rem);
+  padding: clamp(28px, 3vw, 44px) clamp(24px, 3.4vw, 56px) 84px;
+}
+
+.workspace-v2-screen,
+.workspace-student-screen,
+.workspace-command-center {
+  gap: clamp(1.25rem, 1.8vw, 1.65rem);
+}
+
+.workspace-command-hero {
+  padding: 0 0 0.25rem;
+  border: 0;
+  background: transparent !important;
+  box-shadow: none;
+}
+
+.workspace-v2-app :where(
+  .workspace-card,
+  .workspace-panel,
+  .workspace-dashboard-card,
+  .workspace-student-section,
+  .workspace-student-screen-header,
+  .workspace-project-summary-disclosure,
+  .workspace-project-request-disclosure,
+  .workspace-student-project-tools,
+  .workspace-staff-admin-plan,
+  .workspace-program-teacher-plan,
+  .workspace-viewer-readonly-plan,
+  .workspace-mentor-plan,
+  .workspace-staff-queue,
+  .workspace-staff-scope-panel
+) {
+  border: 1px solid var(--shell-divider);
+  border-radius: var(--radius-panel);
+  background: var(--shell-pane) !important;
+  box-shadow: 0 8px 24px rgba(15, 32, 53, 0.075);
+}
+
+:root[data-theme="dark"] .workspace-v2-app :where(
+  .workspace-card,
+  .workspace-panel,
+  .workspace-dashboard-card,
+  .workspace-student-section,
+  .workspace-student-screen-header,
+  .workspace-project-summary-disclosure,
+  .workspace-project-request-disclosure,
+  .workspace-student-project-tools,
+  .workspace-staff-admin-plan,
+  .workspace-program-teacher-plan,
+  .workspace-viewer-readonly-plan,
+  .workspace-mentor-plan,
+  .workspace-staff-queue,
+  .workspace-staff-scope-panel
+) {
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.24);
+}
+
+.workspace-v2-app :where(
+  .workspace-staff-admin-plan,
+  .workspace-program-teacher-plan,
+  .workspace-viewer-readonly-plan,
+  .workspace-mentor-plan
+) {
+  gap: 1.1rem;
+  padding: clamp(1.15rem, 2vw, 1.5rem);
+}
+
+.workspace-staff-admin-plan-grid,
+.workspace-program-teacher-plan-grid,
+.workspace-mentor-today-plan-grid,
+.workspace-viewer-readonly-plan-grid,
+.workspace-staff-summary-strip,
+.workspace-dashboard-summary,
+.workspace-project-command-layout {
+  gap: 1rem;
+}
+
+.workspace-v2-app :where(
+  .workspace-today-primary-step,
+  .workspace-staff-admin-plan-card,
+  .workspace-program-teacher-plan-card,
+  .workspace-mentor-today-plan-card,
+  .workspace-viewer-readonly-plan-card,
+  .workspace-staff-summary-metric,
+  .workspace-summary-strip-item,
+  .workspace-metric-tile
+) {
+  border: 1px solid var(--shell-divider);
+  border-left-width: 1px;
+  border-radius: 0.85rem;
+  background: var(--shell-pane-muted) !important;
+  box-shadow: none;
+}
+
+.workspace-v2-app .workspace-today-primary-step {
+  padding: 1rem 1.1rem;
+  border-color: color-mix(in srgb, var(--school-primary) 36%, var(--shell-divider));
+  background: color-mix(in srgb, var(--school-primary) 7%, var(--shell-pane)) !important;
+  box-shadow: inset 4px 0 0 var(--school-primary);
+}
+
+.workspace-v2-app :where(
+  .workspace-staff-admin-plan-card,
+  .workspace-program-teacher-plan-card,
+  .workspace-mentor-today-plan-card,
+  .workspace-viewer-readonly-plan-card
+) {
+  min-height: 9.5rem;
+  padding: 1rem;
+}
+
+.workspace-v2-app :where(
+  .workspace-staff-admin-plan-card,
+  .workspace-program-teacher-plan-card,
+  .workspace-mentor-today-plan-card,
+  .workspace-viewer-readonly-plan-card,
+  .workspace-today-primary-step
+) p {
+  color: var(--ticket-muted);
+  font-size: 0.94rem;
+  line-height: 1.5;
+}
+
+.workspace-v2-app :where(
+  .workspace-staff-admin-plan-card,
+  .workspace-program-teacher-plan-card,
+  .workspace-mentor-today-plan-card,
+  .workspace-viewer-readonly-plan-card,
+  .workspace-today-primary-step
+) strong {
+  color: var(--ticket-text);
+  font-size: 1.05rem;
+  line-height: 1.3;
+}
+
+.workspace-v2-app :where(p, li, td, dd, label) {
+  line-height: 1.55;
+}
+
+.workspace-v2-app :where(small, .workspace-kicker, .workspace-v2-kicker, .workspace-label, .workspace-review-eyebrow) {
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.workspace-v2-app :where(.workspace-button, .workspace-link-button, .workspace-primary-button) {
+  min-height: 42px;
+  padding: 0.58rem 0.85rem;
+  font-size: 0.9rem;
+}
+
+.workspace-v2-app :where(.workspace-input, .workspace-select, .workspace-textarea, input, select, textarea) {
+  min-height: 44px;
+  font-size: 1rem;
+}
+
+.workspace-v2-current strong {
+  font-size: 1rem;
+}
+
+.workspace-v2-current span,
+.workspace-v2-sidebar-brand small,
+.workspace-staff-nav-major small {
+  font-size: 0.76rem;
+}
+
+.workspace-v2-sidebar-brand strong {
+  font-size: 1.08rem;
+}
+
+.workspace-staff-nav-major strong,
+.workspace-v2-drawer-list .workspace-v2-step strong {
+  font-size: 0.94rem;
+}
+
+.workspace-staff-nav-minor button {
+  min-height: 38px;
+  font-size: 0.86rem;
+}
+
+:root[data-theme="light"] .workspace-v2-drawer {
+  border-right-color: var(--shell-rail-border);
+  background: var(--shell-rail-bg) !important;
+  box-shadow: 8px 0 24px rgba(38, 50, 77, 0.055);
+}
+
+:root[data-theme="light"] .workspace-v2-sidebar-context {
+  border-color: var(--shell-divider);
+  background: var(--shell-pane-muted);
+  color: var(--ticket-muted);
+}
+
+:root[data-theme="light"] .workspace-v2-sidebar-context strong,
+:root[data-theme="light"] .workspace-v2-sidebar-brand,
+:root[data-theme="light"] .workspace-v2-sidebar-brand strong,
+:root[data-theme="light"] .workspace-v2-drawer-header strong,
+:root[data-theme="light"] .workspace-v2-sidebar-account strong {
+  color: var(--shell-rail-text);
+}
+
+:root[data-theme="light"] .workspace-v2-sidebar-brand small,
+:root[data-theme="light"] .workspace-v2-sidebar-account small,
+:root[data-theme="light"] .workspace-staff-nav-major,
+:root[data-theme="light"] .workspace-staff-nav-minor button {
+  color: var(--shell-rail-muted);
+}
+
+:root[data-theme="light"] .workspace-v2-drawer .workspace-v2-drawer-list .workspace-v2-step:hover,
+:root[data-theme="light"] .workspace-v2-drawer .workspace-staff-nav-major:hover,
+:root[data-theme="light"] .workspace-v2-drawer .workspace-staff-nav-minor button:hover {
+  border-color: var(--shell-divider);
+  background: var(--shell-pane-muted);
+  color: var(--ticket-text);
+}
+
+:root[data-theme="light"] .workspace-v2-drawer .workspace-v2-drawer-list .workspace-v2-step.is-active,
+:root[data-theme="light"] .workspace-v2-drawer .workspace-staff-nav-major.is-active,
+:root[data-theme="light"] .workspace-v2-drawer .workspace-staff-nav-group.is-active > .workspace-staff-nav-major,
+:root[data-theme="light"] .workspace-v2-drawer .workspace-staff-nav-minor button.is-active {
+  border-color: color-mix(in srgb, var(--school-primary) 34%, var(--shell-divider));
+  background: color-mix(in srgb, var(--school-primary) 10%, #ffffff);
+  color: var(--school-primary-strong);
+  box-shadow: inset 4px 0 0 var(--school-primary);
+}
+
+:root[data-theme="light"] .workspace-v2-drawer :where(
+  .workspace-staff-nav-major.is-active,
+  .workspace-staff-nav-group.is-active > .workspace-staff-nav-major
+) :where(small, span) {
+  color: var(--school-primary-strong);
+}
+
+@media (max-width: 900px) {
+  .workspace-v2-app {
+    --shell-rail-width: 0px;
+  }
+
+  .workspace-v2-topbar {
+    min-height: 68px;
+  }
+
+  .workspace-v2-stage {
+    padding: 24px 18px 64px;
+  }
+}
+
+@media (max-width: 620px) {
+  .workspace-v2-stage {
+    gap: 1.1rem;
+    padding: 20px 12px 56px;
+  }
+
+  .workspace-v2-screen,
+  .workspace-student-screen,
+  .workspace-command-center {
+    gap: 1.1rem;
+  }
+
+  .workspace-v2-app :where(
+    .workspace-card,
+    .workspace-panel,
+    .workspace-dashboard-card,
+    .workspace-student-section,
+    .workspace-student-screen-header,
+    .workspace-project-summary-disclosure,
+    .workspace-project-request-disclosure,
+    .workspace-student-project-tools
+  ) {
+    border-radius: 0.85rem;
+  }
+
+  .workspace-v2-app :where(.workspace-button, .workspace-link-button, .workspace-primary-button) {
+    min-height: 44px;
+  }
+}
+
+.workspace-review-readonly-owner {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid color-mix(in srgb, var(--school-primary) 32%, var(--shell-divider));
+  border-left: 4px solid var(--school-primary);
+  border-radius: 0.7rem;
+  background: color-mix(in srgb, var(--school-primary) 7%, var(--shell-pane));
+}
+
+.workspace-review-readonly-owner h2 {
+  margin: 0.2rem 0 0.3rem;
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+
+.workspace-review-readonly-owner > p:last-child {
+  max-width: 66ch;
+  margin: 0;
+  color: var(--ticket-muted);
+}
+
+@media (max-width: 340px) {
+  /* Four useful controls fit at phone width; the duplicate brand link does not. */
+  .workspace-v2-topbar .workspace-v2-brand {
+    display: none;
+  }
+}
+
+@media (max-width: 340px) {
+  /* The page and account menu still name the role. Save the scarce header
+     width for Menu, Tools, and the account button. */
+  .workspace-v2-user .workspace-active-role-badge {
+    display: none;
+  }
+}
+
 /* A project opens as its own workspace, like a ticket detail screen. */
 .workspace-project-directory-filters {
   grid-template-columns: minmax(14rem, 1.25fr) minmax(9rem, 0.55fr) minmax(10rem, 0.62fr) auto auto;
@@ -1878,6 +2283,711 @@ body[data-page="workspace"] {
 
   .workspace-v2-user .workspace-v2-tools-panel .workspace-topbar-search-row .workspace-button {
     width: 100%;
+  }
+}
+
+/* Project Command Center -------------------------------------------------- */
+.workspace-project-dedicated {
+  width: min(100%, 92rem);
+  margin-inline: auto;
+  gap: 0.9rem;
+}
+
+.workspace-project-detail-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 1.35rem 1.35rem 0;
+  border: 1px solid color-mix(in srgb, var(--school-primary) 26%, var(--shell-divider));
+  border-left: 1px solid color-mix(in srgb, var(--school-primary) 26%, var(--shell-divider));
+  border-radius: 0.9rem;
+  background:
+    radial-gradient(circle at 92% -25%, color-mix(in srgb, var(--school-accent) 20%, transparent), transparent 38%),
+    linear-gradient(125deg, color-mix(in srgb, var(--school-primary) 11%, var(--shell-pane)), var(--shell-pane) 58%, color-mix(in srgb, var(--school-accent) 8%, var(--shell-pane)));
+  box-shadow: 0 14px 34px color-mix(in srgb, var(--school-primary) 9%, transparent);
+}
+
+.workspace-project-hero-title {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.95rem;
+  min-width: 0;
+  padding-right: 18rem;
+}
+
+.workspace-project-hero-title > div {
+  min-width: 0;
+}
+
+.workspace-project-hero-mark {
+  width: 3.5rem;
+  height: 3.5rem;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--school-accent) 42%, var(--shell-divider));
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--school-accent) 12%, var(--shell-pane));
+  color: var(--school-primary);
+  font-size: 0.86rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.workspace-project-detail-hero .workspace-project-detail-status {
+  position: absolute;
+  z-index: 2;
+  top: 1.35rem;
+  right: 1.35rem;
+  max-width: 17rem;
+}
+
+.workspace-project-detail-hero h1 {
+  max-width: 28ch;
+  font-size: clamp(2rem, 3.2vw, 3rem);
+}
+
+.workspace-project-pulse {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 1.25rem -1.35rem 0;
+  border-top: 1px solid color-mix(in srgb, var(--school-primary) 18%, var(--shell-divider));
+  background: color-mix(in srgb, var(--shell-pane) 80%, transparent);
+}
+
+.workspace-project-pulse article {
+  position: relative;
+  min-width: 0;
+  display: grid;
+  gap: 0.12rem;
+  min-height: 5.25rem;
+  padding: 0.9rem 1.1rem 0.85rem 1.35rem;
+  border-left: 1px solid var(--shell-divider);
+}
+
+.workspace-project-pulse article:first-child {
+  border-left: 0;
+}
+
+.workspace-project-pulse article::before {
+  position: absolute;
+  inset: 0.9rem auto 0.9rem 0.7rem;
+  width: 0.23rem;
+  border-radius: 999px;
+  background: var(--school-primary);
+  content: "";
+}
+
+.workspace-project-pulse article[data-project-pulse="review"]::before {
+  background: #d98b16;
+}
+
+.workspace-project-pulse article[data-project-pulse="changes"]::before {
+  background: #d24d57;
+}
+
+.workspace-project-pulse article[data-project-pulse="approved"]::before,
+.workspace-project-pulse article[data-project-pulse="clear"]::before {
+  background: #15956b;
+}
+
+.workspace-project-pulse span,
+.workspace-project-pulse strong,
+.workspace-project-pulse small {
+  min-width: 0;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-project-pulse span {
+  color: var(--ticket-muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.workspace-project-pulse strong {
+  color: var(--ticket-text);
+  font-size: 1.28rem;
+  line-height: 1.2;
+}
+
+.workspace-project-pulse small {
+  color: var(--ticket-muted);
+  font-size: 0.74rem;
+}
+
+.workspace-project-phase-track {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--shell-divider);
+  border-radius: 0.8rem;
+  background: var(--shell-pane);
+}
+
+.workspace-project-phase-track > div {
+  min-width: 9rem;
+}
+
+.workspace-project-phase-track h2 {
+  margin: 0.18rem 0 0;
+  color: var(--ticket-text);
+  font-size: 0.98rem;
+}
+
+.workspace-project-phase-track ol {
+  --track-edge: calc(100% / 16);
+  position: relative;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(8, minmax(3.7rem, 1fr));
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.workspace-project-phase-track ol::before,
+.workspace-project-phase-track ol::after {
+  position: absolute;
+  z-index: 0;
+  top: 0.85rem;
+  left: var(--track-edge);
+  height: 0.22rem;
+  border-radius: 999px;
+  content: "";
+}
+
+.workspace-project-phase-track ol::before {
+  right: var(--track-edge);
+  background: var(--shell-divider);
+}
+
+.workspace-project-phase-track ol::after {
+  width: 0;
+  max-width: calc(100% - (var(--track-edge) * 2));
+  background: linear-gradient(90deg, var(--school-primary), var(--school-accent));
+}
+
+.workspace-project-phase-track.phase-at-2 ol::after { width: 12.5%; }
+.workspace-project-phase-track.phase-at-3 ol::after { width: 25%; }
+.workspace-project-phase-track.phase-at-4 ol::after { width: 37.5%; }
+.workspace-project-phase-track.phase-at-5 ol::after { width: 50%; }
+.workspace-project-phase-track.phase-at-6 ol::after { width: 62.5%; }
+.workspace-project-phase-track.phase-at-7 ol::after { width: 75%; }
+.workspace-project-phase-track.phase-at-8 ol::after { width: 87.5%; }
+
+.workspace-project-phase-track li {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  color: var(--ticket-muted);
+  text-align: center;
+}
+
+.workspace-project-phase-track li > span {
+  width: 1.9rem;
+  height: 1.9rem;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--shell-divider);
+  border-radius: 50%;
+  background: var(--shell-pane);
+  color: var(--ticket-muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.workspace-project-phase-track li.is-done > span {
+  border-color: var(--school-primary);
+  background: var(--school-primary);
+  color: #fff;
+}
+
+.workspace-project-phase-track li.is-current > span {
+  border-color: var(--school-accent);
+  background: var(--shell-pane);
+  color: var(--school-primary);
+  box-shadow: 0 0 0 0.3rem color-mix(in srgb, var(--school-accent) 17%, transparent);
+}
+
+.workspace-project-phase-track li small {
+  max-width: 8ch;
+  overflow: hidden;
+  color: inherit;
+  font-size: 0.66rem;
+  font-weight: 750;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-project-phase-track li.is-current small {
+  color: var(--ticket-text);
+  font-weight: 900;
+}
+
+.workspace-project-command-layout {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(17rem, 20rem);
+  align-items: start;
+  gap: 0.9rem;
+}
+
+.workspace-project-command-main,
+.workspace-project-command-rail-sticky {
+  min-width: 0;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.workspace-project-command-rail {
+  min-width: 0;
+}
+
+/* Keep the compact project context in view while the longer work column moves,
+   matching the event-detail pattern used as the interaction reference. */
+.workspace-project-command-rail-sticky {
+  position: sticky;
+  top: 5rem;
+  align-self: start;
+  max-height: calc(100vh - 6rem);
+  max-height: calc(100dvh - 6rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 0.15rem;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+}
+
+.workspace-project-command-layout .workspace-card,
+.workspace-project-command-layout .workspace-project-notes,
+.workspace-project-command-layout .workspace-project-adult-setup {
+  margin: 0;
+  border-radius: 0.8rem;
+  background: var(--shell-pane);
+  box-shadow: 0 1px 2px rgba(15, 32, 53, 0.04);
+}
+
+.workspace-project-start-panel {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  border: 2px solid color-mix(in srgb, var(--school-primary) 34%, var(--shell-divider));
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--school-primary) 6%, var(--shell-pane)), var(--shell-pane)) !important;
+}
+
+.workspace-project-panel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.workspace-project-panel-heading h2,
+.workspace-project-panel-heading p {
+  margin: 0;
+}
+
+.workspace-project-panel-heading h2 {
+  margin-top: 0.18rem;
+  color: var(--ticket-text);
+  font-size: 1.14rem;
+}
+
+.workspace-project-command-action {
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--school-accent) 36%, var(--shell-divider));
+  border-left: 0.34rem solid var(--school-accent);
+  border-radius: 0.65rem;
+  background: color-mix(in srgb, var(--school-accent) 8%, var(--shell-pane));
+}
+
+.workspace-project-command-action > span,
+.workspace-project-command-brief span,
+.workspace-project-people-list small {
+  color: var(--school-primary);
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.workspace-project-command-action h3 {
+  max-width: 46rem;
+  margin: 0.35rem 0 0;
+  color: var(--ticket-text);
+  font-size: clamp(1.2rem, 2vw, 1.55rem);
+  line-height: 1.25;
+}
+
+.workspace-project-command-action p {
+  max-width: 58rem;
+  margin: 0.55rem 0 0;
+  color: var(--ticket-muted);
+  line-height: 1.55;
+}
+
+.workspace-project-command-action > div {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.9rem;
+}
+
+.workspace-project-action-unavailable {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid #e2b45f;
+  border-radius: 0.55rem;
+  background: color-mix(in srgb, #f0a928 10%, var(--shell-pane));
+  color: var(--ticket-text);
+  font-weight: 750;
+}
+
+.workspace-project-command-brief {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.workspace-project-command-brief article {
+  min-width: 0;
+  padding: 0.85rem;
+  border: 1px solid var(--shell-divider);
+  border-radius: 0.65rem;
+  background: var(--shell-pane-muted);
+}
+
+.workspace-project-command-brief p {
+  margin: 0.4rem 0 0;
+  color: var(--ticket-text);
+  line-height: 1.55;
+}
+
+.workspace-project-team-rule {
+  margin: 0;
+  padding: 0.7rem 0.8rem;
+  border-radius: 0.55rem;
+  background: color-mix(in srgb, #5f7fef 8%, var(--shell-pane));
+  color: var(--ticket-muted);
+  font-size: 0.8rem;
+}
+
+.workspace-project-rail-card {
+  padding: 1rem;
+  border: 1px solid var(--shell-divider);
+}
+
+.workspace-project-rail-card dl {
+  display: grid;
+  gap: 0;
+  margin: 0.85rem 0 0;
+}
+
+.workspace-project-rail-card dl > div {
+  min-height: 2.7rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  border-top: 1px solid var(--shell-divider);
+}
+
+.workspace-project-rail-card dt {
+  color: var(--ticket-muted);
+  font-size: 0.76rem;
+}
+
+.workspace-project-rail-card dd {
+  max-width: 11rem;
+  margin: 0;
+  overflow: hidden;
+  color: var(--ticket-text);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-project-people-list {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.85rem;
+}
+
+.workspace-project-people-list > div {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem;
+  border: 1px solid var(--shell-divider);
+  border-radius: 0.6rem;
+  background: var(--shell-pane-muted);
+}
+
+.workspace-project-person-mark {
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.55rem;
+  background: color-mix(in srgb, #5f7fef 14%, var(--shell-pane));
+  color: #3954b8;
+  font-size: 0.64rem;
+  font-weight: 900;
+}
+
+.workspace-project-person-mark.mentor {
+  background: color-mix(in srgb, #f0a928 15%, var(--shell-pane));
+  color: #986007;
+}
+
+.workspace-project-person-mark.teacher {
+  background: color-mix(in srgb, #22a884 14%, var(--shell-pane));
+  color: #0b7559;
+}
+
+.workspace-project-people-list p,
+.workspace-project-people-list small,
+.workspace-project-people-list strong {
+  min-width: 0;
+  display: block;
+  margin: 0;
+}
+
+.workspace-project-people-list strong {
+  margin-top: 0.18rem;
+  overflow-wrap: anywhere;
+  color: var(--ticket-text);
+  font-size: 0.78rem;
+}
+
+.workspace-project-people-card > p {
+  margin: 0.75rem 0 0;
+  color: var(--ticket-muted);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.workspace-project-command-rail .workspace-item-navigator {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+  padding: 0.85rem;
+  border: 1px solid var(--shell-divider);
+  border-radius: 0.8rem;
+  background: var(--shell-pane);
+}
+
+.workspace-project-command-rail .workspace-item-navigator > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.workspace-project-command-rail .workspace-item-navigator .workspace-button {
+  width: 100%;
+}
+
+.workspace-project-command-main > .workspace-project-adult-setup,
+.workspace-project-command-main > .workspace-project-notes,
+.workspace-project-command-main > .workspace-project-template-shelf {
+  padding: 1rem;
+}
+
+.workspace-project-settings-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.85rem;
+  padding: 1rem;
+}
+
+.workspace-project-settings-panel h2,
+.workspace-project-settings-panel p {
+  margin: 0;
+}
+
+.workspace-project-settings-panel h2 {
+  margin-top: 0.18rem;
+  color: var(--ticket-text);
+  font-size: 1.05rem;
+}
+
+.workspace-project-settings-panel p {
+  margin-top: 0.35rem;
+  color: var(--ticket-muted);
+}
+
+.workspace-project-settings-panel > form,
+.workspace-project-settings-panel > section {
+  grid-column: 1 / -1;
+}
+
+:root[data-theme="dark"] .workspace-project-hero-mark,
+:root[data-theme="dark"] .workspace-project-command-action > span,
+:root[data-theme="dark"] .workspace-project-command-brief span,
+:root[data-theme="dark"] .workspace-project-people-list small {
+  color: var(--ticket-blue-bright);
+}
+
+:root[data-theme="dark"] .workspace-project-phase-track li.is-current > span {
+  color: var(--ticket-blue-bright);
+}
+
+:root[data-theme="dark"] .workspace-project-person-mark {
+  color: #b9c7ff;
+}
+
+:root[data-theme="dark"] .workspace-project-person-mark.mentor {
+  color: #ffd17c;
+}
+
+:root[data-theme="dark"] .workspace-project-person-mark.teacher {
+  color: #91e0ca;
+}
+
+@media (max-width: 1080px) {
+  .workspace-project-command-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(15.5rem, 18rem);
+  }
+
+  .workspace-project-phase-track {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-project-phase-track > div {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 820px) {
+  .workspace-project-hero-title {
+    padding-right: 0;
+  }
+
+  .workspace-project-detail-hero .workspace-project-detail-status {
+    position: static;
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    margin-top: 1rem;
+  }
+
+  .workspace-project-pulse {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace-project-pulse article:nth-child(3) {
+    border-left: 0;
+    border-top: 1px solid var(--shell-divider);
+  }
+
+  .workspace-project-pulse article:nth-child(4) {
+    border-top: 1px solid var(--shell-divider);
+  }
+
+  .workspace-project-command-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .workspace-project-command-rail-sticky {
+    position: static;
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+    scrollbar-gutter: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace-project-command-rail-sticky .workspace-item-navigator {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .workspace-project-detail-hero {
+    padding: 1rem 1rem 0;
+  }
+
+  .workspace-project-hero-title {
+    align-items: flex-start;
+  }
+
+  .workspace-project-hero-mark {
+    width: 2.8rem;
+    height: 2.8rem;
+  }
+
+  .workspace-project-pulse {
+    margin: 1rem -1rem 0;
+  }
+
+  .workspace-project-phase-track {
+    overflow: hidden;
+    padding-inline: 0.8rem;
+  }
+
+  .workspace-project-phase-track ol {
+    min-width: 32rem;
+    overflow: visible;
+  }
+
+  .workspace-project-phase-track {
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .workspace-project-command-brief,
+  .workspace-project-command-rail,
+  .workspace-project-settings-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .workspace-project-command-action > div,
+  .workspace-project-command-action :where(.workspace-button, .workspace-primary-button),
+  .workspace-project-settings-panel > .workspace-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .workspace-project-pulse {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .workspace-project-pulse article,
+  .workspace-project-pulse article:nth-child(3) {
+    border-top: 1px solid var(--shell-divider);
+    border-left: 0;
+  }
+
+  .workspace-project-pulse article:first-child {
+    border-top: 0;
+  }
+
+  .workspace-project-command-rail .workspace-item-navigator > div {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -2155,6 +3265,15 @@ body[data-page="workspace"],
   color: #d9e5f0;
 }
 
+.workspace-v2-sidebar-context strong {
+  color: #f5f8fc;
+}
+
+.workspace-v2-drawer-header strong,
+.workspace-v2-drawer-list .workspace-v2-step strong {
+  color: var(--shell-rail-text);
+}
+
 .workspace-v2-sidebar-context > span {
   background: var(--school-accent);
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--school-accent) 18%, transparent);
@@ -2219,6 +3338,21 @@ body[data-page="workspace"],
   background: color-mix(in srgb, var(--school-primary) 72%, rgba(255, 255, 255, 0.12));
   color: #ffffff;
   box-shadow: inset 3px 0 0 var(--school-accent);
+}
+
+/* The light-theme phone rule above is intentionally lower contrast for idle
+   items. Keep the selected destination unmistakable inside the dark drawer. */
+:root[data-theme] .workspace-v2-drawer .workspace-v2-drawer-list .workspace-v2-step.is-active {
+  border-color: color-mix(in srgb, var(--school-accent) 48%, rgba(255, 255, 255, 0.16));
+  background: color-mix(in srgb, var(--school-primary) 72%, #0b2231);
+  color: #ffffff;
+}
+
+.workspace-staff-nav-major.is-active small,
+.workspace-staff-nav-group.is-active > .workspace-staff-nav-major small,
+.workspace-staff-nav-major.is-active > span,
+.workspace-staff-nav-group.is-active > .workspace-staff-nav-major > span {
+  color: #f5f8fc;
 }
 
 .workspace-v2-drawer-list .workspace-v2-step > span:not(.workspace-v2-step-number),
@@ -2402,5 +3536,639 @@ body[data-page="workspace"],
     .workspace-student-screen-header
   ) {
     border-radius: 0.65rem;
+  }
+}
+
+/* Final readability guarantees. Keep these after every legacy compatibility
+   rule so the active app cannot fall back to dense spacing or tiny labels. */
+.workspace-v2-app {
+  --shell-rail-width: 252px;
+  --space-card: 1.25rem;
+  --font-size-body: 1rem;
+  --font-size-small: 0.9rem;
+  --font-size-caption: 0.82rem;
+  --radius-control: 0.7rem;
+  --radius-card: 0.95rem;
+  --radius-panel: 1.1rem;
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+:root[data-theme="dark"] .workspace-v2-app {
+  --ticket-bg: #07111f;
+  --ticket-bg-soft: #0c192a;
+  --ticket-panel: #111f33;
+  --ticket-panel-raised: #192a41;
+  --ticket-border: #3a4c64;
+  --ticket-border-bright: #536982;
+  --ticket-text: #f7f9fc;
+  --ticket-muted: #c0cad8;
+  --ticket-faint: #9baabd;
+  --shell-rail-bg: #081523;
+  --shell-rail-border: #304258;
+  --shell-rail-text: #f7f9fc;
+  --shell-rail-muted: #bdc8d6;
+  --shell-canvas: #07111f;
+  --shell-topbar: #0e1b2c;
+  --shell-pane: #111f33;
+  --shell-pane-muted: #192a41;
+  --shell-divider: #3a4c64;
+}
+
+.workspace-v2-topbar {
+  min-height: 72px;
+  padding-inline: clamp(24px, 2.5vw, 40px);
+}
+
+.workspace-v2-stage {
+  gap: clamp(1.25rem, 2vw, 1.75rem);
+  padding: clamp(28px, 3vw, 44px) clamp(24px, 3.4vw, 56px) 84px;
+}
+
+.workspace-v2-screen,
+.workspace-student-screen,
+.workspace-command-center {
+  gap: clamp(1.25rem, 1.8vw, 1.65rem);
+}
+
+.workspace-v2-app :where(
+  .workspace-card,
+  .workspace-panel,
+  .workspace-dashboard-card,
+  .workspace-student-section,
+  .workspace-student-screen-header,
+  .workspace-project-summary-disclosure,
+  .workspace-project-request-disclosure,
+  .workspace-student-project-tools
+) {
+  border-radius: var(--radius-panel);
+  box-shadow: 0 8px 24px rgba(15, 32, 53, 0.075);
+}
+
+:root[data-theme="dark"] .workspace-v2-app :where(
+  .workspace-card,
+  .workspace-panel,
+  .workspace-dashboard-card,
+  .workspace-student-section,
+  .workspace-student-screen-header,
+  .workspace-project-summary-disclosure,
+  .workspace-project-request-disclosure,
+  .workspace-student-project-tools
+) {
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.24);
+}
+
+.workspace-v2-current strong {
+  font-size: 1rem;
+}
+
+.workspace-v2-current span,
+.workspace-v2-sidebar-brand small,
+.workspace-staff-nav-major small {
+  font-size: 0.76rem;
+}
+
+.workspace-v2-sidebar-brand strong {
+  font-size: 1.08rem;
+}
+
+.workspace-staff-nav-major strong,
+.workspace-v2-drawer-list .workspace-v2-step strong {
+  font-size: 0.94rem;
+}
+
+.workspace-staff-nav-minor button {
+  min-height: 38px;
+  font-size: 0.86rem;
+}
+
+@media (max-width: 900px) {
+  .workspace-v2-app {
+    --shell-rail-width: 0px;
+  }
+
+  .workspace-v2-topbar {
+    min-height: 68px;
+  }
+
+  .workspace-v2-stage {
+    padding: 24px 18px 64px;
+  }
+}
+
+@media (max-width: 620px) {
+  .workspace-v2-stage {
+    gap: 1.1rem;
+    padding: 20px 12px 56px;
+  }
+
+  .workspace-v2-screen,
+  .workspace-student-screen,
+  .workspace-command-center {
+    gap: 1.1rem;
+  }
+
+  .workspace-v2-app :where(
+    .workspace-card,
+    .workspace-panel,
+    .workspace-dashboard-card,
+    .workspace-student-section,
+    .workspace-student-screen-header
+  ) {
+    border-radius: 0.85rem;
+  }
+}
+
+/* Navigation labels are small by design, so they need solid colors rather
+   than translucent text. The selected light-theme row uses dark ink on its
+   pale school-color wash; dark mode keeps the existing white treatment. */
+:root[data-theme="light"] .workspace-v2-drawer .workspace-staff-nav-major small,
+:root[data-theme="light"] .workspace-v2-drawer .workspace-staff-nav-major > span {
+  color: #526176;
+}
+
+:root[data-theme="light"] .workspace-v2-drawer :is(
+  .workspace-v2-drawer-list .workspace-v2-step.is-active,
+  .workspace-staff-nav-major.is-active,
+  .workspace-staff-nav-group.is-active > .workspace-staff-nav-major,
+  .workspace-staff-nav-minor button.is-active
+) {
+  border-color: #173a5e;
+  background: #173a5e;
+  color: #ffffff;
+  box-shadow: inset 4px 0 0 var(--school-accent);
+}
+
+:root[data-theme="light"] .workspace-v2-drawer :is(
+  .workspace-v2-drawer-list .workspace-v2-step.is-active,
+  .workspace-staff-nav-major.is-active,
+  .workspace-staff-nav-group.is-active > .workspace-staff-nav-major
+) :is(strong, small, span) {
+  color: #ffffff;
+}
+
+:root[data-theme="light"] .workspace-mentor-checkin-steps li > div > small:first-child {
+  color: #0b6b3b;
+}
+
+/* The guidance and flow panes were inherited from an old dark-only shell.
+   Rebind them to the active pane tokens so light and dark views both retain
+   readable text and an obvious boundary from the page canvas. */
+.workspace-v2-app :is(.workspace-v3-start-state, .workspace-v5-flow-board) {
+  border-color: var(--shell-divider);
+  background: var(--shell-pane) !important;
+}
+
+.workspace-v2-app :is(
+  .workspace-v3-start-lead,
+  .workspace-v5-flow-lead,
+  .workspace-v3-start-grid article,
+  .workspace-v5-flow-lane
+) {
+  border-color: var(--shell-divider);
+}
+
+.workspace-v2-app :is(
+  .workspace-v3-start-lead strong,
+  .workspace-v5-flow-lead h2,
+  .workspace-v5-flow-lane strong
+) {
+  color: var(--ticket-text);
+}
+
+.workspace-v2-app :is(
+  .workspace-v3-start-lead p,
+  .workspace-v3-start-grid p,
+  .workspace-v5-flow-lead p,
+  .workspace-v5-flow-lane p
+) {
+  color: var(--ticket-muted);
+}
+
+:root[data-theme="light"] .workspace-v2-app :is(
+  .workspace-v3-start-lead span,
+  .workspace-v3-start-grid span,
+  .workspace-v5-flow-lead span,
+  .workspace-v5-flow-lane > span
+) {
+  color: #0b6671;
+}
+
+.workspace-v2-app .workspace-v5-flow-action {
+  border-color: var(--shell-divider);
+  background: var(--shell-pane-muted);
+  color: var(--ticket-text);
+}
+
+.workspace-v2-app .workspace-v5-flow-action.is-primary {
+  border-color: #173a5e;
+  background: #173a5e;
+  color: #ffffff;
+}
+
+:root[data-theme="dark"] .workspace-v2-app .workspace-v2-kicker {
+  color: #70b6ee;
+}
+
+:root[data-theme="dark"] .workspace-v2-app .workspace-v2-path article.current > span {
+  color: #182033;
+}
+
+/* Several older status components encoded pastel light fills directly.
+   Dark view keeps their semantic border tones but gives every pane a dark
+   surface and matching text instead of pairing white text with a pale card. */
+:root[data-theme="dark"] .workspace-v2-app :is(
+  .workspace-site-action-map-card,
+  .workspace-readiness-action-map-card,
+  .workspace-security-action-map-card,
+  .workspace-student-account-step,
+  .workspace-first-use-steps li,
+  .workspace-dashboard-kpi,
+  .workspace-score-card,
+  .workspace-bar-row,
+  .workspace-ranked-list li,
+  .workspace-site-first-day-grid article,
+  .workspace-task-finish-steps li
+) {
+  background: var(--shell-pane-muted) !important;
+  color: var(--ticket-text);
+}
+
+:root[data-theme="dark"] .workspace-v2-app :is(
+  .workspace-site-action-map-card,
+  .workspace-readiness-action-map-card,
+  .workspace-security-action-map-card,
+  .workspace-student-account-step,
+  .workspace-first-use-steps li,
+  .workspace-dashboard-kpi,
+  .workspace-score-card,
+  .workspace-bar-row,
+  .workspace-ranked-list li,
+  .workspace-site-first-day-grid article,
+  .workspace-task-finish-steps li
+) :is(strong, b) {
+  color: var(--ticket-text);
+}
+
+:root[data-theme="dark"] .workspace-v2-app :is(
+  .workspace-site-action-map-card,
+  .workspace-readiness-action-map-card,
+  .workspace-security-action-map-card,
+  .workspace-student-account-step,
+  .workspace-first-use-steps li,
+  .workspace-dashboard-kpi,
+  .workspace-score-card,
+  .workspace-bar-row,
+  .workspace-ranked-list li,
+  .workspace-site-first-day-grid article,
+  .workspace-task-finish-steps li
+) :is(p, small, span) {
+  color: var(--ticket-muted);
+}
+
+:root[data-theme="dark"] .workspace-v2-app .workspace-student-account-step > span {
+  border-color: #70b6ee;
+  background: #173a5e !important;
+  color: #ffffff;
+}
+
+:root[data-theme="dark"] .workspace-v2-app .workspace-first-use-steps li > span {
+  background: #173a5e;
+  color: #ffffff;
+}
+
+:root[data-theme="dark"] .workspace-v2-app .workspace-mode-button {
+  border-color: var(--shell-divider);
+  background: var(--shell-pane-muted);
+  color: var(--ticket-muted);
+}
+
+:root[data-theme="dark"] .workspace-v2-app .workspace-mode-button.is-active {
+  border-color: #70b6ee;
+  background: #173a5e;
+  color: #ffffff;
+}
+
+/* Legacy help, checklist, and attention blocks also declared literal light
+   surfaces. Treat each as a real pane in dark view, including warning and
+   danger variants whose meaning remains visible through their accent border. */
+:root[data-theme="dark"] .workspace-v2-app :is(
+  .workspace-student-ready-checklist,
+  .workspace-student-revision-lane,
+  .workspace-student-timeline-guide,
+  .workspace-student-version-compare,
+  .workspace-student-mentor-work-context,
+  .workspace-mentor-queue-guide,
+  .workspace-mentor-presentation-prep,
+  .workspace-mentor-assignment-wizard,
+  .workspace-site-first-day-checklist,
+  .workspace-first-use-guide,
+  .workspace-task-finish-checklist,
+  .workspace-advanced-filters,
+  .workspace-saved-filter-chips,
+  .workspace-review-share-link,
+  .workspace-review-empty-guide,
+  .workspace-operations-role-guide,
+  .workspace-site-access-removal-warning,
+  .workspace-admin-import-preflight,
+  .workspace-attention-item,
+  .workspace-attention-item.warning,
+  .workspace-attention-item.urgent,
+  .workspace-attention-item.danger
+) {
+  border-color: var(--shell-divider);
+  background: var(--shell-pane-muted) !important;
+  color: var(--ticket-text);
+}
+
+:root[data-theme="dark"] .workspace-v2-app :is(
+  .workspace-first-use-guide,
+  .workspace-attention-item
+) :is(strong, b) {
+  color: var(--ticket-text);
+}
+
+:root[data-theme="dark"] .workspace-v2-app :is(
+  .workspace-first-use-guide,
+  .workspace-attention-item
+) p {
+  color: var(--ticket-muted);
+}
+
+/* Exhaustive dark-view coverage: older nested cards used literal white and
+   pastel fills. Keep outer guidance panes distinct from their child cards,
+   while inheriting readable foreground tokens across every role. */
+:root[data-theme="dark"] .workspace-v2-app :is(
+  .workspace-role-profile-start,
+  .workspace-role-profile-scope,
+  .workspace-student-phase-path,
+  .workspace-student-submission-summary,
+  .workspace-student-files-review,
+  .workspace-student-proof-guide,
+  .workspace-student-archive-guidance,
+  .workspace-operations-action-map,
+  .workspace-operations-role-guide,
+  .workspace-users-access-action-map,
+  .workspace-admin-audit-start-flow,
+  .workspace-admin-audit-action-map,
+  .workspace-readiness-action-map,
+  .workspace-mentor-queue-guide,
+  .workspace-read-only-banner
+) {
+  border-color: var(--shell-divider) !important;
+  background: var(--shell-pane) !important;
+  color: var(--ticket-text);
+}
+
+:root[data-theme="dark"] .workspace-v2-app :is(
+  .workspace-role-profile-start-card,
+  .workspace-role-profile-scope article,
+  .workspace-student-phase-card,
+  .workspace-student-phase-step,
+  .workspace-student-final-check-row,
+  .workspace-student-final-status,
+  .workspace-student-submission-status-card,
+  .workspace-student-files-review-card,
+  .workspace-student-ready-checklist article,
+  .workspace-student-proof-guide article,
+  .workspace-operations-action-map-card,
+  .workspace-operations-role-grid article,
+  .workspace-users-access-action-map-card,
+  .workspace-admin-supporting-disclosure,
+  .workspace-admin-issue-disclosure,
+  .workspace-admin-supporting-disclosure article,
+  .workspace-admin-issue-disclosure article,
+  .workspace-admin-setup-row,
+  .workspace-admin-setup-readiness-row,
+  .workspace-admin-staff-setup-cards article,
+  .workspace-admin-student-setup-cards article,
+  .workspace-admin-staff-first-action,
+  .workspace-admin-student-first-action,
+  .workspace-admin-setup-first-grid article,
+  .workspace-admin-audit-start-row,
+  .workspace-admin-audit-action-map-card,
+  .workspace-readiness-action-map article,
+  .workspace-mentor-queue-guide article,
+  .workspace-teacher-first-disclosure,
+  .workspace-project-template-add,
+  .workspace-csv-template-doc,
+  .workspace-account-reset,
+  .workspace-account-remove
+) {
+  border-color: var(--shell-divider) !important;
+  background: var(--shell-pane-muted) !important;
+  color: var(--ticket-text) !important;
+  box-shadow: none;
+}
+
+:root[data-theme="dark"] .workspace-v2-app :is(
+  .workspace-role-profile-start,
+  .workspace-role-profile-start-card,
+  .workspace-role-profile-scope,
+  .workspace-student-phase-path,
+  .workspace-student-phase-card,
+  .workspace-student-final-check-row,
+  .workspace-student-submission-summary,
+  .workspace-student-submission-status-card,
+  .workspace-student-files-review,
+  .workspace-student-files-review-card,
+  .workspace-student-proof-guide,
+  .workspace-student-archive-guidance,
+  .workspace-operations-action-map,
+  .workspace-operations-action-map-card,
+  .workspace-operations-role-guide,
+  .workspace-users-access-action-map,
+  .workspace-users-access-action-map-card,
+  .workspace-admin-supporting-disclosure,
+  .workspace-admin-issue-disclosure,
+  .workspace-admin-setup-row,
+  .workspace-admin-setup-readiness-row,
+  .workspace-admin-staff-setup-summary,
+  .workspace-admin-student-setup-summary,
+  .workspace-admin-audit-start-flow,
+  .workspace-admin-audit-start-row,
+  .workspace-admin-audit-action-map,
+  .workspace-admin-audit-action-map-card,
+  .workspace-readiness-action-map,
+  .workspace-mentor-queue-guide,
+  .workspace-read-only-banner,
+  .workspace-teacher-first-disclosure,
+  .workspace-project-template-add,
+  .workspace-csv-template-doc,
+  .workspace-account-reset,
+  .workspace-account-remove
+) :is(h1, h2, h3, h4, strong, b, summary) {
+  color: var(--ticket-text) !important;
+}
+
+:root[data-theme="dark"] .workspace-v2-app :is(
+  .workspace-role-profile-start,
+  .workspace-role-profile-start-card,
+  .workspace-role-profile-scope,
+  .workspace-student-phase-path,
+  .workspace-student-phase-card,
+  .workspace-student-final-check-row,
+  .workspace-student-submission-summary,
+  .workspace-student-submission-status-card,
+  .workspace-student-files-review,
+  .workspace-student-files-review-card,
+  .workspace-student-proof-guide,
+  .workspace-student-archive-guidance,
+  .workspace-operations-action-map,
+  .workspace-operations-action-map-card,
+  .workspace-operations-role-guide,
+  .workspace-users-access-action-map,
+  .workspace-users-access-action-map-card,
+  .workspace-admin-supporting-disclosure,
+  .workspace-admin-issue-disclosure,
+  .workspace-admin-setup-row,
+  .workspace-admin-setup-readiness-row,
+  .workspace-admin-staff-setup-summary,
+  .workspace-admin-student-setup-summary,
+  .workspace-admin-audit-start-flow,
+  .workspace-admin-audit-start-row,
+  .workspace-admin-audit-action-map,
+  .workspace-admin-audit-action-map-card,
+  .workspace-readiness-action-map,
+  .workspace-mentor-queue-guide,
+  .workspace-read-only-banner,
+  .workspace-teacher-first-disclosure,
+  .workspace-project-template-add,
+  .workspace-csv-template-doc,
+  .workspace-account-reset,
+  .workspace-account-remove
+) :is(p, small, span, label, li, dd) {
+  color: var(--ticket-muted) !important;
+}
+
+:root[data-theme="dark"] .workspace-v2-app :is(
+  .workspace-student-phase-card-head b,
+  .workspace-student-phase-step.current > span,
+  .workspace-student-phase-step.current > small,
+  .workspace-first-use-steps li > span
+) {
+  background: #173a5e !important;
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .workspace-v2-app .workspace-required {
+  color: #fda4af !important;
+}
+
+:root[data-theme="dark"] .workspace-v2-app :is(
+  .workspace-role-chip,
+  .workspace-risk-chip,
+  .workspace-summary-badge,
+  .workspace-status-pill
+) {
+  border-color: var(--shell-divider);
+  background: #13253a;
+  color: #d7e7f5 !important;
+}
+
+/* Residual nested panes discovered by the every-route audit. These live one
+   level below the larger guide surfaces above and otherwise keep a literal
+   light fill even after their parent switches themes. */
+:root[data-theme="dark"] .workspace-v2-app :is(
+  .workspace-student-action-focus strong,
+  .workspace-student-action-focus span,
+  .workspace-student-submission-counts span,
+  .workspace-mentor-queue-counts span,
+  .workspace-student-proof-guide-facts span,
+  .workspace-read-only-boundary-list div,
+  .workspace-admin-assignment-flow-grid article,
+  .workspace-site-programs-setup-grid article,
+  .workspace-admin-program-coverage article,
+  .workspace-admin-program-first-action,
+  .workspace-admin-storage-grid article
+) {
+  border-color: var(--shell-divider) !important;
+  background: var(--shell-pane-muted) !important;
+  color: var(--ticket-text) !important;
+}
+
+:root[data-theme="dark"] .workspace-v2-app :is(
+  .workspace-admin-assignment-flow,
+  .workspace-site-programs-setup-flow,
+  .workspace-admin-program-coverage,
+  .workspace-admin-storage-readiness
+) {
+  border-color: var(--shell-divider) !important;
+  background: var(--shell-pane) !important;
+  color: var(--ticket-text);
+}
+
+:root[data-theme="dark"] .workspace-v2-app :is(
+  .workspace-student-action-focus,
+  .workspace-student-submission-counts,
+  .workspace-mentor-queue-counts,
+  .workspace-student-proof-guide-facts,
+  .workspace-read-only-boundary-list,
+  .workspace-admin-assignment-flow,
+  .workspace-site-programs-setup-flow,
+  .workspace-admin-program-coverage,
+  .workspace-admin-storage-readiness
+) :is(strong, b, dt) {
+  color: var(--ticket-text) !important;
+}
+
+:root[data-theme="dark"] .workspace-v2-app :is(
+  .workspace-student-action-focus,
+  .workspace-student-submission-counts,
+  .workspace-mentor-queue-counts,
+  .workspace-student-proof-guide-facts,
+  .workspace-read-only-boundary-list,
+  .workspace-admin-assignment-flow,
+  .workspace-site-programs-setup-flow,
+  .workspace-admin-program-coverage,
+  .workspace-admin-storage-readiness
+) :is(p, small, span, dd) {
+  color: var(--ticket-muted) !important;
+}
+
+:root[data-theme="dark"] .workspace-v2-app .workspace-csv-template-doc > summary {
+  border-color: var(--shell-divider);
+  background: var(--shell-pane-muted) !important;
+  color: var(--ticket-text) !important;
+}
+
+:root[data-theme="dark"] .workspace-v2-app .workspace-detail-tab.is-active {
+  border-color: #70b6ee;
+  background: #173a5e !important;
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .workspace-v2-app :is(
+  .workspace-button-primary,
+  .workspace-primary-button
+) {
+  border-color: #70b6ee;
+  background: #145f9e !important;
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .workspace-v2-app .workspace-today-primary-step > small {
+  border-color: #70b6ee;
+  background: #173a5e !important;
+  color: #ffffff !important;
+}
+
+@media (max-width: 620px) {
+  .workspace-v2-topbar:has([data-workspace-topbar-tools="true"]) .workspace-v2-brand {
+    display: none;
+  }
+}
+
+@media (max-width: 375px) {
+  .workspace-v2-topbar:has([data-workspace-topbar-tools="true"]) .workspace-active-role-badge {
+    display: none;
+  }
+
+  .workspace-v2-topbar:has([data-workspace-topbar-tools="true"]) .workspace-v2-user {
+    grid-template-columns: auto auto;
+  }
+
+  .workspace-v2-topbar:has([data-workspace-topbar-tools="true"]) .workspace-account-menu[open] {
+    grid-column: auto;
   }
 }

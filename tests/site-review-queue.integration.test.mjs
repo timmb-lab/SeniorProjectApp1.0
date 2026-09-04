@@ -169,6 +169,9 @@ test("site review queue is scoped, read-only by role, mutable for program teache
   assert.equal(missingMentor.pagination.filteredTotal, missingMentor.summary.noMentor);
   const searched = await expectQueue(env, tokens.programTeacher, `?siteId=${PRIMARY_SITE_ID}&search=${encodeURIComponent("Revision Loop Demo")}&limit=100`);
   assert.equal(searched.queue.every((row) => /Revision Loop Demo/i.test(row.studentName)), true);
+  const exactSubmission = await expectQueue(env, tokens.programTeacher, `?siteId=${PRIMARY_SITE_ID}&submissionId=${encodeURIComponent(submittedIt[0].id)}`);
+  assert.deepEqual(exactSubmission.queue.map((row) => row.submissionId), [submittedIt[0].id]);
+  assert.equal(exactSubmission.filters.submissionId, submittedIt[0].id);
   const noMatches = await expectQueue(env, tokens.programTeacher, `?siteId=${PRIMARY_SITE_ID}&search=${encodeURIComponent("No Matching Review Work")}`);
   assert.equal(noMatches.queue.length, 0);
   assert.deepEqual(noMatches.emptyState, {

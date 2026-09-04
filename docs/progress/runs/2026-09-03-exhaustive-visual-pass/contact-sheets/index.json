@@ -1,0 +1,425 @@
+{
+  "totalCapturedViews": 319,
+  "sheetCount": 20,
+  "sheets": [
+    {
+      "sheet": "docs/progress/runs/2026-09-03-exhaustive-visual-pass/contact-sheets/sheet-01.png",
+      "ids": [
+        "01-admin-console-global-admin-desktop",
+        "02-workspace-site-admin-desktop",
+        "03-program-teacher-workspace",
+        "04-mentor-workspace",
+        "47-mentor-dashboard-flow",
+        "05-viewer-read-only-workspace",
+        "06-student-today-desktop",
+        "79-student-today-chromebook",
+        "83-student-today-chromebook-short",
+        "07-student-today-phone",
+        "08-staff-view-as-student-phone",
+        "09-admin-console-half-screen",
+        "10-workspace-half-screen",
+        "11-drawer-open-phone",
+        "12-drawer-open-half-screen",
+        "13-site-admin-student-detail-click"
+      ]
+    },
+    {
+      "sheet": "docs/progress/runs/2026-09-03-exhaustive-visual-pass/contact-sheets/sheet-02.png",
+      "ids": [
+        "14-viewer-read-only-detail-click",
+        "15-view-as-student-entered-desktop",
+        "16-view-as-student-exited-return",
+        "17-people-access-landing",
+        "18-admin-students",
+        "19-csv-import-template",
+        "76-csv-import-preview-errors",
+        "78-csv-import-access-error",
+        "20-student-admin-route-blocked",
+        "21-empty-student-search",
+        "22-student-final-files-state",
+        "82-student-final-checklist-chromebook",
+        "86-student-final-checklist-chromebook-short",
+        "87-student-presentation-chromebook",
+        "88-student-presentation-chromebook-short",
+        "89-student-final-files-chromebook"
+      ]
+    },
+    {
+      "sheet": "docs/progress/runs/2026-09-03-exhaustive-visual-pass/contact-sheets/sheet-03.png",
+      "ids": [
+        "90-student-final-files-chromebook-short",
+        "24-student-my-work-desktop",
+        "80-student-my-work-chromebook",
+        "84-student-my-work-chromebook-short",
+        "43-student-my-work-phone",
+        "25-student-feedback-desktop",
+        "81-student-feedback-chromebook",
+        "85-student-feedback-chromebook-short",
+        "26-administration-workspace-today",
+        "27-global-admin-workspace-today",
+        "28-student-detail-evidence",
+        "29-workspace-reports",
+        "30-mobile-mentor-today",
+        "31-mobile-student-detail",
+        "44-mobile-staff-students",
+        "45-mobile-student-detail-evidence"
+      ]
+    },
+    {
+      "sheet": "docs/progress/runs/2026-09-03-exhaustive-visual-pass/contact-sheets/sheet-04.png",
+      "ids": [
+        "32-admin-console-site-admin-overview",
+        "33-admin-assignments",
+        "34-admin-programs",
+        "35-admin-reports",
+        "36-admin-audit",
+        "37-mobile-admin-overview",
+        "38-mobile-admin-imports",
+        "77-mobile-csv-import-preview-errors",
+        "42-mobile-admin-reports",
+        "39-viewer-students-directory",
+        "46-mobile-viewer-students",
+        "40-staff-reviews",
+        "41-student-detail-timeline",
+        "23-student-detail-phone",
+        "48-site-admin-today-phone",
+        "49-program-teacher-today-phone"
+      ]
+    },
+    {
+      "sheet": "docs/progress/runs/2026-09-03-exhaustive-visual-pass/contact-sheets/sheet-05.png",
+      "ids": [
+        "50-viewer-today-phone",
+        "51-administration-today-phone",
+        "52-global-admin-today-phone",
+        "53-student-my-work-half-screen",
+        "54-student-feedback-phone",
+        "55-student-final-checklist-phone",
+        "56-program-dashboard-desktop",
+        "57-program-dashboard-phone",
+        "58-mentor-dashboard-phone",
+        "59-mentor-assigned-students-desktop",
+        "60-mentor-assigned-students-phone",
+        "61-site-admin-students-workspace",
+        "62-site-admin-reviews-workspace",
+        "63-site-admin-reports-phone",
+        "64-administration-students-workspace",
+        "65-administration-reports-phone"
+      ]
+    },
+    {
+      "sheet": "docs/progress/runs/2026-09-03-exhaustive-visual-pass/contact-sheets/sheet-06.png",
+      "ids": [
+        "66-global-admin-students-workspace",
+        "67-global-admin-reports-phone",
+        "68-mobile-admin-people",
+        "69-admin-students-half-screen",
+        "70-mobile-admin-assignments",
+        "71-mobile-admin-programs",
+        "72-mobile-admin-audit",
+        "73-mobile-global-admin-overview",
+        "74-viewer-reports-desktop",
+        "75-student-today-half-screen",
+        "101-site-admin-tools-phone",
+        "102-site-admin-console-tools-phone",
+        "103-program-teacher-tools-phone",
+        "104-mentor-phone-without-empty-tools",
+        "105-student-phone-without-empty-tools",
+        "106-site-admin-account-phone"
+      ]
+    },
+    {
+      "sheet": "docs/progress/runs/2026-09-03-exhaustive-visual-pass/contact-sheets/sheet-07.png",
+      "ids": [
+        "107-global-admin-tools-half-screen",
+        "91-dark-student-phone",
+        "92-dark-program-teacher-desktop",
+        "93-dark-mentor-tablet",
+        "94-dark-viewer-desktop",
+        "95-dark-site-admin-tablet",
+        "96-dark-administration-desktop",
+        "97-dark-global-admin-east-tech",
+        "98-light-global-admin-desert-valley",
+        "99-light-global-admin-canyon-ridge",
+        "100-dark-global-admin-north-valley",
+        "x-role-student-workspace-profile-desktop-light",
+        "x-role-student-workspace-profile-desktop-dark-expanded",
+        "x-role-student-workspace-student-desktop-light",
+        "x-role-student-workspace-student-desktop-dark-expanded",
+        "x-role-student-workspace-studentWork-desktop-light"
+      ]
+    },
+    {
+      "sheet": "docs/progress/runs/2026-09-03-exhaustive-visual-pass/contact-sheets/sheet-08.png",
+      "ids": [
+        "x-role-student-workspace-studentWork-desktop-dark-expanded",
+        "x-role-student-workspace-studentFeedback-desktop-light",
+        "x-role-student-workspace-studentFeedback-desktop-dark-expanded",
+        "x-role-student-workspace-studentFinalChecklist-desktop-light",
+        "x-role-student-workspace-studentFinalChecklist-desktop-dark-expanded",
+        "x-role-student-workspace-presentation-desktop-light",
+        "x-role-student-workspace-presentation-desktop-dark-expanded",
+        "x-role-student-workspace-archive-desktop-light",
+        "x-role-student-workspace-archive-desktop-dark-expanded",
+        "x-role-student-workspace-security-desktop-light",
+        "x-role-student-workspace-security-desktop-dark-expanded",
+        "x-role-mentor-workspace-profile-desktop-light",
+        "x-role-mentor-workspace-overview-desktop-light",
+        "x-role-mentor-workspace-overview-desktop-dark-expanded",
+        "x-role-mentor-workspace-projects-desktop-light",
+        "x-role-mentor-workspace-projects-desktop-dark-expanded"
+      ]
+    },
+    {
+      "sheet": "docs/progress/runs/2026-09-03-exhaustive-visual-pass/contact-sheets/sheet-09.png",
+      "ids": [
+        "x-role-mentor-workspace-mentor-desktop-light",
+        "x-role-mentor-workspace-mentor-desktop-dark-expanded",
+        "x-role-mentor-workspace-teacher-desktop-light",
+        "x-role-mentor-workspace-teacher-desktop-dark-expanded",
+        "x-role-mentor-workspace-mentorDashboard-desktop-light",
+        "x-role-mentor-workspace-mentorDashboard-desktop-dark-expanded",
+        "x-role-mentor-workspace-presentation-desktop-light",
+        "x-role-mentor-workspace-staffReports-desktop-light",
+        "x-role-mentor-workspace-staffReports-desktop-dark-expanded",
+        "x-role-mentor-workspace-security-desktop-light",
+        "x-role-viewer-workspace-profile-desktop-light",
+        "x-role-viewer-workspace-overview-desktop-light",
+        "x-role-viewer-workspace-projects-desktop-light",
+        "x-role-viewer-workspace-students-desktop-light",
+        "x-role-viewer-workspace-students-desktop-dark-expanded",
+        "x-role-viewer-workspace-staffReports-desktop-light"
+      ]
+    },
+    {
+      "sheet": "docs/progress/runs/2026-09-03-exhaustive-visual-pass/contact-sheets/sheet-10.png",
+      "ids": [
+        "x-role-viewer-workspace-security-desktop-light",
+        "x-role-program_teacher-workspace-profile-desktop-light",
+        "x-role-program_teacher-workspace-overview-desktop-light",
+        "x-role-program_teacher-workspace-projects-desktop-light",
+        "x-role-program_teacher-workspace-students-desktop-light",
+        "x-role-program_teacher-workspace-teacher-desktop-light",
+        "x-role-program_teacher-workspace-programDashboard-desktop-light",
+        "x-role-program_teacher-workspace-programDashboard-desktop-dark-expanded",
+        "x-role-program_teacher-workspace-operations-desktop-light",
+        "x-role-program_teacher-workspace-operations-desktop-dark-expanded",
+        "x-role-program_teacher-workspace-presentation-desktop-light",
+        "x-role-program_teacher-workspace-staffReports-desktop-light",
+        "x-role-program_teacher-workspace-security-desktop-light",
+        "x-role-program_teacher-admin-overview-desktop-light",
+        "x-role-program_teacher-admin-adminAssignments-desktop-light",
+        "x-role-program_teacher-admin-adminAssignments-desktop-dark-expanded"
+      ]
+    },
+    {
+      "sheet": "docs/progress/runs/2026-09-03-exhaustive-visual-pass/contact-sheets/sheet-11.png",
+      "ids": [
+        "x-role-program_teacher-admin-students-desktop-light",
+        "x-role-program_teacher-admin-teacher-desktop-light",
+        "x-role-program_teacher-admin-mentorAssignments-desktop-light",
+        "x-role-program_teacher-admin-mentorAssignments-desktop-dark-expanded",
+        "x-role-program_teacher-admin-operations-desktop-light",
+        "x-role-administration-workspace-profile-desktop-light",
+        "x-role-administration-workspace-overview-desktop-light",
+        "x-role-administration-workspace-projects-desktop-light",
+        "x-role-administration-workspace-students-desktop-light",
+        "x-role-administration-workspace-siteDashboard-desktop-light",
+        "x-role-administration-workspace-siteDashboard-desktop-dark-expanded",
+        "x-role-administration-workspace-operations-desktop-light",
+        "x-role-administration-workspace-mentorAssignments-desktop-light",
+        "x-role-administration-workspace-presentation-desktop-light",
+        "x-role-administration-workspace-readiness-desktop-light",
+        "x-role-administration-workspace-readiness-desktop-dark-expanded"
+      ]
+    },
+    {
+      "sheet": "docs/progress/runs/2026-09-03-exhaustive-visual-pass/contact-sheets/sheet-12.png",
+      "ids": [
+        "x-role-administration-workspace-staffReports-desktop-light",
+        "x-role-administration-workspace-security-desktop-light",
+        "x-role-administration-admin-overview-desktop-light",
+        "x-role-administration-admin-adminPeople-desktop-light",
+        "x-role-administration-admin-adminPeople-desktop-dark-expanded",
+        "x-role-administration-admin-adminStudents-desktop-light",
+        "x-role-administration-admin-adminStudents-desktop-dark-expanded",
+        "x-role-administration-admin-adminAssignments-desktop-light",
+        "x-role-administration-admin-adminImports-desktop-light",
+        "x-role-administration-admin-adminImports-desktop-dark-expanded",
+        "x-role-administration-admin-adminUsers-desktop-light",
+        "x-role-administration-admin-adminUsers-desktop-dark-expanded",
+        "x-role-administration-admin-students-desktop-light",
+        "x-role-administration-admin-mentorAssignments-desktop-light",
+        "x-role-administration-admin-operations-desktop-light",
+        "x-role-administration-admin-presentation-desktop-light"
+      ]
+    },
+    {
+      "sheet": "docs/progress/runs/2026-09-03-exhaustive-visual-pass/contact-sheets/sheet-13.png",
+      "ids": [
+        "x-role-administration-admin-readiness-desktop-light",
+        "x-role-administration-admin-adminReports-desktop-light",
+        "x-role-administration-admin-adminReports-desktop-dark-expanded",
+        "x-role-administration-admin-siteDashboard-desktop-light",
+        "x-role-site_admin-workspace-profile-desktop-light",
+        "x-role-site_admin-workspace-overview-desktop-light",
+        "x-role-site_admin-workspace-projects-desktop-light",
+        "x-role-site_admin-workspace-students-desktop-light",
+        "x-role-site_admin-workspace-teacher-desktop-light",
+        "x-role-site_admin-workspace-siteDashboard-desktop-light",
+        "x-role-site_admin-workspace-operations-desktop-light",
+        "x-role-site_admin-workspace-mentorAssignments-desktop-light",
+        "x-role-site_admin-workspace-presentation-desktop-light",
+        "x-role-site_admin-workspace-readiness-desktop-light",
+        "x-role-site_admin-workspace-staffReports-desktop-light",
+        "x-role-site_admin-workspace-security-desktop-light"
+      ]
+    },
+    {
+      "sheet": "docs/progress/runs/2026-09-03-exhaustive-visual-pass/contact-sheets/sheet-14.png",
+      "ids": [
+        "x-role-site_admin-admin-overview-desktop-light",
+        "x-role-site_admin-admin-adminPeople-desktop-light",
+        "x-role-site_admin-admin-adminStudents-desktop-light",
+        "x-role-site_admin-admin-adminAssignments-desktop-light",
+        "x-role-site_admin-admin-programs-desktop-light",
+        "x-role-site_admin-admin-programs-desktop-dark-expanded",
+        "x-role-site_admin-admin-adminImports-desktop-light",
+        "x-role-site_admin-admin-adminUsers-desktop-light",
+        "x-role-site_admin-admin-students-desktop-light",
+        "x-role-site_admin-admin-teacher-desktop-light",
+        "x-role-site_admin-admin-mentorAssignments-desktop-light",
+        "x-role-site_admin-admin-operations-desktop-light",
+        "x-role-site_admin-admin-presentation-desktop-light",
+        "x-role-site_admin-admin-readiness-desktop-light",
+        "x-role-site_admin-admin-adminReports-desktop-light",
+        "x-role-site_admin-admin-siteDashboard-desktop-light"
+      ]
+    },
+    {
+      "sheet": "docs/progress/runs/2026-09-03-exhaustive-visual-pass/contact-sheets/sheet-15.png",
+      "ids": [
+        "x-role-admin-workspace-profile-desktop-light",
+        "x-role-admin-workspace-overview-desktop-light",
+        "x-role-admin-workspace-projects-desktop-light",
+        "x-role-admin-workspace-students-desktop-light",
+        "x-role-admin-workspace-teacher-desktop-light",
+        "x-role-admin-workspace-siteDashboard-desktop-light",
+        "x-role-admin-workspace-operations-desktop-light",
+        "x-role-admin-workspace-mentorAssignments-desktop-light",
+        "x-role-admin-workspace-presentation-desktop-light",
+        "x-role-admin-workspace-readiness-desktop-light",
+        "x-role-admin-workspace-adminDashboard-desktop-light",
+        "x-role-admin-workspace-adminDashboard-desktop-dark-expanded",
+        "x-role-admin-workspace-staffReports-desktop-light",
+        "x-role-admin-workspace-security-desktop-light",
+        "x-role-admin-admin-overview-desktop-light",
+        "x-role-admin-admin-adminPeople-desktop-light"
+      ]
+    },
+    {
+      "sheet": "docs/progress/runs/2026-09-03-exhaustive-visual-pass/contact-sheets/sheet-16.png",
+      "ids": [
+        "x-role-admin-admin-adminStudents-desktop-light",
+        "x-role-admin-admin-adminAssignments-desktop-light",
+        "x-role-admin-admin-programs-desktop-light",
+        "x-role-admin-admin-adminImports-desktop-light",
+        "x-role-admin-admin-adminUsers-desktop-light",
+        "x-role-admin-admin-students-desktop-light",
+        "x-role-admin-admin-teacher-desktop-light",
+        "x-role-admin-admin-mentorAssignments-desktop-light",
+        "x-role-admin-admin-operations-desktop-light",
+        "x-role-admin-admin-presentation-desktop-light",
+        "x-role-admin-admin-readiness-desktop-light",
+        "x-role-admin-admin-adminReports-desktop-light",
+        "x-role-admin-admin-adminDashboard-desktop-light",
+        "x-role-admin-admin-siteDashboard-desktop-light",
+        "x-role-admin-admin-archiveExports-desktop-light",
+        "x-role-admin-admin-archiveExports-desktop-dark-expanded"
+      ]
+    },
+    {
+      "sheet": "docs/progress/runs/2026-09-03-exhaustive-visual-pass/contact-sheets/sheet-17.png",
+      "ids": [
+        "x-role-admin-admin-audit-desktop-light",
+        "x-role-admin-admin-audit-desktop-dark-expanded",
+        "x-role-admin-admin-security-desktop-light",
+        "x-responsive-profile-short-light",
+        "x-responsive-profile-phone-dark",
+        "x-responsive-student-short-light",
+        "x-responsive-student-phone-dark",
+        "x-responsive-studentWork-short-light",
+        "x-responsive-studentWork-phone-dark",
+        "x-responsive-studentFeedback-short-light",
+        "x-responsive-studentFeedback-phone-dark",
+        "x-responsive-studentFinalChecklist-short-light",
+        "x-responsive-studentFinalChecklist-phone-dark",
+        "x-responsive-presentation-short-light",
+        "x-responsive-presentation-phone-dark",
+        "x-responsive-archive-short-light"
+      ]
+    },
+    {
+      "sheet": "docs/progress/runs/2026-09-03-exhaustive-visual-pass/contact-sheets/sheet-18.png",
+      "ids": [
+        "x-responsive-archive-phone-dark",
+        "x-responsive-security-short-light",
+        "x-responsive-security-phone-dark",
+        "x-responsive-overview-short-light",
+        "x-responsive-overview-phone-dark",
+        "x-responsive-projects-short-light",
+        "x-responsive-projects-phone-dark",
+        "x-responsive-mentor-short-light",
+        "x-responsive-mentor-phone-dark",
+        "x-responsive-teacher-short-light",
+        "x-responsive-teacher-phone-dark",
+        "x-responsive-mentorDashboard-short-light",
+        "x-responsive-mentorDashboard-phone-dark",
+        "x-responsive-staffReports-short-light",
+        "x-responsive-staffReports-phone-dark",
+        "x-responsive-students-short-light"
+      ]
+    },
+    {
+      "sheet": "docs/progress/runs/2026-09-03-exhaustive-visual-pass/contact-sheets/sheet-19.png",
+      "ids": [
+        "x-responsive-students-phone-dark",
+        "x-responsive-programDashboard-short-light",
+        "x-responsive-programDashboard-phone-dark",
+        "x-responsive-operations-short-light",
+        "x-responsive-operations-phone-dark",
+        "x-responsive-adminAssignments-short-light",
+        "x-responsive-adminAssignments-phone-dark",
+        "x-responsive-mentorAssignments-short-light",
+        "x-responsive-mentorAssignments-phone-dark",
+        "x-responsive-siteDashboard-short-light",
+        "x-responsive-siteDashboard-phone-dark",
+        "x-responsive-readiness-short-light",
+        "x-responsive-readiness-phone-dark",
+        "x-responsive-adminPeople-short-light",
+        "x-responsive-adminPeople-phone-dark",
+        "x-responsive-adminStudents-short-light"
+      ]
+    },
+    {
+      "sheet": "docs/progress/runs/2026-09-03-exhaustive-visual-pass/contact-sheets/sheet-20.png",
+      "ids": [
+        "x-responsive-adminStudents-phone-dark",
+        "x-responsive-adminImports-short-light",
+        "x-responsive-adminImports-phone-dark",
+        "x-responsive-adminUsers-short-light",
+        "x-responsive-adminUsers-phone-dark",
+        "x-responsive-adminReports-short-light",
+        "x-responsive-adminReports-phone-dark",
+        "x-responsive-programs-short-light",
+        "x-responsive-programs-phone-dark",
+        "x-responsive-adminDashboard-short-light",
+        "x-responsive-adminDashboard-phone-dark",
+        "x-responsive-archiveExports-short-light",
+        "x-responsive-archiveExports-phone-dark",
+        "x-responsive-audit-short-light",
+        "x-responsive-audit-phone-dark"
+      ]
+    }
+  ]
+}
