@@ -70,7 +70,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   return json({
     ok: true,
     scope,
-    storage: safeProgramStorage(config, canManage),
+    storage: safeProgramStorage(config, canManage, siteId, programId),
     setup: {
       canManage,
       uploadMode: env.EVIDENCE_STORAGE_PROVIDER === "google_drive" ? "program_drive" : "link_only",
@@ -217,7 +217,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     storage: {
       provider: "google_drive",
       ownershipMode: "teacher_managed_shared_folder",
-      folderUrl: nextRow.folder_url,
+      openUrl: `/api/program-storage/open?siteId=${encodeURIComponent(siteId)}&programId=${encodeURIComponent(programId)}`,
       folderName: nextRow.folder_name,
       status: "ready",
       revision,
@@ -227,7 +227,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   });
 };
 
-async function canManageProgramStorage(
+export async function canManageProgramStorage(
   env: Env,
   user: UserAccount,
   roles: RoleAssignment[],
@@ -273,7 +273,7 @@ async function loadProgramScope(env: Env, siteId: string, programId: string) {
   return row ? { siteId: row.site_id, siteName: row.site_name, programId: row.program_id, programName: row.program_name } : null;
 }
 
-async function loadProgramStorage(env: Env, siteId: string, programId: string): Promise<ProgramStorageRow | null> {
+export async function loadProgramStorage(env: Env, siteId: string, programId: string): Promise<ProgramStorageRow | null> {
   return env.DB.prepare(
     `SELECT program_storage_configs.*, sites.name AS site_name, programs.name AS program_name
      FROM program_storage_configs
@@ -284,13 +284,15 @@ async function loadProgramStorage(env: Env, siteId: string, programId: string): 
   ).bind(siteId, programId).first<ProgramStorageRow>();
 }
 
-function safeProgramStorage(row: ProgramStorageRow | null, canManage: boolean) {
+function safeProgramStorage(row: ProgramStorageRow | null, canManage: boolean, siteId: string, programId: string) {
   if (!row) return { configured: false, status: "not_configured" };
   return {
     configured: true,
     provider: row.provider,
     ownershipMode: row.ownership_mode,
-    folderUrl: canManage ? row.folder_url : "",
+    openUrl: canManage && row.status === "ready"
+      ? `/api/program-storage/open?siteId=${encodeURIComponent(siteId)}&programId=${encodeURIComponent(programId)}`
+      : "",
     folderName: row.folder_name || "Program files",
     status: row.status,
     revision: Number(row.revision || 1),

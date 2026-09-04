@@ -108,6 +108,39 @@ test("DOCX preview exports the converted Google Doc companion as a safe inline P
   }
 });
 
+test("plain text and CSV evidence streams as inert same-origin text", async () => {
+  const fixture = await createFixture();
+  await fixture.env.DB.prepare(
+    `INSERT INTO evidence_artifacts (
+       id, repository_id, student_id, artifact_type, source_kind, drive_file_id,
+       title, mime_type, review_status, created_by, preview_kind, preview_status
+     ) VALUES ('evidence-text', 'default-google-drive', 'owner', 'file_upload', 'google_drive_file',
+       'private-text-id', 'Research notes', 'text/plain', 'pending_review', 'owner', 'text_extract', 'ready')`,
+  ).run();
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (input) => {
+    const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+    if (url === "https://oauth2.googleapis.com/token") {
+      return new Response(JSON.stringify({ access_token: "test-token", expires_in: 3600 }), { status: 200 });
+    }
+    if (url.includes("/drive/v3/files/private-text-id?alt=media")) {
+      return new Response("safe notes", { status: 200, headers: { "content-type": "text/plain" } });
+    }
+    throw new Error(`Unexpected provider URL: ${url}`);
+  };
+  try {
+    const response = await preview(fixture, fixture.ownerToken, "evidence-text");
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("content-type"), "text/plain; charset=utf-8");
+    assert.match(response.headers.get("content-disposition"), /^inline;/);
+    assert.equal(await response.text(), "safe notes");
+    assert.equal(response.headers.get("x-content-type-options"), "nosniff");
+    assert.doesNotMatch([...response.headers].flat().join(" "), /private-text-id/i);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 async function createFixture() {
   const db = createSqliteD1({ migrations: foundationMigrations() });
   const { privateKey } = generateKeyPairSync("rsa", {

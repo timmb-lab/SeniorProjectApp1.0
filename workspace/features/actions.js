@@ -121,6 +121,9 @@ function bindWorkspaceForms() {
   const uploadForm = document.querySelector("#workspaceFileUploadForm");
   uploadForm?.addEventListener("submit", uploadEvidenceFile);
   uploadForm?.querySelector?.('[data-upload-action="select-file"]')?.addEventListener("change", handleUploadFileSelected);
+  document.querySelectorAll('[data-evidence-preview="file"]').forEach((button) => {
+    button.addEventListener("click", openEvidencePreviewDialog);
+  });
   bindStudentProofGuideSelects();
   bindUploadRetryButton();
   document.querySelectorAll("[data-student-storage-focus]").forEach((button) => {
@@ -213,6 +216,38 @@ async function selectProgramStorageProgram(event) {
   invalidateWorkspaceAccessContext();
   currentData.programStorage = null;
   await loadWorkspaceData("Opening this program’s file settings...");
+}
+
+function openEvidencePreviewDialog(event) {
+  const button = event.currentTarget;
+  const previewUrl = cleanWorkspaceEvidencePreviewUrl(button?.dataset?.evidencePreviewUrl || "");
+  if (!previewUrl) {
+    renderAppShell("This preview link is no longer valid. Download the file or open it in Drive instead.", "error");
+    return;
+  }
+  document.querySelector("#workspaceEvidencePreviewDialog")?.remove();
+  const dialog = document.createElement("dialog");
+  dialog.id = "workspaceEvidencePreviewDialog";
+  dialog.className = "workspace-evidence-preview-dialog";
+  dialog.setAttribute("aria-labelledby", "workspaceEvidencePreviewTitle");
+  dialog.innerHTML = `
+    <div class="workspace-evidence-preview-head">
+      <div>
+        <span class="workspace-eyebrow">PRIVATE PROJECT FILE</span>
+        <h2 id="workspaceEvidencePreviewTitle">File preview</h2>
+      </div>
+      <button class="workspace-button workspace-button-secondary" type="button" data-evidence-preview-close>Close</button>
+    </div>
+    <p class="workspace-muted">Only people already allowed to open this project can load this preview.</p>
+    <iframe class="workspace-evidence-preview-frame" title="Project evidence preview"></iframe>
+    <div class="workspace-row-actions">
+      <a class="workspace-link-button workspace-link-button-small" data-evidence-preview-new-tab target="_blank" rel="noopener" href="${escapeHtml(previewUrl)}">Open preview in a new tab</a>
+    </div>`;
+  dialog.querySelector("iframe").src = previewUrl;
+  dialog.querySelector("[data-evidence-preview-close]")?.addEventListener("click", () => dialog.close());
+  dialog.addEventListener("close", () => dialog.remove(), { once: true });
+  document.body.append(dialog);
+  dialog.showModal();
 }
 
 function bindUploadRetryButton() {

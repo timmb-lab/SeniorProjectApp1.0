@@ -2697,7 +2697,7 @@ function renderProgramStorageSettings() {
           <span><strong>${escapeHtml(storage.folderName || "Program files")}</strong></span>
           <small>Verified connection / revision ${escapeHtml(String(storage.revision || 1))}</small>
           <div class="workspace-row-actions">
-            <a class="workspace-link-button workspace-link-button-small" href="${escapeHtml(storage.folderUrl || "")}" target="_blank" rel="noopener noreferrer">Open folder</a>
+            <a class="workspace-link-button workspace-link-button-small" href="${escapeHtml(storage.openUrl || "")}" target="_blank" rel="noopener noreferrer">Open folder</a>
             <button class="workspace-link-button workspace-link-button-small" type="button" data-program-storage-action="verify">Check connection</button>
           </div>
         </div>
@@ -5442,6 +5442,7 @@ function messageForUploadError(error, status) {
   if (error === "empty_file") return "The selected file is empty. Choose a file with content and try again.";
   if (error === "file_too_large") return "This file is larger than the current upload limit. Choose a smaller file or ask your instructor for help.";
   if (error === "blocked_file_signature") return workspaceUploadBlockedSignatureMessage();
+  if (error === "file_content_mismatch") return "This file's contents do not match its name or type. Export it again in the correct format, then retry.";
   if (error === "unsupported_file_type") return workspaceUploadTypeMessage();
   if (error === "drive_token_exchange_failed" || error === "drive_provider_error" || error === "drive_upload_failed" || status === 502) {
     return "The upload service could not receive the file. Try again or contact your instructor.";

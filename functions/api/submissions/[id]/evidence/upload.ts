@@ -114,6 +114,39 @@ function disallowedUploadSignature(bytes: Uint8Array): string {
   return "";
 }
 
+function uploadMimeType(file: UploadedFile): string {
+  const declared = String(file.type || "").trim().toLowerCase();
+  if (!GENERIC_UPLOAD_MIME_TYPES.has(declared)) return declared;
+  return [...(ALLOWED_UPLOAD_MIME_TYPES_BY_EXTENSION.get(fileExtension(file.name)) || [])][0] || "application/octet-stream";
+}
+
+function uploadContentMismatch(bytes: Uint8Array, mimeType: string): string {
+  const startsWith = (...signature: number[]) => signature.every((value, index) => bytes[index] === value);
+  if (mimeType === "application/pdf") return startsWith(0x25, 0x50, 0x44, 0x46, 0x2d) ? "" : "pdf_signature";
+  if (mimeType.includes("openxmlformats-officedocument")) return startsWith(0x50, 0x4b, 0x03, 0x04) ? "" : "office_zip_signature";
+  if (mimeType === "image/png") return startsWith(0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a) ? "" : "png_signature";
+  if (mimeType === "image/jpeg") return startsWith(0xff, 0xd8, 0xff) ? "" : "jpeg_signature";
+  if (mimeType === "image/gif") {
+    const header = new TextDecoder().decode(bytes.slice(0, 6));
+    return header === "GIF87a" || header === "GIF89a" ? "" : "gif_signature";
+  }
+  if (mimeType === "image/webp") {
+    const riff = new TextDecoder().decode(bytes.slice(0, 4));
+    const webp = new TextDecoder().decode(bytes.slice(8, 12));
+    return riff === "RIFF" && webp === "WEBP" ? "" : "webp_signature";
+  }
+  if (mimeType === "text/plain" || mimeType === "text/csv") {
+    if (bytes.includes(0)) return "text_nul_byte";
+    try {
+      new TextDecoder("utf-8", { fatal: true, ignoreBOM: false }).decode(bytes);
+      return "";
+    } catch {
+      return "text_encoding";
+    }
+  }
+  return "";
+}
+
 export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }) => {
   const methodError = requirePost(request);
   if (methodError) return methodError;
@@ -214,6 +247,25 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
     });
     return badRequest("blocked_file_signature");
   }
+  const mimeType = uploadMimeType(file);
+  const contentMismatch = uploadContentMismatch(bytes, mimeType);
+  if (contentMismatch) {
+    await writeAudit(env, {
+      actorUserId: user.id,
+      action: "evidence_upload_content_mismatch",
+      entityType: "submission",
+      entityId: submission.id,
+      request,
+      metadata: {
+        studentId: submission.student_id,
+        extension: fileExtension(file.name),
+        mimeType,
+        size: file.size,
+        mismatch: contentMismatch,
+      },
+    });
+    return badRequest("file_content_mismatch");
+  }
 
   const rootFolderId = programStorage?.folder_id || String(env.GOOGLE_DRIVE_EVIDENCE_ROOT_ID || "").trim();
   if (!rootFolderId) {
@@ -262,8 +314,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
   const evidenceTitle = cleanWorkflowText(formData.get("title"), file.name || "Evidence upload", 160);
   const evidenceId = randomId("evidence");
   const driveFileName = `${evidenceId}-${safeStorageFileName(file.name)}`;
-  const mimeType = file.type || "application/octet-stream";
-
   let uploadResult;
   try {
     uploadResult = file.size > MULTIPART_UPLOAD_MAX_BYTES
@@ -304,8 +354,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
 
   const isPdf = mimeType === "application/pdf";
   const isDocx = mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-  let previewKind: "none" | "inline_pdf" | "converted_pdf" = isPdf ? "inline_pdf" : isDocx ? "converted_pdf" : "none";
-  let previewStatus: "ready" | "unsupported" | "failed" = isPdf ? "ready" : isDocx ? "failed" : "unsupported";
+  const isText = mimeType === "text/plain" || mimeType === "text/csv";
+  let previewKind: "none" | "inline_pdf" | "converted_pdf" | "text_extract" = isPdf ? "inline_pdf" : isDocx ? "converted_pdf" : isText ? "text_extract" : "none";
+  let previewStatus: "ready" | "unsupported" | "failed" = isPdf || isText ? "ready" : isDocx ? "failed" : "unsupported";
   let previewDriveFileId: string | null = null;
   let previewErrorCode: string | null = null;
 

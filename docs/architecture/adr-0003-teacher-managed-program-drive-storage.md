@@ -21,7 +21,7 @@ The app uses the narrow `drive.file` scope. It can create and retrieve files it 
 - Durable uploaded bytes live in the connected program folder.
 - The teacher or school controls folder membership, sharing, retention, and off-platform access.
 - The application creates original uploads and, for DOCX files, an app-created Google Docs conversion used only to provide a read-only PDF preview.
-- A PDF preview streams the original PDF. A DOCX preview exports the app-created converted document as PDF.
+- A PDF preview streams the original PDF. A DOCX preview exports the app-created converted document as PDF. UTF-8 text and CSV files stream as inert `text/plain`; they are never interpreted as HTML.
 - Authorized users receive app-owned preview, download, and Open in Drive routes. The browser does not receive a raw provider identifier until an authorized Open in Drive request redirects to Google's own viewer.
 - Replacing or disconnecting a folder affects future uploads only. Existing artifacts retain the storage connection ID and revision used when they were created.
 - Disconnect is non-destructive. It does not delete Drive files or D1 evidence records.
@@ -36,7 +36,7 @@ The app uses the narrow `drive.file` scope. It can create and retrieve files it 
 ### Temporary processing
 
 - Upload bodies exist in request memory only for validation and provider transfer; the app does not retain a second durable byte copy.
-- Files are limited to 20 MiB and an explicit allowlist. MIME type and extension must agree, names are normalized, and executable signatures are rejected before provider upload.
+- Files are limited to 20 MiB and an explicit allowlist. MIME type, extension, and recognizable content signatures must agree; UTF-8 text rejects binary/NUL content; names are normalized; and executable signatures are rejected before provider upload.
 - This validation reduces obvious abuse but is not a claim of full malware scanning. A production malware-scanning service is required before expanding the allowlist or accepting untrusted public uploads.
 
 ## Authorization and isolation
@@ -68,6 +68,16 @@ The app uses the narrow `drive.file` scope. It can create and retrieve files it 
 5. Verify PDF and DOCX upload, preview, download, denial, replacement, and disconnect behavior across roles.
 6. Consider retiring the legacy global root only after every active program is configured and historical files have an approved recovery plan.
 
-## Remaining clarification
+## Resolved responsibility boundary
 
-The user's phrase “we still need some separation in contract from the…” was truncated. This ADR defines the boundary between app-owned metadata/temporary processing and externally controlled Drive content. If the intended second party was a district contract, Google Workspace agreement, student data-processing agreement, or another boundary, add that named responsibility without weakening the technical isolation above.
+The truncated request for “separation in contract from the…” is implemented as a strict separation between the application service, the school/program, and Google Workspace:
+
+| Responsibility | Application service | School/program | Google Workspace |
+| --- | --- | --- | --- |
+| Durable file bytes | Transfers and retrieves only through authorized app routes; keeps no second durable copy | Owns the selected Shared Drive folder, membership, retention decision, and off-platform access | Stores the folder and files under the school's Workspace agreement |
+| Metadata and workflow | Owns scoped D1 records, preview state, audit events, and deletion markers | Supplies correct program/folder choice and handles instructional records policy | Supplies provider file status and access enforcement |
+| Credentials and identifiers | Protects service-account credentials and provider IDs; never exposes them in app JSON or app URLs | Shares only the chosen folder with the app account | Issues tokens and enforces the narrow provider grant |
+| Replacement/disconnect | Revisions the connection; preserves existing evidence references; never deletes externally owned files automatically | Chooses the new folder and separately applies its retention policy to old content | Retains old files until the school changes or deletes them |
+| Broken access | Reports a recoverable missing/access-lost state and audits it | Restores sharing or supplies a deliberate replacement | Returns authoritative missing/forbidden/provider status |
+
+This technical contract does not replace a district data-processing agreement, records-retention policy, or Google Workspace agreement. Those agreements govern the school's use of the externally owned content; they do not broaden application permissions or authorize silent deletion.

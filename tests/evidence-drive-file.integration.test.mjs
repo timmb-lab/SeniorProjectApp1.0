@@ -372,6 +372,32 @@ test("evidence file upload rejects executable signatures hidden behind allowed n
   }
 });
 
+test("evidence file upload rejects content that does not match an allowed file type", async () => {
+  const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
+  fixture.db.data.submissions.push({ id: "submission-1", student_id: "student-a", requirement_id: null, status: "draft", version: 1 });
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => { throw new Error("provider must not receive mismatched content"); };
+  try {
+    const response = await onUploadEvidenceFile({
+      request: buildUploadRequest({
+        url: "https://example.test/api/submissions/submission-1/evidence/upload",
+        token: fixture.token,
+        fileName: "not-really-a-report.pdf",
+        fileType: "application/pdf",
+        fileBytes: new TextEncoder().encode("plain text wearing a PDF name"),
+      }),
+      env: fixture.env,
+      params: { id: "submission-1" },
+    });
+    assert.equal(response.status, 400);
+    assert.deepEqual(await response.json(), { error: "file_content_mismatch" });
+    assert.equal(fixture.db.data.evidenceArtifacts.length, 0);
+    assert.equal(fixture.db.data.auditEvents[0].action, "evidence_upload_content_mismatch");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("evidence file upload rejects empty files before provider calls", async () => {
   const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
   fixture.db.data.submissions.push({
@@ -733,6 +759,7 @@ test("evidence file upload uses resumable Drive upload for large files", async (
   });
 
   const largeFileBytes = new Uint8Array(5 * 1024 * 1024 + 1);
+  largeFileBytes.set(new TextEncoder().encode("%PDF-1.7\n"));
   let sawResumableInit = false;
   let sawResumablePut = false;
   const sessionUrl = "https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&upload_id=test-session";
@@ -1388,13 +1415,13 @@ function buildUploadRequest({
   artifactType = "reflection",
   fileName = "hello.txt",
   fileType = "text/plain",
-  fileBytes = "hello",
+  fileBytes = null,
   fileSizeBytes = null,
 }) {
   const form = new FormData();
   const bytes = Number.isFinite(fileSizeBytes) && fileSizeBytes > 0
     ? new Uint8Array(fileSizeBytes)
-    : fileBytes;
+    : fileBytes ?? validFixtureBytes(fileName, fileType);
   const file = new File([bytes], fileName, { type: fileType });
   form.set("file", file);
   form.set("title", title);
@@ -1409,6 +1436,21 @@ function buildUploadRequest({
   }
 
   return new Request(url, { method: "POST", headers, body: form });
+}
+
+function validFixtureBytes(fileName, fileType) {
+  const extension = /\.[a-z0-9]+$/i.exec(fileName)?.[0]?.toLowerCase() || "";
+  if (fileType === "application/pdf" || (fileType === "application/octet-stream" && extension === ".pdf")) {
+    return new TextEncoder().encode("%PDF-1.7\nfixture");
+  }
+  if (fileType.includes("openxmlformats-officedocument") || [".docx", ".pptx", ".xlsx"].includes(extension)) {
+    return new Uint8Array([0x50, 0x4b, 0x03, 0x04, 0x14, 0x00]);
+  }
+  if (fileType === "image/png") return new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  if (fileType === "image/jpeg") return new Uint8Array([0xff, 0xd8, 0xff, 0xdb]);
+  if (fileType === "image/gif") return new TextEncoder().encode("GIF89a");
+  if (fileType === "image/webp") return new TextEncoder().encode("RIFF0000WEBP");
+  return new TextEncoder().encode("hello");
 }
 
 function createFixture() {

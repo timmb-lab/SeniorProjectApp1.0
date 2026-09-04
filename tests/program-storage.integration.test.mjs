@@ -6,6 +6,7 @@ import { parseGoogleDriveFolderUrl } from "../functions/_lib/google-drive.ts";
 import { getCurrentUser } from "../functions/_lib/auth.ts";
 import { canAccessSite, hasAnyRole } from "../functions/_lib/permissions.ts";
 import { onRequestGet, onRequestPost } from "../functions/api/program-storage.ts";
+import { onRequestGet as onRequestOpen } from "../functions/api/program-storage/open.ts";
 import { buildRequest, seedSession, seedUser } from "./helpers/auth-fixtures.mjs";
 import { createSqliteD1, foundationMigrations } from "./helpers/d1-sqlite.mjs";
 
@@ -89,13 +90,20 @@ test("program storage is teacher-managed, role-scoped, revisioned, and identifie
     });
     assert.equal(configured.response.status, 200);
     assert.equal(configured.body.storage.revision, 1);
-    assert.equal(configured.body.storage.folderUrl, `https://drive.google.com/drive/folders/${FOLDER_ID}`);
+    assert.equal(configured.body.storage.openUrl, `/api/program-storage/open?siteId=${SITE_ID}&programId=${PROGRAM_ID}`);
     assert.doesNotMatch(JSON.stringify(configured.body), /folderId|folder_id|private_key|access_token/i);
+    assert.doesNotMatch(JSON.stringify(configured.body), new RegExp(FOLDER_ID, "i"));
 
     const safeOversightView = await getStorage(fixture, fixture.tokens.siteAdmin, PROGRAM_ID);
     assert.equal(safeOversightView.body.storage.status, "ready");
-    assert.equal(safeOversightView.body.storage.folderUrl, "");
+    assert.equal(safeOversightView.body.storage.openUrl, "");
     assert.doesNotMatch(JSON.stringify(safeOversightView.body), new RegExp(FOLDER_ID, "i"));
+
+    const teacherOpen = await openStorage(fixture, fixture.tokens.teacher);
+    assert.equal(teacherOpen.status, 302);
+    assert.equal(teacherOpen.headers.get("location"), `https://drive.google.com/drive/folders/${FOLDER_ID}`);
+    assert.equal(teacherOpen.headers.get("referrer-policy"), "no-referrer");
+    assert.equal((await openStorage(fixture, fixture.tokens.siteAdmin)).status, 403);
 
     const verified = await changeStorage(fixture, fixture.tokens.teacher, {
       action: "verify", siteId: SITE_ID, programId: PROGRAM_ID,
@@ -178,6 +186,13 @@ async function changeStorage(fixture, token, body) {
     env: fixture.env,
   });
   return { response, body: await response.json() };
+}
+
+function openStorage(fixture, token) {
+  return onRequestOpen({
+    request: buildRequest(`https://example.test/api/program-storage/open?siteId=${SITE_ID}&programId=${PROGRAM_ID}`, token),
+    env: fixture.env,
+  });
 }
 
 async function withDriveProvider(callback, folderOverrides = {}) {

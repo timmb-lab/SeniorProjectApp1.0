@@ -3422,7 +3422,7 @@ function renderEvidenceActions(item, options = {}) {
   const downloadUrl = item.source_kind === "google_drive_file" ? cleanWorkspaceEvidenceDownloadUrl(item.downloadUrl) : "";
   const previewUrl = item.source_kind === "google_drive_file" ? cleanWorkspaceEvidencePreviewUrl(item.previewUrl) : "";
   if (previewUrl) {
-    actions.push(`<a class="workspace-link-button workspace-link-button-small workspace-link-button-primary" data-evidence-preview="file" href="${escapeHtml(previewUrl)}" target="_blank" rel="noopener" aria-label="Preview file: ${escapeHtml(actionLabel)}">Preview</a>`);
+    actions.push(`<button class="workspace-link-button workspace-link-button-small workspace-link-button-primary" data-evidence-preview="file" data-evidence-preview-url="${escapeHtml(previewUrl)}" type="button" aria-label="Preview file here: ${escapeHtml(actionLabel)}">Preview here</button>`);
   }
   if (downloadUrl) {
     actions.push(`<a class="workspace-link-button workspace-link-button-small" data-evidence-download="file" href="${escapeHtml(downloadUrl)}" aria-label="Download file: ${escapeHtml(actionLabel)}">Download file</a>`);

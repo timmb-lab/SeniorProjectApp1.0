@@ -61,11 +61,15 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
   }
 
   let providerResponse: Response;
+  const isTextPreview = artifact.preview_kind === "text_extract"
+    && (artifact.mime_type === "text/plain" || artifact.mime_type === "text/csv");
   try {
     if (artifact.preview_kind === "inline_pdf" && artifact.drive_file_id) {
       providerResponse = await downloadGoogleDriveFileMedia(accessToken, artifact.drive_file_id);
     } else if (artifact.preview_kind === "converted_pdf" && artifact.preview_drive_file_id) {
       providerResponse = await exportGoogleDriveWorkspaceDocument(accessToken, artifact.preview_drive_file_id, "application/pdf");
+    } else if (isTextPreview && artifact.drive_file_id) {
+      providerResponse = await downloadGoogleDriveFileMedia(accessToken, artifact.drive_file_id);
     } else {
       return workflowError("preview_unavailable", 409);
     }
@@ -88,8 +92,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
   await auditPreview(env, request, user, "evidence_previewed", evidenceId, { previewKind: artifact.preview_kind });
   const headers = new Headers();
   applyApiSecurityHeaders(headers);
-  headers.set("content-type", "application/pdf");
-  headers.set("content-disposition", `inline; filename="${safePreviewName(artifact.title)}.pdf"`);
+  headers.set("content-type", isTextPreview ? "text/plain; charset=utf-8" : "application/pdf");
+  headers.set("content-disposition", `inline; filename="${safePreviewName(artifact.title)}.${isTextPreview ? "txt" : "pdf"}"`);
   headers.set("cache-control", "private, no-store, max-age=0");
   headers.set("content-security-policy", "default-src 'none'; frame-ancestors 'self'; sandbox");
   headers.set("cross-origin-resource-policy", "same-origin");
