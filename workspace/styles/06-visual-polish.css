@@ -2545,7 +2545,7 @@ body[data-page="workspace"] {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(17rem, 20rem);
   align-items: start;
-  gap: 0.9rem;
+  gap: clamp(1.25rem, 2vw, 2rem);
 }
 
 .workspace-project-command-main,
@@ -2557,6 +2557,9 @@ body[data-page="workspace"] {
 
 .workspace-project-command-rail {
   min-width: 0;
+  /* The sticky child needs a containing block as tall as the scrolling main
+     column; align-items:start on the parent grid otherwise shrinks this rail. */
+  align-self: stretch;
 }
 
 /* Keep the compact project context in view while the longer work column moves,
@@ -2714,7 +2717,7 @@ body[data-page="workspace"] {
 
 .workspace-project-rail-card dt {
   color: var(--ticket-muted);
-  font-size: 0.76rem;
+  font-size: 0.82rem;
 }
 
 .workspace-project-rail-card dd {
@@ -2722,7 +2725,7 @@ body[data-page="workspace"] {
   margin: 0;
   overflow: hidden;
   color: var(--ticket-text);
-  font-size: 0.78rem;
+  font-size: 0.88rem;
   font-weight: 800;
   text-align: right;
   text-overflow: ellipsis;
@@ -2781,13 +2784,13 @@ body[data-page="workspace"] {
   margin-top: 0.18rem;
   overflow-wrap: anywhere;
   color: var(--ticket-text);
-  font-size: 0.78rem;
+  font-size: 0.86rem;
 }
 
 .workspace-project-people-card > p {
   margin: 0.75rem 0 0;
   color: var(--ticket-muted);
-  font-size: 0.76rem;
+  font-size: 0.82rem;
   line-height: 1.5;
 }
 

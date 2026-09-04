@@ -38,7 +38,7 @@ const phone = mediaBlock(620);
 requireIncludes("tablet breakpoint exists", workspaceCss, "@media (max-width: 900px)");
 requireIncludes("phone breakpoint exists", workspaceCss, "@media (max-width: 620px)");
 
-requirePattern("workspace page suppresses document horizontal overflow", workspaceCss, /html,\s*body\s*\{[\s\S]*?max-width:\s*100%;[\s\S]*?overflow-x:\s*hidden;/);
+requirePattern("workspace page clips document horizontal overflow without breaking sticky regions", workspaceCss, /html,\s*body\s*\{[\s\S]*?max-width:\s*100%;[\s\S]*?overflow-x:\s*clip;/);
 requirePattern("workspace shell caps page width", workspaceCss, /body\[data-page="workspace"\],[\s\S]*?\.workspace-shell,[\s\S]*?\.workspace-app\s*\{[\s\S]*?max-width:\s*100%;[\s\S]*?min-width:\s*0;/);
 requirePattern("tablet app layout collapses to one column", tablet, /\.workspace-content,[\s\S]*?grid-template-columns:\s*1fr;/);
 requirePattern("tablet dashboard grids collapse to one column", tablet, /\.workspace-dashboard-grid,[\s\S]*?\.workspace-student-card\s*\{[\s\S]*?grid-template-columns:\s*1fr;/);

@@ -7458,7 +7458,7 @@ test("workspace exposes a real admin site switcher and collapsible navigation", 
 test("workspace half-width drawer and phone drawer stay bounded and keep global admin controls reachable", async () => {
   const tablet = cssMediaBlock(900);
   const phone = cssMediaBlock(620);
-  assert.match(workspaceCss, /html,\s*body\s*\{[\s\S]*max-width:\s*100%;[\s\S]*overflow-x:\s*hidden;/);
+  assert.match(workspaceCss, /html,\s*body\s*\{[\s\S]*max-width:\s*100%;[\s\S]*overflow-x:\s*clip;/);
   assert.match(workspaceCss, /body\[data-page="workspace"\],[\s\S]*\.workspace-shell,[\s\S]*\.workspace-app\s*\{[\s\S]*max-width:\s*100%;[\s\S]*min-width:\s*0;/);
   assert.match(tablet, /\.workspace-rail\s*\{[\s\S]*position:\s*fixed;[\s\S]*width:\s*min\(360px,\s*calc\(100vw - 32px\)\);[\s\S]*max-width:\s*calc\(100vw - 32px\);[\s\S]*max-height:\s*calc\(100dvh - var\(--workspace-drawer-top\) - 1rem - env\(safe-area-inset-bottom\)\);[\s\S]*overflow-x:\s*hidden;[\s\S]*overflow-y:\s*auto;/);
   assert.match(tablet, /\.workspace-rail-drawer-header\s*\{[\s\S]*position:\s*sticky;[\s\S]*top:\s*0;[\s\S]*display:\s*flex;/);
@@ -7557,7 +7557,7 @@ test("workspace half-width drawer and phone drawer stay bounded and keep global 
 });
 
 test("workspace wide admin console keeps operations readable and source actions reachable", async () => {
-  assert.match(workspaceCss, /html,\s*body\s*\{[\s\S]*max-width:\s*100%;[\s\S]*overflow-x:\s*hidden;/);
+  assert.match(workspaceCss, /html,\s*body\s*\{[\s\S]*max-width:\s*100%;[\s\S]*overflow-x:\s*clip;/);
   assert.match(workspaceCss, /\.workspace-admin-console-content\s*\{[\s\S]*grid-template-columns:\s*minmax\(188px,\s*220px\) minmax\(0,\s*1560px\);[\s\S]*justify-content:\s*center;/);
   assert.match(workspaceCss, /\.workspace-admin-command-center\s*\{[\s\S]*max-width:\s*100%;/);
   assert.match(workspaceCss, /\.workspace-admin-operations-grid \.workspace-metric-tile\s*\{[\s\S]*min-height:\s*132px;/);
@@ -14114,7 +14114,14 @@ test("project directory and dedicated project workspace render as separate scree
   assert.doesNotMatch(viewerWorkspace, /data-project-note-form|Open settings|Change a person/);
 
   assert.match(workspaceCss, /\.workspace-project-command-rail-sticky\s*\{[\s\S]*?position:\s*sticky;[\s\S]*?top:\s*5rem;[\s\S]*?max-height:\s*calc\(100dvh - 6rem\);[\s\S]*?overflow-y:\s*auto;/);
+  assert.match(workspaceCss, /\.workspace-project-command-layout\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0, 1fr\) minmax\(17rem, 20rem\);[\s\S]*?gap:\s*clamp\(1\.25rem, 2vw, 2rem\);/);
+  assert.match(workspaceCss, /\.workspace-project-command-rail\s*\{[\s\S]*?align-self:\s*stretch;/);
   assert.match(workspaceCss, /@media \(max-width: 820px\)[\s\S]*?\.workspace-project-command-rail-sticky\s*\{[\s\S]*?position:\s*static;[\s\S]*?max-height:\s*none;[\s\S]*?overflow:\s*visible;/);
+
+  const polishProofScript = await readFile("scripts/prove-workspace-ui-polish.mjs", "utf8");
+  assert.match(polishProofScript, /id:\s*`project-sticky-\$\{idSuffix\}-desktop`[\s\S]*?actions:\s*\["proveProjectOpenAndBack",\s*"proveProjectStickyRail"\]/);
+  assert.match(polishProofScript, /const PROJECT_STICKY_ROLE_PLAN = \[[\s\S]*?"program_teacher"[\s\S]*?"mentor"[\s\S]*?"viewer"[\s\S]*?"administration"[\s\S]*?"site_admin"[\s\S]*?"admin"[\s\S]*?proveProjectStickyRail/);
+  assert.match(polishProofScript, /action === "proveProjectStickyRail"[\s\S]*?style\.position === "sticky"[\s\S]*?Math\.abs\(railDelta\) <= 2[\s\S]*?Math\.abs\(topbarDelta\) <= 2[\s\S]*?Math\.abs\(drawerDelta\) <= 2[\s\S]*?mainDelta <= -100/);
 
   const schoolAdminContext = await createWorkspaceContextWithFetch(profileRoutesForRole("administration"));
   const schoolAdminProject = vm.runInContext(`renderProjectCard({

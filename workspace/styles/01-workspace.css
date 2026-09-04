@@ -96,7 +96,9 @@
 html,
 body {
   max-width: 100%;
-  overflow-x: hidden;
+  /* Clip wide decoration without creating a false vertical scroll container.
+     A hidden x-axis computes the y-axis to auto and breaks sticky descendants. */
+  overflow-x: clip;
 }
 
 body[data-page="workspace"],
@@ -108,7 +110,7 @@ body[data-page="workspace"],
 }
 
 .workspace-shell {
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .workspace-shell {

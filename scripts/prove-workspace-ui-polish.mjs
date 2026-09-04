@@ -1282,6 +1282,32 @@ const DARK_THEME_ROLE_PLAN = [
 ];
 
 SCREENSHOT_PLAN.push(...DARK_THEME_ROLE_PLAN);
+const PROJECT_STICKY_ROLE_PLAN = [
+  ["program-teacher", "program_teacher", "Program Teacher"],
+  ["mentor", "mentor", "Mentor"],
+  ["viewer", "viewer", "Viewer"],
+  ["administration", "administration", "School Admin"],
+  ["site-admin", "site_admin", "Site Admin"],
+  ["global-admin", "admin", "Global Admin"],
+].map(([idSuffix, authRole, persona]) => ({
+  id: `project-sticky-${idSuffix}-desktop`,
+  label: `${persona} project sticky rail`,
+  persona: `${persona} reviewing a long project at desktop width`,
+  authRole,
+  accountType: "Fake .test demo staff account",
+  url: workspaceUrl("?mode=workspace&section=projects&siteId=site-desert-valley-high"),
+  viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+  theme: "light",
+  expected: ["PROJECT COMMAND CENTER", "Back to project list", "START HERE", "YOUR NEXT MOVE", "PROJECT PATH", "PROJECT TEAM"],
+  absent: ["Choose one project. The list will close", "Project or student name", "School projects"],
+  actions: ["proveProjectOpenAndBack", "proveProjectStickyRail"],
+  auditKeyboard: false,
+  capture: authRole === "site_admin",
+  proves: `The shared project overview keeps its right rail, top bar, and left navigation fixed for the ${persona} role while left-side information scrolls.`,
+}));
+if (String(process.env.WORKSPACE_UI_POLISH_IDS || "").includes("project-sticky-")) {
+  SCREENSHOT_PLAN.push(...PROJECT_STICKY_ROLE_PLAN);
+}
 const EXHAUSTIVE_ROLE_SURFACES = {
   student: {
     workspace: ["profile", "student", "studentWork", "studentFeedback", "studentFinalChecklist", "presentation", "archive", "security"],
@@ -2189,6 +2215,83 @@ async function performSinglePlanAction(client, action) {
     await sleep(700);
     return;
   }
+  if (action === "proveProjectStickyRail") {
+    const result = await client.evaluate(`(async () => {
+      const rail = document.querySelector(".workspace-project-command-rail-sticky");
+      const main = document.querySelector(".workspace-project-command-main");
+      const topbar = document.querySelector(".workspace-v2-topbar");
+      const drawer = document.querySelector(".workspace-v2-drawer");
+      if (!rail || !main || !topbar || !drawer) return { ok: false, reason: "missing persistent project layout region" };
+      window.scrollTo(0, 0);
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const style = getComputedStyle(rail);
+      const stickyTop = Number.parseFloat(style.top) || 0;
+      const absoluteTop = rail.getBoundingClientRect().top + window.scrollY;
+      const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      const firstScroll = Math.min(maxScroll, Math.max(0, absoluteTop - stickyTop + 40));
+      window.scrollTo(0, firstScroll);
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const first = {
+        scrollY: window.scrollY,
+        railTop: rail.getBoundingClientRect().top,
+        mainTop: main.getBoundingClientRect().top,
+        topbarTop: topbar.getBoundingClientRect().top,
+        drawerTop: drawer.getBoundingClientRect().top,
+      };
+      window.scrollTo(0, Math.min(maxScroll, first.scrollY + 300));
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const second = {
+        scrollY: window.scrollY,
+        railTop: rail.getBoundingClientRect().top,
+        mainTop: main.getBoundingClientRect().top,
+        topbarTop: topbar.getBoundingClientRect().top,
+        drawerTop: drawer.getBoundingClientRect().top,
+      };
+      const scrollDelta = second.scrollY - first.scrollY;
+      const railDelta = second.railTop - first.railTop;
+      const mainDelta = second.mainTop - first.mainTop;
+      const topbarDelta = second.topbarTop - first.topbarTop;
+      const drawerDelta = second.drawerTop - first.drawerTop;
+      const proof = {
+        ok: style.position === "sticky"
+          && getComputedStyle(topbar).position === "sticky"
+          && getComputedStyle(drawer).position === "fixed"
+          && scrollDelta >= 100
+          && Math.abs(railDelta) <= 2
+          && Math.abs(topbarDelta) <= 2
+          && Math.abs(drawerDelta) <= 2
+          && mainDelta <= -100,
+        position: style.position,
+        topbarPosition: getComputedStyle(topbar).position,
+        drawerPosition: getComputedStyle(drawer).position,
+        stickyTop,
+        maxScroll,
+        scrollDelta,
+        railDelta,
+        mainDelta,
+        topbarDelta,
+        drawerDelta,
+        ancestors: Array.from((function* () {
+          for (let node = rail.parentElement; node; node = node.parentElement) yield node;
+        })()).map((node) => {
+          const nodeStyle = getComputedStyle(node);
+          return {
+            tag: node.tagName.toLowerCase(),
+            className: String(node.className || "").slice(0, 180),
+            overflow: nodeStyle.overflow,
+            overflowX: nodeStyle.overflowX,
+            overflowY: nodeStyle.overflowY,
+            contain: nodeStyle.contain,
+            transform: nodeStyle.transform,
+          };
+        }),
+      };
+      document.documentElement.dataset.projectStickyRailProof = JSON.stringify(proof);
+      return proof;
+    })()`, { awaitPromise: true });
+    if (!result?.ok) throw new Error(`Project sticky rail did not remain fixed while the left column moved: ${JSON.stringify(result)}`);
+    return;
+  }
   if (action) throw new Error(`Unsupported proof action: ${action}`);
 }
 
@@ -2501,6 +2604,15 @@ async function collectPageState(client) {
         problemState: Boolean(document.querySelector("[data-workspace-state='permission-denied'], .workspace-problem-state")),
         intentionalEmptyState: Boolean(document.querySelector("[data-intentional-empty-state], [data-student-directory-empty='true']")),
         finalFiles: Boolean(document.querySelector("[data-archive-dashboard], .workspace-archive-dashboard, [data-student-final-checklist='true']")),
+        projectStickyRail: (() => {
+          try {
+            return document.documentElement.dataset.projectStickyRailProof
+              ? JSON.parse(document.documentElement.dataset.projectStickyRailProof)
+              : null;
+          } catch {
+            return null;
+          }
+        })(),
         toolsOpen: Boolean(document.querySelector("[data-workspace-topbar-tools='true'][open]")),
         accountMenuOpen: Boolean(document.querySelector("[data-account-menu='true'][open]")),
       },
