@@ -93,8 +93,11 @@ function renderStudentMyWorkScreen(context = {}) {
     filteredSubmissions = [],
     activeSubmissionFilter = "all",
     project = null,
+    nextSteps = [],
+    archiveNextAction = null,
     previewingStudent = false,
   } = context;
+  const focusAction = studentPrimaryNextAction(summary, nextSteps, archiveNextAction);
   return `
     <section class="workspace-student-screen workspace-student-screen-work" data-student-screen="work" data-student-view-mode="${previewingStudent ? "staff-preview" : "self"}" aria-labelledby="studentMyWorkTitle">
       ${renderStudentScreenHeader({
@@ -105,6 +108,7 @@ function renderStudentMyWorkScreen(context = {}) {
         badgeHtml: studentStatusBadge(summary.currentStatus),
         primaryHtml: renderStudentRouteButton("student", "Back to Today", "workspace-button-secondary", "data-student-primary-action=\"back-to-today\""),
       })}
+      ${renderStudentWorkFocusCard(focusAction, summary)}
       <section class="workspace-student-section" data-student-work-section="current" aria-labelledby="studentCurrentWorkTitle">
         <div class="workspace-student-section-head">
           <div>
@@ -170,6 +174,31 @@ function renderStudentMyWorkScreen(context = {}) {
         </div>
       </details>
       ${renderStudentResourceLinks(context)}
+    </section>
+  `;
+}
+
+function renderStudentWorkFocusCard(action = {}, summary = {}) {
+  const status = normalizeStatus(action.status || action.submissionStatus || "pending");
+  const waiting = ["submitted", "under_review", "pending_review"].includes(status);
+  const needsChanges = status === "revision_requested";
+  const supportingCopy = needsChanges
+    ? "Read the teacher's feedback, fix this item, and turn it in again. The timeline below is reference only."
+    : waiting
+      ? "You are done with this item for now. Check what you sent once, then wait for your teacher."
+      : "Open this one item first. You can ignore later stages, saved work, and project tools until this box sends you there.";
+  return `
+    <section class="workspace-student-work-focus" data-student-work-focus="true" data-student-work-focus-state="${escapeHtml(status || "pending")}" aria-labelledby="studentWorkFocusTitle">
+      <div>
+        <p class="workspace-kicker">Look here first</p>
+        <h2 id="studentWorkFocusTitle">${escapeHtml(action.itemTitle || action.title || summary.currentPhaseLabel || "Your next project step")}</h2>
+        <p class="workspace-student-work-focus-command">${escapeHtml(studentPrimaryCommandCopy(action, summary))}</p>
+        <p>${escapeHtml(supportingCopy)}</p>
+      </div>
+      <div class="workspace-student-work-focus-action">
+        ${studentStatusPill(status || "pending")}
+        ${renderStudentTodayPrimaryAction(action, summary)}
+      </div>
     </section>
   `;
 }

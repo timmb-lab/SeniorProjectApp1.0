@@ -41,8 +41,8 @@ function renderTeacherSection() {
       ${renderApiNotice(result)}
       ${readOnly ? `
         <section class="workspace-read-only-banner" data-review-queue-read-only="true">
-          <strong>Read-only reviews</strong>
-          <p>You can read this work, but only the assigned reviewer can save a decision.</p>
+          <strong>${isMentor ? "Mentor view" : "Read-only reviews"}</strong>
+          <p>${isMentor ? "Use the work to prepare the student's next check-in. The assigned reviewer saves the approval decision." : "You can read this work, but only the assigned reviewer can save a decision."}</p>
         </section>
       ` : ""}
       ${siteStudentDetailState?.sourceSection === "teacher" ? renderSiteStudentDetailSurface({
@@ -995,6 +995,7 @@ function renderReviewSubmissionPanel(selected, body) {
     `;
   }
   const canDecide = permissions.canReview && normalizeStatus(selected.status) === "submitted";
+  const isMentor = roleIds(currentUser).has("mentor");
   const selectedGuidance = !permissions.canReview
     ? "This row is read-only here. Use history and student detail for context."
     : canDecide
@@ -1018,9 +1019,9 @@ function renderReviewSubmissionPanel(selected, body) {
       ${renderReviewWrittenResponse(selected)}
       <div class="workspace-row-actions workspace-review-open-student-action">
         <button class="workspace-link-button workspace-link-button-small" type="button" data-review-queue-action="open-student" data-review-student-id="${escapeHtml(selected.studentId || "")}">
-          Open team lead record
+          ${isMentor ? "Open student details" : "Open team lead record"}
         </button>
-        ${renderViewAsStudentAction(selected.studentId, selected.projectName || selected.studentName, { sourceSection: "teacher", label: "See project view" })}
+        ${renderViewAsStudentAction(selected.studentId, selected.projectName || selected.studentName, { sourceSection: "teacher", label: isMentor ? "Preview student project" : "See project view" })}
       </div>
       ${canDecide
         ? renderReviewDecisionForm(selected)
@@ -1035,17 +1036,36 @@ function renderReviewSubmissionPanel(selected, body) {
               })}
             </section>
           `
-          : `
-            <section class="workspace-review-readonly-owner" data-review-mutation-disabled="true">
-              <p class="workspace-kicker">Who acts next</p>
-              <h2>The assigned reviewer decides</h2>
-              <p>You can read this work and its notes. The Program Teacher or Mentor will accept it or ask for changes. You do not need to act here.</p>
-            </section>
-          `}
+          : renderReadOnlyReviewDirection()}
       <details class="workspace-review-more-help" data-review-more-help="true">
         <summary>Past feedback</summary>
         ${renderReviewHistorySummary(historyResult, history)}
       </details>
+    </section>
+  `;
+}
+
+function renderReadOnlyReviewDirection() {
+  const isMentor = roleIds(currentUser).has("mentor");
+  if (isMentor) {
+    return `
+      <section class="workspace-review-readonly-owner workspace-review-mentor-direction" data-review-mutation-disabled="true" data-review-mentor-direction="true">
+        <p class="workspace-kicker">Your job on this screen</p>
+        <h2>Prepare one useful next step for the student</h2>
+        <ol>
+          <li><span>1</span><p><strong>Read the work above</strong><small>Look for one strength and one point that needs clarification.</small></p></li>
+          <li><span>2</span><p><strong>Open student details</strong><small>Check the student's current stage and recent notes before the check-in.</small></p></li>
+          <li><span>3</span><p><strong>Use it in the next check-in</strong><small>Leave the student with one clear action. The assigned Program Teacher handles approval here.</small></p></li>
+        </ol>
+        <p class="workspace-review-role-boundary">You are not expected to approve this item from this read-only screen.</p>
+      </section>
+    `;
+  }
+  return `
+    <section class="workspace-review-readonly-owner" data-review-mutation-disabled="true">
+      <p class="workspace-kicker">Who acts next</p>
+      <h2>The assigned reviewer decides</h2>
+      <p>You can read this work and its notes. The Program Teacher or Mentor will accept it or ask for changes. You do not need to act here.</p>
     </section>
   `;
 }

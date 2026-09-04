@@ -36,10 +36,11 @@ function setFormBusy(form, isBusy) {
 async function apiJson(url, options = {}) {
   const timeoutController = typeof AbortController === "function" ? new AbortController() : null;
   const timeoutId = timeoutController ? setTimeout(() => timeoutController.abort(), 15000) : null;
+  const workingModeHeaders = workspaceApiWorkingModeHeaders();
   try {
     const response = await fetch(url, {
-      headers: { accept: "application/json", ...(options.headers || {}) },
       ...options,
+      headers: { accept: "application/json", ...(options.headers || {}), ...workingModeHeaders },
       signal: options.signal || timeoutController?.signal,
     });
     const body = await safeJson(response);
@@ -50,6 +51,16 @@ async function apiJson(url, options = {}) {
   } finally {
     if (timeoutId) clearTimeout(timeoutId);
   }
+}
+
+function workspaceApiWorkingModeHeaders() {
+  if (!currentUser || !canSwitchAdminRoleMode(currentUser)) return {};
+  const mode = cleanAdminRoleMode(activeAdminRoleMode);
+  const siteId = mode === "site_admin" ? cleanDirectoryFilter(selectedSiteId || selectedSiteQueryValue()) : "";
+  return {
+    "x-capstone-admin-mode": mode,
+    ...(siteId ? { "x-capstone-site-id": siteId } : {}),
+  };
 }
 
 async function settleApi(promise) {
@@ -3877,6 +3888,7 @@ function shouldRestoreSiteStudentDetailFromUrlState(roles = roleIds(currentUser)
 
 async function restoreSiteStudentDetailFromUrlState(options = {}) {
   if (!shouldRestoreSiteStudentDetailFromUrlState(roleIds(currentUser), options.section || activeSection)) return false;
+  const accessContext = captureWorkspaceAccessContext();
   const sourceSection = cleanWorkspaceSection(siteStudentDetailState.sourceSection) || "students";
   const studentId = cleanDirectoryFilter(siteStudentDetailState.studentId);
   const requestedTab = cleanStudentDetailTab(siteStudentDetailState.activeTab) || "overview";
@@ -3905,6 +3917,7 @@ async function restoreSiteStudentDetailFromUrlState(options = {}) {
   requestSiteStudentDetailFocus();
   if (options.renderLoading !== false) renderAppShell("Loading student detail...");
   const result = await settleApi(apiJson(`/api/site/students/${encodeURIComponent(studentId)}${query}`));
+  if (!workspaceAccessContextIsCurrent(accessContext)) return false;
   if (!result.ok) {
     siteStudentDetailState = defaultSiteStudentDetailState();
     currentData.siteStudentDetail = null;

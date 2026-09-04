@@ -1072,7 +1072,9 @@ function reviewDecisionSuccessMessage(decision = "") {
 }
 
 async function loadReviewQueueResult(message = "", options = {}) {
+  const accessContext = captureWorkspaceAccessContext();
   const result = await settleApi(apiJson(`/api/site/review-queue${siteReviewQueueQueryString()}`));
+  if (!workspaceAccessContextIsCurrent(accessContext)) return;
   currentData.reviewQueue = result;
   const rows = unwrap(result)?.queue || [];
   const selectedSubmissionId = cleanDirectoryFilter(reviewQueueState.selectedSubmissionId);
@@ -1119,6 +1121,7 @@ async function restoreReviewQueueSelectionFromCurrentRows(options = {}) {
 }
 
 async function loadSelectedReviewHistory(selectedSubmissionId, options = {}) {
+  const accessContext = captureWorkspaceAccessContext();
   const queue = unwrap(currentData.reviewQueue);
   const siteId = selectedSiteQueryValue() || queue?.scope?.siteId || "";
   const query = siteId ? `?siteId=${encodeURIComponent(siteId)}` : "";
@@ -1130,6 +1133,7 @@ async function loadSelectedReviewHistory(selectedSubmissionId, options = {}) {
   activeSection = "teacher";
   if (options.renderLoading) renderAppShell("Loading review history...");
   const historyResult = await settleApi(apiJson(`/api/reviews/${encodeURIComponent(selectedSubmissionId)}/history${query}`));
+  if (!workspaceAccessContextIsCurrent(accessContext)) return;
   reviewQueueState = {
     ...reviewQueueState,
     loadingHistory: false,
@@ -1146,9 +1150,11 @@ async function loadSelectedReviewHistory(selectedSubmissionId, options = {}) {
 
 async function refreshSelectedStudentDetailAfterReview(selected) {
   if (!selected?.studentId || siteStudentDetailState.studentId !== selected.studentId) return;
+  const accessContext = captureWorkspaceAccessContext();
   const siteId = unwrap(currentData.reviewQueue)?.scope?.siteId || unwrap(currentData.siteStudents)?.scope?.siteId || "";
   const query = siteId ? `?siteId=${encodeURIComponent(siteId)}` : "";
   const result = await settleApi(apiJson(`/api/site/students/${encodeURIComponent(selected.studentId)}${query}`));
+  if (!workspaceAccessContextIsCurrent(accessContext)) return;
   if (result.ok) {
     siteStudentDetailState = {
       ...siteStudentDetailState,
@@ -1276,9 +1282,11 @@ async function submitProjectDirectoryFilters(event) {
 
 async function loadProjectsResult(statusMessage = "") {
   if (!currentUser || busy) return;
+  const accessContext = captureWorkspaceAccessContext();
   busy = true;
   try {
     const result = await settleApi(apiJson(`/api/projects${projectDirectoryQueryString()}`));
+    if (!workspaceAccessContextIsCurrent(accessContext)) return;
     currentData.projects = result;
     if (result.ok) {
       const pagination = unwrap(result)?.pagination || {};
@@ -2033,7 +2041,9 @@ function mentorMeetingSuccessMessage(status = "") {
 }
 
 async function loadMentorAssignmentsResult(message = "") {
+  const accessContext = captureWorkspaceAccessContext();
   const result = await settleApi(apiJson(`/api/site/mentor-assignments${siteMentorAssignmentQueryString()}`));
+  if (!workspaceAccessContextIsCurrent(accessContext)) return;
   currentData.mentorAssignments = result;
   activeSection = "mentorAssignments";
   if (shouldRestoreSiteStudentDetailFromUrlState(roleIds(currentUser), "mentorAssignments")) {
@@ -2048,7 +2058,9 @@ async function loadMentorAssignmentsResult(message = "") {
 }
 
 async function loadOperationsReadinessResult(message = "") {
+  const accessContext = captureWorkspaceAccessContext();
   const result = await settleApi(apiJson(`/api/site/operations-readiness${siteOperationsReadinessQueryString()}`));
+  if (!workspaceAccessContextIsCurrent(accessContext)) return;
   currentData.operationsReadiness = result;
   activeSection = "operations";
   if (shouldRestoreSiteStudentDetailFromUrlState(roleIds(currentUser), "operations")) {
@@ -2063,7 +2075,9 @@ async function loadOperationsReadinessResult(message = "") {
 }
 
 async function loadAdminAuditEventsResult(message = "") {
+  const accessContext = captureWorkspaceAccessContext();
   const result = await settleApi(apiJson(`/api/admin/audit-events${adminAuditQueryString()}`));
+  if (!workspaceAccessContextIsCurrent(accessContext)) return;
   currentData.auditEvents = result;
   activeSection = "audit";
   renderAppShell(result.ok ? (message || "Audit loaded.") : "Audit unavailable.", result.ok ? "success" : "error");

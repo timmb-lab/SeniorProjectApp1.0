@@ -5457,6 +5457,7 @@ function renderProgramTeacherDashboardSection() {
           <span class="workspace-chip">${escapeHtml(scopeIdLabel)}</span>
         </div>
       </div>
+      ${renderProgramTeacherJobMap()}
       ${renderProgramTeacherReviewFirstList(dashboard)}
       ${renderSummaryStrip([
         { label: "Waiting", value: safeNumber(summary.needsReview ?? summary.submitted), detail: "Ready for your decision.", tone: "teacher", concept: "Needs Review" },
@@ -5493,6 +5494,24 @@ function renderProgramTeacherDashboardSection() {
           </div>
         `,
       })}
+    </section>
+  `;
+}
+
+function renderProgramTeacherJobMap() {
+  return `
+    <section class="workspace-role-job-map workspace-program-teacher-job-map" data-program-teacher-job-map="true" aria-labelledby="programTeacherJobMapTitle">
+      <div>
+        <p class="workspace-kicker">Your job today</p>
+        <h2 id="programTeacherJobMapTitle">Move one student forward</h2>
+        <p>Start with waiting work. The page will show the student what to do after your decision.</p>
+      </div>
+      <ol aria-label="Program Teacher workflow">
+        <li><span>1</span><p><strong>Open waiting work</strong><small>Use the Start here card below.</small></p></li>
+        <li><span>2</span><p><strong>Check the work</strong><small>Read the response and open its Drive proof.</small></p></li>
+        <li><span>3</span><p><strong>Make one decision</strong><small>Accept it or ask for specific changes.</small></p></li>
+      </ol>
+      <p class="workspace-role-job-map-aside"><strong>Ignore for now:</strong> totals and reports are below under More tools.</p>
     </section>
   `;
 }

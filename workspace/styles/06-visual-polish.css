@@ -2060,6 +2060,185 @@ body[data-page="workspace"] {
   color: var(--ticket-muted);
 }
 
+.workspace-review-mentor-direction {
+  padding: 1.15rem;
+  border-color: color-mix(in srgb, #d78b17 38%, var(--shell-divider));
+  border-left-color: #d78b17;
+  background: color-mix(in srgb, #f0a928 8%, var(--shell-pane));
+}
+
+.workspace-review-mentor-direction ol,
+.workspace-role-job-map ol {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin: 0.9rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.workspace-review-mentor-direction li,
+.workspace-role-job-map li {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 1.85rem minmax(0, 1fr);
+  gap: 0.65rem;
+  padding: 0.8rem;
+  border: 1px solid var(--shell-divider);
+  border-radius: 0.65rem;
+  background: var(--shell-pane);
+}
+
+.workspace-review-mentor-direction li > span,
+.workspace-role-job-map li > span {
+  width: 1.75rem;
+  height: 1.75rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--school-primary) 14%, var(--shell-pane));
+  color: var(--ticket-text);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.workspace-review-mentor-direction li p,
+.workspace-review-mentor-direction li strong,
+.workspace-review-mentor-direction li small,
+.workspace-role-job-map li p,
+.workspace-role-job-map li strong,
+.workspace-role-job-map li small {
+  display: block;
+  min-width: 0;
+  margin: 0;
+}
+
+.workspace-review-mentor-direction li strong,
+.workspace-role-job-map li strong {
+  color: var(--ticket-text);
+  font-size: 0.92rem;
+}
+
+.workspace-review-mentor-direction li small,
+.workspace-role-job-map li small {
+  margin-top: 0.24rem;
+  color: var(--ticket-muted);
+  line-height: 1.45;
+}
+
+.workspace-review-mentor-direction .workspace-review-role-boundary {
+  max-width: none;
+  padding-top: 0.7rem;
+  border-top: 1px solid color-mix(in srgb, #d78b17 25%, var(--shell-divider));
+  color: var(--ticket-text);
+  font-weight: 750;
+}
+
+.workspace-role-job-map {
+  padding: 1.05rem;
+  border: 1px solid color-mix(in srgb, var(--school-primary) 32%, var(--shell-divider));
+  border-left: 5px solid var(--school-primary);
+  border-radius: 0.8rem;
+  background: color-mix(in srgb, var(--school-primary) 6%, var(--shell-pane));
+}
+
+.workspace-role-job-map > div h2,
+.workspace-role-job-map > div p,
+.workspace-role-job-map-aside {
+  margin: 0;
+}
+
+.workspace-role-job-map > div h2 {
+  margin-top: 0.2rem;
+  color: var(--ticket-text);
+  font-size: 1.25rem;
+}
+
+.workspace-role-job-map > div > p:last-child {
+  margin-top: 0.35rem;
+  color: var(--ticket-muted);
+}
+
+.workspace-role-job-map-aside {
+  color: var(--ticket-muted);
+  font-size: 0.85rem;
+}
+
+.workspace-student-work-focus {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.15rem 1.2rem;
+  border: 1px solid color-mix(in srgb, var(--school-primary) 36%, var(--ticket-border));
+  border-left: 6px solid var(--school-primary);
+  border-radius: 0.85rem;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--school-primary) 8%, var(--ticket-panel)), var(--ticket-panel) 62%);
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--school-primary) 8%, transparent);
+}
+
+.workspace-student-work-focus h2,
+.workspace-student-work-focus p {
+  margin: 0;
+}
+
+.workspace-student-work-focus h2 {
+  margin-top: 0.25rem;
+  color: var(--ticket-text);
+  font-size: clamp(1.35rem, 2.5vw, 1.9rem);
+  line-height: 1.15;
+}
+
+.workspace-student-work-focus-command {
+  margin-top: 0.55rem !important;
+  color: var(--ticket-text);
+  font-size: 1.02rem;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+.workspace-student-work-focus > div > p:last-child {
+  max-width: 70ch;
+  margin-top: 0.45rem;
+  color: var(--ticket-muted);
+  line-height: 1.5;
+}
+
+.workspace-student-work-focus-action {
+  min-width: 11.5rem;
+  display: grid;
+  justify-items: stretch;
+  gap: 0.65rem;
+}
+
+.workspace-student-work-focus-action .workspace-status-pill {
+  justify-self: end;
+}
+
+.workspace-student-work-focus-action .workspace-button {
+  min-height: 46px;
+}
+
+@media (max-width: 760px) {
+  .workspace-review-mentor-direction ol,
+  .workspace-role-job-map ol {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .workspace-student-work-focus {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .workspace-student-work-focus-action {
+    min-width: 0;
+  }
+
+  .workspace-student-work-focus-action .workspace-status-pill {
+    justify-self: start;
+  }
+}
+
 @media (max-width: 340px) {
   /* Four useful controls fit at phone width; the duplicate brand link does not. */
   .workspace-v2-topbar .workspace-v2-brand {
@@ -2589,6 +2768,61 @@ body[data-page="workspace"] {
   border-radius: 0.8rem;
   background: var(--shell-pane);
   box-shadow: 0 1px 2px rgba(15, 32, 53, 0.04);
+}
+
+/* Major project panes use quiet, role-neutral color families so a person can
+   recognize the box they need without sacrificing text contrast. */
+.workspace-project-command-main > :is(
+  .workspace-project-start-panel,
+  .workspace-project-notes,
+  .workspace-project-adult-setup,
+  .workspace-project-template-shelf,
+  .workspace-project-settings-panel
+),
+.workspace-project-command-rail-sticky > :is(
+  .workspace-project-status-card,
+  .workspace-project-people-card,
+  .workspace-item-navigator
+) {
+  --project-pane-accent: var(--school-primary);
+  border-color: color-mix(in srgb, var(--project-pane-accent) 30%, var(--shell-divider));
+  box-shadow:
+    inset 0.28rem 0 0 color-mix(in srgb, var(--project-pane-accent) 78%, transparent),
+    0 1px 2px rgba(15, 32, 53, 0.04);
+  background:
+    linear-gradient(140deg, color-mix(in srgb, var(--project-pane-accent) 7%, var(--shell-pane)), var(--shell-pane) 48%) !important;
+}
+
+.workspace-project-command-main > .workspace-project-notes {
+  --project-pane-accent: #5f72d8;
+}
+
+.workspace-project-command-main > .workspace-project-adult-setup {
+  --project-pane-accent: #168a68;
+}
+
+.workspace-project-command-main > .workspace-project-adult-setup.needs-action {
+  --project-pane-accent: #d78b17;
+}
+
+.workspace-project-command-main > .workspace-project-template-shelf {
+  --project-pane-accent: #7b5ac7;
+}
+
+.workspace-project-command-main > .workspace-project-settings-panel {
+  --project-pane-accent: #5574b8;
+}
+
+.workspace-project-command-rail-sticky > .workspace-project-status-card {
+  --project-pane-accent: #168a84;
+}
+
+.workspace-project-command-rail-sticky > .workspace-project-people-card {
+  --project-pane-accent: #7b5ac7;
+}
+
+.workspace-project-command-rail-sticky > .workspace-item-navigator {
+  --project-pane-accent: #5574b8;
 }
 
 .workspace-project-start-panel {

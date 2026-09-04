@@ -100,6 +100,43 @@ test("production keeps one canonical app host and root path", async () => {
   }
 });
 
+test("Site Admin working mode cannot cross into global routes or a different school", async () => {
+  let nextCalls = 0;
+  const next = async () => {
+    nextCalls += 1;
+    return new Response("allowed", { status: 200 });
+  };
+  const modeHeaders = {
+    "x-capstone-admin-mode": "site_admin",
+    "x-capstone-site-id": "site-desert-valley-high",
+  };
+
+  const globalResponse = await onMiddleware({
+    request: new Request("https://thecapstoneproject.com/api/admin/dashboard", { headers: modeHeaders }),
+    env: { APP_ENV: "production" },
+    next,
+  });
+  assert.equal(globalResponse.status, 403);
+  assert.deepEqual(await globalResponse.json(), { error: "global_admin_mode_required", workingMode: "site_admin" });
+  assert.equal(globalResponse.headers.get("cache-control"), "no-store");
+
+  const crossSiteResponse = await onMiddleware({
+    request: new Request("https://thecapstoneproject.com/api/site/students?siteId=site-other-school", { headers: modeHeaders }),
+    env: { APP_ENV: "production" },
+    next,
+  });
+  assert.equal(crossSiteResponse.status, 403);
+  assert.deepEqual(await crossSiteResponse.json(), { error: "working_site_mismatch", workingMode: "site_admin" });
+
+  const selectedSiteResponse = await onMiddleware({
+    request: new Request("https://thecapstoneproject.com/api/site/students?siteId=site-desert-valley-high", { headers: modeHeaders }),
+    env: { APP_ENV: "production" },
+    next,
+  });
+  assert.equal(selectedSiteResponse.status, 200);
+  assert.equal(nextCalls, 1, "only the matching school request reaches its route");
+});
+
 test("alpha mutations still reject cross-origin requests outside production", async () => {
   const response = await onAlphaPost({
     request: new Request("https://example.test/api/alpha/state", {

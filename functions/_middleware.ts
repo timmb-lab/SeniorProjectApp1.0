@@ -24,6 +24,8 @@ const REDIRECT_HOSTS = new Set([
 const LEGACY_WORKSPACE_PATHS = new Set(["/workspace", "/workspace/", "/workspace.html", "/index.html"]);
 const PRODUCTION_STATIC_PATHS = new Set(["/", "/styles.css", "/workspace.css"]);
 const PRODUCTION_PATH_PREFIXES = ["/api/", "/assets/", "/templates/", "/workspace/", "/cdn-cgi/"];
+const ADMIN_MODE_HEADER = "x-capstone-admin-mode";
+const ADMIN_MODE_SITE_HEADER = "x-capstone-site-id";
 
 export const onRequest: PagesFunction<Env> = async ({ request, env, next }) => {
   const requestUrl = new URL(request.url);
@@ -38,6 +40,20 @@ export const onRequest: PagesFunction<Env> = async ({ request, env, next }) => {
   if (LEGACY_WORKSPACE_PATHS.has(requestUrl.pathname)) {
     requestUrl.pathname = "/";
     return Response.redirect(requestUrl.toString(), 308);
+  }
+
+  const requestedAdminMode = String(request.headers.get(ADMIN_MODE_HEADER) || "").trim().toLowerCase();
+  if (requestUrl.pathname.startsWith("/api/") && requestedAdminMode === "site_admin") {
+    const workingSiteId = cleanWorkingSiteId(request.headers.get(ADMIN_MODE_SITE_HEADER));
+    if (requestUrl.pathname.startsWith("/api/admin/")) {
+      return workingModeError("global_admin_mode_required", 403);
+    }
+    const querySiteId = requestUrl.searchParams.has("siteId")
+      ? cleanWorkingSiteId(requestUrl.searchParams.get("siteId"))
+      : "";
+    if (requestUrl.searchParams.has("siteId") && (!querySiteId || !workingSiteId || querySiteId !== workingSiteId)) {
+      return workingModeError("working_site_mismatch", 403);
+    }
   }
 
   const internalQaEnabled = ["local", "development", "test"].includes(String(env.APP_ENV || "").trim().toLowerCase());
@@ -59,3 +75,17 @@ export const onRequest: PagesFunction<Env> = async ({ request, env, next }) => {
   }
   return next();
 };
+
+function cleanWorkingSiteId(value: string | null): string {
+  const clean = String(value || "").trim();
+  return /^[a-zA-Z0-9][a-zA-Z0-9._:-]{0,127}$/.test(clean) ? clean : "";
+}
+
+function workingModeError(error: string, status: number): Response {
+  const headers = applyApiSecurityHeaders(new Headers({
+    "cache-control": "no-store",
+    "content-type": "application/json; charset=utf-8",
+    vary: `${ADMIN_MODE_HEADER}, ${ADMIN_MODE_SITE_HEADER}`,
+  }));
+  return new Response(JSON.stringify({ error, workingMode: "site_admin" }), { status, headers });
+}

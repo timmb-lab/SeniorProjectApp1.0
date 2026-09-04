@@ -362,7 +362,7 @@ function renderProjectCommandStatus(project = {}, phase = {}, state = {}) {
   const changes = safeNumber(project.revisionRequestedCount);
   const approved = safeNumber(project.approvedCount);
   return `
-    <section class="workspace-project-rail-card workspace-card" aria-labelledby="projectStatusTitle">
+    <section class="workspace-project-rail-card workspace-project-status-card workspace-card" aria-labelledby="projectStatusTitle">
       <div class="workspace-project-panel-heading">
         <div>
           <span class="workspace-kicker">PROJECT STATUS</span>

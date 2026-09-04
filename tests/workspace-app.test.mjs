@@ -579,6 +579,10 @@ test("workspace opens students on guidance and staff on the project workspace", 
   const studentWorkLanding = await renderWorkspaceWithFetch(profileRoutesForRole("student"), "studentWork");
   const studentWorkText = visibleText(studentWorkLanding);
   assert.match(studentWorkLanding, /data-v2-primary-surface="student-work"[\s\S]*data-student-screen="work"/);
+  assert.match(studentWorkLanding, /data-student-work-focus="true"/);
+  assert.match(studentWorkText, /Look here first/);
+  assert.match(studentWorkText, /ignore later stages, saved work, and project tools/i);
+  assertMarkupOrder(studentWorkLanding, 'data-student-work-focus="true"', 'data-student-work-section="current"', "student focus must lead before the full timeline");
   assert.doesNotMatch(studentWorkLanding, /data-v3-start-state="true"|data-v5-flow-board=/);
   assert.match(studentWorkText, /Project work/);
   assert.match(studentWorkText, /Pick one step\. Do the work\. Turn it in/);
@@ -690,6 +694,9 @@ test("workspace opens students on guidance and staff on the project workspace", 
 
   const teacherLanding = await renderWorkspaceWithFetch(profileRoutesForRole("program_teacher"), "overview");
   assert.match(visibleText(teacherLanding), /Projects that need you/);
+  assert.match(teacherLanding, /data-program-teacher-job-map="true"/);
+  assert.match(visibleText(teacherLanding), /Your job today[\s\S]*Move one student forward[\s\S]*Ignore for now/);
+  assertMarkupOrder(teacherLanding, 'data-program-teacher-job-map="true"', 'data-program-review-first="true"', "teacher job map must explain the workflow before the first review");
   assert.match(teacherLanding, /data-v2-primary-surface="program-teacher"[\s\S]*data-program-review-first="true"/);
   assert.doesNotMatch(teacherLanding, /data-v3-start-state="true"|data-v5-flow-board=|data-program-teacher-today-plan="true"/);
 
@@ -4660,6 +4667,41 @@ test("workspace renders site-aware Review Queue with teacher decisions and read-
   assert.match(siteAdminReadOnly, /You do not need to act here\./);
   assert.doesNotMatch(siteAdminReadOnly, /No review action available for this row|Recovery actions|data-problem-state-actions="true"/);
   assert.doesNotMatch(siteAdminReadOnly, /data-review-decision="approved"|data-review-decision="revision_requested"|data-review-decision="comment_only"|<textarea name="feedback"/);
+
+  const mentorReadOnly = await renderWorkspaceWithFetch({
+    "/api/auth/me": {
+      status: 200,
+      body: {
+        authenticated: true,
+        user: {
+          id: "mentor-review",
+          email: "mentor.review@example.edu",
+          displayName: "Review Mentor",
+          roles: [{ role_id: "mentor", scope_type: "site", scope_id: "site-desert-valley-high" }],
+        },
+      },
+    },
+    "/api/site/dashboard": {
+      status: 200,
+      body: siteDashboardFixture({ readOnly: true }),
+    },
+    "/api/site/review-queue": {
+      status: 200,
+      body: siteReviewQueueFixture({ role: "mentor", readOnly: true, canReview: false }),
+    },
+  }, "teacher", `
+    reviewQueueState = {
+      ...defaultReviewQueueState(),
+      selectedSubmissionId: "submission-review-001",
+      historyResult: { ok: true, status: 200, body: ${JSON.stringify(teacherHistory)} }
+    };
+  `);
+  assert.match(mentorReadOnly, /data-review-mentor-direction="true"/);
+  assert.match(visibleText(mentorReadOnly), /Your job on this screen[\s\S]*Prepare one useful next step for the student/);
+  assert.match(mentorReadOnly, /Open student details/);
+  assert.match(mentorReadOnly, /Preview student project/);
+  assert.match(visibleText(mentorReadOnly), /not expected to approve this item/);
+  assert.doesNotMatch(mentorReadOnly, /You do not need to act here\./);
 
   const viewer = await renderWorkspaceWithFetch({
     "/api/auth/me": {
@@ -10919,7 +10961,8 @@ test("Global Admin can switch to a school-scoped Site Admin working mode without
 
   const requestCountBeforeSiteMode = fetchRequests.length;
   await vm.runInContext('switchAdminRoleMode({ dataset: { adminRoleModeTarget: "site_admin" } })', context);
-  const siteModeRequests = fetchRequests.slice(requestCountBeforeSiteMode).map((request) => request.url);
+  const siteModeRequestRows = fetchRequests.slice(requestCountBeforeSiteMode);
+  const siteModeRequests = siteModeRequestRows.map((request) => request.url);
 
   assert.equal(vm.runInContext("activeAdminRoleMode", context), "site_admin");
   assert.equal(vm.runInContext("primaryRoleForUser(currentUser)", context), "site_admin");
@@ -10934,6 +10977,9 @@ test("Global Admin can switch to a school-scoped Site Admin working mode without
   assert.doesNotMatch(workspaceRoot.innerHTML, /data-section="adminDashboard"/);
   assert.ok(siteModeRequests.some((url) => url.startsWith("/api/site/dashboard")), "Site Admin mode reloads school-scoped data");
   assert.ok(siteModeRequests.every((url) => !url.startsWith("/api/admin/")), "Site Admin mode does not request global admin endpoints");
+  assert.ok(siteModeRequestRows.every((request) => request.headers["x-capstone-admin-mode"] === "site_admin"), "every Site Admin request carries the restrictive working mode");
+  assert.ok(siteModeRequestRows.every((request) => request.headers["x-capstone-site-id"] === "site-desert-valley-high"), "every Site Admin request carries the selected school");
+  assert.ok(siteModeRequests.every((url) => !url.startsWith("/api/reports/readiness")), "Site Admin mode does not download the cross-school aggregate report");
   assert.equal(workspaceRouteUrl(window).searchParams.get("adminRoleMode"), "site_admin");
   assert.equal(workspaceRouteUrl(window).searchParams.get("siteId"), "site-desert-valley-high");
 
@@ -10947,7 +10993,37 @@ test("Global Admin can switch to a school-scoped Site Admin working mode without
   assert.match(workspaceRoot.innerHTML, /data-primary-role="global_admin"/);
   assert.match(workspaceRoot.innerHTML, /data-admin-role-mode-target="global_admin" aria-pressed="true"/);
   assert.ok(globalModeRequests.some((url) => url.startsWith("/api/admin/dashboard")), "Global Admin mode restores global data loaders");
+  assert.ok(fetchRequests.slice(requestCountBeforeGlobalMode).every((request) => request.headers["x-capstone-admin-mode"] === "global_admin"), "Global Admin reloads carry the global working mode");
   assert.equal(workspaceRouteUrl(window).searchParams.get("adminRoleMode"), null, "default Global Admin mode keeps the route clean");
+});
+
+test("a slow response from the previous admin working mode cannot repaint the current mode", async () => {
+  let releaseSiteDashboard;
+  const delayedSiteDashboard = new Promise((resolve) => {
+    releaseSiteDashboard = resolve;
+  });
+  const routes = profileRoutesForRole("global_admin");
+  const immediateSiteDashboard = routes["/api/site/dashboard"];
+  routes["/api/site/dashboard"] = async ({ options }) => {
+    const headers = new Headers(options?.headers || {});
+    if (headers.get("x-capstone-admin-mode") === "site_admin") return delayedSiteDashboard;
+    return immediateSiteDashboard;
+  };
+  const { context } = await createWorkspaceContextWithFetch(routes, {
+    url: "https://workspace.example/workspace.html?mode=admin&section=overview&siteId=site-desert-valley-high",
+  });
+
+  const siteSwitch = vm.runInContext('switchAdminRoleMode({ dataset: { adminRoleModeTarget: "site_admin" } })', context);
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  const globalSwitch = vm.runInContext('switchAdminRoleMode({ dataset: { adminRoleModeTarget: "global_admin" } })', context);
+  await globalSwitch;
+  releaseSiteDashboard({ status: 200, body: { ...siteDashboardFixture(), staleMarker: "site-response" } });
+  await siteSwitch;
+
+  assert.equal(vm.runInContext("activeAdminRoleMode", context), "global_admin");
+  assert.equal(vm.runInContext("primaryRoleForUser(currentUser)", context), "global_admin");
+  assert.equal(vm.runInContext("Boolean(currentData.adminDashboard?.ok)", context), true, "global data remains active after the stale Site response finishes");
+  assert.equal(vm.runInContext("unwrap(currentData.siteDashboard)?.staleMarker || ''", context), "", "stale Site response was discarded");
 });
 
 test("admin working mode restores safely and remains unavailable to non-global accounts", async () => {
@@ -15064,6 +15140,7 @@ async function createWorkspaceContextWithFetch(routes, options = {}) {
         url: String(rawPath || ""),
         method: String(options?.method || "GET").toUpperCase(),
         body: options?.body || "",
+        headers: Object.fromEntries(new Headers(options?.headers || {}).entries()),
       });
       const pathname = String(rawPath || "").startsWith("http")
         ? new URL(rawPath).pathname

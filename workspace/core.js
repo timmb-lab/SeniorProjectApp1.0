@@ -70,6 +70,7 @@ let projectDirectoryView = "table";
 let projectDirectoryFilters = defaultProjectDirectoryFilters();
 let workspaceConnectionState = defaultWorkspaceConnectionState();
 let workspaceDataLoading = false;
+let workspaceAccessContextVersion = 0;
 let knownAccessibleSites = [];
 const WORKSPACE_THEME_STORAGE_KEY = "senior-project-view";
 const WORKSPACE_THEME_VALUES = new Set(["light", "dark"]);
@@ -745,12 +746,39 @@ function defaultWorkspaceConnectionState() {
   };
 }
 
+function workspaceAccessContextKey() {
+  return [
+    cleanDirectoryFilter(currentUser?.id || currentUser?.email || "signed-out"),
+    cleanAdminRoleMode(activeAdminRoleMode),
+    cleanDirectoryFilter(selectedSiteId),
+  ].join("|");
+}
+
+function captureWorkspaceAccessContext() {
+  return {
+    version: workspaceAccessContextVersion,
+    key: workspaceAccessContextKey(),
+  };
+}
+
+function workspaceAccessContextIsCurrent(snapshot = null) {
+  return Boolean(snapshot)
+    && snapshot.version === workspaceAccessContextVersion
+    && snapshot.key === workspaceAccessContextKey();
+}
+
+function invalidateWorkspaceAccessContext() {
+  workspaceAccessContextVersion += 1;
+  workspaceDataLoading = false;
+}
+
 async function loadWorkspaceData(statusMessage = "", options = {}) {
   if (!currentUser) {
     renderSignIn();
     return;
   }
 
+  const accessContext = captureWorkspaceAccessContext();
   workspaceDataLoading = true;
   workspaceConnectionState.retrying = Boolean(options.retryAttempt) || workspaceConnectionState.stale;
   const loadingMessage = workspaceConnectionState.retrying
@@ -761,6 +789,7 @@ async function loadWorkspaceData(statusMessage = "", options = {}) {
   renderAppShell(loadingMessage);
   const roles = roleIds(currentUser);
   const authConfig = currentData.authConfig || await loadAuthConfig();
+  if (!workspaceAccessContextIsCurrent(accessContext)) return;
   const lastKnownData = currentData;
   const loaders = [];
 
@@ -788,9 +817,13 @@ async function loadWorkspaceData(statusMessage = "", options = {}) {
   if (roles.has("student") || roles.has("mentor") || roles.has("program_teacher") || hasGlobalAdminRole(roles) || roles.has("site_admin") || roles.has("administration")) {
     loaders.push(["presentationSlots", apiJson("/api/presentation-slots")]);
   }
-  if (hasGlobalAdminRole(roles) || roles.has("site_admin") || roles.has("administration") || roles.has("misc_admin")) loaders.push(["readiness", apiJson("/api/reports/readiness")]);
+  // Site-scoped staff use the selected school's operations report. The legacy
+  // aggregate endpoint is intentionally limited to global/reporting roles so a
+  // school view never downloads cross-school totals it does not need.
+  if (hasGlobalAdminRole(roles) || roles.has("misc_admin")) loaders.push(["readiness", apiJson("/api/reports/readiness")]);
 
   const results = await Promise.all(loaders.map(async ([key, promise]) => [key, await settleApi(promise)]));
+  if (!workspaceAccessContextIsCurrent(accessContext)) return;
   const nextData = defaultCurrentData(authConfig);
   const failedKeys = [];
   const failures = [];
@@ -2970,6 +3003,7 @@ function resetWorkspaceLandingState() {
 }
 
 function resetAccountScopedWorkspaceState() {
+  invalidateWorkspaceAccessContext();
   lastAdminPasswordResetResult = null;
   activeAdminRoleMode = "global_admin";
   selectedSiteId = "";
@@ -4923,6 +4957,7 @@ async function selectWorkspaceSite(siteId) {
 }
 
 function clearWorkspaceDataForSiteChange() {
+  invalidateWorkspaceAccessContext();
   const authConfig = currentData.authConfig;
   currentData = defaultCurrentData(authConfig);
   workspaceConnectionState = defaultWorkspaceConnectionState();
