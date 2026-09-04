@@ -502,6 +502,24 @@ export async function downloadGoogleDriveFileMedia(
   });
 }
 
+export async function probeGoogleDriveFileAvailability(
+  accessToken: string,
+  fileId: string,
+  options: { fetchFn?: typeof fetch } = {},
+): Promise<Response> {
+  const url = new URL(`${DRIVE_FILE_URL}/${encodeURIComponent(fileId)}`);
+  url.searchParams.set("fields", "id,trashed");
+  url.searchParams.set("supportsAllDrives", "true");
+  const fetchFn = options.fetchFn || fetch;
+  return fetchFn(url, {
+    method: "GET",
+    headers: {
+      authorization: `Bearer ${accessToken}`,
+      accept: "application/json",
+    },
+  });
+}
+
 export function isGoogleWorkspaceMimeType(mimeType: string | null | undefined): boolean {
   return String(mimeType || "").toLowerCase().startsWith("application/vnd.google-apps.");
 }

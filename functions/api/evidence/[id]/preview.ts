@@ -9,6 +9,7 @@ import {
 } from "../../../_lib/google-drive.ts";
 import { canAccessStudent } from "../../../_lib/permissions.ts";
 import { workflowError } from "../../../_lib/workflow.ts";
+import { availabilityFromDriveStatus, recordEvidenceAvailability } from "../../../_lib/evidence-availability.ts";
 
 interface PreviewEvidenceRow {
   id: string;
@@ -72,10 +73,18 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
     return workflowError("drive_provider_error", 502);
   }
   if (!providerResponse.ok || !providerResponse.body) {
+    const availability = availabilityFromDriveStatus(providerResponse.status);
+    await recordEvidenceAvailability(env, evidenceId, availability, `preview_provider_${providerResponse.status}`);
     await auditPreview(env, request, user, "evidence_preview_failed", evidenceId, { providerStatus: providerResponse.status });
-    return workflowError("preview_provider_failed", 502);
+    return workflowError(
+      availability === "missing_or_inaccessible" ? "drive_file_missing_or_inaccessible"
+        : availability === "access_lost" ? "drive_file_access_lost"
+          : "preview_provider_failed",
+      availability === "provider_error" ? 502 : 409,
+    );
   }
 
+  await recordEvidenceAvailability(env, evidenceId, "available");
   await auditPreview(env, request, user, "evidence_previewed", evidenceId, { previewKind: artifact.preview_kind });
   const headers = new Headers();
   applyApiSecurityHeaders(headers);

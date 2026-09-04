@@ -29,7 +29,7 @@ The app uses the narrow `drive.file` scope. It can create and retrieve files it 
 
 ### Application-owned D1 data
 
-- D1 remains the source of truth for site/program/project/student associations, original display name, safe MIME/size metadata, review state, preview state, folder revision, timestamps, deletion markers, and audit events.
+- D1 remains the source of truth for site/program/project/student associations, original display name, safe MIME/size metadata, review state, preview state, last-known file availability, folder revision, timestamps, deletion markers, and audit events.
 - Raw Drive file IDs, parent folder IDs, preview file IDs, access tokens, private keys, and provider diagnostics never appear in browser JSON, app URLs, rendered markup, or ordinary audit summaries. The sole intentional exception is the final Google-owned destination after an authorized user chooses Open in Drive.
 - D1 deletion markers do not automatically delete the externally stored file. A future destructive-delete workflow requires a separately approved retention policy and explicit confirmation.
 
@@ -55,6 +55,8 @@ The app uses the narrow `drive.file` scope. It can create and retrieve files it 
 - The Drive name begins with the opaque evidence record ID, while the original normalized name is retained in D1 for display.
 - Submission-version snapshots reference evidence records rather than copying file bytes.
 - If preview conversion fails, the original DOCX remains downloadable and the UI shows a preview-unavailable state.
+- Preview, download, and Open in Drive checks record a safe last-known state: available, missing or inaccessible, access lost, or temporary provider error. A successful later check clears the recovery warning.
+- Missing and access-lost states give the user a recovery instruction instead of silently replacing or deleting the evidence record.
 - If sharing is removed, `verify` reports a connection problem. Restoring Editor sharing and verifying again repairs future access without changing evidence IDs.
 
 ## Rollout

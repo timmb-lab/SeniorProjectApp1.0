@@ -3,6 +3,12 @@ import { getCurrentUser, writeAudit } from "../../../_lib/auth.ts";
 import { applyApiSecurityHeaders, badRequest } from "../../../_lib/http.ts";
 import { canAccessStudent } from "../../../_lib/permissions.ts";
 import { workflowError } from "../../../_lib/workflow.ts";
+import {
+  getGoogleDriveAccessToken,
+  googleDriveCredentialParts,
+  probeGoogleDriveFileAvailability,
+} from "../../../_lib/google-drive.ts";
+import { availabilityFromDriveStatus, recordEvidenceAvailability } from "../../../_lib/evidence-availability.ts";
 
 interface OpenEvidenceRow {
   id: string;
@@ -38,6 +44,37 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
     return workflowError("not_a_drive_file", 409);
   }
 
+  const credentials = googleDriveCredentialParts(env);
+  if (!credentials.clientEmail || !credentials.privateKey) {
+    return workflowError("drive_credentials_missing", 503);
+  }
+  let providerResponse: Response;
+  try {
+    const token = await getGoogleDriveAccessToken(env);
+    providerResponse = await probeGoogleDriveFileAvailability(token.accessToken, artifact.drive_file_id);
+  } catch {
+    await recordEvidenceAvailability(env, evidenceId, "provider_error", "open_provider_request_failed");
+    await auditOpen(env, request, user, "evidence_drive_open_probe_failed", evidenceId);
+    return workflowError("drive_provider_error", 502);
+  }
+  if (!providerResponse.ok) {
+    const availability = availabilityFromDriveStatus(providerResponse.status);
+    await recordEvidenceAvailability(env, evidenceId, availability, `open_provider_${providerResponse.status}`);
+    await auditOpen(env, request, user, "evidence_drive_open_unavailable", evidenceId);
+    return workflowError(
+      availability === "missing_or_inaccessible" ? "drive_file_missing_or_inaccessible"
+        : availability === "access_lost" ? "drive_file_access_lost" : "drive_provider_error",
+      availability === "provider_error" ? 502 : 409,
+    );
+  }
+  const metadata = await providerResponse.json().catch(() => ({})) as { trashed?: boolean };
+  if (metadata.trashed) {
+    await recordEvidenceAvailability(env, evidenceId, "missing_or_inaccessible", "open_provider_trashed");
+    await auditOpen(env, request, user, "evidence_drive_open_trashed", evidenceId);
+    return workflowError("drive_file_missing_or_inaccessible", 409);
+  }
+
+  await recordEvidenceAvailability(env, evidenceId, "available");
   await auditOpen(env, request, user, "evidence_drive_opened", evidenceId);
   const destination = new URL("https://drive.google.com/open");
   destination.searchParams.set("id", artifact.drive_file_id);

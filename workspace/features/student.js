@@ -3467,10 +3467,26 @@ function renderStudentRequirementEvidenceRow(item) {
       <span>${escapeHtml(item.title || "File or link")}</span>
       <small>${escapeHtml(evidenceSourceLabel(item.source_kind))} / ${escapeHtml(statusText(item.artifact_type || "file"))}</small>
       <small data-proof-review-status="true">${escapeHtml(createdAt)} / ${escapeHtml(studentEvidenceReviewStatusCopy(reviewStatus))}</small>
+      ${renderEvidenceAvailabilityStatus(item)}
       ${renderEvidencePreviewStatus(item)}
       ${actions.length ? `<div class="workspace-row-actions">${actions.join("")}</div>` : ""}
     </article>
   `;
+}
+
+function renderEvidenceAvailabilityStatus(item = {}) {
+  if (item.source_kind !== "google_drive_file") return "";
+  const status = normalizeStatus(item.availabilityStatus || item.availability_status || "unknown");
+  if (status === "missing_or_inaccessible") {
+    return `<small class="workspace-muted" data-evidence-availability-status="missing_or_inaccessible">This file cannot be found in Drive. Ask your teacher to restore it or add a replacement.</small>`;
+  }
+  if (status === "access_lost") {
+    return `<small class="workspace-muted" data-evidence-availability-status="access_lost">Drive access was removed. Ask your teacher to restore sharing, then try again.</small>`;
+  }
+  if (status === "provider_error") {
+    return `<small class="workspace-muted" data-evidence-availability-status="provider_error">Drive could not be checked right now. Try again later.</small>`;
+  }
+  return "";
 }
 
 function renderEvidencePreviewStatus(item = {}) {

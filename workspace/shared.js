@@ -1933,6 +1933,7 @@ function renderEvidenceRow(item) {
         <p>${escapeHtml(evidenceSourceLabel(item.source_kind))} / ${escapeHtml(statusText(item.artifact_type || "file"))}</p>
         ${item.requirementTitle ? `<p class="workspace-muted">Checklist item: ${escapeHtml(item.requirementTitle)}</p>` : ""}
         <p class="workspace-muted" data-proof-review-status="true">${escapeHtml(reviewCopy)}</p>
+        ${renderEvidenceAvailabilityStatus(item)}
         ${renderEvidencePreviewStatus(item)}
       </div>
       <div class="workspace-row-actions">

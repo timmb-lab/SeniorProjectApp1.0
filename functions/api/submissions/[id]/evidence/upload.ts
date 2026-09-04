@@ -350,9 +350,11 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
        preview_drive_file_id,
        preview_generated_at,
        preview_error_code,
+       availability_status,
+       availability_checked_at,
        project_id
      )
-     VALUES (?, 'default-google-drive', ?, ?, ?, 'google_drive_file', ?, ?, ?, ?, ?, 'pending_review', ?, ?, ?, ?, ?, ?, ?, CASE WHEN ? = 'ready' THEN strftime('%Y-%m-%dT%H:%M:%fZ', 'now') ELSE NULL END, ?, ?)`,
+     VALUES (?, 'default-google-drive', ?, ?, ?, 'google_drive_file', ?, ?, ?, ?, ?, 'pending_review', ?, ?, ?, ?, ?, ?, ?, CASE WHEN ? = 'ready' THEN strftime('%Y-%m-%dT%H:%M:%fZ', 'now') ELSE NULL END, ?, 'available', strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), ?)`,
   ).bind(
     evidenceId,
     submission.student_id,

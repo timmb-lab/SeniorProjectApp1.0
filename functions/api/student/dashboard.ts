@@ -44,6 +44,8 @@ interface EvidenceSummaryRow {
   created_at: string;
   preview_status: string;
   preview_kind: string;
+  availability_status: string;
+  availability_checked_at: string | null;
 }
 
 interface StudentAccountRow {
@@ -70,6 +72,8 @@ interface EvidenceSummary {
   externalUrl: string | null;
   previewUrl: string | null;
   previewStatus: string;
+  availabilityStatus: string;
+  availabilityCheckedAt: string | null;
   storageIdentifiersRedacted: true;
 }
 
@@ -417,6 +421,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
        evidence_artifacts.created_at
        ,evidence_artifacts.preview_status
        ,evidence_artifacts.preview_kind
+       ,evidence_artifacts.availability_status
+       ,evidence_artifacts.availability_checked_at
      FROM evidence_artifacts
      LEFT JOIN submissions ON submissions.id = evidence_artifacts.submission_id
      LEFT JOIN requirements ON requirements.id = submissions.requirement_id
@@ -1240,6 +1246,8 @@ function summarizeEvidence(row: EvidenceSummaryRow, submissions: SubmissionSumma
       ? `/api/evidence/${encodeURIComponent(row.id)}/preview`
       : null,
     previewStatus: row.preview_status || "not_requested",
+    availabilityStatus: row.availability_status || "unknown",
+    availabilityCheckedAt: row.availability_checked_at || null,
     externalUrl: isExternalLink ? row.external_url : null,
     storageIdentifiersRedacted: true,
   };

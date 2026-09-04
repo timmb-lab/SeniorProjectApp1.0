@@ -128,6 +128,8 @@ test("student dashboard returns own rows without storage ids and audits the view
   assert.equal(body.evidence[0].downloadUrl, "/api/evidence/evidence-student-a/download");
   assert.equal(body.evidence[0].openInDriveUrl, "/api/evidence/evidence-student-a/open");
   assert.equal(body.evidence[0].externalUrl, null);
+  assert.equal(body.evidence[0].availabilityStatus, "unknown");
+  assert.equal(body.evidence[0].availabilityCheckedAt, null);
   assert.equal(body.evidence[0].storageIdentifiersRedacted, true);
   assert.doesNotMatch(JSON.stringify(body), /drive_file_id|driveFileId|drive-secret/i);
   const studentCopy = collectStringValues(body).join(" ");

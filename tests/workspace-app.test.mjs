@@ -8191,6 +8191,12 @@ test("workspace evidence actions only render safe proof and file links", async (
   assert.match(openInDrive, /rel="noopener noreferrer"/);
   assert.match(openInDrive, /Open in Drive/);
 
+  const missingRecovery = vm.runInContext('renderEvidenceAvailabilityStatus({ source_kind: "google_drive_file", availabilityStatus: "missing_or_inaccessible" })', context);
+  assert.match(missingRecovery, /cannot be found in Drive/);
+  assert.match(missingRecovery, /restore it or add a replacement/);
+  const accessRecovery = vm.runInContext('renderEvidenceAvailabilityStatus({ source_kind: "google_drive_file", availabilityStatus: "access_lost" })', context);
+  assert.match(accessRecovery, /restore sharing/);
+
   const fallbackDownload = vm.runInContext('renderEvidenceActions({ source_kind: "google_drive_file", downloadUrl: "/api/evidence/evidence-1/download" }).join("")', context);
   assert.match(fallbackDownload, /aria-label="Download file: file"/);
 

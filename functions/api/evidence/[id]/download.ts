@@ -10,6 +10,7 @@ import {
 } from "../../../_lib/google-drive.ts";
 import { canAccessStudent, getRoleAssignments } from "../../../_lib/permissions.ts";
 import { workflowError } from "../../../_lib/workflow.ts";
+import { availabilityFromDriveStatus, recordEvidenceAvailability } from "../../../_lib/evidence-availability.ts";
 
 interface EvidenceRow {
   id: string;
@@ -130,6 +131,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
   }
 
   if (!driveResponse.ok) {
+    const availability = availabilityFromDriveStatus(driveResponse.status);
+    await recordEvidenceAvailability(env, evidenceId, availability, `download_provider_${driveResponse.status}`);
     await writeAudit(env, {
       actorUserId: user.id,
       action: usesWorkspaceExport ? "google_drive_docs_export_failed" : "google_drive_download_failed",
@@ -157,9 +160,15 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, params })
           }
         : {}),
     });
-    return workflowError(usesWorkspaceExport ? "google_docs_export_failed" : "drive_download_failed", 502);
+    return workflowError(
+      availability === "missing_or_inaccessible" ? "drive_file_missing_or_inaccessible"
+        : availability === "access_lost" ? "drive_file_access_lost"
+          : usesWorkspaceExport ? "google_docs_export_failed" : "drive_download_failed",
+      availability === "provider_error" ? 502 : 409,
+    );
   }
 
+  await recordEvidenceAvailability(env, evidenceId, "available");
   await auditEvidenceAccess(env, request, user, "evidence_downloaded", evidenceId, {
     studentId: artifact.student_id,
     sourceKind: artifact.source_kind,

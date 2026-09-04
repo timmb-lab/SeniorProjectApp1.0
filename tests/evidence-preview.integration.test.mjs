@@ -37,6 +37,29 @@ test("evidence preview enforces student scope and streams PDFs inline without Dr
     assert.equal(response.headers.get("cache-control"), "private, no-store, max-age=0");
     assert.equal(Buffer.from(await response.arrayBuffer()).toString("ascii"), "%PDF");
     assert.doesNotMatch([...response.headers].flat().join(" "), /private-drive-id|access_token/i);
+    const artifact = await fixture.env.DB.prepare("SELECT availability_status FROM evidence_artifacts WHERE id = ?").bind("evidence-pdf").first();
+    assert.equal(artifact.availability_status, "available");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("evidence preview records a recoverable missing-file state", async () => {
+  const fixture = await createFixture();
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (input) => {
+    const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+    if (url === "https://oauth2.googleapis.com/token") return new Response(JSON.stringify({ access_token: "test-token", expires_in: 3600 }), { status: 200 });
+    if (url.includes("/drive/v3/files/private-drive-id") && url.includes("alt=media")) return new Response("missing", { status: 404 });
+    throw new Error(`Unexpected provider URL: ${url}`);
+  };
+  try {
+    const response = await preview(fixture, fixture.ownerToken);
+    assert.equal(response.status, 409);
+    assert.deepEqual(await response.json(), { error: "drive_file_missing_or_inaccessible", ok: false });
+    const artifact = await fixture.env.DB.prepare("SELECT availability_status, availability_error_code FROM evidence_artifacts WHERE id = ?").bind("evidence-pdf").first();
+    assert.equal(artifact.availability_status, "missing_or_inaccessible");
+    assert.equal(artifact.availability_error_code, "preview_provider_404");
   } finally {
     globalThis.fetch = originalFetch;
   }

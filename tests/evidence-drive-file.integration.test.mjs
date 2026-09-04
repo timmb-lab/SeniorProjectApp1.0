@@ -1079,7 +1079,7 @@ test("evidence download rejects unsupported native Google Workspace files before
   }
 });
 
-test("evidence download returns 502 and audits when Drive download fails", async () => {
+test("evidence download records lost access and gives a recoverable response", async () => {
   const fixture = await createFixtureWithSession({ userId: "student-a", roleId: "student" });
   fixture.db.data.evidenceArtifacts.push({
     id: "evidence-1",
@@ -1116,10 +1116,12 @@ test("evidence download returns 502 and audits when Drive download fails", async
       params: { id: "evidence-1" },
     });
 
-    assert.equal(response.status, 502);
-    assert.deepEqual(await response.json(), { error: "drive_download_failed", ok: false });
+    assert.equal(response.status, 409);
+    assert.deepEqual(await response.json(), { error: "drive_file_access_lost", ok: false });
     assert.equal(fixture.db.data.auditEvents.length, 2);
     assert.equal(fixture.db.data.auditEvents[0].action, "google_drive_download_failed");
+    assert.equal(fixture.db.data.evidenceArtifacts[0].availability_status, "access_lost");
+    assert.equal(fixture.db.data.evidenceArtifacts[0].availability_error_code, "download_provider_403");
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -1670,6 +1672,17 @@ class MockPreparedStatement {
         entity_id: entityId,
         metadata: metadataJson ? JSON.parse(metadataJson) : null,
       });
+      return { success: true };
+    }
+
+    if (this.sql.startsWith("update evidence_artifacts set availability_status = ?")) {
+      const [availabilityStatus, availabilityErrorCode, evidenceId] = this.params;
+      const artifact = this.data.evidenceArtifacts.find((row) => row.id === evidenceId);
+      if (artifact) {
+        artifact.availability_status = availabilityStatus;
+        artifact.availability_checked_at = new Date().toISOString();
+        artifact.availability_error_code = availabilityErrorCode;
+      }
       return { success: true };
     }
 
