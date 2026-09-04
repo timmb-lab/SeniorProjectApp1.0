@@ -2976,6 +2976,7 @@ function renderActiveRoleBadge(primaryRole = primaryRoleForUser(currentUser), op
 function renderWorkspaceAccountMenu(areaName = workspaceAreaName()) {
   const displayName = currentUser?.displayName || "Signed in";
   const email = currentUser?.email || "";
+  const accountSectionIds = new Set(availableSections({ mode: activeWorkspaceMode }).map((section) => section.id));
   return `
     <details class="workspace-account-menu" data-account-menu="true">
       <summary class="workspace-account-summary" aria-label="${escapeHtml(`${displayName} account menu`)}">
@@ -2991,6 +2992,8 @@ function renderWorkspaceAccountMenu(areaName = workspaceAreaName()) {
           <strong>${escapeHtml(displayName)}</strong>
           ${email ? `<span>${escapeHtml(email)}</span>` : ""}
         </div>
+        ${accountSectionIds.has("profile") ? '<button class="workspace-button workspace-button-small" type="button" data-section="profile">Profile</button>' : ""}
+        ${accountSectionIds.has("security") ? `<button class="workspace-button workspace-button-small" type="button" data-section="security">${hasGlobalAdminRole(roleIds(currentUser)) ? "Security" : "Account"}</button>` : ""}
         ${renderWorkspaceThemeButton("account")}
         <button class="workspace-button workspace-button-small" id="workspaceRefresh" type="button">Refresh</button>
         <button class="workspace-button workspace-button-secondary workspace-button-small" id="workspaceLogout" type="button">Sign out</button>
@@ -5120,6 +5123,11 @@ async function openWorkspaceSection(button) {
   if (!sectionMode) {
     renderAppShell("This workspace section is not available for your account.", "error");
     return;
+  }
+  if (typeof window !== "undefined"
+    && typeof window.matchMedia === "function"
+    && window.matchMedia("(max-width: 900px)").matches) {
+    workspaceNavCollapsed = true;
   }
   activeWorkspaceMode = sectionMode;
   blockedWorkspaceMode = "";

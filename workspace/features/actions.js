@@ -1,4 +1,12 @@
 function bindWorkspaceForms() {
+  document.querySelectorAll("[data-student-project-tools]").forEach((details) => {
+    details.addEventListener("toggle", () => {
+      studentDisclosureState = {
+        ...studentDisclosureState,
+        projectTools: Boolean(details.open),
+      };
+    });
+  });
   document.querySelector("#createProjectForm")?.addEventListener("submit", submitCreateProject);
   document.querySelectorAll("[data-manage-project-form]").forEach((form) => {
     form.addEventListener("submit", submitManageProject);
@@ -1489,6 +1497,12 @@ async function submitProjectNote(event) {
       return;
     }
     activeProjectId = projectId;
+    if (activeSection === "studentWork") {
+      studentDisclosureState = {
+        ...studentDisclosureState,
+        projectTools: true,
+      };
+    }
     // Release the mutation lock before asking the shared projects loader to
     // refresh. The loader intentionally ignores calls while `busy` is true.
     // Without this handoff the note is saved by the API, but the page never

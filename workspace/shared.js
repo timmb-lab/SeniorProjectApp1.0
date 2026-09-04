@@ -3045,6 +3045,7 @@ function defaultStudentDisclosureState() {
     evidence: false,
     submissions: false,
     files: false,
+    projectTools: false,
   };
 }
 

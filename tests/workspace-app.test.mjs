@@ -565,6 +565,8 @@ test("workspace opens students on guidance and staff on the project workspace", 
     assert.match(student, new RegExp(`title="${escapeRegExp(label)}"`), `student nav includes ${label}`);
   }
   assert.doesNotMatch(student, /data-workspace-mode-switch="true"/);
+  assert.match(student, /data-account-menu="true"[\s\S]*data-section="profile"[\s\S]*>Profile</);
+  assert.match(student, /data-account-menu="true"[\s\S]*data-section="security"[\s\S]*>Account</);
   assert.doesNotMatch(studentText, /Admin Console|Staff Workspace|working profile|Role context|Demo boundary/);
   assert.doesNotMatch(studentText, /Access to Overview is limited|This screen is not open for this account/);
   assert.doesNotMatch(studentText, /My Capstone ready\./);
@@ -7596,6 +7598,16 @@ test("workspace half-width drawer and phone drawer stay bounded and keep global 
   assert.match(phoneContext.workspaceRoot.innerHTML, /data-nav-state="collapsed"/);
   assert.match(phoneContext.workspaceRoot.innerHTML, /workspace-command-center/);
   assert.match(phoneContext.workspaceRoot.innerHTML, /School-Wide Operations/);
+
+  const studentPhoneContext = await createWorkspaceContextWithFetch(profileRoutesForRole("student"), {
+    viewportWidth: 390,
+    viewportHeight: 844,
+  });
+  studentPhoneContext.documentElements.get("#workspaceMenuToggle")?.click();
+  assert.match(studentPhoneContext.workspaceRoot.innerHTML, /data-nav-state="expanded"/);
+  await vm.runInContext('openWorkspaceSection({ dataset: { section: "studentWork" } })', studentPhoneContext.context);
+  assert.match(studentPhoneContext.workspaceRoot.innerHTML, /data-nav-state="collapsed"/, "mobile navigation should close after choosing a screen");
+  assert.match(studentPhoneContext.workspaceRoot.innerHTML, /data-v2-stage="studentWork"/);
 });
 
 test("workspace wide admin console keeps operations readable and source actions reachable", async () => {
@@ -14489,6 +14501,83 @@ test("adding a project note refreshes the open project and shows the saved note"
   assert.match(workspaceRoot.innerHTML, /Materials list is ready for review/);
   assert.match(workspaceRoot.innerHTML, /1 note/);
   assert.equal(vm.runInContext("busy", context), false);
+});
+
+test("students can add project notes from My Project and keep the tools panel open after save", async () => {
+  const routes = profileRoutesForRole("student");
+  let noteSaved = false;
+  const project = () => ({
+    projectId: "project-student-note-1",
+    siteId: "site-desert-valley-high",
+    name: "Student Solar Project",
+    members: [{ studentId: "role-profile-student", displayName: "Student Profile" }],
+    mentors: [{ displayName: "Morgan Mentor" }],
+    adultAssignments: [],
+    adultSetup: { ready: true },
+    notePermissions: { canCreate: true },
+    notes: noteSaved ? [{
+      noteId: "note-student-new",
+      authorName: "Student Profile",
+      body: "The model frame is ready for the next build step.",
+      status: "active",
+      createdAt: "2026-09-03T12:00:00.000Z",
+      updatedAt: "2026-09-03T12:00:00.000Z",
+      canEdit: true,
+      canArchive: true,
+    }] : [],
+  });
+  routes["/api/student/dashboard"].body.project = {
+    projectId: "project-student-note-1",
+    name: "Student Solar Project",
+  };
+  routes["/api/projects"] = ({ options }) => {
+    if (String(options?.method || "GET").toUpperCase() === "POST") {
+      noteSaved = true;
+      return { status: 201, body: { ok: true, noteId: "note-student-new", message: "Note added to the project." } };
+    }
+    return {
+      status: 200,
+      body: {
+        ok: true,
+        projects: [project()],
+        requests: [],
+        templates: [],
+        permissions: { canManage: false, canCreate: false },
+        pagination: { page: 1, pageSize: 25, total: 1, totalPages: 1, search: "", filter: "all", sort: "action" },
+      },
+    };
+  };
+
+  const { context, workspaceRoot, fetchRequests } = await createWorkspaceContextWithFetch(routes);
+  vm.runInContext('activeSection = "studentWork"; renderAppShell();', context);
+  assert.match(workspaceRoot.innerHTML, /data-student-project-tools="true"/);
+  assert.match(workspaceRoot.innerHTML, /Team notes/);
+  assert.match(workspaceRoot.innerHTML, /data-project-note-form="true"/);
+
+  await vm.runInContext(`
+    FormData = class {
+      get(name) {
+        return {
+          projectId: "project-student-note-1",
+          noteBody: "The model frame is ready for the next build step."
+        }[name] || "";
+      }
+    };
+    submitProjectNote({
+      preventDefault() {},
+      currentTarget: {
+        dataset: { projectNoteAction: "create_note" },
+        querySelectorAll() { return []; }
+      }
+    });
+  `, context);
+
+  await new Promise((resolve) => setImmediate(resolve));
+  const noteRequests = fetchRequests.filter((entry) => entry.url.startsWith("/api/projects"));
+  assert.equal(noteRequests.filter((entry) => entry.method === "POST").length, 1);
+  assert.match(workspaceRoot.innerHTML, /The model frame is ready for the next build step/);
+  assert.match(workspaceRoot.innerHTML, /data-student-project-tools="true" open/);
+  assert.equal(vm.runInContext("studentDisclosureState.projectTools", context), true);
 });
 
 test("Project Command Center opens the exact waiting submission instead of a name search", async () => {

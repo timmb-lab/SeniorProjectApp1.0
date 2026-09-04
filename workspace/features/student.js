@@ -98,6 +98,7 @@ function renderStudentMyWorkScreen(context = {}) {
     previewingStudent = false,
   } = context;
   const focusAction = studentPrimaryNextAction(summary, nextSteps, archiveNextAction);
+  const projectRecord = studentProjectRecord(project);
   return `
     <section class="workspace-student-screen workspace-student-screen-work" data-student-screen="work" data-student-view-mode="${previewingStudent ? "staff-preview" : "self"}" aria-labelledby="studentMyWorkTitle">
       ${renderStudentScreenHeader({
@@ -119,7 +120,7 @@ function renderStudentMyWorkScreen(context = {}) {
         </div>
         ${renderStudentRequirementPanelBody(requirements, summary, feedback, studentRequirementDetailState, evidence, studentFeedbackHistoryState)}
       </section>
-      <details class="workspace-student-project-tools">
+      <details class="workspace-student-project-tools" data-student-project-tools="true" ${studentDisclosureState?.projectTools ? "open" : ""}>
         <summary>
           <span><small>Project tools</small><strong>Team, Drive folder, and templates</strong></span>
           <span aria-hidden="true">+</span>
@@ -130,6 +131,7 @@ function renderStudentMyWorkScreen(context = {}) {
             ${renderStudentProjectTeam(project, { expanded: true })}
             ${previewingStudent ? renderStudentProjectFolder(project, { readOnly: true }) : renderStudentProjectFolder(project)}
           </div>
+          ${projectRecord ? renderProjectNotes(projectRecord) : ""}
           ${renderStudentTemplateShelf(dashboard.templates)}
         </div>
       </details>
@@ -176,6 +178,13 @@ function renderStudentMyWorkScreen(context = {}) {
       ${renderStudentResourceLinks(context)}
     </section>
   `;
+}
+
+function studentProjectRecord(dashboardProject = null) {
+  const projectId = cleanDirectoryFilter(dashboardProject?.projectId || dashboardProject?.id || "");
+  const projects = Array.isArray(unwrap(currentData.projects)?.projects) ? unwrap(currentData.projects).projects : [];
+  if (projectId) return projects.find((project) => cleanDirectoryFilter(project?.projectId || project?.id || "") === projectId) || null;
+  return projects.length === 1 ? projects[0] : null;
 }
 
 function renderStudentWorkFocusCard(action = {}, summary = {}) {
