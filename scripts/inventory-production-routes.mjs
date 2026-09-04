@@ -62,6 +62,7 @@ async function listFiles(dir) {
     if (
       entry.name === ".git"
       || entry.name === "node_modules"
+      || entry.name === ".deploy-app"
       || entry.name === ".secrets"
       || entry.name === ".wrangler"
       || entry.name === ".automation-log-outbox"
