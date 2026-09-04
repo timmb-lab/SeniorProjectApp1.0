@@ -45,9 +45,11 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
   await env.DB.prepare(
     `DELETE FROM group_memberships
      WHERE user_id = ? AND group_id IN (
-       SELECT id FROM groups WHERE group_type = 'program' AND program_id IS NOT NULL
+       SELECT groups.id FROM groups
+       JOIN site_programs ON site_programs.program_id = groups.program_id
+       WHERE groups.group_type = 'program' AND site_programs.site_id = ?
      )`,
-  ).bind(studentId).run();
+  ).bind(studentId, siteId).run();
   await env.DB.prepare(
     `INSERT INTO group_memberships (group_id, user_id, membership_role)
      VALUES (?, ?, 'member')
@@ -61,11 +63,17 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, params }
   await replaceStudentAssignment(env, "mentor", studentId, mentorUserId, actor.id);
   await replaceStudentAssignment(env, "viewer", studentId, viewerUserId, actor.id);
   await env.DB.prepare(
-    `UPDATE user_accounts SET status = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id = ?`,
-  ).bind(status === "active" ? "active" : "disabled", studentId).run();
-  await env.DB.prepare(
     `UPDATE site_users SET membership_status = ? WHERE site_id = ? AND user_id = ?`,
   ).bind(status === "active" ? "active" : "suspended", siteId, studentId).run();
+  const otherActiveSites = status === "inactive"
+    ? Number((await env.DB.prepare(
+        `SELECT COUNT(*) AS count FROM site_users
+         WHERE user_id = ? AND site_id != ? AND membership_status = 'active'`,
+      ).bind(studentId, siteId).first<{ count: number }>())?.count || 0)
+    : 0;
+  await env.DB.prepare(
+    `UPDATE user_accounts SET status = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id = ?`,
+  ).bind(status === "active" || otherActiveSites > 0 ? "active" : "disabled", studentId).run();
   if (status === "inactive") {
     await env.DB.prepare("UPDATE sessions SET revoked_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE user_id = ? AND revoked_at IS NULL")
       .bind(studentId).run();

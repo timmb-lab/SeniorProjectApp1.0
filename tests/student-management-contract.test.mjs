@@ -17,6 +17,8 @@ test("student management supports ID usernames and tightly scoped placement chan
   assert.match(placement, /canonicalRoleIds\.some\(\(role\) => role === "site_admin" \|\| role === "administration"\)/);
   assert.match(placement, /canManageSiteUsers/);
   assert.match(placement, /student\.placement_updated/);
+  assert.match(placement, /site_programs\.site_id = \?/);
+  assert.match(placement, /site_id != \? AND membership_status = 'active'/);
   assert.match(placement, /UPDATE sessions SET revoked_at/);
   assert.match(people, /data-student-placement-edit/);
   assert.match(people, /Support partner \/ viewer \(optional\)/);
