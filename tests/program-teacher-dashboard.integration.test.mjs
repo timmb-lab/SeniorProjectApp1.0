@@ -112,6 +112,21 @@ test("program teacher dashboard scopes records by valid program/cohort role", as
     assert.equal(body.summary.approved, 1);
   }
 
+  {
+    for (let index = 0; index < 110; index += 1) {
+      const studentId = `scale-student-${index}`;
+      await seedUser(db, { id: studentId, displayName: `Scale Student ${index}`, roleId: "student" });
+    }
+    const response = await onRequestGet({
+      request: buildRequest("https://example.test/api/program-teacher/dashboard", tokens.admin),
+      env,
+    });
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.scope.role, "admin");
+    assert.equal(body.summary.scopedStudents, 113);
+  }
+
   const audits = await readAuditActions(db);
   assert.equal(audits.some((event) => event.action === "program_teacher_dashboard_viewed"), true);
   assert.equal(audits.some((event) => event.action === "program_teacher_dashboard_denied"), true);

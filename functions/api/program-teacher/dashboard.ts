@@ -460,9 +460,10 @@ async function countReadyCompleteStudents(env: Env, studentIds: string[]): Promi
 }
 
 async function loadRecentActivity(env: Env, studentIds: string[]): Promise<RecentActivityRow[]> {
-  const valueRows = studentIds.map(() => "(?)").join(", ");
   const rows = await env.DB.prepare(
-    `WITH scoped_students(id) AS (VALUES ${valueRows}),
+    `WITH scoped_students(id) AS (
+       SELECT value FROM json_each(?)
+     ),
      activity AS (
        SELECT
          submissions.student_id,
@@ -506,15 +507,14 @@ async function loadRecentActivity(env: Env, studentIds: string[]): Promise<Recen
      WHERE occurred_at IS NOT NULL
      ORDER BY occurred_at DESC
      LIMIT 8`,
-  ).bind(...studentIds).all<RecentActivityRow>();
+  ).bind(JSON.stringify(studentIds)).all<RecentActivityRow>();
   return rows.results || [];
 }
 
 function bindStudentIds(sql: string, studentIds: string[]): { sql: string; binds: string[] } {
-  const placeholders = studentIds.map(() => "?").join(", ");
   return {
-    sql: sql.replace("__IDS__", placeholders),
-    binds: studentIds,
+    sql: sql.replace("__IDS__", "SELECT value FROM json_each(?)"),
+    binds: [JSON.stringify(studentIds)],
   };
 }
 
