@@ -2679,7 +2679,7 @@ function renderProgramStorageSettings() {
         <span class="workspace-summary-badge">${connected ? "Ready" : storage.status === "disconnected" ? "Disconnected" : "Setup needed"}</span>
       </div>
       <div class="workspace-role-profile-grid">
-        <article class="workspace-role-profile-block"><h3>1. Make the folder</h3><p>Create it inside a school Google Shared Drive. Your school keeps control of the files.</p></article>
+        <article class="workspace-role-profile-block"><h3>1. Make the folder</h3><p>Create a dedicated folder here, or choose one inside a school Google Shared Drive. Your school keeps control of the files.</p></article>
         <article class="workspace-role-profile-block"><h3>2. Share it with the app</h3><p>${shareEmail ? `Give <strong>${escapeHtml(shareEmail)}</strong> Editor access.` : "Ask a Global Admin to finish the app’s Google Drive connection."}</p></article>
         <article class="workspace-role-profile-block"><h3>3. Paste and verify</h3><p>Paste the folder link below. Students can then upload PDF and DOCX proof here.</p></article>
       </div>
@@ -2703,6 +2703,13 @@ function renderProgramStorageSettings() {
         </div>
       ` : ""}
       ${setup.canManage ? `
+        ${!connected && setup.canCreateManagedFolder ? `
+          <div class="workspace-mini-row" data-program-storage-create="true">
+            <span><strong>Fast setup</strong><small>Create a dedicated folder inside your school’s connected Shared Drive.</small></span>
+            <button class="workspace-button workspace-button-primary" type="button" data-program-storage-action="create">Create my program folder</button>
+          </div>
+          <p class="workspace-muted">Already have a folder? Connect it below instead.</p>
+        ` : ""}
         <form id="programStorageForm" class="workspace-form" data-program-storage-form="configure">
           <label><span>${connected ? "Replace the connected folder" : "Google Drive folder link"}</span><input name="folderUrl" type="url" inputmode="url" required maxlength="2048" aria-describedby="programStorageLinkHelp"><small id="programStorageLinkHelp">Example: https://drive.google.com/drive/folders/...</small></label>
           <label class="workspace-check-row"><input name="confirmedSharedWithApp" type="checkbox" required><span>I shared this folder with the app storage account as an Editor.</span></label>

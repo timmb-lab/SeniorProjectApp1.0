@@ -13,6 +13,8 @@ import { createSqliteD1, foundationMigrations } from "./helpers/d1-sqlite.mjs";
 const SITE_ID = "site-test-high-school";
 const PROGRAM_ID = "it";
 const FOLDER_ID = "folder_1234567890";
+const ROOT_FOLDER_ID = "root_folder_1234567890";
+const CREATED_FOLDER_ID = "created_folder_1234567890";
 
 test("Drive folder parser accepts only canonical HTTPS folder links", () => {
   assert.deepEqual(parseGoogleDriveFolderUrl(`https://drive.google.com/drive/u/0/folders/${FOLDER_ID}?usp=sharing`), {
@@ -27,6 +29,57 @@ test("Drive folder parser accepts only canonical HTTPS folder links", () => {
     `https://user:secret@drive.google.com/drive/folders/${FOLDER_ID}`,
     "not-a-url",
   ]) assert.equal(parseGoogleDriveFolderUrl(value).ok, false, value);
+});
+
+test("an assigned Program Teacher can create one dedicated program folder without receiving provider IDs", async () => {
+  const fixture = await createFixture();
+  const originalFetch = globalThis.fetch;
+  let createCalls = 0;
+  globalThis.fetch = async (input, init = {}) => {
+    const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+    if (url === "https://oauth2.googleapis.com/token") {
+      return new Response(JSON.stringify({ access_token: "test-token", expires_in: 3600 }), { status: 200 });
+    }
+    if (url.includes(`/drive/v3/files/${ROOT_FOLDER_ID}`)) {
+      return new Response(JSON.stringify({
+        id: ROOT_FOLDER_ID,
+        name: "School evidence root",
+        mimeType: "application/vnd.google-apps.folder",
+        driveId: "shared-drive-school",
+        capabilities: { canAddChildren: true },
+      }), { status: 200 });
+    }
+    if (url.startsWith("https://www.googleapis.com/drive/v3/files?") && init.method === "POST") {
+      createCalls += 1;
+      const body = JSON.parse(String(init.body || "{}"));
+      assert.equal(body.mimeType, "application/vnd.google-apps.folder");
+      assert.deepEqual(body.parents, [ROOT_FOLDER_ID]);
+      assert.match(body.name, /Capstone Program Files/);
+      return new Response(JSON.stringify({ id: CREATED_FOLDER_ID, name: body.name, mimeType: body.mimeType }), { status: 200 });
+    }
+    throw new Error(`Unexpected provider URL: ${url}`);
+  };
+  try {
+    const created = await changeStorage(fixture, fixture.tokens.teacher, {
+      action: "create", siteId: SITE_ID, programId: PROGRAM_ID,
+    });
+    assert.equal(created.response.status, 200);
+    assert.equal(created.body.createdByApp, true);
+    assert.equal(created.body.storage.status, "ready");
+    assert.equal(created.body.storage.ownershipMode, "teacher_managed_shared_folder");
+    assert.equal(createCalls, 1);
+    assert.doesNotMatch(JSON.stringify(created.body), new RegExp(CREATED_FOLDER_ID, "i"));
+    assert.doesNotMatch(JSON.stringify(created.body), /folderId|folder_id|private_key|access_token/i);
+
+    const repeated = await changeStorage(fixture, fixture.tokens.teacher, {
+      action: "create", siteId: SITE_ID, programId: PROGRAM_ID,
+    });
+    assert.equal(repeated.response.status, 409);
+    assert.equal(repeated.body.error, "storage_already_connected");
+    assert.equal(createCalls, 1);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });
 
 test("program storage is teacher-managed, role-scoped, revisioned, and identifier-safe", async () => {
@@ -143,6 +196,7 @@ async function createFixture() {
     EVIDENCE_STORAGE_PROVIDER: "link_only",
     GOOGLE_DRIVE_CLIENT_EMAIL: "storage@example.test",
     GOOGLE_DRIVE_PRIVATE_KEY: privateKey,
+    GOOGLE_DRIVE_EVIDENCE_ROOT_ID: ROOT_FOLDER_ID,
   };
   await db.prepare("INSERT OR IGNORE INTO site_programs (site_id, program_id, active) VALUES (?, ?, 1)").bind(SITE_ID, PROGRAM_ID).run();
   await seedUser(db, { id: "teacher", roleId: "program_teacher", scopeType: "program", scopeId: PROGRAM_ID });

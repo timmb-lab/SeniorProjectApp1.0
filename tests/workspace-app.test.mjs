@@ -306,7 +306,7 @@ function profileRoutesForRole(roleId) {
         ok: true,
         scope: { siteId: "site-desert-valley-high", siteName: "Desert Valley High School", programId: "it", programName: "Information Technology" },
         storage: { configured: false, status: "not_configured" },
-        setup: { canManage: true, shareWithEmail: "storage@example.edu", steps: [] },
+        setup: { canManage: true, canCreateManagedFolder: true, shareWithEmail: "storage@example.edu", steps: [] },
       },
     },
     "/api/presentation-slots": { status: 200, body: { ok: true, slots: [], summary: {} } },
@@ -11027,6 +11027,9 @@ test("Program Teacher profile explains and exposes program-owned Drive setup", a
   assert.match(markup, /Connect your program’s Google Shared Drive folder/);
   assert.match(markup, /Your school keeps control of the files/);
   assert.match(markup, /storage@example.edu/);
+  assert.match(markup, /Create my program folder/);
+  assert.match(markup, /data-program-storage-action="create"/);
+  assert.match(markup, /Already have a folder\? Connect it below instead/);
   assert.match(markup, /data-program-storage-form="configure"/);
   assert.match(markup, /I shared this folder with the app storage account as an Editor/);
   assert.match(markup, /Existing files keep their original folder revision/);
@@ -11055,7 +11058,7 @@ test("Program Teachers with more than one assigned program can switch each progr
           programName: programId === "engineering" ? "Engineering" : "Information Technology",
         },
         storage: { configured: false, status: "not_configured" },
-        setup: { canManage: true, shareWithEmail: "storage@example.edu", steps: [] },
+        setup: { canManage: true, canCreateManagedFolder: true, shareWithEmail: "storage@example.edu", steps: [] },
       },
     };
   };

@@ -24,10 +24,12 @@ After saving, list secret **names only** and confirm both names appear. Never pr
 ## Connect one program
 
 1. A Program Teacher opens Account → Profile → Program file storage.
-2. The teacher creates a folder inside the school Shared Drive.
-3. The teacher gives the displayed app storage email Editor access to that folder.
-4. The teacher pastes the folder link, checks the sharing confirmation, and chooses **Verify and connect folder**.
+2. The teacher either chooses **Create my program folder** to create and connect a dedicated folder inside the approved school Shared Drive root, or creates/selects an existing folder inside the school Shared Drive.
+3. For an existing folder, the teacher gives the displayed app storage email Editor access.
+4. For an existing folder, the teacher pastes its link, checks the sharing confirmation, and chooses **Verify and connect folder**.
 5. The status must become **Ready** before a student uploads a file.
+
+The in-app create option is available only when the server credentials and approved Shared Drive root are ready. It does not expose the root or created-folder ID. Because the folder is created inside the school Shared Drive, the school—not the app—continues to control membership, retention, and deletion.
 
 Teachers assigned to more than one program use the Program file settings selector. Each program has an independent folder, status, and revision history.
 

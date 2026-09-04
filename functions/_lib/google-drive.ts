@@ -502,6 +502,38 @@ export async function downloadGoogleDriveFileMedia(
   });
 }
 
+export async function createGoogleDriveProgramFolder(
+  accessToken: string,
+  input: { name: string; parentFolderId: string },
+  options: { fetchFn?: typeof fetch } = {},
+): Promise<{ ok: boolean; status: number; folderId: string | null; name: string | null }> {
+  const parentFolderId = String(input.parentFolderId || "").trim();
+  if (!parentFolderId) return { ok: false, status: 0, folderId: null, name: null };
+  const url = new URL(DRIVE_FILE_URL);
+  url.searchParams.set("supportsAllDrives", "true");
+  url.searchParams.set("fields", "id,name,mimeType");
+  const response = await (options.fetchFn || fetch)(url, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${accessToken}`,
+      "content-type": "application/json",
+      accept: "application/json",
+    },
+    body: JSON.stringify({
+      name: cleanDriveFileName(input.name, "Capstone program files"),
+      mimeType: GOOGLE_DRIVE_FOLDER_MIME_TYPE,
+      parents: [parentFolderId],
+    }),
+  });
+  if (!response.ok) return { ok: false, status: response.status, folderId: null, name: null };
+  const json = await response.json().catch((): unknown => null);
+  const folder = parseGoogleDriveFileResponse(json);
+  if (!folder.id || folder.mimeType !== GOOGLE_DRIVE_FOLDER_MIME_TYPE) {
+    return { ok: false, status: response.status, folderId: null, name: null };
+  }
+  return { ok: true, status: response.status, folderId: folder.id, name: folder.name };
+}
+
 export async function probeGoogleDriveFileAvailability(
   accessToken: string,
   fileId: string,

@@ -3,6 +3,7 @@ import { getCurrentUser, writeAudit } from "../_lib/auth.ts";
 import { randomId } from "../_lib/crypto.ts";
 import {
   GOOGLE_DRIVE_FOLDER_MIME_TYPE,
+  createGoogleDriveProgramFolder,
   getGoogleDriveAccessToken,
   googleDriveCredentialParts,
   parseGoogleDriveFolderUrl,
@@ -11,7 +12,7 @@ import {
 import { badRequest, json, readJson, requirePost } from "../_lib/http.ts";
 import { canAccessSite, getRoleAssignments, hasAnyRole, isGlobalAdmin } from "../_lib/permissions.ts";
 
-type ProgramStorageAction = "configure" | "verify" | "disconnect";
+type ProgramStorageAction = "create" | "configure" | "verify" | "disconnect";
 
 interface ProgramStorageBody {
   action?: unknown;
@@ -73,13 +74,17 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     storage: safeProgramStorage(config, canManage, siteId, programId),
     setup: {
       canManage,
+      canCreateManagedFolder: canManage
+        && credentialParts.clientEmail
+        && credentialParts.privateKey
+        && /^[a-zA-Z0-9_-]{10,200}$/.test(String(env.GOOGLE_DRIVE_EVIDENCE_ROOT_ID || "").trim()),
       uploadMode: env.EVIDENCE_STORAGE_PROVIDER === "google_drive" ? "program_drive" : "link_only",
       appStorageConnectionReady: credentialParts.clientEmail && credentialParts.privateKey,
       shareWithEmail: canManage && credentialParts.clientEmail
         ? String(env.GOOGLE_DRIVE_CLIENT_EMAIL || "").trim()
         : "",
       steps: [
-        "Create a folder inside a school Google Shared Drive.",
+        "Create a dedicated program folder here, or choose one inside a school Google Shared Drive.",
         "Share that folder with the app storage account as an Editor.",
         "Paste the folder link here and verify it before students upload files.",
       ],
@@ -110,7 +115,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     await auditProgramStorage(env, request, user, roles, "program_storage_change_denied", siteId, programId, { action });
     return json({ error: "forbidden" }, { status: 403 });
   }
-  if (!await loadProgramScope(env, siteId, programId)) return json({ error: "program_scope_not_found" }, { status: 404 });
+  const scope = await loadProgramScope(env, siteId, programId);
+  if (!scope) return json({ error: "program_scope_not_found" }, { status: 404 });
 
   const existing = await loadProgramStorage(env, siteId, programId);
   if (action === "disconnect") {
@@ -132,49 +138,87 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     return json({ ok: true, storage: { status: "disconnected", revision: nextRevision }, existingEvidencePreserved: true });
   }
 
-  const candidateUrl = action === "verify" ? existing?.folder_url : body.folderUrl;
-  const parsedFolder = parseGoogleDriveFolderUrl(candidateUrl);
-  if (!parsedFolder.ok || !parsedFolder.folderId || !parsedFolder.canonicalUrl) {
-    return badRequest("invalid_google_drive_folder_url");
-  }
-  if (action === "configure" && body.confirmedSharedWithApp !== true) {
-    return badRequest("drive_folder_share_confirmation_required");
-  }
-
   const credentials = googleDriveCredentialParts(env);
   if (!credentials.clientEmail || !credentials.privateKey) {
     return json({ error: "drive_credentials_missing" }, { status: 503 });
   }
 
-  let folderProbe;
-  try {
-    const token = await getGoogleDriveAccessToken(env);
-    folderProbe = await probeGoogleDriveProgramFolder(token.accessToken, parsedFolder.folderId);
-  } catch {
-    return json({ error: "drive_provider_error" }, { status: 502 });
-  }
-  if (!folderProbe.ok) {
-    await auditProgramStorage(env, request, user, roles, "program_storage_verification_failed", siteId, programId, {
-      action,
-      providerStatus: folderProbe.status,
-    });
-    return json({ error: "drive_folder_not_accessible" }, { status: 409 });
-  }
-  if (folderProbe.mimeType !== GOOGLE_DRIVE_FOLDER_MIME_TYPE) {
-    return badRequest("google_drive_folder_required");
-  }
-  if (!folderProbe.sharedDrive || !folderProbe.canAddChildren) {
-    return badRequest("writable_shared_drive_folder_required");
+  let nextRow: { folder_url: string; folder_id: string; folder_name: string | null };
+  if (action === "create") {
+    if (existing?.status === "ready") return json({ error: "storage_already_connected" }, { status: 409 });
+    const parentFolderId = String(env.GOOGLE_DRIVE_EVIDENCE_ROOT_ID || "").trim();
+    if (!/^[a-zA-Z0-9_-]{10,200}$/.test(parentFolderId)) {
+      return json({ error: "drive_root_missing" }, { status: 503 });
+    }
+    try {
+      const token = await getGoogleDriveAccessToken(env);
+      const parentProbe = await probeGoogleDriveProgramFolder(token.accessToken, parentFolderId);
+      if (!parentProbe.ok || parentProbe.mimeType !== GOOGLE_DRIVE_FOLDER_MIME_TYPE || !parentProbe.sharedDrive || !parentProbe.canAddChildren) {
+        await auditProgramStorage(env, request, user, roles, "program_storage_creation_failed", siteId, programId, {
+          providerStatus: parentProbe.status,
+          reason: "root_not_writable_shared_drive_folder",
+        });
+        return json({ error: "drive_root_not_ready" }, { status: 503 });
+      }
+      const created = await createGoogleDriveProgramFolder(token.accessToken, {
+        name: `${scope.programName} - Capstone Program Files`,
+        parentFolderId,
+      });
+      if (!created.ok || !created.folderId) {
+        await auditProgramStorage(env, request, user, roles, "program_storage_creation_failed", siteId, programId, {
+          providerStatus: created.status,
+          reason: "provider_create_failed",
+        });
+        return json({ error: "drive_folder_create_failed" }, { status: 502 });
+      }
+      nextRow = {
+        folder_url: `https://drive.google.com/drive/folders/${created.folderId}`,
+        folder_id: created.folderId,
+        folder_name: created.name || `${scope.programName} - Capstone Program Files`,
+      };
+    } catch {
+      return json({ error: "drive_provider_error" }, { status: 502 });
+    }
+  } else {
+    const candidateUrl = action === "verify" ? existing?.folder_url : body.folderUrl;
+    const parsedFolder = parseGoogleDriveFolderUrl(candidateUrl);
+    if (!parsedFolder.ok || !parsedFolder.folderId || !parsedFolder.canonicalUrl) {
+      return badRequest("invalid_google_drive_folder_url");
+    }
+    if (action === "configure" && body.confirmedSharedWithApp !== true) {
+      return badRequest("drive_folder_share_confirmation_required");
+    }
+
+    let folderProbe;
+    try {
+      const token = await getGoogleDriveAccessToken(env);
+      folderProbe = await probeGoogleDriveProgramFolder(token.accessToken, parsedFolder.folderId);
+    } catch {
+      return json({ error: "drive_provider_error" }, { status: 502 });
+    }
+    if (!folderProbe.ok) {
+      await auditProgramStorage(env, request, user, roles, "program_storage_verification_failed", siteId, programId, {
+        action,
+        providerStatus: folderProbe.status,
+      });
+      return json({ error: "drive_folder_not_accessible" }, { status: 409 });
+    }
+    if (folderProbe.mimeType !== GOOGLE_DRIVE_FOLDER_MIME_TYPE) {
+      return badRequest("google_drive_folder_required");
+    }
+    if (!folderProbe.sharedDrive || !folderProbe.canAddChildren) {
+      return badRequest("writable_shared_drive_folder_required");
+    }
+    nextRow = {
+      folder_url: parsedFolder.canonicalUrl,
+      folder_id: parsedFolder.folderId,
+      folder_name: folderProbe.name || "Program files",
+    };
   }
 
   const configId = existing?.id || randomId("program-storage");
   const revision = Number(existing?.revision || 0) + 1;
   const historyAction = action === "verify" ? "verified" : existing ? "replaced" : "configured";
-  const nextRow = {
-    folder_url: parsedFolder.canonicalUrl,
-    folder_id: parsedFolder.folderId,
-    folder_name: folderProbe.name || "Program files",
-  };
 
   await env.DB.batch([
     env.DB.prepare(
@@ -211,6 +255,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     revision,
     folderVerified: true,
     previousEvidencePreserved: Boolean(existing),
+    createdByApp: action === "create",
   });
   return json({
     ok: true,
@@ -224,6 +269,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       verifiedAt: new Date().toISOString(),
     },
     previousEvidencePreserved: Boolean(existing),
+    createdByApp: action === "create",
   });
 };
 
@@ -355,7 +401,7 @@ async function auditProgramStorage(
 
 function cleanAction(value: unknown): ProgramStorageAction | "" {
   const action = String(value || "").trim();
-  return action === "configure" || action === "verify" || action === "disconnect" ? action : "";
+  return action === "create" || action === "configure" || action === "verify" || action === "disconnect" ? action : "";
 }
 
 function cleanId(value: unknown): string {

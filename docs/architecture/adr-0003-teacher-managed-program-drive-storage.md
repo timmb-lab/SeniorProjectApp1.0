@@ -10,7 +10,9 @@ Students need a simple in-app way to attach project evidence, while schools need
 
 ## Decision
 
-Each `(site, program)` may have one active Google Drive storage connection. The assigned Program Teacher creates a folder inside a school Google Shared Drive, shares it with the application storage service account as Editor, and pastes the folder URL into their Profile settings. The server validates the URL and confirms that the folder belongs to a Shared Drive and permits the service account to add files before the connection becomes ready. A personal My Drive folder is rejected because service accounts have no storage quota and cannot own files.
+Each `(site, program)` may have one active Google Drive storage connection. The assigned Program Teacher may either create a dedicated program folder from Profile settings inside the school's pre-approved Shared Drive root, or select an existing folder inside a school Google Shared Drive, share it with the application storage service account as Editor, and paste its URL. The server validates that every connected folder belongs to a Shared Drive and permits the service account to add files before the connection becomes ready. A personal My Drive folder is rejected because service accounts have no storage quota and cannot own files.
+
+Creating a folder in the app is teacher-initiated but does not transfer content ownership to the application. The folder is created inside the school-controlled Shared Drive, so the school continues to own membership, retention, deletion, and off-platform access. The server never returns the new folder ID; the assigned Program Teacher receives only an app-owned Open folder route after authorization.
 
 The app uses the narrow `drive.file` scope. It can create and retrieve files it creates in a teacher-selected folder, but it does not receive general access to the teacher's Drive. A configured program folder enables in-app student uploads for projects in that exact site and program. Programs without a ready folder retain the existing safe Drive-link workflow.
 
@@ -63,7 +65,7 @@ The app uses the narrow `drive.file` scope. It can create and retrieve files it 
 
 1. Apply migration 0032 and deploy the read-only status/configuration surface.
 2. Confirm production service-account credentials and `drive.file` access.
-3. Have each Program Teacher connect and verify a program folder.
+3. Have each Program Teacher create a dedicated program folder in the app or connect and verify an existing Shared Drive folder.
 4. Enable direct uploads per configured program. Keep link-only behavior as the fallback for unconfigured programs.
 5. Verify PDF and DOCX upload, preview, download, denial, replacement, and disconnect behavior across roles.
 6. Consider retiring the legacy global root only after every active program is configured and historical files have an approved recovery plan.

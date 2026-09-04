@@ -277,18 +277,22 @@ async function submitProgramStorage(event) {
 async function handleProgramStorageAction(event) {
   const action = cleanDirectoryFilter(event.currentTarget?.dataset?.programStorageAction || "");
   const scope = unwrap(currentData.programStorage)?.scope || {};
-  if (!scope.siteId || !scope.programId || !["verify", "disconnect"].includes(action)) return;
+  if (!scope.siteId || !scope.programId || !["create", "verify", "disconnect"].includes(action)) return;
   await changeProgramStorage(event.currentTarget, {
     action,
     siteId: scope.siteId,
     programId: scope.programId,
-  }, action === "verify" ? "Program folder connection checked." : "Future uploads disconnected. Existing files were preserved.");
+  }, action === "create"
+    ? "Your dedicated program folder was created and connected."
+    : action === "verify" ? "Program folder connection checked." : "Future uploads disconnected. Existing files were preserved.");
 }
 
 async function changeProgramStorage(control, body, successMessage) {
   const form = control?.closest?.("form") || control;
   if (form?.querySelectorAll) setFormBusy(form, true);
-  renderAppShell(body.action === "disconnect" ? "Disconnecting future uploads..." : "Checking the Google Drive folder...");
+  renderAppShell(body.action === "disconnect"
+    ? "Disconnecting future uploads..."
+    : body.action === "create" ? "Creating your dedicated program folder..." : "Checking the Google Drive folder...");
   const result = await settleApi(apiJson("/api/program-storage", {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -303,6 +307,10 @@ async function changeProgramStorage(control, body, successMessage) {
       google_drive_folder_required: "That link is not a Google Drive folder.",
       writable_shared_drive_folder_required: "Choose a folder inside a school Google Shared Drive and give the app Editor access.",
       drive_credentials_missing: "The app’s Google Drive connection is not ready. Ask a Global Admin for help.",
+      drive_root_missing: "The school’s Shared Drive root is not configured yet. Ask a Global Admin for help.",
+      drive_root_not_ready: "The school’s Shared Drive is not writable right now. Ask a Global Admin to check the connection.",
+      drive_folder_create_failed: "The program folder could not be created. Try again or connect an existing folder below.",
+      storage_already_connected: "A program folder is already connected. Refresh to see its current status.",
     };
     renderAppShell(messages[result.error] || "The program folder could not be updated. Try again.", "error");
     return;
