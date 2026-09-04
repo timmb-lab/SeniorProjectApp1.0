@@ -103,8 +103,6 @@ export async function canViewAdminDashboard(env: Env, viewer: UserAccount): Prom
 
 export async function canViewAggregateReadiness(env: Env, viewer: UserAccount): Promise<boolean> {
   return await isGlobalAdmin(env, viewer.id)
-    || await isSiteAdmin(env, viewer.id)
-    || await isAdministration(env, viewer.id)
     || await isMiscAdmin(env, viewer.id);
 }
 

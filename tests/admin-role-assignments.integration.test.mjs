@@ -194,6 +194,30 @@ test("admin role assignments creates role assignment and audits", async () => {
   assert.equal(event.metadata.scopeType, "global");
 });
 
+test("legacy global role assignments deny Site Admin reads and mutations", async () => {
+  const fixture = await createFixtureWithSession({ userId: "site-admin-a", roleId: "site_admin" });
+  const headers = {
+    cookie: `sc_session=${fixture.token}`,
+    "content-type": "application/json",
+  };
+  const body = JSON.stringify({
+    userId: "student-a",
+    roleId: "viewer",
+    scopeType: "global",
+    scopeId: "",
+  });
+  for (const [handler, method] of [[onRequestGet, "GET"], [onRequestPost, "POST"], [onRequestDelete, "DELETE"]]) {
+    const request = new Request("https://example.test/api/admin/role-assignments", {
+      method,
+      headers,
+      ...(method === "GET" ? {} : { body }),
+    });
+    const response = await handler({ request, env: fixture.env, params: {} });
+    assert.equal(response.status, 403, `${method} should deny Site Admin`);
+    assert.deepEqual(await response.json(), { error: "forbidden", ok: false });
+  }
+});
+
 test("admin role assignments returns scope names plus mapped school ids for site, program, and cohort grants", async () => {
   const fixture = await createFixtureWithSession({ userId: "admin-a", roleId: "admin" });
   fixture.db.data.userAccounts.push(buildUser("site-target"));

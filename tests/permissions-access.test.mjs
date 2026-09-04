@@ -102,6 +102,7 @@ test("role hierarchy helpers expose primary context and protected dashboard acce
   assert.equal(await canViewAdminDashboard(env, users.platformAdmin), true);
 
   assert.equal((await getViewerRoleContext(env, users.siteAdmin)).primaryRole, "site_admin");
+  assert.equal(await canViewAggregateReadiness(env, users.siteAdmin), false);
   assert.equal((await getViewerRoleContext(env, users.viewer)).primaryRole, "viewer");
 
   assert.equal(await canViewProgramTeacherDashboard(env, users.teacherProgramIT), true);

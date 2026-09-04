@@ -8,6 +8,7 @@ import {
   isElevatedRole,
   isGlobalAdminRole,
 } from "../../_lib/effective-access.ts";
+import { isGlobalAdmin } from "../../_lib/permissions.ts";
 import { workflowError } from "../../_lib/workflow.ts";
 
 type RoleScopeType = "global" | "site" | "program" | "cohort";
@@ -55,7 +56,7 @@ interface SiteScopeRow {
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const user = await getCurrentUser(request, env);
   if (!user) return workflowError("unauthorized", 401);
-  if (!await canActorCreateRole(env, user, "viewer", [])) return workflowError("forbidden", 403);
+  if (!await isGlobalAdmin(env, user.id)) return workflowError("forbidden", 403);
 
   const url = new URL(request.url);
   const userId = cleanId(url.searchParams.get("userId"));
@@ -127,7 +128,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   const caller = await getCurrentUser(request, env);
   if (!caller) return workflowError("unauthorized", 401);
-  if (!await canActorCreateRole(env, caller, "viewer", [])) return workflowError("forbidden", 403);
+  if (!await isGlobalAdmin(env, caller.id)) return workflowError("forbidden", 403);
 
   let body: RoleAssignmentBody;
   try {
@@ -279,7 +280,7 @@ export const onRequestDelete: PagesFunction<Env> = async ({ request, env }) => {
 
   const caller = await getCurrentUser(request, env);
   if (!caller) return workflowError("unauthorized", 401);
-  if (!await canActorCreateRole(env, caller, "viewer", [])) return workflowError("forbidden", 403);
+  if (!await isGlobalAdmin(env, caller.id)) return workflowError("forbidden", 403);
 
   let body: RoleAssignmentBody;
   try {
