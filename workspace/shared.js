@@ -2707,8 +2707,20 @@ function renderRoleProfileScopeSummary() {
   `;
 }
 
-function roleIds(user) {
+function assignedRoleIds(user) {
   return new Set((user?.roles || []).map((role) => role.role_id));
+}
+
+function canSwitchAdminRoleMode(user = currentUser) {
+  return hasGlobalAdminRole(assignedRoleIds(user));
+}
+
+function roleIds(user) {
+  const assignedRoles = assignedRoleIds(user);
+  if (user === currentUser && canSwitchAdminRoleMode(user) && activeAdminRoleMode === "site_admin") {
+    return new Set(["site_admin"]);
+  }
+  return assignedRoles;
 }
 
 function hasGlobalAdminRole(roles) {
@@ -3113,7 +3125,18 @@ function bindWorkspaceUrlEvents() {
 
 async function handleWorkspaceUrlPopState() {
   const state = workspaceUrlStateFromLocation();
+  const previousAdminRoleMode = activeAdminRoleMode;
   applyWorkspaceUrlState(state);
+  if (currentUser && previousAdminRoleMode !== activeAdminRoleMode) {
+    clearWorkspaceDataForSiteChange();
+    ensureActiveWorkspaceModeAndSection();
+    if (workspaceRoleModeNeedsSiteSelection()) {
+      renderAppShell("Site Admin mode restored. Choose a school in Tools to load school-scoped records.", "success");
+      return;
+    }
+    await loadWorkspaceData(activeAdminRoleMode === "site_admin" ? "Site Admin mode restored." : "Global Admin mode restored.");
+    return;
+  }
   const roles = roleIds(currentUser);
   if (state.hasViewAsStudentState && currentUser && canUseViewAsStudent(roles)) {
     await restoreViewAsStudentFromUrlState({
@@ -3185,6 +3208,8 @@ async function handleWorkspaceUrlPopState() {
 
 function applyWorkspaceUrlState(state, options = {}) {
   if (!state) return;
+  activeAdminRoleMode = cleanAdminRoleMode(state.adminRoleMode) || "global_admin";
+  if (currentUser && !canSwitchAdminRoleMode(currentUser)) activeAdminRoleMode = "global_admin";
   if (state.siteId) selectedSiteId = state.siteId;
   const roles = roleIds(currentUser);
   const canRestoreViewAs = state.hasViewAsStudentState && canUseViewAsStudent(roles);
@@ -3317,6 +3342,7 @@ function workspaceUrlStateFromLocation() {
   const hasViewAsStudentState = hasViewAsStudentUrlState(params);
   return {
     mode: requestedMode,
+    adminRoleMode: cleanAdminRoleMode(params.get("adminRoleMode")),
     section: hasViewAsStudentState ? "student" : resolvedSection,
     siteId: cleanDirectoryFilter(params.get("siteId")),
     hasReviewQueueState,
@@ -3366,6 +3392,10 @@ function currentWorkspaceUrl() {
 
 function writeWorkspaceHistoryState(url, options = {}, state = {}) {
   if (!url || typeof window === "undefined" || !window.history) return;
+  url.searchParams.delete("adminRoleMode");
+  if (canSwitchAdminRoleMode(currentUser) && activeAdminRoleMode === "site_admin") {
+    url.searchParams.set("adminRoleMode", "site_admin");
+  }
   const routeSearch = String(url.search || "");
   const canonicalPath = String(window.location?.pathname || url.pathname || "/workspace");
   const visiblePath = `${window.location?.pathname || canonicalPath}${window.location?.search || ""}${window.location?.hash || ""}`;
@@ -3991,6 +4021,11 @@ function cleanWorkspaceMode(value) {
   return WORKSPACE_MODES.has(mode) ? mode : "";
 }
 
+function cleanAdminRoleMode(value) {
+  const mode = cleanDirectoryFilter(value);
+  return ADMIN_ROLE_MODES.has(mode) ? mode : "";
+}
+
 function cleanAdminPeopleView(value) {
   const view = cleanDirectoryFilter(value);
   return ADMIN_PEOPLE_VIEW_VALUES.has(view) ? view : "";
@@ -4130,6 +4165,10 @@ function primaryRoleForUser(user) {
 function roleScopeSummary(user) {
   const primary = primaryRoleForUser(user);
   if (primary === "role_pending") return "Awaiting workspace role";
+  if (primary === "site_admin" && canSwitchAdminRoleMode(user) && activeAdminRoleMode === "site_admin") {
+    const selectedSite = accessibleSitesForWorkspace().find((site) => site.siteId === selectedSiteQueryValue());
+    return selectedSite?.siteName || "Selected school";
+  }
   const role = (user?.roles || []).find((assignment) => assignment.role_id === primary);
   if (!role) return "Assigned workspace";
   return assignmentScopeLabel(role);

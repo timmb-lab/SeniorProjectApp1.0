@@ -10889,7 +10889,7 @@ test("workspace renders visible role identity for every logged-in role", async (
     } else {
       assert.match(markup, /data-active-role-badge="true"/, `${roleId} active role badge`);
       assert.match(markup, new RegExp(`data-role-identity="${escapeRegExp(roleId)}"`), `${roleId} role identity marker`);
-      assert.match(markup, new RegExp(`Active role:\\s*${escapeRegExp(label)}|${escapeRegExp(label)}[\\s\\S]*Active role`), `${roleId} visible role text`);
+      assert.match(markup, new RegExp(`(?:Active role|Current mode):\\s*${escapeRegExp(label)}|${escapeRegExp(label)}[\\s\\S]*(?:Active role|Current mode)`), `${roleId} visible role text`);
       assert.match(markup, /data-experience="staff-workspace"/);
       assert.match(markup, /Staff Workspace/);
       assert.doesNotMatch(markup, /workspace-product-header/, `${roleId} product header removed from focused staff flow`);
@@ -10902,6 +10902,74 @@ test("workspace renders visible role identity for every logged-in role", async (
     assert.match(workspaceCss, new RegExp(`data-primary-role="${escapeRegExp(roleId)}"[\\s\\S]*--role-accent`), `${roleId} role accent CSS`);
   }
   assert.match(workspaceCss, /@media \(max-width: 900px\)[\s\S]*\.workspace-active-role-badge/, "role badge must have mobile handling");
+});
+
+test("Global Admin can switch to a school-scoped Site Admin working mode without changing the account assignment", async () => {
+  const { context, workspaceRoot, fetchRequests, window } = await createWorkspaceContextWithFetch(profileRoutesForRole("global_admin"), {
+    url: "https://workspace.example/workspace.html?mode=admin&section=audit&siteId=site-desert-valley-high",
+  });
+
+  assert.match(workspaceRoot.innerHTML, /data-admin-role-switcher="true"/);
+  assert.match(workspaceRoot.innerHTML, /data-admin-role-mode-target="global_admin" aria-pressed="true"/);
+  assert.match(workspaceRoot.innerHTML, /data-admin-role-mode-target="site_admin" aria-pressed="false"/);
+  assert.match(workspaceRoot.innerHTML, /All schools and platform controls/);
+  assert.match(workspaceRoot.innerHTML, /Desert Valley High School only/);
+  assert.match(workspaceRoot.innerHTML, /Changing this view never changes your account assignment/);
+  assert.match(workspaceRoot.innerHTML, /data-role-identity="global_admin"/);
+
+  const requestCountBeforeSiteMode = fetchRequests.length;
+  await vm.runInContext('switchAdminRoleMode({ dataset: { adminRoleModeTarget: "site_admin" } })', context);
+  const siteModeRequests = fetchRequests.slice(requestCountBeforeSiteMode).map((request) => request.url);
+
+  assert.equal(vm.runInContext("activeAdminRoleMode", context), "site_admin");
+  assert.equal(vm.runInContext("primaryRoleForUser(currentUser)", context), "site_admin");
+  assert.deepEqual(JSON.parse(vm.runInContext("JSON.stringify([...roleIds(currentUser)])", context)), ["site_admin"]);
+  assert.equal(vm.runInContext("currentUser.roles[0].role_id", context), "global_admin", "working mode must not mutate the signed-in assignment");
+  assert.equal(vm.runInContext("activeSection", context), "overview", "global-only route falls back to an allowed Site Admin section");
+  assert.match(workspaceRoot.innerHTML, /data-primary-role="site_admin"/);
+  assert.match(workspaceRoot.innerHTML, /data-admin-role-mode="site_admin"/);
+  assert.match(workspaceRoot.innerHTML, /data-role-identity="site_admin"/);
+  assert.match(workspaceRoot.innerHTML, /data-admin-role-mode-target="site_admin" aria-pressed="true"/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-section="audit"/);
+  assert.doesNotMatch(workspaceRoot.innerHTML, /data-section="adminDashboard"/);
+  assert.ok(siteModeRequests.some((url) => url.startsWith("/api/site/dashboard")), "Site Admin mode reloads school-scoped data");
+  assert.ok(siteModeRequests.every((url) => !url.startsWith("/api/admin/")), "Site Admin mode does not request global admin endpoints");
+  assert.equal(workspaceRouteUrl(window).searchParams.get("adminRoleMode"), "site_admin");
+  assert.equal(workspaceRouteUrl(window).searchParams.get("siteId"), "site-desert-valley-high");
+
+  const requestCountBeforeGlobalMode = fetchRequests.length;
+  await vm.runInContext('switchAdminRoleMode({ dataset: { adminRoleModeTarget: "global_admin" } })', context);
+  const globalModeRequests = fetchRequests.slice(requestCountBeforeGlobalMode).map((request) => request.url);
+
+  assert.equal(vm.runInContext("activeAdminRoleMode", context), "global_admin");
+  assert.equal(vm.runInContext("primaryRoleForUser(currentUser)", context), "global_admin");
+  assert.equal(vm.runInContext("currentUser.roles[0].role_id", context), "global_admin");
+  assert.match(workspaceRoot.innerHTML, /data-primary-role="global_admin"/);
+  assert.match(workspaceRoot.innerHTML, /data-admin-role-mode-target="global_admin" aria-pressed="true"/);
+  assert.ok(globalModeRequests.some((url) => url.startsWith("/api/admin/dashboard")), "Global Admin mode restores global data loaders");
+  assert.equal(workspaceRouteUrl(window).searchParams.get("adminRoleMode"), null, "default Global Admin mode keeps the route clean");
+});
+
+test("admin working mode restores safely and remains unavailable to non-global accounts", async () => {
+  const restored = await createWorkspaceContextWithFetch(profileRoutesForRole("global_admin"), {
+    url: "https://workspace.example/workspace.html?mode=admin&section=overview&adminRoleMode=site_admin&siteId=site-desert-valley-high",
+  });
+  assert.equal(vm.runInContext("activeAdminRoleMode", restored.context), "site_admin");
+  assert.equal(vm.runInContext("primaryRoleForUser(currentUser)", restored.context), "site_admin");
+  assert.match(restored.workspaceRoot.innerHTML, /data-admin-role-mode="site_admin"/);
+  assert.ok(restored.fetchRequests.every((request) => !request.url.startsWith("/api/admin/")), "restored Site Admin mode skips global endpoints");
+
+  const siteAdmin = await createWorkspaceContextWithFetch(profileRoutesForRole("site_admin"), {
+    url: "https://workspace.example/workspace.html?mode=admin&section=overview&adminRoleMode=site_admin&siteId=site-desert-valley-high",
+  });
+  assert.equal(vm.runInContext("activeAdminRoleMode", siteAdmin.context), "global_admin", "URL state cannot grant the switcher to Site Admin");
+  assert.equal(vm.runInContext("primaryRoleForUser(currentUser)", siteAdmin.context), "site_admin");
+  assert.doesNotMatch(siteAdmin.workspaceRoot.innerHTML, /data-admin-role-switcher="true"/);
+
+  await vm.runInContext('switchAdminRoleMode({ dataset: { adminRoleModeTarget: "site_admin" } })', siteAdmin.context);
+  assert.equal(vm.runInContext("activeAdminRoleMode", siteAdmin.context), "global_admin");
+  assert.equal(vm.runInContext("currentUser.roles[0].role_id", siteAdmin.context), "site_admin");
+  assert.doesNotMatch(siteAdmin.workspaceRoot.innerHTML, /data-admin-role-switcher="true"/);
 });
 
 test("People management screens stay limited to Global Admin, Site Admin, and Administration", async () => {

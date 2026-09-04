@@ -1282,6 +1282,49 @@ const DARK_THEME_ROLE_PLAN = [
 ];
 
 SCREENSHOT_PLAN.push(...DARK_THEME_ROLE_PLAN);
+const ADMIN_ROLE_MODE_PLAN = [
+  {
+    id: "admin-role-global-switcher-desktop",
+    label: "Global Admin working mode selector",
+    persona: "Global Admin choosing an access view",
+    authRole: "admin",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?mode=admin&section=overview&siteId=site-desert-valley-high"),
+    viewport: { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Global Admin", "Work as", "All schools and platform controls", "Desert Valley High School only", "Changing this view never changes your account assignment"],
+    action: "openAdminRoleSwitcher",
+    proves: "The compact Global Admin control opens a readable, explicit choice between global and selected-school access views.",
+  },
+  {
+    id: "admin-role-site-mode-half-screen",
+    label: "Global Admin using Site Admin mode",
+    persona: "Global Admin working as Site Admin at half-screen width",
+    authRole: "admin",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?mode=admin&section=overview&siteId=site-desert-valley-high"),
+    viewport: { width: 820, height: 900, deviceScaleFactor: 1, mobile: false },
+    expected: ["Site Admin", "Work as", "All schools and platform controls", "Desert Valley High School only"],
+    actions: ["switchToSiteAdmin", "openAdminRoleSwitcher"],
+    auditKeyboard: false,
+    proves: "Site Admin mode stays readable at half-screen width and removes global-only navigation while keeping the selected school visible.",
+  },
+  {
+    id: "admin-role-global-switcher-phone",
+    label: "Global Admin working mode selector on phone",
+    persona: "Global Admin choosing an access view on a narrow phone",
+    authRole: "admin",
+    accountType: "Fake .test demo staff account",
+    url: workspaceUrl("?mode=admin&section=overview&siteId=site-desert-valley-high"),
+    viewport: { width: 320, height: 720, deviceScaleFactor: 2, mobile: true },
+    expected: ["Global Admin", "Work as", "All schools and platform controls", "Desert Valley High School only"],
+    action: "openAdminRoleSwitcher",
+    auditKeyboard: false,
+    proves: "The Global Admin and Site Admin choices remain fully visible, readable, and touch-sized on a narrow phone.",
+  },
+];
+if (String(process.env.WORKSPACE_UI_POLISH_IDS || "").includes("admin-role-")) {
+  SCREENSHOT_PLAN.push(...ADMIN_ROLE_MODE_PLAN);
+}
 const PROJECT_STICKY_ROLE_PLAN = [
   ["program-teacher", "program_teacher", "Program Teacher"],
   ["mentor", "mentor", "Mentor"],
@@ -2148,6 +2191,30 @@ async function performSinglePlanAction(client, action) {
     await sleep(500);
     return;
   }
+  if (action === "openAdminRoleSwitcher") {
+    const opened = await client.evaluate(`(() => {
+      const switcher = document.querySelector("[data-admin-role-switcher='true']");
+      if (!switcher) return false;
+      switcher.setAttribute("open", "");
+      return switcher.open === true;
+    })()`);
+    if (!opened) throw new Error("Could not open the admin working mode selector.");
+    await sleep(500);
+    return;
+  }
+  if (action === "switchToSiteAdmin") {
+    await client.evaluate(`(() => {
+      const switcher = document.querySelector("[data-admin-role-switcher='true']");
+      if (switcher) switcher.setAttribute("open", "");
+      const option = document.querySelector("[data-admin-role-mode-target='site_admin']");
+      if (!option) return false;
+      option.click();
+      return true;
+    })()`);
+    await waitForSelectorState(client, "[data-admin-role-mode='site_admin'][data-primary-role='site_admin'][aria-busy='false']");
+    await sleep(700);
+    return;
+  }
   if (action === "clickFirstStudentDetail") {
     await clickSelector(client, "[data-site-student-action='view-detail'][data-student-detail-id]", "first student detail action");
     await waitForSelectorState(client, "[data-student-detail-panel='true']");
@@ -2449,6 +2516,7 @@ async function collectPageState(client) {
       ".workspace-v2-brandline > .workspace-brand",
       ".workspace-v2-tools > summary",
       ".workspace-v2-user > .workspace-active-role-badge",
+      ".workspace-v2-user > .workspace-admin-role-switcher > .workspace-active-role-badge",
       ".workspace-v2-user > .workspace-account-menu > .workspace-account-summary",
     ].join(",");
     const topbarControls = Array.from(document.querySelectorAll(topbarControlSelector)).filter(isVisible);
@@ -2491,7 +2559,7 @@ async function collectPageState(client) {
         }
       }
     }
-    for (const panel of document.querySelectorAll(".workspace-v2-tools[open] > .workspace-v2-tools-panel, .workspace-account-menu[open] > .workspace-topbar-actions")) {
+    for (const panel of document.querySelectorAll(".workspace-v2-tools[open] > .workspace-v2-tools-panel, .workspace-account-menu[open] > .workspace-topbar-actions, .workspace-admin-role-switcher[open] > .workspace-admin-role-menu")) {
       if (!isVisible(panel)) continue;
       const rect = panel.getBoundingClientRect();
       const position = getComputedStyle(panel).position;
@@ -2615,6 +2683,7 @@ async function collectPageState(client) {
         })(),
         toolsOpen: Boolean(document.querySelector("[data-workspace-topbar-tools='true'][open]")),
         accountMenuOpen: Boolean(document.querySelector("[data-account-menu='true'][open]")),
+        adminRoleSwitcherOpen: Boolean(document.querySelector("[data-admin-role-switcher='true'][open]")),
       },
       disclosures: {
         total: document.querySelectorAll("details").length,
@@ -2652,6 +2721,9 @@ function checkPage(planItem, pageState) {
   const accountMenuOpenWhenRequested = requestedActions.includes("openAccountMenu")
     ? pageState.markers?.accountMenuOpen === true
     : true;
+  const adminRoleSwitcherOpenWhenRequested = requestedActions.includes("openAdminRoleSwitcher")
+    ? pageState.markers?.adminRoleSwitcherOpen === true
+    : true;
   const allDisclosuresOpenWhenRequested = requestedActions.includes("openAllDisclosures")
     ? Number(pageState.disclosures?.open || 0) === Number(pageState.disclosures?.total || 0)
     : true;
@@ -2672,6 +2744,7 @@ function checkPage(planItem, pageState) {
     drawerOpenWhenRequested,
     toolsOpenWhenRequested,
     accountMenuOpenWhenRequested,
+    adminRoleSwitcherOpenWhenRequested,
     allDisclosuresOpenWhenRequested,
     expectedThemeApplied: pageState.presentation?.theme === expectedTheme,
     expectedSchoolThemeApplied: !expectedSchoolTheme || pageState.presentation?.schoolTheme === expectedSchoolTheme,
@@ -2759,6 +2832,7 @@ function passedChecks(checks) {
     && checks.drawerOpenWhenRequested
     && checks.toolsOpenWhenRequested
     && checks.accountMenuOpenWhenRequested
+    && checks.adminRoleSwitcherOpenWhenRequested
     && checks.allDisclosuresOpenWhenRequested
     && checks.expectedThemeApplied
     && checks.expectedSchoolThemeApplied

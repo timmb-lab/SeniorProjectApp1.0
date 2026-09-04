@@ -1400,14 +1400,16 @@ body[data-page="workspace"] {
 
 .workspace-v2-tools > summary,
 .workspace-account-summary,
-.workspace-active-role-badge {
+.workspace-active-role-badge,
+.workspace-admin-role-menu {
   border-color: var(--ticket-border);
   background: #0b1b2d;
   color: var(--ticket-text);
 }
 
 .workspace-v2-tools-panel,
-.workspace-topbar-actions {
+.workspace-topbar-actions,
+.workspace-admin-role-menu {
   border-color: var(--ticket-border-bright);
   background: #0d1c2e;
   color: var(--ticket-text);

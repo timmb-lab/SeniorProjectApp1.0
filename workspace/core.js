@@ -26,6 +26,7 @@ let currentData = {
 };
 let activeSection = "overview";
 let activeWorkspaceMode = "workspace";
+let activeAdminRoleMode = "global_admin";
 let blockedWorkspaceMode = "";
 let blockedWorkspaceSection = "";
 const workspaceModeLastSections = {
@@ -401,6 +402,7 @@ const WORKSPACE_SECTION_IDS = new Set([
   "security",
 ]);
 const WORKSPACE_MODES = new Set(["workspace", "admin"]);
+const ADMIN_ROLE_MODES = new Set(["global_admin", "site_admin"]);
 const STUDENT_NAV_SECTION_IDS = new Set(["student", "studentWork", "studentFeedback", "studentFinalChecklist"]);
 const STUDENT_PRIMARY_SECTION_IDS = new Set([...STUDENT_NAV_SECTION_IDS, "presentation", "archive"]);
 const STAFF_WORKLIST_FIRST_SECTION_IDS = new Set([
@@ -1567,7 +1569,7 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
     renderBlockedSectionOnly,
   });
   workspaceMain.innerHTML = `
-    <section class="workspace-app workspace-v2-app" data-flow-frame="v2-from-scratch" data-primary-role="${escapeHtml(primaryRole)}" data-app-mode="${escapeHtml(activeWorkspaceMode)}" data-experience="${escapeHtml(experience)}" data-nav-state="${workspaceNavCollapsed ? "collapsed" : "expanded"}" data-view-as-student="${viewingAsStudent ? "active" : "inactive"}" data-workspace-data-state="${workspaceConnectionState.stale ? "stale" : "current"}" aria-busy="${workspaceDataLoading ? "true" : "false"}">
+    <section class="workspace-app workspace-v2-app" data-flow-frame="v2-from-scratch" data-primary-role="${escapeHtml(primaryRole)}" data-admin-role-mode="${escapeHtml(activeAdminRoleMode)}" data-app-mode="${escapeHtml(activeWorkspaceMode)}" data-experience="${escapeHtml(experience)}" data-nav-state="${workspaceNavCollapsed ? "collapsed" : "expanded"}" data-view-as-student="${viewingAsStudent ? "active" : "inactive"}" data-workspace-data-state="${workspaceConnectionState.stale ? "stale" : "current"}" aria-busy="${workspaceDataLoading ? "true" : "false"}">
       <header class="workspace-topbar workspace-v2-topbar" data-topbar-density="compact">
         <div class="workspace-topbar-start workspace-v2-brandline">
           <button class="workspace-menu-toggle workspace-v2-menu-toggle" id="workspaceMenuToggle" type="button" aria-controls="workspaceNavigationRail" aria-expanded="${workspaceNavCollapsed ? "false" : "true"}" aria-pressed="${workspaceNavCollapsed ? "false" : "true"}" aria-label="${workspaceNavCollapsed ? "Open menu" : "Close menu"}">
@@ -1655,6 +1657,9 @@ function renderAppShell(statusMessage = "", tone = "neutral") {
   });
   document.querySelectorAll("[data-workspace-mode-target]").forEach((button) => {
     button.addEventListener("click", () => switchWorkspaceMode(button));
+  });
+  document.querySelectorAll("[data-admin-role-mode-target]").forEach((button) => {
+    button.addEventListener("click", () => switchAdminRoleMode(button));
   });
   document.querySelector("#workspaceRefresh")?.addEventListener("click", () => loadWorkspaceData("Workspace refreshed."));
   document.querySelector("#workspaceLogout")?.addEventListener("click", signOut);
@@ -2803,6 +2808,48 @@ function workspaceNavGroupFor(sectionId = "", options = {}) {
 function renderActiveRoleBadge(primaryRole = primaryRoleForUser(currentUser), options = {}) {
   const identity = roleIdentityFor(primaryRole);
   const readOnly = Boolean(options.readOnly);
+  if (canSwitchAdminRoleMode(currentUser)) {
+    const selectedSite = accessibleSitesForWorkspace().find((site) => site.siteId === selectedSiteQueryValue());
+    const modes = [
+      {
+        id: "global_admin",
+        label: "Global Admin",
+        detail: "All schools and platform controls",
+      },
+      {
+        id: "site_admin",
+        label: "Site Admin",
+        detail: selectedSite?.siteName ? `${selectedSite.siteName} only` : "Selected school only",
+      },
+    ];
+    return `
+      <details class="workspace-admin-role-switcher" data-admin-role-switcher="true">
+        <summary class="workspace-active-role-badge" data-active-role-badge="true" data-role-identity="${escapeHtml(identity.key)}" data-role-read-only="${readOnly ? "true" : "false"}" aria-label="Change working mode. Current mode: ${escapeHtml(identity.label)}${readOnly ? ", read-only" : ""}">
+          <span class="workspace-admin-role-summary-copy">
+            <b>${escapeHtml(identity.label)}</b>
+            <small>${escapeHtml(readOnly ? "Read-only" : "Mode")}</small>
+          </span>
+          <span class="workspace-account-caret" aria-hidden="true"></span>
+        </summary>
+        <div class="workspace-admin-role-menu" role="group" aria-label="Choose admin working mode">
+          <div class="workspace-admin-role-menu-heading">
+            <strong>Work as</strong>
+            <span>Choose the access view you need right now.</span>
+          </div>
+          ${modes.map((mode) => `
+            <button class="workspace-admin-role-option ${activeAdminRoleMode === mode.id ? "is-active" : ""}" type="button" data-admin-role-mode-target="${escapeHtml(mode.id)}" aria-pressed="${activeAdminRoleMode === mode.id ? "true" : "false"}">
+              <span class="workspace-admin-role-option-marker" aria-hidden="true"></span>
+              <span>
+                <b>${escapeHtml(mode.label)}</b>
+                <small>${escapeHtml(mode.detail)}</small>
+              </span>
+            </button>
+          `).join("")}
+          <p>Changing this view never changes your account assignment. The server still checks every action.</p>
+        </div>
+      </details>
+    `;
+  }
   return `
     <span class="workspace-active-role-badge" data-active-role-badge="true" data-role-identity="${escapeHtml(identity.key)}" data-role-read-only="${readOnly ? "true" : "false"}" aria-label="Active role: ${escapeHtml(identity.label)}${readOnly ? ", read-only" : ""}">
       <b>${escapeHtml(identity.label)}</b>
@@ -2820,11 +2867,15 @@ function renderWorkspaceAccountMenu(areaName = workspaceAreaName()) {
         <span class="workspace-account-avatar" aria-hidden="true">${escapeHtml(accountInitials(displayName, email))}</span>
         <span class="workspace-user-text">
           <strong>${escapeHtml(displayName)}</strong>
-          <span>${escapeHtml(email)}</span>
+          <span>Account</span>
         </span>
         <span class="workspace-account-caret" aria-hidden="true"></span>
       </summary>
       <div class="workspace-topbar-actions" aria-label="${escapeHtml(areaName)} account actions">
+        <div class="workspace-account-identity">
+          <strong>${escapeHtml(displayName)}</strong>
+          ${email ? `<span>${escapeHtml(email)}</span>` : ""}
+        </div>
         ${renderWorkspaceThemeButton("account")}
         <button class="workspace-button workspace-button-small" id="workspaceRefresh" type="button">Refresh</button>
         <button class="workspace-button workspace-button-secondary workspace-button-small" id="workspaceLogout" type="button">Sign out</button>
@@ -2900,7 +2951,7 @@ function applyWorkspaceSchoolTheme(siteContext = currentSiteWorkspaceContext()) 
 function workspaceLocationHasRoute() {
   const url = currentWorkspaceUrl();
   if (!url) return false;
-  return Boolean(url.searchParams.get("mode") || url.searchParams.get("section") || url.searchParams.get("view"));
+  return Boolean(url.searchParams.get("mode") || url.searchParams.get("adminRoleMode") || url.searchParams.get("section") || url.searchParams.get("view"));
 }
 
 function resetWorkspaceLandingState() {
@@ -2920,6 +2971,7 @@ function resetWorkspaceLandingState() {
 
 function resetAccountScopedWorkspaceState() {
   lastAdminPasswordResetResult = null;
+  activeAdminRoleMode = "global_admin";
   selectedSiteId = "";
   siteStudentFilters = defaultSiteStudentFilters();
   siteStudentDetailState = defaultSiteStudentDetailState();
@@ -3458,6 +3510,48 @@ function switchWorkspaceMode(button) {
   activeSection = defaultSectionForMode(nextMode);
   syncCurrentWorkspaceUrlState();
   renderAppShell(nextMode === "admin" ? "Admin Console opened." : "Workspace opened.", "success");
+}
+
+async function switchAdminRoleMode(button) {
+  const nextRoleMode = cleanAdminRoleMode(button?.dataset?.adminRoleModeTarget || "");
+  if (!nextRoleMode || nextRoleMode === activeAdminRoleMode) return;
+  if (!canSwitchAdminRoleMode(currentUser)) {
+    activeAdminRoleMode = "global_admin";
+    syncCurrentWorkspaceUrlState({ replace: true });
+    renderAppShell("Admin working modes are available only to Global Admin accounts.", "error");
+    return;
+  }
+
+  const accessibleSites = accessibleSitesForWorkspace();
+  activeAdminRoleMode = nextRoleMode;
+  viewAsStudentState = defaultViewAsStudentState();
+  if (nextRoleMode === "site_admin" && !selectedSiteId && accessibleSites.length === 1) {
+    selectedSiteId = accessibleSites[0].siteId;
+  }
+  siteStudentFilters = defaultSiteStudentFilters();
+  siteStudentDetailState = defaultSiteStudentDetailState();
+  reviewQueueFilters = defaultReviewQueueFilters();
+  reviewQueueState = defaultReviewQueueState();
+  mentorAssignmentFilters = defaultMentorAssignmentFilters();
+  operationsReadinessFilters = defaultOperationsReadinessFilters();
+  activeProjectId = "";
+  managedProjectId = "";
+  clearWorkspaceDataForSiteChange();
+  ensureActiveWorkspaceModeAndSection();
+  syncCurrentWorkspaceUrlState({ clearFilters: true });
+
+  if (workspaceRoleModeNeedsSiteSelection()) {
+    renderAppShell("Site Admin mode opened. Choose a school in Tools to load school-scoped records.", "success");
+    return;
+  }
+  await loadWorkspaceData(nextRoleMode === "site_admin" ? "Site Admin mode opened." : "Global Admin mode opened.");
+}
+
+function workspaceRoleModeNeedsSiteSelection() {
+  return activeAdminRoleMode === "site_admin"
+    && canSwitchAdminRoleMode(currentUser)
+    && accessibleSitesForWorkspace().length > 1
+    && !selectedSiteQueryValue();
 }
 
 function renderAdminConsoleActiveSection() {
